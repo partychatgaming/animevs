@@ -7837,7 +7837,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 o_defend_used = False
                             if o_universe == "Death Note" and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{o_card} says**\nYou will die in 50  turns...",
+                                                        description=f"**{o_card} says**\nYou will die in 60  turns...",
                                                         colour=0xe91e63)
                                 
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled Death 📓")
@@ -7852,13 +7852,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             if mode in co_op_modes:
                                 if c_universe == "Death Note" and turn_total == 0:
                                     embedVar = discord.Embed(title=f"{c_card} Scheduled Death 📓",
-                                                            description=f"**{c_card} says**\nYou will die in 50  turns...",
+                                                            description=f"**{c_card} says**\nYou will die in 60  turns...",
                                                             colour=0xe91e63)
                                     
                                     previous_moves.append(f"(**{turn_total}**) 🩸 {c_card} Scheduled Death 📓")
                             if t_universe == 'Death Note' and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{t_card} says**\nYou will die in 50  turns...",
+                                                        description=f"**{t_card} says**\nYou will die in 60 turns...",
                                                         colour=0xe91e63)
                                 
                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled Death 📓")
@@ -8108,7 +8108,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{o_card}** Increased AP & Stamina 🌀")
                                 
                                 elif o_universe == "Death Note":
-                                    if turn_total >= 50:
+                                    if turn_total >= 60:
                                         embedVar = discord.Embed(title=f"{t_card}'s' Scheduled Death 📓",
                                                                 description=f"**{o_card} says**\n**Delete**",
                                                                 colour=0xe91e63)
@@ -8119,7 +8119,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         
                                         t_health = 0
 
-                                if t_universe == "One Punch Man":
+                                if t_universe == "One Punch Man" and o_universe != "Death Note":
                                     embedVar = discord.Embed(
                                         title=f"Hero Reinforcements! **{o_card}**  Increased Health & Max Health ❤️",
                                         colour=0xe91e63)
@@ -11454,12 +11454,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             #     previous_moves_into_embed = "\n\n".join(previous_moves)
                             if o_universe == "Death Note" and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{o_card} says**\nYou will die in 50  turns...",
+                                                        description=f"**{o_card} says**\nYou will die in 60  turns...",
                                                         colour=0xe91e63)
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled Death 📓")
                             if t_universe == 'Death Note' and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{t_card} says**\nYou will die in 50  turns...",
+                                                        description=f"**{t_card} says**\nYou will die in 60  turns...",
                                                         colour=0xe91e63)
                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled Death 📓")
                             if turn_total == 1 and botActive and mode in B_modes:
@@ -11655,7 +11655,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_stamina = 100
                                     tcard_lvl_ap_buff = tcard_lvl_ap_buff + 30
                                 elif t_universe == "Death Note":
-                                    if turn_total >= 50:
+                                    if turn_total >= 60:
                                         embedVar = discord.Embed(title=f"{o_card}'s' Scheduled Death 📓",
                                                                 description=f"**{t_card} says**\n**Delete**",
                                                                 colour=0xe91e63)
@@ -11663,7 +11663,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 had a heart attack and died")
                                         o_health = 0
 
-                                if o_universe == "One Punch Man":
+                                if o_universe == "One Punch Man" and t_universe != "Death Note":
                                     embedVar = discord.Embed(title=f"Hero Reinforcements! **{t_card}** Increased Health!  ❤️",
                                                             colour=0xe91e63)
                                     previous_moves.append(f"(**{turn_total}**) Hero Reinforcements! **{o_card}** Increased Health!  ❤️")
@@ -16799,7 +16799,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_stamina = 100
                                         ccard_lvl_ap_buff = ccard_lvl_ap_buff + 30
                                     elif c_universe == "Death Note":
-                                        if turn_total >= 50:
+                                        if turn_total >= 60:
                                             embedVar = discord.Embed(title=f"{t_card}'s' Scheduled Death 📓",
                                                                     description=f"**{c_card} says**\n**Delete**",
                                                                     colour=0xe91e63)
@@ -16809,7 +16809,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 had a heart attack and died")
                                             t_health = 0
 
-                                    if t_universe == "One Punch Man":
+                                    if t_universe == "One Punch Man" and c_universe != "Death Note":
                                         embedVar = discord.Embed(
                                             title=f"Hero Reinforcements! **{t_card}**  Increased Health & Max Health ❤️",
                                             colour=0xe91e63)
@@ -20011,7 +20011,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         tcard_lvl_ap_buff = tcard_lvl_ap_buff + 30
 
                                     elif t_universe == "Death Note":
-                                        if turn_total >= 50:
+                                        if turn_total >= 60:
                                             embedVar = discord.Embed(title=f"{o_card}'s' Scheduled Death 📓",
                                                                     description=f"**{t_card} says**\n**Delete**",
                                                                     colour=0xe91e63)
@@ -20021,7 +20021,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 had a heart attack and died")
                                             c_health = 0
 
-                                    if c_universe == "One Punch Man":
+                                    if c_universe == "One Punch Man" and t_universe != "Death Note":
                                         embedVar = discord.Embed(
                                             title=f"Hero Reinforcements! {c_card}  Increased Health & Max Health ❤️",
                                             colour=0xe91e63)
