@@ -1640,6 +1640,7 @@ async def tutorial(self, ctx: SlashContext):
         legendbot = '845672426113466395'
         tutorial_user = await self.bot.fetch_user(tutorialbot)
         opponent = db.queryUser({'DISNAME': str(tutorial_user)})
+        print(opponent)
         oppDID = opponent['DID']
         tutorial = False
         if oppDID == tutorialbot or oppDID == legendbot:
@@ -7419,8 +7420,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 botActive= False
             if mode in PVP_MODES:
                 botActive = False
-                # tutorialbot = '837538366509154407'
-                # legendbot = '845672426113466395'
+                tutorialbot = '837538366509154407'
+                legendbot = '845672426113466395'
                 userID = t_user['DID']
                 if tutorialbot == userID:
                     botActive = True

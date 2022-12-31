@@ -20,7 +20,7 @@ class USER():
     CARD: str = field(default_factory=lambda: "Ochaco Uraraka")
     DECK: list[str] = field(default_factory=lambda: [''])
     ARM: str = field(default_factory=lambda: "Stock")
-    TALISMAN: str = field(default_factory=lambda: 'NULL')
+    TALISMAN: str = field(default_factory=lambda: 'N/A')
     PET: str = field(default_factory=lambda: "Chick")
     MATCHES: list = field(default_factory=lambda: [{'1V1': [0, 0]}, {'2V2': [0, 0]}, {'3V3': [0, 0]}, {'4V4': [0, 0]}, {'5V5': [0, 0]}])
     TOURNAMENT_WINS: int = field(default_factory=lambda: 0)
