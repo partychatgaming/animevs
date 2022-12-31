@@ -4315,6 +4315,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         o_rcard_path = o['RPATH']
 
         o_health = o['HLT'] + ocard_lvl_hlt_buff
+        o_base_health = o_health
         o_max_health = o['HLT'] + ocard_lvl_hlt_buff
         o_stamina = o['STAM']
         o_max_stamina = o['STAM']
@@ -4432,6 +4433,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             c_card_path = c['PATH']
             c_rcard_path = c['RPATH']
             c_health = c['HLT'] + ccard_lvl_hlt_buff
+            c_base_health = c_health
             c_max_health = c['HLT'] + ccard_lvl_hlt_buff
 
             c_stamina = c['STAM']
@@ -4471,7 +4473,6 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_user = player2
             tperformance = t_user['PERFORMANCE']
             t_talisman = t_user['TALISMAN']
-            print(t_talisman)
             tarm = db.queryArm({'ARM': t_user['ARM']})
             tarm_universe = tarm['UNIVERSE']
             tarm_passive = tarm['ABILITIES'][0]
@@ -4526,6 +4527,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_rcard_path = t['RPATH']
 
             t_health = t['HLT'] + tcard_lvl_hlt_buff
+            t_base_health = t_health
             t_max_health = t['HLT'] + tcard_lvl_hlt_buff
             t_stamina = t['STAM']
             t_max_stamina = t['STAM']
@@ -5112,6 +5114,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             'o_stamina': o_stamina,
             'o_max_stamina': o_max_stamina,
             'o_health': o_health,
+            'o_base_health': o_base_health,
+            't_base_health': t_base_health,
             'o_max_health': o_max_health,
             'o_DID': o_DID,
             'o_chainsaw': o_chainsaw,
@@ -5221,6 +5225,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
         if mode in pvp_modes:
             STATS = {
+                'o_base_health': o_base_health,
+                't_base_health': t_base_health,
                 't_talisman': t_talisman,
                 'o_talisman': o_talisman,
                 'o_card_passive_type': o_card_passive_type,
@@ -5367,6 +5373,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             }
         if mode == "RAID":
             STATS = {
+                'o_base_health': o_base_health,
+                'o_base_health': t_base_health,
                 't_talisman': t_talisman,
                 'o_talisman': o_talisman,
                 'o_card_passive_type': o_card_passive_type,
@@ -5513,6 +5521,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             }
         if mode == "Boss":
             STATS = {
+                'o_base_health': o_base_health,
+                't_base_health': t_base_health,
                 't_talisman': t_talisman,
                 'o_talisman': o_talisman,
                 'o_card_passive_type': o_card_passive_type,
@@ -5668,6 +5678,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             }
         if mode == "CBoss":
             STATS = {
+                'o_base_health': o_base_health,
+                't_base_health': t_base_health,
+                'c_base_health': c_base_health,
                 't_talisman': t_talisman,
                 'o_talisman': o_talisman,
                 'c_talisman': c_talisman,
@@ -5895,6 +5908,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             }
         if mode in co_op_modes and mode != "CBoss":
             STATS = {
+                'o_base_health': o_base_health,
+                't_base_health': t_base_health,
+                'c_base_health': c_base_health,
                 't_talisman': t_talisman,
                 'o_talisman': o_talisman,
                 'c_talisman': c_talisman,
@@ -6912,6 +6928,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             o_stamina = stats['o_stamina']
             o_max_stamina = stats['o_max_stamina']
             o_health = stats['o_health']
+            o_base_health = stats['o_base_health']
             o_max_health = stats['o_max_health']
             o_DID = stats['o_DID']
             o_chainsaw = stats['o_chainsaw']
@@ -7013,6 +7030,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 t_stamina = stats['t_stamina']
                 t_max_stamina = stats['t_max_stamina']
                 t_health = stats['t_health']
+                t_base_health = stats['t_base_health']
                 t_max_health = stats['t_max_health']
                 t_DID = stats['t_DID']
                 t_chainsaw = stats['t_chainsaw']
@@ -7098,6 +7116,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 t_attack = stats['t_attack'] + corruption_atk_buff
                 t_defense = stats['t_defense'] + corruption_def_buff
                 t_health = stats['t_health'] + corruption_hlt_buff
+                t_base_health = stats['t_base_health'] + corruption_hlt_buff
                 t_max_health = stats['t_max_health'] + corruption_hlt_buff
                 t_chainsaw = stats['t_chainsaw']
                 t_atk_chainsaw = stats['t_atk_chainsaw']
@@ -7201,6 +7220,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 c_stamina = stats['c_stamina']
                 c_max_stamina = stats['c_max_stamina']
                 c_health = stats['c_health']
+                c_base_health = stats['c_base_health']
                 c_max_health = stats['c_max_health']
                 c_DID = stats['c_DID']
                 c_chainsaw = stats['c_chainsaw']
@@ -7848,17 +7868,17 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         description=f"{o_card} gains **{t_health * .40}** Health",
                                                         colour=0xe91e63)
                                 
-                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP {t_health * .40}**")
-                                o_health = o_health + (t_health * .40)
-                                o_max_health = o_max_health + (t_health *.40)
+                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP {round(t_base_health * .40)}**")
+                                o_health = ruond(o_health + (t_base_health * .40))
+                                o_max_health = round(o_max_health + (t_base_health *.40))
                             if t_universe == "Demon Slayer":
                                 embedVar = discord.Embed(title=f"{t_card} Total Concentration Breathing",
                                                         description=f"{t_card} gains **{o_health * .40}** Health",
                                                         colour=0xe91e63)
                                 
-                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP {o_health * .40}**")
-                                t_health = t_health + (o_health * .40)
-                                t_max_health = t_max_health + (o_health *.40)
+                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP {round(o_base_health * .40)}**")
+                                t_health = round(t_health + (o_base_health * .40))
+                                t_max_health = round(t_max_health + (o_base_health *.40))
                             if o_universe == "Death Note" and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{o_card} says**\nYou will die in 60  turns...",
@@ -7882,12 +7902,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     previous_moves.append(f"(**{turn_total}**) 🩸 {c_card} Scheduled Death 📓")
                                 if c_universe == "Demon Slayer":
                                     embedVar = discord.Embed(title=f"{c_card} Total Concentration Breathing",
-                                                            description=f"{c_card} gains **{c_health * .40}** Health",
+                                                            description=f"{c_card} gains **{round(t_base_health * .40)}** Health",
                                                             colour=0xe91e63)
                                     
-                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Total Concentration Breathing: **Increased HP {t_health * .40}**")
-                                    c_health = c_health + (t_health * .40)
-                                    c_max_health = c_max_health + (t_health *.40)
+                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Total Concentration Breathing: **Increased HP {round(t_base_health * .40)}**")
+                                    c_health = round(c_health + (t_base_health * .40))
+                                    c_max_health = round(c_max_health + (t_base_health *.40))
                             if t_universe == 'Death Note' and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{t_card} says**\nYou will die in 60 turns...",
