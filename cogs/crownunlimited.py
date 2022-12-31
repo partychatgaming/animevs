@@ -1638,7 +1638,7 @@ async def tutorial(self, ctx: SlashContext):
         # Tutorial Code
         tutorialbot = '837538366509154407'
         legendbot = '845672426113466395'
-        tutorial_user = await self.bot.fetch_user(tutorialbot)
+        tutorial_user = await self.bot.fetch_user(legendbot)
         opponent = db.queryUser({'DISNAME': str(tutorial_user)})
         print(opponent)
         oppDID = opponent['DID']
