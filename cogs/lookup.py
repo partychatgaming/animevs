@@ -1,0 +1,919 @@
+import discord
+from discord.embeds import Embed
+from discord.ext import commands
+import bot as main
+import crown_utilities
+import db
+import classes as data
+import messages as m
+import numpy as np
+import help_commands as h
+# Converters
+from discord import User
+from discord import Member
+from PIL import Image, ImageFont, ImageDraw
+import requests
+from collections import ChainMap
+import DiscordUtils
+import textwrap
+from collections import Counter
+from discord_slash import cog_ext, SlashContext
+from dinteractions_Paginator import Paginator
+from discord_slash import SlashCommand
+from discord_slash.utils import manage_components
+from discord_slash.model import ButtonStyle
+
+
+
+emojis = ['👍', '👎']
+
+class Lookup(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print('Lookup Cog is ready!')
+
+    async def cog_check(self, ctx):
+        return await main.validate_user(ctx)
+
+    
+    @cog_ext.cog_slash(description="Lookup player stats", guild_ids=main.guild_ids)
+    async def player(self, ctx, player = None):
+        await ctx.defer()
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
+
+        try:
+            if player:
+                player = player.replace("<","")
+                player = player.replace(">","")
+                player = player.replace("@","")
+                player = player.replace("!","")
+                # print(player)
+                # print(str(ctx.author.id))
+            else:
+                player = ctx.author.id
+            query = {'DID': str(player)}
+            d = db.queryUser(query)
+            m = db.queryManyMatchesPerPlayer({'PLAYER': d['DISNAME']})
+            v = db.queryVault({'DID': str(player)})
+            if d:
+                balance = v['BALANCE']
+                if balance >= 150000:
+                    bal_icon = ":money_with_wings:"
+                elif balance >= 100000:
+                    bal_icon = ":moneybag:"
+                elif balance >= 50000 or balance <= 49999:
+                    bal_icon = ":dollar:"
+
+                bal_message = f"{bal_icon}{'{:,}'.format(balance)}"
+
+                all_cards = len(v['CARDS'])
+                all_titles = len(v['TITLES'])
+                all_arms = len(v['ARMS'])
+                all_pets = len(v['PETS'])
+
+                name = d['DISNAME'].split("#",1)[0]
+                difficulty = d['DIFFICULTY']
+                games = d['GAMES']
+                abyss_level = d['LEVEL']
+                card = d['CARD']
+                ign = d['IGN']
+                team = d['TEAM']
+                guild = d['GUILD']
+                if team != "PCG":
+                    team_info = db.queryTeam({'TEAM_NAME' : str(team.lower())})
+                    guild = team_info['GUILD']
+                family = d['FAMILY']
+                titles = d['TITLE']
+                arm = d['ARM']
+                battle_history = d['BATTLE_HISTORY']
+                avatar = d['AVATAR']
+                matches = d['MATCHES']
+                tournament_wins = d['TOURNAMENT_WINS']
+                crown_tales = d['CROWN_TALES']
+                dungeons = d['DUNGEONS']
+                bosses = d['BOSS_WINS']
+                pet = d['PET']
+                rebirth = d['REBIRTH']
+                icon = ':triangular_flag_on_post:'
+                if rebirth == 0:
+                    icon = ':triangular_flag_on_post:'
+                elif rebirth == 1:
+                    icon = ':heart_on_fire:'
+                elif rebirth == 2:
+                    icon = ':heart_on_fire::heart_on_fire:'
+                elif rebirth == 3:
+                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire:'
+                elif rebirth == 4:
+                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire:'
+                elif rebirth == 5:
+                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire:'
+
+                talisman = d['TALISMAN']
+                talisman_message = "No Talisman Equipped"
+                if talisman == "NULL":
+                    talisman_message = "No Talisman Equipped"
+                else:
+                    for t in v["TALISMANS"]:
+                        if t["TYPE"].upper() == talisman.upper():
+                            talisman_emoji = crown_utilities.set_emoji(talisman.upper())
+                            talisman_durability = t["DUR"]
+                    talisman_message = f"📿| **{talisman_emoji} {talisman.title()}** ⚒️ {talisman_durability}"
+
+                pvp_matches = []
+                boss_matches = []
+                dungeon_matches = []
+                tales_matches = []
+                most_played_card = []
+                most_played_card_message = "_No Data For Analysis_"
+                match_history_message = ""
+
+                wlmatches = list(d['MATCHES'][0].values())[0]
+                wins = wlmatches[0]
+                losses = wlmatches[1]
+                if m:
+                    for match in m:
+                        most_played_card.append(match['CARD'])
+                        if match['UNIVERSE_TYPE'] == "Tales":
+                            tales_matches.append(match)
+                        elif match['UNIVERSE_TYPE'] == "Dungeon":
+                            dungeon_matches.append(match)
+                        elif match['UNIVERSE_TYPE'] == "Boss":
+                            boss_matches.append(match)
+                        elif match['UNIVERSE_TYPE'] == "PVP":
+                            pvp_matches.append(match)
+
+                    card_main = most_frequent(most_played_card)
+
+                    if not most_played_card:
+                        most_played_card_message = "_No Data For Analysis_"
+                    else:
+                        most_played_card_message = f"**Most Played Card: **{card_main}"
+                        match_history_message = f"""
+                        **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
+                        **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
+                        **Bosses Played: **{'{:,}'.format(len(boss_matches))}
+                        **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
+                        """
+
+                crown_list = []
+                for crown in crown_tales:
+                    if crown != "":
+                        crown_list.append(crown)
+                
+                dungeon_list = []
+                for dungeon in dungeons:
+                    if dungeon != "":
+                        dungeon_list.append(dungeon)
+
+                boss_list =[]
+                for boss in bosses:
+                    if boss != "":
+                        boss_list.append(boss)
+
+                matches_to_string = dict(ChainMap(*matches))
+                ign_to_string = dict(ChainMap(*ign))
+
+
+
+                embed1 = discord.Embed(title= f"{icon} | " + f"{name}".format(self), description=textwrap.dedent(f"""\
+                :new_moon: | **Abyss Rank**: {abyss_level}
+                :flower_playing_cards: | **Card:** {card}
+                :reminder_ribbon:** | Title: **{titles}
+                :mechanical_arm: | **Arm: **{arm}
+                🧬 | **Summon: **{pet}
+                {talisman_message}
+
+                :military_medal: | {most_played_card_message}
+                **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
+                **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
+                **Bosses Played: **{'{:,}'.format(len(boss_matches))}
+                **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
+                
+                **Balance** {bal_message}
+                :flower_playing_cards: **Cards** {all_cards}
+                :reminder_ribbon: **Titles** {all_titles}
+                :mechanical_arm: **Arms** {all_arms}
+                🧬 **Summons** {all_pets}
+                
+                :flags: | **Association: **{guild}
+                :military_helmet: | **Guild: **{team} 
+                :family_mwgb: | **Family: **{family}
+                
+                ⚙️ **Battle History Setting** {str(battle_history)} messages
+                ⚙️ **Difficulty** {difficulty.lower().capitalize()}
+                """), colour=000000)
+                embed1.set_thumbnail(url=avatar)
+                # embed1.add_field(name="Team" + " :military_helmet:", value=team)
+                # embed1.add_field(name="Family" + " :family_mwgb:", value=family)
+                # embed1.add_field(name="Card" + " ::flower_playing_cards: :", value=' '.join(str(x) for x in titles))
+                # embed1.add_field(name="Title" + " :crown:", value=' '.join(str(x) for x in titles))
+                # embed1.add_field(name="Arm" + " :mechanical_arm: ", value=f"{arm}")
+                # embed1.add_field(name="Pet" + " :dog:  ", value=f"{pet}")
+                # embed1.add_field(name="Tournament Wins" + " :fireworks:", value=tournament_wins)
+
+                if crown_list:
+                    embed4 = discord.Embed(title= f"{icon} | " + f"{name}".format(self), description=":bank: | Party Chat Gaming Database™️", colour=000000)
+                    embed4.set_thumbnail(url=avatar)
+                    embed4.add_field(name="Completed Tales" + " :medal:", value="\n".join(crown_list))
+                    if dungeon_list:
+                        embed4.add_field(name="Completed Dungeons" + " :fire: ", value="\n".join(dungeon_list))
+                        if boss_list:
+                            embed4.add_field(name="Boss Souls" + ":japanese_ogre:",value="\n".join(boss_list))
+                        else:
+                            embed4.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
+                    else:
+                        embed4.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")
+                else:
+                    embed4 = discord.Embed(title= f"{icon} " + f"{name}".format(self), description=":bank: Party Chat Gaming Database™️", colour=000000)
+                    embed4.set_thumbnail(url=avatar)
+                    embed4.add_field(name="Completed Tales" + " :medal:", value="No completed Tales, yet!")
+                    embed4.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")
+                    embed4.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
+
+                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+                paginator.add_reaction('⏮️', "first")
+                paginator.add_reaction('⬅️', "back")
+                paginator.add_reaction('🔐', "lock")
+                paginator.add_reaction('➡️', "next")
+                paginator.add_reaction('⏭️', "last")
+                embeds = [embed1, embed4 ]
+                await paginator.run(embeds)
+            else:
+                await ctx.send(m.USER_NOT_REGISTERED)
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send("There's an issue with your lookup command. Check with support.")
+            return
+
+    
+    @cog_ext.cog_slash(description="Lookup Guild stats", guild_ids=main.guild_ids)
+    async def guild(self, ctx, guild = None):
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
+
+        try:
+            if guild:
+                team_name = guild.lower()
+                team_query = {'TEAM_NAME': team_name}
+                team = db.queryTeam(team_query)
+                team_display_name = team['TEAM_DISPLAY_NAME']
+                if team:
+                    team_name = team['TEAM_NAME']
+                    team_display_name = team['TEAM_DISPLAY_NAME']
+                else:
+                    await ctx.send("Guild does not exist")
+                    return
+            else:
+                user = db.queryUser({'DID': str(ctx.author.id)})
+                team = db.queryTeam({'TEAM_NAME': user['TEAM'].lower()})
+                if team:
+                    team_name = team['TEAM_NAME']
+                    team_display_name = team['TEAM_DISPLAY_NAME']
+                else:
+                    await ctx.send("You are not a part of a Guild.")
+                    return
+
+            if team:
+                is_owner = False
+                is_officer = False
+                is_captain = False
+                is_member = False
+                user = db.queryUser({'DID': str(ctx.author.id)})
+
+                owner = team['OWNER']
+                shielding = team['SHIELDING']
+                owner_data = db.queryUser({'DISNAME': owner})
+                owner_object = await self.bot.fetch_user(owner_data['DID'])
+                officers = team['OFFICERS']
+                captains = team['CAPTAINS']
+                members = team['MEMBERS']
+                member_count = len(members)
+                formatted_list_of_members = []
+                formatted_list_of_officers = []
+                formatted_list_of_captains = []
+                formatted_owner = ""
+                for member in members:
+                    index = members.index(member)
+                    if user['DISNAME'] == member:
+                        is_member = True
+
+                    if member in officers:
+                        formatted_name = f"🅾️ [{str(index)}] **{member}**"
+                        formatted_list_of_officers.append(formatted_name)
+                    elif member in captains:
+                        formatted_name = f"🇨 [{str(index)}] **{member}**"
+                        formatted_list_of_captains.append(formatted_name)
+                    elif member == owner:
+                        formatted_name = f"👑 [{str(index)}] **{member}**"
+                        formatted_owner = formatted_name
+                    elif member not in officers and member not in captains and member != owner:
+                        formatted_name = f"🔰 [{str(index)}] **{member}**"
+                        formatted_list_of_members.append(formatted_name)
+
+                members_list_joined = ", ".join(formatted_list_of_members)
+                captains_list_joined = ", ".join(formatted_list_of_captains)
+                officers_list_joined = ", ".join(formatted_list_of_officers)
+                if user['DISNAME'] in officers:
+                    is_officer = True
+                elif user['DISNAME'] in captains:
+                    is_captain = True
+                elif user['DISNAME'] == owner:
+                    is_owner = True
+                elif user['DISNAME'] in  members:
+                    is_member = True
+
+                transactions = team['TRANSACTIONS']
+                transactions_embed = ""
+                if transactions:
+                    transactions_len = len(transactions)
+                    if transactions_len >= 10:
+                        transactions = transactions[-10:]
+                        transactions_embed = "\n".join(transactions)
+                    else:
+                        transactions_embed = "\n".join(transactions)
+                
+                storage = team['STORAGE']
+                balance = team['BANK']
+
+                guild_buff_available = team['GUILD_BUFF_AVAILABLE']
+                guild_buff_on = team['GUILD_BUFF_ON']
+                gbon_status = ""
+                if guild_buff_on:
+                    gbon_status ="🟢"
+                else:
+                    gbon_status ="🔴"
+                guild_buffs = team['GUILD_BUFFS']
+                active_guild_buff = team['ACTIVE_GUILD_BUFF']
+                active_guild_buff_use_cases = ""
+                guild_buff_message = ""
+                guild_buff_message_active = "No Active Guild Buff"
+                if guild_buff_available:
+                    guild_buff_message = "Guild Buff Available"
+                    if active_guild_buff:
+                        for buff in guild_buffs:
+                            if buff['TYPE'] == active_guild_buff:
+                                active_guild_buff_use_cases = str(buff['USES'])
+                        guild_buff_message_active = f"{gbon_status} {active_guild_buff} Buff: {active_guild_buff_use_cases} uses left!"
+
+                else:
+                    guild_buff_message = "No Guild Buff Available"
+                
+                association = team['GUILD']
+                
+                association_msg = f"{association}"
+                
+                if shielding:
+                    association_msg= f":shield: {association}"
+
+                tournament_wins = team['TOURNAMENT_WINS']
+                wins = team['WINS']
+                losses = team['LOSSES']
+                in_war = team['WAR_FLAG']
+                war_opponent = team['WAR_OPPONENT']
+                war_wins = team['WAR_WINS']
+                war_message = ""
+                if in_war:
+                    war_message = "Guild in War"
+                else:
+                    war_message = "No Guild War"
+                
+
+
+                guild_mission = team['GUILD_MISSION']
+                completed_missions = team['COMPLETED_MISSIONS']
+                guild_mission_message = ""
+                if guild_mission:
+                    guild_mission_message = "Guild Mission Active"
+                else:
+                    guild_mission_message = "No Active Guild Mission"
+
+
+                icon = "💳"
+                guild = team['GUILD']
+
+
+                first_page = discord.Embed(title=f"{team_display_name}", description=textwrap.dedent(f"""
+                👑 **Owner** 
+                {formatted_owner}
+
+                🅾️ **Officers**
+                {officers_list_joined}
+
+                🇨 **Captains**
+                {captains_list_joined}
+                
+                **Guild Membership Count** 
+                {member_count}
+
+                **Association**
+                {association_msg}
+
+                **Guild Buff**
+                {guild_buff_message}
+
+                **Active Buff**
+                {guild_buff_message_active}
+
+                **Bank** 
+                {icon} {'{:,}'.format(balance)}
+                """), colour=0x7289da)
+                # first_page.set_footer(text=f"")
+                
+                membership_pages = discord.Embed(title=f"Members", description=textwrap.dedent(f"""
+                🔰 **Members**
+                {members_list_joined}
+               
+                """), colour=0x7289da)
+
+                
+                guild_mission_embed = discord.Embed(title=f"Guild Missions", description=textwrap.dedent(f"""
+                **Guild Mission**
+                {guild_mission_message}
+
+                **Completed Guild Missions**
+                {str(completed_missions)}
+               
+                """), colour=0x7289da)
+
+
+                war_embed = discord.Embed(title=f"Guild War", description=textwrap.dedent(f"""
+                **War**
+                {war_message}
+
+                **Wars Won**
+                {str(war_wins)}
+
+               
+                """), colour=0x7289da)
+
+                guild_explanations = discord.Embed(title=f"Information", description=textwrap.dedent(f"""
+                **Buff Explanations**
+                - **Quest Buff**: Start Quest from the required fight in the Tale, not for dungeons
+                - **Level Buff**: Each fight will grant you a level up
+                - **Stat Buff**: Add 50 ATK & DEF, 30 AP, and 100 HLT
+                - **Rift Buff**: Rifts will always be available
+
+                **Guild Position Explanations**
+                - **Owner**:  All operations
+                - **Officer**:  Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
+                - **Captain**:  Can Toggly Buffs, Pay members
+                - **Member**:  No operations
+                """), colour=0x7289da)
+
+
+
+                activity_page = discord.Embed(title="Recent Guild Activity", description=textwrap.dedent(f"""
+                {transactions_embed}
+                """), colour=0x7289da)
+
+                embed_list = [first_page, membership_pages, guild_mission_embed, war_embed, activity_page, guild_explanations]
+
+                buttons = []
+
+                if not is_member:
+                    buttons.append(
+                        manage_components.create_button(style=3, label="Apply", custom_id="guild_apply")
+                    )
+                
+                if is_owner:
+                    buttons = [
+                        manage_components.create_button(style=3, label="Buff Toggle", custom_id="guild_buff_toggle"),
+                        manage_components.create_button(style=3, label="Buff Swap", custom_id="guild_buff_swap"),
+                        manage_components.create_button(style=3, label="Buff Shop", custom_id="guild_buff_shop"),
+                    ]
+
+                elif is_officer:
+                    buttons = [
+                        manage_components.create_button(style=3, label="Buff Toggle", custom_id="guild_buff_toggle"),
+                        manage_components.create_button(style=3, label="Buff Swap", custom_id="guild_buff_swap"),
+                        manage_components.create_button(style=3, label="Buff Shop", custom_id="guild_buff_shop"),
+                    ]
+
+                elif is_captain:
+                    buttons = [
+                        manage_components.create_button(style=3, label="Buff Toggle", custom_id="guild_buff_toggle"),
+                    ]
+
+                elif is_member and not is_owner and not is_captain and not is_officer:
+                    buttons = [
+                        manage_components.create_button(style=2, label="Close", custom_id="Q")
+                    ]
+
+
+                custom_action_row = manage_components.create_actionrow(*buttons)
+
+
+                async def custom_function(self, button_ctx):
+                    if button_ctx.author == ctx.author:
+                        if button_ctx.custom_id == "guild_apply":
+                            await button_ctx.defer(ignore=True)
+                            await apply(self, ctx, owner_object)
+                            self.stop = True
+                            return
+                        elif button_ctx.custom_id == "Q":
+                            self.stop = True
+                            return
+                        elif button_ctx.custom_id == "guild_buff_toggle":
+                            if guild_buff_available:
+                                response = guild_buff_toggle(user, team)
+                                if response:
+                                    await button_ctx.send(f"{response['MSG']}")
+                                else:
+                                    await button_ctx.send("Error in toggling buff. Please seek support https://discord.gg/yWAD5HkDXU")
+                                self.stop = True
+                            else:
+                                await button_ctx.send(f"No Active Guild Buff.")
+                        
+                        elif button_ctx.custom_id == "guild_buff_swap":
+                            if guild_buff_available:
+                                await button_ctx.defer(ignore=True)
+                                await main.buffswap(ctx, user, team)
+                                self.stop = True
+                            else:
+                                await button_ctx.send(f"No Active Guild Buff.")
+
+                        elif button_ctx.custom_id == "guild_buff_shop":
+                            await button_ctx.defer(ignore=True)
+                            await main.buffshop(ctx, user, team)
+                            self.stop = True
+                        self.stop = True
+                    else:
+                        await button_ctx.send("World Hello")
+                        self.stop = True
+
+
+                await Paginator(bot=self.bot, useQuitButton=True, disableAfterTimeout=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
+                    custom_action_row,
+                    custom_function,
+                ]).run()
+                
+            else:
+                await ctx.send(m.TEAM_DOESNT_EXIST)
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+    
+    
+    @cog_ext.cog_slash(description="Lookup Association", guild_ids=main.guild_ids)
+    async def association(self, ctx, association = None):
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
+
+        try:
+            if association:   
+                guild_name = association
+                guild_query = {'GNAME': guild_name}
+                guild = db.queryGuildAlt(guild_query)
+                founder_name = ""
+                if guild:
+                    guild_name = guild['GNAME']
+                else:
+                    await ctx.send("Association does not exist.")
+                    return
+            else:
+                user = db.queryUser({'DID': str(ctx.author.id)})
+                team = db.queryTeam({'TEAM_NAME': user['TEAM'].lower()})
+                guild = db.queryGuildAlt({'GNAME': team['GUILD']})
+                if guild:
+                    guild_name = guild['GNAME']
+                else:
+                    await ctx.send("Your Guild is not Associated.")
+                    return
+                
+            if guild:
+                hall = db.queryHall({'HALL' : guild['HALL']})
+                hall_name = hall['HALL']
+                hall_multipler = hall['MULT']
+                hall_split = hall['SPLIT']
+                hall_fee = hall['FEE']
+                hall_def = hall['DEFENSE']
+                hall_img = hall['PATH']
+                guild_name = guild['GNAME']
+                founder_name = guild['FOUNDER']
+                sworn_name = guild['SWORN']
+                shield_name = guild['SHIELD']
+                shield_info = db.queryUser({'DISNAME' : str(shield_name)})
+                shield_card = shield_info['CARD']
+                shield_arm = shield_info['ARM']
+                shield_title = shield_info['TITLE']
+                shield_rebirth = shield_info['REBIRTH']
+                streak = guild['STREAK']
+                # games = guild['GAMES']
+                # avatar = game['IMAGE_URL']
+                crest = guild['CREST']
+                balance = guild['BANK']
+                bounty = guild['BOUNTY']
+                bonus = int((streak/100) * bounty)
+                picon = ":shield:"
+                sicon = ":beginner:"
+                icon = ":coin:"
+                if balance >= 50000000:
+                    icon = ":money_with_wings:"
+                elif balance >=25000000:
+                    icon = ":moneybag:"
+                elif balance >= 5000000:
+                    icon = ":dollar:"
+                    
+                if streak >= 100:
+                    sicon = ":skull_crossbones:"     
+                elif streak >= 50:
+                    sicon = ":skull:"
+                elif streak >=25:
+                    sicon = ":ghost:"
+                elif streak >= 10:
+                    sicon = ":diamond_shape_with_a_dot_inside:"
+                    
+                # if shield_rebirth > 0:
+                #     picon = "::heart_on_fire::"
+                
+
+                sword_list = []
+                sword_count = 0
+                blade_count = 0
+                for swords in guild['SWORDS']:
+                    blade_count = 0
+                    sword_count = sword_count + 1
+                    sword_team = db.queryTeam({'TEAM_NAME': swords})
+                    dubs = sword_team['WINS']
+                    els = sword_team['LOSSES']
+                    for blades in sword_team['MEMBERS']:
+                        blade_count = blade_count + 1
+                    sword_bank = sword_team['BANK']
+                    sword_list.append(f"~ {swords} ~ W**{dubs}** / L**{els}**\n:man_detective: | **Owner: **{sword_team['OWNER']}\n:coin: | **Bank: **{'{:,}'.format(sword_bank)}\n:knife: | **Members: **{blade_count}\n_______________________")
+                crest_list = []
+                for c in crest:
+                    crest_list.append(f"{crown_utilities.crest_dict[c]} | {c}")
+
+
+
+
+                # embed1 = discord.Embed(title=f":flags: {guild_name} Guild Card - {icon}{'{:,}'.format(balance)}".format(self), description=":bank: Party Chat Gaming Database", colour=000000)
+                # if guild['LOGO_FLAG']:
+                #     embed1.set_image(url=logo)
+                # embed1.add_field(name="Founder :dolls:", value= founder_name.split("#",1)[0], inline=True)
+                # embed1.add_field(name="Sworn :dolls:", value= sworn_name.split("#",1)[0], inline=True)
+                embed1 = discord.Embed(title= f":flags: |{guild_name} Association Card - {icon} {'{:,}'.format(balance)}".format(self), description=textwrap.dedent(f"""\
+                
+                :nesting_dolls: | **Founder ~** {founder_name.split("#",1)[0]}
+                :dolls: | **Sworn ~** {sworn_name.split("#",1)[0]}
+                
+
+                :japanese_goblin: | **Shield: ~**{shield_name.split("#",1)[0].format(self)} ~ {sicon} | **Victories: **{streak}
+                :flower_playing_cards: | **Card: **{shield_card}
+                :reminder_ribbon: | **Title: **{shield_title}
+                :mechanical_arm: | **Arm: **{shield_arm}
+                
+                :ninja: | **Guilds: **{sword_count}
+                :dollar: | **Guild Split: **{hall_split} 
+                :secret: | **Universe Crest: **{len(crest_list)} 
+                    
+                :shinto_shrine: | **Hall: **{hall_name} 
+                :shield: | **Raid Defenses: **{hall_def} 
+                :coin: | **Raid Fee: **{'{:,}'.format(hall_fee)}
+                :yen: | **Bounty: **{'{:,}'.format(bounty)}
+                :moneybag: | **Victory Bonus: **{'{:,}'.format(bonus)}
+                """), colour=000000)
+                embed1.set_image(url=hall_img)
+                embed1.set_footer(text=f"/raid {guild_name} - Raid Association")
+                
+                embed2 = discord.Embed(title=f":flags: |  {guild_name} **Guild** List".format(self), description=":bank: |  Party Chat Gaming Database", colour=000000)
+                embed2.add_field(name=f"**Guilds: | ** :ninja: ~ {sword_count}", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
+                embed2.set_footer(text=f"/guild - View Association Guild")
+                
+                embed3 = discord.Embed(title=f":flags: |  {guild_name} **OWNED CREST**".format(self), description=":bank: |  Party Chat Gaming Database", colour=000000)
+                embed3.add_field(name=f":secret: | **CREST**", value="\n".join(f'**{c}**'.format(self) for c in crest_list), inline=False)
+                embed3.set_footer(text=f"Earn Universe Crest in Dungeons!")
+                # if guild['LOGO_FLAG']:
+                #     embed3.set_image(url=logo)
+                
+                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+                paginator.add_reaction('⏮️', "first")
+                paginator.add_reaction('⬅️', "back")
+                paginator.add_reaction('🔐', "lock")
+                paginator.add_reaction('➡️', "next")
+                paginator.add_reaction('⏭️', "last")
+                embeds = [embed1,embed2, embed3]
+                await paginator.run(embeds)
+            else:
+                await ctx.send(m.GUILD_DOESNT_EXIST)
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+
+
+    @cog_ext.cog_slash(description="Lookup player family", guild_ids=main.guild_ids)
+    async def family(self, ctx, player = None):
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
+
+        try:
+            if player != None:
+                member = player
+            if player:
+                user_profile = db.queryUser({'DISNAME': str(member)})
+                family = db.queryFamily({'HEAD': user_profile['FAMILY']})
+                if family:
+                    family_name = family['HEAD']
+                else:
+                    await ctx.send("Family does not exist.")
+                    return
+                
+            else:
+                user_profile = db.queryUser({'DID': str(ctx.author.id)})
+                family = db.queryFamily({'HEAD': user_profile['FAMILY']})
+                if family:
+                    family_name = family['HEAD']
+                else:
+                    await ctx.send("You are not a part of a Family.")
+                    return
+                
+            if family:
+                family_name = family['HEAD'] + "'s Family"
+                head_name = family['HEAD']
+                partner_name = family['PARTNER']
+                savings = int(family['BANK'])
+                house = family['HOUSE']
+                house_info = db.queryHouse({'HOUSE' : house})
+                house_img = house_info['PATH']
+                kid_list = []
+                for kids in family['KIDS']:
+                    kid_list.append(kids.split("#",1)[0])
+                icon = ":coin:"
+                if savings >= 300000:
+                    icon = ":money_with_wings:"
+                elif savings >=150000:
+                    icon = ":moneybag:"
+                elif savings >= 100000:
+                    icon = ":dollar:"
+
+
+                embed1 = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=":bank: | Party Chat Gaming Database", colour=000000)
+                # if team['LOGO_FLAG']:
+                #     embed1.set_image(url=logo)
+                embed1.add_field(name=":brain: | Head Of Household", value= head_name.split("#",1)[0], inline=False)
+                if partner_name:
+                    embed1.add_field(name=":anatomical_heart: | Partner", value= partner_name.split("#",1)[0], inline=False)
+                if kid_list:
+                    embed1.add_field(name=":baby: | Kids", value="\n".join(f'{k}'.format(self) for k in kid_list), inline=False)
+                embed1.add_field(name=":house: | House", value=house, inline=False)
+                embed1.set_image(url=house_img)
+        
+                await ctx.send(embed = embed1)
+            else:
+                await ctx.send(m.FAMILY_DOESNT_EXIST)
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+
+def setup(bot):
+    bot.add_cog(Lookup(bot))
+
+def most_frequent(List):
+    occurence_count = Counter(List)
+    return occurence_count.most_common(1)[0][0]
+
+def guild_buff_toggle(player, team):
+    guild_buff_on = team['GUILD_BUFF_ON']
+    team_query = {'TEAM_NAME': team['TEAM_NAME']}
+    return_message = {}
+    
+    if guild_buff_on:
+        transaction_message = f"{player['DISNAME']} turned off Guild Buff."
+        new_value_query = {
+            '$set': {'GUILD_BUFF_ON': False},
+            '$push': {'TRANSACTIONS': transaction_message}
+            }
+        response = db.updateTeam(team_query, new_value_query)
+        if response:
+            return {"MSG": "Guild Buff has been turned off."}
+        else:
+            return False
+    else:
+        transaction_message = f"{player['DISNAME']} turned on Guild Buff."
+        new_value_query = {
+            '$set': {'GUILD_BUFF_ON': True},
+            '$push': {'TRANSACTIONS': transaction_message}
+            }
+        response = db.updateTeam(team_query, new_value_query)
+        if response:
+            return {"MSG": "Guild Buff has been turned on."}
+        else:
+            return False
+
+
+async def apply(self, ctx, owner: User):
+    owner_profile = db.queryUser({'DID': str(owner.id)})
+    team_profile = db.queryTeam({'TEAM_NAME': owner_profile['TEAM'].lower()})
+
+    if owner_profile['TEAM'] == 'PCG':
+        await ctx.send(m.USER_NOT_ON_TEAM, delete_after=5)
+    else:
+
+        if owner_profile['DISNAME'] == team_profile['OWNER']:
+            member_profile = db.queryUser({'DID': str(ctx.author.id)})
+            if member_profile['LEVEL'] < 4:
+                await ctx.send(f"🔓 Unlock Guilds by completing Floor 3 of the 🌑 Abyss! Use /solo to enter the abyss.")
+                return
+
+            # If user is part of a team you cannot add them to your team
+            if member_profile['TEAM'] != 'PCG':
+                await ctx.send("You're already in a Guild. You may not join another guild.")
+                return
+            else:
+                team_buttons = [
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="Accept",
+                        custom_id="Yes"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.red,
+                        label="Deny",
+                        custom_id="No"
+                    )
+                ]
+                team_buttons_action_row = manage_components.create_actionrow(*team_buttons)
+                
+                msg = await ctx.send(f"{ctx.author.mention}  applies to join **{team_profile['TEAM_DISPLAY_NAME']}**. Owner, Officers, or Captains - Please accept or deny".format(self), components=[team_buttons_action_row])
+
+                def check(button_ctx):
+                    return str(button_ctx.author) == str(owner)
+
+                try:
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[team_buttons_action_row], timeout=120, check=check)
+                    
+                    if button_ctx.custom_id == "No":
+                        await button_ctx.send("Application Denied.")
+                        await msg.delete()
+                        return
+
+                    if button_ctx.custom_id == "Yes":
+                        team_query = {'TEAM_NAME': team_profile['TEAM_NAME'].lower()}
+                        new_value_query = {'$push': {'MEMBERS': member_profile['DISNAME']}}
+                        response = db.addTeamMember(team_query, new_value_query, owner_profile['DISNAME'], member_profile['DISNAME'])
+                        await button_ctx.send(response)
+                except:
+                    await msg.delete()
+        else:
+            await ctx.send(m.OWNER_ONLY_COMMAND, delete_after=5)
+
+
