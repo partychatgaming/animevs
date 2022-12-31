@@ -1627,7 +1627,6 @@ async def tutorial(self, ctx: SlashContext):
         if not a_registered_player:
             return
 
-
         await ctx.send("🆚 Building Tutorial Match...", delete_after=10)
         private_channel = ctx
         starttime = time.asctime()
@@ -1638,9 +1637,8 @@ async def tutorial(self, ctx: SlashContext):
         # Tutorial Code
         tutorialbot = '837538366509154407'
         legendbot = '845672426113466395'
-        tutorial_user = await self.bot.fetch_user(legendbot)
+        tutorial_user = await self.bot.fetch_user(tutorialbot)
         opponent = db.queryUser({'DISNAME': str(tutorial_user)})
-        print(opponent)
         oppDID = opponent['DID']
         tutorial = False
         if oppDID == tutorialbot or oppDID == legendbot:
