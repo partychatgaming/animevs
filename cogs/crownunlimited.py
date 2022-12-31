@@ -7056,11 +7056,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 tmove1_element = stats['tmove1_element']
                 tmove2_element = stats['tmove2_element']
                 tmove3_element = stats['tmove3_element']
-<<<<<<< HEAD
-
-=======
                 t_talisman = "N/A"
->>>>>>> 8580b93a1f1f21da530ce439bc721ce60bbfb9b8
                 if difficulty == "HARD":
                     t_talisman = tmove3_element
                 t_basic_emoji = crown_utilities.set_emoji(tmove1_element)
