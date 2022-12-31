@@ -24088,10 +24088,10 @@ element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Dam
 'LIFE': 'Heal for 20% AP',
 'LIGHT': 'Regain 50% Stamina Cost, Increase ATK by 20% DMG',
 'DARK': 'Penetrates shields & decrease opponent stamina by 15 ',
-'POISON': 'Penetrates shields, Opponent takes additional 20 damage each turn stacking up to 500',
+'POISON': 'Penetrates shields, Opponent takes additional 30 damage each turn stacking up to 600',
 'RANGED': 'If ST(Stamina) > 30 deals 1.7x Damage',
 'SPIRIT': 'Has higher chance of Crit',
-'RECOIL': 'Deals 60% damage back to you, w',
+'RECOIL': 'Deals 60% damage back to you, if damage would kill you reduce health to 1',
 'TIME': 'IF ST(Stamina) < 80 you Focus after attacking, You Block during your Focus',
 'BLEED': 'After 3 Attacks deal 10x turn count damage to opponent',
 'GRAVITY': 'Disables Opponent Block and Reduce opponent DEF by 25% AP'
