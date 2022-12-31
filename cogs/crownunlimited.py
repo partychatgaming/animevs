@@ -2444,6 +2444,9 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
             # print(f"HIT ROLL: {str(hit_roll)}")
             if move_element == "SPIRIT" and hit_roll > 3:
                 hit_roll = hit_roll + 4
+                
+            if universe == "Crown Rift Awakening":
+                hit_roll = hit_roll + 7
 
             if ranged_attack:
                 true_dmg = round(true_dmg * 1.7)
@@ -2468,8 +2471,12 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 true_dmg = round(true_dmg * 1.2)
                 message = f'{move_emoji} {move} used! Hits for **{true_dmg}**! :anger_right:'
             elif hit_roll >= 20:
-                true_dmg = round(true_dmg * 2.5)
-                message = f"{move_emoji} {move} used! Critically Hits for **{true_dmg}**!! :boom:"
+                if universe =="Crown Rift Awakening":
+                    true_dmg = round(true_dmg * 4.0)
+                    message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits for **{true_dmg}**!! :boom:"
+                else:
+                    true_dmg = round(true_dmg * 2.5)
+                    message = f"{move_emoji} {move} used! Critically Hits for **{true_dmg}**!! :boom:"
             else:
                 message = f"{move_emoji} {move} used! Dealt **{true_dmg}** dmg!"
 

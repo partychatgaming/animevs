@@ -88,6 +88,10 @@ traits = [{
     'EFFECT': 'Madness',
     'TRAIT': 'Do not lose turn on Focus, but also do not Heal.'
 },{
+    'NAME': 'Crown Rift Awakening',
+    'EFFECT': 'Blood Awakening',
+    'TRAIT': 'Deal 4x damage on Critical Strikes, Increased Crit Chance.'
+},{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Spirit Energy',
     'TRAIT': 'Stamina + Turn Count added to each attack | Attack increased by Stamina each turn.'
