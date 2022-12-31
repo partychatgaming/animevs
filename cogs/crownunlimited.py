@@ -7835,6 +7835,22 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             if o_defend_used == True:
                                 o_defense = int(o_defense / 2)
                                 o_defend_used = False
+                            if o_universe == "Demon Slayer":
+                                embedVar = discord.Embed(title=f"{o_card} Total Concentration Breathing",
+                                                        description=f"{o_card} gains **{t_health * .40}** Health",
+                                                        colour=0xe91e63)
+                                
+                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP**")
+                                o_health = o_health + (t_health * .40)
+                                o_max_health = o_max_health + (t_health *.40)
+                            if t_universe == "Demon Slayer":
+                                embedVar = discord.Embed(title=f"{t_card} Total Concentration Breathing",
+                                                        description=f"{t_card} gains **{o_health * .40}** Health",
+                                                        colour=0xe91e63)
+                                
+                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP**")
+                                t_health = t_health + (o_health * .40)
+                                t_max_health = t_max_health + (o_health *.40)
                             if o_universe == "Death Note" and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{o_card} says**\nYou will die in 60  turns...",
@@ -7856,6 +7872,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             colour=0xe91e63)
                                     
                                     previous_moves.append(f"(**{turn_total}**) 🩸 {c_card} Scheduled Death 📓")
+                                if c_universe == "Demon Slayer":
+                                    embedVar = discord.Embed(title=f"{c_card} Total Concentration Breathing",
+                                                            description=f"{c_card} gains **{c_health * .40}** Health",
+                                                            colour=0xe91e63)
+                                    
+                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Total Concentration Breathing: **Increased HP**")
+                                    c_health = c_health + (t_health * .40)
+                                    c_max_health = c_max_health + (t_health *.40)
                             if t_universe == 'Death Note' and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{t_card} says**\nYou will die in 60 turns...",

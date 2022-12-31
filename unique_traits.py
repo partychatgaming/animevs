@@ -1,7 +1,7 @@
 traits = [{
     'NAME': 'My Hero Academia',
     'EFFECT': 'Plus Ultra!',
-    'TRAIT': 'You do not lose a turn after you Resolve. AP of all abilities is increased by 80.'
+    'TRAIT': 'You do not lose a turn after you Resolve. AP of all abilities is increased by 200 + Turn Count.'
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot',
@@ -9,7 +9,7 @@ traits = [{
 },{
     'NAME': 'Pokemon',
     'EFFECT': 'Evolution',
-    'TRAIT': 'When you Resolve your Defense Doubles. Mega Evolution: If Turn >30 grow 300 HP, Gigantomax: If Turn >50 grow 1000 HP.'
+    'TRAIT': 'When you Resolve your Defense Doubles. Mega Evolution: If Turn >30 grow 500 HP, Gigantomax: If Turn >50 grow 1000 HP.'
 },{
     'NAME': 'Digimon',
     'EFFECT': 'Digivolve',
@@ -40,8 +40,8 @@ traits = [{
     'TRAIT': 'On Resolve, Strike with Ultimate with no Stamina cost.'
 },{
     'NAME': 'Demon Slayer',
-    'EFFECT': 'Total Concentration Constant',
-    'TRAIT': 'On Resolve, Your ATK & DEF = Opp ATK and DEF if Opp stats are greater.'
+    'EFFECT': 'Total Concentration Breathing,Total Concentration Constant',
+    'TRAIT': '**Breathing** At match start gain 40% of Opponent HP as your own. **Constant**On Resolve, Your ATK & DEF = Opp ATK and DEF if Opp stats are greater.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Ascension',
