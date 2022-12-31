@@ -25,7 +25,7 @@ traits = [{
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, Spiritual Pressure',
-    'TRAIT': 'Gain Double Attack on Resolve. On Block, exert your Spiritual Pressure to deal damage equal to your basic attack while still gaining defense.'
+    'TRAIT': '**Bankai**: Gain Double Attack on Resolve. **Spiritual Pressure**: On Block, exert your Spiritual Pressure to deal damage equal to your basic attack while still gaining defense.'
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally',
@@ -41,7 +41,7 @@ traits = [{
 },{
     'NAME': 'Demon Slayer',
     'EFFECT': 'Total Concentration Breathing,Total Concentration Constant',
-    'TRAIT': '**Breathing** At match start gain 40% of Opponent HP as your own. **Constant**On Resolve, Your ATK & DEF = Opp ATK and DEF if Opp stats are greater.'
+    'TRAIT': '**Breathing** At match start gain 40% of Opponent HP as your own. **Constant** On Resolve, Your ATK & DEF = Opp ATK and DEF if Opp stats are greater.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Ascension',
@@ -65,7 +65,7 @@ traits = [{
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death',
-    'TRAIT': 'Your First Focus After 50 Turns You Win.'
+    'TRAIT': 'Your First Focus After 60 Turns You Win.'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand',
