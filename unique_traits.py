@@ -76,21 +76,9 @@ traits = [{
     'TRAIT': 'Summon deals Damage equal to your Basic attack, in addition to their status effect, disabling opponents summon. '
 },
 {
-    'NAME': 'Crown Rift Slayers',
-    'EFFECT': 'Feint Attack',
-    'TRAIT': 'If you miss, Crit!'
-},{
     'NAME': 'One Piece',
     'EFFECT': 'OTW',
     'TRAIT': 'Trait coming soon..'
-},{
-    'NAME': 'Crown Rift Madness',
-    'EFFECT': 'Madness',
-    'TRAIT': 'Do not lose turn on Focus, but also do not Heal.'
-},{
-    'NAME': 'Crown Rift Awakening',
-    'EFFECT': 'Blood Awakening',
-    'TRAIT': 'Deal 4x damage on Critical Strikes, Increased Crit Chance.'
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Spirit Energy',
@@ -100,4 +88,16 @@ traits = [{
     'NAME': 'One Piece',
     'EFFECT': 'Haki',
     'TRAIT': 'Activate varying forms of Haki based on Card Tier'
+},{
+    'NAME': 'Crown Rift Slayers',
+    'EFFECT': 'Feint Attack',
+    'TRAIT': 'If you miss, Crit!'
+},{
+    'NAME': 'Crown Rift Madness',
+    'EFFECT': 'Madness',
+    'TRAIT': 'Do not lose turn on Focus, but also do not Heal.'
+},{
+    'NAME': 'Crown Rift Awakening',
+    'EFFECT': 'Blood Awakening',
+    'TRAIT': 'Deal 4x damage on Critical Strikes, Increased Crit Chance.'
 }]
