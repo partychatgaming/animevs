@@ -4466,6 +4466,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_user = player2
             tperformance = t_user['PERFORMANCE']
             t_talisman = t_user['TALISMAN']
+            print(t_talisman)
             tarm = db.queryArm({'ARM': t_user['ARM']})
             tarm_universe = tarm['UNIVERSE']
             tarm_passive = tarm['ABILITIES'][0]
