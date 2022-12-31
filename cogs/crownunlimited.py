@@ -4475,7 +4475,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             tarm_element = tarm['ELEMENT']
 
             tvault = db.queryVault({'DID': str(t_user['DID']), 'PETS.NAME': t_user['PET']})
-            if mode in pvp_modes:
+            if mode in pvp_modes and tutorial ==False:
                 tupdate_durability_message = update_arm_durability(self, tvault, tarm, tarm_universe, tarm_price, t)
                 if tupdate_durability_message['MESSAGE']:
                     await ctx.send(f"{tupdate_durability_message['MESSAGE']}")
