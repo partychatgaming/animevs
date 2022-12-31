@@ -6875,6 +6875,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             auto_battle = True
             difficulty = sowner['DIFFICULTY']
             o_talisman = stats['o_talisman']
+            print(o_talisman)
             o_card_passive_type = stats['o_card_passive_type']
             battle_history_message_amount = sowner['BATTLE_HISTORY']
             o_full_card_info = stats['o_full_card_info']
