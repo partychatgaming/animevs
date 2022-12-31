@@ -74,11 +74,6 @@ traits = [{
     'NAME': 'Persona',
     'EFFECT': 'Summon Persona!',
     'TRAIT': 'Summon deals Damage equal to your Basic attack, in addition to their status effect, disabling opponents summon. '
-},
-{
-    'NAME': 'One Piece',
-    'EFFECT': 'OTW',
-    'TRAIT': 'Trait coming soon..'
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Spirit Energy',
