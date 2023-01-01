@@ -2895,7 +2895,8 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 if defensepower <=0:
                     defensepower = 1
                     
-                basic = ((attack + ap1) / defensepower)
+                    
+                basic = ((attack - op_defense + ap1) / defensepower)
                 if basic > (ap1 * 2):
                     engagement_basic = 5
                     ebasic = '❌2'
@@ -2913,7 +2914,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                     ebasic = '💢'
             
                     
-                special = ((attack + ap2) / defensepower)
+                special = ((attack - op_defense  + ap2) / defensepower)
                 if special > (ap1 * 2):
                     engagement_special = 5
                     especial = '❌2'
@@ -2930,7 +2931,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                     engagement_special = 1
                     especial = '💢'
         
-                ultimate = ((attack + ap3) / defensepower)
+                ultimate = ((attack - op_defense  + ap3) / defensepower)
                 if ultimate > (ap1 * 2):
                     engagement_ultimate = 5
                     eultimate = '❌2'
