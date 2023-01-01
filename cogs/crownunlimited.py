@@ -8165,11 +8165,15 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_health = o_health + o_resolve_health
                                     o_attack = round(o_attack + o_resolve_attack)
                                     o_defense = round(o_defense - o_resolve_defense)
+                                    o_attack = round(o_attack * 1.5)
+                                    o_defense = round(o_defense * 1.5)
                                     o_used_resolve = True
                                     o_pet_used = False
                                     if turn_total <=5:
                                         o_attack = round(o_attack * 2)
                                         o_defense = round(o_defense * 2 )
+                                        o_health = o_health + 500
+                                        o_max_health = o_max_health + 500
                                         previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Transformation: Mega Digivolution!!!")
                                     else:
                                         previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Transformation: Digivolve")
@@ -11728,6 +11732,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_attack = round(t_attack + t_resolve_attack)
                                     t_defense = round(t_defense - t_resolve_defense)
                                     t_used_resolve = True
+                                    t_attack = round(t_attack * 1.5)
+                                    t_defense = round(t_defense * 1.5)
 
                                     embedVar = discord.Embed(title=f"{t_card} STRENGTHENED RESOLVE :zap:",
                                                             description=f"**{t_card} says**\n{t_resolve_description}",
@@ -11736,6 +11742,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if turn_total <=5:
                                         t_attack = round(t_attack * 2)
                                         t_defense = round(t_defense * 2 )
+                                        t_health = t_health + 500
+                                        t_max_health = t_max_health + 500
                                         previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Transformation: Mega Digivolution!!!")
                                     else:
                                         previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Transformation: Digivolve")
@@ -16879,9 +16887,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_defense = round(c_defense - c_resolve_defense)
                                         c_used_resolve = True
                                         c_pet_used = False
+                                        
+                                        c_attack = round(c_attack * 1.5)
+                                        c_defense = round(c_defense * 1.5)
                                         if turn_total <=5:
                                             c_attack = round(c_attack * 2)
                                             c_defense = round(c_defense * 2 )
+                                            c_health = c_health + 500
+                                            c_max_health = c_max_health + 500
                                             previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Transformation: Mega Digivolution!!!")
                                         else:
                                             previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Transformation: Digivolve")
@@ -20084,6 +20097,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_attack = round(t_attack + t_resolve_attack)
                                         t_defense = round(t_defense - t_resolve_defense)
                                         t_used_resolve = True
+                                        t_attack = round(t_attack * 1.5)
+                                        t_defense = round(t_defense * 1.5)
 
                                         embedVar = discord.Embed(title=f"{t_card} STRENGTHENED RESOLVE :zap:",
                                                                 description=f"**{t_card} says**\n{t_resolve_description}",
@@ -20093,6 +20108,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if turn_total <=5:
                                             t_attack = round(t_attack * 2)
                                             t_defense = round(t_defense * 2 )
+                                            t_health = t_health + 500
+                                            t_max_health = t_max_health + 500
                                             previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Transformation: Mega Digivolution!!!")
                                         else:
                                             previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Transformation: Digivolve")

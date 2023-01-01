@@ -12,8 +12,8 @@ traits = [{
     'TRAIT': '**Regions**: Titles and Arms from Pokemon Universes are shared. **Evolution**: When you Resolve your Defense Doubles. Mega Evolution: If Turn >30 grow 500 HP, Gigantomax: If Turn >50 grow 1000 HP.'
 },{
     'NAME': 'Digimon',
-    'EFFECT': 'Digivolve',
-    'TRAIT': 'On Focus you Resolve. Mega Digivolution: If turn count <5 Double ATK and DEF.'
+    'EFFECT': 'Digivolve, MegaDigivolution',
+    'TRAIT': '**Digivolve**:On Focus you Resolve gain 50% ATK and DEF. **Mega Digivolution**: If turn count <5 Double ATK and DEF increase Health by 500.'
 },{
     'NAME': 'Naruto',
     'EFFECT': 'Substitution',
