@@ -93,6 +93,6 @@ traits = [{
     'TRAIT': 'Do not lose turn on Focus, but also do not Heal.'
 },{
     'NAME': 'Crown Rift Awakening',
-    'EFFECT': 'Blood Awakening',
-    'TRAIT': 'Deal 4x damage on Critical Strikes, Increased Crit Chance.'
+    'EFFECT': 'Blood Awakening, Spiritual Weapons',
+    'TRAIT': '**Blood Awakening**: Deal 4x damage on Critical Strikes, Increased Crit Chance. **Spiritual Weapons**: Can use Arms from all Universes'
 }]
