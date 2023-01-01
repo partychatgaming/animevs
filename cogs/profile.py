@@ -275,8 +275,15 @@ class Profile(commands.Cog):
                             card_lvl_defense_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
                             card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
 
+                    pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
+                    pokeomon_arm=False
+                    pokemon_title=False
                     oarm_universe = arm['UNIVERSE']
+                    if oarm_universe in pokemon_universes:
+                        pokemon_arm=True
                     o_title_universe = title['UNIVERSE']
+                    if o_title_universe in pokemon_universes:
+                        pokemon_title=True
                     o_card = card['NAME']
                     o_card_path=card['PATH']
                     o_max_health = card['HLT'] + card_lvl_hlt_buff
@@ -317,7 +324,6 @@ class Profile(commands.Cog):
                             mytrait = trait
                         if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
                             pokemon_universes =True
-                            print(pokemon_universes)
                             if trait['NAME'] == 'Pokemon':
                                 mytrait = trait
                                 
@@ -494,7 +500,7 @@ class Profile(commands.Cog):
                         else:
                             titlemessage = f"👑 {title_name}" 
                         warningmessage= f""
-                    elif o_title_universe == o_show:
+                    elif o_title_universe == o_show or (pokemon_universes==True and pokemon_title==True):
                         titled =True
                         titleicon = "🎗️"
                         if performance_mode:
@@ -510,7 +516,7 @@ class Profile(commands.Cog):
                         else:
                             armmessage = f'💪 {arm_name}'
 
-                    elif oarm_universe == o_show or (pokemon_universes==True):
+                    elif oarm_universe == o_show or (pokemon_universes==True and pokemon_arm==True):
                         armicon = "🦾"
                         if performance_mode:
                             armmessage = f'🦾 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
