@@ -4656,6 +4656,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_rcard_path = t['RPATH']
             t_health = t['HLT'] + (15 * currentopponent) + opponent_health_scaling + tcard_lvl_hlt_buff  + health_buff_from_difficulty - health_debuff_from_difficulty
             t_max_health = t_health
+            t_base_health = t_health
             t_stamina = t['STAM']
             t_max_stamina = t['STAM']
             t_moveset = t['MOVESET']
@@ -7868,7 +7869,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         description=f"{o_card} gains **{t_health * .40}** Health",
                                                         colour=0xe91e63)
                                 
-                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP {round(t_base_health * .40)}**")
+                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(t_base_health * .40)}**")
                                 o_health = round(o_health + (t_base_health * .40))
                                 o_max_health = round(o_max_health + (t_base_health *.40))
                             if t_universe == "Demon Slayer" and turn_total == 0:
@@ -7876,7 +7877,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         description=f"{t_card} gains **{o_health * .40}** Health",
                                                         colour=0xe91e63)
                                 
-                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP {round(o_base_health * .40)}**")
+                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(o_base_health * .40)}**")
                                 t_health = round(t_health + (o_base_health * .40))
                                 t_max_health = round(t_max_health + (o_base_health *.40))
                             if o_universe == "Death Note" and turn_total == 0:
@@ -7892,7 +7893,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 embedVar.add_field(name=f"{t_arena}", value=f"{t_arenades}")
                                 embedVar.add_field(name=f"Entering the {t_arena}", value=f"{t_entrance}", inline=False)
                                 embedVar.set_footer(text=f"{t_card} waits for you to strike....")
-                            
+                        
                             if mode in co_op_modes:
                                 if c_universe == "Death Note" and turn_total == 0:
                                     embedVar = discord.Embed(title=f"{c_card} Scheduled Death 📓",
