@@ -2894,9 +2894,12 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 defensepower = op_defense - attack
                 if defensepower <=0:
                     defensepower = 1
-                    
-                    
-                basic = ((attack - op_defense + ap1) / defensepower)
+                
+                basic_ability_power =  attack - op_defense + ap1
+                if basic_ability_power <= 0:
+                    basic_ability_power = ap1
+                
+                basic = round((basic_ability_power / defensepower))
                 if basic > (ap1 * 2):
                     engagement_basic = 5
                     ebasic = '❌2'
@@ -2906,15 +2909,18 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 elif basic >= (ap1 * 1.1):
                     engagement_basic = 3
                     ebasic = '‼️'
-                elif basic < (ap1 / 2):
+                elif basic < (ap1 / 2)  and basic > (ap1 / 3):
                     engagement_basic = 2
                     ebasic = '❕'
                 elif basic < (ap1 / 3):
                     engagement_basic = 1
                     ebasic = '💢'
             
+                special_ability_power =  attack - op_defense + ap2
+                if special_ability_power <= 0:
+                    special_ability_power = ap2
                     
-                special = ((attack - op_defense  + ap2) / defensepower)
+                special = round(special_ability_power/ defensepower)
                 if special > (ap1 * 2):
                     engagement_special = 5
                     especial = '❌2'
@@ -2924,14 +2930,17 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 elif special >= (ap2 * 1.1):
                     engagement_special = 3
                     especial = '‼️'
-                elif special < (ap2 / 2):
+                elif special < (ap2 / 2) and special > (ap2 / 3):
                     engagement_special = 2
                     especial = '❕'
                 elif special < (ap2 / 3):
                     engagement_special = 1
                     especial = '💢'
         
-                ultimate = ((attack - op_defense  + ap3) / defensepower)
+                ultimate_ability_power =  attack - op_defense + ap3
+                if ultimate_ability_power <= 0:
+                    ultimate_ability_power = ap3
+                ultimate = round(ultimate_ability_power / defensepower)
                 if ultimate > (ap1 * 2):
                     engagement_ultimate = 5
                     eultimate = '❌2'
@@ -2941,7 +2950,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 elif ultimate >= (ap3 * 1.1):
                     engagement_ultimate = 3
                     eultimate = '‼️'
-                elif ultimate < (ap3 / 2):
+                elif ultimate < (ap3 / 2) and ultimate > (ap3 / 3):
                     engagement_ultimate = 2
                     eultimate = '❕'
                 elif ultimate < (ap3 / 3):
