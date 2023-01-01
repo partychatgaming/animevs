@@ -973,6 +973,13 @@ def querySpecificCards(args):
         return data 
     except Exception as e:
         return False
+
+def querySpecificTitles(args):
+    try:
+        data = title_col.find({'TITLE': {'$in': args}})
+        return data 
+    except Exception as e:
+        return False
    
 
 def querySpecificDropCards(args):

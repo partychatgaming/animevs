@@ -473,7 +473,7 @@ class Profile(commands.Cog):
                     armicon = "⚠️"
                     if card_lvl == 200:
                         licon ="⚜️"
-                    titlemessage = f"{titleicon} ⚠️ {title_name} ~ INEFFECTIVE"
+                    titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
                     armmessage = f"🦾 ⚠️ {arm_name}: {durability}"
                     if arm_passive_type in arm_moves_type_list:
                         arm_emoji = crown_utilities.set_emoji(arm_element)
@@ -4983,7 +4983,7 @@ async def menubuild(self, ctx):
                 armicon = "⚠️"
                 if card_lvl == 200:
                     licon ="⚜️"
-                titlemessage = f"{titleicon} ⚠️ {title_name} ~ INEFFECTIVE"
+                titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
                 armmessage = f"🦾 ⚠️ {arm_name}: {durability}"
                 if arm_passive_type in arm_moves_type_list:
                     arm_emoji = crown_utilities.set_emoji(arm_element)
@@ -5040,7 +5040,7 @@ async def menubuild(self, ctx):
 
                     **{titlemessage}**
                     **{armmessage}**
-                    🧬 **{active_pet['NAME']}: {active_pet['TYPE']}: {pet_ability_power}{enhancer_suffix_mapping[active_pet['TYPE']]}
+                    🧬 **{active_pet['NAME']}:** {active_pet['TYPE']}: {pet_ability_power}{enhancer_suffix_mapping[active_pet['TYPE']]}
                     🧬 Bond {bond} {bond_message} & Level {lvl} {lvl_message}
 
                     🩸 **{passive_name}:** {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}                

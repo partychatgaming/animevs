@@ -462,6 +462,8 @@ class VAULT():
     DESTINY: list[str] = field(default_factory=lambda: [])
     GEMS: list[str] = field(default_factory=lambda: [])
     STORAGE: list[str] = field(default_factory=lambda: [])
+    TSTORAGE: list[str] = field(default_factory=lambda: [])
+    ASTORAGE: list[str] = field(default_factory=lambda: [])
     TALISMANS: list[str] = field(default_factory=lambda: [])
 
 
