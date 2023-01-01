@@ -11506,6 +11506,23 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             #     if previous_moves_len >= 5:
                             #         previous_moves = previous_moves[4:]
                             #     previous_moves_into_embed = "\n\n".join(previous_moves)
+                            
+                            if o_universe == "Demon Slayer" and turn_total == 0:
+                                embedVar = discord.Embed(title=f"{o_card} Total Concentration Breathing",
+                                                        description=f"{o_card} gains **{t_health * .40}** Health",
+                                                        colour=0xe91e63)
+                                
+                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(t_base_health * .40)}**")
+                                o_health = round(o_health + (t_base_health * .40))
+                                o_max_health = round(o_max_health + (t_base_health *.40))
+                            if t_universe == "Demon Slayer" and turn_total == 0:
+                                embedVar = discord.Embed(title=f"{t_card} Total Concentration Breathing",
+                                                        description=f"{t_card} gains **{o_health * .40}** Health",
+                                                        colour=0xe91e63)
+                                
+                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(o_base_health * .40)}**")
+                                t_health = round(t_health + (o_base_health * .40))
+                                t_max_health = round(t_max_health + (o_base_health *.40))
                             if o_universe == "Death Note" and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{o_card} says**\nYou will die in 60  turns...",
