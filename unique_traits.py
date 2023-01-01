@@ -4,8 +4,8 @@ traits = [{
     'TRAIT': 'You do not lose a turn after you Resolve. AP of all abilities is increased by 200 + Turn Count.'
 },{
     'NAME': 'League Of Legends',
-    'EFFECT': 'Turret Shot',
-    'TRAIT': 'When you Focus you deal (60 + Turn Count) Damage to Opponent. Upon Resolve, you deal 60 x (Total Focus Count) Damage.'
+    'EFFECT': 'Turret Shot, Pentakill',
+    'TRAIT': '**Turret Shot**: When you Focus you deal (60 + Turn Count) Damage to Opponent. **Pentakill**: Upon Resolve, you deal 60 x (Total Focus Count) Damage.'
 },{
     'NAME': 'Pokemon',
     'EFFECT': 'Regions, Evolution',
@@ -20,16 +20,16 @@ traits = [{
     'TRAIT': 'If Focused, you cannot be hit. On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
 },{
     'NAME': 'Chainsawman',
-    'EFFECT': 'Devilization',
-    'TRAIT': 'When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. Strong Fear Infliction.'
+    'EFFECT': 'Devilization, Fearful',
+    'TRAIT': '**Devilization**: When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. **Fearful**: Strong Fear Infliction.'
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, Spiritual Pressure',
     'TRAIT': '**Bankai**: Gain Double Attack on Resolve. **Spiritual Pressure**: On Block, exert your Spiritual Pressure to deal damage equal to your basic attack while still gaining defense.'
 },{
     'NAME': 'Attack On Titan',
-    'EFFECT': 'Rally',
-    'TRAIT': 'Gain 100 Max Health and 50 Health on Block. Gain (100 x Your Focus Count) worth of Health upon Resolve.'
+    'EFFECT': 'Rally, Titan Mode',
+    'TRAIT': '**Rally**: Gain 100 Max Health and 50 Health on Block. **Titan Mode**: Gain (100 x Your Focus Count) worth of Health upon Resolve.'
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone',
@@ -40,12 +40,12 @@ traits = [{
     'TRAIT': 'On Resolve, Strike with Ultimate with no Stamina cost.'
 },{
     'NAME': 'Demon Slayer',
-    'EFFECT': 'Total Concentration Breathing,Total Concentration Constant',
+    'EFFECT': 'Total Concentration Breathing, Total Concentration Constant',
     'TRAIT': '**Breathing** At match start gain 40% of Opponent HP as your own. **Constant** On Resolve, Your ATK & DEF = Opp ATK and DEF if Opp stats are greater.'
 },{
     'NAME': 'God Of War',
-    'EFFECT': 'Ascension',
-    'TRAIT': '1st Resolve heal half of max health, 2nd heal full max health. You can Resolve twice.'
+    'EFFECT': 'Blood Orb, Ascension',
+    'TRAIT': ' You can Resolve twice. **Blood Orb **: 1st Resolve heal half of max health. **Ascension**: 2nd Resolve heal full max health.'
 },{
     'NAME': '7ds',
     'EFFECT': 'Power Of Friendship',
@@ -56,12 +56,12 @@ traits = [{
     'TRAIT': 'When Opponent Focuses, you gain 100 Health & Max Health.'
 },{
     'NAME': 'Solo Leveling',
-    'EFFECT': 'Rulers Authority',
-    'TRAIT': 'On Focus, opponent loses (30 + turn count) Defense. Arise! When Opponent Arm Breaks it revives as your Arm.'
+    'EFFECT': 'Rulers Authority, Arise!',
+    'TRAIT': '**Rulers Authority*: On Focus, opponent loses (30 + turn count) Defense. **Arise!**: When Opponent Arm Breaks it revives as your Arm.'
 },{
     'NAME': 'Souls',
-    'EFFECT': 'Combo Recognition',
-    'TRAIT': 'On opponent Focus, gain (60 + turn count) Attack. Second Phase! On Resolve, 💥 becomes your ☄️, and your ☄️ becomes another 🏵️.'
+    'EFFECT': 'Combo Recognition, Second Phase!',
+    'TRAIT': '**Combo Recognition**: On opponent Focus, gain (60 + turn count) Attack. **Second Phase!**: On Resolve, BASIC becomes your SPECIAL, and your SPECIAL becomes another ULTIMATE.'
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death',
