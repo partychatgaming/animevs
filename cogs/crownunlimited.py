@@ -2885,7 +2885,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
             engagement_ultimate = 0
             ebasic = '💢'
             especial = '💢'
-            eultimate = '💢'
+            eultimate = '🗯️'
             if op_defense is None:
                 ebasic = ' '
                 especial = ' '
@@ -2897,46 +2897,55 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                     
                 basic = ((attack + ap1) / defensepower)
                 if basic > (ap1 * 2):
-                    engagement_basic = 4
-                    ebasic = '❌:two: '
+                    engagement_basic = 5
+                    ebasic = '❌2'
                 elif basic > (ap1 * 1.5):
-                    engagement_basic = 3
+                    engagement_basic = 4
                     ebasic = '〽️'
                 elif basic >= (ap1 * 1.1):
-                    engagement_basic = 2
+                    engagement_basic = 3
                     ebasic = '‼️'
                 elif basic < (ap1 / 2):
-                    engagement_basic = 1
+                    engagement_basic = 2
                     ebasic = '❕'
+                elif basic < (ap1 / 3):
+                    engagement_basic = 1
+                    ebasic = '💢'
             
                     
                 special = ((attack + ap2) / defensepower)
                 if special > (ap1 * 2):
-                    engagement_special = 4
-                    especial = '❌:two: '
+                    engagement_special = 5
+                    especial = '❌2'
                 elif special > (ap1 * 1.5):
-                    engagement_special = 3
+                    engagement_special = 4
                     especial = '〽️'
                 elif special >= (ap2 * 1.1):
-                    engagement_special = 2
+                    engagement_special = 3
                     especial = '‼️'
                 elif special < (ap2 / 2):
-                    engagement_special = 1
+                    engagement_special = 2
                     especial = '❕'
+                elif special < (ap2 / 3):
+                    engagement_special = 1
+                    especial = '💢'
         
                 ultimate = ((attack + ap3) / defensepower)
                 if ultimate > (ap1 * 2):
-                    engagement_ultimate = 4
-                    eultimate = '❌:two: '
+                    engagement_ultimate = 5
+                    eultimate = '❌2'
                 elif ultimate > (ap1 * 1.5):
-                    engagement_ultimate = 3
+                    engagement_ultimate = 4
                     eultimate = '〽️'
                 elif ultimate >= (ap3 * 1.1):
-                    engagement_ultimate = 2
+                    engagement_ultimate = 3
                     eultimate = '‼️'
                 elif ultimate < (ap3 / 2):
-                    engagement_ultimate = 1
+                    engagement_ultimate = 2
                     eultimate = '❕'
+                elif ultimate < (ap3 / 3):
+                    engagement_ultimate = 1
+                    eultimate = '💢'
                 
             
             # Moveset Start
