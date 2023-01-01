@@ -8,8 +8,8 @@ traits = [{
     'TRAIT': 'When you Focus you deal (60 + Turn Count) Damage to Opponent. Upon Resolve, you deal 60 x (Total Focus Count) Damage.'
 },{
     'NAME': 'Pokemon',
-    'EFFECT': 'Evolution',
-    'TRAIT': 'When you Resolve your Defense Doubles. Mega Evolution: If Turn >30 grow 500 HP, Gigantomax: If Turn >50 grow 1000 HP.'
+    'EFFECT': 'Regions, Evolution',
+    'TRAIT': '**Regions**: Titles and Arms from Pokemon Universes are shared. **Evolution**: When you Resolve your Defense Doubles. Mega Evolution: If Turn >30 grow 500 HP, Gigantomax: If Turn >50 grow 1000 HP.'
 },{
     'NAME': 'Digimon',
     'EFFECT': 'Digivolve',

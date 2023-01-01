@@ -4772,6 +4772,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             # Companion Passive Config
             if (c_universe == c_title_universe) or (c_title_universe == "Unbound"):
                 c_title_passive_bool = True
+            if (c_universe in pokemon_universes) and c_title_universe in pokemon_universes:
+                c_title_passive_bool = True
 
             # Player 1 Focus & Resolve
             c_focus = 90
@@ -4864,6 +4866,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
         # Player 1 Passive Config
         if (o_universe == o_title_universe) or (o_title_universe == "Unbound"):
+            o_title_passive_bool = True
+        if (o_universe in pokemon_universes) and o_title_universe in pokemon_universes:
             o_title_passive_bool = True
 
         # Player 1 Focus & Resolve
@@ -5011,6 +5015,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
         # Player 2 Passive Config
         if (t_universe == t_title_universe) or (t_title_universe == "Unbound"):
+            t_title_passive_bool = True
+        if (t_universe in pokemon_universes) and t_title_universe in pokemon_universes:
             t_title_passive_bool = True
 
         # Player 1 Card Passive
@@ -22972,6 +22978,8 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
         player_info = db.queryUser({'DID': str(vault['DID'])})
         if player_info['DIFFICULTY'] == "EASY":
             return
+        if arm_universe in pokemon_universes:
+            arm_universe == card['UNIVERSE']
 
         decrease_value = -1
         break_value = 1
@@ -24333,3 +24341,5 @@ take_chances_messages = ['You lost immediately.', 'You got smoked!', 'You fainte
                          'That... was just sad. You got dropped with ease.', 'Too bad, so sad. You took the L.',
                          'Annnd another L. You lost.', 'Annnnnnnnnnnd another L! You lost.',
                          'How many Ls you gonna take today?', 'That was worse than the last time. You got dropped.']
+
+pokemon_universes= ['Kanto Region', 'Johnto Region', 'Hoenn Region', 'Sinnoh Region', 'Kalos Region', 'Galar Region', 'Alola Region', 'Unova Region']

@@ -151,7 +151,7 @@ class Profile(commands.Cog):
                                     value="build",
                                 ),
                                 create_choice(
-                                    name="💼 Update Card Storage",
+                                    name="💼 Check Card Storage",
                                     value="storage",
                                 ),
                                 create_choice(
@@ -311,12 +311,14 @@ class Profile(commands.Cog):
                     traits = ut.traits
                     mytrait = {}
                     traitmessage = ''
+                    pokemon_universes = False
                     for trait in traits:
                         if trait['NAME'] == o_show:
                             mytrait = trait
                         if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
                             if trait['NAME'] == 'Pokemon':
                                 mytrait = trait
+                                pokemon_universe ==True
                     if mytrait:
                         traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
 
@@ -482,7 +484,7 @@ class Profile(commands.Cog):
                         else:
                             armmessage = f'⚠️ {arm_name}'
                     warningmessage = f"Use {o_show} or Unbound Titles on this card"
-                    if o_title_universe == "Unbound":
+                    if o_title_universe == "Unbound" or pokemon_universes:
                         titled =True
                         titleicon = "👑"
                         if performance_mode:
@@ -506,7 +508,7 @@ class Profile(commands.Cog):
                         else:
                             armmessage = f'💪 {arm_name}'
 
-                    elif oarm_universe == o_show:
+                    elif oarm_universe == o_show or pokemon_universes:
                         armicon = "🦾"
                         if performance_mode:
                             armmessage = f'🦾 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
