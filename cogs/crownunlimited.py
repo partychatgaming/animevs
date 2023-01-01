@@ -2902,16 +2902,16 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 basic = round((basic_ability_power / defensepower))
                 if basic > (ap1 * 2):
                     engagement_basic = 5
-                    ebasic = '❌2'
+                    ebasic = '❌x2'
                 elif basic > (ap1 * 1.5):
                     engagement_basic = 4
-                    ebasic = '〽️'
+                    ebasic = '〽️x1.5'
                 elif basic >= (ap1 * 1.1):
                     engagement_basic = 3
                     ebasic = '‼️'
                 elif basic < (ap1 / 2)  and basic > (ap1 / 3):
                     engagement_basic = 2
-                    ebasic = '❕'
+                    ebasic = ''
                 elif basic < (ap1 / 3):
                     engagement_basic = 1
                     ebasic = '💢'
@@ -2923,10 +2923,10 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 special = round(special_ability_power/ defensepower)
                 if special > (ap1 * 2):
                     engagement_special = 5
-                    especial = '❌2'
+                    especial = '❌x2'
                 elif special > (ap1 * 1.5):
                     engagement_special = 4
-                    especial = '〽️'
+                    especial = '〽️x1.5'
                 elif special >= (ap2 * 1.1):
                     engagement_special = 3
                     especial = '‼️'
@@ -2943,10 +2943,10 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 ultimate = round(ultimate_ability_power / defensepower)
                 if ultimate > (ap1 * 2):
                     engagement_ultimate = 5
-                    eultimate = '❌2'
+                    eultimate = '❌x2'
                 elif ultimate > (ap1 * 1.5):
                     engagement_ultimate = 4
-                    eultimate = '〽️'
+                    eultimate = '〽️x1.5'
                 elif ultimate >= (ap3 * 1.1):
                     engagement_ultimate = 3
                     eultimate = '‼️'

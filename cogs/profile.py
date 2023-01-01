@@ -4188,7 +4188,7 @@ class Profile(commands.Cog):
 
                                 if button_ctx.custom_id == "swap":
                                     await button_ctx.defer(ignore=True)
-
+                                    await msg.delete()
                                     await ctx.send(f"{ctx.author.mention}, Which card number would you like to swap with in storage?")
                                     def check(msg):
                                         return msg.author == ctx.author
@@ -4214,7 +4214,7 @@ class Profile(commands.Cog):
                                             }
                                             response = db.updateVaultNoFilter(query, update_storage_query)
 
-
+                                            await msg.delete()
                                             await ctx.send(f"**{selected_card}** has been swapped with **{swap_with}**")
                                             return
                                         else:
@@ -4239,7 +4239,7 @@ class Profile(commands.Cog):
                                             }
                                             response = db.updateVaultNoFilter(query, update_storage_query)
                                             
-
+                                            await msg.delete()
                                             await ctx.send(f"**{selected_card}** has been added to storage")
                                             return
                                         else:
