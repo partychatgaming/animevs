@@ -318,7 +318,7 @@ class Profile(commands.Cog):
                         if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
                             if trait['NAME'] == 'Pokemon':
                                 mytrait = trait
-                                pokemon_universe ==True
+                                pokemon_universes ==True
                     if mytrait:
                         traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
 
