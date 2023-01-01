@@ -2390,10 +2390,10 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
             dmg = abilitypower
             if atk >= (op_defense * 2):
                 if dmg > (ap * 1.5):
-                    dmg = ap *1.5
+                    dmg = ap * 1.5
             elif atk >=(op_defense * 1.5):
-                if dmg > (ap * 1.1):  # If DMG > ap -> Dmg = ap * 1.2
-                    dmg = ap * 1.1
+                if dmg > (ap * 1.2):  # If DMG > ap -> Dmg = ap * 1.2
+                    dmg = ap * 1.2
             elif dmg < (ap / 2):  # If you dmg is less than you base AP you do / of AP Damage
                 if op_defense >= (atk * 2):
                     dmg = ap/3
@@ -2894,11 +2894,15 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 defensepower = op_defense - attack
                 if defensepower <=0:
                     defensepower = 1
+                    
                 basic = ((attack + ap1) / defensepower)
-                if basic > (ap1 * 1.5):
+                if basic > (ap1 * 2):
+                    engagement_basic = 4
+                    ebasic = '❌'
+                elif basic > (ap1 * 1.5):
                     engagement_basic = 3
                     ebasic = '〽️'
-                elif basic >= ap1:
+                elif basic >= (ap1 * 1.1):
                     engagement_basic = 2
                     ebasic = '‼️'
                 elif basic < (ap1 / 2):
@@ -2907,10 +2911,13 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
             
                     
                 special = ((attack + ap2) / defensepower)
-                if special > (ap1 * 1.5):
+                if special > (ap1 * 2):
+                    engagement_special = 4
+                    especial = '❌'
+                elif special > (ap1 * 1.5):
                     engagement_special = 3
                     especial = '〽️'
-                elif special >= ap2:
+                elif special >= (ap2 * 1.1):
                     engagement_special = 2
                     especial = '‼️'
                 elif special < (ap2 / 2):
@@ -2918,10 +2925,13 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                     especial = '❕'
         
                 ultimate = ((attack + ap3) / defensepower)
-                if special > (ap1 * 1.5):
+                if ultimate > (ap1 * 2):
+                    engagement_ultimate = 4
+                    eultimate = '❌'
+                elif ultimate > (ap1 * 1.5):
                     engagement_ultimate = 3
                     eultimate = '〽️'
-                elif ultimate >= ap3:
+                elif ultimate >= (ap3 * 1.1):
                     engagement_ultimate = 2
                     eultimate = '‼️'
                 elif ultimate < (ap3 / 2):
