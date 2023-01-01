@@ -2391,8 +2391,8 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
             if atk >= (op_defense * 2):
                 if dmg > (ap * 1.5):
                     dmg = ap *1.5
-            elif dmg > (ap * 1.3):  # If DMG > ap -> Dmg = ap * 1.2
-                dmg = ap * 1.3
+            elif dmg > (ap * 1.1):  # If DMG > ap -> Dmg = ap * 1.2
+                dmg = ap * 1.1
             elif dmg < (ap / 2):  # If you dmg is less than you base AP you do / of AP Damage
                 if op_defense >= (atk * 2):
                     dmg = ap/3
@@ -2419,7 +2419,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
             is_wind_element = False
             is_physical_element = False
             ranged_attack = False
-            low = dmg - (dmg * .10)
+            low = dmg - (dmg * .20)
             high = dmg + (dmg * .10)
             wind_buff = 0
 
