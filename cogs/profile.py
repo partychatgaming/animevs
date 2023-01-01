@@ -316,7 +316,7 @@ class Profile(commands.Cog):
                         if trait['NAME'] == o_show:
                             mytrait = trait
                         if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
-                            pokemon_universes ==True
+                            pokemon_universes =True
                             print(pokemon_universes)
                             if trait['NAME'] == 'Pokemon':
                                 mytrait = trait
