@@ -1850,6 +1850,11 @@ class Profile(commands.Cog):
         storage_type = user['STORAGE_TYPE'] #Storage Update
         storage_pricing = (storage_type + 1) * 1500000
         storage_pricing_text = f"{'{:,}'.format(storage_pricing)}" 
+        storage_tier_message = (storage_type + 1)
+        if storage_type >=10:
+            storage_pricing_text = "Max Storage Level"
+            storage_tier_message = "MAX"
+        
         arm_info = db.queryArm({'ARM': str(current_arm)})
         boss_arm = False
         dungeon_arm = False
@@ -4229,8 +4234,8 @@ class Profile(commands.Cog):
                                     try:
                                         author = msg.author
                                         content = msg.content
-                                        print("Author: " + str(author))
-                                        print("Content: " + str(content))
+                                        # print("Author: " + str(author))
+                                        # print("Content: " + str(content))
                                         if len(storage) <= (storage_type * 15):
                                             query = {'DID': str(ctx.author.id)}
                                             update_storage_query = {
