@@ -2391,8 +2391,9 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
             if atk >= (op_defense * 2):
                 if dmg > (ap * 1.5):
                     dmg = ap *1.5
-            elif dmg > (ap * 1.1):  # If DMG > ap -> Dmg = ap * 1.2
-                dmg = ap * 1.1
+            elif atk >=(op_defense * 1.5):
+                if dmg > (ap * 1.1):  # If DMG > ap -> Dmg = ap * 1.2
+                    dmg = ap * 1.1
             elif dmg < (ap / 2):  # If you dmg is less than you base AP you do / of AP Damage
                 if op_defense >= (atk * 2):
                     dmg = ap/3
@@ -2897,7 +2898,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 if basic > (ap1 * 1.5):
                     engagement_basic = 3
                     ebasic = '〽️'
-                if basic > (ap1 * 1.2):
+                elif basic >= ap1:
                     engagement_basic = 2
                     ebasic = '‼️'
                 elif basic < (ap1 / 2):
@@ -2909,7 +2910,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 if special > (ap1 * 1.5):
                     engagement_special = 3
                     especial = '〽️'
-                if special > (ap2 * 1.2):
+                elif special >= ap2:
                     engagement_special = 2
                     especial = '‼️'
                 elif special < (ap2 / 2):
@@ -2920,7 +2921,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 if special > (ap1 * 1.5):
                     engagement_ultimate = 3
                     eultimate = '〽️'
-                if ultimate > (ap3 * 1.2):
+                elif ultimate >= ap3:
                     engagement_ultimate = 2
                     eultimate = '‼️'
                 elif ultimate < (ap3 / 2):
