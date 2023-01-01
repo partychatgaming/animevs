@@ -2389,7 +2389,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
 
             dmg = abilitypower
             if atk >= (op_defense * 2):
-                if dmg > (ap * 1.8)
+                if dmg > (ap * 1.8):
                     dmg = ap *1.8
             elif dmg > (ap * 1.3):  # If DMG > ap -> Dmg = ap * 1.2
                 dmg = ap * 1.3
