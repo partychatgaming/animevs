@@ -276,7 +276,7 @@ class Profile(commands.Cog):
                             card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
 
                     pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
-                    pokeomon_arm=False
+                    pokemon_arm=False
                     pokemon_title=False
                     oarm_universe = arm['UNIVERSE']
                     if oarm_universe in pokemon_universes:
