@@ -316,9 +316,11 @@ class Profile(commands.Cog):
                         if trait['NAME'] == o_show:
                             mytrait = trait
                         if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
+                            pokemon_universes ==True
+                            print(pokemon_universes)
                             if trait['NAME'] == 'Pokemon':
                                 mytrait = trait
-                                pokemon_universes ==True
+                                
                     if mytrait:
                         traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
 
@@ -484,7 +486,7 @@ class Profile(commands.Cog):
                         else:
                             armmessage = f'⚠️ {arm_name}'
                     warningmessage = f"Use {o_show} or Unbound Titles on this card"
-                    if o_title_universe == "Unbound" or pokemon_universes:
+                    if o_title_universe == "Unbound" or (pokemon_universes==True):
                         titled =True
                         titleicon = "👑"
                         if performance_mode:
@@ -508,7 +510,7 @@ class Profile(commands.Cog):
                         else:
                             armmessage = f'💪 {arm_name}'
 
-                    elif oarm_universe == o_show or pokemon_universes:
+                    elif oarm_universe == o_show or (pokemon_universes==True):
                         armicon = "🦾"
                         if performance_mode:
                             armmessage = f'🦾 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
