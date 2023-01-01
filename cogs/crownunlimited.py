@@ -2221,7 +2221,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 rand = round(random.randint(2, 50))
                 n = ap
                 if turn % 10 == 0:
-                    n = ap * .75
+                    n = ap
                 elif n <= 0:
                     n = 30
                 elif turn == rand:
@@ -2243,7 +2243,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 rand = round(random.randint(2, 50))
                 n = ap
                 if turn % 10 == 0:
-                    n = ap * .75
+                    n = ap
                 elif n <= 0:
                     n = 30
                 elif turn == rand:
@@ -2389,8 +2389,8 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
 
             dmg = abilitypower
             if atk >= (op_defense * 2):
-                if dmg > (ap * 1.8):
-                    dmg = ap *1.8
+                if dmg > (ap * 1.5):
+                    dmg = ap *1.5
             elif dmg > (ap * 1.3):  # If DMG > ap -> Dmg = ap * 1.2
                 dmg = ap * 1.3
             elif dmg < (ap / 2):  # If you dmg is less than you base AP you do / of AP Damage
@@ -2894,6 +2894,9 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 if defensepower <=0:
                     defensepower = 1
                 basic = ((attack + ap1) / defensepower)
+                if basic > (ap1 * 1.5):
+                    engagement_basic = 3
+                    ebasic = '〽️'
                 if basic > (ap1 * 1.2):
                     engagement_basic = 2
                     ebasic = '‼️'
@@ -2903,6 +2906,9 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
             
                     
                 special = ((attack + ap2) / defensepower)
+                if special > (ap1 * 1.5):
+                    engagement_special = 3
+                    especial = '〽️'
                 if special > (ap2 * 1.2):
                     engagement_special = 2
                     especial = '‼️'
@@ -2911,6 +2917,9 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                     especial = '❕'
         
                 ultimate = ((attack + ap3) / defensepower)
+                if special > (ap1 * 1.5):
+                    engagement_ultimate = 3
+                    eultimate = '〽️'
                 if ultimate > (ap3 * 1.2):
                     engagement_ultimate = 2
                     eultimate = '‼️'
@@ -2998,7 +3007,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                     move_enhanced_ap = round(enh1)
                     turn_crit = True
                 elif turn_total % 10 == 0:
-                    move_enhanced_ap = round(enh1 * .75)
+                    move_enhanced_ap = round(enh1)
                     turn_crit = True
                 elif turn_total >= 1:
                     move_enhanced_ap = round(enh1 / turn_total)
@@ -9058,11 +9067,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_health = t_health + dmg['DMG']
                                                 elif dmg['ELEMENT'] == water_element:
                                                     if omove1_element == water_element:
-                                                        o_basic_water_buff = o_basic_water_buff + 50
+                                                        o_basic_water_buff = o_basic_water_buff + 35
                                                     if omove2_element == water_element:
-                                                        o_special_water_buff = o_special_water_buff + 50
+                                                        o_special_water_buff = o_special_water_buff + 35
                                                     if omove3_element == water_element:
-                                                        o_ultimate_water_buff = o_ultimate_water_buff + 50
+                                                        o_ultimate_water_buff = o_ultimate_water_buff + 35
                                                     t_health = t_health - dmg['DMG']
                                                 elif dmg['ELEMENT'] == time_element:
                                                     if o_stamina <= 80:
@@ -9376,11 +9385,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health + int(dmg['DMG'])
                                                     elif dmg['ELEMENT'] == water_element:
                                                         if omove1_element == water_element:
-                                                            o_basic_water_buff = o_basic_water_buff + 50
+                                                            o_basic_water_buff = o_basic_water_buff + 35
                                                         if omove2_element == water_element:
-                                                            o_special_water_buff = o_special_water_buff + 50
+                                                            o_special_water_buff = o_special_water_buff + 35
                                                         if omove3_element == water_element:
-                                                            o_ultimate_water_buff = o_ultimate_water_buff + 50
+                                                            o_ultimate_water_buff = o_ultimate_water_buff + 35
                                                         t_health = t_health - dmg['DMG']
                                                         
 
@@ -10806,11 +10815,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health + dmg['DMG']
                                                     elif dmg['ELEMENT'] == water_element:
                                                         if omove1_element == water_element:
-                                                            o_basic_water_buff = o_basic_water_buff + 50
+                                                            o_basic_water_buff = o_basic_water_buff + 35
                                                         if omove2_element == water_element:
-                                                            o_special_water_buff = o_special_water_buff + 50
+                                                            o_special_water_buff = o_special_water_buff + 35
                                                         if omove3_element == water_element:
-                                                            o_ultimate_water_buff = o_ultimate_water_buff + 50
+                                                            o_ultimate_water_buff = o_ultimate_water_buff + 35
                                                         t_health = t_health - dmg['DMG']
                                                         
 
@@ -11144,11 +11153,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health + int(dmg['DMG'])
                                                         elif dmg['ELEMENT'] == water_element:
                                                             if omove1_element == water_element:
-                                                                o_basic_water_buff = o_basic_water_buff + 50
+                                                                o_basic_water_buff = o_basic_water_buff + 35
                                                             if omove2_element == water_element:
-                                                                o_special_water_buff = o_special_water_buff + 50
+                                                                o_special_water_buff = o_special_water_buff + 35
                                                             if omove3_element == water_element:
-                                                                o_ultimate_water_buff = o_ultimate_water_buff + 50
+                                                                o_ultimate_water_buff = o_ultimate_water_buff + 35
                                                             t_health = t_health - dmg['DMG']
                                                             
 
@@ -12645,11 +12654,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health + dmg['DMG']
                                                         elif dmg['ELEMENT'] == water_element:
                                                             if tmove1_element == water_element:
-                                                                t_basic_water_buff = t_basic_water_buff + 50
+                                                                t_basic_water_buff = t_basic_water_buff + 35
                                                             if tmove2_element == water_element:
-                                                                t_special_water_buff = t_special_water_buff + 50
+                                                                t_special_water_buff = t_special_water_buff + 35
                                                             if tmove3_element == water_element:
-                                                                t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                                t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                             o_health = o_health - (dmg['DMG'] + t_water_buff)
 
                                                         elif dmg['ELEMENT'] == earth_element:
@@ -12964,11 +12973,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health + int(dmg['DMG'])
                                                             elif dmg['ELEMENT'] == water_element:
                                                                 if tmove1_element == water_element:
-                                                                    t_basic_water_buff = t_basic_water_buff + 50
+                                                                    t_basic_water_buff = t_basic_water_buff + 35
                                                                 if tmove2_element == water_element:
-                                                                    t_special_water_buff = t_special_water_buff + 50
+                                                                    t_special_water_buff = t_special_water_buff + 35
                                                                 if tmove3_element == water_element:
-                                                                    t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                                    t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                                 o_health = o_health - (dmg['DMG'] + t_water_buff)
 
                                                             elif dmg['ELEMENT'] == earth_element:
@@ -13849,11 +13858,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         o_health = o_health + dmg['DMG']
                                                     elif dmg['ELEMENT'] == water_element:
                                                         if tmove1_element == water_element:
-                                                            t_basic_water_buff = t_basic_water_buff + 50
+                                                            t_basic_water_buff = t_basic_water_buff + 35
                                                         if tmove2_element == water_element:
-                                                            t_special_water_buff = t_special_water_buff + 50
+                                                            t_special_water_buff = t_special_water_buff + 35
                                                         if tmove3_element == water_element:
-                                                            t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                            t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                         o_health = o_health - (dmg['DMG'] + t_water_buff)
 
                                                     elif dmg['ELEMENT'] == earth_element:
@@ -14147,11 +14156,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health + int(dmg['DMG'])
                                                         elif dmg['ELEMENT'] == water_element:
                                                             if tmove1_element == water_element:
-                                                                t_basic_water_buff = t_basic_water_buff + 50
+                                                                t_basic_water_buff = t_basic_water_buff + 35
                                                             if tmove2_element == water_element:
-                                                                t_special_water_buff = t_special_water_buff + 50
+                                                                t_special_water_buff = t_special_water_buff + 35
                                                             if tmove3_element == water_element:
-                                                                t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                                t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                             o_health = o_health - (dmg['DMG'] + t_water_buff)
 
                                                         elif dmg['ELEMENT'] == earth_element:
@@ -15705,11 +15714,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 c_health = c_health + int(dmg['DMG'])
                                                             elif dmg['ELEMENT'] == water_element:
                                                                 if tmove1_element == water_element:
-                                                                    t_basic_water_buff = t_basic_water_buff + 50
+                                                                    t_basic_water_buff = t_basic_water_buff + 35
                                                                 if tmove2_element == water_element:
-                                                                    t_special_water_buff = t_special_water_buff + 50
+                                                                    t_special_water_buff = t_special_water_buff + 35
                                                                 if tmove3_element == water_element:
-                                                                    t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                                    t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                                 c_health = c_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == ice_element:
@@ -16034,11 +16043,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health + int(dmg['DMG'])
                                                             elif dmg['ELEMENT'] == water_element:
                                                                 if tmove1_element == water_element:
-                                                                    t_basic_water_buff = t_basic_water_buff + 50
+                                                                    t_basic_water_buff = t_basic_water_buff + 35
                                                                 if tmove2_element == water_element:
-                                                                    t_special_water_buff = t_special_water_buff + 50
+                                                                    t_special_water_buff = t_special_water_buff + 35
                                                                 if tmove3_element == water_element:
-                                                                    t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                                    t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                                 o_health = o_health - (dmg['DMG'] + t_water_buff)
 
                                                             elif dmg['ELEMENT'] == earth_element:
@@ -16371,11 +16380,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health + int(dmg['DMG'])
                                                         elif dmg['ELEMENT'] == water_element:
                                                             if tmove1_element == water_element:
-                                                                t_basic_water_buff = t_basic_water_buff + 50
+                                                                t_basic_water_buff = t_basic_water_buff + 35
                                                             if tmove2_element == water_element:
-                                                                t_special_water_buff = t_special_water_buff + 50
+                                                                t_special_water_buff = t_special_water_buff + 35
                                                             if tmove3_element == water_element:
-                                                                t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                                t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                             o_health = o_health - (dmg['DMG'] + t_water_buff)
 
                                                         elif dmg['ELEMENT'] == earth_element:
@@ -18095,11 +18104,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health + int(dmg['DMG'])
                                                         elif dmg['ELEMENT'] == water_element:
                                                             if cmove1_element == water_element:
-                                                                c_basic_water_buff = c_basic_water_buff + 50
+                                                                c_basic_water_buff = c_basic_water_buff + 35
                                                             if cmove2_element == water_element:
-                                                                c_special_water_buff = c_special_water_buff + 50
+                                                                c_special_water_buff = c_special_water_buff + 35
                                                             if cmove3_element == water_element:
-                                                                c_ultimate_water_buff = c_ultimate_water_buff + 50
+                                                                c_ultimate_water_buff = c_ultimate_water_buff + 35
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == ice_element:
@@ -19180,11 +19189,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health + dmg['DMG']
                                                         elif dmg['ELEMENT'] == water_element:
                                                             if cmove1_element == water_element:
-                                                                c_basic_water_buff = c_basic_water_buff + 50
+                                                                c_basic_water_buff = c_basic_water_buff + 35
                                                             if cmove2_element == water_element:
-                                                                c_special_water_buff = c_special_water_buff + 50
+                                                                c_special_water_buff = c_special_water_buff + 35
                                                             if cmove3_element == water_element:
-                                                                c_ultimate_water_buff = c_ultimate_water_buff + 50
+                                                                c_ultimate_water_buff = c_ultimate_water_buff + 35
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == ice_element:
@@ -19517,11 +19526,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 t_health = t_health + int(dmg['DMG'])
                                                             elif dmg['ELEMENT'] == water_element:
                                                                 if cmove1_element == water_element:
-                                                                    c_basic_water_buff = c_basic_water_buff + 50
+                                                                    c_basic_water_buff = c_basic_water_buff + 35
                                                                 if cmove2_element == water_element:
-                                                                    c_special_water_buff = c_special_water_buff + 50
+                                                                    c_special_water_buff = c_special_water_buff + 35
                                                                 if cmove3_element == water_element:
-                                                                    c_ultimate_water_buff = c_ultimate_water_buff + 50
+                                                                    c_ultimate_water_buff = c_ultimate_water_buff + 35
                                                                 t_health = t_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == ice_element:
@@ -21082,11 +21091,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     c_health = c_health + dmg['DMG']
                                                 elif dmg['ELEMENT'] == water_element:
                                                     if tmove1_element == water_element:
-                                                        t_basic_water_buff = t_basic_water_buff + 50
+                                                        t_basic_water_buff = t_basic_water_buff + 35
                                                     if tmove2_element == water_element:
-                                                        t_special_water_buff = t_special_water_buff + 50
+                                                        t_special_water_buff = t_special_water_buff + 35
                                                     if tmove3_element == water_element:
-                                                        t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                        t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                     c_health = c_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == ice_element:
@@ -21397,11 +21406,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health + int(dmg['DMG'])
                                                         elif dmg['ELEMENT'] == water_element:
                                                             if tmove1_element == water_element:
-                                                                t_basic_water_buff = t_basic_water_buff + 50
+                                                                t_basic_water_buff = t_basic_water_buff + 35
                                                             if tmove2_element == water_element:
-                                                                t_special_water_buff = t_special_water_buff + 50
+                                                                t_special_water_buff = t_special_water_buff + 35
                                                             if tmove3_element == water_element:
-                                                                t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                                t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                             o_health = o_health - (dmg['DMG'] + t_water_buff)
 
                                                         elif dmg['ELEMENT'] == earth_element:
@@ -21749,11 +21758,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             c_health = c_health + int(dmg['DMG'])
                                                         elif dmg['ELEMENT'] == water_element:
                                                             if tmove1_element == water_element:
-                                                                t_basic_water_buff = t_basic_water_buff + 50
+                                                                t_basic_water_buff = t_basic_water_buff + 35
                                                             if tmove2_element == water_element:
-                                                                t_special_water_buff = t_special_water_buff + 50
+                                                                t_special_water_buff = t_special_water_buff + 35
                                                             if tmove3_element == water_element:
-                                                                t_ultimate_water_buff = t_ultimate_water_buff + 50
+                                                                t_ultimate_water_buff = t_ultimate_water_buff + 35
                                                             c_health = c_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == ice_element:
