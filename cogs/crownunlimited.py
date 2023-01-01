@@ -23348,11 +23348,11 @@ async def drops(self,player, universe, matchcount):
                 bless_amount = (30000 + (2500 * matchcount)) * (1 + rebirth)
             await crown_utilities.bless(bless_amount, player.id)
             return f"You earned :coin: **{bless_amount}**!"
-        # elif drop_rate <= rift_rate and drop_rate > gold_drop:
-        #     response = db.updateUserNoFilter(user_query, {'$set': {'RIFT': 1}})
-        #     bless_amount = (200 + (100 * matchcount)) * (1 + rebirth)
-        #     await crown_utilities.bless(bless_amount, player.id)
-        #     return f"A RIFT HAS OPENED! You have earned :coin: **{bless_amount}**!"
+        elif drop_rate <= rift_rate and drop_rate > gold_drop:
+            response = db.updateUserNoFilter(user_query, {'$set': {'RIFT': 1}})
+            bless_amount = (200 + (100 * matchcount)) * (1 + rebirth)
+            await crown_utilities.bless(bless_amount, player.id)
+            return f"A RIFT HAS OPENED! You have earned :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > gold_drop:
             if all_available_drop_titles:
                 if len(vault['TITLES']) >= 25:
@@ -23596,11 +23596,11 @@ async def dungeondrops(self, player, universe, matchcount):
                 bless_amount = (60000 + (5000 * matchcount)) * (1 + rebirth)
             await crown_utilities.bless(bless_amount, player.id)
             return f"You earned :coin: **{bless_amount}**!"
-        # elif drop_rate <= rift_rate and drop_rate > gold_drop:
-        #     response = db.updateUserNoFilter(user_query, {'$set': {'RIFT': 1}})
-        #     bless_amount = (150 + (250 * matchcount)) * (1 + rebirth)
-        #     await crown_utilities.bless(bless_amount, player.id)
-        #     return f"A RIFT HAS OPENED! You have earned :coin: **{bless_amount}**!"
+        elif drop_rate <= rift_rate and drop_rate > gold_drop:
+            response = db.updateUserNoFilter(user_query, {'$set': {'RIFT': 1}})
+            bless_amount = (150 + (250 * matchcount)) * (1 + rebirth)
+            await crown_utilities.bless(bless_amount, player.id)
+            return f"A RIFT HAS OPENED! You have earned :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > gold_drop:
             if len(vault['TITLES']) >= 25:
                 await crown_utilities.bless(1500, player.id)
