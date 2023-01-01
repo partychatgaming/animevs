@@ -22978,6 +22978,7 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
         player_info = db.queryUser({'DID': str(vault['DID'])})
         if player_info['DIFFICULTY'] == "EASY":
             return
+        pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
         if arm_universe in pokemon_universes:
             arm_universe == card['UNIVERSE']
 
