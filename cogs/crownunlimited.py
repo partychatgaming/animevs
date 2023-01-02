@@ -4902,6 +4902,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
 
         omove1_text = list(o_1.keys())[0]
+        print(list(o_1.values()))[0]
         omove1_element = list(o_1.values())[2]
         omove2_text = list(o_2.keys())[0]
         omove2_element = list(o_2.values())[2]
@@ -7831,6 +7832,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_max_health = round(round(o_max_health + ((o_title_passive_value / 100) * o_max_health)))
                                 if o_title_passive_type == "DESTRUCTION":
                                     t_max_health = round(t_max_health - ((o_title_passive_value / 100) * t_max_health))
+
 
                             if o_card_passive_type:
                                 o_value_for_passive = o_card_tier * .5
