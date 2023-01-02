@@ -23031,8 +23031,8 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
         decrease_value = -1
         break_value = 1
         if arm_universe != card['UNIVERSE'] and arm_universe != "Unbound":
-            decrease_value = -10
-            break_value = 10
+            decrease_value = -5
+            break_value = 5
 
         for a in vault['ARMS']:
             if a['ARM'] == str(arm['ARM']):
