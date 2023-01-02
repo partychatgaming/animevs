@@ -1601,12 +1601,12 @@ async def daily(ctx):
       user_data = db.queryUser(query)
       user_completed_tales = user_data['CROWN_TALES']
       universes = db.queryAllUniverse()
-
-      server_query = {'GNAME': str(ctx.author.guild)}
-      update_server_query = {
-         '$inc': {'SERVER_BALANCE': 50000}
-      }
-      updated_server = db.updateServer(server_query, update_server_query)
+      if ctx.author.guild:
+         server_query = {'GNAME': str(ctx.author.guild)}
+         update_server_query = {
+            '$inc': {'SERVER_BALANCE': 50000}
+         }
+         updated_server = db.updateServer(server_query, update_server_query)
 
 
       user_available_opponents = []
