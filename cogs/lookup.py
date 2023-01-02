@@ -835,7 +835,7 @@ class Lookup(commands.Cog):
                         transactions_embed = "\n".join(transactions)
                         
                 summon = family['SUMMON']
-                summon_data = db.queryPet('PET': summon)
+                summon_data = db.queryPet({'PET': summon})
                 
                 universe = family['UNIVERSE']
                 estates_list = []
