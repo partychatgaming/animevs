@@ -33,28 +33,42 @@ class House(commands.Cog):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
-
-        house_name = house
-        family_query = {'HEAD' : str(ctx.author)}
-        family = db.queryFamily(family_query)
-        house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house)}$", "$options": "i"}})
-        currentBalance = family['BANK']
-        cost = house['PRICE']
-        house_name = house['HOUSE']
-        if house:
-            if house_name in family['HOUSE']:
-                await ctx.send(m.USERS_ALREADY_HAS_HOUSE, delete_after=5)
-            else:
-                newBalance = currentBalance - cost
-                if newBalance < 0 :
-                    await ctx.send("You have an insufficent Balance")
+        try: 
+            house_name = house
+            family_query = {'HEAD' : str(ctx.author)}
+            family = db.queryFamily(family_query)
+            house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house)}$", "$options": "i"}})
+            currentBalance = family['BANK']
+            cost = house['PRICE']
+            house_name = house['HOUSE']
+            if house:
+                if house_name in family['HOUSE']:
+                    await ctx.send(m.USERS_ALREADY_HAS_HOUSE, delete_after=5)
                 else:
-                    await main.cursefamily(cost, str(ctx.author))
-                    response = db.updateFamily(family_query,{'$set':{'HOUSE': str(house_name)}})
-                    await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
-                    return
-        else:
-            await ctx.send(m.HOUSE_DOESNT_EXIST)
-
+                    newBalance = currentBalance - cost
+                    if newBalance < 0 :
+                        await ctx.send("You have an insufficent Balance")
+                    else:
+                        await main.cursefamily(cost, str(ctx.author))
+                        response = db.updateFamily(family_query,{'$set':{'HOUSE': str(house_name)}})
+                        await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
+                        return
+            else:
+                await ctx.send(m.HOUSE_DOESNT_EXIST)
+        except Exception as ex:
+                trace = []
+                tb = ex.__traceback__
+                while tb is not None:
+                    trace.append({
+                        "filename": tb.tb_frame.f_code.co_filename,
+                        "name": tb.tb_frame.f_code.co_name,
+                        "lineno": tb.tb_lineno
+                    })
+                    tb = tb.tb_next
+                print(str({
+                    'type': type(ex).__name__,
+                    'message': str(ex),
+                    'trace': trace
+                }))
 def setup(bot):
     bot.add_cog(House(bot))

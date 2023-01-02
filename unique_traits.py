@@ -40,7 +40,7 @@ traits = [{
     'TRAIT': 'On Resolve, Strike with Ultimate with no Stamina cost.'
 },{
     'NAME': 'Demon Slayer',
-    'EFFECT': 'Total Concentration Breathing,, Constant',
+    'EFFECT': 'Total Concentration Breathing, Constant',
     'TRAIT': '**Breathing**:Gain 40% of Opponent HP as your own. |**Constant** On Resolve, Your ATK & DEF = Opp ATK and DEF.'
 },{
     'NAME': 'God Of War',

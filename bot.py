@@ -2773,66 +2773,74 @@ async def code(ctx, code_input: str):
       await channel.send(f"'PLAYER': **{str(ctx.author)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
       return
 
-# @slash.slash(description="admin only", guild_ids=guild_ids)
-# @commands.check(validate_user)
-# async def addfield(ctx, collection, new_field, field_type):
-#    if ctx.author.guild_permissions.administrator == True:
+@slash.slash(description="admin only", guild_ids=guild_ids)
+@commands.check(validate_user)
+async def addfield(ctx, collection, new_field, field_type):
+   if ctx.author.guild_permissions.administrator == True:
 
-#       if field_type == 'string':
-#          field_type = "NULL"
-#       elif field_type == 'int':
-#          field_type = 6
-#       elif field_type == 'list':
-#          field_type = [
-#             {"ELEMENT": "PHYSICAL", "ESSENCE": 5000},
-#             {"ELEMENT": "FIRE", "ESSENCE": 5000},
-#             {"ELEMENT": "ICE", "ESSENCE": 5000},
-#             {"ELEMENT": "WATER", "ESSENCE": 5000},
-#             {"ELEMENT": "EARTH", "ESSENCE": 5000},
-#             {"ELEMENT": "ELECTRIC", "ESSENCE": 5000},
-#             {"ELEMENT": "WIND", "ESSENCE": 5000},
-#             {"ELEMENT": "PSYCHIC", "ESSENCE": 5000},
-#             {"ELEMENT": "DEATH", "ESSENCE": 5000},
-#             {"ELEMENT": "LIFE", "ESSENCE": 5000},
-#             {"ELEMENT": "LIGHT", "ESSENCE": 5000},
-#             {"ELEMENT": "DARK", "ESSENCE": 5000},
-#             {"ELEMENT": "POISON", "ESSENCE": 5000},
-#             {"ELEMENT": "RANGED", "ESSENCE": 5000},
-#             {"ELEMENT": "SPIRIT", "ESSENCE": 5000},
-#             {"ELEMENT": "RECOIL", "ESSENCE": 5000},
-#             {"ELEMENT": "TIME", "ESSENCE": 5000},
-#             {"ELEMENT": "BLEED", "ESSENCE": 5000},
-#             {"ELEMENT": "GRAVITY", "ESSENCE": 5000}
-#          ]
+      if field_type == 'string':
+         field_type = "NULL"
+      elif field_type == 'int':
+         field_type = 6
+      elif field_type == 'list':
+         field_type = [
+            {"ELEMENT": "PHYSICAL", "ESSENCE": 5000},
+            {"ELEMENT": "FIRE", "ESSENCE": 5000},
+            {"ELEMENT": "ICE", "ESSENCE": 5000},
+            {"ELEMENT": "WATER", "ESSENCE": 5000},
+            {"ELEMENT": "EARTH", "ESSENCE": 5000},
+            {"ELEMENT": "ELECTRIC", "ESSENCE": 5000},
+            {"ELEMENT": "WIND", "ESSENCE": 5000},
+            {"ELEMENT": "PSYCHIC", "ESSENCE": 5000},
+            {"ELEMENT": "DEATH", "ESSENCE": 5000},
+            {"ELEMENT": "LIFE", "ESSENCE": 5000},
+            {"ELEMENT": "LIGHT", "ESSENCE": 5000},
+            {"ELEMENT": "DARK", "ESSENCE": 5000},
+            {"ELEMENT": "POISON", "ESSENCE": 5000},
+            {"ELEMENT": "RANGED", "ESSENCE": 5000},
+            {"ELEMENT": "SPIRIT", "ESSENCE": 5000},
+            {"ELEMENT": "RECOIL", "ESSENCE": 5000},
+            {"ELEMENT": "TIME", "ESSENCE": 5000},
+            {"ELEMENT": "BLEED", "ESSENCE": 5000},
+            {"ELEMENT": "GRAVITY", "ESSENCE": 5000}
+         ]
       
-#       elif field_type == 'blank_list':
-#          field_type = []
+      elif field_type == 'blank_list':
+         field_type = []
 
-#       elif field_type == 'bool':
-#          field_type = False
+      elif field_type == 'bool':
+         field_type = False
 
-#       if collection == 'cards':
-#          response = db.updateManyCards({'$set': {new_field: field_type}})
-#       elif collection == 'titles':
-#          response = db.updateManyTitles({'$set': {new_field: field_type}})
-#       elif collection == 'vaults':
-#          response = db.updateManyVaults({'$set': {new_field: field_type}})
-#       elif collection == 'users':
-#          response = db.updateManyUsers({'$set': {new_field: field_type}})
-#       elif collection == 'universe':
-#          response = db.updateManyUniverses({'$set': {new_field: field_type}})
-#       elif collection == 'boss':
-#          response = db.updateManyBosses({'$set': {new_field: field_type}})
-#       elif collection == 'arms':
-#          response = db.updateManyArms({'$set': {new_field: field_type}})
-#       elif collection == 'pets':
-#          response = db.updateManyPets({'$set': {new_field: field_type}})
-#       elif collection == 'teams':
-#          response = db.updateManyTeams({'$set': {new_field: field_type}})
+      if collection == 'cards':
+         response = db.updateManyCards({'$set': {new_field: field_type}})
+      elif collection == 'titles':
+         response = db.updateManyTitles({'$set': {new_field: field_type}})
+      elif collection == 'vaults':
+         response = db.updateManyVaults({'$set': {new_field: field_type}})
+      elif collection == 'users':
+         response = db.updateManyUsers({'$set': {new_field: field_type}})
+      elif collection == 'universe':
+         response = db.updateManyUniverses({'$set': {new_field: field_type}})
+      elif collection == 'boss':
+         response = db.updateManyBosses({'$set': {new_field: field_type}})
+      elif collection == 'arms':
+         response = db.updateManyArms({'$set': {new_field: field_type}})
+      elif collection == 'pets':
+         response = db.updateManyPets({'$set': {new_field: field_type}})
+      elif collection == 'teams':
+         response = db.updateManyTeams({'$set': {new_field: field_type}})
+      elif collection == 'house':
+         response = db.updateManyHouses({'$set': {new_field: field_type}})
+      elif collection == 'hall':
+         response = db.updateManyHalls({'$set': {new_field: field_type}})
+      elif collection == 'family':
+         response = db.updateManyFamily({'$set': {new_field: field_type}})
+      elif collection == 'guild':
+         response = db.updateManyGuild({'$set': {new_field: field_type}})
       
-#       await ctx.send("Update completed.")
-#    else:
-#       print(m.ADMIN_ONLY_COMMAND)
+      await ctx.send("Update completed.")
+   else:
+      print(m.ADMIN_ONLY_COMMAND)
 
 
 

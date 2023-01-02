@@ -178,6 +178,7 @@ class FAMILY():
     KIDS: list[str] = field(default_factory=lambda: [])
     BANK: int = field(default_factory=lambda: 0)
     HOUSE: str = field(default_factory=lambda: 'Cave')
+    ESTATES: list[str] = field(default_factory=lambda: ['CAVE'])
     TIMESTAMP: str = now
 
 

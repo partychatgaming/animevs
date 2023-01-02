@@ -2454,9 +2454,9 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 true_dmg = round(true_dmg * 1.7)
 
             if hit_roll < miss_hit:
-                # if universe == 'Crown Rift Slayers':
-                #     true_dmg = round(true_dmg * 2)
-                #     message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits for **{true_dmg}**!! :boom: '
+                if universe == 'Crown Rift Slayers':
+                    true_dmg = round(true_dmg * 2)
+                    message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits for **{true_dmg}**!! :boom: '
                 if is_wind_element:
                     true_dmg = round(true_dmg)
                     message = f'🌪️ Wind Attack! {move} hits for **{true_dmg}**!'       
@@ -2659,9 +2659,9 @@ def abyss_level_up_message(did, floor, card, title, arm):
             message = "🎊 Congratulations! 🎊 You unlocked **Gifting**. Use the **/gift** command to gift players money!"
             new_unlock = True
         
-        if floor == 3:
-            message = "🎊 Congratulations! 🎊 You unlocked **Co-Op**. Use the **/coop** to traverse Tales with other players!"
-            new_unlock = True
+        # if floor == 3:
+        #     message = "🎊 Congratulations! 🎊 You unlocked **Co-Op**. Use the **/coop** to traverse Tales with other players!"
+        #     new_unlock = True
             
         if floor == 9:
             message = "🎊 Congratulations! 🎊 You unlocked **Associations**. Use the **/oath** to create an association with another Guild Owner!"
