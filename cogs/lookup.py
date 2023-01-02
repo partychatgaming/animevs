@@ -840,6 +840,8 @@ class Lookup(commands.Cog):
                 
                 head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
                 if head_vault:
+                    await ctx.send('Got Vault')
+                    print('Got Vault')
                     for pet in head_vault['PETS']:
                         if summon == pet['NAME']:
                             opet = pet
