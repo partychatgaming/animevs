@@ -78,7 +78,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ❄️ Ice - After 2 uses opponent freezes and loses 1 turn.
 
-💧 Water - Increases all water attack dmg by 50 Flat.
+💧 Water - Increases all water attack dmg by 40 Flat.
 
 ⛰️ Earth - Cannot be Parried. Increases Def by 25% AP.
 
@@ -96,7 +96,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ♠️ Dark- Penetrates shields & decreases opponent stamina by 15.
 
-🧪 Poison - Penetrades shields, Poison 20 damage stacking up to 500.
+🧪 Poison - Penetrades shields, Poison 30 damage stacking up to 600.
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
 
