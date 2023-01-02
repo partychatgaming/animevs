@@ -2775,8 +2775,11 @@ async def code(ctx, code_input: str):
 
 @slash.slash(description="admin only", guild_ids=guild_ids)
 @commands.check(validate_user)
-async def addfield(ctx, collection, new_field, field_type):
+async def addfield(ctx, collection, new_field, field_type, password):
    if ctx.author.guild_permissions.administrator == True:
+      
+      if password != 'casper':  
+         return await ctx.send("Admin Only")
 
       if field_type == 'string':
          field_type = "NULL"
