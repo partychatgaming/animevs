@@ -896,7 +896,7 @@ class Lookup(commands.Cog):
                 universe_page = discord.Embed(title="Home Universe", description=textwrap.dedent(f"""
                 🌍**Home Universe**
                 """), colour=0x7289da)
-                summon_page.set_image(url=universe_img)
+                universe_page.set_image(url=universe_img)
                 
                 activity_page = discord.Embed(title="Recent Family Activity", description=textwrap.dedent(f"""
                 {transactions_embed}
