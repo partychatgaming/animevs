@@ -895,10 +895,6 @@ class Lookup(commands.Cog):
                
                 """), colour=0x7289da)
 
-                universe_page = discord.Embed(title="Home Universe", description=textwrap.dedent(f"""
-                🌍**Home Universe**
-                """), colour=0x7289da)
-                universe_page.set_image(url=universe_img)
                 
                 activity_page = discord.Embed(title="Recent Family Activity", description=textwrap.dedent(f"""
                 {transactions_embed}
@@ -928,7 +924,7 @@ class Lookup(commands.Cog):
                 - **Kids**:  Can equip family summon.
                 """), colour=0x7289da)
 
-                embed_list = [first_page, estates_page, universe_page, summon_page, activity_page, family_explanations]
+                embed_list = [first_page, estates_page, summon_page, activity_page, family_explanations]
 
                 buttons = []
                 
