@@ -3007,7 +3007,6 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
             move1_ap = round(ap1)
             move2_ap = round(ap2)
             move3_ap = round(ap3)
-            print(move3)
             if arm != "none":
                 if d['UNIVERSE'] == "Souls" and resolved:
                     if arm_passive_type == 'SPECIAL':
@@ -4910,7 +4909,6 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
 
         omove1_text = list(o_1.keys())[0]
-        print(list(o_1.values())[0])
         omove1_element = list(o_1.values())[2]
         omove2_text = list(o_2.keys())[0]
         omove2_element = list(o_2.values())[2]

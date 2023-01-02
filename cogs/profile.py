@@ -4887,13 +4887,24 @@ async def menubuild(self, ctx):
                 move1_stamina = list(o_1.values())[1]
                 move1_element = list(o_1.values())[2]
                 move1_emoji = crown_utilities.set_emoji(move1_element)
-                
+                if arm_passive_type == 'BASIC':
+                    move1 = arm_passive
+                    move1ap = list(o_1.values())[0] + card_lvl_ap_buff + arm_passive_value
+                    move1_stamina = list(o_1.values())[1]
+                    move1_element = arm_element
+                    move1_emoji = crown_utilities.set_emoji(move1_element)
                 # Move 2
                 move2 = list(o_2.keys())[0]
                 move2ap = list(o_2.values())[0] + card_lvl_ap_buff
                 move2_stamina = list(o_2.values())[1]
                 move2_element = list(o_2.values())[2]
                 move2_emoji = crown_utilities.set_emoji(move2_element)
+                if arm_passive_type == 'SPECIAL':
+                    move2 = arm_passive
+                    move2ap = list(o_2.values())[0] + card_lvl_ap_buff + arm_passive_value
+                    move2_stamina = list(o_2.values())[1]
+                    move2_element = arm_element
+                    move2_emoji = crown_utilities.set_emoji(move2_element)
 
 
                 # Move 3
@@ -4902,6 +4913,12 @@ async def menubuild(self, ctx):
                 move3_stamina = list(o_3.values())[1]
                 move3_element = list(o_3.values())[2]
                 move3_emoji = crown_utilities.set_emoji(move3_element)
+                if arm_passive_type == 'ULTIMATE':
+                    move3 = arm_passive
+                    move3ap = list(o_3.values())[0] + card_lvl_ap_buff + arm_passive_value
+                    move3_stamina = list(o_3.values())[1]
+                    move3_element = arm_element
+                    move3_emoji = crown_utilities.set_emoji(move3_element)
 
 
                 # Move Enhancer
