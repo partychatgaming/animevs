@@ -81,8 +81,8 @@ traits = [{
 },
 {
     'NAME': 'One Piece',
-    'EFFECT': 'Observcation Haki, Armament Haki, Conquerors Haki',
-    'TRAIT': '\n**Observation**: :mahjong:1-3 Before first focus all opponent dmg reduced by 60%\n**Armament**: :mahjong:4-5 Observaton + Double defense &  attack gain on Focus, every focus\n**Conquerors**: :mahjong:6-7 Armament + Decrease opponent moves AP by 125 on Resolve'
+    'EFFECT': 'Haki: Observcation, Armament, Conquerors',
+    'TRAIT': '\n**Observation**: :mahjong:1-3 Before first focus all opponent dmg reduced by 60%\n**Armament**: :mahjong:4-5 *Observaton* + Double defense &  attack gain on Focus, every focus\n**Conquerors**: :mahjong:6-7 *Armament* + Decrease opponent moves AP by 125 on Resolve'
 },{
     'NAME': 'Crown Rift Slayers',
     'EFFECT': 'Feint Attack',
