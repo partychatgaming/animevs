@@ -23000,7 +23000,7 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
             arm_universe == card['UNIVERSE']
             
         if arm_universe in pokemon_universes:
-            arm_universe == card['UNIVERSE']
+            arm_universe = card['UNIVERSE']
 
         decrease_value = -1
         break_value = 1
