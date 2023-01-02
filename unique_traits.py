@@ -5,63 +5,63 @@ traits = [{
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot, Pentakill',
-    'TRAIT': '\n**Turret Shot**: When you Focus you deal (60 + Turn Count) Damage to Opponent. \n**Pentakill**: Upon Resolve, you deal 60 x (Total Focus Count) Damage.'
+    'TRAIT': '**Turret Shot**: When you Focus you deal (60 + Turn Count) Damage to Opponent. \n**Pentakill**: Upon Resolve, you deal 60 x (Total Focus Count) Damage.'
 },{
     'NAME': 'Pokemon',
     'EFFECT': 'Regions, Evolutions',
-    'TRAIT': '\n**Regions**: Titles and Arms from Pokemon Universes are shared. \n**Evolutions**: When you Resolve your Defense Doubles. \n**Mega Evolution**: If Turn >30 grow 500 HP, \n**Gigantomax**: If Turn >50 grow 1000 HP.'
+    'TRAIT': '**Regions**: Titles and Arms from Pokemon Universes are shared. \n**Evolutions**: When you Resolve your Defense Doubles. \n**Mega Evolution**: If Turn >30 grow 500 HP, \n**Gigantomax**: If Turn >50 grow 1000 HP.'
 },{
     'NAME': 'Digimon',
     'EFFECT': 'Digivolve, MegaDigivolution',
-    'TRAIT': '\n**Digivolve**:On Focus you Resolve gain 50% ATK and DEF. \n**Mega Digivolution**: If turn count <5 Double ATK and DEF increase Health by 500.'
+    'TRAIT': '**Digivolve**:On Focus you Resolve gain 50% ATK and DEF. \n**Mega Digivolution**: If turn count <5 Double ATK and DEF increase Health by 500.'
 },{
     'NAME': 'Naruto',
     'EFFECT': 'Substitution, Hashirama Cells',
-    'TRAIT': '\n**Substitution**: If Focused, you cannot be hit. \n**Hashirama Cells**: On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
+    'TRAIT': '**Substitution**: If Focused, you cannot be hit. \n**Hashirama Cells**: On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Devilization, Fearful',
-    'TRAIT': '\n**Devilization**: When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. \n**Fearful**: Strong Fear Infliction.'
+    'TRAIT': '**Devilization**: When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. \n**Fearful**: Strong Fear Infliction.'
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, Spiritual Pressure',
-    'TRAIT': '\n**Bankai**: Gain Double Attack on Resolve. \n**Spiritual Pressure**: On Block, exert your Spiritual Pressure to deal damage equal to your basic attack while still gaining defense.'
+    'TRAIT': '**Bankai**: Gain Double Attack on Resolve. \n**Spiritual Pressure**: On Block, exert your Spiritual Pressure to deal damage equal to your basic attack while still gaining defense.'
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
-    'TRAIT': '\n**Rally**: Gain 100 Max Health and 50 Health on Block. \n**Titan Mode**: Gain (100 x Your Focus Count) worth of Health upon Resolve.'
+    'TRAIT': '**Rally**: Gain 100 Max Health and 50 Health on Block. \n**Titan Mode**: Gain (100 x Your Focus Count) worth of Health upon Resolve.'
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone',
-    'TRAIT': '\nGain 100 Stamina on Focus. AP is increased by 30 on Focus.'
+    'TRAIT': 'Gain 100 Stamina on Focus. AP is increased by 30 on Focus.'
 },{
     'NAME': 'Fate',
     'EFFECT': 'Command Seal',
-    'TRAIT': '\nOn Resolve, Strike with Ultimate with no Stamina cost.'
+    'TRAIT': 'On Resolve, Strike with Ultimate with no Stamina cost.'
 },{
     'NAME': 'Demon Slayer',
     'EFFECT': 'Total Concentration Breathing, Total Concentration Constant',
-    'TRAIT': '\n**Breathing** At match start gain 40% of Opponent HP as your own. \n**Constant** On Resolve, Your ATK & DEF = Opp ATK and DEF if Opp stats are greater.'
+    'TRAIT': '**Breathing** At match start gain 40% of Opponent HP as your own. \n**Constant** On Resolve, Your ATK & DEF = Opp ATK and DEF if Opp stats are greater.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Blood Orb, Ascension',
-    'TRAIT': ' \nYou can Resolve twice. \n**Blood Orb **: 1st Resolve heal half of max health. \n**Ascension**: 2nd Resolve heal full max health.'
+    'TRAIT': ' You can Resolve twice. \n**Blood Orb **: 1st Resolve heal half of max health. \n**Ascension**: 2nd Resolve heal full max health.'
 },{
     'NAME': '7ds',
     'EFFECT': 'Power Of Friendship',
-    'TRAIT': '\nOn opponent Focus gain 60 Stamina and Summon Rest.'
+    'TRAIT': 'On opponent Focus gain 60 Stamina and Summon Rest.'
 },{
     'NAME': 'One Punch Man',
     'EFFECT': 'Hero Reinforcement',
-    'TRAIT': '\nWhen Opponent Focuses, you gain 100 Health & Max Health.'
+    'TRAIT': 'When Opponent Focuses, you gain 100 Health & Max Health.'
 },{
     'NAME': 'Solo Leveling',
     'EFFECT': 'Rulers Authority, Arise!',
-    'TRAIT': '\n**Rulers Authority**: On Focus, opponent loses (30 + turn count) Defense. \n**Arise!**: When Opponent Arm Breaks it revives as your Arm.'
+    'TRAIT': '**Rulers Authority**: On Focus, opponent loses (30 + turn count) Defense. \n**Arise!**: When Opponent Arm Breaks it revives as your Arm.'
 },{
     'NAME': 'Souls',
     'EFFECT': 'Combo Recognition, Second Phase!',
-    'TRAIT': '\n**Combo Recognition**: On opponent Focus, gain (60 + turn count) Attack. \n**Second Phase!**: On Resolve, BASIC becomes your SPECIAL, and your SPECIAL becomes another ULTIMATE.'
+    'TRAIT': '**Combo Recognition**: On opponent Focus, gain (60 + turn count) Attack. \n**Second Phase!**: On Resolve, BASIC becomes your SPECIAL, and your SPECIAL becomes another ULTIMATE.'
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death',
@@ -69,30 +69,30 @@ traits = [{
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',
-    'TRAIT': '\n**Final Stand**:  When you die, Resolve with 75% ATK + DEF as Health. \n**Saiyan Spirit!**:  On focus, heal for opponent Stamina amount + turn count.'
+    'TRAIT': '**Final Stand**:  When you die, Resolve with 75% ATK + DEF as Health. \n**Saiyan Spirit!**:  On focus, heal for opponent Stamina amount + turn count.'
 },{
     'NAME': 'Persona',
     'EFFECT': 'Summon Persona!',
-    'TRAIT': '\nSummon deals Damage equal to your Basic attack, in addition to their status effect, disabling opponents summon. '
+    'TRAIT': 'Summon deals Damage equal to your Basic attack, in addition to their status effect, disabling opponents summon. '
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Spirit Energy',
-    'TRAIT': '\nStamina + Turn Count added to each attack | Attack increased by Stamina each turn.'
+    'TRAIT': 'Stamina + Turn Count added to each attack | Attack increased by Stamina each turn.'
 },
 {
     'NAME': 'One Piece',
     'EFFECT': 'Haki: Observcation, Armament, Conquerors',
-    'TRAIT': '\n**Observation**: :mahjong:1-3 Before first focus all opponent dmg reduced by 60%\n**Armament**: :mahjong:4-5 *Observaton* + Double defense &  attack gain on Focus, every focus\n**Conquerors**: :mahjong:6-7 *Armament* + Decrease opponent moves AP by 125 on Resolve'
+    'TRAIT': '**Observation**: :mahjong:1-3 Before first focus all opponent dmg reduced by 60%\n**Armament**: :mahjong:4-5 *Observaton* + Double defense &  attack gain on Focus, every focus\n**Conquerors**: :mahjong:6-7 *Armament* + Decrease opponent moves AP by 125 on Resolve'
 },{
     'NAME': 'Crown Rift Slayers',
     'EFFECT': 'Feint Attack',
-    'TRAIT': '\nIf you miss, Crit!'
+    'TRAIT': 'If you miss, Crit!'
 },{
     'NAME': 'Crown Rift Madness',
     'EFFECT': 'Madness',
-    'TRAIT': '\nDo not lose turn on Focus, but also do not Heal.'
+    'TRAIT': 'Do not lose turn on Focus, but also do not Heal.'
 },{
     'NAME': 'Crown Rift Awakening',
     'EFFECT': 'Blood Awakening, Spiritual Weapons',
-    'TRAIT': '\n**Blood Awakening**: Deal 4x damage on Critical Strikes, Increased Crit Chance. \n**Spiritual Weapons**: Can use Arms from all Universes'
+    'TRAIT': '**Blood Awakening**: Deal 4x damage on Critical Strikes, Increased Crit Chance. \n**Spiritual Weapons**: Can use Arms from all Universes'
 }]

@@ -3010,16 +3010,16 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
             if arm != "none":
                 if d['UNIVERSE'] == "Souls" and resolved:
                     if arm_passive_type == 'SPECIAL':
-                        move1_ap = round(arm_passive_value + move2_ap)
+                        move1_ap = round(move2_ap)
                     if arm_passive_type == 'ULTIMATE':
-                        move2_ap = round(arm_passive_value + move3_ap)
+                        move2_ap = round(move3_ap)
                 else:
                     if arm_passive_type == 'BASIC':
-                        move1_ap = round(arm_passive_value + move1_ap )
+                        move1_ap = round(move1_ap )
                     if arm_passive_type == 'SPECIAL':
-                        move2_ap = round(arm_passive_value + move2_ap)
+                        move2_ap = round(move2_ap)
                     if arm_passive_type == 'ULTIMATE':
-                        move3_ap = round(arm_passive_value + move3_ap)
+                        move3_ap = round(move3_ap)
 
                 
 

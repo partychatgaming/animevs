@@ -2113,7 +2113,7 @@ async def traits(ctx):
       traits = ut.traits
       traitmessages = []
       for trait in traits:
-         traitmessages.append(f"_{trait['NAME']}_\n**{trait['EFFECT']}**: {trait['TRAIT']}\n")
+         traitmessages.append(f"_{trait['NAME']}_\n**{trait['EFFECT']}**:\n{trait['TRAIT']}\n")
 
       embedVar = discord.Embed(title="Universe Traits", description="\n".join(traitmessages))
 
