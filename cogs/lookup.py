@@ -835,6 +835,7 @@ class Lookup(commands.Cog):
                         
                 summon = family['SUMMON']
                 summon_data = db.queryPet({'PET': summon})
+                print(summon_data)
                 
                 universe = family['UNIVERSE']
                 estates_list = []
@@ -845,8 +846,8 @@ class Lookup(commands.Cog):
                 
                 
                 kids_names = "\n".join(f'{k}'.format(self) for k in kid_list)
-                if summon_data:
-                    await ctx.send({summon_data})
+                # if summon_data:
+                #     await ctx.send({summon_data})
                     
                 first_page = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=textwrap.dedent(f"""
                 :brain: **Head of Household** 
