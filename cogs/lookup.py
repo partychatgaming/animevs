@@ -924,198 +924,213 @@ class Lookup(commands.Cog):
                 custom_action_row = manage_components.create_actionrow(*buttons)
                 
                 async def custom_function(self, button_ctx):
-                    if button_ctx.author == ctx.author:
-                        if button_ctx.custom_id == "hello":
-                            await button_ctx.defer(ignore=True)
-                            update_query = {
-                                    '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
-                                }
-                            response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
-                            self.stop = True
-                            return
-                        elif button_ctx.custom_id == "property":
-                            property_buttons = []
-                
-                            if is_head:
-                                poperty_buttons = [
-                                manage_components.create_button(style=3, label="View Properties", custom_id="view"),
-                                manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
-                                manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
-                            ]
-                            if is_partner:
-                                poperty_buttons = [
-                                manage_components.create_button(style=3, label="View Properties", custom_id="view"),
-                                manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
-                            ]
-                            if is_kid:
-                                poperty_buttons = [
-                                manage_components.create_button(style=3, label="View Properties", custom_id="view"),
-                            ]
-                                
-                            property_action_row = manage_components.create_actionrow(*property_buttons)
-                            async def property_function(self, button_ctx):
-                                if button_ctx.author == ctx.author:
-                                    if button_ctx.custom_id == "view":
-                                        house_embed_list = []
-                                        for houses in estates:
-                                            house_name = houses['HOUSE']
-                                            house_price = houses['PRICE']
-                                            house_img = houses['PATH']
-                                            house_multiplier = houses['MULT']                                            
-                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
-                                            💰 **Price**: {house_price}
-                                            〽️ **Multiplier**: {house_multiplier}
+                    try:
+                        if button_ctx.author == ctx.author:
+                            if button_ctx.custom_id == "hello":
+                                await button_ctx.defer(ignore=True)
+                                update_query = {
+                                        '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
+                                    }
+                                response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
+                                self.stop = True
+                                return
+                            elif button_ctx.custom_id == "property":
+                                property_buttons = []
+                    
+                                if is_head:
+                                    poperty_buttons = [
+                                    manage_components.create_button(style=3, label="View Properties", custom_id="view"),
+                                    manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
+                                    manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
+                                ]
+                                if is_partner:
+                                    poperty_buttons = [
+                                    manage_components.create_button(style=3, label="View Properties", custom_id="view"),
+                                    manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
+                                ]
+                                if is_kid:
+                                    poperty_buttons = [
+                                    manage_components.create_button(style=3, label="View Properties", custom_id="view"),
+                                ]
+                                    
+                                property_action_row = manage_components.create_actionrow(*property_buttons)
+                                async def property_function(self, button_ctx):
+                                    if button_ctx.author == ctx.author:
+                                        if button_ctx.custom_id == "view":
+                                            house_embed_list = []
+                                            for houses in estates:
+                                                house_name = houses['HOUSE']
+                                                house_price = houses['PRICE']
+                                                house_img = houses['PATH']
+                                                house_multiplier = houses['MULT']                                            
+                                                embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                                💰 **Price**: {house_price}
+                                                〽️ **Multiplier**: {house_multiplier}
+                                                
+                                                Family earns **{house_multiplier}x** :coin: per match!
+                                                """))
+                                                embedVar.set_image(url=house_img)
+                                                house_embed_list.append(embedVar)
                                             
-                                            Family earns **{house_multiplier}x** :coin: per match!
-                                            """))
-                                            embedVar.set_image(url=house_img)
-                                            house_embed_list.append(embedVar)
-                                        
-                                        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
-                                        ]).run()
-                                    elif button_ctx.custom_id == "equip":
-                                        house_embed_list = []
-                                        for houses in estates:
-                                            house_name = houses['HOUSE']
-                                            house_price = houses['PRICE']
-                                            house_img = houses['PATH']
-                                            house_multiplier = houses['MULT']                                            
-                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
-                                            💰 **Price**: {house_price}
-                                            〽️ **Multiplier**: {house_multiplier}
+                                            await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
+                                            ]).run()
+                                        elif button_ctx.custom_id == "equip":
+                                            house_embed_list = []
+                                            for houses in estates:
+                                                house_name = houses['HOUSE']
+                                                house_price = houses['PRICE']
+                                                house_img = houses['PATH']
+                                                house_multiplier = houses['MULT']                                            
+                                                embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                                💰 **Price**: {house_price}
+                                                〽️ **Multiplier**: {house_multiplier}
+                                                
+                                                Family earns **{house_multiplier}x** :coin: per match!
+                                                """))
+                                                embedVar.set_image(url=house_img)
+                                                house_embed_list.append(embedVar)
                                             
-                                            Family earns **{house_multiplier}x** :coin: per match!
-                                            """))
-                                            embedVar.set_image(url=house_img)
-                                            house_embed_list.append(embedVar)
-                                        
-                                        equip_buttons = [
-                                            manage_components.create_button(style=3, label="🏠 Equip House", custom_id="equip"),
+                                            equip_buttons = [
+                                                manage_components.create_button(style=3, label="🏠 Equip House", custom_id="equip"),
 
-                                        ]
-                                        equip_action_row = manage_components.create_actionrow(*equip_buttons)
-                                        
-                                        async def equip_function(self, button_ctx):
-                                            house_name = str(button_ctx.origin_message.embeds[0].title)
-                                            await button_ctx.defer(ignore=True)
-                                            if button_ctx.author == ctx.author:
-                                                if button_ctx.custom_id == "equip":
-                                                    update_query = {
-                                                            '$set': {'HOUSE': house_name}
-                                                        }
-                                                    response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
-                                                    await ctx.send(f"{family_name} Family moved into their {house_name}! Enjoy your new Home!")
-                                                    self.stop = True
-                                            else:
-                                                await ctx.send("This is not your command.")
-                                        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
-                                            equip_action_row,
-                                            equip_function,
-                                        ]).run()
-                                    elif button_ctx.custom_id == "buy":
-                                        house_embed_list = []
-                                        all_houses = db.queryAllHouses()
-                                        owned = False
-                                        for houses in all_houses:
+                                            ]
+                                            equip_action_row = manage_components.create_actionrow(*equip_buttons)
+                                            
+                                            async def equip_function(self, button_ctx):
+                                                house_name = str(button_ctx.origin_message.embeds[0].title)
+                                                await button_ctx.defer(ignore=True)
+                                                if button_ctx.author == ctx.author:
+                                                    if button_ctx.custom_id == "equip":
+                                                        update_query = {
+                                                                '$set': {'HOUSE': house_name}
+                                                            }
+                                                        response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
+                                                        await ctx.send(f"{family_name} Family moved into their {house_name}! Enjoy your new Home!")
+                                                        self.stop = True
+                                                else:
+                                                    await ctx.send("This is not your command.")
+                                            await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
+                                                equip_action_row,
+                                                equip_function,
+                                            ]).run()
+                                        elif button_ctx.custom_id == "buy":
+                                            house_embed_list = []
+                                            all_houses = db.queryAllHouses()
                                             owned = False
-                                            if houses in estates:
-                                                owned = True
-                                            house_name = houses['HOUSE']
-                                            house_price = houses['PRICE']
-                                            house_img = houses['PATH']
-                                            house_multiplier = houses['MULT']       
-                                            ownership_message = f"💰 **Price**: {house_price}"  
-                                            sell_price = house_price *.80
-                                            sell_message = " "
-                                            if owned == True:
-                                                sell_message = f"💱 Sell for **{sell_price}**"   
-                                                ownership_message = "You Own This House"                                 
-                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
-                                            {ownership_message}
-                                            〽️ **Multiplier**: {house_multiplier}
-                                            {sell_message}
+                                            for houses in all_houses:
+                                                owned = False
+                                                if houses in estates:
+                                                    owned = True
+                                                house_name = houses['HOUSE']
+                                                house_price = houses['PRICE']
+                                                house_img = houses['PATH']
+                                                house_multiplier = houses['MULT']       
+                                                ownership_message = f"💰 **Price**: {house_price}"  
+                                                sell_price = house_price *.80
+                                                sell_message = " "
+                                                if owned == True:
+                                                    sell_message = f"💱 Sell for **{sell_price}**"   
+                                                    ownership_message = "You Own This House"                                 
+                                                embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                                {ownership_message}
+                                                〽️ **Multiplier**: {house_multiplier}
+                                                {sell_message}
+                                                
+                                                
+                                                Family earns **{house_multiplier}x** :coin: per match!
+                                                """))
+                                                embedVar.set_image(url=house_img)
+                                                house_embed_list.append(embedVar)
                                             
-                                            
-                                            Family earns **{house_multiplier}x** :coin: per match!
-                                            """))
-                                            embedVar.set_image(url=house_img)
-                                            house_embed_list.append(embedVar)
-                                        
-                                        econ_buttons = [
-                                            manage_components.create_button(style=3, label="💰 Buy House", custom_id="buy"),
-                                            manage_components.create_button(style=3, label="💱 Sell House", custom_id="sell"),
+                                            econ_buttons = [
+                                                manage_components.create_button(style=3, label="💰 Buy House", custom_id="buy"),
+                                                manage_components.create_button(style=3, label="💱 Sell House", custom_id="sell"),
 
-                                        ]
-                                        econ_action_row = manage_components.create_actionrow(*econ_buttons)
-                                        
-                                        async def econ_function(self, button_ctx):
-                                            house_name = str(button_ctx.origin_message.embeds[0].title)
-                                            await button_ctx.defer(ignore=True)
-                                            if button_ctx.author == ctx.author:
-                                                if button_ctx.custom_id == "buy":
-                                                    if owned:
-                                                        await ctx.send("You already own this House. Click 'Sell' to sell it!")
-                                                        self.stop = True
-                                                        return
-                                                    try: 
-                                                        house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
-                                                        currentBalance = family['BANK']
-                                                        cost = house['PRICE']
-                                                        house_name = house['HOUSE']
-                                                        if house:
-                                                            if house_name in family['HOUSE']:
-                                                                await ctx.send(m.USERS_ALREADY_HAS_HOUSE, delete_after=5)
-                                                            else:
-                                                                newBalance = currentBalance - cost
-                                                                if newBalance < 0 :
-                                                                    await ctx.send("You have an insufficent Balance")
+                                            ]
+                                            econ_action_row = manage_components.create_actionrow(*econ_buttons)
+                                            
+                                            async def econ_function(self, button_ctx):
+                                                house_name = str(button_ctx.origin_message.embeds[0].title)
+                                                await button_ctx.defer(ignore=True)
+                                                if button_ctx.author == ctx.author:
+                                                    if button_ctx.custom_id == "buy":
+                                                        if owned:
+                                                            await ctx.send("You already own this House. Click 'Sell' to sell it!")
+                                                            self.stop = True
+                                                            return
+                                                        try: 
+                                                            house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
+                                                            currentBalance = family['BANK']
+                                                            cost = house['PRICE']
+                                                            house_name = house['HOUSE']
+                                                            if house:
+                                                                if house_name in family['HOUSE']:
+                                                                    await ctx.send(m.USERS_ALREADY_HAS_HOUSE, delete_after=5)
                                                                 else:
-                                                                    await crown_utilities.cursefamily(cost, family['HEAD'])
-                                                                    response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
-                                                                    await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
-                                                                    return
-                                                        else:
-                                                            await ctx.send(m.HOUSE_DOESNT_EXIST)
-                                                    except Exception as ex:
-                                                            trace = []
-                                                            tb = ex.__traceback__
-                                                            while tb is not None:
-                                                                trace.append({
-                                                                    "filename": tb.tb_frame.f_code.co_filename,
-                                                                    "name": tb.tb_frame.f_code.co_name,
-                                                                    "lineno": tb.tb_lineno
-                                                                })
-                                                                tb = tb.tb_next
-                                                            print(str({
-                                                                'type': type(ex).__name__,
-                                                                'message': str(ex),
-                                                                'trace': trace
-                                                            }))
-                                                if button_ctx.custom_id == "sell":
-                                                    if not owned:
-                                                        await ctx.send("You need to Own this House to to sell it!")
-                                                        self.stop = True
-                                                        return
-                                                    if house_name == family['HOUSE']:
-                                                        await button_ctx.send("You cannot your primary residence.")
-                                                        self.stop = True
-                                                        return
-                                                    elif house_name in family['ESTATES']:
-                                                        newBalance = currentBalance + cost
-                                                        await crown_utilities.blessfamily(cost, family['HEAD'])
-                                                        response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)}})
-                                                        await ctx.send(f'{family_name} sold their **{house_name}** for **{sell_price}**')
-                                                        self.stop = True
-                                                        return
-                                            else:
-                                                await ctx.send("This is not your command.")
-                                        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
-                                            econ_action_row,
-                                            econ_function,
-                                        ]).run()
-
-                
-                
+                                                                    newBalance = currentBalance - cost
+                                                                    if newBalance < 0 :
+                                                                        await ctx.send("You have an insufficent Balance")
+                                                                    else:
+                                                                        await crown_utilities.cursefamily(cost, family['HEAD'])
+                                                                        response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
+                                                                        await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
+                                                                        return
+                                                            else:
+                                                                await ctx.send(m.HOUSE_DOESNT_EXIST)
+                                                        except Exception as ex:
+                                                                trace = []
+                                                                tb = ex.__traceback__
+                                                                while tb is not None:
+                                                                    trace.append({
+                                                                        "filename": tb.tb_frame.f_code.co_filename,
+                                                                        "name": tb.tb_frame.f_code.co_name,
+                                                                        "lineno": tb.tb_lineno
+                                                                    })
+                                                                    tb = tb.tb_next
+                                                                print(str({
+                                                                    'type': type(ex).__name__,
+                                                                    'message': str(ex),
+                                                                    'trace': trace
+                                                                }))
+                                                    if button_ctx.custom_id == "sell":
+                                                        if not owned:
+                                                            await ctx.send("You need to Own this House to to sell it!")
+                                                            self.stop = True
+                                                            return
+                                                        if house_name == family['HOUSE']:
+                                                            await button_ctx.send("You cannot your primary residence.")
+                                                            self.stop = True
+                                                            return
+                                                        elif house_name in family['ESTATES']:
+                                                            newBalance = currentBalance + cost
+                                                            await crown_utilities.blessfamily(cost, family['HEAD'])
+                                                            response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)}})
+                                                            await ctx.send(f'{family_name} sold their **{house_name}** for **{sell_price}**')
+                                                            self.stop = True
+                                                            return
+                                                else:
+                                                    await ctx.send("This is not your command.")
+                                            await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
+                                                econ_action_row,
+                                                econ_function,
+                                            ]).run()
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                    
+                    
                 # embed1 = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=":bank: | Party Chat Gaming Database", colour=000000)
                 # # if team['LOGO_FLAG']:
                 # #     embed1.set_image(url=logo)
