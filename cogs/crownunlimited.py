@@ -2982,20 +2982,20 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 arm_message = f"{arm_passive_type.title()} {arm_passive_value}"
                 if d['UNIVERSE'] == "Souls" and resolved:
                     if arm_passive_type == 'SPECIAL':
-                        move1 = {arm_name: arm_passive_value, "STAM": 10, "ELEMENT": arm_element}
+                        move1 = {arm_name: (arm_passive_value + ap2), "STAM": 10, "ELEMENT": arm_element}
                         arm_message = "Ability"
                     elif arm_passive_type == 'ULTIMATE':
-                        move2 = {arm_name: arm_passive_value, "STAM": 30, "ELEMENT": arm_element}
+                        move2 = {arm_name: a(rm_passive_value + ap3), "STAM": 30, "ELEMENT": arm_element}
                         arm_message = "Ability"
                 else:
                     if arm_passive_type == 'BASIC':
-                        move1 = {arm_name: arm_passive_value, "STAM": 10, "ELEMENT": arm_element}
+                        move1 = {arm_name: (arm_passive_value + ap1), "STAM": 10, "ELEMENT": arm_element}
                         arm_message = "Ability"
                     elif arm_passive_type == 'SPECIAL':
-                        move2 = {arm_name: arm_passive_value, "STAM": 30, "ELEMENT": arm_element}
+                        move2 = {arm_name: (arm_passive_value + ap2), "STAM": 30, "ELEMENT": arm_element}
                         arm_message = "Ability"
                     elif arm_passive_type == 'ULTIMATE':
-                        move3 = {arm_name: arm_passive_value, "STAM": 80, "ELEMENT": arm_element}
+                        move3 = {arm_name: (arm_passive_value + ap3), "STAM": 80, "ELEMENT": arm_element}
                         arm_message = "Ability"
 
                 
