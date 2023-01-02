@@ -978,6 +978,7 @@ class Lookup(commands.Cog):
                                 await button_ctx.defer(ignore=True)
                                 real_estate_message = " "
                                 property_buttons = []
+                                balance_message = {'{:,}'.format(savings)}
                                 if is_head:
                                     real_estate_message = "Welcome Head of Household! Please select an option for viewing properties, buying property or Equiping a new Home"
                                     property_buttons = [
@@ -999,7 +1000,7 @@ class Lookup(commands.Cog):
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
                                 real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
                                 *{real_estate_message}*
-                                *Current Savings*: :coin: {round({'{:,}'.format(savings)})}
+                                *Current Savings*: :coin: **{balance_message}**
                                 """), color=0xe74c3c)
                                 real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
                                 
