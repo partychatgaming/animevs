@@ -306,6 +306,7 @@ class Profile(commands.Cog):
                     talisman = d['TALISMAN']
                     talisman_message = "No Talisman Equipped"
                     talisman_emoji = '🔅'
+                    talisman_durability = '0'
                     if talisman == "NULL":
                         talisman_message = "No Talisman Equipped"
                     else:
