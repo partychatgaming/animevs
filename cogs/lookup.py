@@ -995,7 +995,8 @@ class Lookup(commands.Cog):
                                 ]
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
                                 real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
-                                
+                                *{real_estate_message}*
+                                *Current Savings*: :coin: {family['BANK']}
                                 """), color=0xe74c3c)
                                 real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
                                 
@@ -1005,8 +1006,9 @@ class Lookup(commands.Cog):
                                 try:
                                     house_embed_list = []
                                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[property_action_row], timeout=120, check=check)
+                                    
                                     if button_ctx.custom_id == "view":
-                                        for houses in estates:
+                                        for houses in estates_list:
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
                                             house_img = houses['PATH']
