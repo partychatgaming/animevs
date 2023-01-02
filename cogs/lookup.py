@@ -865,8 +865,11 @@ class Lookup(commands.Cog):
                 universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']
                 estates_list = []
+                estate_data_list = []
                 for houses in estates:
+                    house_data = db.queryHouse({'HOUSE': houses})
                     estates_list.append(houses)
+                    estate_data_list.append(house_data)
                     
                 estates_list_joined = ", ".join(estates_list)
                 
@@ -886,7 +889,7 @@ class Lookup(commands.Cog):
                 {kids_names}
 
                 **Savings** 
-                {icon} {'{:,}'.format(savings)}
+                # {icon} {'{:,}'.format(savings)}
                 
                 **Primary Residence**
                 {house_info['HOUSE']}
@@ -996,7 +999,7 @@ class Lookup(commands.Cog):
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
                                 real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
                                 *{real_estate_message}*
-                                *Current Savings*: :coin: {family['BANK']}
+                                *Current Savings*: :coin: {round({'{:,}'.format(savings)})}
                                 """), color=0xe74c3c)
                                 real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
                                 
@@ -1008,7 +1011,8 @@ class Lookup(commands.Cog):
                                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[property_action_row], timeout=120, check=check)
                                     
                                     if button_ctx.custom_id == "view":
-                                        for houses in estates_list:
+                                        for houses in estate_data_list:
+                                            print(houses)
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
                                             house_img = houses['PATH']
@@ -1023,7 +1027,7 @@ class Lookup(commands.Cog):
                                             house_embed_list.append(embedVar)
                                         await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list).run()
                                     elif button_ctx.custom_id == "equip":
-                                        for houses in estates:
+                                        for houses in estate_data_list:
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
                                             house_img = houses['PATH']
