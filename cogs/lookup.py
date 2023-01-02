@@ -852,7 +852,6 @@ class Lookup(commands.Cog):
                     pet_bond = opet['BOND']
                     summon_data = db.queryPet({'PET': pet_name})
                     summon_img = summon_data['PATH']
-                    await ctx.send(summon_img)
                     summon_file = crown_utilities.showsummon(summon_img, pet_name, enhancer_mapping[pet_passive_type], pet_lvl, pet_bond)
                 else:
                     summon_data = db.queryPet({'PET': summon})
