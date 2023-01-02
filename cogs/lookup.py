@@ -14,6 +14,8 @@ from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
 from collections import ChainMap
+from io import BytesIO
+import io
 import DiscordUtils
 import textwrap
 from collections import Counter
@@ -835,8 +837,9 @@ class Lookup(commands.Cog):
                         
                 summon = family['SUMMON']
                 summon_data = db.queryPet({'PET': summon})
-                print(summon_data)
                 summon_img = summon_data['PATH']
+                
+                summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[list(summon_data['ABILTIES'].values())[1]], 0, 0)
                 universe = family['UNIVERSE']
                 estates_list = []
                 for houses in estates:
@@ -849,7 +852,7 @@ class Lookup(commands.Cog):
                 # if summon_data:
                 #     await ctx.send({summon_data})
                     
-                first_page = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=textwrap.dedent(f"""
+                first_page = discord.Embed(title=f":family_mwgb: | {family_name}", description=textwrap.dedent(f"""
                 :brain: **Head of Household** 
                 {head_name.split("#",1)[0]}
 
@@ -878,7 +881,7 @@ class Lookup(commands.Cog):
                 summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
                 🧬**Family Summon**
                 """), colour=0x7289da)
-                summon_page.set_image(url=summon_img)
+                summon_page.set_image(url='attachment://pet.png')
                 
                 
                 
@@ -1257,3 +1260,38 @@ async def apply(self, ctx, owner: User):
             await ctx.send(m.OWNER_ONLY_COMMAND, delete_after=5)
 
 
+enhancer_mapping = {'ATK': 'Increase Attack %',
+'DEF': 'Increase Defense %',
+'STAM': 'Increase Stamina',
+'HLT': 'Heal yourself or companion',
+'LIFE': 'Steal Health from Opponent',
+'DRAIN': 'Drain Stamina from Opponent',
+'FLOG': 'Steal Attack from Opponent',
+'WITHER': 'Steal Defense from Opponent',
+'RAGE': 'Lose Defense, Increase AP',
+'BRACE': 'Lose Attack, Increase AP',
+'BZRK': 'Lose Health, Increase Attack',
+'CRYSTAL': 'Lose Health, Increase Defense',
+'GROWTH': 'Lose 10% Max Health, Increase Attack, Defense and AP',
+'STANCE': 'Swap your Attack & Defense, Increase Defense',
+'CONFUSE': 'Swap Opponent Attack & Defense, Decrease Opponent Defense',
+'BLINK': 'Decrease your  Stamina, Increase Target Stamina',
+'SLOW': 'Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent',
+'HASTE': 'Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent',
+'FEAR': 'Lose 10% Max Health, Decrease Opponent Attack, Defense and AP',
+'SOULCHAIN': 'You and Your Opponent Stamina Link',
+'GAMBLE': 'You and Your Opponent Health Link',
+'WAVE': 'Deal Damage, Decreases over time',
+'CREATION': 'Heals you, Decreases over time',
+'BLAST': 'Deals Damage, Increases over time based on card tier',
+'DESTRUCTION': 'Decreases Your Opponent Max Health, Increases over time based on card tier',
+'BASIC': 'Increase Basic Attack AP',
+'SPECIAL': 'Increase Special Attack AP',
+'ULTIMATE': 'Increase Ultimate Attack AP',
+'ULTIMAX': 'Increase All AP Values',
+'MANA': 'Increase Enchancer AP',
+'SHIELD': 'Blocks Incoming DMG, until broken',
+'BARRIER': 'Nullifies Incoming Attacks, until broken',
+'PARRY': 'Returns 25% Damage, until broken',
+'SIPHON': 'Heal for 10% DMG inflicted + AP'
+}

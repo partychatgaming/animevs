@@ -13,17 +13,24 @@ import destiny as d
 from discord import User
 from discord_slash import SlashCommand
 from discord_slash.utils import manage_components
+from PIL import Image, ImageFont, ImageDraw
 from discord_slash.model import ButtonStyle
 import textwrap
 from discord_slash import cog_ext, SlashContext
 from dinteractions_Paginator import Paginator
 from discord_slash.utils.manage_commands import create_option, create_choice
+from io import BytesIO
+import io
 import os
+import typing
+from pilmoji import Pilmoji
 import logging
 import textwrap
 import unique_traits as ut
+import discord
 now = time.asctime()
 import random
+import requests
 
 
 print("Crown Utilities initiated")
@@ -243,6 +250,84 @@ def set_emoji(element):
 
     return emoji
 
+def showsummon(url, summon, message, lvl, bond):
+    # Card Name can be 16 Characters before going off Card
+    # Lower Card Name Font once after 16 characters
+    try:
+        im = Image.open(requests.get(url, stream=True).raw)
+
+        draw = ImageDraw.Draw(im)
+
+        # Font Size Adjustments
+        # Name not go over Card
+        name_font_size = 80
+        if len(list(summon)) >= 10:
+            name_font_size = 45
+        if len(list(summon)) >= 14:
+            name_font_size = 36
+        
+
+        header = ImageFont.truetype("YesevaOne-Regular.ttf", name_font_size)
+        s = ImageFont.truetype("Roboto-Bold.ttf", 22)
+        h = ImageFont.truetype("YesevaOne-Regular.ttf", 37)
+        m = ImageFont.truetype("Roboto-Bold.ttf", 25)
+        r = ImageFont.truetype("Freedom-10eM.ttf", 40)
+        lvl_font = ImageFont.truetype("Neuton-Bold.ttf", 68)
+        health_and_stamina_font = ImageFont.truetype("Neuton-Light.ttf", 41)
+        attack_and_shield_font = ImageFont.truetype("Neuton-Bold.ttf", 48)
+        moveset_font = ImageFont.truetype("antonio.regular.ttf", 40)
+        rhs = ImageFont.truetype("destructobeambb_bold.ttf", 35)
+        stats = ImageFont.truetype("Freedom-10eM.ttf", 30)
+        card_details_font_size = ImageFont.truetype("destructobeambb_bold.ttf", 25)
+        card_levels = ImageFont.truetype("destructobeambb_bold.ttf", 40)
+
+        # Pet Name
+        draw.text((600, 160), summon, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
+                    align="left")
+
+        # Level
+        lvl_sizing = (89, 70)
+        if int(lvl) > 9:
+            lvl_sizing = (75, 70)
+ 
+        draw.text(lvl_sizing, f"{lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
+                    align="center")
+        draw.text((1096, 65), f"{bond}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
+                    align="center")
+
+        lines = textwrap.wrap(message, width=28)
+        y_text = 330
+        for line in lines:
+            font=moveset_font
+            width, height = font.getsize(line)
+            with Pilmoji(im) as pilmoji:
+                pilmoji.text(((1730 - width) / 2, y_text), line, (255, 255, 255), font=font, stroke_width=2, stroke_fill=(0, 0, 0))
+            y_text += height
+
+
+        with BytesIO() as image_binary:
+            im.save(image_binary, "PNG")
+            image_binary.seek(0)
+            # await ctx.send(file=discord.File(fp=image_binary,filename="image.png"))
+            file = discord.File(fp=image_binary,filename="pet.png")
+            return file
+
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        return
 
 def check_affinities(player, card, basic_element, super_element, ultimate_element):
     # card = card you want to check
