@@ -852,8 +852,10 @@ class Lookup(commands.Cog):
                     pet_exp = opet['EXP']
                     pet_lvl = opet['LVL']
                     pet_bond = opet['BOND']
+                    summon_data = db.queryPet({'PET': pet_name})
+                    summon_img = summon_data['PATH']
                     
-                    summon_file = crown_utilities.showsummon(pet_image, pet_name, enhancer_mapping[pet_passive_type], pet_lvl, pet_bond)
+                    summon_file = crown_utilities.showsummon(summon_img, pet_name, enhancer_mapping[pet_passive_type], pet_lvl, pet_bond)
                 else:
                     summon_data = db.queryPet({'PET': summon})
                     summon_img = summon_data['PATH']
@@ -886,6 +888,9 @@ class Lookup(commands.Cog):
 
                 **Savings** 
                 {icon} {'{:,}'.format(savings)}
+                
+                **Primary Residence**
+                {house_info['HOUSE']}
                 """), colour=0x7289da)
                 first_page.set_image(url=house_img)
                 
@@ -1000,9 +1005,6 @@ class Lookup(commands.Cog):
                                                 """))
                                                 embedVar.set_image(url=house_img)
                                                 house_embed_list.append(embedVar)
-                                            
-                                            await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
-                                            ]).run()
                                         elif button_ctx.custom_id == "equip":
                                             house_embed_list = []
                                             for houses in estates:
@@ -1019,12 +1021,16 @@ class Lookup(commands.Cog):
                                                 embedVar.set_image(url=house_img)
                                                 house_embed_list.append(embedVar)
                                             
+                                            
+                                await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
+                                    equip_action_row,
+                                    property_function,
+                                ]).run()
                                             equip_buttons = [
                                                 manage_components.create_button(style=3, label="🏠 Equip House", custom_id="equip"),
 
                                             ]
                                             equip_action_row = manage_components.create_actionrow(*equip_buttons)
-                                            
                                             async def equip_function(self, button_ctx):
                                                 house_name = str(button_ctx.origin_message.embeds[0].title)
                                                 await button_ctx.defer(ignore=True)
