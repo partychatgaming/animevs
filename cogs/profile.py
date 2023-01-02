@@ -305,6 +305,7 @@ class Profile(commands.Cog):
                     affinity_message = crown_utilities.set_affinities(card)
                     talisman = d['TALISMAN']
                     talisman_message = "No Talisman Equipped"
+                    talisman_emoji = '🔅'
                     if talisman == "NULL":
                         talisman_message = "No Talisman Equipped"
                     else:
