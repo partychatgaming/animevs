@@ -905,7 +905,6 @@ class Lookup(commands.Cog):
                 """), colour=0x7289da)
                 
                 summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
-                🧬**Family Summon**
                 🧬**{summon_data['PET']}**
                 *Bond* **{pet_bond}**
                 *Level* **{pet_lvl}**
@@ -973,25 +972,36 @@ class Lookup(commands.Cog):
                                 self.stop = True
                                 return
                             elif button_ctx.custom_id == "property":
+                                
+                                
                                 property_buttons = []
-                    
+                                real_estate_message = " "
                                 if is_head:
+                                    real_estate_message = "Welcome Head of Household! Please select an option for viewing properties, buying property or Equiping a new Home"
                                     property_buttons = [
                                     manage_components.create_button(style=3, label="View Properties", custom_id="view"),
                                     manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
                                     manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
                                 ]
                                 if is_partner:
+                                    real_estate_message = "Welcome Partner! Please select an option for viewing properties or Equiping a new Home"
                                     property_buttons = [
                                     manage_components.create_button(style=3, label="View Properties", custom_id="view"),
                                     manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
                                 ]
                                 if is_kid:
+                                    real_estate_message = "Welcome Kids! Please select an option for viewing properties"
                                     property_buttons = [
                                     manage_components.create_button(style=3, label="View Properties", custom_id="view"),
                                 ]
+                                real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
+                                
+                                """), color=0xe74c3c)
+                                real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
+                                
                                     
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
+                                real_estate_embed = await button_ctx.send(embed=real_estate_screen, components =property_action_row)
                                 house_embed_list = []
                                 async def property_function(self, button_ctx):
                                     if button_ctx.author == ctx.author:
