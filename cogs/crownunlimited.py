@@ -4801,12 +4801,13 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             cap1 = list(c_1.keys())[0]
             cap2 = list(c_2.keys())[0]
             cap3 = list(c_3.keys())[0]
+            int_carm_passive_value = int(list(carm_passive.values())[0])
             if carm_passive_type == 'BASIC':
-                c_1 = {carm_name: (carm_passive_value + cap1), "STAM": 10, "ELEMENT": carm_element}
+                c_1 = {carm_name: (int_carm_passive_value + cap1), "STAM": 10, "ELEMENT": carm_element}
             elif carm_passive_type == 'SPECIAL':
-                c_2 = {carm_name: (carm_passive_value + cap2), "STAM": 30, "ELEMENT": carm_element}
+                c_2 = {carm_name: (int_carm_passive_value + cap2), "STAM": 30, "ELEMENT": carm_element}
             elif carm_passive_type == 'ULTIMATE':
-                c_3 = {carm_name: (carm_passive_value + cap3), "STAM": 80, "ELEMENT": carm_element}
+                c_3 = {carm_name: (int_carm_passive_value + cap3), "STAM": 80, "ELEMENT": carm_element}
 
 
             cmove1_text = list(c_1.keys())[0]
@@ -4900,12 +4901,13 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
         oarm_passive_type = list(oarm_passive.keys())[0]
         oarm_passive_value = list(oarm_passive.values())[0]
+        int_oarm_passive_value = int(list(oarm_passive.values())[0])
         if oarm_passive_type == 'BASIC':
-            o_1 = {oarm_name: (oarm_passive_value + oap1), "STAM": 10, "ELEMENT": oarm_element}
+            o_1 = {oarm_name: (int_oarm_passive_value + oap1), "STAM": 10, "ELEMENT": oarm_element}
         elif oarm_passive_type == 'SPECIAL':
-            o_2 = {oarm_name: (oarm_passive_value + oap2), "STAM": 30, "ELEMENT": oarm_element}
+            o_2 = {oarm_name: (int_oarm_passive_value + oap2), "STAM": 30, "ELEMENT": oarm_element}
         elif oarm_passive_type == 'ULTIMATE':
-            o_3 = {oarm_name: (oarm_passive_value + oap3), "STAM": 80, "ELEMENT": oarm_element}
+            o_3 = {oarm_name: (int_oarm_passive_value + oap3), "STAM": 80, "ELEMENT": oarm_element}
 
 
         omove1_text = list(o_1.keys())[0]
@@ -4975,12 +4977,13 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
             tarm_passive_type = list(tarm_passive.keys())[0]
             tarm_passive_value = list(tarm_passive.values())[0]
+            int_tarm_passive_value = int(list(tarm_passive.values())[0])
             if tarm_passive_type == 'BASIC':
-                t_1 = {tarm_name: (tarm_passive_value + tap1), "STAM": 10, "ELEMENT": tarm_element}
+                t_1 = {tarm_name: (int_tarm_passive_value + tap1), "STAM": 10, "ELEMENT": tarm_element}
             elif tarm_passive_type == 'SPECIAL':
-                t_2 = {tarm_name: (tarm_passive_value + tap2), "STAM": 30, "ELEMENT": tarm_element}
+                t_2 = {tarm_name: (int_tarm_passive_value + tap2), "STAM": 30, "ELEMENT": tarm_element}
             elif tarm_passive_type == 'ULTIMATE':
-                t_3 = {tarm_name: (tarm_passive_value + tap3), "STAM": 80, "ELEMENT": tarm_element}
+                t_3 = {tarm_name: (int_tarm_passive_value + tap3), "STAM": 80, "ELEMENT": tarm_element}
 
 
             tmove1_text = list(t_1.keys())[0]
