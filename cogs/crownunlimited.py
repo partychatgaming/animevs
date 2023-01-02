@@ -10850,7 +10850,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 embedVar.add_field(name=f"**Engagements**",
                                                                 value="You will take less DMG when your **DEF** is greater than your opponenents **ATK**")
                                                 embedVar.add_field(name=f"**Engagement Insight**",
-                                                                value="💢: %33-%50 of AP\n❕: %50-%75 AP\n‼️: %75-%120 AP\n〽️x1.5: %120-%150 AP\n❌x2: $150-%200 AP"
+                                                                value="💢: %33-%50 of AP\n❕: %50-%75 AP\n‼️: %75-%120 AP\n〽️x1.5: %120-%150 AP\n❌x2: $150-%200 AP")
                                                 embedVar.set_footer(
                                                     text=f"Use 🛡️Block strategically to defend against your opponents strongest abilities!")
                                                 await button_ctx.send(embed=embedVar)
