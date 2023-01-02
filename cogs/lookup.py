@@ -838,7 +838,10 @@ class Lookup(commands.Cog):
                 summon = family['SUMMON']
                 summon_data = db.queryPet({'PET': summon})
                 summon_img = summon_data['PATH']
-                print(summon_data['ABILITIES']['TYPE'])
+                summon_info = summon_data['ABILITIES'][1]
+                print(summon_info)
+                summon_enh = summon_info.values()[0]
+                print(summon_enh)
                 
                 summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_data['ABILITIES']['TYPE']], 0, 0)
                 universe = family['UNIVERSE']
