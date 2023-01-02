@@ -834,20 +834,33 @@ class Lookup(commands.Cog):
                         transactions_embed = "\n".join(transactions)
                     else:
                         transactions_embed = "\n".join(transactions)
+                
                         
                 summon = family['SUMMON']
-                summon_data = db.queryPet({'PET': summon})
-                summon_img = summon_data['PATH']
-                print(summon_data)
-                summon_enh_type = list(summon_data['ABILITIES'])[0]
-                print("--")
-                print(summon_enh_type)
-                summon_enh = summon_enh_type['TYPE']
-                print("--")
-                print(summon_enh)
                 
-                summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_data['ABILITIES']['TYPE']], 0, 0)
+                head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
+                if head_vault:
+                    for pet in head_vault['PETS']:
+                        if summon == pet['NAME']:
+                            opet = pet
+
+                    pet_passive_type = opet['TYPE']
+                    pet_name = opet['NAME']
+                    pet_image = opet['PATH']
+                    pet_exp = opet['EXP']
+                    pet_lvl = opet['LVL']
+                    pet_bond = opet['BOND']
+                    
+                    summon_file = crown_utilities.showsummon(pet_image, pet_name, enhancer_mapping[pet_passive_type], pet_lvl, pet_bond)
+                else:
+                    summon_data = db.queryPet({'PET': summon})
+                    summon_img = summon_data['PATH']
+                    summon_enh_type = list(summon_data['ABILITIES'])[0]
+                    summon_enh = summon_enh_type['TYPE']
+                    summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_enh], 0, 0)
                 universe = family['UNIVERSE']
+                universe_data = db.queryUniverse('TITLE': univese)
+                universe_img = universe_data['PATH']
                 estates_list = []
                 for houses in estates:
                     estates_list.append(houses)
@@ -879,7 +892,11 @@ class Lookup(commands.Cog):
                 {estates_list_joined}
                
                 """), colour=0x7289da)
-                
+
+                universe_page = discord.Embed(title="Home Universe", description=textwrap.dedent(f"""
+                🌍**Home Universe**
+                """), colour=0x7289da)
+                summon_page.set_image(url=universe_img)
                 
                 activity_page = discord.Embed(title="Recent Family Activity", description=textwrap.dedent(f"""
                 {transactions_embed}
@@ -892,20 +909,24 @@ class Lookup(commands.Cog):
                 
                 
                 
+                
+                
                 family_explanations = discord.Embed(title=f"Information", description=textwrap.dedent(f"""
                 **Family Explanations**
                 - **Earnings**: Families earn coin for every completed battle by its members
                 - **Houses**: Give Coin Multipliers in all game modes towards Family Earnings
+                - **Home Universe**: Earn Extra gold in Home Universe,
                 - **Real Estate**: Own multiple houses, swap your current house buy and sell real estate.add
                 - **Family Summon**: Each family member has access and can equip the family summon
+                
 
-                **Guild Position Explanations**
+                **Family Position Explanations**
                 - **Head of Household**:  All operations.
                 - **Partner**:  Can equip/update family summon, change equipped house.
                 - **Kids**:  Can equip family summon.
                 """), colour=0x7289da)
 
-                embed_list = [first_page, estates_page, summon_page, activity_page, family_explanations]
+                embed_list = [first_page, estates_page, universe_page, summon_page, activity_page, family_explanations]
 
                 buttons = []
                 
