@@ -859,7 +859,7 @@ class Lookup(commands.Cog):
                     summon_enh = summon_enh_type['TYPE']
                     summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_enh], 0, 0)
                 universe = family['UNIVERSE']
-                universe_data = db.queryUniverse('TITLE': univese)
+                universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']
                 estates_list = []
                 for houses in estates:
