@@ -3,7 +3,6 @@ from discord.embeds import Embed
 from discord.ext import commands
 import bot as main
 import crown_utilities
-import crownunlimited as cu
 import db
 import classes as data
 import messages as m
