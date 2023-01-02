@@ -2911,7 +2911,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                     ebasic = '‼️'
                 elif basic < (ap1 / 2)  and basic > (ap1 / 3):
                     engagement_basic = 2
-                    ebasic = ''
+                    ebasic = '❕'
                 elif basic < (ap1 / 3):
                     engagement_basic = 1
                     ebasic = '💢'
@@ -10850,7 +10850,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 embedVar.add_field(name=f"**Engagements**",
                                                                 value="You will take less DMG when your **DEF** is greater than your opponenents **ATK**")
                                                 embedVar.add_field(name=f"**Engagement Insight**",
-                                                                value="❕: %50-%75 of AP\n💢: %75-%110 AP\n‼️: %90-%120 AP")
+                                                                value="💢: %33-%50 of AP\n❕: %50-%75 AP\n‼️: %75-%120 AP\n〽️x1.5: %120-%150 AP\n❌x2: $150-%200 AP"
                                                 embedVar.set_footer(
                                                     text=f"Use 🛡️Block strategically to defend against your opponents strongest abilities!")
                                                 await button_ctx.send(embed=embedVar)
@@ -24206,8 +24206,8 @@ enhancer_mapping = {'ATK': 'Increase Attack %',
 'PARRY': 'Returns 25% Damage, until broken',
 'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
-title_enhancer_mapping = {'ATK': 'Increase Attack ',
-'DEF': 'Increase Defense ',
+title_enhancer_mapping = {'ATK': 'Increase Attack',
+'DEF': 'Increase Defense',
 'STAM': 'Increase Stamina',
 'HLT': 'Heal for AP',
 'LIFE': 'Steal AP Health',
@@ -24241,18 +24241,18 @@ title_enhancer_mapping = {'ATK': 'Increase Attack ',
 'PARRY': 'Returns 25% Damage, until broken',
 'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
-element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Damage ',
-'FIRE': 'Does 25% damage of previous attack over the next opponent turns, stacks ',
+element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Damage',
+'FIRE': 'Does 25% damage of previous attack over the next opponent turns, stacks',
 'ICE': 'After 2 uses opponent freezes and loses 1 turn',
 'WATER': 'Increases all water attack dmg by 40 Flat',
 'EARTH': 'Cannot be Parried. Increases Def by 25% AP',
 'ELECTRIC': 'Add 15% to Shock damage, added to each attack',
 'WIND': 'Cannot Miss, boost all wind damage by 15% DMG',
-'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP ',
+'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP',
 'DEATH': 'Adds 20% opponent max health as damage',
 'LIFE': 'Heal for 20% AP',
 'LIGHT': 'Regain 50% Stamina Cost, Increase ATK by 20% DMG',
-'DARK': 'Penetrates shields & decrease opponent stamina by 15 ',
+'DARK': 'Penetrates shields & decrease opponent stamina by 15',
 'POISON': 'Penetrates shields, Opponent takes additional 30 damage each turn stacking up to 600',
 'RANGED': 'If ST(Stamina) > 30 deals 1.7x Damage',
 'SPIRIT': 'Has higher chance of Crit',
