@@ -852,9 +852,8 @@ class Lookup(commands.Cog):
                     pet_bond = opet['BOND']
                     summon_data = db.queryPet({'PET': pet_name})
                     summon_img = summon_data['PATH']
-                    ctx.send(summon_img)
+                    await ctx.send(summon_img)
                     summon_file = crown_utilities.showsummon(summon_img, pet_name, enhancer_mapping[pet_passive_type], pet_lvl, pet_bond)
-                    ctx.send(url=summon_file)
                 else:
                     summon_data = db.queryPet({'PET': summon})
                     summon_img = summon_data['PATH']
@@ -907,7 +906,7 @@ class Lookup(commands.Cog):
                 summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
                 🧬**Family Summon**
                 """), colour=0x7289da)
-                summon_page.set_image(url='attachment://pet.png')
+                summon_page.set_image(file=summon_file)
                 
                 
                 
