@@ -908,6 +908,10 @@ class Lookup(commands.Cog):
                 🧬**Family Summon**
                 🧬**{summon_data['PET']}**
                 :microbe: : {enhancer_mapping[summon_enh]}
+                *Bond* {pet_bond}
+                *Level* {pet_lvl}
+                :small_blue_diamond: {summon_enh}: {summon_da}
+                :microbe: Type: HLT
                 """), colour=0x7289da)
                 summon_page.set_image(url='attachment://pet.png')
                 
@@ -973,18 +977,18 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                     
                                 if is_head:
-                                    poperty_buttons = [
+                                    property_buttons = [
                                     manage_components.create_button(style=3, label="View Properties", custom_id="view"),
                                     manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
                                     manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
                                 ]
                                 if is_partner:
-                                    poperty_buttons = [
+                                    property_buttons = [
                                     manage_components.create_button(style=3, label="View Properties", custom_id="view"),
                                     manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
                                 ]
                                 if is_kid:
-                                    poperty_buttons = [
+                                    property_buttons = [
                                     manage_components.create_button(style=3, label="View Properties", custom_id="view"),
                                 ]
                                     
