@@ -988,10 +988,10 @@ class Lookup(commands.Cog):
                                 ]
                                     
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
+                                house_embed_list = []
                                 async def property_function(self, button_ctx):
                                     if button_ctx.author == ctx.author:
                                         if button_ctx.custom_id == "view":
-                                            house_embed_list = []
                                             for houses in estates:
                                                 house_name = houses['HOUSE']
                                                 house_price = houses['PRICE']
@@ -1006,7 +1006,6 @@ class Lookup(commands.Cog):
                                                 embedVar.set_image(url=house_img)
                                                 house_embed_list.append(embedVar)
                                         elif button_ctx.custom_id == "equip":
-                                            house_embed_list = []
                                             for houses in estates:
                                                 house_name = houses['HOUSE']
                                                 house_price = houses['PRICE']
@@ -1020,12 +1019,7 @@ class Lookup(commands.Cog):
                                                 """))
                                                 embedVar.set_image(url=house_img)
                                                 house_embed_list.append(embedVar)
-                                            
-                                            
-                                await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
-                                    equip_action_row,
-                                    property_function,
-                                ]).run()
+                                                
                                             equip_buttons = [
                                                 manage_components.create_button(style=3, label="🏠 Equip House", custom_id="equip"),
 
@@ -1048,6 +1042,7 @@ class Lookup(commands.Cog):
                                                 equip_action_row,
                                                 equip_function,
                                             ]).run()
+                                                                                      
                                         elif button_ctx.custom_id == "buy":
                                             house_embed_list = []
                                             all_houses = db.queryAllHouses()
@@ -1149,6 +1144,10 @@ class Lookup(commands.Cog):
                                                 econ_action_row,
                                                 econ_function,
                                             ]).run()
+                                await Paginator(bot=self.bot, useQuitButton=True, disableAfterTimeout=True, ctx=ctx, pages=house_embed_list, timeout=60, customActionRow=[
+                                    property_action_row,
+                                    property_function,
+                                ]).run()  
                     except Exception as ex:
                         trace = []
                         tb = ex.__traceback__
