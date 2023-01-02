@@ -878,7 +878,7 @@ class Lookup(commands.Cog):
                 summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
                 🧬**Family Summon**
                 """), colour=0x7289da)
-                summon_page.set_image(summon_img)
+                summon_page.set_image(url=summon_img)
                 
                 
                 
