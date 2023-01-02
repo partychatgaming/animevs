@@ -3,6 +3,7 @@ from discord.embeds import Embed
 from discord.ext import commands
 import bot as main
 import crown_utilities
+import crownunlimited as cu
 import db
 import classes as data
 import messages as m
@@ -466,7 +467,15 @@ class Lookup(commands.Cog):
 
                
                 """), colour=0x7289da)
-
+                
+                activity_page = discord.Embed(title="Recent Guild Activity", description=textwrap.dedent(f"""
+                {transactions_embed}
+                """), colour=0x7289da)
+                
+                activity_page = discord.Embed(title="Recent Guild Activity", description=textwrap.dedent(f"""
+                {transactions_embed}
+                """), colour=0x7289da)
+                
                 guild_explanations = discord.Embed(title=f"Information", description=textwrap.dedent(f"""
                 **Buff Explanations**
                 - **Quest Buff**: Start Quest from the required fight in the Tale, not for dungeons
@@ -481,15 +490,13 @@ class Lookup(commands.Cog):
                 - **Member**:  No operations
                 """), colour=0x7289da)
 
-
-
-                activity_page = discord.Embed(title="Recent Guild Activity", description=textwrap.dedent(f"""
-                {transactions_embed}
-                """), colour=0x7289da)
-
                 embed_list = [first_page, membership_pages, guild_mission_embed, war_embed, activity_page, guild_explanations]
 
-                buttons = []
+                buttons = [] 
+
+
+
+                
 
                 if not is_member:
                     buttons.append(
@@ -775,10 +782,24 @@ class Lookup(commands.Cog):
                     return
                 
             if family:
+                is_head = False
+                is_partner = False
+                is_kid = False
+                member = False
+                
                 family_name = family['HEAD'] + "'s Family"
                 head_name = family['HEAD']
                 partner_name = family['PARTNER']
                 savings = int(family['BANK'])
+                head_data = db.queryUser({'DISNAME': head_name})
+                head_object = await self.bot.fetch_user(head_data['DID'])
+                estates = family['ESTATES']
+                if partner_name:
+                    partner_data = db.queryUser({'DISNAME': partner_name})
+                    partner_object = await self.bot.fetch_user(partner_data['DID'])
+                    partner_name_adjusted = partner_name.split("#",1)[0]
+                else:
+                    partner_name_adjusted = '*None*'
                 house = family['HOUSE']
                 house_info = db.queryHouse({'HOUSE' : house})
                 house_img = house_info['PATH']
@@ -786,26 +807,326 @@ class Lookup(commands.Cog):
                 for kids in family['KIDS']:
                     kid_list.append(kids.split("#",1)[0])
                 icon = ":coin:"
-                if savings >= 300000:
+                if savings >= 10000000:
                     icon = ":money_with_wings:"
-                elif savings >=150000:
+                elif savings >=500000:
                     icon = ":moneybag:"
                 elif savings >= 100000:
                     icon = ":dollar:"
 
+                if user_profile['DISNAME'] == head_data['DISNAME']:
+                    is_head = True
+                    member = True
+                if user_profile['DISNAME'] == partner_data['DISNAME']:
+                    is_partner = True
+                    member = True
+                if user_profile['NAME'] in kid_list:
+                    is_kid = True
+                    member = True
+                    
+                transactions = family['TRANSACTIONS']
+                transactions_embed = ""
+                if transactions:
+                    transactions_len = len(transactions)
+                    if transactions_len >= 10:
+                        transactions = transactions[-10:]
+                        transactions_embed = "\n".join(transactions)
+                    else:
+                        transactions_embed = "\n".join(transactions)
+                        
+                summon = family['SUMMON']
+                summon_data = db.queryPet('PET': summon)
+                
+                universe = family['UNIVERSE']
+                estates_list = []
+                for houses in estates:
+                    estates_list.append(houses)
+                    
+                estates_list_joined = ", ".join(estates_list)
+                
+                
+                kids_names = "\n".join(f'{k}'.format(self) for k in kid_list)
+                if summon_data:
+                    await ctx.send({summon_data})
+                    
+                first_page = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=textwrap.dedent(f"""
+                :brain: **Head of Household** 
+                {head_name.split("#",1)[0]}
 
-                embed1 = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=":bank: | Party Chat Gaming Database", colour=000000)
-                # if team['LOGO_FLAG']:
-                #     embed1.set_image(url=logo)
-                embed1.add_field(name=":brain: | Head Of Household", value= head_name.split("#",1)[0], inline=False)
-                if partner_name:
-                    embed1.add_field(name=":anatomical_heart: | Partner", value= partner_name.split("#",1)[0], inline=False)
-                if kid_list:
-                    embed1.add_field(name=":baby: | Kids", value="\n".join(f'{k}'.format(self) for k in kid_list), inline=False)
-                embed1.add_field(name=":house: | House", value=house, inline=False)
-                embed1.set_image(url=house_img)
-        
-                await ctx.send(embed = embed1)
+                :anatomical_heart: **Partner**
+                {partner_name_adjusted}
+
+                :baby: **Kids**
+                {kids_names}
+
+                **Savings** 
+                {icon} {'{:,}'.format(savings)}
+                """), colour=0x7289da)
+                first_page.set_image(url=house_img)
+                
+                estates_page = discord.Embed(title=f"Real Estate", description=textwrap.dedent(f"""
+                🌇 **Properties**
+                {estates_list_joined}
+               
+                """), colour=0x7289da)
+                
+                
+                activity_page = discord.Embed(title="Recent Family Activity", description=textwrap.dedent(f"""
+                {transactions_embed}
+                """), colour=0x7289da)
+                
+                summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
+                🧬**Family Summon**
+                """), colour=0x7289da)
+                summon_page.set_image(summon_data['PATH'])
+                
+                
+                
+                family_explanations = discord.Embed(title=f"Information", description=textwrap.dedent(f"""
+                **Family Explanations**
+                - **Earnings**: Families earn coin for every completed battle by its members
+                - **Houses**: Give Coin Multipliers in all game modes towards Family Earnings
+                - **Real Estate**: Own multiple houses, swap your current house buy and sell real estate.add
+                - **Family Summon**: Each family member has access and can equip the family summon
+
+                **Guild Position Explanations**
+                - **Head of Household**:  All operations.
+                - **Partner**:  Can equip/update family summon, change equipped house.
+                - **Kids**:  Can equip family summon.
+                """), colour=0x7289da)
+
+                embed_list = [first_page, estates_page, summon_page, activity_page, family_explanations]
+
+                buttons = []
+                
+                if not member:
+                    buttons.append(
+                        manage_components.create_button(style=3, label="Say Hello", custom_id="hello")
+                    )
+                    
+                if is_head:
+                    buttons = [
+                        manage_components.create_button(style=3, label="Check/Purchase Properties", custom_id="property"),
+                        manage_components.create_button(style=3, label="Equip/Set Family Summon", custom_id="summon"),
+                    ]
+                elif is_partner:
+                    buttons = [
+                        manage_components.create_button(style=3, label="Check Properties", custom_id="property"),
+                        manage_components.create_button(style=3, label="Equip/Set Family Summon", custom_id="summon"),
+                    ]
+                    
+                elif is_kid:
+                    buttons = [
+                        manage_components.create_button(style=3, label="View Properties", custom_id="property"),
+                        manage_components.create_button(style=3, label="Equip Family Summon", custom_id="summon"),
+                    ]
+                    
+                custom_action_row = manage_components.create_actionrow(*buttons)
+                
+                async def custom_function(self, button_ctx):
+                    if button_ctx.author == ctx.author:
+                        if button_ctx.custom_id == "hello":
+                            await button_ctx.defer(ignore=True)
+                            update_query = {
+                                    '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
+                                }
+                            response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
+                            self.stop = True
+                            return
+                        elif button_ctx.custom_id == "property":
+                            property_buttons = []
+                
+                            if is_head:
+                                poperty_buttons = [
+                                manage_components.create_button(style=3, label="View Properties", custom_id="view"),
+                                manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
+                                manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
+                            ]
+                            if is_partner:
+                                poperty_buttons = [
+                                manage_components.create_button(style=3, label="View Properties", custom_id="view"),
+                                manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
+                            ]
+                            if is_kid:
+                                poperty_buttons = [
+                                manage_components.create_button(style=3, label="View Properties", custom_id="view"),
+                            ]
+                                
+                            property_action_row = manage_components.create_actionrow(*property_buttons)
+                            async def property_function(self, button_ctx):
+                                if button_ctx.author == ctx.author:
+                                    if button_ctx.custom_id == "view":
+                                        house_embed_list = []
+                                        for houses in estates:
+                                            house_name = houses['HOUSE']
+                                            house_price = houses['PRICE']
+                                            house_img = houses['PATH']
+                                            house_multiplier = houses['MULT']                                            
+                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            💰 **Price**: {house_price}
+                                            〽️ **Multiplier**: {house_multiplier}
+                                            
+                                            Family earns **{house_multiplier}x** :coin: per match!
+                                            """))
+                                            embedVar.set_image(url=house_img)
+                                            house_embed_list.append(embedVar)
+                                        
+                                        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
+                                        ]).run()
+                                    elif button_ctx.custom_id == "equip":
+                                        house_embed_list = []
+                                        for houses in estates:
+                                            house_name = houses['HOUSE']
+                                            house_price = houses['PRICE']
+                                            house_img = houses['PATH']
+                                            house_multiplier = houses['MULT']                                            
+                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            💰 **Price**: {house_price}
+                                            〽️ **Multiplier**: {house_multiplier}
+                                            
+                                            Family earns **{house_multiplier}x** :coin: per match!
+                                            """))
+                                            embedVar.set_image(url=house_img)
+                                            house_embed_list.append(embedVar)
+                                        
+                                        equip_buttons = [
+                                            manage_components.create_button(style=3, label="🏠 Equip House", custom_id="equip"),
+
+                                        ]
+                                        equip_action_row = manage_components.create_actionrow(*equip_buttons)
+                                        
+                                        async def equip_function(self, button_ctx):
+                                            house_name = str(button_ctx.origin_message.embeds[0].title)
+                                            await button_ctx.defer(ignore=True)
+                                            if button_ctx.author == ctx.author:
+                                                if button_ctx.custom_id == "equip":
+                                                    update_query = {
+                                                            '$set': {'HOUSE': house_name}
+                                                        }
+                                                    response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
+                                                    await ctx.send(f"{family_name} Family moved into their {house_name}! Enjoy your new Home!")
+                                                    self.stop = True
+                                            else:
+                                                await ctx.send("This is not your command.")
+                                        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
+                                            equip_action_row,
+                                            equip_function,
+                                        ]).run()
+                                    elif button_ctx.custom_id == "buy":
+                                        house_embed_list = []
+                                        all_houses = db.queryAllHouses()
+                                        owned = False
+                                        for houses in all_houses:
+                                            owned = False
+                                            if houses in estates:
+                                                owned = True
+                                            house_name = houses['HOUSE']
+                                            house_price = houses['PRICE']
+                                            house_img = houses['PATH']
+                                            house_multiplier = houses['MULT']       
+                                            ownership_message = f"💰 **Price**: {house_price}"  
+                                            sell_price = house_price *.80
+                                            sell_message = " "
+                                            if owned == True:
+                                                sell_message = f"💱 Sell for **{sell_price}**"   
+                                                ownership_message = "You Own This House"                                 
+                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            {ownership_message}
+                                            〽️ **Multiplier**: {house_multiplier}
+                                            {sell_message}
+                                            
+                                            
+                                            Family earns **{house_multiplier}x** :coin: per match!
+                                            """))
+                                            embedVar.set_image(url=house_img)
+                                            house_embed_list.append(embedVar)
+                                        
+                                        econ_buttons = [
+                                            manage_components.create_button(style=3, label="💰 Buy House", custom_id="buy"),
+                                            manage_components.create_button(style=3, label="💱 Sell House", custom_id="sell"),
+
+                                        ]
+                                        econ_action_row = manage_components.create_actionrow(*econ_buttons)
+                                        
+                                        async def econ_function(self, button_ctx):
+                                            house_name = str(button_ctx.origin_message.embeds[0].title)
+                                            await button_ctx.defer(ignore=True)
+                                            if button_ctx.author == ctx.author:
+                                                if button_ctx.custom_id == "buy":
+                                                    if owned:
+                                                        await ctx.send("You already own this House. Click 'Sell' to sell it!")
+                                                        self.stop = True
+                                                        return
+                                                    try: 
+                                                        house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
+                                                        currentBalance = family['BANK']
+                                                        cost = house['PRICE']
+                                                        house_name = house['HOUSE']
+                                                        if house:
+                                                            if house_name in family['HOUSE']:
+                                                                await ctx.send(m.USERS_ALREADY_HAS_HOUSE, delete_after=5)
+                                                            else:
+                                                                newBalance = currentBalance - cost
+                                                                if newBalance < 0 :
+                                                                    await ctx.send("You have an insufficent Balance")
+                                                                else:
+                                                                    await crown_utilities.cursefamily(cost, family['HEAD'])
+                                                                    response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
+                                                                    await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
+                                                                    return
+                                                        else:
+                                                            await ctx.send(m.HOUSE_DOESNT_EXIST)
+                                                    except Exception as ex:
+                                                            trace = []
+                                                            tb = ex.__traceback__
+                                                            while tb is not None:
+                                                                trace.append({
+                                                                    "filename": tb.tb_frame.f_code.co_filename,
+                                                                    "name": tb.tb_frame.f_code.co_name,
+                                                                    "lineno": tb.tb_lineno
+                                                                })
+                                                                tb = tb.tb_next
+                                                            print(str({
+                                                                'type': type(ex).__name__,
+                                                                'message': str(ex),
+                                                                'trace': trace
+                                                            }))
+                                                if button_ctx.custom_id == "sell":
+                                                    if not owned:
+                                                        await ctx.send("You need to Own this House to to sell it!")
+                                                        self.stop = True
+                                                        return
+                                                    if house_name == family['HOUSE']:
+                                                        await button_ctx.send("You cannot your primary residence.")
+                                                        self.stop = True
+                                                        return
+                                                    elif house_name in family['ESTATES']:
+                                                        newBalance = currentBalance + cost
+                                                        await crown_utilities.blessfamily(cost, family['HEAD'])
+                                                        response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)}})
+                                                        await ctx.send(f'{family_name} sold their **{house_name}** for **{sell_price}**')
+                                                        self.stop = True
+                                                        return
+                                            else:
+                                                await ctx.send("This is not your command.")
+                                        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
+                                            econ_action_row,
+                                            econ_function,
+                                        ]).run()
+
+                
+                
+                # embed1 = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=":bank: | Party Chat Gaming Database", colour=000000)
+                # # if team['LOGO_FLAG']:
+                # #     embed1.set_image(url=logo)
+                # embed1.add_field(name=":brain: | Head Of Household", value= head_name.split("#",1)[0], inline=False)
+                # if partner_name:
+                #     embed1.add_field(name=":anatomical_heart: | Partner", value= partner_name.split("#",1)[0], inline=False)
+                # if kid_list:
+                #     embed1.add_field(name=":baby: | Kids", value="\n".join(f'{k}'.format(self) for k in kid_list), inline=False)
+                # embed1.add_field(name=":house: | House", value=house, inline=False)
+                # embed1.set_image(url=house_img)
+                # await ctx.send(embed = embed1)
             else:
                 await ctx.send(m.FAMILY_DOESNT_EXIST)
         except Exception as ex:

@@ -179,6 +179,9 @@ class FAMILY():
     BANK: int = field(default_factory=lambda: 0)
     HOUSE: str = field(default_factory=lambda: 'Cave')
     ESTATES: list[str] = field(default_factory=lambda: ['CAVE'])
+    TRANSACTIONS: list[str] = field(default_factory=lambda: [])
+    SUMMON: str = field(default_factory=lambda: 'Chick')
+    UNIVERSE: str = field(default_factory=lambda: 'Unbound')
     TIMESTAMP: str = now
 
 
