@@ -4798,9 +4798,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
             carm_passive_type = list(carm_passive.keys())[0]
             carm_passive_value = list(carm_passive.values())[0]
-            cap1 = list(c_1.keys())[0]
-            cap2 = list(c_2.keys())[0]
-            cap3 = list(c_3.keys())[0]
+            cap1 = list(c_1.values())[0]
+            cap2 = list(c_2.values())[0]
+            cap3 = list(c_3.values())[0]
             int_cap1 = int(cap1)
             int_cap2 = int(cap2)
             int_cap3 = int(cap3)
@@ -4899,9 +4899,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         if o_universe == "Chainsawman":
             o_chainsaw = True
             
-        oap1 = list(o_1.keys())[0]
-        oap2 = list(o_2.keys())[0]
-        oap3 = list(o_3.keys())[0]
+        oap1 = list(o_1.values())[0]
+        oap2 = list(o_2.values())[0]
+        oap3 = list(o_3.values())[0]
         
         int_oap1 = int(oap1)
         int_oap2 = int(oap2)
@@ -4979,9 +4979,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_2 = t_moveset[1]
             t_3 = t_moveset[2]
             t_enhancer = t_moveset[3]
-            tap1 = list(t_1.keys())[0]
-            tap2 = list(t_2.keys())[0]
-            tap3 = list(t_3.keys())[0]
+            tap1 = list(t_1.values())[0]
+            tap2 = list(t_2.values())[0]
+            tap3 = list(t_3.values())[0]
             int_tap1 = int(tap1)
             int_tap2 = int(tap2)
             int_tap3 = int(tap3)
