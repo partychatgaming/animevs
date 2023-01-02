@@ -33,11 +33,11 @@ traits = [{
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone',
-    'TRAIT': '\n**Mana Zone**: Gain 100 Stamina on Focus. AP is increased by 30 on Focus.'
+    'TRAIT': '\nGain 100 Stamina on Focus. AP is increased by 30 on Focus.'
 },{
     'NAME': 'Fate',
     'EFFECT': 'Command Seal',
-    'TRAIT': '\n**Command Seal**: On Resolve, Strike with Ultimate with no Stamina cost.'
+    'TRAIT': '\nOn Resolve, Strike with Ultimate with no Stamina cost.'
 },{
     'NAME': 'Demon Slayer',
     'EFFECT': 'Total Concentration Breathing, Total Concentration Constant',
@@ -49,11 +49,11 @@ traits = [{
 },{
     'NAME': '7ds',
     'EFFECT': 'Power Of Friendship',
-    'TRAIT': '\n**Power Of Friendship**: On opponent Focus gain 60 Stamina and Summon Rest.'
+    'TRAIT': '\nOn opponent Focus gain 60 Stamina and Summon Rest.'
 },{
     'NAME': 'One Punch Man',
     'EFFECT': 'Hero Reinforcement',
-    'TRAIT': '\n**Hero Reinforcement**: When Opponent Focuses, you gain 100 Health & Max Health.'
+    'TRAIT': '\nWhen Opponent Focuses, you gain 100 Health & Max Health.'
 },{
     'NAME': 'Solo Leveling',
     'EFFECT': 'Rulers Authority, Arise!',
@@ -65,7 +65,7 @@ traits = [{
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death',
-    'TRAIT': '\n**Scheduled Death**: Your First Focus After 60 Turns You Win.'
+    'TRAIT': '\nYour First Focus After 60 Turns You Win.'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',
@@ -73,11 +73,11 @@ traits = [{
 },{
     'NAME': 'Persona',
     'EFFECT': 'Summon Persona!',
-    'TRAIT': '\n**Summon Persona!**: Summon deals Damage equal to your Basic attack, in addition to their status effect, disabling opponents summon. '
+    'TRAIT': '\nSummon deals Damage equal to your Basic attack, in addition to their status effect, disabling opponents summon. '
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Spirit Energy',
-    'TRAIT': '\n**Spirit Energy**: Stamina + Turn Count added to each attack | Attack increased by Stamina each turn.'
+    'TRAIT': '\nStamina + Turn Count added to each attack | Attack increased by Stamina each turn.'
 },
 {
     'NAME': 'One Piece',
@@ -86,11 +86,11 @@ traits = [{
 },{
     'NAME': 'Crown Rift Slayers',
     'EFFECT': 'Feint Attack',
-    'TRAIT': '\n**Feint Attack**: If you miss, Crit!'
+    'TRAIT': '\nIf you miss, Crit!'
 },{
     'NAME': 'Crown Rift Madness',
     'EFFECT': 'Madness',
-    'TRAIT': '\n**Madness**: Do not lose turn on Focus, but also do not Heal.'
+    'TRAIT': '\nDo not lose turn on Focus, but also do not Heal.'
 },{
     'NAME': 'Crown Rift Awakening',
     'EFFECT': 'Blood Awakening, Spiritual Weapons',
