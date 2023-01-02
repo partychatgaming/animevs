@@ -40,8 +40,8 @@ traits = [{
     'TRAIT': 'On Resolve, Strike with Ultimate with no Stamina cost.'
 },{
     'NAME': 'Demon Slayer',
-    'EFFECT': 'Total Concentration Breathing, Total Concentration Constant',
-    'TRAIT': '**Breathing** At match start gain 40% of Opponent HP as your own. |**Constant** On Resolve, Your ATK & DEF = Opp ATK and DEF if Opp stats are greater.'
+    'EFFECT': 'Total Concentration Breathing,, Constant',
+    'TRAIT': '**Breathing**:Gain 40% of Opponent HP as your own. |**Constant** On Resolve, Your ATK & DEF = Opp ATK and DEF.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Blood Orb, Ascension',
@@ -61,7 +61,7 @@ traits = [{
 },{
     'NAME': 'Souls',
     'EFFECT': 'Combo Recognition, Second Phase!',
-    'TRAIT': '**Combo Recognition**: On opponent Focus, gain (60 + turn count) Attack. |**Second Phase!**: On Resolve, BASIC becomes your SPECIAL, and your SPECIAL becomes another ULTIMATE.'
+    'TRAIT': '**Combo Recognition**: On opponent Focus, gain (60 + turn) Attack. |**Second Phase!**: On Resolve, BASIC becomes your SPECIAL, and your SPECIAL becomes another ULTIMATE.'
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death',
