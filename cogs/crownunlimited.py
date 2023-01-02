@@ -23022,7 +23022,7 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
         if player_info['DIFFICULTY'] == "EASY":
             return
         pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
-        if arm_universe == 'Crown Rift Awakening':
+        if card['UNIVERSE'] == 'Crown Rift Awakening':
             arm_universe = card['UNIVERSE']
             
         if arm_universe in pokemon_universes:
