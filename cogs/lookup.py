@@ -1129,7 +1129,11 @@ class Lookup(commands.Cog):
                             'message': str(ex),
                             'trace': trace
                         }))
-                    
+                
+                await Paginator(bot=self.bot, useQuitButton=True, disableAfterTimeout=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
+                    custom_action_row,
+                    custom_function,
+                ]).run()  
                     
                 # embed1 = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=":bank: | Party Chat Gaming Database", colour=000000)
                 # # if team['LOGO_FLAG']:
