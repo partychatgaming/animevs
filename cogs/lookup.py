@@ -854,6 +854,7 @@ class Lookup(commands.Cog):
                     summon_data = db.queryPet({'PET': pet_name})
                     summon_img = summon_data['PATH']
                     summon_file = crown_utilities.showsummon(summon_img, pet_name, enhancer_mapping[summon_enh], pet_lvl, pet_bond)
+                    print(summon_file)
                 else:
                     summon_data = db.queryPet({'PET': summon})
                     summon_img = summon_data['PATH']
