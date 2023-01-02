@@ -102,7 +102,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 💙 Spirit - Has higher chance of Crit.
 
-♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent.
+♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent. If Recoild would kill you reduce HP to 1
 
 ⌛ Time - If ST is less than 80, You Block and Focus for 1 Turn. 
 
