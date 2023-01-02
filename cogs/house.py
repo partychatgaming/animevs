@@ -49,7 +49,7 @@ class House(commands.Cog):
                     if newBalance < 0 :
                         await ctx.send("You have an insufficent Balance")
                     else:
-                        await main.cursefamily(cost, str(ctx.author))
+                        await crown_utilities.cursefamily(cost, family['HEAD'])
                         response = db.updateFamily(family_query,{'$set':{'HOUSE': str(house_name)}})
                         await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
                         return

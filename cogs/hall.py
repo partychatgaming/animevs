@@ -55,7 +55,7 @@ class Hall(commands.Cog):
                 if newBalance < 0 :
                     await ctx.send("You have an insufficent Balance")
                 else:
-                    await main.curseguild(cost, str(guildname))
+                    await crown_utilities.curseguild(cost, str(guildname))
                     response = db.updateGuildAlt(guild_query,{'$set':{'HALL': str(hall_name)}})
                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Hall!")
                     return
