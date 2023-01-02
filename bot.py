@@ -2109,16 +2109,33 @@ async def deletemember(ctx, member: User):
 @slash.slash(name="Traits", description="List of Universe Traits", guild_ids=guild_ids)
 @commands.check(validate_user)
 async def traits(ctx):
-   traits = ut.traits
-   traitmessages = []
-   for trait in traits:
-      traitmessages.append(f"_{trait['NAME']}_\n**{trait['EFFECT']}**: {trait['TRAIT']}\n")
+   try: 
+      traits = ut.traits
+      traitmessages = []
+      for trait in traits:
+         traitmessages.append(f"_{trait['NAME']}_\n**{trait['EFFECT']}**: {trait['TRAIT']}\n")
 
-   embedVar = discord.Embed(title="Universe Traits", description="\n".join(traitmessages))
+      embedVar = discord.Embed(title="Universe Traits", description="\n".join(traitmessages))
 
-   await ctx.author.send(embed=embedVar)
-   await ctx.send(f"{ctx.author.mention} Universe Trait list sent to you via DM!")
-
+      await ctx.author.send(embed=embedVar)
+      await ctx.send(f"{ctx.author.mention} Universe Trait list sent to you via DM!")
+   except Exception as ex:
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+         trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+         })
+         tb = tb.tb_next
+      print(str({
+         'type': type(ex).__name__,
+         'message': str(ex),
+         'trace': trace
+      }))
+      await ctx.send("There's an issue with your Traits List. Check with support.", hidden=True)
+      return
 
 
 @slash.slash(name="Allowance", description="Gift Family member an allowance", guild_ids=guild_ids)
