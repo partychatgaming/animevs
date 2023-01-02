@@ -6652,8 +6652,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         if crest_guild:
                             await crown_utilities.blessguild(entrance_fee, universe['GUILD'])
                             await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | {crest_guild['GNAME']} Universe Toll Paid! :coin:{'{:,}'.format(entrance_fee)}")
-            categoryname = "Crown Unlimited"
-            category = discord.utils.get(guild.categories, name=categoryname)
+            #categoryname = "Crown Unlimited"
+            #category = discord.utils.get(guild.categories, name=categoryname)
 
             # if category is None: #If there's no category matching with the `name`
             #     category = await guild.create_category_channel(categoryname)
