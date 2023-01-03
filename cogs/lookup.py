@@ -1077,8 +1077,10 @@ class Lookup(commands.Cog):
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "equip":
+                                                    transaction_message = f"{ctx.author} changed the family house to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                     update_query = {
-                                                            '$set': {'HOUSE': house_name}
+                                                            '$set': {'HOUSE': house_name},
+                                                            '$push': {'TRANSACTIONS': transaction_message}
                                                         }
                                                     response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
                                                     await ctx.send(f"**{family_name}** moved into their **{house_name}**! Enjoy your new Home!")
@@ -1149,7 +1151,8 @@ class Lookup(commands.Cog):
                                                                     await ctx.send("You have an insufficent Balance")
                                                                 else:
                                                                     await crown_utilities.cursefamily(cost, family['HEAD'])
-                                                                    response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
+                                                                    transaction_message = f"{ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                                    response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                                     response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addToSet':{'ESTATES': str(house_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
                                                                     return
@@ -1188,7 +1191,8 @@ class Lookup(commands.Cog):
                                                         return
                                                     elif house_name in family['ESTATES']:
                                                         await crown_utilities.blessfamily(cost, family['HEAD'])
-                                                        response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)}})
+                                                        transaction_message = f"{ctx.author} sold the family home: **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                        response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name),'$push': {'TRANSACTIONS': transaction_message}}})
                                                         await ctx.send(f'{family_name} sold their **{house_name}** for **{formatted_cost}**')
                                                         #self.stop = True
                                                         return
@@ -1315,7 +1319,8 @@ class Lookup(commands.Cog):
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
                                                     user_query = {'DID': str(ctx.author.id)}
                                                     if button_ctx.custom_id == "share":
-                                                        response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)}})
+                                                        transaction_message = f"{ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                        response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
                                                         self.stop = True
                                                         return
@@ -1329,7 +1334,8 @@ class Lookup(commands.Cog):
                                     elif button_ctx.custom_id == "equip":
                                         try:
                                             await button_ctx.defer(ignore=True)
-                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': family['SUMMON'], 'FAMILY_PET': True}})
+                                            transaction_message = f"{ctx.author} equipped the family summon : *{str(button_ctx.origin_message.embeds[0].title)}**."
+                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': family['SUMMON'], 'FAMILY_PET': True},'$push': {'TRANSACTIONS': transaction_message}})
                                             await button_ctx.send(f"🧬 **{str(family['SUMMON'])}** is now your **Summon**.")
                                             self.stop = True
                                             return
