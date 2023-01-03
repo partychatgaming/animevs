@@ -5,11 +5,11 @@ traits = [{
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot, Pentakill',
-    'TRAIT': '**Turret Shot**: When you Focus you deal (60 + Turn Count) Damage to Opponent. |**Pentakill**: Upon Resolve, you deal 60 x (Total Focus Count) Damage.'
+    'TRAIT': '**Turret Shot**: On Focus you deal (60 + Turn Count) DMG. **Pentakill**: Resolve, you deal 60 x (Total Focus Count) Damage.'
 },{
     'NAME': 'Pokemon',
     'EFFECT': 'Regions, Evolutions',
-    'TRAIT': '**Regions**: Items from Pokemon Universes are shared. |**Evolutions**: On Resolve your DEF Doubles. **Mega**: If Turn >30 grow 500 HP, |**Gigantomax**: If Turn >50 grow 1000 HP.'
+    'TRAIT': '**Regions**: Region items are shared. **Evolutions**: Resolve=your DEF Doubles. **Mega**:Turn >30 grow 500 HP, **Gigantomax**:Turn >50 grow 1000 HP.'
 },{
     'NAME': 'Digimon',
     'EFFECT': 'Digivolve, MegaDigivolution',
