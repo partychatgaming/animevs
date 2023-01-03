@@ -1933,6 +1933,14 @@ async def destiny(player, opponent, mode):
 
 async def summonlevel(pet, player):
     vault = db.queryVault({'DID': str(player.id)})
+    player_info = db.queryUser({'DID': str(player.id)})
+    family_name = player_info['FAMILY']
+    
+    if family_name != 'PCG':
+        family_info = db.queryFamily('HEAD':str(family_name))
+        family_summon = family_info['SUMMON']
+        if family_summon == str(pet):
+            return False
     petinfo = {}
     try:
         for x in vault['PETS']:
