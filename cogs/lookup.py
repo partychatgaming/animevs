@@ -1088,10 +1088,11 @@ class Lookup(commands.Cog):
                                         house_embed_list = []
                                         all_houses = db.queryAllHouses()
                                         owned = False
+                                        print(estates_list)
                                         current_savings = '{:,}'.format(savings)
                                         for houses in all_houses:
                                             owned = False
-                                            if houses['HOUSE'] in estates_list:
+                                            if houses in estates_list:
                                                 owned = True
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
