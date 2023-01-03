@@ -2404,7 +2404,7 @@ class Profile(commands.Cog):
                             dismantle_price = 5000   
                             level = int(pet['LVL'])
                             bond = int(pet['BOND'])
-                            dismantle_amount = round((1000* level) + (dismantle_price * bond))
+                            dismantle_amount = round((1000* level) + (dismantle_price * bond)+ 5000)
                             dismantle_buttons = [
                                 manage_components.create_button(
                                     style=ButtonStyle.green,
@@ -2437,7 +2437,7 @@ class Profile(commands.Cog):
                                         if family_query != 'PCG':
                                             family_info = db.queryFamily(family_query)
                                             if summon_name == family_info['SUMMON']:
-                                                update_query = {'$set' : {'SUMMON': d['SUMMON']}}
+                                                update_query = {'$set' : {'SUMMON': d['PER']}}
                                                 family_update = db.updateFamily(family_query,update_query)
                                         update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
                                         filter_query = [{'type.' + "UNIVERSE": pet_universe}]
