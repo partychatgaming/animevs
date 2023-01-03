@@ -1145,8 +1145,8 @@ class Lookup(commands.Cog):
                                                                     await ctx.send("You have an insufficent Balance")
                                                                 else:
                                                                     await crown_utilities.cursefamily(cost, family['HEAD'])
-                                                                    #response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
-                                                                    response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addtoset':{'ESTATES': str(house_name)},'$set':{'HOUSE': str(house_name)}})
+                                                                    response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
+                                                                    response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addToSet':{'ESTATES': str(house_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
                                                                     return
                                                         else:
