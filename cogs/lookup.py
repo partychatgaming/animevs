@@ -765,7 +765,11 @@ class Lookup(commands.Cog):
             if player != None:
                 member = player
             if player:
-                user_profile = db.queryUser({'DISNAME': str(member)})
+                player = player.replace("<","")
+                player = player.replace(">","")
+                player = player.replace("@","")
+                player = player.replace("!","")
+                user_profile = db.queryUser({'DID': str(player)})
                 family = db.queryFamily({'HEAD': user_profile['FAMILY']})
                 if family:
                     family_name = family['HEAD']
