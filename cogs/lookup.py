@@ -1104,7 +1104,7 @@ class Lookup(commands.Cog):
                                             sell_price = house_price *.80
                                             sell_message = " "
                                             if owned == True:
-                                                sell_message = f"💱 Sell for **{'{:,}'.format(sell_price)}**"   
+                                                sell_message = f"💱 Sell for :coin:**{'{:,}'.format(sell_price)}**"   
                                                 ownership_message = "You Own This House"                                 
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             **Current Savings**: :coin: **{current_savings}**                                                                    
@@ -1194,7 +1194,7 @@ class Lookup(commands.Cog):
                                                 await ctx.send("This is not your command.")
                                         await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
                                             econ_action_row,
-                                            econ_function,
+                                            econ_function(house_name,owned,estates_list),
                                         ]).run()                                 
                                 except Exception as ex:
                                     trace = []
