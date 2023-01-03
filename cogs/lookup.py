@@ -760,6 +760,7 @@ class Lookup(commands.Cog):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
+        ctx_user = db.queryUser({'DID':ctx.author.id})
 
         try:
             if player != None:
@@ -819,13 +820,13 @@ class Lookup(commands.Cog):
                 elif savings >= 100000:
                     icon = ":dollar:"
 
-                if user_profile['DISNAME'] == head_data['DISNAME']:
+                if ctx.author.id == head_data['DID']:
                     is_head = True
                     member = True
-                if user_profile['DISNAME'] == partner_data['DISNAME']:
+                if ctx.author.id == partner_data['DID']:
                     is_partner = True
                     member = True
-                if user_profile['NAME'] in kid_list:
+                if ctx_user['NAME'] in kid_list:
                     is_kid = True
                     member = True
                     
@@ -858,7 +859,6 @@ class Lookup(commands.Cog):
                     summon_data = db.queryPet({'PET': pet_name})
                     summon_img = summon_data['PATH']
                     summon_file = crown_utilities.showsummon(summon_img, pet_name, enhancer_mapping[summon_enh], pet_lvl, pet_bond)
-                    print(summon_file)
                 else:
                     summon_data = db.queryPet({'PET': summon})
                     summon_img = summon_data['PATH']
