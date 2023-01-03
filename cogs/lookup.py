@@ -1090,11 +1090,6 @@ class Lookup(commands.Cog):
                                         owned = False
                                         current_savings = '{:,}'.format(savings)
                                         for houses in all_houses:
-                                            owned = False
-                                            print(owned)
-                                            if houses['HOUSE'] in estates_list:
-                                                owned = True
-                                                print(owned)
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
                                             price_message = '{:,}'.format(houses['PRICE'])
@@ -1104,7 +1099,7 @@ class Lookup(commands.Cog):
                                             sell_price = house_price *.80
                                             sell_message = " "
                                             if owned == True:
-                                                sell_message = f"💱 Sell for :coin:**{'{:,}'.format(sell_price)}**"   
+                                                sell_message = f"💱 Sell for **{'{:,}'.format(houses['PRICE'])}**"   
                                                 ownership_message = "You Own This House"                                 
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             **Current Savings**: :coin: **{current_savings}**                                                                    
@@ -1123,14 +1118,12 @@ class Lookup(commands.Cog):
                                         ]
                                         econ_action_row = manage_components.create_actionrow(*econ_buttons)
                                         
-                                        async def econ_function(self, button_ctx, house_title, house_owned, func_estates_list):
+                                        async def econ_function(self, button_ctx):
                                             house_name = str(button_ctx.origin_message.embeds[0].title)
                                             await button_ctx.defer(ignore=True)
-                                            ownership = house_owned
-                                            estates_list = func_estates_list
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "buy":
-                                                    if owned:
+                                                    if house_name in family['ESTATES']:
                                                         await ctx.send("You already own this House. Click 'Sell' to sell it!")
                                                         self.stop = True
                                                         return
@@ -1140,7 +1133,7 @@ class Lookup(commands.Cog):
                                                         cost = house['PRICE']
                                                         house_name = house['HOUSE']
                                                         if house:
-                                                            if house_name in family['HOUSE']:
+                                                            if house_name == family['HOUSE']:
                                                                 await ctx.send(m.USERS_ALREADY_HAS_HOUSE, delete_after=5)
                                                             else:
                                                                 newBalance = currentBalance - cost
@@ -1170,18 +1163,16 @@ class Lookup(commands.Cog):
                                                                 'trace': trace
                                                             }))
                                                 if button_ctx.custom_id == "sell":
-                                                    if house_title in estates_list:
-                                                        print(ownership)
-                                                    if not ownership:
+                                                    if house_name not in family['ESTATES']:
                                                         await ctx.send("You need to Own this House to to sell it!")
                                                         self.stop = True
                                                         return
                                                     if house_name == family['HOUSE']:
-                                                        await button_ctx.send("You cannot sell your primary residence.")
+                                                        await button_ctx.send("You cannot sell your **Primary Residence**.")
                                                         self.stop = True
                                                         return
                                                     if house_name == 'Cave':
-                                                        await button_ctx.send("You cannot sell your ancestral Cave.")
+                                                        await button_ctx.send("You cannot sell your **Ancestral Cave.**")
                                                         self.stop = True
                                                         return
                                                     elif house_name in family['ESTATES']:
@@ -1195,7 +1186,7 @@ class Lookup(commands.Cog):
                                                 await ctx.send("This is not your command.")
                                         await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
                                             econ_action_row,
-                                            econ_function(house_title=house_name,house_owned=owned,func_estates_list=estates_list),
+                                            econ_function,
                                         ]).run()                                 
                                 except Exception as ex:
                                     trace = []
