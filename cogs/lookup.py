@@ -1314,11 +1314,13 @@ class Lookup(commands.Cog):
                                                     sell_price = 0
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
                                                     user_query = {'DID': str(ctx.author.id)}
-                                                if button_ctx.custom_id == "share":
-                                                    response = db.updateFamily(family['HEAD'], {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)}})
-                                                    await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
-                                                    self.stop = True
-                                                    return
+                                                    if button_ctx.custom_id == "share":
+                                                        response = db.updateFamily(family['HEAD'], {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)}})
+                                                        await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
+                                                        self.stop = True
+                                                        return
+                                                else:
+                                                    await ctx.send("This is not your Summons list.")
                                             await Paginator(bot=self.bot, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
                                                 custom_action_row,
                                                 custom_function,
@@ -1326,7 +1328,7 @@ class Lookup(commands.Cog):
 
                                     elif button_ctx.custom_id == "equip":
                                         await button_ctx.defer(ignore=True)
-                                        response = db.updateUserNoFilter({'DID': d['DID']}, {'$set' : {'PET':family['SUMMON'], 'FAMILY_PET': True}})
+                                        response = db.updateUserNoFilter({'DID': button_ctx.author.id}, {'$set' : {'PET':family['SUMMON'], 'FAMILY_PET': True}})
                                         self.stop = True
                                         return
                                 except Exception as ex:
