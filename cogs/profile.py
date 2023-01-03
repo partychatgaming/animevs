@@ -2437,7 +2437,7 @@ class Profile(commands.Cog):
                                         if family_query != 'PCG':
                                             family_info = db.queryFamily(family_query)
                                             if summon_name == family_info['SUMMON']:
-                                                update_query = {'$set' : {'SUMMON': d['PER']}}
+                                                update_query = {'$set' : {'SUMMON': d['PET']}}
                                                 family_update = db.updateFamily(family_query,update_query)
                                         update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
                                         filter_query = [{'type.' + "UNIVERSE": pet_universe}]
