@@ -1127,6 +1127,10 @@ class Lookup(commands.Cog):
                                                         await ctx.send("You already own this House. Click 'Sell' to sell it!")
                                                         self.stop = True
                                                         return
+                                                    if house_name == 'Cave':
+                                                        await button_ctx.send("You already own your **Ancestral Cave.**")
+                                                        #self.stop = True
+                                                        return
                                                     try: 
                                                         house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
                                                         currentBalance = family['BANK']
@@ -1141,8 +1145,8 @@ class Lookup(commands.Cog):
                                                                     await ctx.send("You have an insufficent Balance")
                                                                 else:
                                                                     await crown_utilities.cursefamily(cost, family['HEAD'])
-                                                                    response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
-                                                                    response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addtoset':{'ESTATES': str(house_name)}})
+                                                                    #response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
+                                                                    response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addtoset':{'ESTATES': str(house_name)},'$set':{'HOUSE': str(house_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
                                                                     return
                                                         else:
@@ -1165,22 +1169,22 @@ class Lookup(commands.Cog):
                                                 if button_ctx.custom_id == "sell":
                                                     if house_name not in family['ESTATES']:
                                                         await ctx.send("You need to Own this House to to sell it!")
-                                                        self.stop = True
+                                                        #self.stop = True
                                                         return
                                                     if house_name == family['HOUSE']:
                                                         await button_ctx.send("You cannot sell your **Primary Residence**.")
-                                                        self.stop = True
+                                                        #self.stop = True
                                                         return
                                                     if house_name == 'Cave':
                                                         await button_ctx.send("You cannot sell your **Ancestral Cave.**")
-                                                        self.stop = True
+                                                        #self.stop = True
                                                         return
                                                     elif house_name in family['ESTATES']:
                                                         newBalance = currentBalance + cost
                                                         await crown_utilities.blessfamily(cost, family['HEAD'])
                                                         response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)}})
                                                         await ctx.send(f'{family_name} sold their **{house_name}** for **{sell_price}**')
-                                                        self.stop = True
+                                                        #self.stop = True
                                                         return
                                             else:
                                                 await ctx.send("This is not your command.")
