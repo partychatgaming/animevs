@@ -1256,89 +1256,73 @@ class Lookup(commands.Cog):
                                         d = db.queryUser(query)
                                         vault = db.queryVault({'DID': d['DID']})
                                         if vault:
-                                            try:
-                                                name = d['DISNAME'].split("#",1)[0]
-                                                avatar = d['AVATAR']
-                                                balance = vault['BALANCE']
-                                                current_summon = d['PET']
-                                                pets_list = vault['PETS']
+                                            name = d['DISNAME'].split("#",1)[0]
+                                            avatar = d['AVATAR']
+                                            balance = vault['BALANCE']
+                                            current_summon = d['PET']
+                                            pets_list = vault['PETS']
 
-                                                total_pets = len(pets_list)
+                                            total_pets = len(pets_list)
 
-                                                pets=[]
+                                            pets=[]
+                                            bond_message = ""
+                                            lvl_message = ""
+                                            embed_list = []
+                                            for pet in pets_list:
+                                                #cpetmove_ap= (cpet_bond * cpet_lvl) + list(cpet.values())[3] # Ability Power
                                                 bond_message = ""
+                                                if pet['BOND'] == 3:
+                                                    bond_message = ":star2:"
                                                 lvl_message = ""
-                                                embed_list = []
-                                                for pet in pets_list:
-                                                    #cpetmove_ap= (cpet_bond * cpet_lvl) + list(cpet.values())[3] # Ability Power
-                                                    bond_message = ""
-                                                    if pet['BOND'] == 3:
-                                                        bond_message = ":star2:"
-                                                    lvl_message = ""
-                                                    if pet['LVL'] == 10:
-                                                        lvl_message = ":star:"
-                                                    
-                                                    pet_ability = list(pet.keys())[3]
-                                                    pet_ability_power = list(pet.values())[3]
-                                                    power = (pet['BOND'] * pet['LVL']) + pet_ability_power
-                                                    pet_info = db.queryPet({'PET' : pet['NAME']})
-                                                    if pet_info:
-                                                        pet_available = pet_info['AVAILABLE']
-                                                        pet_exclusive = pet_info['EXCLUSIVE']
-                                                        pet_universe = pet_info['UNIVERSE']
-                                                    icon = "🧬"
-                                                    if pet_available and pet_exclusive:
-                                                        icon = ":fire:"
-                                                    elif pet_available == False and pet_exclusive ==False:
-                                                        icon = ":japanese_ogre:"
-
-                                                    embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
-                                                    {icon}
-                                                    _Bond_ **{pet['BOND']}** {bond_message}
-                                                    _Level_ **{pet['LVL']} {lvl_message}**
-                                                    :small_blue_diamond: **{pet_ability}:** {power}
-                                                    :microbe: **Type:** {pet['TYPE']}"""), 
-                                                    colour=0x7289da)
-                                                    embedVar.set_thumbnail(url=avatar)
-                                                    embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
-                                                    embed_list.append(embedVar)
+                                                if pet['LVL'] == 10:
+                                                    lvl_message = ":star:"
                                                 
-                                                buttons = [
-                                                    manage_components.create_button(style=3, label="Share Summon", custom_id="share"),
-                                                ]
-                                                custom_action_row = manage_components.create_actionrow(*buttons)
+                                                pet_ability = list(pet.keys())[3]
+                                                pet_ability_power = list(pet.values())[3]
+                                                power = (pet['BOND'] * pet['LVL']) + pet_ability_power
+                                                pet_info = db.queryPet({'PET' : pet['NAME']})
+                                                if pet_info:
+                                                    pet_available = pet_info['AVAILABLE']
+                                                    pet_exclusive = pet_info['EXCLUSIVE']
+                                                    pet_universe = pet_info['UNIVERSE']
+                                                icon = "🧬"
+                                                if pet_available and pet_exclusive:
+                                                    icon = ":fire:"
+                                                elif pet_available == False and pet_exclusive ==False:
+                                                    icon = ":japanese_ogre:"
 
-                                                async def custom_function(self, button_ctx):
-                                                    if button_ctx.author == ctx.author:
-                                                        updated_vault = db.queryVault({'DID': d['DID']})
-                                                        sell_price = 0
-                                                        selected_summon = str(button_ctx.origin_message.embeds[0].title)
-                                                        user_query = {'DID': str(ctx.author.id)}
-                                                    if button_ctx.custom_id == "share":
-                                                        response = db.updateFamily(family['HEAD'], {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)}})
-                                                        await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
-                                                        self.stop = True
-                                                        return
-                                                await Paginator(bot=self.bot, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
-                                                    custom_action_row,
-                                                    custom_function,
-                                                ]).run()
-                                            except Exception as ex:
-                                                trace = []
-                                                tb = ex.__traceback__
-                                                while tb is not None:
-                                                    trace.append({
-                                                        "filename": tb.tb_frame.f_code.co_filename,
-                                                        "name": tb.tb_frame.f_code.co_name,
-                                                        "lineno": tb.tb_lineno
-                                                    })
-                                                    tb = tb.tb_next
-                                                print(str({
-                                                    'type': type(ex).__name__,
-                                                    'message': str(ex),
-                                                    'trace': trace
-                                                }))
-                                        
+                                                embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
+                                                {icon}
+                                                _Bond_ **{pet['BOND']}** {bond_message}
+                                                _Level_ **{pet['LVL']} {lvl_message}**
+                                                :small_blue_diamond: **{pet_ability}:** {power}
+                                                :microbe: **Type:** {pet['TYPE']}"""), 
+                                                colour=0x7289da)
+                                                embedVar.set_thumbnail(url=avatar)
+                                                embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
+                                                embed_list.append(embedVar)
+                                            
+                                            buttons = [
+                                                manage_components.create_button(style=3, label="Share Summon", custom_id="share"),
+                                            ]
+                                            custom_action_row = manage_components.create_actionrow(*buttons)
+
+                                            async def custom_function(self, button_ctx):
+                                                if button_ctx.author == ctx.author:
+                                                    updated_vault = db.queryVault({'DID': d['DID']})
+                                                    sell_price = 0
+                                                    selected_summon = str(button_ctx.origin_message.embeds[0].title)
+                                                    user_query = {'DID': str(ctx.author.id)}
+                                                if button_ctx.custom_id == "share":
+                                                    response = db.updateFamily(family['HEAD'], {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)}})
+                                                    await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
+                                                    self.stop = True
+                                                    return
+                                            await Paginator(bot=self.bot, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
+                                                custom_action_row,
+                                                custom_function,
+                                            ]).run()
+
                                     elif button_ctx.custom_id == "equip":
                                         await button_ctx.defer(ignore=True)
                                         response = db.updateUser({'$set' : {'PET':family['SUMMON'], 'FAMILY_PET': True}})
