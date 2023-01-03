@@ -988,7 +988,7 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                                 balance_message = '{:,}'.format(savings)
                                 if is_head:
-                                    real_estate_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n*Browse Housing Catalog** - View all Properties for sale"
+                                    real_estate_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n**Browse Housing Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy/Sell Houses", custom_id="buy"),
