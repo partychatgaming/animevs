@@ -1315,7 +1315,7 @@ class Lookup(commands.Cog):
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
                                                     user_query = {'DID': str(ctx.author.id)}
                                                     if button_ctx.custom_id == "share":
-                                                        response = db.updateFamily(family['HEAD'], {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)}})
+                                                        response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
                                                         self.stop = True
                                                         return
