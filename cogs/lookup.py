@@ -978,7 +978,7 @@ class Lookup(commands.Cog):
                                 await button_ctx.defer(ignore=True)
                                 real_estate_message = " "
                                 property_buttons = []
-                                balance_message = {'{:,}'.format(savings)}
+                                balance_message = '{:,}'.format(savings)
                                 if is_head:
                                     real_estate_message = "Welcome Head of Household! Please select an option for viewing properties, buying property or Equiping a new Home"
                                     property_buttons = [
@@ -1013,13 +1013,13 @@ class Lookup(commands.Cog):
                                     
                                     if button_ctx.custom_id == "view":
                                         for houses in estate_data_list:
-                                            print(houses)
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
+                                            price_message = '{:,}'.format(houses['PRICE'])
                                             house_img = houses['PATH']
                                             house_multiplier = houses['MULT']                                            
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
-                                            💰 **Price**: {house_price}
+                                            💰 **Price**: {price_message}
                                             〽️ **Multiplier**: {house_multiplier}
                                             
                                             Family earns **{house_multiplier}x** :coin: per match!
@@ -1031,10 +1031,11 @@ class Lookup(commands.Cog):
                                         for houses in estate_data_list:
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
+                                            price_message = '{:,}'.format(houses['PRICE'])
                                             house_img = houses['PATH']
                                             house_multiplier = houses['MULT']                                            
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
-                                            💰 **Price**: {house_price}
+                                            💰 **Price**: {price_message}
                                             〽️ **Multiplier**: {house_multiplier}
                                             
                                             Family earns **{house_multiplier}x** :coin: per match!
@@ -1071,13 +1072,14 @@ class Lookup(commands.Cog):
                                         owned = False
                                         for houses in all_houses:
                                             owned = False
-                                            if houses in estates:
+                                            if houses in estates_list:
                                                 owned = True
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
+                                            price_message = '{:,}'.format(houses['PRICE'])
                                             house_img = houses['PATH']
                                             house_multiplier = houses['MULT']       
-                                            ownership_message = f"💰 **Price**: {house_price}"  
+                                            ownership_message = f"💰 **Price**: {price_message}"  
                                             sell_price = house_price *.80
                                             sell_message = " "
                                             if owned == True:
