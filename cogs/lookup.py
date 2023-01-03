@@ -1007,7 +1007,7 @@ class Lookup(commands.Cog):
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
                                 real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
                                 {real_estate_message}
-                                *\nCurrent Savings*: :coin: **{balance_message}**
+                                \n*Current Savings*: :coin: **{balance_message}**
                                 """), color=0xe74c3c)
                                 real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
                                 
@@ -1192,7 +1192,7 @@ class Lookup(commands.Cog):
                                                     elif house_name in family['ESTATES']:
                                                         await crown_utilities.blessfamily(cost, family['HEAD'])
                                                         transaction_message = f"{ctx.author} sold the family home: **{str(house_name)}**."
-                                                        response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name),'$push': {'TRANSACTIONS': transaction_message}}})
+                                                        response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f'{family_name} sold their **{house_name}** for **{formatted_cost}**')
                                                         #self.stop = True
                                                         return
@@ -1241,7 +1241,7 @@ class Lookup(commands.Cog):
                                 summon_action_row = manage_components.create_actionrow(*summon_buttons)
                                 summon_screen = discord.Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
                                 {summon_message}
-                                :dna:Current Summon*: **{family['SUMMON']}**
+                                :dna: : **{family['SUMMON']}**
                                 *Bond* **{pet_bond}**
                                 *Level* **{pet_lvl}**
                                 :small_blue_diamond: **{summon_enh}**
