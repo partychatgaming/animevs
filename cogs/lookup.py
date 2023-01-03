@@ -1146,6 +1146,7 @@ class Lookup(commands.Cog):
                                                                 else:
                                                                     await crown_utilities.cursefamily(cost, family['HEAD'])
                                                                     response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)}})
+                                                                    response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addtoset':{'ESTATES': str(house_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
                                                                     return
                                                         else:
@@ -1171,7 +1172,11 @@ class Lookup(commands.Cog):
                                                         self.stop = True
                                                         return
                                                     if house_name == family['HOUSE']:
-                                                        await button_ctx.send("You cannot your primary residence.")
+                                                        await button_ctx.send("You cannot sell your primary residence.")
+                                                        self.stop = True
+                                                        return
+                                                    if house_name == 'Cave':
+                                                        await button_ctx.send("You cannot sell your ancestral Cave.")
                                                         self.stop = True
                                                         return
                                                     elif house_name in family['ESTATES']:
