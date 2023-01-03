@@ -1327,10 +1327,27 @@ class Lookup(commands.Cog):
                                             ]).run()
 
                                     elif button_ctx.custom_id == "equip":
-                                        await button_ctx.defer(ignore=True)
-                                        response = db.updateUserNoFilter({'DID': button_ctx.author.id}, {'$set' : {'PET':family['SUMMON'], 'FAMILY_PET': True}})
-                                        self.stop = True
-                                        return
+                                        try:
+                                            await button_ctx.defer(ignore=True)
+                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': family['SUMMON'], 'FAMILY_PET': True}})
+                                            await button_ctx.send(f"🧬 **{str(family['SUMMON'])}** is now your **Summon**.")
+                                            self.stop = True
+                                            return
+                                        except Exception as ex:
+                                            trace = []
+                                            tb = ex.__traceback__
+                                            while tb is not None:
+                                                trace.append({
+                                                    "filename": tb.tb_frame.f_code.co_filename,
+                                                    "name": tb.tb_frame.f_code.co_name,
+                                                    "lineno": tb.tb_lineno
+                                                })
+                                                tb = tb.tb_next
+                                            print(str({
+                                                'type': type(ex).__name__,
+                                                'message': str(ex),
+                                                'trace': trace
+                                            }))
                                 except Exception as ex:
                                     trace = []
                                     tb = ex.__traceback__
