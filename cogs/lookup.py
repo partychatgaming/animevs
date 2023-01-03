@@ -1217,27 +1217,27 @@ class Lookup(commands.Cog):
                                 await button_ctx.defer(ignore=True)
                                 summon_buttons = []
                                 if is_head:
-                                    summon_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n*Browse Housing Catalog** - View all Properties for sale"
+                                    summon_message = "Welcome Head of Household! Equip or Change Family Summon Here!"
                                     summon_buttons = [
                                     manage_components.create_button(style=2, label="Change Summon", custom_id="change"),
                                     manage_components.create_button(style=3, label="Equip Family Summon", custom_id="equip"),
                                     
                                 ]
                                 if is_partner:
-                                    summon_message = "Welcome Partner!\n**Change Family Summons** - Update Family Summon to Equipped Summon!\n**Equip Summons** - Equip Family Summon"
+                                    summon_message = "Welcome Partner! Equip or Change Family Summon Here!"
                                     summon_buttons = [
                                     manage_components.create_button(style=1, label="Change Summon", custom_id="change"),
                                     manage_components.create_button(style=1, label="Equip Family Summon", custom_id="equip"),
                                 ]
                                 if is_kid:
-                                    summon_message = "Welcome Kids!\n**Equip Summon** - Equip Family Summon"
+                                    summon_message = "Welcome Kids! Equip Family Summon Here!"
                                     summon_buttons = [
                                     manage_components.create_button(style=1, label="Equip Family Summon", custom_id="equip"),
                                 ]
                                 summon_action_row = manage_components.create_actionrow(*summon_buttons)
                                 summon_screen = discord.Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
                                 {summon_message}
-                                *\n:dna:Current Summon*: **{family['SUMMON']}**
+                                :dna:Current Summon*: **{family['SUMMON']}**
                                 *Bond* **{pet_bond}**
                                 *Level* **{pet_lvl}**
                                 :small_blue_diamond: **{summon_enh}**
@@ -1326,7 +1326,7 @@ class Lookup(commands.Cog):
 
                                     elif button_ctx.custom_id == "equip":
                                         await button_ctx.defer(ignore=True)
-                                        response = db.updateUser({'$set' : {'PET':family['SUMMON'], 'FAMILY_PET': True}})
+                                        response = db.updateUserNoFilter({'DID': d['DID']}, {'$set' : {'PET':family['SUMMON'], 'FAMILY_PET': True}})
                                         self.stop = True
                                         return
                                 except Exception as ex:
