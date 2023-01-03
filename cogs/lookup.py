@@ -824,12 +824,14 @@ class Lookup(commands.Cog):
                 if str(ctx.author.id) == head_data['DID']:
                     is_head = True
                     member = True
-                if str(ctx.author.id) == partner_data['DID']:
-                    is_partner = True
-                    member = True
-                if ctx_user['NAME'] in kid_list:
-                    is_kid = True
-                    member = True
+                if partner_data:
+                    if str(ctx.author.id) == partner_data['DID']:
+                        is_partner = True
+                        member = True
+                if kid_list:
+                    if ctx_user['NAME'] in kid_list:
+                        is_kid = True
+                        member = True
                 #print(member)
                 transactions = family['TRANSACTIONS']
                 transactions_embed = ""
