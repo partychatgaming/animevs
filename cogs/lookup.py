@@ -760,7 +760,8 @@ class Lookup(commands.Cog):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
-        ctx_user = db.queryUser({'DID':ctx.author.id})
+        ctx_user = db.queryUser({'DID': str(ctx.author.id)})
+        print(ctx_user)
 
         try:
             if player != None:
