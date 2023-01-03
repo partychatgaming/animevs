@@ -1121,7 +1121,7 @@ class Lookup(commands.Cog):
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "buy":
-                                                    if house_name in family['ESTATES']:
+                                                    if house_name in estate_list:
                                                         await ctx.send("You already own this House. Click 'Sell' to sell it!")
                                                         self.stop = True
                                                         return
