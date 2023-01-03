@@ -888,10 +888,10 @@ class Lookup(commands.Cog):
                 :baby: **Kids**
                 {kids_names}
 
-                **Savings** 
-                # {icon} {'{:,}'.format(savings)}
+                🏦**Savings** 
+                {icon} {'{:,}'.format(savings)}
                 
-                **Primary Residence**
+                🏠**Primary Residence**
                 {house_info['HOUSE']}
                 """), colour=0x7289da)
                 first_page.set_image(url=house_img)
@@ -982,21 +982,21 @@ class Lookup(commands.Cog):
                                 if is_head:
                                     real_estate_message = "Welcome Head of Household! Please select an option for viewing properties, buying property or Equiping a new Home"
                                     property_buttons = [
-                                    manage_components.create_button(style=3, label="View Properties", custom_id="view"),
-                                    manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
+                                    manage_components.create_button(style=1, label="View Properties", custom_id="view"),
+                                    manage_components.create_button(style=2, label="Equip House", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
                                     
                                 ]
                                 if is_partner:
                                     real_estate_message = "Welcome Partner! Please select an option for viewing properties or Equiping a new Home"
                                     property_buttons = [
-                                    manage_components.create_button(style=3, label="View Properties", custom_id="view"),
-                                    manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
+                                    manage_components.create_button(style=1, label="View Properties", custom_id="view"),
+                                    manage_components.create_button(style=2, label="Equip House", custom_id="equip"),
                                 ]
                                 if is_kid:
                                     real_estate_message = "Welcome Kids! Please select an option for viewing properties"
                                     property_buttons = [
-                                    manage_components.create_button(style=3, label="View Properties", custom_id="view"),
+                                    manage_components.create_button(style=1, label="View Properties", custom_id="view"),
                                 ]
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
                                 real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
