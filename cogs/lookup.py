@@ -1123,10 +1123,11 @@ class Lookup(commands.Cog):
                                         ]
                                         econ_action_row = manage_components.create_actionrow(*econ_buttons)
                                         
-                                        async def econ_function(self, button_ctx, house_title, owned, estates_list):
+                                        async def econ_function(self, button_ctx, house_title, house_owned, func_estates_list):
                                             house_name = str(button_ctx.origin_message.embeds[0].title)
                                             await button_ctx.defer(ignore=True)
-                                            ownership = owned
+                                            ownership = house_owned
+                                            estates_list = func_estates_list
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "buy":
                                                     if owned:
@@ -1194,7 +1195,7 @@ class Lookup(commands.Cog):
                                                 await ctx.send("This is not your command.")
                                         await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list, customActionRow=[
                                             econ_action_row,
-                                            econ_function(house_name,owned,estates_list),
+                                            econ_function(house_title=house_name,house_owned=owned,func_estates_list=estates_list),
                                         ]).run()                                 
                                 except Exception as ex:
                                     trace = []
