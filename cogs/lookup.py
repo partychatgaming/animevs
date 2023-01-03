@@ -1093,8 +1093,10 @@ class Lookup(commands.Cog):
                                         for houses in all_houses:
                                             owned = False
                                             print(houses)
+                                            print(owned)
                                             if houses['HOUSE'] in estates_list:
                                                 owned = True
+                                                print(owned)
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
                                             price_message = '{:,}'.format(houses['PRICE'])
