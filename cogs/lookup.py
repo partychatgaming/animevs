@@ -765,7 +765,7 @@ class Lookup(commands.Cog):
             if player != None:
                 member = player
             if player:
-                user_profile = db.queryUser({'DISNAME': str(member)})
+                user_profile = db.queryUser({'DID': str(member.id)})
                 family = db.queryFamily({'HEAD': user_profile['FAMILY']})
                 if family:
                     family_name = family['HEAD']
@@ -914,7 +914,7 @@ class Lookup(commands.Cog):
                 :small_blue_diamond: **{summon_enh}**
                 :microbe: : **{enhancer_mapping[summon_enh]}**
                 """), colour=0x7289da)
-                summon_page.set_image(url='attachment://pet.png')
+                summon_page.set_image(url=summon_data['PATH'])
                 
                 
                 
@@ -1121,7 +1121,7 @@ class Lookup(commands.Cog):
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "buy":
-                                                    if house_name in estate_list:
+                                                    if house_name in estates_list:
                                                         await ctx.send("You already own this House. Click 'Sell' to sell it!")
                                                         self.stop = True
                                                         return
@@ -1227,18 +1227,6 @@ class Lookup(commands.Cog):
                     custom_action_row,
                     custom_function,
                 ]).run()  
-                    
-                # embed1 = discord.Embed(title=f":family_mwgb: | {family_name} - {icon}{'{:,}'.format(savings)}".format(self), description=":bank: | Party Chat Gaming Database", colour=000000)
-                # # if team['LOGO_FLAG']:
-                # #     embed1.set_image(url=logo)
-                # embed1.add_field(name=":brain: | Head Of Household", value= head_name.split("#",1)[0], inline=False)
-                # if partner_name:
-                #     embed1.add_field(name=":anatomical_heart: | Partner", value= partner_name.split("#",1)[0], inline=False)
-                # if kid_list:
-                #     embed1.add_field(name=":baby: | Kids", value="\n".join(f'{k}'.format(self) for k in kid_list), inline=False)
-                # embed1.add_field(name=":house: | House", value=house, inline=False)
-                # embed1.set_image(url=house_img)
-                # await ctx.send(embed = embed1)
             else:
                 await ctx.send(m.FAMILY_DOESNT_EXIST)
         except Exception as ex:
