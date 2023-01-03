@@ -1548,7 +1548,7 @@ class CrownUnlimited(commands.Cog):
         for i in range(0, len(houses_broken_up)):
             globals()['embedVar%s' % i] = discord.Embed(title=f":house: House List",
                                                         description="\n".join(houses_broken_up[i]), colour=0x7289da)
-            globals()['embedVar%s' % i].set_footer(text=f"{total_houses} Total Houses\n/viewhouse - View House Details")
+            globals()['embedVar%s' % i].set_footer(text=f"{total_houses} Total Houses\n/view `House Name` House - View House Details")
             embed_list.append(globals()['embedVar%s' % i])
 
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -1595,7 +1595,7 @@ class CrownUnlimited(commands.Cog):
         for i in range(0, len(halls_broken_up)):
             globals()['embedVar%s' % i] = discord.Embed(title=f":flags: Hall List",
                                                         description="\n".join(halls_broken_up[i]), colour=0x7289da)
-            globals()['embedVar%s' % i].set_footer(text=f"{total_halls} Total Halls\n/viewhall - View Hall Details")
+            globals()['embedVar%s' % i].set_footer(text=f"{total_halls} Total Halls\n/view `Hall Name` Hall - View Hall Details")
             embed_list.append(globals()['embedVar%s' % i])
 
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
