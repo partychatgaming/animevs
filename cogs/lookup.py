@@ -1123,9 +1123,10 @@ class Lookup(commands.Cog):
                                         ]
                                         econ_action_row = manage_components.create_actionrow(*econ_buttons)
                                         
-                                        async def econ_function(self, button_ctx, house_title, ownership, estates_list):
+                                        async def econ_function(self, button_ctx, house_title, owned, estates_list):
                                             house_name = str(button_ctx.origin_message.embeds[0].title)
                                             await button_ctx.defer(ignore=True)
+                                            ownership = owned
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "buy":
                                                     if owned:
@@ -1169,9 +1170,8 @@ class Lookup(commands.Cog):
                                                             }))
                                                 if button_ctx.custom_id == "sell":
                                                     if house_title in estates_list:
-                                                        owned = ownership
-                                                        print(owned)
-                                                    if not owned:
+                                                        print(ownership)
+                                                    if not ownership:
                                                         await ctx.send("You need to Own this House to to sell it!")
                                                         self.stop = True
                                                         return
