@@ -1092,7 +1092,8 @@ class Lookup(commands.Cog):
                                         current_savings = '{:,}'.format(savings)
                                         for houses in all_houses:
                                             owned = False
-                                            if houses in estates_list:
+                                            print(houses)
+                                            if houses['HOUSE'] in estates_list:
                                                 owned = True
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
