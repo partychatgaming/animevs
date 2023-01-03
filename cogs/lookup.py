@@ -892,7 +892,7 @@ class Lookup(commands.Cog):
                 {icon} {'{:,}'.format(savings)}
                 
                 🏠**Primary Residence**
-                {house_info['HOUSE']}
+                {house_info['HOUSE']} - 〽️**{house_info['MULT']}** :coin: per match!
                 """), colour=0x7289da)
                 first_page.set_image(url=house_img)
                 
@@ -1013,6 +1013,7 @@ class Lookup(commands.Cog):
                                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[property_action_row], timeout=120, check=check)
                                     
                                     if button_ctx.custom_id == "view":
+                                        await button_ctx.defer(ignore=True)
                                         for houses in estate_data_list:
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
@@ -1029,6 +1030,7 @@ class Lookup(commands.Cog):
                                             house_embed_list.append(embedVar)
                                         await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list).run()
                                     elif button_ctx.custom_id == "equip":
+                                        await button_ctx.defer(ignore=True)
                                         for houses in estate_data_list:
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
@@ -1058,7 +1060,7 @@ class Lookup(commands.Cog):
                                                             '$set': {'HOUSE': house_name}
                                                         }
                                                     response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
-                                                    await ctx.send(f"{family_name} Family moved into their {house_name}! Enjoy your new Home!")
+                                                    await ctx.send(f"**{family_name}** moved into their **{house_name}**! Enjoy your new Home!")
                                                     self.stop = True
                                             else:
                                                 await ctx.send("This is not your command.")
