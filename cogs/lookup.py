@@ -830,7 +830,7 @@ class Lookup(commands.Cog):
                 if ctx_user['NAME'] in kid_list:
                     is_kid = True
                     member = True
-                    
+                print(member)
                 transactions = family['TRANSACTIONS']
                 transactions_embed = ""
                 if transactions:
@@ -945,6 +945,7 @@ class Lookup(commands.Cog):
                 buttons = []
                 
                 if not member:
+                    print(member)
                     buttons.append(
                         manage_components.create_button(style=3, label="Say Hello", custom_id="hello")
                     )
