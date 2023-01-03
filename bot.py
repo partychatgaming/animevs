@@ -1033,6 +1033,9 @@ async def register(ctx):
             custom_action_row,
             custom_function,
          ]).run()
+         
+         family = {'HEAD': disname, 'HOUSE': 'Cave', 'BANK' : 1000000, 'UNIVERSE': 'Unbound'}
+         new_family = db.createFamily(data.newFamily(family))
 
       except Exception as ex:
          user = str(ctx.author)
