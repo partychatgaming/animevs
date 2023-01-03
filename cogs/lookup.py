@@ -1088,11 +1088,9 @@ class Lookup(commands.Cog):
                                         house_embed_list = []
                                         all_houses = db.queryAllHouses()
                                         owned = False
-                                        print(estates_list)
                                         current_savings = '{:,}'.format(savings)
                                         for houses in all_houses:
                                             owned = False
-                                            print(houses)
                                             print(owned)
                                             if houses['HOUSE'] in estates_list:
                                                 owned = True
@@ -1170,6 +1168,9 @@ class Lookup(commands.Cog):
                                                                 'trace': trace
                                                             }))
                                                 if button_ctx.custom_id == "sell":
+                                                    if houses['HOUSE'] in estates_list:
+                                                        owned = True
+                                                        print(owned)
                                                     if not owned:
                                                         await ctx.send("You need to Own this House to to sell it!")
                                                         self.stop = True
