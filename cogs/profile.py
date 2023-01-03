@@ -2436,7 +2436,7 @@ class Profile(commands.Cog):
                                         family_query = {'HEAD':d['FAMILY']}
                                         if family_query != 'PCG':
                                             family_info = db.queryFamily(family_query)
-                                            if summon_name == family['SUMMON']:
+                                            if summon_name == family_info['SUMMON']:
                                                 update_query = {'$set' : {'SUMMON': d['SUMMON']}}
                                                 family_update = db.updateFamily(family_query,update_query)
                                         update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
