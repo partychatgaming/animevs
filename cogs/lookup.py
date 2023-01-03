@@ -1167,6 +1167,7 @@ class Lookup(commands.Cog):
                                                 if button_ctx.custom_id == "sell":
                                                     house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house_name)}$", "$options": "i"}})
                                                     cost = house['PRICE']
+                                                    formatted_cost = '{:,}'.format(cost)
                                                     if house_name not in family['ESTATES']:
                                                         await ctx.send("You need to Own this House to to sell it!")
                                                         #self.stop = True
@@ -1182,7 +1183,7 @@ class Lookup(commands.Cog):
                                                     elif house_name in family['ESTATES']:
                                                         await crown_utilities.blessfamily(cost, family['HEAD'])
                                                         response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)}})
-                                                        await ctx.send(f'{family_name} sold their **{house_name}** for **{'{:,}'.format(sell_price)}**')
+                                                        await ctx.send(f'{family_name} sold their **{house_name}** for **{formatted_cost}**')
                                                         #self.stop = True
                                                         return
                                             else:
