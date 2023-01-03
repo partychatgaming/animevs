@@ -1104,7 +1104,7 @@ class Lookup(commands.Cog):
                                             sell_price = house_price *.80
                                             sell_message = " "
                                             if owned == True:
-                                                sell_message = f"💱 Sell for **{sell_price}**"   
+                                                sell_message = f"💱 Sell for **{'{:,}'.format(sell_price)}**"   
                                                 ownership_message = "You Own This House"                                 
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             **Current Savings**: :coin: **{current_savings}**                                                                    
@@ -1123,7 +1123,7 @@ class Lookup(commands.Cog):
                                         ]
                                         econ_action_row = manage_components.create_actionrow(*econ_buttons)
                                         
-                                        async def econ_function(self, button_ctx):
+                                        async def econ_function(self, button_ctx, house_title, ownership, estates_list):
                                             house_name = str(button_ctx.origin_message.embeds[0].title)
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
@@ -1168,8 +1168,8 @@ class Lookup(commands.Cog):
                                                                 'trace': trace
                                                             }))
                                                 if button_ctx.custom_id == "sell":
-                                                    if houses['HOUSE'] in estates_list:
-                                                        owned = True
+                                                    if house_title in estates_list:
+                                                        owned = ownership
                                                         print(owned)
                                                     if not owned:
                                                         await ctx.send("You need to Own this House to to sell it!")
