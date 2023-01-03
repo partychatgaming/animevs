@@ -1024,7 +1024,6 @@ class Lookup(commands.Cog):
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             💰 **Price**: {price_message}
                                             〽️ **Multiplier**: {house_multiplier}
-                                            
                                             Family earns **{house_multiplier}x** :coin: per match!
                                             """))
                                             embedVar.set_image(url=house_img)
@@ -1040,8 +1039,7 @@ class Lookup(commands.Cog):
                                             house_multiplier = houses['MULT']                                            
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             💰 **Price**: {price_message}
-                                            〽️ **Multiplier**: {house_multiplier}
-                                            
+                                            〽️ **Multiplier**: {house_multiplier} 
                                             Family earns **{house_multiplier}x** :coin: per match!
                                             """))
                                             embedVar.set_image(url=house_img)
@@ -1057,8 +1055,7 @@ class Lookup(commands.Cog):
                                             house_multiplier = houses['MULT']                                            
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             💰 **Price**: {price_message}
-                                            〽️ **Multiplier**: {house_multiplier}
-                                            
+                                            〽️ **Multiplier**: {house_multiplier} 
                                             Family earns **{house_multiplier}x** :coin: per match!
                                             """))
                                             embedVar.set_image(url=house_img)
@@ -1091,9 +1088,11 @@ class Lookup(commands.Cog):
                                         house_embed_list = []
                                         all_houses = db.queryAllHouses()
                                         owned = False
+                                        current_savings = '{:,}'.format(savings)
+                                        print(es)
                                         for houses in all_houses:
                                             owned = False
-                                            if houses in estates_list:
+                                            if houses['HOUSE'] in estates_list:
                                                 owned = True
                                             house_name = houses['HOUSE']
                                             house_price = houses['PRICE']
@@ -1107,11 +1106,10 @@ class Lookup(commands.Cog):
                                                 sell_message = f"💱 Sell for **{sell_price}**"   
                                                 ownership_message = "You Own This House"                                 
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            **Current Savings**: :coin: **{current_savings}**                                                                    
                                             {ownership_message}
                                             〽️ **Multiplier**: {house_multiplier}
                                             {sell_message}
-                                            
-                                            
                                             Family earns **{house_multiplier}x** :coin: per match!
                                             """))
                                             embedVar.set_image(url=house_img)
