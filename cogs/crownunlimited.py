@@ -1937,7 +1937,7 @@ async def summonlevel(pet, player):
     family_name = player_info['FAMILY']
     
     if family_name != 'PCG':
-        family_info = db.queryFamily('HEAD':str(family_name))
+        family_info = db.queryFamily({'HEAD':str(family_name)})
         family_summon = family_info['SUMMON']
         if family_summon == str(pet):
             return False
