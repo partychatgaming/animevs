@@ -9,7 +9,7 @@ traits = [{
 },{
     'NAME': 'Pokemon',
     'EFFECT': 'Regions, Evolutions',
-    'TRAIT': '**Regions**: Titles and Arms from Pokemon Universes are shared. |**Evolutions**: When you Resolve your Defense Doubles. **Mega Evolution**: If Turn >30 grow 500 HP, |**Gigantomax**: If Turn >50 grow 1000 HP.'
+    'TRAIT': '**Regions**: Items from Pokemon Universes are shared. |**Evolutions**: On Resolve your DEF Doubles. **Mega**: If Turn >30 grow 500 HP, |**Gigantomax**: If Turn >50 grow 1000 HP.'
 },{
     'NAME': 'Digimon',
     'EFFECT': 'Digivolve, MegaDigivolution',
