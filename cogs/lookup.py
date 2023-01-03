@@ -756,7 +756,7 @@ class Lookup(commands.Cog):
 
 
     @cog_ext.cog_slash(description="Lookup player family", guild_ids=main.guild_ids)
-    async def family(self, ctx, player= None):
+    async def family(self, ctx, player = None):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -764,10 +764,8 @@ class Lookup(commands.Cog):
         try:
             if player != None:
                 member = player
-                print(member)
             if player:
-                user_profile = db.queryUser({'DID': str(member)})
-                print(user_profile)
+                user_profile = db.queryUser({'DISNAME': str(member)})
                 family = db.queryFamily({'HEAD': user_profile['FAMILY']})
                 if family:
                     family_name = family['HEAD']
