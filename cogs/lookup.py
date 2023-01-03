@@ -980,16 +980,18 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                                 balance_message = '{:,}'.format(savings)
                                 if is_head:
-                                    real_estate_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family"
+                                    real_estate_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n*Browse Housing Catalog** - View all Properties for sale"
                                     property_buttons = [
-                                    manage_components.create_button(style=2, label="View Properties", custom_id="equip"),
+                                    manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
+                                    manage_components.create_button(style=1, label="Browse Housing Catalog", custom_id="browse"),
                                     
                                 ]
                                 if is_partner:
-                                    real_estate_message = "Welcome Partner!\n**View Property** - View Owned Properties or make a Move!\n"
+                                    real_estate_message = "Welcome Partner!\n**View Property** - View Owned Properties or make a Move!\n**Browse Housing Catalog** - View all Properties for sale"
                                     property_buttons = [
-                                    manage_components.create_button(style=1, label="View Properties", custom_id="equip"),
+                                    manage_components.create_button(style=1, label="Owned Properties", custom_id="equip"),
+                                    manage_components.create_button(style=1, label="Browse Housing Catalog", custom_id="browse"),
                                 ]
                                 if is_kid:
                                     real_estate_message = "Welcome Kids!\n**View Property** - View Owned Properties"
@@ -1010,6 +1012,24 @@ class Lookup(commands.Cog):
                                     house_embed_list = []
                                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[property_action_row], timeout=120, check=check)
                                     
+                                    if button_ctx.custom_id == "browse":
+                                        await button_ctx.defer(ignore=True)
+                                        all_houses = db.queryAllHouses()
+                                        for houses in all_houses:
+                                            house_name = houses['HOUSE']
+                                            house_price = houses['PRICE']
+                                            price_message = '{:,}'.format(houses['PRICE'])
+                                            house_img = houses['PATH']
+                                            house_multiplier = houses['MULT']                                            
+                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            💰 **Price**: {price_message}
+                                            〽️ **Multiplier**: {house_multiplier}
+                                            
+                                            Family earns **{house_multiplier}x** :coin: per match!
+                                            """))
+                                            embedVar.set_image(url=house_img)
+                                            house_embed_list.append(embedVar)
+                                        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=house_embed_list).run()
                                     if button_ctx.custom_id == "view":
                                         await button_ctx.defer(ignore=True)
                                         for houses in estate_data_list:
