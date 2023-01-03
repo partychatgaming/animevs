@@ -56,7 +56,7 @@ class Family(commands.Cog):
                 return
             if head_profile['FAMILY'] != 'PCG' and head_profile['FAMILY'] != 'N/A' and head_profile['FAMILY'] != head_profile['DISNAME'] :
                 await ctx.send(m.USER_IN_FAMILY, delete_after=3)
-            elif partner_profile['FAMILY'] != 'PCG' and partner_profile['FAMILY'] != 'N/A':
+            elif partner_profile['FAMILY'] != 'PCG' and partner_profile['FAMILY'] != 'N/A' and partner_profile['FAMILY'] != partner_profile['DISNAME']:
                 await ctx.send(m.USER_IN_FAMILY, delete_after=3)
             else:
                 family_query = {'HEAD': str(ctx.author)}
@@ -115,7 +115,7 @@ class Family(commands.Cog):
                                     return
                             if button_ctx.custom_id == "yes":
                                 try:
-                                    response = db.createFamily(data.newFamily(family_query), str(ctx.author))
+                                    #response = db.createFamily(data.newFamily(family_query), str(ctx.author))
                                     await ctx.send(response)
                                     newvalue = {'$set': {'PARTNER': str(player)}}
                                     nextresponse = db.addFamilyMember(family_query, newvalue, str(ctx.author), str(player))
@@ -250,6 +250,9 @@ class Family(commands.Cog):
                                     if str(ctx.author) == family_profile['PARTNER']:
                                         family_query = {'HEAD': str(partner)}
                                         response = db.deleteFamilyMember(family_query, new_value_query, str(partner), str(ctx.author))
+                                        user_query = {'DISNAME':str(partner)}
+                                        user_info = db.queryUser(user_query)
+                                        old_family = db.updateUserNoFilter({'FAMILY':user_info['DISNAME']})
                                     await button_ctx.send(response)
                                     await main.bless(divorce_split, str(family_profile['PARTNER']))
                                 except Exception as ex:

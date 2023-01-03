@@ -1191,7 +1191,7 @@ class Lookup(commands.Cog):
                                                         return
                                                     elif house_name in family['ESTATES']:
                                                         await crown_utilities.blessfamily(cost, family['HEAD'])
-                                                        transaction_message = f"{ctx.author} sold the family home: **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                        transaction_message = f"{ctx.author} sold the family home: **{str(house_name)}**."
                                                         response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name),'$push': {'TRANSACTIONS': transaction_message}}})
                                                         await ctx.send(f'{family_name} sold their **{house_name}** for **{formatted_cost}**')
                                                         #self.stop = True
@@ -1334,7 +1334,7 @@ class Lookup(commands.Cog):
                                     elif button_ctx.custom_id == "equip":
                                         try:
                                             await button_ctx.defer(ignore=True)
-                                            transaction_message = f"{ctx.author} equipped the family summon : **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                            transaction_message = f"{ctx.author} equipped the family summon : **{str(family['SUMMON'])}**."
                                             response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': family['SUMMON'], 'FAMILY_PET': True}})
                                             response2 = db.updateFamily({'HEAD': family['HEAD']}, {'$push': {'TRANSACTIONS': transaction_message}})
                                             await button_ctx.send(f"🧬 **{str(family['SUMMON'])}** is now your **Summon**.")
