@@ -983,8 +983,9 @@ class Lookup(commands.Cog):
                                     real_estate_message = "Welcome Head of Household! Please select an option for viewing properties, buying property or Equiping a new Home"
                                     property_buttons = [
                                     manage_components.create_button(style=3, label="View Properties", custom_id="view"),
-                                    manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
                                     manage_components.create_button(style=3, label="Equip House", custom_id="equip"),
+                                    manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
+                                    
                                 ]
                                 if is_partner:
                                     real_estate_message = "Welcome Partner! Please select an option for viewing properties or Equiping a new Home"
