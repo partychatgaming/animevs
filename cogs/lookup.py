@@ -983,7 +983,7 @@ class Lookup(commands.Cog):
                                     real_estate_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n*Browse Housing Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
-                                    manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
+                                    manage_components.create_button(style=3, label="Buy/Sell Houses", custom_id="buy"),
                                     manage_components.create_button(style=1, label="Browse Housing Catalog", custom_id="browse"),
                                     
                                 ]
@@ -1089,7 +1089,6 @@ class Lookup(commands.Cog):
                                         all_houses = db.queryAllHouses()
                                         owned = False
                                         current_savings = '{:,}'.format(savings)
-                                        print(es)
                                         for houses in all_houses:
                                             owned = False
                                             if houses['HOUSE'] in estates_list:
