@@ -2256,7 +2256,7 @@ class Profile(commands.Cog):
                         user_query = {'DID': str(ctx.author.id)}
                         
                         if button_ctx.custom_id == "Equip":
-                            response = db.updateUserNoFilter(user_query, {'$set': {'PET': str(button_ctx.origin_message.embeds[0].title)}})
+                            response = db.updateUserNoFilter(user_query, {'$set': {'FAMILY_PET': False, 'PET': str(button_ctx.origin_message.embeds[0].title)}})
                             await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** equipped.")
                             self.stop = True
                         
@@ -7203,7 +7203,7 @@ async def menusummons(self, ctx):
                     user_query = {'DID': str(ctx.author.id)}
                     
                     if button_ctx.custom_id == "Equip":
-                        response = db.updateUserNoFilter(user_query, {'$set': {'PET': str(button_ctx.origin_message.embeds[0].title)}})
+                        response = db.updateUserNoFilter(user_query, {'$set': {'FAMILY_PET': False, 'PET': str(button_ctx.origin_message.embeds[0].title)}})
                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** equipped.")
                         self.stop = True
                     

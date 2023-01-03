@@ -1212,6 +1212,138 @@ class Lookup(commands.Cog):
                                         'message': str(ex),
                                         'trace': trace
                                     }))     
+                            elif button_ctx.custom_id == "summon":
+                                await button_ctx.defer(ignore=True)
+                                summon_buttons = []
+                                if is_head:
+                                    summon_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n*Browse Housing Catalog** - View all Properties for sale"
+                                    summon_buttons = [
+                                    manage_components.create_button(style=2, label="Change Summon", custom_id="change"),
+                                    manage_components.create_button(style=3, label="Equip Family Summon", custom_id="equip"),
+                                    
+                                ]
+                                if is_partner:
+                                    summon_message = "Welcome Partner!\n**Change Family Summons** - Update Family Summon to Equipped Summon!\n**Equip Summons** - Equip Family Summon"
+                                    summon_buttons = [
+                                    manage_components.create_button(style=1, label="Change Summon", custom_id="change"),
+                                    manage_components.create_button(style=1, label="Equip Family Summon", custom_id="equip"),
+                                ]
+                                if is_kid:
+                                    summon_message = "Welcome Kids!\n**Equip Summon** - Equip Family Summon"
+                                    summon_buttons = [
+                                    manage_components.create_button(style=1, label="Equip Family Summon", custom_id="equip"),
+                                ]
+                                summon_action_row = manage_components.create_actionrow(*summon_buttons)
+                                summon_screen = discord.Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
+                                {summon_message}
+                                *\n:dna:Current Summon*: **{family['SUMMON']}**
+                                *Bond* **{pet_bond}**
+                                *Level* **{pet_lvl}**
+                                :small_blue_diamond: **{summon_enh}**
+                                :microbe: : **{enhancer_mapping[summon_enh]}**
+                                """), color=0xe74c3c)
+                                summon_screen.set_image(url=summon_data['PATH'])
+                                
+                                msg = await ctx.send(embed=summon_screen, components=[summon_action_row])
+                                def check(button_ctx):
+                                    return button_ctx.author == ctx.author
+                                try:
+                                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[summon_action_row], timeout=120, check=check)
+                                    
+                                    if button_ctx.custom_id == "change":
+                                        await button_ctx.defer(ignore=True)
+                                        query = {'DID': str(button_ctx.author.id)}
+                                        d = db.queryUser(query)
+                                        vault = db.queryVault({'DID': d['DID']})
+                                        if vault:
+                                            try:
+                                                name = d['DISNAME'].split("#",1)[0]
+                                                avatar = d['AVATAR']
+                                                balance = vault['BALANCE']
+                                                current_summon = d['PET']
+                                                pets_list = vault['PETS']
+
+                                                total_pets = len(pets_list)
+
+                                                pets=[]
+                                                bond_message = ""
+                                                lvl_message = ""
+                                                embed_list = []
+                                                for pet in pets_list:
+                                                    #cpetmove_ap= (cpet_bond * cpet_lvl) + list(cpet.values())[3] # Ability Power
+                                                    bond_message = ""
+                                                    if pet['BOND'] == 3:
+                                                        bond_message = ":star2:"
+                                                    lvl_message = ""
+                                                    if pet['LVL'] == 10:
+                                                        lvl_message = ":star:"
+                                                    
+                                                    pet_ability = list(pet.keys())[3]
+                                                    pet_ability_power = list(pet.values())[3]
+                                                    power = (pet['BOND'] * pet['LVL']) + pet_ability_power
+                                                    pet_info = db.queryPet({'PET' : pet['NAME']})
+                                                    if pet_info:
+                                                        pet_available = pet_info['AVAILABLE']
+                                                        pet_exclusive = pet_info['EXCLUSIVE']
+                                                        pet_universe = pet_info['UNIVERSE']
+                                                    icon = "🧬"
+                                                    if pet_available and pet_exclusive:
+                                                        icon = ":fire:"
+                                                    elif pet_available == False and pet_exclusive ==False:
+                                                        icon = ":japanese_ogre:"
+
+                                                    embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
+                                                    {icon}
+                                                    _Bond_ **{pet['BOND']}** {bond_message}
+                                                    _Level_ **{pet['LVL']} {lvl_message}**
+                                                    :small_blue_diamond: **{pet_ability}:** {power}
+                                                    :microbe: **Type:** {pet['TYPE']}"""), 
+                                                    colour=0x7289da)
+                                                    embedVar.set_thumbnail(url=avatar)
+                                                    embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
+                                                    embed_list.append(embedVar)
+                                                
+                                                buttons = [
+                                                    manage_components.create_button(style=3, label="Share Summon", custom_id="share"),
+                                                ]
+                                                custom_action_row = manage_components.create_actionrow(*buttons)
+
+                                                async def custom_function(self, button_ctx):
+                                                    if button_ctx.author == ctx.author:
+                                                        updated_vault = db.queryVault({'DID': d['DID']})
+                                                        sell_price = 0
+                                                        selected_summon = str(button_ctx.origin_message.embeds[0].title)
+                                                        user_query = {'DID': str(ctx.author.id)}
+                                                    if button_ctx.custom_id == "share":
+                                                        response = db.updateFamily(family['HEAD'], {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)}})
+                                                        await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
+                                                        self.stop = True
+                                                        return
+                                                await Paginator(bot=self.bot, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
+                                                    custom_action_row,
+                                                    custom_function,
+                                                ]).run()
+                                        
+                                    elif button_ctx.custom_id == "equip":
+                                        await button_ctx.defer(ignore=True)
+                                        response = db.updateUser({'$set' : {'PET':family['SUMMON'], 'FAMILY_PET': True}})
+                                        self.stop = True
+                                        return
+                                except Exception as ex:
+                                    trace = []
+                                    tb = ex.__traceback__
+                                    while tb is not None:
+                                        trace.append({
+                                            "filename": tb.tb_frame.f_code.co_filename,
+                                            "name": tb.tb_frame.f_code.co_name,
+                                            "lineno": tb.tb_lineno
+                                        })
+                                        tb = tb.tb_next
+                                    print(str({
+                                        'type': type(ex).__name__,
+                                        'message': str(ex),
+                                        'trace': trace
+                                    }))
                     except Exception as ex:
                         trace = []
                         tb = ex.__traceback__

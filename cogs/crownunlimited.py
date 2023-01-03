@@ -4312,16 +4312,29 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             if update_durability_message['MESSAGE']:
                 await ctx.author.send(f"{update_durability_message['MESSAGE']}")
         opet = {}
-        for pet in vault['PETS']:
-            if o_user['PET'] == pet['NAME']:
-                opet = pet
-
-        opet_passive_type = opet['TYPE']
-        opet_name = opet['NAME']
-        opet_image = opet['PATH']
-        opet_exp = opet['EXP']
-        opet_lvl = opet['LVL']
-        opet_bond = opet['BOND']
+        
+        pet_info = db.queryPet({'PET': o_user['PET']})
+        
+       
+                
+        if o_user['FAMILY_PET']:
+            opet_passive_list = list(pet_info['ABILITIES'])[0]
+            opet_passive_type = opet_passive_list['TYPE']
+            opet_name = pet_info['PET']
+            opet_image = pet_info['PATH']
+            opet_exp = 0
+            opet_lvl = 1
+            opet_bond = 1
+        else:
+            for pet in vault['PETS']:
+                if o_user['PET'] == pet['NAME']:
+                    opet = pet
+            opet_passive_type = opet['TYPE']
+            opet_name = opet['NAME']
+            opet_image = opet['PATH']
+            opet_exp = opet['EXP']
+            opet_lvl = opet['LVL']
+            opet_bond = opet['BOND']
 
         o_DID = o_user['DID']
         o_card = o['NAME']
@@ -4419,9 +4432,25 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 c_talisman = c_user['TALISMAN']
                 cvault = db.queryVault({'DID': c_user['DID'], 'PETS.NAME': c_user['PET']})
                 cpet = {}
-                for pet in cvault['PETS']:
-                    if c_user['PET'] == pet['NAME']:
-                        cpet = pet
+                cpet_info = c_user['PET']
+                if c_user['FAMILY_PET']:
+                    cpet_passive_list = list(cpet_info['ABILITIES'])[0]
+                    cpet_passive_type = cpet_passive_list['TYPE']
+                    cpet_name = cpet_info['PET']
+                    cpet_image = cpet_info['PATH']
+                    cpet_exp = 0
+                    cpet_lvl = 1
+                    cpet_bond = 1
+                else:
+                    for pet in cvault['PETS']:
+                        if c_user['PET'] == pet['NAME']:
+                            cpet = pet
+                    cpet_passive_type = cpet['TYPE']
+                    cpet_name = cpet['NAME']
+                    cpet_image = cpet['PATH']
+                    cpet_exp = cpet['EXP']
+                    cpet_lvl = cpet['LVL']
+                    cpet_bond = cpet['BOND']
                 carm = db.queryArm({'ARM': c_user['ARM']})
                 carm_universe = carm['UNIVERSE']
                 carm_price = carm['PRICE']
@@ -4434,12 +4463,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 carm_name = carm['ARM']
                 carm_element = carm['ELEMENT']
 
-            cpet_passive_type = cpet['TYPE']
-            cpet_name = cpet['NAME']
-            cpet_image = cpet['PATH']
-            cpet_exp = cpet['EXP']
-            cpet_lvl = cpet['LVL']
-            cpet_bond = cpet['BOND']
+            
 
             if mode in ai_co_op_modes:
                 c_DID = o_user['DID']
@@ -4535,18 +4559,28 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                     await ctx.send(f"{tupdate_durability_message['MESSAGE']}")
 
             tpet = {}
-            for pet in tvault['PETS']:
-                if t_user['PET'] == pet['NAME']:
-                    tpet = pet
+            tpet_info = t_user['PET']
+            if t_user['FAMILY_PET']:
+                tpet_passive_list = list(tpet_info['ABILITIES'])[0]
+                tpet_passive_type = tpet_passive_list['TYPE']
+                tpet_name = tpet_info['PET']
+                tpet_image = tpet_info['PATH']
+                tpet_exp = 0
+                tpet_lvl = 1
+                tpet_bond = 1
+            else:
+                for pet in tvault['PETS']:
+                    if t_user['PET'] == pet['NAME']:
+                        tpet = pet
 
-            tpet_passive_type = tpet['TYPE']
-            tpet_name = tpet['NAME']
-            tpet_image = tpet['PATH']
-            tpet_exp = tpet['EXP']
-            tpet_lvl = tpet['LVL']
-            tpet_bond = tpet['BOND']
-            tpet_lookup = db.queryPet({'PET': tpet_name})
-            tpet_passive = tpet_lookup['ABILITIES'][0]
+                tpet_passive_type = tpet['TYPE']
+                tpet_name = tpet['NAME']
+                tpet_image = tpet['PATH']
+                tpet_exp = tpet['EXP']
+                tpet_lvl = tpet['LVL']
+                tpet_bond = tpet['BOND']
+                tpet_lookup = db.queryPet({'PET': tpet_name})
+                tpet_passive = tpet_lookup['ABILITIES'][0]
 
             t_DID = t_user['DID']
             t_card = t['NAME']
