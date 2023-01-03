@@ -892,7 +892,7 @@ class Lookup(commands.Cog):
                 {icon} {'{:,}'.format(savings)}
                 
                 🏠**Primary Residence**
-                {house_info['HOUSE']} - 〽️**{house_info['MULT']}** :coin: per match!
+                {house_info['HOUSE']} - 〽️**{house_info['MULT']}x** :coin: per match!
                 """), colour=0x7289da)
                 first_page.set_image(url=house_img)
                 
@@ -980,21 +980,19 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                                 balance_message = '{:,}'.format(savings)
                                 if is_head:
-                                    real_estate_message = "Welcome Head of Household! Please select an option for viewing properties, buying property or Equiping a new Home"
+                                    real_estate_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family"
                                     property_buttons = [
-                                    manage_components.create_button(style=1, label="View Properties", custom_id="view"),
-                                    manage_components.create_button(style=2, label="Equip House", custom_id="equip"),
+                                    manage_components.create_button(style=2, label="View Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy New House", custom_id="buy"),
                                     
                                 ]
                                 if is_partner:
-                                    real_estate_message = "Welcome Partner! Please select an option for viewing properties or Equiping a new Home"
+                                    real_estate_message = "Welcome Partner!\n**View Property** - View Owned Properties or make a Move!\n"
                                     property_buttons = [
-                                    manage_components.create_button(style=1, label="View Properties", custom_id="view"),
-                                    manage_components.create_button(style=2, label="Equip House", custom_id="equip"),
+                                    manage_components.create_button(style=1, label="View Properties", custom_id="equip"),
                                 ]
                                 if is_kid:
-                                    real_estate_message = "Welcome Kids! Please select an option for viewing properties"
+                                    real_estate_message = "Welcome Kids!\n**View Property** - View Owned Properties"
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="View Properties", custom_id="view"),
                                 ]
