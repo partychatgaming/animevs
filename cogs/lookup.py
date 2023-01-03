@@ -764,8 +764,10 @@ class Lookup(commands.Cog):
         try:
             if player != None:
                 member = player
+                print(member)
+                print(member.id)
             if player:
-                user_profile = db.queryUser({'DID': str(member.id)})
+                user_profile = db.queryUser({'DID': str(member)})
                 family = db.queryFamily({'HEAD': user_profile['FAMILY']})
                 if family:
                     family_name = family['HEAD']
