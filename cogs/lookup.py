@@ -1098,9 +1098,7 @@ class Lookup(commands.Cog):
                                             ownership_message = f"💰 **Price**: {price_message}"  
                                             sell_price = house_price *.80
                                             sell_message = " "
-                                            if owned == True:
-                                                sell_message = f"💱 Sell for **{'{:,}'.format(houses['PRICE'])}**"   
-                                                ownership_message = "You Own This House"                                 
+                                            sell_message = f"💱 Sells for **{'{:,}'.format(houses['PRICE'])}**"                                  
                                             embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             **Current Savings**: :coin: **{current_savings}**                                                                    
                                             {ownership_message}
@@ -1184,7 +1182,7 @@ class Lookup(commands.Cog):
                                                     elif house_name in family['ESTATES']:
                                                         await crown_utilities.blessfamily(cost, family['HEAD'])
                                                         response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)}})
-                                                        await ctx.send(f'{family_name} sold their **{house_name}** for **{sell_price}**')
+                                                        await ctx.send(f'{family_name} sold their **{house_name}** for **{'{:,}'.format(sell_price)}**')
                                                         #self.stop = True
                                                         return
                                             else:
