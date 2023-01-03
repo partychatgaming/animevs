@@ -824,7 +824,7 @@ class Lookup(commands.Cog):
                 if str(ctx.author.id) == head_data['DID']:
                     is_head = True
                     member = True
-                if partner_data:
+                if partner_name:
                     if str(ctx.author.id) == partner_data['DID']:
                         is_partner = True
                         member = True
