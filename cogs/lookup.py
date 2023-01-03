@@ -761,7 +761,7 @@ class Lookup(commands.Cog):
         if not a_registered_player:
             return
         ctx_user = db.queryUser({'DID': str(ctx.author.id)})
-        print(ctx_user)
+        #print(ctx_user)
 
         try:
             if player != None:
@@ -830,7 +830,7 @@ class Lookup(commands.Cog):
                 if ctx_user['NAME'] in kid_list:
                     is_kid = True
                     member = True
-                print(member)
+                #print(member)
                 transactions = family['TRANSACTIONS']
                 transactions_embed = ""
                 if transactions:
