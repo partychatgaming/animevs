@@ -821,10 +821,10 @@ class Lookup(commands.Cog):
                 elif savings >= 100000:
                     icon = ":dollar:"
 
-                if ctx.author.id == head_data['DID']:
+                if str(ctx.author.id) == head_data['DID']:
                     is_head = True
                     member = True
-                if ctx.author.id == partner_data['DID']:
+                if str(ctx.author.id) == partner_data['DID']:
                     is_partner = True
                     member = True
                 if ctx_user['NAME'] in kid_list:
