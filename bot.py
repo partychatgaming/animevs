@@ -846,8 +846,8 @@ async def register(ctx):
    else:
       disname = str(ctx.author)
       name = disname.split("#",1)[0]
-      family = db.createFamily(data.newFamily({'HEAD': str(disname), '$set': {'SUMMON': {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
-         'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}}}), str(disname))
+      family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
+         'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}}), str(disname))
       user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
       r_response = db.createUsers(data.newUser(user))
 
