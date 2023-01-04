@@ -618,7 +618,7 @@ def createFamily(family, user):
         find_user = queryUser({'DISNAME': user})
         exists = family_exists({'HEAD': family['HEAD']})
         if exists:
-            return "Family already exists."
+            return queryFamily({'HEAD': user})
         else:
             print("Inserting new Family.")
             family_col.insert_one(family)
