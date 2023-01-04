@@ -789,7 +789,7 @@ async def register(ctx):
    else:
       disname = str(ctx.author)
       name = disname.split("#",1)[0]
-      user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': disname}
+      user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
       r_response = db.createUsers(data.newUser(user))
 
       if not server_created:
