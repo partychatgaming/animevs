@@ -1408,7 +1408,7 @@ class Lookup(commands.Cog):
                                             transaction_message = f"{ctx.author} equipped the family summon : **{str(pet_info['NAME'])}**."
                                             response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': pet_info['NAME'], 'FAMILY_PET': True}})
                                             response2 = db.updateFamily({'HEAD': family['HEAD']}, {'$push': {'TRANSACTIONS': transaction_message}})
-                                            await button_ctx.send(f"🧬 **{str(family['SUMMON.NAME'])}** is now your **Summon**.")
+                                            await button_ctx.send(f"🧬 **{str(pet_info['NAME'])}** is now your **Summon**.")
                                             self.stop = True
                                             return
                                         except Exception as ex:
