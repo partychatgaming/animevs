@@ -116,9 +116,11 @@ class Family(commands.Cog):
                             if button_ctx.custom_id == "yes":
                                 try:
                                     #response = db.createFamily(data.newFamily(family_query), str(ctx.author))
-                                    await ctx.send(response)
+                                    #await ctx.send(response)
                                     newvalue = {'$set': {'PARTNER': str(player)}}
                                     nextresponse = db.addFamilyMember(family_query, newvalue, str(ctx.author), str(player))
+                                    update_player = {'$set': {'FAMILY': str(ctx.author)}}
+                                    player_response = db.updateUserNoFilter(update_player)
                                     await ctx.send(nextresponse)
                                 except:
                                     await ctx.send(m.RESPONSE_NOT_DETECTED, delete_after=3)
