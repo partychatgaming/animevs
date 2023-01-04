@@ -1377,8 +1377,8 @@ class Lookup(commands.Cog):
                                                     user_query = {'DID': str(ctx.author.id)}
                                                     if button_ctx.custom_id == "share":
                                                         #update_query = {'$set': {'SUMMON': }}
-                                                        filter_query = [{'type.' + "NAME": str(pet)}]
-                                                        response = db.updateVault(query, update_query, filter_query)
+                                                        #filter_query = [{'type.' + "NAME": str(pet)}]
+                                                        #response = db.updateVault(query, update_query, filter_query)
                                                         transaction_message = f"{ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                         response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': summon_object}, '$push': {'TRANSACTIONS': transaction_message}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
