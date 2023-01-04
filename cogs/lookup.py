@@ -1343,11 +1343,11 @@ class Lookup(commands.Cog):
                                                 pet_ability = list(pet.keys())[3]
                                                 pet_ability_power = list(pet.values())[3]
                                                 power = (pet['BOND'] * pet['LVL']) + pet_ability_power
-                                                pet_info = db.queryPet({'PET' : pet['NAME']})
-                                                if pet_info:
-                                                    pet_available = pet_info['AVAILABLE']
-                                                    pet_exclusive = pet_info['EXCLUSIVE']
-                                                    pet_universe = pet_info['UNIVERSE']
+                                                dash_pet_info = db.queryPet({'PET' : pet['NAME']})
+                                                if dash_pet_info:
+                                                    pet_available = dash_pet_info['AVAILABLE']
+                                                    pet_exclusive = dash_pet_info['EXCLUSIVE']
+                                                    pet_universe = dash_pet_info['UNIVERSE']
                                                 icon = "🧬"
                                                 if pet_available and pet_exclusive:
                                                     icon = ":fire:"
