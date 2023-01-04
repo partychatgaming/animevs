@@ -18,6 +18,7 @@ from io import BytesIO
 import io
 import DiscordUtils
 import textwrap
+from .crownunlimited import enhancer_mapping, enhancer_suffix_mapping
 from collections import Counter
 from discord_slash import cog_ext, SlashContext
 from dinteractions_Paginator import Paginator
@@ -1302,7 +1303,7 @@ class Lookup(commands.Cog):
                                 :dna: : **{pet_info['NAME']}**
                                 *Bond* **{pet_info['BOND']}**
                                 *Level* **{pet_info['LVL']}**
-                                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{pet_ability_power}**
+                                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{pet_ability_power}**{enhancer_suffix_mapping[pet_info['TYPE']]}
                                 :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
                                 """), color=0xe74c3c)
                                 summon_screen.set_image(url=pet_info['PATH'])
@@ -1358,7 +1359,7 @@ class Lookup(commands.Cog):
                                                 {icon}
                                                 _Bond_ **{pet['BOND']}** {bond_message}
                                                 _Level_ **{pet['LVL']} {lvl_message}**
-                                                :small_blue_diamond: **{pet_ability}:** {power}
+                                                :small_blue_diamond: **{pet_ability}:** {power}{enhancer_suffix_mapping[pet_ability]}
                                                 :microbe: **Type:** {pet['TYPE']}"""), 
                                                 colour=0x7289da)
                                                 embedVar.set_thumbnail(url=avatar)
