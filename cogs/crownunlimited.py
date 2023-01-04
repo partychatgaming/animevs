@@ -22477,7 +22477,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     victory_description = f"Match concluded in {turn_total} turns."
                                     if botActive:
                                         victory_message = f":zap: TUTORIAL VICTORY"
-                                        victory_description = f"Congratulations! remember to equip **Titles** and **Arms** to apply **Enhancers** in battle!\nMatch concluded in {turn_total} turns."
+                                        victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nnMatch concluded in {turn_total} turns."
                                     
                                     embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
                                     {previous_moves_into_embed}

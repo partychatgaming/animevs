@@ -1045,9 +1045,7 @@ async def register(ctx):
                      
                      :two:**/menu** - select **🎴Cards**, **:reminder_ribbon:Titles**, and **:mechanical_arm:Arms**!
                      
-                     :three: Use /solo and select **:sos: The Tutorial**!
-                     
-                     :four: **/solo** and select **🌑 The Abyss**
+                     :three:**/solo** and select **:sos: The Tutorial**!
    
                      **The /help command is your ❤️ Friend!**
                      Use the help command dropdown to learn how to play Anime VS+!
