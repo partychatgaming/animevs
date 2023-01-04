@@ -844,12 +844,7 @@ class Lookup(commands.Cog):
                         transactions_embed = "\n".join(transactions)
                 
                         
-                summon_object = family['SUMMON']
-                print(summon_object)
-                sum = list(summon_object.values())[0]
-                print(sum)
-                summon = summon_object['NAME']
-                print(summon)
+                summon = family['SUMMON']
                 
                 head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
                 if head_vault:
