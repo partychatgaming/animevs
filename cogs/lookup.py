@@ -921,7 +921,7 @@ class Lookup(commands.Cog):
                 :small_blue_diamond: **{pet_info['TYPE']}** ~ **{pet_ability_power}**
                 :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
                 """), colour=0x7289da)
-                summon_page.set_image(url=summon_data['PATH'])
+                summon_page.set_image(url=pet_info['PATH'])
                 
                 
                 
