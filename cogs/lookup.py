@@ -869,6 +869,7 @@ class Lookup(commands.Cog):
                                 xp = l['EXP']
                                 pet_ability = list(l.keys())[3]
                                 pet_ability_power = list(l.values())[3]
+                                power = (l['BOND'] * l['LVL']) + pet_ability_power
                                 pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                 summon_img = pet_info['PATH']
                                 summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
@@ -876,6 +877,7 @@ class Lookup(commands.Cog):
                         summon_data = db.queryPet({'PET': summon})
                         summon_img = summon_data['PATH']
                         pet_ability_power = list(summon_data['ABILITIES'][0].values())[1]
+                        
                         pet_ability = list(summon_data['ABILITIES'])[0]
                         summon_enh = pet_ability['TYPE']
                         summon_bond = 0
@@ -932,7 +934,7 @@ class Lookup(commands.Cog):
                 🧬**{pet_info['NAME']}**
                 *Bond* **{pet_info['BOND']}**
                 *Level* **{pet_info['LVL']}**
-                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{pet_ability_power}**
+                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{power}**
                 :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
                 """), colour=0x7289da)
                 summon_page.set_image(url=pet_info['PATH'])
@@ -1386,6 +1388,7 @@ class Lookup(commands.Cog):
                                                             xp = l['EXP']
                                                             pet_ability = list(l.keys())[3]
                                                             pet_ability_power = list(l.values())[3]
+                                                            power = (l['BOND'] * l['LVL']) + pet_ability_power
                                                             pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                                     if button_ctx.custom_id == "share":
                                                         #update_query = {'$set': {'SUMMON': }}

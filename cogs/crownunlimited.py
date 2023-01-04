@@ -8076,7 +8076,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 description=f"Follow the instructions to learn how to play the Game!",
                                                                 colour=0xe91e63)
                                         embedVar.add_field(name="**Moveset**",
-                                                            value=f"{o_basic_emoji} - **Basic Attack** *10 :zap:ST*\n{o_super_emoji} - **Special Attack** *30 :zap:ST*\n{o_ultimate_emoji} - **Ultimate Move** *80 :zap:ST*\n:microbe: - **Enhancer** *20 :zap:ST*\n🛡️ - **Block** *20 :zap:ST*")
+                                                            value=f"{o_basic_emoji} - **Basic Attack** *10 :zap:ST*\n{o_super_emoji} - **Special Attack** *30 :zap:ST*\n{o_ultimate_emoji} - **Ultimate Move** *80 :zap:ST*\n:microbe: - **Enhancer** *20 :zap:ST*\n🛡️ - **Block** *20 :zap:ST*\n:zap: - **Resolve** : Heal and Activate Resolve\n:dna: - **Summon** : {opet_name}")
                                         embedVar.set_footer(
                                             text="Focus State : When card deplete to 0 stamina, they focus to Heal they also gain ATK and DEF ")
                                         await private_channel.send(embed=embedVar)
