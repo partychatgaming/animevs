@@ -848,25 +848,25 @@ class Lookup(commands.Cog):
                 
                 head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
                 if head_vault:
-                    for pet in head_vault['PETS']:
-                        if summon == pet['NAME']:
-                            opet = pet
-
-                    pet_passive_type = opet['TYPE']
-                    summon_enh = pet_passive_type
-                    pet_name = opet['NAME']
-                    pet_image = opet['PATH']
-                    pet_exp = opet['EXP']
-                    pet_lvl = opet['LVL']
-                    pet_bond = opet['BOND']
-                    summon_data = db.queryPet({'PET': pet_name})
-                    summon_img = summon_data['PATH']
-                    summon_file = crown_utilities.showsummon(summon_img, pet_name, enhancer_mapping[summon_enh], pet_lvl, pet_bond)
+                    vault_summons = head_vault['PETS']
+                    for l in vault_summons:
+                        if summon == l['NAME']:
+                            level = l['LVL']
+                            xp = l['EXP']
+                            pet_ability = list(l.keys())[3]
+                            pet_ability_power = list(l.values())[3]
+                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
+                    summon_img = pet_info['PATH']
+                    summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                 else:
                     summon_data = db.queryPet({'PET': summon})
                     summon_img = summon_data['PATH']
+                    summon_ap = list(summon_data['ABILITIES'][0].values())[1]
                     summon_enh_type = list(summon_data['ABILITIES'])[0]
                     summon_enh = summon_enh_type['TYPE']
+                    summon_ap = 15
+                    summon_bond = 0
+                    summon_lvl = 0
                     summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_enh], 0, 0)
                 universe = family['UNIVERSE']
                 universe_data = db.queryUniverse({'TITLE': universe})
@@ -915,11 +915,11 @@ class Lookup(commands.Cog):
                 """), colour=0x7289da)
                 
                 summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
-                🧬**{summon_data['PET']}**
-                *Bond* **{pet_bond}**
-                *Level* **{pet_lvl}**
-                :small_blue_diamond: **{summon_enh}**
-                :microbe: : **{enhancer_mapping[summon_enh]}**
+                🧬**{pet_info['NAME']}**
+                *Bond* **{pet_info['BOND']}**
+                *Level* **{pet_info['LVL']}**
+                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{pet_ability_power}**
+                :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
                 """), colour=0x7289da)
                 summon_page.set_image(url=summon_data['PATH'])
                 
@@ -993,6 +993,7 @@ class Lookup(commands.Cog):
                                     manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy/Sell Houses", custom_id="buy"),
                                     manage_components.create_button(style=1, label="Browse Housing Catalog", custom_id="browse"),
+                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
                                     
                                 ]
                                 if is_partner:
@@ -1000,11 +1001,13 @@ class Lookup(commands.Cog):
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=1, label="Browse Housing Catalog", custom_id="browse"),
+                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
                                 ]
                                 if is_kid:
                                     real_estate_message = "Welcome Kids!\n**View Property** - View Owned Properties"
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="View Properties", custom_id="view"),
+                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
                                 ]
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
                                 real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
@@ -1019,7 +1022,9 @@ class Lookup(commands.Cog):
                                 try:
                                     house_embed_list = []
                                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[property_action_row], timeout=120, check=check)
-                                    
+                                    if button_ctx.custom_id == "q":
+                                        await ctx.send("Real Estate Menu Closed...")
+                                        return
                                     if button_ctx.custom_id == "browse":
                                         await button_ctx.defer(ignore=True)
                                         all_houses = db.queryAllHouses()
@@ -1246,7 +1251,7 @@ class Lookup(commands.Cog):
                                 :dna: : **{family['SUMMON']}**
                                 *Bond* **{pet_bond}**
                                 *Level* **{pet_lvl}**
-                                :small_blue_diamond: **{summon_enh}**
+                                :small_blue_diamond: **{summon_enh}** {}
                                 :microbe: : **{enhancer_mapping[summon_enh]}**
                                 """), color=0xe74c3c)
                                 summon_screen.set_image(url=summon_data['PATH'])
