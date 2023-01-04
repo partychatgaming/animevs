@@ -1394,8 +1394,8 @@ class Lookup(commands.Cog):
                                     elif button_ctx.custom_id == "equip":
                                         try:
                                             await button_ctx.defer(ignore=True)
-                                            transaction_message = f"{ctx.author} equipped the family summon : **{str(family['SUMMON'])}**."
-                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': family['SUMMON'], 'FAMILY_PET': True}})
+                                            transaction_message = f"{ctx.author} equipped the family summon : **{str(pet_info['NAME'])}**."
+                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': pet_info['NAME'], 'FAMILY_PET': True}})
                                             response2 = db.updateFamily({'HEAD': family['HEAD']}, {'$push': {'TRANSACTIONS': transaction_message}})
                                             await button_ctx.send(f"🧬 **{str(family['SUMMON'])}** is now your **Summon**.")
                                             self.stop = True
