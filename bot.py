@@ -1051,9 +1051,6 @@ async def register(ctx):
    
                      **The /help command is your ❤️ Friend!**
                      Use the help command dropdown to learn how to play Anime VS+!
-                     
-                     *Still Lost?*
-                     [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
                      """),colour=0x1abc9c)
                      embedVar.add_field(name=f"🎴 My Cards", value=f"{card_drop_message_into_embded}", inline=True)
                      embedVar.add_field(name=f":reminder_ribbon: My Titles", value=f"{title_drop_message_into_embded}", inline=True)
