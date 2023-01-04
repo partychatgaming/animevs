@@ -1304,7 +1304,7 @@ class Lookup(commands.Cog):
                                 :small_blue_diamond: **{pet_info['TYPE']}** ~ **{pet_ability_power}**
                                 :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
                                 """), color=0xe74c3c)
-                                summon_screen.set_image(url=summon_data['PATH'])
+                                summon_screen.set_image(url=pet_info['PATH'])
                                 
                                 msg = await ctx.send(embed=summon_screen, components=[summon_action_row])
                                 def check(button_ctx):
