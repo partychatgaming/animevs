@@ -761,7 +761,7 @@ async def animevs(ctx):
 
 
 
-   embeds = [embedVar1, embedVar2, embedVar3, embedVar11, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
+   embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar16, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
    await Paginator(bot=bot, ctx=ctx, pages=embeds, timeout=60).run()
   
 
