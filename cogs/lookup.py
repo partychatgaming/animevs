@@ -1359,7 +1359,7 @@ class Lookup(commands.Cog):
                                                 {icon}
                                                 _Bond_ **{pet['BOND']}** {bond_message}
                                                 _Level_ **{pet['LVL']} {lvl_message}**
-                                                :small_blue_diamond: **{pet_ability}:** {power}{enhancer_suffix_mapping[pet_ability]}
+                                                :small_blue_diamond: **{pet_ability}:** {power}{enhancer_suffix_mapping[pet['TYPE']]}
                                                 :microbe: **Type:** {pet['TYPE']}"""), 
                                                 colour=0x7289da)
                                                 embedVar.set_thumbnail(url=avatar)
