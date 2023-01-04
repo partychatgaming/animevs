@@ -10275,7 +10275,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
 
                                                     previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: Bankai!")
-                                                    await button_ctx.defer(ignore=True)
+                                                    #await button_ctx.defer(ignore=True)
 
                                                     turn_total = turn_total + 1
                                                     turn = 1
@@ -11151,7 +11151,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     previous_moves.append(f"(**{turn_total}**) **{o_card}**: 🦠 {dmg['MESSAGE']}")
                                                     turn_total = turn_total + 1
                                                     turn = 1
-                                                    await button_ctx.defer(ignore=True)
+                                                    #await button_ctx.defer(ignore=True)
                                                 elif dmg['DMG'] == 0:
                                                     o_stamina = o_stamina - int(dmg['STAMINA_USED'])
 
