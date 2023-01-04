@@ -4311,7 +4311,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             update_durability_message = update_arm_durability(self, vault, oarm, oarm_universe, oarm_price, o)
             if update_durability_message['MESSAGE']:
                 await ctx.author.send(f"{update_durability_message['MESSAGE']}")
-        #opet = {}
+        opet = {}
         
         pet_info = db.queryPet({'PET': o_user['PET']})
         
@@ -4320,7 +4320,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         if o_user['FAMILY_PET']:
             o_family = db.queryFamily({'HEAD': o_user['FAMILY']})
             o_family_pet = o_family['SUMMON']
-            o_pet = o_family_pet
+            opet = o_family_pet
             #opet_passive_list = list(pet_info['ABILITIES'])[0]
             opet_passive_type = o_family_pet['TYPE']
             opet_name = o_family_pet['NAME']
@@ -4328,7 +4328,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             opet_exp = o_family_pet['EXP']
             opet_lvl = o_family_pet['LVL']
             opet_bond = o_family_pet['BOND']
-            print(o_pet)
+            print(opet)
         else:
             opet = {}
             for pet in vault['PETS']:
@@ -4340,7 +4340,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             opet_exp = opet['EXP']
             opet_lvl = opet['LVL']
             opet_bond = opet['BOND']
-            print("opet")
+            #print("opet")
 
         o_DID = o_user['DID']
         o_card = o['NAME']
@@ -4437,12 +4437,12 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 cperformance = c_user['PERFORMANCE']
                 c_talisman = c_user['TALISMAN']
                 cvault = db.queryVault({'DID': c_user['DID'], 'PETS.NAME': c_user['PET']})
-                #cpet = {}
+                cpet = {}
                 cpet_info = c_user['PET']
                 if c_user['FAMILY_PET']:
                     c_family = db.queryFamily({'HEAD': c_user['FAMILY']})
                     c_family_pet = c_family['SUMMON']
-                    c_pet = c_family_pet
+                    cpet = c_family_pet
                     #cpet_passive_list = list(pet_info['ABILITIES'])[0]
                     cpet_passive_type = c_family_pet['TYPE']
                     cpet_name = c_family_pet['NAME']
@@ -4568,7 +4568,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 if tupdate_durability_message['MESSAGE']:
                     await ctx.send(f"{tupdate_durability_message['MESSAGE']}")
 
-            #tpet = {}
+            tpet = {}
             tpet_info = t_user['PET']
             if t_user['FAMILY_PET']:
                 t_family = db.queryFamily({'HEAD': t_user['FAMILY']})
@@ -4990,7 +4990,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
        
         # opetmove_text = "Family Summon!"
         # opetmove_ap = 10
-    
+
         opetmove_text = list(opet.keys())[3]  # Name of the ability
         opetmove_ap = (opet_bond * opet_lvl) + list(opet.values())[3]  # Ability Power
 
