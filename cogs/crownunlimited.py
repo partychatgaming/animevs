@@ -4328,7 +4328,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             opet_exp = o_family_pet['EXP']
             opet_lvl = o_family_pet['LVL']
             opet_bond = o_family_pet['BOND']
-            print(opet)
+            print(o_pet)
         else:
             opet = {}
             for pet in vault['PETS']:
