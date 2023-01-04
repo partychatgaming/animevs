@@ -1033,23 +1033,27 @@ async def register(ctx):
                                     # await button_ctx.send(
                                     #    f"✨**{destiny['NAME']}** addes to **/destinylist**.", hidden=True)
                         count = count + 1
-                     title_drop_message_into_embded = "\n".join(title_message)
-                     arm_drop_message_into_embded = "\n".join(arm_message)
-                     card_drop_message_into_embded = "\n".join(card_message)
+                     title_drop_message_into_embded = "|".join(title_message)
+                     arm_drop_message_into_embded = "|".join(arm_message)
+                     card_drop_message_into_embded = "|".join(card_message)
                      destiny_drop_message_into_embded = "\n".join(destiny_message)
                      embedVar = discord.Embed(title=f"**Welcome to Anime VS+**!",description=textwrap.dedent(f"""
                      *Welcome {ctx.author.mention}!*
                      
                      **Let's get started playing the game!**
-                     **Step 1:**/menu to select  **🎴Cards**, **:reminder_ribbon:Titles**, and **:mechanical_arm:Arms**!
+                     :one:**/build** with **{universe} Items**
                      
-                     **Step 2:** Create a /build with **{universe} Items**
+                     :two:**/menu** - select **🎴Cards**, **:reminder_ribbon:Titles**, and **:mechanical_arm:Arms**!
                      
-                     **Step 3:** Use /solo and select **:sos: The Tutorial**!
+                     :three: Use /solo and select **:sos: The Tutorial**!
                      
+                     :four: **/solo** and select **🌑 The Abyss**
+   
                      **The /help command is your ❤️ Friend!**
                      Use the help command dropdown to learn how to play Anime VS+!
-         
+                     
+                     *Still Lost?*
+                     [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
                      """),colour=0x1abc9c)
                      embedVar.add_field(name=f"🎴 My Cards", value=f"{card_drop_message_into_embded}", inline=True)
                      embedVar.add_field(name=f":reminder_ribbon: My Titles", value=f"{title_drop_message_into_embded}", inline=True)
