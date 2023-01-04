@@ -1249,10 +1249,10 @@ class Lookup(commands.Cog):
                                 summon_screen = discord.Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
                                 {summon_message}
                                 :dna: : **{family['SUMMON']}**
-                                *Bond* **{pet_bond}**
-                                *Level* **{pet_lvl}**
-                                :small_blue_diamond: **{summon_enh}** {}
-                                :microbe: : **{enhancer_mapping[summon_enh]}**
+                                *Bond* **{pet_info['NAME']}**
+                                *Level* **{pet_info['LVL']}**
+                                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{pet_ability_power}**
+                                :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
                                 """), color=0xe74c3c)
                                 summon_screen.set_image(url=summon_data['PATH'])
                                 
