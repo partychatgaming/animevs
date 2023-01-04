@@ -1376,6 +1376,16 @@ class Lookup(commands.Cog):
                                                     sell_price = 0
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
                                                     user_query = {'DID': str(ctx.author.id)}
+                                                    user_vault = db.queryVault(user_query)
+
+                                                    vault_summons = user_vault['PETS']
+                                                    for l in vault_summons:
+                                                        if selected_summon == l['NAME']:
+                                                            level = l['LVL']
+                                                            xp = l['EXP']
+                                                            pet_ability = list(l.keys())[3]
+                                                            pet_ability_power = list(l.values())[3]
+                                                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                                     if button_ctx.custom_id == "share":
                                                         #update_query = {'$set': {'SUMMON': }}
                                                         #filter_query = [{'type.' + "NAME": str(pet)}]
