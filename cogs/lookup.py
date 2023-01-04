@@ -844,7 +844,9 @@ class Lookup(commands.Cog):
                         transactions_embed = "\n".join(transactions)
                 
                         
-                summon = family['SUMMON']
+                summon_object = family['SUMMON']
+                summon = summon_object['NAME']
+                print(summon)
                 
                 head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
                 if head_vault:
@@ -859,15 +861,28 @@ class Lookup(commands.Cog):
                     summon_img = pet_info['PATH']
                     summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                 else:
-                    summon_data = db.queryPet({'PET': summon})
-                    summon_img = summon_data['PATH']
-                    summon_ap = list(summon_data['ABILITIES'][0].values())[1]
-                    summon_enh_type = list(summon_data['ABILITIES'])[0]
-                    summon_enh = summon_enh_type['TYPE']
-                    summon_ap = 15
-                    summon_bond = 0
-                    summon_lvl = 0
-                    summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_enh], 0, 0)
+                    partnervault =  db.queryVault({'OWNER' : partner_data['DISNAME']})
+                    if partnervault:
+                        vault_summons = partnervault['PETS']
+                        for l in vault_summons:
+                            if summon == l['NAME']:
+                                level = l['LVL']
+                                xp = l['EXP']
+                                pet_ability = list(l.keys())[3]
+                                pet_ability_power = list(l.values())[3]
+                                pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
+                                summon_img = pet_info['PATH']
+                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
+                    else:
+                        summon_data = db.queryPet({'PET': summon})
+                        summon_img = summon_data['PATH']
+                        pet_ability_power = list(summon_data['ABILITIES'][0].values())[1]
+                        pet_ability = list(summon_data['ABILITIES'])[0]
+                        summon_enh = pet_ability['TYPE']
+                        summon_bond = 0
+                        summon_lvl = 0
+                        summon_img = pet_info['PATH']
+                        summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_enh], 0, 0)
                 universe = family['UNIVERSE']
                 universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']

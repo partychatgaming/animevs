@@ -181,7 +181,9 @@ class FAMILY():
     HOUSE: str = field(default_factory=lambda: 'Cave')
     ESTATES: list[str] = field(default_factory=lambda: ['CAVE'])
     TRANSACTIONS: list[str] = field(default_factory=lambda: [])
-    SUMMON: str = field(default_factory=lambda: 'Chick')
+    SUMMON: list[str] = field(default_factory=lambda: [
+        {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
+         'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}])
     UNIVERSE: str = field(default_factory=lambda: 'Unbound')
     TIMESTAMP: str = now
 
