@@ -846,7 +846,7 @@ class Lookup(commands.Cog):
                         
                 summon_object = family['SUMMON']
                 print(summon_object)
-                sum = list(summon_object.valuess())[0]
+                sum = list(summon_object.values())[0]
                 print(sum)
                 summon = summon_object['NAME']
                 print(summon)
