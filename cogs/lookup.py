@@ -1339,7 +1339,7 @@ class Lookup(commands.Cog):
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
                                                     user_query = {'DID': str(ctx.author.id)}
                                                     if button_ctx.custom_id == "share":
-                                                        update_query = {'$set': {'SUMMON': }}
+                                                        #update_query = {'$set': {'SUMMON': }}
                                                         filter_query = [{'type.' + "NAME": str(pet)}]
                                                         response = db.updateVault(query, update_query, filter_query)
                                                         transaction_message = f"{ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
