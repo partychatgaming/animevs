@@ -391,7 +391,7 @@ async def animevs(ctx):
    """), colour=0x7289da)
    embedVar11.set_thumbnail(url=avatar)
    
-   embedVar16 = discord.Embed(title= f"Damage, Elements & Talismans", description=textwrap.dedent(f"""                                                                           
+   embedVar17 = discord.Embed(title= f"Damage, Elements & Talismans", description=textwrap.dedent(f"""                                                                           
    🗯️**Engagement** Each of you Attack Moves deals damage based on the *Engagement**.
    
    💢: **Desperate Engagement**: Your opponent has overwhelming defense... Deal %33-%50 of AP
@@ -445,7 +445,7 @@ async def animevs(ctx):
    📿**Talismans**
  
    """), colour=0x7289da)
-   embedVar16.set_thumbnail(url=avatar)
+   embedVar17.set_thumbnail(url=avatar)
 
    embedVar4 = discord.Embed(title= f"Titles, Arms, and Summons ", description=textwrap.dedent(f"""\
    **Titles** & **Arms** 
@@ -761,7 +761,7 @@ async def animevs(ctx):
 
 
 
-   embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar16, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
+   embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
    await Paginator(bot=bot, ctx=ctx, pages=embeds, timeout=60).run()
   
 
