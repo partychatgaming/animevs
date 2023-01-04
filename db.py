@@ -616,21 +616,18 @@ def queryAllFamily(family):
 def createFamily(family, user):
     try:
         find_user = queryUser({'DISNAME': user})
-        if find_user['FAMILY'] and find_user['FAMILY'] != 'PCG':
-            return "User is already part of a Family. "
+        exists = family_exists({'HEAD': family['HEAD']})
+        if exists:
+            return "Family already exists."
         else:
-            exists = family_exists({'HEAD': family['HEAD']})
-            if exists:
-                return "Family already exists."
-            else:
-                print("Inserting new Family.")
-                family_col.insert_one(family)
+            print("Inserting new Family.")
+            family_col.insert_one(family)
 
-                # Add Guild to User Profile as well
-                query = {'DISNAME': user}
-                new_value = {'$set': {'FAMILY': family['HEAD']}}
-                users_col.update_one(query, new_value)
-                return "Family has been created. "
+            # Add Guild to User Profile as well
+            query = {'DISNAME': user}
+            new_value = {'$set': {'FAMILY': family['HEAD']}}
+            users_col.update_one(query, new_value)
+            return "Family has been created. "
     except:
         return "Cannot create Family."
 
