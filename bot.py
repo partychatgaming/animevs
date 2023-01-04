@@ -1033,9 +1033,9 @@ async def register(ctx):
                                     # await button_ctx.send(
                                     #    f"✨**{destiny['NAME']}** addes to **/destinylist**.", hidden=True)
                         count = count + 1
-                     title_drop_message_into_embded = "|".join(title_message)
-                     arm_drop_message_into_embded = "|".join(arm_message)
-                     card_drop_message_into_embded = "|".join(card_message)
+                     title_drop_message_into_embded = "\n".join(title_message)
+                     arm_drop_message_into_embded = "\n".join(arm_message)
+                     card_drop_message_into_embded = "\n".join(card_message)
                      destiny_drop_message_into_embded = "\n".join(destiny_message)
                      embedVar = discord.Embed(title=f"**Welcome to Anime VS+**!",description=textwrap.dedent(f"""
                      *Welcome {ctx.author.mention}!*
@@ -1057,7 +1057,7 @@ async def register(ctx):
                         embedVar.add_field(name=f"✨ **Destinies** */menu to view Destinies*", value=f"{destiny_drop_message_into_embded}", inline=False)
                      embedVar.add_field(name=f":sos: Support!", value=f"[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)", inline=False)
                      embedVar.set_author(name=f"Registration Complete!", icon_url=user_info['AVATAR'])
-                     embedVar.set_footer(text="📜Use /daily for Daily Reward and Quest\n/difficulty - Change difficulty setting!",
+                     embedVar.set_footer(text="📜Use /daily for Daily Reward and Quest\n🔥/difficulty - Change difficulty setting!",
                                  icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
                      #await button_ctx.send(f"Nice choice {ctx.author.mention}!\n\nCreate your first **Build**!\n**/cards** Select your 🎴  Card\n**/titles** Select your 🎗️ Title\n**/arms** Select your 🦾  Arm\n\nOnce you're done, run **/tutorial** to begin the **Tutorial Battle**! ⚔️")
                      await button_ctx.send(embed=embedVar)
