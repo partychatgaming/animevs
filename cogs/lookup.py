@@ -1259,6 +1259,7 @@ class Lookup(commands.Cog):
                                         vault_summons = partnervault['PETS']
                                         for l in vault_summons:
                                             if summon == l['NAME']:
+                
                                                 level = l['LVL']
                                                 xp = l['EXP']
                                                 pet_ability = list(l.keys())[3]
@@ -1380,7 +1381,7 @@ class Lookup(commands.Cog):
                                                         #filter_query = [{'type.' + "NAME": str(pet)}]
                                                         #response = db.updateVault(query, update_query, filter_query)
                                                         transaction_message = f"{ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
-                                                        response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': summon_object}, '$push': {'TRANSACTIONS': transaction_message}})
+                                                        response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': pet_info}, '$push': {'TRANSACTIONS': transaction_message}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
                                                         self.stop = True
                                                         return
