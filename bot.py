@@ -844,16 +844,31 @@ async def register(ctx):
          r_response = applied
          disname = str(ctx.author)
    else:
-      disname = str(ctx.author)
-      name = disname.split("#",1)[0]
-      family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
-         'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}}), str(disname))
-      update_summon = db.updateFamily({'HEAD': str(family['HEAD'])}, {'$set' : {'SUMMON': {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
-         'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}}})
-      await ctx.send(family)
-      await ctx.send(update_summon)
-      user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
-      r_response = db.createUsers(data.newUser(user))
+      try:
+         disname = str(ctx.author)
+         name = disname.split("#",1)[0]
+         summon_info = {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0, 'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}
+         family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': summon_info}), str(disname))
+         update_summon = db.updateFamily({'HEAD': str(disname}, {'$set' : {'SUMMON': summon_info}})
+         await ctx.send(family)
+         await ctx.send(update_summon)
+         user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
+         r_response = db.createUsers(data.newUser(user))
+      except Exception as ex:
+         trace = []
+         tb = ex.__traceback__
+         while tb is not None:
+            trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+         print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+         }))  
 
       if not server_created:
          create_server_query = {'GNAME': str(ctx.author.guild)}
