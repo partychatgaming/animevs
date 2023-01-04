@@ -4328,6 +4328,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             opet_exp = o_family_pet['EXP']
             opet_lvl = o_family_pet['LVL']
             opet_bond = o_family_pet['BOND']
+            print(opet)
         else:
             for pet in vault['PETS']:
                 if o_user['PET'] == pet['NAME']:
@@ -4338,6 +4339,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             opet_exp = opet['EXP']
             opet_lvl = opet['LVL']
             opet_bond = opet['BOND']
+            print("opet")
 
         o_DID = o_user['DID']
         o_card = o['NAME']
@@ -4442,7 +4444,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                     c_pet = c_family_pet
                     #cpet_passive_list = list(pet_info['ABILITIES'])[0]
                     cpet_passive_type = c_family_pet['TYPE']
-                    copet_name = c_family_pet['NAME']
+                    cpet_name = c_family_pet['NAME']
                     cpet_image = c_family_pet['PATH']
                     cpet_exp = c_family_pet['EXP']
                     cpet_lvl = c_family_pet['LVL']
@@ -4876,8 +4878,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
             c_opponent_affinities = crown_utilities.check_affinities("t", c, cmove1_element, cmove2_element, cmove3_element)
             
-            cpetmove_text = "Family Summon!"
-            cpetmove_ap = 10
+            # cpetmove_text = "Family Summon!"
+            # cpetmove_ap = 10
     
             cpetmove_text = list(cpet.keys())[3]  # Name of the ability
             cpetmove_ap = (cpet_bond *  cpet_lvl) + list(cpet.values())[3]  # Ability Power
@@ -4983,8 +4985,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         omove_enhanced_text = list(o_enhancer.keys())[0]
 
        
-        opetmove_text = "Family Summon!"
-        opetmove_ap = 10
+        # opetmove_text = "Family Summon!"
+        # opetmove_ap = 10
     
         opetmove_text = list(opet.keys())[3]  # Name of the ability
         opetmove_ap = (opet_bond * opet_lvl) + list(opet.values())[3]  # Ability Power
@@ -5064,9 +5066,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             tmove3_text = list(t_3.keys())[0]
             tmove3_element = list(t_3.values())[2]
             tmove_enhanced_text = list(t_enhancer.keys())[0]
-            tpetmove_text = "Family Summon!"
-            tpetmove_ap = 10
-            tpetmove_text = list(tpet_passive.keys())[0]
+            # tpetmove_text = "Family Summon!"
+            # tpetmove_ap = 10
+            # tpetmove_text = list(tpet_passive.keys())[0]
 
             tpetmove_text = list(tpet.keys())[3]  # Name of the ability
             tpetmove_ap = (tpet_bond * tpet_lvl) + list(tpet_passive.values())[0] # Ability Power
