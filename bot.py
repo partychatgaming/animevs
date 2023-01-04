@@ -805,12 +805,28 @@ async def register(ctx):
 
 
    if r_response:
-      await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
-      vault = db.createVault(data.newVault({'OWNER': str(ctx.author), 'DID' : str(ctx.author.id)}))
-      family = db.createFamily(data.newFamily({'HEAD': str(disname)}))
-      await asyncio.sleep(3)
-      await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
-      await asyncio.sleep(3)
+      try:
+         await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
+         vault = db.createVault(data.newVault({'OWNER': str(ctx.author), 'DID' : str(ctx.author.id)}))
+         family = db.createFamily(data.newFamily({'HEAD': str(disname)}))
+         await asyncio.sleep(3)
+         await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
+         await asyncio.sleep(3)
+      except Exception as ex:
+         trace = []
+         tb = ex.__traceback__
+         while tb is not None:
+            trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+         print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+         }))  
 
       try:
          universe_data = db.queryAllUniverse()

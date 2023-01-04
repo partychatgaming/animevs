@@ -2401,10 +2401,10 @@ class Profile(commands.Cog):
                             if summon_name == current_summon:
                                 await button_ctx.send("You cannot dismanetle equipped summonss.")
                                 return
-                            dismantle_price = 5000   
+                            dismantle_price = 10000   
                             level = int(pet['LVL'])
                             bond = int(pet['BOND'])
-                            dismantle_amount = round((1000* level) + (dismantle_price * bond)+ 5000)
+                            dismantle_amount = round((1000* level) + (dismantle_price * bond) + dismantle_price)
                             dismantle_buttons = [
                                 manage_components.create_button(
                                     style=ButtonStyle.green,
