@@ -789,7 +789,7 @@ async def register(ctx):
    else:
       disname = str(ctx.author)
       name = disname.split("#",1)[0]
-      user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild)}
+      user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': disname}
       r_response = db.createUsers(data.newUser(user))
 
       if not server_created:
@@ -807,6 +807,7 @@ async def register(ctx):
    if r_response:
       await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
       vault = db.createVault(data.newVault({'OWNER': str(ctx.author), 'DID' : str(ctx.author.id)}))
+      family = db.createFamily(data.newFamily({'HEAD': str(disname)}))
       await asyncio.sleep(3)
       await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
       await asyncio.sleep(3)

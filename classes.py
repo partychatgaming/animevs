@@ -177,7 +177,7 @@ class FAMILY():
     HEAD: str = field(default_factory=lambda: '')
     PARTNER: str = field(default_factory=lambda: '')
     KIDS: list[str] = field(default_factory=lambda: [])
-    BANK: int = field(default_factory=lambda: 0)
+    BANK: int = field(default_factory=lambda: 1000)
     HOUSE: str = field(default_factory=lambda: 'Cave')
     ESTATES: list[str] = field(default_factory=lambda: ['CAVE'])
     TRANSACTIONS: list[str] = field(default_factory=lambda: [])
