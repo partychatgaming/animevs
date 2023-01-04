@@ -1939,7 +1939,7 @@ async def summonlevel(pet, player):
     if family_name != 'PCG':
         family_info = db.queryFamily({'HEAD':str(family_name)})
         family_summon = family_info['SUMMON']
-        if family_summon == str(pet):
+        if family_summon['NAME'] == str(pet):
             return False
     petinfo = {}
     try:
@@ -4318,13 +4318,16 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
        
                 
         if o_user['FAMILY_PET']:
-            opet_passive_list = list(pet_info['ABILITIES'])[0]
-            opet_passive_type = opet_passive_list['TYPE']
-            opet_name = pet_info['PET']
-            opet_image = pet_info['PATH']
-            opet_exp = 0
-            opet_lvl = 1
-            opet_bond = 1
+            o_family = db.queryFamily({'HEAD': o_user['FAMILY']})
+            o_family_pet = o_family['SUMMON']
+            o_pet = o_family_pet
+            #opet_passive_list = list(pet_info['ABILITIES'])[0]
+            opet_passive_type = o_family_pet['TYPE']
+            opet_name = o_family_pet['NAME']
+            opet_image = o_family_pet['PATH']
+            opet_exp = o_family_pet['EXP']
+            opet_lvl = o_family_pet['LVL']
+            opet_bond = o_family_pet['BOND']
         else:
             for pet in vault['PETS']:
                 if o_user['PET'] == pet['NAME']:
@@ -4434,13 +4437,16 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 cpet = {}
                 cpet_info = c_user['PET']
                 if c_user['FAMILY_PET']:
-                    cpet_passive_list = list(cpet_info['ABILITIES'])[0]
-                    cpet_passive_type = cpet_passive_list['TYPE']
-                    cpet_name = cpet_info['PET']
-                    cpet_image = cpet_info['PATH']
-                    cpet_exp = 0
-                    cpet_lvl = 1
-                    cpet_bond = 1
+                    c_family = db.queryFamily({'HEAD': c_user['FAMILY']})
+                    c_family_pet = c_family['SUMMON']
+                    c_pet = c_family_pet
+                    #cpet_passive_list = list(pet_info['ABILITIES'])[0]
+                    cpet_passive_type = c_family_pet['TYPE']
+                    copet_name = c_family_pet['NAME']
+                    cpet_image = c_family_pet['PATH']
+                    cpet_exp = c_family_pet['EXP']
+                    cpet_lvl = c_family_pet['LVL']
+                    cpet_bond = c_family_pet['BOND']
                 else:
                     for pet in cvault['PETS']:
                         if c_user['PET'] == pet['NAME']:
@@ -4561,13 +4567,16 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             tpet = {}
             tpet_info = t_user['PET']
             if t_user['FAMILY_PET']:
-                tpet_passive_list = list(tpet_info['ABILITIES'])[0]
-                tpet_passive_type = tpet_passive_list['TYPE']
-                tpet_name = tpet_info['PET']
-                tpet_image = tpet_info['PATH']
-                tpet_exp = 0
-                tpet_lvl = 1
-                tpet_bond = 1
+                t_family = db.queryFamily({'HEAD': t_user['FAMILY']})
+                t_family_pet = t_family['SUMMON']
+                tpet = t_family_pet
+                #tpet_passive_list = list(pet_info['ABILITIES'])[0]
+                tpet_passive_type = t_family_pet['TYPE']
+                tpet_name = t_family_pet['NAME']
+                tpet_image = t_family_pet['PATH']
+                tpet_exp = t_family_pet['EXP']
+                tpet_lvl = t_family_pet['LVL']
+                tpet_bond = t_family_pet['BOND']
                 
             else:
                 for pet in tvault['PETS']:
@@ -4866,12 +4875,12 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             cmove_enhanced_text = list(c_enhancer.keys())[0]
 
             c_opponent_affinities = crown_utilities.check_affinities("t", c, cmove1_element, cmove2_element, cmove3_element)
-            if c_user['FAMILY_PET']:
-                cpetmove_text = "Family Summon!"
-                cpetmove_ap = 10
-            else:
-                cpetmove_text = list(cpet.keys())[3]  # Name of the ability
-                cpetmove_ap = (cpet_bond *  cpet_lvl) + list(cpet.values())[3]  # Ability Power
+            
+            cpetmove_text = "Family Summon!"
+            cpetmove_ap = 10
+    
+            cpetmove_text = list(cpet.keys())[3]  # Name of the ability
+            cpetmove_ap = (cpet_bond *  cpet_lvl) + list(cpet.values())[3]  # Ability Power
 
             cpet_move = {str(cpetmove_text): int(cpetmove_ap), 'STAM': 15, 'TYPE': str(cpet_passive_type)}
 
@@ -4973,12 +4982,12 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
 
         omove_enhanced_text = list(o_enhancer.keys())[0]
 
-        if o_user['FAMILY_PET']:
-            opetmove_text = "Family Summon!"
-            opetmove_ap = 10
-        else:
-            opetmove_text = list(opet.keys())[3]  # Name of the ability
-            opetmove_ap = (opet_bond * opet_lvl) + list(opet.values())[3]  # Ability Power
+       
+        opetmove_text = "Family Summon!"
+        opetmove_ap = 10
+    
+        opetmove_text = list(opet.keys())[3]  # Name of the ability
+        opetmove_ap = (opet_bond * opet_lvl) + list(opet.values())[3]  # Ability Power
 
         opet_move = {str(opetmove_text): int(opetmove_ap), 'STAM': 15, 'TYPE': str(opet_passive_type)}
 
@@ -5055,14 +5064,12 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             tmove3_text = list(t_3.keys())[0]
             tmove3_element = list(t_3.values())[2]
             tmove_enhanced_text = list(t_enhancer.keys())[0]
-            if t_user['FAMILY_PET']:
-                tpetmove_text = "Family Summon!"
-                tpetmove_ap = 10
-            else:
-                tpetmove_text = list(tpet_passive.keys())[0]
+            tpetmove_text = "Family Summon!"
+            tpetmove_ap = 10
+            tpetmove_text = list(tpet_passive.keys())[0]
 
-                tpetmove_text = list(tpet.keys())[3]  # Name of the ability
-                tpetmove_ap = (tpet_bond * tpet_lvl) + list(tpet_passive.values())[0] # Ability Power
+            tpetmove_text = list(tpet.keys())[3]  # Name of the ability
+            tpetmove_ap = (tpet_bond * tpet_lvl) + list(tpet_passive.values())[0] # Ability Power
             tpet_move = {str(tpetmove_text): int(tpetmove_ap), 'STAM': 15, 'TYPE': str(tpet_passive_type)}
         else:
             t_1 = t_moveset[0]
