@@ -844,8 +844,8 @@ class Lookup(commands.Cog):
                         transactions_embed = "\n".join(transactions)
                 
                         
-                summon = family['SUMMON']
-                
+                summon_object = family['SUMMON']
+                summon = summon_object['NAME']
                 head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
                 if head_vault:
                     vault_summons = head_vault['PETS']
@@ -1261,8 +1261,8 @@ class Lookup(commands.Cog):
                                 summon_action_row = manage_components.create_actionrow(*summon_buttons)
                                 summon_screen = discord.Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
                                 {summon_message}
-                                :dna: : **{family['SUMMON']}**
-                                *Bond* **{pet_info['NAME']}**
+                                :dna: : **{pet_info['NAME']}**
+                                *Bond* **{pet_info['BOND']}**
                                 *Level* **{pet_info['LVL']}**
                                 :small_blue_diamond: **{pet_info['TYPE']}** ~ **{pet_ability_power}**
                                 :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
@@ -1286,7 +1286,7 @@ class Lookup(commands.Cog):
                                             balance = vault['BALANCE']
                                             current_summon = d['PET']
                                             pets_list = vault['PETS']
-
+                                            
                                             total_pets = len(pets_list)
 
                                             pets=[]
@@ -1339,8 +1339,11 @@ class Lookup(commands.Cog):
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
                                                     user_query = {'DID': str(ctx.author.id)}
                                                     if button_ctx.custom_id == "share":
+                                                        update_query = {'$set': {'SUMMON': }}
+                                                        filter_query = [{'type.' + "NAME": str(pet)}]
+                                                        response = db.updateVault(query, update_query, filter_query)
                                                         transaction_message = f"{ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
-                                                        response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': str(button_ctx.origin_message.embeds[0].title)},'$push': {'TRANSACTIONS': transaction_message}})
+                                                        response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': summon_object}, '$push': {'TRANSACTIONS': transaction_message}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
                                                         self.stop = True
                                                         return
