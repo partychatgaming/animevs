@@ -4311,7 +4311,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             update_durability_message = update_arm_durability(self, vault, oarm, oarm_universe, oarm_price, o)
             if update_durability_message['MESSAGE']:
                 await ctx.author.send(f"{update_durability_message['MESSAGE']}")
-        opet = {}
+        #opet = {}
         
         pet_info = db.queryPet({'PET': o_user['PET']})
         
@@ -4330,6 +4330,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             opet_bond = o_family_pet['BOND']
             print(opet)
         else:
+            opet = {}
             for pet in vault['PETS']:
                 if o_user['PET'] == pet['NAME']:
                     opet = pet
@@ -4436,7 +4437,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 cperformance = c_user['PERFORMANCE']
                 c_talisman = c_user['TALISMAN']
                 cvault = db.queryVault({'DID': c_user['DID'], 'PETS.NAME': c_user['PET']})
-                cpet = {}
+                #cpet = {}
                 cpet_info = c_user['PET']
                 if c_user['FAMILY_PET']:
                     c_family = db.queryFamily({'HEAD': c_user['FAMILY']})
@@ -4450,6 +4451,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                     cpet_lvl = c_family_pet['LVL']
                     cpet_bond = c_family_pet['BOND']
                 else:
+                    cpet = {}
                     for pet in cvault['PETS']:
                         if c_user['PET'] == pet['NAME']:
                             cpet = pet
@@ -4566,7 +4568,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 if tupdate_durability_message['MESSAGE']:
                     await ctx.send(f"{tupdate_durability_message['MESSAGE']}")
 
-            tpet = {}
+            #tpet = {}
             tpet_info = t_user['PET']
             if t_user['FAMILY_PET']:
                 t_family = db.queryFamily({'HEAD': t_user['FAMILY']})
@@ -4581,6 +4583,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 tpet_bond = t_family_pet['BOND']
                 
             else:
+                tpet = {}
                 for pet in tvault['PETS']:
                     if t_user['PET'] == pet['NAME']:
                         tpet = pet
