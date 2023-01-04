@@ -809,6 +809,7 @@ async def register(ctx):
          await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
          vault = db.createVault(data.newVault({'OWNER': str(ctx.author), 'DID' : str(ctx.author.id)}))
          family = db.createFamily(data.newFamily({'HEAD': str(disname)}), str(disname))
+         print(family)
          await asyncio.sleep(2)
          await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
          await asyncio.sleep(2)
