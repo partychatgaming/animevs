@@ -399,6 +399,9 @@ class Family(commands.Cog):
                                             response = db.addFamilyMemberAlt(family_query, newvalue, str(ctx.author), str(player))
                                         else:
                                             response = db.addFamilyMember(family_query, newvalue, str(ctx.author), str(player))
+                                        user_update = {'$set' : {'FAMILY': str(family['HEAD'])}}
+                                        user_query = {'DID' : kid_profile['DID']}
+                                        user_update = db.updateUserNoFilter(user_query, user_update)
                                         await button_ctx.send(response)                                       
                                     except Exception as ex:
                                         trace = []
@@ -521,6 +524,9 @@ class Family(commands.Cog):
                             try:
                                 new_value_query = {'$pull': {'KIDS': str(kid) }}
                                 response = db.deleteFamilyMember(family_query, new_value_query, str(ctx.author), str(kid))
+                                user_update = {'$set' : {'FAMILY': str(kid)}}
+                                user_query = {'DID' : str(kid.id)}
+                                user_update = db.updateUserNoFilter(user_query, user_update)
                                 await button_ctx.send(response)
                             except:
                                 print("No Disown")
@@ -609,6 +615,9 @@ class Family(commands.Cog):
                         new_value_query = {'$pull': {'KIDS': str(ctx.author)}}
                         response = db.deleteFamilyMemberAlt(family_query, new_value_query, str(ctx.author))
                         await ctx.send(response)
+                        user_update = {'$set' : {'FAMILY': str(kid_profile['DISNAME'])}}
+                        user_query = {'DID' : kid_profile['DID']}
+                        user_update = db.updateUserNoFilter(user_query, user_update)
                     except:
                         print("Team not created. ")
             except Exception as ex:
