@@ -179,7 +179,7 @@ class FAMILY():
     KIDS: list[str] = field(default_factory=lambda: [])
     BANK: int = field(default_factory=lambda: 1000)
     HOUSE: str = field(default_factory=lambda: 'Cave')
-    ESTATES: list[str] = field(default_factory=lambda: ['CAVE'])
+    ESTATES: list[str] = field(default_factory=lambda: ['Cave'])
     TRANSACTIONS: list[str] = field(default_factory=lambda: [])
     SUMMON: list[str] = field(default_factory=lambda: [
         {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
