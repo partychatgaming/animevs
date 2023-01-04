@@ -1038,23 +1038,21 @@ async def register(ctx):
                      card_drop_message_into_embded = "\n".join(card_message)
                      destiny_drop_message_into_embded = "\n".join(destiny_message)
                      embedVar = discord.Embed(title=f"**Welcome to Anime VS+**!",description=textwrap.dedent(f"""
-                     *Welcome {ctx.author.mention}!*
-                     
-                     **Let's get started playing the game!**
+                     **Let's get started** {ctx.author.mention}!
                      :one:**/build** with **{universe} Items**
                      
-                     :two:**/menu** - select **🎴Cards**, **:reminder_ribbon:Titles**, and **:mechanical_arm:Arms**!
+                     :two:**/menu** for **🎴Cards**, **:reminder_ribbon:Titles**, and **:mechanical_arm:Arms**!
                      
                      :three:**/solo** and select **:sos: The Tutorial**!
    
                      **The /help command is your ❤️ Friend!**
-                     Use the help command dropdown to learn how to play Anime VS+!
+                     Use the /help to learn how to play Anime VS+!
                      """),colour=0x1abc9c)
-                     embedVar.add_field(name=f"🎴 My Cards", value=f"{card_drop_message_into_embded}", inline=True)
-                     embedVar.add_field(name=f":reminder_ribbon: My Titles", value=f"{title_drop_message_into_embded}", inline=True)
-                     embedVar.add_field(name=f":mechanical_arm: My Arms", value=f"{arm_drop_message_into_embded}", inline=True)
+                     embedVar.add_field(name=f"🎴 My Cards*/cards*", value=f"{card_drop_message_into_embded}", inline=True)
+                     embedVar.add_field(name=f":reminder_ribbon: My Titles*/titles*", value=f"{title_drop_message_into_embded}", inline=True)
+                     embedVar.add_field(name=f":mechanical_arm: My Arms*/arms*", value=f"{arm_drop_message_into_embded}", inline=True)
                      if has_destiny:
-                        embedVar.add_field(name=f"✨ **Destinies** */menu to view Destinies*", value=f"{destiny_drop_message_into_embded}", inline=False)
+                        embedVar.add_field(name=f"✨ **Destinies***/destnies to view destinies*", value=f"{destiny_drop_message_into_embded}", inline=False)
                      embedVar.add_field(name=f":sos: Support!", value=f"[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)", inline=False)
                      embedVar.set_author(name=f"Registration Complete!", icon_url=user_info['AVATAR'])
                      embedVar.set_footer(text="📜Use /daily for Daily Reward and Quest\n🔥/difficulty - Change difficulty setting!",
