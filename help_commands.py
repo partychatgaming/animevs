@@ -60,11 +60,13 @@ LEGEND = textwrap.dedent(f"""\
 ⚠️ - Your title or arm does not match your universe
 🎗️ - **Title accessory**  *Title enhancers are applied each turn, passively.*
 🦾 - **Arm accessory** *Arm enhancers are applied passively throughout the duration of battle.*
+📿 - **Talisman** *Equip Elemntal  Talismans to bypass opponent affinities*
 🧬 - **Summon!** *Summons use Active Enhancers that are available during battle after you Resolve*
 
 **Currency**
 💰 - **Coins** *Buy items in the shop and blacksmith*
 💎 - **Gems** *Craft universe hearts, souls, cards, and destiny lines!*
+🪔 - *Essense** *Craft Elemental Talismans*
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
@@ -143,13 +145,12 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 
 
 **Family Commands**
-**/family** - Family lookup
-**/marry** - Create Family with a User
+**/family** - Family Menu
+**/marry** - Invite User to join Family
 **/divorce** - Ask for divorce from partner
 **/adopt** - Adopt kid into family
 **/disown** - Remove Kid From Family
 **/leavefamily** - Leave from family (Kid Only)
-**/abandon** - Delete Family
 **/allowance** - Send Family Members coin (Head/Partner Only)
 **/invest** - Invest coin into family Bank
 **/houses** - Show list of available houses

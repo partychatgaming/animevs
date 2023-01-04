@@ -6855,6 +6855,9 @@ async def menugems(self, ctx: SlashContext):
             boss_message = "Dungeon eh?!"
         vault = db.altQueryVault({'DID' : str(ctx.author.id)})
         current_card = user['CARD']
+        if storage_type >=10:
+            storage_pricing_text = "Max Storage Level"
+            storage_tier_message = "MAX"
         has_gabes_purse = user['TOURNAMENT_WINS']
         balance = vault['BALANCE']
         icon = ":coin:"

@@ -390,6 +390,62 @@ async def animevs(ctx):
  
    """), colour=0x7289da)
    embedVar11.set_thumbnail(url=avatar)
+   
+   embedVar16 = discord.Embed(title= f"Damage, Elements & Talismans", description=textwrap.dedent(f"""                                                                           
+   🗯️**Engagement** Each of you Attack Moves deals damage based on the *Engagement**.
+   
+   💢: **Desperate Engagement**: Your opponent has overwhelming defense... Deal %33-%50 of AP
+   ❕: **Brave Engagement**: Your opponent's defense is strong. Deal %50-%75 AP
+   ‼️: **Nuetral Engagement**: Your attack and defense are nuetral. Deal %75-%120 AP
+   〽️x1.5: **Aggressive Engagement**: Your attacks deal additional damage. Deal %120-%150 AP
+   ❌x2: **Lethal Engagement**: Your attacks are lethal! Deal $150-%200 AP
+   
+   The Engagement is a factor of Attack + Move Ap vs Opponent Defense
+   When your attack is higher than your oppoenents defense you will deal more damage
+   
+   🧮**Strike Calculation** Strike calcalation adds variance and balance to Engagements.
+   Your ability also deals damage based on the type of **Strike**
+   :palm_down_hand: **Miss** - You completely miss... No Damage
+   :anger: **Chip** - You barely strike. 30% Damage Reduction
+   :bangbang: **Connects** - Your ability strikes. No Reduction
+   :anger_right: **Hits** - Land a significant Strike. 20% Increase
+   :boom: **Critical Hit** - You land a lethal blow. 250% Increase
+   
+   **🔅 Elements**
+   Each of your Card moves inflicts elemnental damage.
+
+   👊 Physical - If ST(stamina) greater than 80, Deals double Damage 
+   
+   🔥 Fire - Does 25% damage of previous attack over the next opponent turns, stacks.
+   
+   ❄️ Ice - After 2 uses opponent freezes and loses 1 turn.
+   💧 Water - Increases all water attack dmg by 40 Flat.
+   ⛰️ Earth - Cannot be Parried. Increases Def by 25% AP.
+   ⚡️ Electric- Add 15% to Shock damage, added to all attacks.
+   🌪️ Wind - Cannot Miss, boosts all wind damage by 15% of damage dealt.
+   
+   🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP.
+   
+   ☠️ Death - Deals 20% opponent max health as damage.
+   ❤️‍🔥 Life - Heal for 20% AP.
+   🌕 Light - Regain 50% Stamina Cost, Increases ATK by 20% of DMG.
+   
+   ♠️ Dark- Penetrates shields & decreases opponent stamina by 15.
+   🧪 Poison - Penetrates shields, Poison 30 damage stacking up to 600.
+   
+   🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
+   💙 Spirit - Has higher chance of Crit.
+   ♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent. If Recoild would kill you reduce HP to 1
+   
+   ⌛ Time - If ST is less than 80, You Block and Focus for 1 Turn. 
+   🅱️ Bleed - After 3 Attacks deal 10x turn count damage to opponent.
+   
+   🪐 Gravity - Disables Opponent Block and Reduce opponent DEF by 25% AP.
+   
+   📿**Talismans**
+ 
+   """), colour=0x7289da)
+   embedVar16.set_thumbnail(url=avatar)
 
    embedVar4 = discord.Embed(title= f"Titles, Arms, and Summons ", description=textwrap.dedent(f"""\
    **Titles** & **Arms** 
@@ -404,6 +460,7 @@ async def animevs(ctx):
    Arms are effective across the Multiverse, however they do break! Turning into **Gems**
    ⚠️ Arms from a different universe will break at a faster rate!
    Stock up on **Asrms** and repair **Durability** in the **/blacksmith**
+   🪔 Elemental Arms also provide **Essence**. Use **Essence** to craft **Talismans**
 
    👑 **Universe Buff** :Match Your Titles and Arms to your **Card Universe**.
    **Buff**: **Base Stats** + 100 **HLT** , 20 **ATK** & 20 **DEF**.
@@ -561,7 +618,7 @@ async def animevs(ctx):
    **/menu** to **Start Crafting!** Craft **Card Skins**, **Summons**, and **Destinies**!
 
    **Dismantle**
-   Dismantle Cards, Titles and Arms into :gem:**Gems**.
+   Dismantle Cards, Titles and Arms into :gem:**Gems**. and 🪔**Essense**
    
    **Universe Trinkets**
    Craftable Boost that increase the limits of your cards levels!
@@ -789,6 +846,7 @@ async def register(ctx):
    else:
       disname = str(ctx.author)
       name = disname.split("#",1)[0]
+      family = db.createFamily(data.newFamily({'HEAD': str(disname)}), str(disname))
       user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
       r_response = db.createUsers(data.newUser(user))
 
@@ -808,8 +866,6 @@ async def register(ctx):
       try:
          await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
          vault = db.createVault(data.newVault({'OWNER': str(ctx.author), 'DID' : str(ctx.author.id)}))
-         family = db.createFamily(data.newFamily({'HEAD': str(disname)}), str(disname))
-         print(family)
          await asyncio.sleep(2)
          await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
          await asyncio.sleep(2)
@@ -1079,6 +1135,7 @@ async def register(ctx):
                'trace': trace
          }))
       # await ctx.send(m.USER_HAS_REGISTERED, delete_after=5)
+      
    else:
       await ctx.send(m.RESPONSE_NOT_DETECTED, delete_after=3)
 
