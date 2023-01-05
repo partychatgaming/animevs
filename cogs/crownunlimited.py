@@ -22929,7 +22929,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             upload_query = {'DID': str(ctx.author.id)}
                                             new_upload_query = {'$addToSet': {'DUNGEONS': selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
-                                        if selected_universe in completed_universes:
+                                        if selected_universe in o_user['CROWN_TALES']:
                                             await crown_utilities.bless(300000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(bank_amount, oteam)
                                             # await crown_utilities.bless(125, user2)
@@ -22938,7 +22938,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Miner Reward",
                                                         value=f"You were awarded :coin: 300,000 for completing the {selected_universe} Dungeon again!")
-                                            battle_msg = await private_channel.send(embed=embedVar)
+                                            #battle_msg = await private_channel.send(embed=embedVar)
                                         else:
                                             await crown_utilities.bless(6000000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(1500000, oteam)
@@ -22947,18 +22947,19 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Dungeon Reward",
                                                         value=f"You were awarded :coin: 6,000,000 for completing the {selected_universe} Dungeon!")
-                                            battle_msg = await private_channel.send(embed=embedVar)
+                                            #battle_msg = await private_channel.send(embed=embedVar)
                                         if mode in co_op_modes and mode not in ai_co_op_modes:
                                             cuid = c_DID
                                             cuser = await self.bot.fetch_user(cuid)
-                                            await crown_utilities.bless(300000, user2.id)
-                                            teambank = await crown_utilities.blessteam(80000, cteam)
+                                            await crown_utilities.bless(500000, user2.id)
+                                            teambank = await crown_utilities.blessteam(200000, cteam)
                                             # await crown_utilities.bless(125, user2)
                                             # await ctx.send(embed=embedVar)
                                             await asyncio.sleep(2)
                                             
                                             await ctx.send(
-                                                f"{user2.mention} You were awarded :coin: 250,000 for  assisting in the {selected_universe} Dungeon!")
+                                                f"{user2.mention} You were awarded :coin: 500,000 for  assisting in the {selected_universe} Dungeon!")
+                                        battle_msg = await private_channel.send(embed=embedVar)
                                         continued = False
                                         # await discord.TextChannel.delete(private_channel, reason=None)
                                     elif mode in U_modes:
@@ -22977,10 +22978,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             upload_query = {'DID': str(ctx.author.id)}
                                             new_upload_query = {'$addToSet': {'CROWN_TALES': selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
-                                        print(selected_universe)
-                                        
-                                        completed_universes = o_user['CROWN_TALES']
-                                        print(completed_universes)
                                         if selected_universe in o_user['CROWN_TALES']:
                                             await crown_utilities.bless(100000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(25000, oteam)
@@ -22989,7 +22986,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Minor Reward",
                                                         value=f"You were awarded :coin: 100,000 for completing the {selected_universe} Tale again!")
-                                            battle_msg = await private_channel.send(embed=embedVar)
                                         else:
                                             await crown_utilities.bless(2000000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(500000, oteam)
@@ -22999,17 +22995,19 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             
                                             embedVar.add_field(name="Conquerors Reward",
                                                         value=f"You were awarded :coin: 2,000,000 for completing the {selected_universe} Tale!")
-                                            battle_msg = await private_channel.send(embed=embedVar)
+                                            #battle_msg = await private_channel.send(embed=embedVar)
                                         if mode in co_op_modes and mode not in ai_co_op_modes:
                                             cuid = c_DID
                                             cuser = await self.bot.fetch_user(cuid)
-                                            await crown_utilities.bless(300000, user2.id)
+                                            await crown_utilities.bless(250000, user2.id)
                                             teambank = await crown_utilities.blessteam(80000, cteam)
                                             # await crown_utilities.bless(125, user2)
                                             # await ctx.send(embed=embedVar)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Companion Reward",
-                                                        value=f"{user2.mention} You were awarded :coin: 75,000 for assisting in the {selected_universe} Tale!")
+                                                        value=f"{user2.mention} You were awarded :coin: 250,000 for assisting in the {selected_universe} Tale!")
+                                            
+                                        battle_msg = await private_channel.send(embed=embedVar)
                                         continued = False
 
 
