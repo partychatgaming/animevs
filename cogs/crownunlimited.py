@@ -22978,8 +22978,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             new_upload_query = {'$addToSet': {'CROWN_TALES': selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
                                         print(selected_universe)
+                                        
+                                        completed_universes = o_user['CROWN_TALES']
                                         print(completed_universes)
-                                        if selected_universe in completed_universes:
+                                        if selected_universe in o_user['CROWN_TALES']:
                                             await crown_utilities.bless(100000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(25000, oteam)
                                             # await ctx.send(embed=embedVar)
