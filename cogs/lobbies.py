@@ -34,7 +34,7 @@ class Lobbies(commands.Cog):
     async def cog_check(self, ctx):
         return await main.validate_user(ctx)
 
-    @cog_ext.cog_slash(description="End your Crown PVP Match", guild_ids=main.guild_ids)
+    # @cog_ext.cog_slash(description="End your Crown PVP Match", guild_ids=main.guild_ids)
     async def end(self, ctx):
         session_query = {"OWNER": str(ctx.author), "AVAILABLE": True}
         session = db.querySession(session_query)

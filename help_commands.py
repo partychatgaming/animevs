@@ -13,6 +13,7 @@ CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
 **/register**: 🆕 Register your account
 **/deleteaccount**: Delete your account
 **/player**: Lookup your account, or a friends
+**/family**: Lookup your family, or a friends
 
 
 **PVE Game Modes**
@@ -21,6 +22,7 @@ CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
 **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
 **🔥 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
 **👹 Boss Encounter** - Extreme Boss battles to earn Boss cards, boss accessories and more
+**:projector: Scenario Battle** - Battle through unique scenarios to earn Cards and Moves
 
 **Solo Player!**
 **/solo** - Play through all pve game modes solo to earn solo rewards
@@ -29,7 +31,7 @@ CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
 **/coop** - Play through all pve game modes with a friend to earn co-op rewards
 
 **Duo with AI**
-**/duo** - Play through all pve game modes with one of your build presets as an AI companion
+**/duo** - Play through all pve game modes with one of your build **/presets** as an AI companion
 
 **PVP**
 **/pvp** - Battle a rival in PVP mode
@@ -54,6 +56,7 @@ LEGEND = textwrap.dedent(f"""\
 🌀 / ⚡ - **Card Stamina** (ST)
 🗡️ - **Attack (ATK)** Blue Crystal 🟦
 🛡️ - **Defense (DEF)** Red Crystal 🟥
+🏃 - **Speed**
 🩸 - Card Passive *Card Passive enhancers are applied each turn, passively.*
 
 **Accessories & Summons**
@@ -66,7 +69,7 @@ LEGEND = textwrap.dedent(f"""\
 **Currency**
 💰 - **Coins** *Buy items in the shop and blacksmith*
 💎 - **Gems** *Craft universe hearts, souls, cards, and destiny lines!*
-🪔 - *Essense** *Craft Elemental Talismans*
+🪔 - **Essence** *Craft Elemental Talismans*
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
