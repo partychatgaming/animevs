@@ -270,7 +270,7 @@ class Lobbies(commands.Cog):
                 await main.DM(ctx, user, "You Lost. Get back in there!")
                 await ctx.send(f"Competitor " + f"{user.mention}" + " took an L! :eyes:")
 
-    @cog_ext.cog_slash(description="Tutorial Battle: Normal Difficulty", guild_ids=main.guild_ids)
+
     async def senpaibattle(self, ctx):
         #game_name = " ".join([*args])
         query = {'ALIASES': 'crown'}
@@ -325,7 +325,7 @@ class Lobbies(commands.Cog):
         else:
             await ctx.send(m.GAME_UNAVAILABLE)
 
-    @cog_ext.cog_slash(description="Tutorial Battle: Hard Difficulty", guild_ids=main.guild_ids)
+    
     async def legendbattle(self, ctx):
         #game_name = " ".join([*args])
         query = {'ALIASES': 'crown'}

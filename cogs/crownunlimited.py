@@ -650,324 +650,324 @@ class CrownUnlimited(commands.Cog):
             return
 
 
-    @cog_ext.cog_slash(description="Operate Arena", guild_ids=main.guild_ids)
-    async def checkarena(self, ctx, owner: User):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
+    # @cog_ext.cog_slash(description="Operate Arena", guild_ids=main.guild_ids)
+    # async def checkarena(self, ctx, owner: User):
+    #     a_registered_player = await crown_utilities.player_check(ctx)
+    #     if not a_registered_player:
+    #         return
 
-        try:
-            arena = db.queryArena({"OWNER": str(owner), "ACTIVE": True})
-            if arena:
-                owner = arena['OWNER']
-                private_channel = ctx
-                opponent_entered = False
-                singles = arena['SINGLES']
-                guild_war = arena['GUILD_WAR']
-                subbed = arena['SUBBED_PLAYER']
-                active = arena['ACTIVE']
-                ready = arena['READY']
-                is_full = arena['IS_FULL']
-                winner = arena['WINNER']
-                loser = arena['LOSER']
-                guild1 = arena['GUILD1']
-                guild2 = arena['GUILD2']
-                description_tip = ""
-                guild1_team_members = []
-                guild1_ready_player = arena['GUILD1_MEMBERS'][0]['NAME']
-                for member in arena['GUILD1_MEMBERS']:
-                    guild1_team_members.append(f'**{member["NAME"]}:** ❌ {str(member["STRIKES"])}')
-                guild2_team_members = []
-                guild2_team = arena['GUILD2_MEMBERS']
-                for member in arena['GUILD2_MEMBERS']:
-                    guild2_team_members.append(f'**{member["NAME"]}:** ❌ {str(member["STRIKES"])}')
-                g1_mems = "\n".join(guild1_team_members)
-                g2_mems = "\n".join(guild2_team_members)
-                g1_count = len(guild1_team_members)
-                g2_count = len(guild2_team_members)
-                warning = ""
-                vs = f"**{str(g1_count)}** vs **{str(g2_count)}**"
-                if guild_war and g1_count != g2_count:
-                    warning = "\n**Warning!** You must have equal members to begin."
-                elif guild_war and g1_count == g2_count:
-                    warning = f"\n**{str(g1_count)}** vs **{str(g2_count)}**"
-                buttons = []
-                embed_list = []
-                if singles:
-                    description_tip = "*1v1 best out of 3 Arena*"
-                else:
-                    description_tip = f"*Open Arena!*"
+    #     try:
+    #         arena = db.queryArena({"OWNER": str(owner), "ACTIVE": True})
+    #         if arena:
+    #             owner = arena['OWNER']
+    #             private_channel = ctx
+    #             opponent_entered = False
+    #             singles = arena['SINGLES']
+    #             guild_war = arena['GUILD_WAR']
+    #             subbed = arena['SUBBED_PLAYER']
+    #             active = arena['ACTIVE']
+    #             ready = arena['READY']
+    #             is_full = arena['IS_FULL']
+    #             winner = arena['WINNER']
+    #             loser = arena['LOSER']
+    #             guild1 = arena['GUILD1']
+    #             guild2 = arena['GUILD2']
+    #             description_tip = ""
+    #             guild1_team_members = []
+    #             guild1_ready_player = arena['GUILD1_MEMBERS'][0]['NAME']
+    #             for member in arena['GUILD1_MEMBERS']:
+    #                 guild1_team_members.append(f'**{member["NAME"]}:** ❌ {str(member["STRIKES"])}')
+    #             guild2_team_members = []
+    #             guild2_team = arena['GUILD2_MEMBERS']
+    #             for member in arena['GUILD2_MEMBERS']:
+    #                 guild2_team_members.append(f'**{member["NAME"]}:** ❌ {str(member["STRIKES"])}')
+    #             g1_mems = "\n".join(guild1_team_members)
+    #             g2_mems = "\n".join(guild2_team_members)
+    #             g1_count = len(guild1_team_members)
+    #             g2_count = len(guild2_team_members)
+    #             warning = ""
+    #             vs = f"**{str(g1_count)}** vs **{str(g2_count)}**"
+    #             if guild_war and g1_count != g2_count:
+    #                 warning = "\n**Warning!** You must have equal members to begin."
+    #             elif guild_war and g1_count == g2_count:
+    #                 warning = f"\n**{str(g1_count)}** vs **{str(g2_count)}**"
+    #             buttons = []
+    #             embed_list = []
+    #             if singles:
+    #                 description_tip = "*1v1 best out of 3 Arena*"
+    #             else:
+    #                 description_tip = f"*Open Arena!*"
                 
-                if guild_war:
-                    description_tip = f"*Guild War*{warning}"
+    #             if guild_war:
+    #                 description_tip = f"*Guild War*{warning}"
 
-                if guild2_team_members:
-                    opponent_entered = True
+    #             if guild2_team_members:
+    #                 opponent_entered = True
 
 
 
-                embedVar = discord.Embed(title= f"{str(owner)}", description=textwrap.dedent(f"""
-                🎭 {description_tip}
+    #             embedVar = discord.Embed(title= f"{str(owner)}", description=textwrap.dedent(f"""
+    #             🎭 {description_tip}
                 
-                {g1_mems}
-                """), colour=0x7289da)
-                embed_list.append(embedVar)
+    #             {g1_mems}
+    #             """), colour=0x7289da)
+    #             embed_list.append(embedVar)
 
 
-                if opponent_entered:
-                    guild2_ready_player = arena['GUILD2_MEMBERS'][0]['NAME']
-                    guild2_owner = guild2_team[0]['NAME']
-                    embedVar2 = discord.Embed(title= f"{guild2_owner}", description=textwrap.dedent(f"""
-                    🎭 {description_tip}
+    #             if opponent_entered:
+    #                 guild2_ready_player = arena['GUILD2_MEMBERS'][0]['NAME']
+    #                 guild2_owner = guild2_team[0]['NAME']
+    #                 embedVar2 = discord.Embed(title= f"{guild2_owner}", description=textwrap.dedent(f"""
+    #                 🎭 {description_tip}
                     
-                    {g2_mems}
-                    """), colour=0x7289da)
-                    embed_list.append(embedVar2)
+    #                 {g2_mems}
+    #                 """), colour=0x7289da)
+    #                 embed_list.append(embedVar2)
                 
-                ### Button Layouts ###
-                if singles and not opponent_entered:
-                    buttons = [
-                        manage_components.create_button(style=3, label="Join Arena", custom_id="join_arena_singles"),
-                        manage_components.create_button(style=3, label="Delete Arena", custom_id="delete_arena_singles"),
-                    ]
-                if singles and opponent_entered:
-                    buttons = [
-                        manage_components.create_button(style=3, label="Start Arena Match", custom_id="start_singles"),
-                        manage_components.create_button(style=3, label="Delete Arena", custom_id="delete_arena_singles"),
-                    ]
+    #             ### Button Layouts ###
+    #             if singles and not opponent_entered:
+    #                 buttons = [
+    #                     manage_components.create_button(style=3, label="Join Arena", custom_id="join_arena_singles"),
+    #                     manage_components.create_button(style=3, label="Delete Arena", custom_id="delete_arena_singles"),
+    #                 ]
+    #             if singles and opponent_entered:
+    #                 buttons = [
+    #                     manage_components.create_button(style=3, label="Start Arena Match", custom_id="start_singles"),
+    #                     manage_components.create_button(style=3, label="Delete Arena", custom_id="delete_arena_singles"),
+    #                 ]
                     
 
-                custom_action_row = manage_components.create_actionrow(*buttons)
+    #             custom_action_row = manage_components.create_actionrow(*buttons)
 
-                async def custom_function(self, button_ctx):
-                    if button_ctx.author == ctx.author:
-                        player = str(button_ctx.origin_message.embeds[0].title)
-                        if button_ctx.custom_id == "join_arena_singles":
-                            owns_arena_already = db.queryArena({"OWNER": str(ctx.author), "ACTIVE": True})
-                            if owns_arena_already:
-                                await button_ctx.send("You already have an open arena.")
-                                self.stop = True
-                                return
-                            else:
-                                accept_buttons = [
-                                    manage_components.create_button(
-                                        style=ButtonStyle.green,
-                                        label="Yes",
-                                        custom_id="yes"
-                                    ),
-                                    manage_components.create_button(
-                                        style=ButtonStyle.blue,
-                                        label="No",
-                                        custom_id="no"
-                                    )
-                                ]
-                                accept_buttons_action_row = manage_components.create_actionrow(*accept_buttons)
-                                await button_ctx.send(f"Can {ctx.author.mention} join your arena?", components=[accept_buttons_action_row])
+    #             async def custom_function(self, button_ctx):
+    #                 if button_ctx.author == ctx.author:
+    #                     player = str(button_ctx.origin_message.embeds[0].title)
+    #                     if button_ctx.custom_id == "join_arena_singles":
+    #                         owns_arena_already = db.queryArena({"OWNER": str(ctx.author), "ACTIVE": True})
+    #                         if owns_arena_already:
+    #                             await button_ctx.send("You already have an open arena.")
+    #                             self.stop = True
+    #                             return
+    #                         else:
+    #                             accept_buttons = [
+    #                                 manage_components.create_button(
+    #                                     style=ButtonStyle.green,
+    #                                     label="Yes",
+    #                                     custom_id="yes"
+    #                                 ),
+    #                                 manage_components.create_button(
+    #                                     style=ButtonStyle.blue,
+    #                                     label="No",
+    #                                     custom_id="no"
+    #                                 )
+    #                             ]
+    #                             accept_buttons_action_row = manage_components.create_actionrow(*accept_buttons)
+    #                             await button_ctx.send(f"Can {ctx.author.mention} join your arena?", components=[accept_buttons_action_row])
 
-                                def check(button_ctx):
-                                    return str(button_ctx.author) == str(owner)
+    #                             def check(button_ctx):
+    #                                 return str(button_ctx.author) == str(owner)
 
-                                try:
-                                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[accept_buttons_action_row], timeout=120, check=check)
-                                    if button_ctx.custom_id == "no":
-                                        await button_ctx.send("Player not joined. ")
-                                        self.stop = True
-                                    if button_ctx.custom_id == "yes":
-                                        query = {'OWNER': str(owner), "ACTIVE": True}
-                                        update_query = {
-                                            '$push': {"GUILD2_MEMBERS": {"NAME": str(ctx.author), "POSITION": 1, "STRIKES": 0}},
-                                            '$set': {"IS_FULL": True, "READY": True}
-                                            }
-                                        res = db.updateArenaNoFilter(query, update_query)
-                                        await button_ctx.send("You have been added successfully to the Arena.")
-                                        self.stop = True        
-                                except Exception as ex:
-                                    trace = []
-                                    tb = ex.__traceback__
-                                    while tb is not None:
-                                        trace.append({
-                                            "filename": tb.tb_frame.f_code.co_filename,
-                                            "name": tb.tb_frame.f_code.co_name,
-                                            "lineno": tb.tb_lineno
-                                        })
-                                        tb = tb.tb_next
-                                    print(str({
-                                        'PLAYER': str(ctx.author),
-                                        'type': type(ex).__name__,
-                                        'message': str(ex),
-                                        'trace': trace
-                                    }))
-                                    guild = self.bot.get_guild(main.guild_id)
-                                    channel = guild.get_channel(main.guild_channel)
-                                    await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+    #                             try:
+    #                                 button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[accept_buttons_action_row], timeout=120, check=check)
+    #                                 if button_ctx.custom_id == "no":
+    #                                     await button_ctx.send("Player not joined. ")
+    #                                     self.stop = True
+    #                                 if button_ctx.custom_id == "yes":
+    #                                     query = {'OWNER': str(owner), "ACTIVE": True}
+    #                                     update_query = {
+    #                                         '$push': {"GUILD2_MEMBERS": {"NAME": str(ctx.author), "POSITION": 1, "STRIKES": 0}},
+    #                                         '$set': {"IS_FULL": True, "READY": True}
+    #                                         }
+    #                                     res = db.updateArenaNoFilter(query, update_query)
+    #                                     await button_ctx.send("You have been added successfully to the Arena.")
+    #                                     self.stop = True        
+    #                             except Exception as ex:
+    #                                 trace = []
+    #                                 tb = ex.__traceback__
+    #                                 while tb is not None:
+    #                                     trace.append({
+    #                                         "filename": tb.tb_frame.f_code.co_filename,
+    #                                         "name": tb.tb_frame.f_code.co_name,
+    #                                         "lineno": tb.tb_lineno
+    #                                     })
+    #                                     tb = tb.tb_next
+    #                                 print(str({
+    #                                     'PLAYER': str(ctx.author),
+    #                                     'type': type(ex).__name__,
+    #                                     'message': str(ex),
+    #                                     'trace': trace
+    #                                 }))
+    #                                 guild = self.bot.get_guild(main.guild_id)
+    #                                 channel = guild.get_channel(main.guild_channel)
+    #                                 await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
-                        elif button_ctx.custom_id == "start_singles":
-                            try:
-                                if str(button_ctx.author) != str(owner):
-                                    await button_ctx.send("Arena Owner must start the match.")
-                                    self.stop = True
-                                    return
-                                mode = "PVP"
-                                sowner = db.queryUser({'DISNAME': str(guild1_ready_player)})
-                                opponent = db.queryUser({'DISNAME': str(guild2_ready_player)})
-                                oteam = sowner['TEAM']
-                                tteam = opponent['TEAM']
-                                oteam_info = db.queryTeam({'TEAM_NAME':str(oteam)})
-                                tteam_info = db.queryTeam({'TEAM_NAME':str(tteam)})
-                                if oteam_info:
-                                    oguild = oteam_info['GUILD']
-                                else:
-                                    oguild ="PCG"
-                                if tteam_info:
-                                    tguild = tteam_info['GUILD']
-                                else:
-                                    tguild ="PCG"
+    #                     elif button_ctx.custom_id == "start_singles":
+    #                         try:
+    #                             if str(button_ctx.author) != str(owner):
+    #                                 await button_ctx.send("Arena Owner must start the match.")
+    #                                 self.stop = True
+    #                                 return
+    #                             mode = "PVP"
+    #                             sowner = db.queryUser({'DISNAME': str(guild1_ready_player)})
+    #                             opponent = db.queryUser({'DISNAME': str(guild2_ready_player)})
+    #                             oteam = sowner['TEAM']
+    #                             tteam = opponent['TEAM']
+    #                             oteam_info = db.queryTeam({'TEAM_NAME':str(oteam)})
+    #                             tteam_info = db.queryTeam({'TEAM_NAME':str(tteam)})
+    #                             if oteam_info:
+    #                                 oguild = oteam_info['GUILD']
+    #                             else:
+    #                                 oguild ="PCG"
+    #                             if tteam_info:
+    #                                 tguild = tteam_info['GUILD']
+    #                             else:
+    #                                 tguild ="PCG"
 
-                                o = db.queryCard({'NAME': sowner['CARD']})
-                                otitle = db.queryTitle({'TITLE': sowner['TITLE']})
+    #                             o = db.queryCard({'NAME': sowner['CARD']})
+    #                             otitle = db.queryTitle({'TITLE': sowner['TITLE']})
 
-                                t = db.queryCard({'NAME': opponent['CARD']})
-                                ttitle = db.queryTitle({'TITLE': opponent['TITLE']})
-                                await button_ctx.send("Arena match starting!")                    
-                                await battle_commands(self, ctx, mode, None, None, None, oguild, None, None, sowner,
-                                                    oteam, None, opponent, tteam, tguild, None, None, None, True, owner, "SINGLES")
-                            except Exception as ex:
-                                trace = []
-                                tb = ex.__traceback__
-                                while tb is not None:
-                                    trace.append({
-                                        "filename": tb.tb_frame.f_code.co_filename,
-                                        "name": tb.tb_frame.f_code.co_name,
-                                        "lineno": tb.tb_lineno
-                                    })
-                                    tb = tb.tb_next
-                                print(str({
-                                    'PLAYER': str(ctx.author),
-                                    'type': type(ex).__name__,
-                                    'message': str(ex),
-                                    'trace': trace
-                                }))
-                                guild = self.bot.get_guild(main.guild_id)
-                                channel = guild.get_channel(main.guild_channel)
-                                await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+    #                             t = db.queryCard({'NAME': opponent['CARD']})
+    #                             ttitle = db.queryTitle({'TITLE': opponent['TITLE']})
+    #                             await button_ctx.send("Arena match starting!")                    
+    #                             await battle_commands(self, ctx, mode, None, None, None, oguild, None, None, sowner,
+    #                                                 oteam, None, opponent, tteam, tguild, None, None, None, True, owner, "SINGLES")
+    #                         except Exception as ex:
+    #                             trace = []
+    #                             tb = ex.__traceback__
+    #                             while tb is not None:
+    #                                 trace.append({
+    #                                     "filename": tb.tb_frame.f_code.co_filename,
+    #                                     "name": tb.tb_frame.f_code.co_name,
+    #                                     "lineno": tb.tb_lineno
+    #                                 })
+    #                                 tb = tb.tb_next
+    #                             print(str({
+    #                                 'PLAYER': str(ctx.author),
+    #                                 'type': type(ex).__name__,
+    #                                 'message': str(ex),
+    #                                 'trace': trace
+    #                             }))
+    #                             guild = self.bot.get_guild(main.guild_id)
+    #                             channel = guild.get_channel(main.guild_channel)
+    #                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
-                                return
-                        elif button_ctx.custom_id == "delete_arena_singles":
-                            if str(button_ctx.author) != str(owner):
-                                await button_ctx.send("Arena Owner only command.")
-                                self.stop = True
-                                return
+    #                             return
+    #                     elif button_ctx.custom_id == "delete_arena_singles":
+    #                         if str(button_ctx.author) != str(owner):
+    #                             await button_ctx.send("Arena Owner only command.")
+    #                             self.stop = True
+    #                             return
 
-                            accept_buttons = [
-                                manage_components.create_button(
-                                    style=ButtonStyle.green,
-                                    label="Yes",
-                                    custom_id="yes"
-                                ),
-                                manage_components.create_button(
-                                    style=ButtonStyle.blue,
-                                    label="No",
-                                    custom_id="no"
-                                )
-                            ]
-                            accept_buttons_action_row = manage_components.create_actionrow(*accept_buttons)
-                            await button_ctx.send(f"Are you sure you want to delete your Arena?", components=[accept_buttons_action_row])
+    #                         accept_buttons = [
+    #                             manage_components.create_button(
+    #                                 style=ButtonStyle.green,
+    #                                 label="Yes",
+    #                                 custom_id="yes"
+    #                             ),
+    #                             manage_components.create_button(
+    #                                 style=ButtonStyle.blue,
+    #                                 label="No",
+    #                                 custom_id="no"
+    #                             )
+    #                         ]
+    #                         accept_buttons_action_row = manage_components.create_actionrow(*accept_buttons)
+    #                         await button_ctx.send(f"Are you sure you want to delete your Arena?", components=[accept_buttons_action_row])
 
-                            def check(button_ctx):
-                                return str(button_ctx.author) == str(owner)
+    #                         def check(button_ctx):
+    #                             return str(button_ctx.author) == str(owner)
 
-                            try:
-                                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[accept_buttons_action_row], timeout=120, check=check)
-                                if button_ctx.custom_id == "no":
-                                    await button_ctx.send("Aborted.")
-                                    self.stop = True
-                                if button_ctx.custom_id == "yes":
-                                    query = {'OWNER': str(owner)}
-                                    update_query = {
-                                        '$set': {"ACTIVE": False}
-                                        }
-                                    res = db.updateArenaNoFilter(query, update_query)
-                                    await button_ctx.send("You have been added successfully cancelled your Arena.")
-                                    self.stop = True        
-                            except Exception as ex:
-                                trace = []
-                                tb = ex.__traceback__
-                                while tb is not None:
-                                    trace.append({
-                                        "filename": tb.tb_frame.f_code.co_filename,
-                                        "name": tb.tb_frame.f_code.co_name,
-                                        "lineno": tb.tb_lineno
-                                    })
-                                    tb = tb.tb_next
-                                print(str({
-                                    'PLAYER': str(ctx.author),
-                                    'type': type(ex).__name__,
-                                    'message': str(ex),
-                                    'trace': trace
-                                }))
-                                guild = self.bot.get_guild(main.guild_id)
-                                channel = guild.get_channel(main.guild_channel)
-                                await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+    #                         try:
+    #                             button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[accept_buttons_action_row], timeout=120, check=check)
+    #                             if button_ctx.custom_id == "no":
+    #                                 await button_ctx.send("Aborted.")
+    #                                 self.stop = True
+    #                             if button_ctx.custom_id == "yes":
+    #                                 query = {'OWNER': str(owner)}
+    #                                 update_query = {
+    #                                     '$set': {"ACTIVE": False}
+    #                                     }
+    #                                 res = db.updateArenaNoFilter(query, update_query)
+    #                                 await button_ctx.send("You have been added successfully cancelled your Arena.")
+    #                                 self.stop = True        
+    #                         except Exception as ex:
+    #                             trace = []
+    #                             tb = ex.__traceback__
+    #                             while tb is not None:
+    #                                 trace.append({
+    #                                     "filename": tb.tb_frame.f_code.co_filename,
+    #                                     "name": tb.tb_frame.f_code.co_name,
+    #                                     "lineno": tb.tb_lineno
+    #                                 })
+    #                                 tb = tb.tb_next
+    #                             print(str({
+    #                                 'PLAYER': str(ctx.author),
+    #                                 'type': type(ex).__name__,
+    #                                 'message': str(ex),
+    #                                 'trace': trace
+    #                             }))
+    #                             guild = self.bot.get_guild(main.guild_id)
+    #                             channel = guild.get_channel(main.guild_channel)
+    #                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
                         
                     
-                    else:
-                        await ctx.send("This is not your Arena Menu.")
+    #                 else:
+    #                     await ctx.send("This is not your Arena Menu.")
 
 
-                await Paginator(bot=self.bot, useQuitButton=True, disableAfterTimeout=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
-                    custom_action_row,
-                    custom_function,
-                ]).run()  
-            else:
-                await ctx.send("No arena available.")
-        except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'PLAYER': str(ctx.author),
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-            guild = self.bot.get_guild(main.guild_id)
-            channel = guild.get_channel(main.guild_channel)
-            await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+    #             await Paginator(bot=self.bot, useQuitButton=True, disableAfterTimeout=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
+    #                 custom_action_row,
+    #                 custom_function,
+    #             ]).run()  
+    #         else:
+    #             await ctx.send("No arena available.")
+    #     except Exception as ex:
+    #         trace = []
+    #         tb = ex.__traceback__
+    #         while tb is not None:
+    #             trace.append({
+    #                 "filename": tb.tb_frame.f_code.co_filename,
+    #                 "name": tb.tb_frame.f_code.co_name,
+    #                 "lineno": tb.tb_lineno
+    #             })
+    #             tb = tb.tb_next
+    #         print(str({
+    #             'PLAYER': str(ctx.author),
+    #             'type': type(ex).__name__,
+    #             'message': str(ex),
+    #             'trace': trace
+    #         }))
+    #         guild = self.bot.get_guild(main.guild_id)
+    #         channel = guild.get_channel(main.guild_channel)
+    #         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
-            return
+    #         return
 
 
-    @cog_ext.cog_slash(description="Arena Battle!",
-                    options=[
-                        create_option(
-                            name="mode",
-                            description="Arena Mode",
-                            option_type=3,
-                            required=True,
-                            choices=[
-                                create_choice(
-                                    name="1v1",
-                                    value="SINGLES"
-                                ),
-                                create_choice(
-                                    name="Team Battle",
-                                    value="TEAMS"
-                                ),
-                                create_choice(
-                                    name="Guild War",
-                                    value="GUILD_WAR"
-                                ),
-                            ]
-                        )
-                    ]
-        , guild_ids=main.guild_ids)
+    # @cog_ext.cog_slash(description="Arena Battle!",
+    #                 options=[
+    #                     create_option(
+    #                         name="mode",
+    #                         description="Arena Mode",
+    #                         option_type=3,
+    #                         required=True,
+    #                         choices=[
+    #                             create_choice(
+    #                                 name="1v1",
+    #                                 value="SINGLES"
+    #                             ),
+    #                             create_choice(
+    #                                 name="Team Battle",
+    #                                 value="TEAMS"
+    #                             ),
+    #                             create_choice(
+    #                                 name="Guild War",
+    #                                 value="GUILD_WAR"
+    #                             ),
+    #                         ]
+    #                     )
+    #                 ]
+    #     , guild_ids=main.guild_ids)
     async def arena(self, ctx: SlashContext, mode: str):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -2455,7 +2455,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
             if move_element == "SPIRIT" and hit_roll > 3:
                 hit_roll = hit_roll + 4
                 
-            if universe == "Crown Rift Awakening":
+            if universe == "Crown Rift Awakening" and hit_roll > 6:
                 hit_roll = hit_roll + 7
 
             if ranged_attack:
@@ -22977,6 +22977,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             upload_query = {'DID': str(ctx.author.id)}
                                             new_upload_query = {'$addToSet': {'CROWN_TALES': selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
+                                        print(selected_universe)
+                                        print(completed_universes)
                                         if selected_universe in completed_universes:
                                             await crown_utilities.bless(100000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(25000, oteam)

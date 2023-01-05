@@ -392,7 +392,7 @@ async def animevs(ctx):
    embedVar11.set_thumbnail(url=avatar)
    
    embedVar17 = discord.Embed(title= f"Damage, Elements & Talismans", description=textwrap.dedent(f"""                                                                           
-   🗯️**Engagement** Each of you Attack Moves deals damage based on the *Engagement**.
+   🗯️**Engagement** Each of you Attack Moves deals damage based on the **Engagement**.
    
    💢: **Desperate Engagement**: Your opponent has overwhelming defense... Deal %33-%50 of AP
    ❕: **Brave Engagement**: Your opponent's defense is strong. Deal %50-%75 AP
@@ -411,38 +411,9 @@ async def animevs(ctx):
    :anger_right: **Hits** - Land a significant Strike. 20% Increase
    :boom: **Critical Hit** - You land a lethal blow. 250% Increase
    
-   **🔅 Elements**
-   Each of your Card moves inflicts elemnental damage.
-
-   👊 Physical - If ST(stamina) greater than 80, Deals double Damage 
-   
-   🔥 Fire - Does 25% damage of previous attack over the next opponent turns, stacks.
-   
-   ❄️ Ice - After 2 uses opponent freezes and loses 1 turn.
-   💧 Water - Increases all water attack dmg by 40 Flat.
-   ⛰️ Earth - Cannot be Parried. Increases Def by 25% AP.
-   ⚡️ Electric- Add 15% to Shock damage, added to all attacks.
-   🌪️ Wind - Cannot Miss, boosts all wind damage by 15% of damage dealt.
-   
-   🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP.
-   
-   ☠️ Death - Deals 20% opponent max health as damage.
-   ❤️‍🔥 Life - Heal for 20% AP.
-   🌕 Light - Regain 50% Stamina Cost, Increases ATK by 20% of DMG.
-   
-   ♠️ Dark- Penetrates shields & decreases opponent stamina by 15.
-   🧪 Poison - Penetrates shields, Poison 30 damage stacking up to 600.
-   
-   🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
-   💙 Spirit - Has higher chance of Crit.
-   ♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent. If Recoild would kill you reduce HP to 1
-   
-   ⌛ Time - If ST is less than 80, You Block and Focus for 1 Turn. 
-   🅱️ Bleed - After 3 Attacks deal 10x turn count damage to opponent.
-   
-   🪐 Gravity - Disables Opponent Block and Reduce opponent DEF by 25% AP.
-   
    📿**Talismans**
+   Talismans nullify the affinities of the chosen type. 
+   **/attune** and equip /**talismans** from stored **Essence**
  
    """), colour=0x7289da)
    embedVar17.set_thumbnail(url=avatar)
