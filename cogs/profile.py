@@ -2933,16 +2933,20 @@ class Profile(commands.Cog):
                                                     await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
                                                     return
                                                 else:
-                                                    await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset1_pet}", hidden=True)
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
                                                     return
                                         else:
-                                            await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset1_arm}")
+                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
+                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
                                             return
                                 else:
-                                    await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset1_title}")
+                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
                                     return
                         else:
-                            await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset1_card}")
+                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                            await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
                             return
                 elif  button_ctx.custom_id == "2":
                     for card in ownedcards :                     
@@ -2957,16 +2961,20 @@ class Profile(commands.Cog):
                                                     await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
                                                     return
                                                 else:
-                                                    await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset2_pet}")
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
                                                     return
                                         else:
-                                            await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset2_arm}")
+                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
+                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
                                             return
                                 else:
-                                    await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset2_title}")
+                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
                                     return
                         else:
-                            await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset2_card}")
+                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
                             return
                 elif  button_ctx.custom_id == "3":
                     for card in ownedcards :                     
@@ -2981,16 +2989,20 @@ class Profile(commands.Cog):
                                                     await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
                                                     return
                                                 else:
-                                                    await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset3_pet}")
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
                                                     return
                                         else:
-                                            await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset3_arm}")
+                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
+                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
                                             return
                                 else:
-                                    await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset3_title}")
+                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
                                     return
                         else:
-                            await button_ctx.send(f"{ctx.author.mention}, You No Longer Own {preset3_card}")
+                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
                             return  
             except Exception as ex:
                 trace = []
