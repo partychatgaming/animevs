@@ -5153,37 +5153,37 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         
         if companion:
             if (carm_universe == c_universe) and (c_title_universe == c_universe):
-                c_attack = c_attack + 20
-                c_defense = c_defense + 20
-                c_max_health = c_max_health + 100
-                c_health = c_health + 100
+                c_attack = c_attack + 30
+                c_defense = c_defense + 30
+                c_max_health = c_max_health + 300
+                c_health = c_health + 300
                 if c_destiny:
-                    c_attack = c_attack + 5
-                    c_defense = c_defense + 5
-                    c_max_health = c_max_health + 50
-                    c_health = c_health + 50
+                    c_attack = c_attack + 20
+                    c_defense = c_defense + 20
+                    c_max_health = c_max_health + 200
+                    c_health = c_health + 200
 
         if (oarm_universe == o_universe) and (o_title_universe == o_universe):
-            o_attack = o_attack + 20
-            o_defense = o_defense + 20
-            o_max_health = o_max_health + 100
-            o_health = o_health + 100
+            o_attack = o_attack + 30
+            o_defense = o_defense + 30
+            o_max_health = o_max_health + 300
+            o_health = o_health + 300
             if o_destiny:
-                o_attack = o_attack + 5
-                o_defense = o_defense + 5
-                o_max_health = o_max_health + 50
-                o_health = o_health + 50
+                o_attack = o_attack + 20
+                o_defense = o_defense + 20
+                o_max_health = o_max_health + 200
+                o_health = o_health + 200
 
         if (tarm_universe == t_universe) and (t_title_universe == t_universe):
-            t_attack = t_attack + 20
-            t_defense = t_defense + 20
-            t_max_health = t_max_health + 100
-            t_health = t_health + 100
+            t_attack = t_attack + 30
+            t_defense = t_defense + 30
+            t_max_health = t_max_health + 300
+            t_health = t_health + 300
             if t_destiny:
-                t_attack = t_attack + 5
-                t_defense = t_defense + 5
-                t_max_health = t_max_health + 50
-                t_health = t_health + 50
+                t_attack = t_attack + 20
+                t_defense = t_defense + 20
+                t_max_health = t_max_health + 200
+                t_health = t_health + 200
 
         # Player 1 Focus & Resolve
         t_focus = 90

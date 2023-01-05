@@ -434,10 +434,10 @@ async def animevs(ctx):
    🪔 Elemental Arms also provide **Essence**. Use **Essence** to craft **Talismans**
 
    👑 **Universe Buff** :Match Your Titles and Arms to your **Card Universe**.
-   **Buff**: **Base Stats** + 100 **HLT** , 20 **ATK** & 20 **DEF**.
+   **Buff**: **Base Stats** + 300 **HLT** , 30 **ATK** & 30 **DEF**.
 
    ✨ **Destiny Universe Buff** Destiny Cards gain an additional **Buff**.
-   **Buff**: **Universe Buff** + 50 **HLT**, 5 **ATK** and 5 **DEF**.
+   **Buff**: **Universe Buff** + 200 **HLT**, 20 **ATK** and 20 **DEF**.
 
    🧬 **Summons**
    Can assist during battle with an **Enhancer**.
