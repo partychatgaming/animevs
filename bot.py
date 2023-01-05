@@ -330,12 +330,12 @@ async def animevs(ctx):
    ☄️ Special Attack _uses 30 stamina_
    🏵️ Ultimate Attack _uses 80 stamina_
    
-   **Damage Type**
-   Attacks have bonus effects based on the 🔅Element Type
+   🔅**Elemeental Damage**
+   Attacks have bonus effects based on the 🔅**Element** Type
    Use /help to find information on **Elements**
    
    **Enhancer**
-   Enhancers either boost your stats or inflict status effects on your opponent. Use **/enhancers** for full list of Enhancers and their effects.
+   Enhancers either boost your stats or inflict status effects on your opponent. Use **/help** for full list of **Enhancers** and their effects.
    🦠 Enhancer _uses 20 stamina_
    
    **Block**
@@ -412,7 +412,7 @@ async def animevs(ctx):
    :boom: **Critical Hit** - You land a lethal blow. 250% Increase
    
    📿**Talismans**
-   Talismans nullify the affinities of the chosen type. 
+   Talismans nullify the affinities of the chosen **Element**. 
    **/attune** and equip /**talismans** from stored **Essence**
  
    """), colour=0x7289da)
@@ -611,121 +611,129 @@ async def animevs(ctx):
    
    embedVar15 = discord.Embed(title= f"Guilds", description=textwrap.dedent(f"""\
    **Guilds Explained**
-   Use **/guild** to lookup any Anime VS+ Guild!
-   
-   **Guild Members** earn extra :coin: towards the **Guild Bank** 
+   - Use **/guild** to lookup any Anime VS+ Guild!
+   - **Guild Members** earn extra :coin: towards the **Guild Bank** 
 
    **Creating A Guild**
-   Use **/createguild** and create a **Guild Name**
-   **/recruit** your friends to join your newly named **Guild** !
-   Players can use **/apply** to join as well!
+   - Use **/createguild** and create a **Guild Name**
+   - **/recruit** your friends to join your newly named **Guild** !
+   - Players can use **/apply** to join as well!
    
    **Guild Bonusus**
-   Guildmates gain an extra **50 Attack** and **Defense** playing Co-Op Together !
-   Guilds earn additional :coin: for every **Tales**, **Dungeon** and **Boss** Victory
+   - Guildmates gain an extra **50 Attack** and **Defense** playing Co-Op Together !
+   - Guilds earn additional :coin: for every **Tales**, **Dungeon** and **Boss** Victory
    
    **Guild Economy**
-   Players across **Anime VS+** can **/donate** :coin: to their favorite Guilds!
-   Guild Owners can ****/pay**** their members a wage.
+   - Players across **Anime VS+** can **/donate** :coin: to their favorite Guilds!
+   - Guild Owners can ****/pay**** their members a wage.
+   
+   **Guild Buffs**
+   - Quest Buff: Start Quest from the required fight in the Tale, not for dungeons
+   - Level Buff: Each fight will grant you a level up
+   - Stat Buff: Add 50 ATK & DEF, 30 AP, and 100 HLT
+   - Rift Buff: Rifts will always be available
+
+   Guild Position Explanations
+   - Owner: All operations
+   - Officer: Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
+   - Captain: Can Toggly Buffs, Pay members
+   - Member: No operations
    """),colour=0x7289da)
    embedVar15.set_thumbnail(url=avatar)
 
    embedVar12 = discord.Embed(title= f"Families",description=textwrap.dedent(f"""\
    **Families Explained**
-   Use **/family** to lookup any Anime VS+ Family!
+   - When you create an AnimeVs+ account you start a family
+   - Use **/family** to lookup any Anime VS+ Family!
    
-   Two players with a strong bond can come together and form a **Family**
-   
-   **Starting A Family**
-   Use **/marry** to start a marriage proposal to your chosen **Partner**
-   If they accept, your will form a Household under your name
-   **2 Kids** can be adopted into the family to create a 4 player Maximum.
+   **Marriage**
+   - Two players with a strong bond can come together and form a **Family**
+   - Use **/marry** to start a marriage proposal to your chosen **Partner**
+   - If they accept, they will join your dfamily
+   - **2 Kids** can be adopted into the family to create a 4 player Maximum.
    
    **Family Bonuses**
-   Family Members gain an extra **100 Health** when playing Co-Op Together !
-   Family Members earn extra :coin: towards the **Family Bank**.
-   Families can /invest their income together.
-   Heads of Household and Partners can pay **/allowance** to Family members. 
+   - Family Members gain an extra **100 Health** when playing Co-Op Together !
+   - Family Members earn extra :coin: towards the **Family Bank**.
+   - Families can **/invest** their income together.
+   - Heads of Household and Partners can pay **/allowance** to Family members. 
    
    **Housing**
-   The **Family Bank** can be used to buy **Houses**
-   **Houses** increase your :coin: earned via **Mutlipliers**
-   **/invest** your income to buy bigger **Houses** and earn more :coin: across the game.
+   - The **Family Bank** can be used to buy **Houses**
+   - **Houses** increase your :coin: earned via **Mutlipliers**
+   - **/invest** your income to buy bigger **Houses** and earn more :coin: across the game.
+   - Use the *Real Estate Menu** to buy and sell Estates
+   
+   **Family Summon**
+   - Family members can equip the Family Summon to aid them in battle!
+   
+   Family Position Explanations
+   - Head of Household: All operations.
+   - Partner: Can equip/update family summon, change equipped house.
+   - Kids: Can equip family summon.
    """) ,colour=0x7289da)
    embedVar12.set_thumbnail(url=avatar)
 
    embedVar13 = discord.Embed(title= f"Associations",description=textwrap.dedent(f"""\
    **Association Explained**
-   Associations in Anime VS+ are formed by an Oath between two Guild Owners
-   
-   The Oathgiver becomes the **Founder** and the Oathreciever becomes the ****Sworn and Shield****.
-   
-   The **Shield** defends the Association from raiding players.
-   
-   Both teams become enlisted as **Swords** of the new **Association**
-   Their respective members become **Blades**
-   
-   The Founder & Sworn may /ally with other Teams increasing the size and power of the Association.
-   These are the **Owners** and can **/sponsor** other teams allied with the Association.
-   
-   **Associations** earn money by winning **PvP** matches, Income from **Universe Crest** and defending against **Raids**
+   - Associations in Anime VS+ are formed by an Oath between two Guild Owners
+   - The Oathgiver becomes the **Founder** and the Oathreciever becomes the ****Sworn and Shield****.
+   - The **Shield** defends the Association from raiding players.
+   - Both teams become enlisted as **Swords** of the new **Association**
+   - Their respective members become **Blades**
+   - The Founder & Sworn may /ally with other Teams increasing the size and power of the Association.
+   - These are the **Owners** and can **/sponsor** other teams allied with the Association.
+   - **Associations** earn money by winning **PvP** matches, Income from **Universe Crest** and defending against **Raids**
    
    **Universe Crest** 
-   When a member of a Association defeats a **Dungeon** or **Boss** they earn the **Universe Crest** from that Universe.
-   This Crest will earn the Association **Passive Income** whenever someone goes into that universe in all servers!
+   - When a member of a Association defeats a **Dungeon** or **Boss** they earn the **Universe Crest** from that Universe.
+   - This Crest will earn the Association **Passive Income** whenever someone goes into that universe in all servers!
    
-
    **Association Bonuses**
-   Associations earn extra income towards the **Association Bank**
-   Associations increase the earned income in **PvP**
-   Associations can **/raid**
-   Associations can earn passive income owning **Universe Crest**
-   Associations can purchase **Halls**
-   
+   - Associations earn extra income towards the **Association Bank**
+   - Associations increase the earned income in **PvP**
+   - Associations can **/raid**
+   - Associations can earn passive income owning **Universe Crest**
+   - Associations can purchase **Halls**
    
    **Halls**
-   The **Association Bank** can be used to purchase **Halls**
-   **Halls** increase the Income earned to Associations via **Multipliers**
-   **Halls** increase the income earned to **Blades** via **Splits**
-   **Halls** increase the defense of the **Shield**
-   **Halls** increase the **Bounty** cost to raid the **Association**
+   - The **Association Bank** can be used to purchase **Halls**
+   - Increase the Income earned to Associations via **Multipliers**
+   - Increase the income earned to **Blades** via **Splits**
+   - Increase the defense of the **Shield**
+   - Increase the **Bounty** cost to raid the **Association**
    """) ,colour=0x7289da)
    embedVar13.set_thumbnail(url=avatar)
    
    embedVar14 = discord.Embed(title= f"Raids",description=textwrap.dedent(f"""\
    **Raids Explained**
-   Players aligned with a Association can use /raid to claim bounties from other guilds
-   
-   Victory claims the bounty and resets the Associations victory multiplier !
-   
-   Income from Raids is limited to the bounty offered from the Association.
-   To take money from a **Association Bank** players must compete in PvP
+   - Players aligned with a Association can use /raid to claim bounties from other guilds
+   - Victory claims the bounty and resets the Associations victory multiplier !
+   - Income from Raids is limited to the bounty offered from the Association.
+   - To take money from a **Association Bank** players must compete in PvP
    
    Raiding an Association is no easy feat and must be done **Without Summons**
    
    **Raid Benefits**
-   Earn Large Bounties from guilds.
-   Earn Wins for your Anime VS+ **Guild**
+   - Earn Large Bounties from guilds.
+   - Earn Wins for your Anime VS+ **Guild**
    
    **Shield  Defense Explained**
-   The **Shield** has a big repsonsible to defend the **Association** from raids, earning income from **Challengers**.
-   
-   The **Shield** exist within the Association hall as the **Current Equipped Build** of the **Shield Player**.
-   
-   As the **Shield**, whenever your Avatar succesfully defends a raid you earn :coin:
-   With each victory you will build a streak earning both respect and more :coin: via **Multipliers**.
+   - The **Shield** has a big repsonsible to defend the **Association** from raids, earning income from **Challengers**.
+   - The **Shield** exist within the Association hall as the **Current Equipped Build** of the **Shield Player**.
+   - As the **Shield**, whenever your Avatar succesfully defends a raid you earn :coin:
+   - With each victory you will build a streak earning both respect and more :coin: via **Multipliers**.
    
    **Association Competition**
-   However, many of **Blades** will covet this position and may /raid you themseleves triggering a **Title Match**
-   The winner of this **Title MAtch** becomes the new **Shield** and must defend the 
-   Occasionally the Founder or Sworn may /raid to start a Defense Test gauging the strength of their Chosen Shield
-   host a /raid tournament within the Association to find a new champion or simply /knight one yourself
-   
+   - However, many of **Blades** will covet this position and may /raid you themseleves triggering a **Title Match**
+   - The winner of this **Title MAtch** becomes the new **Shield** and must defend the 
+   - Occasionally the Founder or Sworn may /raid to start a Defense Test gauging the strength of their Chosen Shield
+   - host a /raid tournament within the Association to find a new champion or simply /knight one yourself
    
    **Shield Benefits**
-   Earn income by defending your Association from raiders
-   Guild has a 30% reduction in buff cost
-   Earn respect by increasing the Association victory streak 
+   - Earn income by defending your Association from raiders
+   - Guild has a 30% reduction in buff cost
+   - Earn respect by increasing the Association victory streak 
    
    """) ,colour=0x7289da)
    embedVar14.set_thumbnail(url=avatar)
