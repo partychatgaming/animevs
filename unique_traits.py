@@ -82,7 +82,7 @@ traits = [{
 {
     'NAME': 'One Piece',
     'EFFECT': 'Haki',
-    'TRAIT': '**Observation**:Tier 1-7: Before focus OPP dmg reduced by 60% **Armament**: Tier 4-7: Double Focus Stackig. **Conquerors**: Tier 6-7: Decrease OPP AP by 125 on Resolve'
+    'TRAIT': '**Observation**:Tier 1-7: Before focus OPP dmg reduced by 60% **Armament**: Tier 4-7: Double Focus Stacking. **Conquerors**: Tier 6-7: Decrease OPP AP by 125 on Resolve'
 },{
     'NAME': 'Crown Rift Slayers',
     'EFFECT': 'Feint Attack',
