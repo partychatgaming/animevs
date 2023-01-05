@@ -25,7 +25,7 @@ traits = [{
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, Spiritual Pressure',
-    'TRAIT': '**Bankai**: Gain Double Attack on Resolve.  **Spiritual Pressure**: On Block, exert your Spiritual Pressure to deal damage equal to your basic attack while still gaining defense.'
+    'TRAIT': '**Bankai**: Gain Double Attack on Resolve.  **Spiritual Pressure**: On Block, deal damage equal to your basic attack while still gaining defense.'
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
@@ -82,7 +82,7 @@ traits = [{
 {
     'NAME': 'One Piece',
     'EFFECT': 'Haki',
-    'TRAIT': '**Observation**::mahjong:1-7 Before 1st focus all OPP dmg reduced by 60% **Armament**::mahjong:4-7 Double DEF &  ATK gain on Focus. **Conquerors**::mahjong:6-7 Decrease OPP AP by 125 on Resolve'
+    'TRAIT': '**Observation**::mahjong:1-7 Before focus OPP dmg reduced by 60% **Armament**::mahjong:4-7 Double Focus Stackig. **Conquerors**::mahjong:6-7 Decrease OPP AP by 125 on Resolve'
 },{
     'NAME': 'Crown Rift Slayers',
     'EFFECT': 'Feint Attack',
