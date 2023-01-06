@@ -1186,7 +1186,6 @@ class CrownUnlimited(commands.Cog):
     @cog_ext.cog_slash(description="pvp battle against a friend or rival", guild_ids=main.guild_ids)
     async def pvp(self, ctx: SlashContext, opponent: User):
         try:
-            db.updateManyUsers({'$set' : {"PVP_WINS" : 0, "PVP_LOSS" : 0}})
             await ctx.defer()
             player = opponent
             a_registered_player = await crown_utilities.player_check(ctx)

@@ -102,8 +102,8 @@ class Lookup(commands.Cog):
                 crown_tales = d['CROWN_TALES']
                 dungeons = d['DUNGEONS']
                 bosses = d['BOSS_WINS']
-                pvp_wins = d['PVP_WINS'] - 6
-                pvp_loss = d['PVP_LOSS'] - 6
+                pvp_wins = d['PVP_WINS']
+                pvp_loss = d['PVP_LOSS']
                 pet = d['PET']
                 rebirth = d['REBIRTH']
                 icon = ':triangular_flag_on_post:'
@@ -200,6 +200,7 @@ class Lookup(commands.Cog):
                 **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
                 **Bosses Played: **{'{:,}'.format(len(boss_matches))}
                 **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
+                **Pvp Record: ** :regional_indicator_w:{pvp_wins} / :regional_indicator_l:{pvp_loss}
                 
                 **Balance** {bal_message}
                 :flower_playing_cards: **Cards** {all_cards}
