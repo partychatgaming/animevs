@@ -2470,16 +2470,6 @@ destiny = [
         "UNIVERSE": "Chainsawman"
     },
     {
-        "NAME": "Control Devil Recarnation",
-        "WINS": 0,
-        "REQUIRED": 10,
-        "DEFEAT": "Makima",
-        "USE_CARDS": ["Full Devil Denji"],
-        "EARN": "Nayuta", 
-        "COMPLETED": False,
-        "UNIVERSE": "Chainsawman"
-    },
-    {
         "NAME": "International Assassin",
         "WINS": 0,
         "REQUIRED": 10,
