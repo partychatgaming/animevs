@@ -25,6 +25,7 @@ from dinteractions_Paginator import Paginator
 from discord_slash import SlashCommand
 from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
+from crown_utilities import crest_dict
 
 
 
@@ -65,13 +66,15 @@ class Lookup(commands.Cog):
             d = db.queryUser(query)
             m = db.queryManyMatchesPerPlayer({'PLAYER': d['DISNAME']})
             v = db.queryVault({'DID': str(player)})
+            b = db.queryAllBosses()
             if d:
                 balance = v['BALANCE']
-                if balance >= 150000:
+                bal_icon = ":coin:"
+                if balance >= 50000000:
                     bal_icon = ":money_with_wings:"
-                elif balance >= 100000:
+                elif balance >= 10000000:
                     bal_icon = ":moneybag:"
-                elif balance >= 50000 or balance <= 49999:
+                elif balance >= 500000:
                     bal_icon = ":dollar:"
 
                 bal_message = f"{bal_icon}{'{:,}'.format(balance)}"
@@ -170,17 +173,21 @@ class Lookup(commands.Cog):
                 crown_list = []
                 for crown in crown_tales:
                     if crown != "":
-                        crown_list.append(crown)
+                        crown_list.append(f"{crest_dict[crown]} | {crown}")
                 
                 dungeon_list = []
                 for dungeon in dungeons:
                     if dungeon != "":
-                        dungeon_list.append(dungeon)
+                        dungeon_list.append(f"{crest_dict[dungeon]} | {dungeon}")
 
                 boss_list =[]
                 for boss in bosses:
                     if boss != "":
-                        boss_list.append(boss)
+                        for l in b:
+                            print(l)
+                            if boss == l['NAME']:
+                                uni = l['UNIVERSE']
+                                boss_list.append(f"{crest_dict[uni]} | {boss}")
 
                 matches_to_string = dict(ChainMap(*matches))
                 ign_to_string = dict(ChainMap(*ign))
@@ -195,19 +202,6 @@ class Lookup(commands.Cog):
                 🧬 | **Summon: **{pet}
                 {talisman_message}
 
-                :military_medal: | {most_played_card_message}
-                **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
-                **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
-                **Bosses Played: **{'{:,}'.format(len(boss_matches))}
-                **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
-                **Pvp Record: ** :regional_indicator_w:{pvp_wins} / :regional_indicator_l:{pvp_loss}
-                
-                **Balance** {bal_message}
-                :flower_playing_cards: **Cards** {all_cards}
-                :reminder_ribbon: **Titles** {all_titles}
-                :mechanical_arm: **Arms** {all_arms}
-                🧬 **Summons** {all_pets}
-                
                 :flags: | **Association: **{guild}
                 :military_helmet: | **Guild: **{team} 
                 :family_mwgb: | **Family: **{family}
@@ -216,6 +210,22 @@ class Lookup(commands.Cog):
                 ⚙️ **Difficulty** {difficulty.lower().capitalize()}
                 """), colour=000000)
                 embed1.set_thumbnail(url=avatar)
+                
+                embed5 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Stats".format(self), description=textwrap.dedent(f"""\
+                :military_medal: | {most_played_card_message}
+                ⚔️ | **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
+                🔥 | **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
+                👹 | **Bosses Played: **{'{:,}'.format(len(boss_matches))}
+                🆚 | **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
+                📊 | **Pvp Record: ** :regional_indicator_w: **{pvp_wins}** / :regional_indicator_l: **{pvp_loss}**
+                
+                **Balance** {bal_message}
+                :flower_playing_cards: **Cards** {all_cards}
+                :reminder_ribbon: **Titles** {all_titles}
+                :mechanical_arm: **Arms** {all_arms}
+                🧬 **Summons** {all_pets}
+                """), colour=000000)
+                embed5.set_thumbnail(url=avatar)
                 # embed1.add_field(name="Team" + " :military_helmet:", value=team)
                 # embed1.add_field(name="Family" + " :family_mwgb:", value=family)
                 # embed1.add_field(name="Card" + " ::flower_playing_cards: :", value=' '.join(str(x) for x in titles))
@@ -225,7 +235,7 @@ class Lookup(commands.Cog):
                 # embed1.add_field(name="Tournament Wins" + " :fireworks:", value=tournament_wins)
 
                 if crown_list:
-                    embed4 = discord.Embed(title= f"{icon} | " + f"{name}".format(self), description=":bank: | Party Chat Gaming Database™️", colour=000000)
+                    embed4 = discord.Embed(title= f"{icon} | " + f"{name} Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=000000)
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name="Completed Tales" + " :medal:", value="\n".join(crown_list))
                     if dungeon_list:
@@ -249,7 +259,7 @@ class Lookup(commands.Cog):
                 paginator.add_reaction('🔐', "lock")
                 paginator.add_reaction('➡️', "next")
                 paginator.add_reaction('⏭️', "last")
-                embeds = [embed1, embed4 ]
+                embeds = [embed1, embed5, embed4 ]
                 await paginator.run(embeds)
             else:
                 await ctx.send(m.USER_NOT_REGISTERED)
@@ -653,11 +663,11 @@ class Lookup(commands.Cog):
                 picon = ":shield:"
                 sicon = ":beginner:"
                 icon = ":coin:"
-                if balance >= 50000000:
+                if balance >= 2000000000:
                     icon = ":money_with_wings:"
-                elif balance >=25000000:
+                elif balance >=1000000000:
                     icon = ":moneybag:"
-                elif balance >= 5000000:
+                elif balance >= 500000000:
                     icon = ":dollar:"
                     
                 if streak >= 100:
@@ -818,11 +828,11 @@ class Lookup(commands.Cog):
                 for kids in family['KIDS']:
                     kid_list.append(kids.split("#",1)[0])
                 icon = ":coin:"
-                if savings >= 10000000:
+                if savings >= 500000000:
                     icon = ":money_with_wings:"
-                elif savings >=500000:
+                elif savings >=100000000:
                     icon = ":moneybag:"
-                elif savings >= 100000:
+                elif savings >= 50000000:
                     icon = ":dollar:"
 
                 if str(ctx.author.id) == head_data['DID']:

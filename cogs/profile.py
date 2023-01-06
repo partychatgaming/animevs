@@ -2794,11 +2794,11 @@ class Profile(commands.Cog):
                 name = d['DISNAME'].split("#",1)[0]
                 avatar = d['AVATAR']
                 balance = vault['BALANCE']
-                if balance >= 1000000:
+                if balance >= 50000000:
                     icon = ":money_with_wings:"
-                elif balance >=500000:
+                elif balance >=10000000:
                     icon = ":moneybag:"
-                elif balance >= 100000:
+                elif balance >= 500000:
                     icon = ":dollar:"
                 if d['TEAM'] != 'PCG':
                     t = db.queryTeam({'TEAM_NAME' : d['TEAM'].lower()})
