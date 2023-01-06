@@ -1186,6 +1186,7 @@ class CrownUnlimited(commands.Cog):
     @cog_ext.cog_slash(description="pvp battle against a friend or rival", guild_ids=main.guild_ids)
     async def pvp(self, ctx: SlashContext, opponent: User):
         try:
+            db.updateManyUsers({'$set' : {"PVP_WINS" : 0, "PVP_LOSS" : 0}})
             await ctx.defer()
             player = opponent
             a_registered_player = await crown_utilities.player_check(ctx)
@@ -22085,6 +22086,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 # response = await score(sownerctx, tuser)
                                 await crown_utilities.curse(30, str(ctx.author.id))
                                 await crown_utilities.bless(80, tuser.id)
+                                loss_value = {"$inc": {"PVP_LOSS" : 1}}#MATCH UPDATE
+                                oquery = {'DID': str(o_DID)}
+                                loss_update = db.updateUserNoFilter(oquery, loss_value)
+                                win_value = {"$inc": {"PVP_WINS" : 1}}
+                                tquery = {'DID': str(t_DID)}
+                                win_update = db.updateUserNoFilter(tquery, win_value)
                                 if tguild:
                                     await crown_utilities.bless(15, str(tuser.id))
                                     await crown_utilities.blessteam(25, cteam)
@@ -22358,8 +22365,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                         if mode in PVP_MODES or mode == "RAID":
                             try:
                                 uid = o_DID
+                                tuid = t_DID
                                 ouser = await self.bot.fetch_user(uid)
-                                tuser = await self.bot.fetch_user(uid)
+                                tuser = await self.bot.fetch_user(tuid)
+                                print(ouser)
+                                print(tuser)
                                 wintime = time.asctime()
                                 h_playtime = int(wintime[11:13])
                                 m_playtime = int(wintime[14:16])
@@ -22399,6 +22409,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 # response = await score(sownerctx, ouser)
                                 await crown_utilities.bless(10000, str(ctx.author.id))
                                 # await crown_utilities.curse(3000, str(tuser.id))
+                                win_value = {"$inc": {"PVP_WINS" : 1}}#MATCH UPDATE
+                                oquery = {'DID': str(o_DID)}
+                                win_update = db.updateUserNoFilter(oquery, win_value)
+                                loss_value = {"$inc": {"PVP_LOSS" : 1}}
+                                tquery = {'DID': str(t_DID)}
+                                loss_update = db.updateUserNoFilter(tquery, loss_value)
                                 if oguild:
                                     await crown_utilities.bless(15, str(ctx.author.id))
                                     await crown_utilities.blessteam(25, oteam)
@@ -23294,23 +23310,23 @@ async def blessteam(amount, team):
 
 
 async def teamwin(team):
-    query = {'TEAM_NAME': str(team)}
+    query = {'TEAM_NAME': str(team.lower())}
     team_data = db.queryTeam(query)
     if team_data:
         update_query = {"$inc": {'SCRIM_WINS': 1}}
         db.updateTeam(query, update_query)
     else:
-        print("Cannot find Team")
+        print("Cannot find Guild")
 
 
 async def teamloss(team):
-    query = {'TEAM_NAME': str(team)}
+    query = {'TEAM_NAME': str(team.lower())}
     team_data = db.queryTeam(query)
     if team_data:
         update_query = {"$inc": {'SCRIM_LOSSES': 1}}
         db.updateTeam(query, update_query)
     else:
-        print("Cannot find Team")
+        print("Cannot find Guild")
 
 
 async def movecrest(universe, guild):

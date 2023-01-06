@@ -102,6 +102,8 @@ class Lookup(commands.Cog):
                 crown_tales = d['CROWN_TALES']
                 dungeons = d['DUNGEONS']
                 bosses = d['BOSS_WINS']
+                pvp_wins = d['PVP_WINS'] - 6
+                pvp_loss = d['PVP_LOSS'] - 6
                 pet = d['PET']
                 rebirth = d['REBIRTH']
                 icon = ':triangular_flag_on_post:'
