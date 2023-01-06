@@ -706,7 +706,7 @@ class Profile(commands.Cog):
                                     value="RANGED",
                                 ),
                                 create_choice(
-                                    name="💙 Spirit",
+                                    name="🧿 Spirit",
                                     value="SPIRIT",
                                 ),
                                 create_choice(
@@ -4252,6 +4252,7 @@ class Profile(commands.Cog):
                                         content = msg.content
                                         print("Author: " + str(author))
                                         print("Content: " + str(content))
+                                        print(msg)
                                         if storage[int(msg.content)]:
                                             swap_with = storage[int(msg.content)]
                                             query = {'DID': str(msg.author.id)}
@@ -5795,7 +5796,7 @@ async def menucards(self, ctx):
                             if button_ctx.custom_id == "swap":
                                 await button_ctx.defer(ignore=True)
                                 await msg.delete()
-                                await ctx.send(f"{ctx.author.mention}, Which card number would you like to swap with in storage?")
+                                await ctx.send(f"{ctx.author.mention}, Which card number would you like to swap with in storage?\n*Discord has changed their policy on message intents..while we troubleshoot this issue please use this command in DMS.\nIt will not work in server...*")
                                 def check(msg):
                                     return msg.author == ctx.author
 

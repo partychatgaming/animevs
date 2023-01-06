@@ -2251,12 +2251,27 @@ async def performance(ctx):
 async def buffshop(ctx, player, team):
    team_query = {'TEAM_NAME': team['TEAM_NAME']}
    guild_buff_available = team['GUILD_BUFF_AVAILABLE']
+   guild_buffs = team['GUILD_BUFFS']
    team_member_count = len(team['MEMBERS'])
    balance = team['BANK']
    icon = "💳"
    shielding = team['SHIELDING']
    association = team['GUILD']
    shield_buff = False
+   rift_buff = False
+   level_buff = False
+   stat_buff = False
+   quest_buff = False
+   for buff in guild_buffs:
+      if buff['TYPE'] == 'Stat':
+         stat_buff = True
+      if buff['TYPE'] == 'Rift':
+         rift_buff = True
+      if buff['TYPE'] == 'Quest':
+         quest_buff = True
+      if buff['TYPE'] == 'Level':
+         level_buff = True
+      
    if shielding ==True and association != 'PCG':
       shield_buff = True
 
@@ -2307,13 +2322,7 @@ async def buffshop(ctx, player, team):
             style=ButtonStyle.red,
             label="🔋 4️⃣",
             custom_id="4"
-         ),
-         manage_components.create_button(
-            style=ButtonStyle.red,
-            label="🔋 5️⃣",
-            custom_id="5"
-         ),
-
+         )
       ]
 
    utility_buttons = [
@@ -2338,11 +2347,7 @@ async def buffshop(ctx, player, team):
 
    🔋 4️⃣ **Rift Buff** for :money_with_wings: **{'{:,}'.format(rift_buff_cost)}**
 
-   🔋 5️⃣**Auto Battle Buff** for :money_with_wings: **{'{:,}'.format(auto_buff_cost)}**
-
    All Buffs are available for 100 uses.
-   Auto Battle comes with 1000 uses.
-
    What would you like to buy?
    """), colour=0xf1c40f)
    msg = await ctx.send(embed=embedVar, components=[sell_buttons_action_row, utility_buttons_action_row])
@@ -2361,6 +2366,10 @@ async def buffshop(ctx, player, team):
          return
 
       if button_ctx.custom_id == "1":
+         if quest_buff: 
+            await button_ctx.send("You Guild already owns this Buff", hidden=True)
+            await msg.edit(components=[])
+            return
          price = quest_buff_cost
          if price > balance:
             await button_ctx.send("Insufficent Balance.", hidden=True)
@@ -2373,6 +2382,10 @@ async def buffshop(ctx, player, team):
          }
      
       if button_ctx.custom_id == "2":
+         if level_buff: 
+            await button_ctx.send("You Guild already owns this Buff", hidden=True)
+            await msg.edit(components=[])
+            return
          price = level_buff_cost
          if price > balance:
             await button_ctx.send("Insufficent Balance.", hidden=True)
@@ -2384,6 +2397,10 @@ async def buffshop(ctx, player, team):
          }
 
       if button_ctx.custom_id == "3":
+         if stat_buff: 
+            await button_ctx.send("You Guild already owns this Buff", hidden=True)
+            await msg.edit(components=[])
+            return
          price= stat_buff_cost
          if price > balance:
             await button_ctx.send("Insufficent Balance.", hidden=True)
@@ -2395,6 +2412,10 @@ async def buffshop(ctx, player, team):
          }
 
       if button_ctx.custom_id == "4":
+         if rift_buff: 
+            await button_ctx.send("You Guild already owns this Buff", hidden=True)
+            await msg.edit(components=[])
+            return
          price= rift_buff_cost
          if price > balance:
             await button_ctx.send("Insufficent Balance.", hidden=True)

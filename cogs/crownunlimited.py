@@ -2456,7 +2456,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 hit_roll = hit_roll + 4
                 
             if universe == "Crown Rift Awakening" and hit_roll > 6:
-                hit_roll = hit_roll + 7
+                hit_roll = hit_roll + 4
 
             if ranged_attack:
                 true_dmg = round(true_dmg * 1.7)
@@ -7687,7 +7687,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
             # if randomized_battle:
             #     private_channel = ctx.author
-            battle_ping_message = await private_channel.send(f"{ctx.author.mention}")
+            if mode in PVP_MODES and tutorial == False:
+                battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚 {user2.mention} ")
+            else:
+                battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚...")
             if mode not in PVP_MODES and mode not in B_modes and mode != "ABYSS" and mode not in RAID_MODES and mode not in co_op_modes:
                 embedVar = discord.Embed(title=f"✅ Confirm Start! ({currentopponent + 1}/{total_legends})", description=f"**{o_card}** 🆚 **{t_card}**")
                 embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
@@ -7713,9 +7716,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 
             elif mode in PVP_MODES and tutorial == False:
                 embedVar = discord.Embed(title=f"✅ Confirm PVP Battle!", description=f"{user2.mention}\n**{o_card}** 🆚 **{t_card}**")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                embedVar.set_thumbnail(url=user2.avatar_url)
                 embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
                 embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                # embedVar.set_author(name=f"AnimeVS+ PvP", icon_url=o_user['AVATAR'])
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row])      
                 
             elif mode in RAID_MODES:
@@ -22782,7 +22786,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     bank_amount = 500
                                     fam_amount = 100
 
-
                                 if mode in D_modes:
                                     teambank = await crown_utilities.blessteam(bank_amount, oteam)
                                 else:
@@ -22924,19 +22927,20 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if destinylogger:
                                             embedVar.add_field(name="**Destiny Progress**",
                                                 value=f"{destinylogger}")
-                                        embedVar.set_footer(text="The /shop has been updated with new CARDS, TITLES and ARMS!")
+                                        embedVar.set_footer(text="Visit the /shop for a huge discount!")
                                         if difficulty != "EASY":
                                             upload_query = {'DID': str(ctx.author.id)}
                                             new_upload_query = {'$addToSet': {'DUNGEONS': selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
-                                        if selected_universe in o_user['CROWN_TALES']:
+                                        if selected_universe in o_user['DUNGEONS']:
                                             await crown_utilities.bless(300000, ctx.author.id)
+                                            print(oteam)
                                             teambank = await crown_utilities.blessteam(bank_amount, oteam)
                                             # await crown_utilities.bless(125, user2)
                                             # await ctx.send(embed=embedVar)
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
-                                            embedVar.add_field(name="Miner Reward",
+                                            embedVar.add_field(name="Minor Reward",
                                                         value=f"You were awarded :coin: 300,000 for completing the {selected_universe} Dungeon again!")
                                             #battle_msg = await private_channel.send(embed=embedVar)
                                         else:
@@ -22972,7 +22976,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if destinylogger:
                                             embedVar.add_field(name="**Destiny Progress**",
                                                 value=f"{destinylogger}")
-                                        embedVar.set_footer(text="The /shop has been updated with new CARDS, TITLES and ARMS!")
+                                        embedVar.set_footer(text=f"You can now /craft {selected_universe} cards")
                                         if difficulty != "EASY":
                                             embedVar.set_author(name=f"{selected_universe} Dungeon has been unlocked!")
                                             upload_query = {'DID': str(ctx.author.id)}

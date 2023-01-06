@@ -105,7 +105,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
 
-💙 Spirit - Has higher chance of Crit.
+🧿 Spirit - Has higher chance of Crit.
 
 ♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent. If Recoild would kill you reduce HP to 1
 

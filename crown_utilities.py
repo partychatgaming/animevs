@@ -816,7 +816,7 @@ async def blessteam(amount, team):
     try:
         blessAmount = amount
         posBlessAmount = 0 + abs(int(blessAmount))
-        query = {'TEAM_NAME': str(team)}
+        query = {'TEAM_NAME': str(team.lower())}
         team_data = db.queryTeam(query)
         if team_data:
             update_query = {"$inc": {'BANK': posBlessAmount}}
@@ -974,7 +974,7 @@ async def blessguild(amount, guild):
             update_query = {"$inc": {'BANK': int(posBlessAmount)}}
             db.updateGuildAlt(query, update_query)
         else:
-            print("Cannot find guild")
+            print("Cannot find Association")
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
