@@ -2209,11 +2209,29 @@ class Profile(commands.Cog):
                 for pet in pets_list:
                     #cpetmove_ap= (cpet_bond * cpet_lvl) + list(cpet.values())[3] # Ability Power
                     bond_message = ""
+                    lvl_message = ""
+                    
+                    bondexp_message = ""
+                    exp_message = ""
+                    
+                    pet_bond = pet['BOND']
+                    bond_exp = pet['BONDEXP']
+                    pet_level = pet['LVL']
+                    pet_exp = pet['EXP']
+                    
+                    petmove_ap = list(pet.values())[3] 
+                    bond_req = ((petmove_ap * 5) * (pet_bond + 1))
+                    lvl_req = int(pet_level) * 10
+                    
+                    bond_message = f"*{pet_exp}/{lvl_req}*"
+                    lvl_message = f"*{bond_exp}/{bond_req}*"
+                    
                     if pet['BOND'] == 3:
                         bond_message = ":star2:"
-                    lvl_message = ""
                     if pet['LVL'] == 10:
                         lvl_message = ":star:"
+                    
+                         
                     
                     pet_ability = list(pet.keys())[3]
                     pet_ability_power = list(pet.values())[3]
@@ -2231,8 +2249,8 @@ class Profile(commands.Cog):
 
                     embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
                     {icon}
-                    _Bond_ **{pet['BOND']}** {bond_message}
-                    _Level_ **{pet['LVL']} {lvl_message}**
+                    _Bond_ **{pet['BOND']}** | {bond_message}
+                    _Level_ **{pet['LVL']}** | {lvl_message}
                     :small_blue_diamond: **{pet_ability}:** {power}
                     :microbe: **Type:** {pet['TYPE']}"""), 
                     colour=0x7289da)

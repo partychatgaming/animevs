@@ -2100,23 +2100,23 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
             drain = ap
         elif enh == 'FLOG':
             enh_type = "FLOG"
-            if op_attack >= 1000:
-                op_attack = 1000
+            if op_attack >= 2000:
+                op_attack = 2000
             flog = round((ap / 100) * op_attack)
         elif enh == 'WITHER':
             enh_type = "WITHER"
-            if op_defense >= 1000:
-                op_defense = 1000
+            if op_defense >= 2000:
+                op_defense = 2000
             wither = round((ap / 100) * op_defense)
         elif enh == 'RAGE':
             enh_type = "RAGE"
-            if defense >= 1000:
-                defense = 1000
+            if defense >= 2000:
+                defense = 2000
             rage = round((ap / 100) * defense)
         elif enh == 'BRACE':
             enh_type = "BRACE"
-            if attack >= 1000:
-                attack = 1000
+            if attack >= 2000:
+                attack = 2000
             brace = round((ap / 100) * attack)
         elif enh == 'BZRK':
             enh_type = "BZRK"
@@ -8187,6 +8187,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_stamina = o_title_passive_value
                                         if mode in co_op_modes:
                                             c_stmina = o_title_passive_value
+                                    if o_title_passive_type == "BLAST":
+                                        t_health = t_health - (o_title_passive_value * turn_total)
+
 
 
                                 if t_title_passive_type:
@@ -11764,6 +11767,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_stamina = t_title_passive_value
                                         if mode in co_op_modes:
                                             c_stmina = t_title_passive_value
+                                    if t_title_passive_type == "BLAST":
+                                            o_health = o_health - (t_title_passive_value * turn_total)
+                                            if mode in co_op_modes:
+                                                    c_health = c_health - (t_title_passive_value * turn_total)
 
 
                                 if o_title_passive_type:
@@ -16923,7 +16930,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             c_stamina = c_title_passive_value
                                             t_stamina = c_title_passive_value
                                             o_stamina = c_title_passive_value
-
+                                        if c_title_passive_type == "BLAST":
+                                            t_health = t_health - (c_title_passive_value * turn_total)
 
                                     if o_title_passive_type:
                                         if o_title_passive_type == "GAMBLE":
@@ -20136,6 +20144,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             t_stamina = t_title_passive_value
                                             if mode in co_op_modes:
                                                 c_stmina = t_title_passive_value
+                                        if t_title_passive_type == "BLAST":
+                                            o_health = o_health - (t_title_passive_value * turn_total)
+                                            if mode in co_op_modes:
+                                                    c_health = c_health - (t_title_passive_value * turn_total)
 
 
                                     if o_title_passive_type:
