@@ -61,7 +61,7 @@ traits = [{
 },{
     'NAME': 'Souls',
     'EFFECT': 'Combo Recognition, Second Phase!',
-    'TRAIT': '**Combo Recognition**: On opponent Focus, gain (60 + turn) Attack.  **Second Phase!**: On Resolve, BASIC becomes your SPECIAL, and your SPECIAL becomes another ULTIMATE.'
+    'TRAIT': '**Combo Recognition**: On opponent Focus, gain (60 + turn) ATK.  **Second Phase!**: On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE.'
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death',

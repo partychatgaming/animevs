@@ -2221,7 +2221,6 @@ async def allowance(ctx, player: User, amount):
          await crown_utilities.bless(int(amount), user2.id)
          await crown_utilities.cursefamily(int(amount), family['HEAD'])
          transaction_message = f"{user['DISNAME']} paid :coin:{amount}  allowance to {user2_info['DISNAME']}"
-         print(transaction_message)
          update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
          await ctx.send(f":coin:{amount} has been gifted to {user2.mention}.")
          return

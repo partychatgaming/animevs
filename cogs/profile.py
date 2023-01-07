@@ -862,8 +862,8 @@ class Profile(commands.Cog):
 
 
 
-    @cog_ext.cog_slash(description="View your cards that are in storage", guild_ids=main.guild_ids)
-    async def storage(self, ctx):
+    @cog_ext.cog_slash(description="View cards that are in storage", guild_ids=main.guild_ids)
+    async def storage(self, ctx : SlashContext):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -4365,8 +4365,37 @@ class Profile(commands.Cog):
             await ctx.send("There's an issue with loading your cards. Check with support.", hidden=True)
             return
 
-    @cog_ext.cog_slash(description="Draw cards from store", guild_ids=main.guild_ids)
-    async def draw(self, ctx, card_name : str):
+
+    @cog_ext.cog_slash(description="Draw, Dismantle or Resell cards from storage",
+                    options=[
+                        create_option(
+                            name="mode",
+                            description="Draw: Draw card, Dismantle:  Dismantle storage card, Resll: Resell storage card",
+                            option_type=3,
+                            required=True,
+                            choices=[
+                                create_choice(
+                                    name="🎴 Draw Card",
+                                    value="draw"
+                                ),
+                                create_choice(
+                                    name="💎 Dismantle Card",
+                                    value="dismantle"
+                                ),
+                                create_choice(
+                                    name="🪙 Resell Card",
+                                    value="resell"
+                                ),
+                            ]
+                        ),create_option(
+                            name="card",
+                            description="Storage Card Name",
+                            option_type=3,
+                            required=True,
+                        )
+                    ]
+        , guild_ids=main.guild_ids)
+    async def draw(self, ctx: SlashContext, mode : str, card : str ):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -4375,27 +4404,166 @@ class Profile(commands.Cog):
         d = db.queryUser(query)#Storage Update
         storage_type = d['STORAGE_TYPE']
         vault = db.queryVault({'DID': d['DID']})
+        card_name = card
+        current_gems = []
         try: 
             if vault:
+                for gems in vault['GEMS']:
+                    current_gems.append(gems['UNIVERSE'])
                 cards_list = vault['CARDS']
                 total_cards = len(cards_list)
                 storage = vault['STORAGE']
                 storage_card = db.queryCard({'NAME': {"$regex": f"^{str(card_name)}$", "$options": "i"}})
-                if total_cards > 24:
-                    await ctx.send("You already have 25 cards.")
-                    return                  
-                if storage_card['NAME'] in storage:
-                    query = {'DID': str(ctx.author.id)}
-                    update_storage_query = {
-                        '$pull': {'STORAGE': storage_card['NAME']},
-                        '$addToSet': {'CARDS': storage_card['NAME']},
-                    }
-                    response = db.updateVaultNoFilter(query, update_storage_query)
-                    await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
-                    return
-                else:
-                    await ctx.send(f"🎴:{storage_card['NAME']} does not exist in storage.")
-                    return
+                if mode == 'draw':
+                    if total_cards > 24:
+                        await ctx.send("You already have 25 cards.")
+                        return
+                    if storage_card:                  
+                        if storage_card['NAME'] in storage:
+                            query = {'DID': str(ctx.author.id)}
+                            update_storage_query = {
+                                '$pull': {'STORAGE': storage_card['NAME']},
+                                '$addToSet': {'CARDS': storage_card['NAME']},
+                            }
+                            response = db.updateVaultNoFilter(query, update_storage_query)
+                            await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
+                            return
+                        else:
+                            await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
+                            return
+                    else:
+                        await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
+                        return
+                if mode == 'dismantle':
+                    card_data = storage_card
+                    card_tier =  card_data['TIER']
+                    card_health = card_data['HLT']
+                    card_name = card_data['NAME']
+                    selected_universe = card_data['UNIVERSE']
+                    o_moveset = card_data['MOVESET']
+                    o_3 = o_moveset[2]
+                    element = list(o_3.values())[2]
+                    essence_amount = (200 * card_tier)
+                    o_enhancer = o_moveset[3]
+
+                    dismantle_amount = (10000 * card_tier) + card_health
+                    if card_name in vault['STORAGE']:
+                        dismantle_buttons = [
+                            manage_components.create_button(
+                                style=ButtonStyle.green,
+                                label="Yes",
+                                custom_id="yes"
+                            ),
+                            manage_components.create_button(
+                                style=ButtonStyle.blue,
+                                label="No",
+                                custom_id="no"
+                            )
+                        ]
+                        dismantle_buttons_action_row = manage_components.create_actionrow(*dismantle_buttons)
+                        msg = await ctx.send(f"Are you sure you want to dismantle **{card_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
+                        
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+
+                        
+                        try:
+                            button_ctx: ComponentContextDismantle = await manage_components.wait_for_component(self.bot, components=[dismantle_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "no":
+                                await button_ctx.send("Dismantle cancelled. ")
+                            if button_ctx.custom_id == "yes":
+                                if selected_universe in current_gems:
+                                    query = {'DID': str(ctx.author.id)}
+                                    update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
+                                    filter_query = [{'type.' + "UNIVERSE": selected_universe}]
+                                    response = db.updateVault(query, update_query, filter_query)
+                                else:
+                                    response = db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
+
+                                em = crown_utilities.inc_essence(str(ctx.author.id), element, essence_amount)
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'STORAGE': card_name}})
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'CARD_LEVELS': {'CARD': card_name}}})
+                                #await crown_utilities.bless(sell_price, ctx.author.id)
+                                await msg.delete()
+                                await button_ctx.send(f"**{card_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}. Acquired **{'{:,}'.format(essence_amount)}** {em} {element.title()} Essence.")
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            return
+                    else:
+                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                        return
+                if mode == 'resell':
+                    card_data = storage_card
+                    card_name = card_data['NAME']
+                    sell_price = 0
+                    sell_price = sell_price + (card_data['PRICE'] * .15)
+                    if card_name in vault['STORAGE']:
+                        sell_buttons = [
+                            manage_components.create_button(
+                                style=ButtonStyle.green,
+                                label="Yes",
+                                custom_id="yes"
+                            ),
+                            manage_components.create_button(
+                                style=ButtonStyle.blue,
+                                label="No",
+                                custom_id="no"
+                            )
+                        ]
+                        sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+                        msg = await ctx.send(f"Are you sure you want to sell **{card_name}** for :coin:{round(sell_price)}?", components=[sell_buttons_action_row])
+                        
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+
+                        
+                        try:
+                            button_ctx: ComponentContextSell = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "no":
+                                await button_ctx.send("Sell cancelled. ")
+                            if button_ctx.custom_id == "yes":
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'STORAGE': card_name}})
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'CARD_LEVELS': {'CARD': card_name}}})
+                                await crown_utilities.bless(sell_price, ctx.author.id)
+                                await msg.delete()
+                                await button_ctx.send(f"**{card_name}** has been sold.")
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'PLAYER': str(ctx.author),
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send("There's an issue with selling one or all of your items.")
+                            return
+                    else:
+                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                        return
         except Exception as ex:
             trace = []
             tb = ex.__traceback__

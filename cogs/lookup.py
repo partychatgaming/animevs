@@ -181,13 +181,12 @@ class Lookup(commands.Cog):
                         dungeon_list.append(f"{crest_dict[dungeon]} | {dungeon}")
 
                 boss_list =[]
+                uni = "Unbound"
                 for boss in bosses:
                     if boss != "":
-                        for l in b:
-                            print(l)
-                            if boss == l['NAME']:
-                                uni = l['UNIVERSE']
-                                boss_list.append(f"{crest_dict[uni]} | {boss}")
+                        boss_info = db.queryBoss({'NAME': str(boss)})
+                        uni = boss_info['UNIVERSE']
+                        boss_list.append(f"{crest_dict[uni]} | {boss}")
 
                 matches_to_string = dict(ChainMap(*matches))
                 ign_to_string = dict(ChainMap(*ign))
