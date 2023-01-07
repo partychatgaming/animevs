@@ -4380,7 +4380,7 @@ class Profile(commands.Cog):
                 cards_list = vault['CARDS']
                 total_cards = len(cards_list)
                 storage = vault['STORAGE']
-                storage_card = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
+                storage_card = db.queryCard({'NAME': {"$regex": f"^{str(card_name)}$", "$options": "i"}})
                 if total_cards > 24:
                     await ctx.send("You already have 25 cards.")
                     return                  
