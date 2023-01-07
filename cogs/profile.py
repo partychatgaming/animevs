@@ -4345,6 +4345,55 @@ class Profile(commands.Cog):
             await ctx.send("There's an issue with loading your cards. Check with support.", hidden=True)
             return
 
+    @cog_ext.cog_slash(description="Draw cards from store", guild_ids=main.guild_ids)
+    async def draw(self, ctx, card : str):
+        await ctx.defer()
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
+        query = {'DID': str(ctx.author.id)}
+        d = db.queryUser(query)#Storage Update
+        storage_type = d['STORAGE_TYPE']
+        vault = db.queryVault({'DID': d['DID']})
+        try: 
+            if vault:
+                cards_list = vault['CARDS']
+                total_cards = len(cards_list)
+                storage = vault['STORAGE']
+                storage_card = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
+                if total_cards > 24:
+                    await ctx.send("You already have 25 cards.")
+                    return                     
+                if storage_card['NAME'] in storage:
+                    query = {'DID': str(ctx.author.id)}
+                    update_storage_query = {
+                        '$pull': {'STORAGE': storage_card['NAME']},
+                        '$addToSet': {'CARDS': storage_card['NAME']},
+                    }
+                    response = db.updateVaultNoFilter(query, update_storage_query)
+                    await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
+                    return
+                else:
+                    await ctx.send(f"🎴:{storage_card} does not exist in storage.")
+                    return
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            return
+
 
 
 async def craft_adjuster(self, player, vault, universe, price, item, skin_list, completed_tales):

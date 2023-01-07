@@ -514,7 +514,7 @@ class Trade(commands.Cog):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send(f"ERROR:\nTYPE: {type(ex).__name__}\nMESSAGE: {str(ex)}\nLINE: {trace} ")
+                            print(f"ERROR:\nTYPE: {type(ex).__name__}\nMESSAGE: {str(ex)}\nLINE: {trace} ")
                             return
                     else:
                         await ctx.send(f"{ctx.author.mention} no **Open Trades** found! Happy Trading!")
@@ -536,7 +536,7 @@ class Trade(commands.Cog):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send(f"ERROR:\nTYPE: {type(ex).__name__}\nMESSAGE: {str(ex)}\nLINE: {trace} ")
+            print(f"ERROR:\nTYPE: {type(ex).__name__}\nMESSAGE: {str(ex)}\nLINE: {trace} ")
             return
         
         

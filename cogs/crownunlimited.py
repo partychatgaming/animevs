@@ -22163,7 +22163,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     continued =False
                                     return
                                 else:
-                                    victory_message = f":zap: VICTORY"
+                                    victory_message = f":zap: {t_card} VICTORY"
                                     victory_description = f"Match concluded in {turn_total} turns."
                                     if botActive:
                                         victory_message = f":zap: TRY AGAIN"
@@ -22367,8 +22367,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 tuid = t_DID
                                 ouser = await self.bot.fetch_user(uid)
                                 tuser = await self.bot.fetch_user(tuid)
-                                print(ouser)
-                                print(tuser)
                                 wintime = time.asctime()
                                 h_playtime = int(wintime[11:13])
                                 m_playtime = int(wintime[14:16])
@@ -22492,7 +22490,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     continued = False
                                     return
                                 else:
-                                    victory_message = f":zap: VICTORY"
+                                    victory_message = f":zap: {o_card} VICTORY"
                                     victory_description = f"Match concluded in {turn_total} turns."
                                     if botActive:
                                         victory_message = f":zap: TUTORIAL VICTORY"
