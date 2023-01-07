@@ -269,7 +269,7 @@ class CrownUnlimited(commands.Cog):
 
             try:
                 button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[
-                    random_battle_buttons_action_row], timeout=100, check=check)
+                    random_battle_buttons_action_row], timeout=120, check=check)
 
                 if button_ctx.custom_id == "exploreYes":
                     await button_ctx.defer(ignore=True)
@@ -6492,9 +6492,12 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             for save in saved_spots:
                                 if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
                                     save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted"
+                        corruption_message = ""
                         if uni['CORRUPTED']:
                             corruption_message = "👾 **Corrupted**"
+                        owner_message = ""
+                        if uni['GUILD'] != "PCG":
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
 
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
@@ -6507,6 +6510,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
                         **Completed**: 🟢
                         {corruption_message}
+                        {owner_message}
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -6517,9 +6521,12 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             for save in saved_spots:
                                 if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
                                     save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted"
+                        corruption_message = ""
+                        owner_message = ""
                         if uni['CORRUPTED']:
                             corruption_message = "👾 **Corrupted**"
+                        if uni['GUILD'] != "PCG":
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
@@ -6531,6 +6538,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
                         **Completed**: 🔴
                         {corruption_message}
+                        {owner_message}
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -6650,9 +6658,12 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 for save in saved_spots:
                     if save['UNIVERSE'] == uni and save['MODE'] in D_modes:
                         save_spot_text = str(save['CURRENTOPPONENT'])
-                corruption_message = "📢 Not Corrupted"
+                corruption_message = ""
+                owner_message = ""
                 if uni_option['CORRUPTED']:
                     corruption_message = "👾 **Corrupted**"
+                if uni_option['GUILD'] != "PCG":
+                    owner_message = f"{crown_utilities.crest_dict[uni_option['TITLE']]} **Crest Owned**: {uni_option['GUILD']}"
 
                 if uni in completed_dungeons:
                     completed = "🟢"
@@ -6668,6 +6679,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 **Saved Game**: :fire: *{save_spot_text}*
                 **Completed**: {completed}
                 {corruption_message}
+                {owner_message}
                 """))
                 embedVar.set_image(url=uni_option['PATH'])
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -6757,6 +6769,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
         for uni in completed_dungeons:
             if uni != "":
                 searchUni = db.queryUniverse({'TITLE': str(uni)})
+                if searchUni['GUILD'] != "PCG":
+                     owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} **Crest Owned**: {searchUni['GUILD']}"
                 if searchUni['UNIVERSE_BOSS'] != "":
                     boss_info = db.queryBoss({"NAME": searchUni['UNIVERSE_BOSS']})
                     if boss_info:
@@ -6765,7 +6779,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         🎗️ **Boss Title**: {boss_info['TITLE']}
                         🦾 **Boss Arm**: {boss_info['ARM']}
                         🧬 **Boss Summon**: {boss_info['PET']}
-
+                        
+                        {owner_message}
                         """))
                         embedVar.set_image(url=boss_info['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -6840,7 +6855,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 'message': str(ex),
                 'trace': trace
             }))
-            embedVar = discord.Embed(title=f"Unable to start boss fight. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", delete_after=30, colour=0xe91e63)
+            #embedVar = discord.Embed(title=f"Unable to start boss fight. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", delete_after=30, colour=0xe91e63)
             await ctx.send(embed=embedVar)
             guild = self.bot.get_guild(main.guild_id)
             channel = guild.get_channel(main.guild_channel)
@@ -7777,7 +7792,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
             try:
                 button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[
-                            start_tales_buttons_action_row], timeout=180, check=check)
+                            start_tales_buttons_action_row], timeout=300, check=check)
 
                 if button_ctx.custom_id == "start_tales_no":
                     await battle_msg.delete()
@@ -11435,8 +11450,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 turn = 0
                                                 await button_ctx.defer(ignore=True)
                                     except asyncio.TimeoutError:
+                                        await battle_msg.delete()
                                         if mode != "ABYSS" and mode != "SCENARIO":
-                                            if not botActive:
+                                            if not tutorial:
                                                 await save_spot(self, ctx, universe, mode, currentopponent)
                                                 await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                                 await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
@@ -12228,7 +12244,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                                                                     components=[
                                                                                                                         battle_action_row,
                                                                                                                         util_action_row],
-                                                                                                                    timeout=80,
+                                                                                                                    timeout=120,
                                                                                                                     check=check)
 
                                             # calculate data based on selected move
@@ -18638,7 +18654,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             button_ctx: ComponentContext = await manage_components.wait_for_component(
                                                 self.bot,
                                                 components=[battle_action_row, util_action_row, coop_util_action_row],
-                                                timeout=80, check=check)
+                                                timeout=120, check=check)
 
                                             # calculate data based on selected move
                                             if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
@@ -19822,7 +19838,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     turn = 2
                                                     # await button_ctx.defer(ignore=True)
                                         except asyncio.TimeoutError:
-                                            
+                                            await battle_msg.delete()
+                                            #await battle_msg.edit(components=[])
                                             await save_spot(self, ctx, universe, mode, currentopponent)
                                             await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
@@ -22346,7 +22363,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                             try:
                                 button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[
-                                    play_again_buttons_action_row], timeout=120, check=check)
+                                    play_again_buttons_action_row], timeout=300, check=check)
 
                                 if button_ctx.custom_id == "No":
                                     await msg.edit(components=[])
@@ -23037,7 +23054,21 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         battle_msg = await private_channel.send(embed=embedVar)
                                         continued = False
 
-
+            except asyncio.TimeoutError:
+                await battle_msg.edit(components=[])
+                if mode != "ABYSS" and mode != "SCENARIO":
+                    #await msg.edit(components=[])
+                    if not tutorial:
+                        await save_spot(self, ctx, universe, mode, currentopponent)
+                        await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+                        await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+                    else:
+                        await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed, restart the tutorial with **/solo**.")
+                        await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed , restart the tutorial with **/solo**.")
+                else:
+                    await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed and your Abyss Floor was Reset.") #Findme
+                    await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed and your Abyss Floor was Reset.")
+                return
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__
@@ -23062,6 +23093,19 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
                 return
 
+    except asyncio.TimeoutError:
+        await battle_msg.edit(components=[])
+        if mode != "ABYSS" and mode != "SCENARIO":
+            if not tutorial:
+                await save_spot(self, ctx, universe, mode, currentopponent)
+                await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+                await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+            else:
+                await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed, restart the tutorial with **/solo**.")
+                await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed , restart the tutorial with **/solo**.")
+        else:
+            await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed and your Abyss Floor was Reset.") #Findme
+            await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed and your Abyss Floor was Reset.")
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
