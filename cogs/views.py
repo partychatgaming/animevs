@@ -959,6 +959,7 @@ async def viewboss(self, ctx, boss : str):
             uboss_desc = uboss['DESCRIPTION'][3]
             uboss_pic = uboss['PATH']
             uboss_pet = uboss['PET']
+            uboss_card = uboss['CARD']
 
             arm = db.queryArm({'ARM': uboss_arm})
             arm_passive = arm['ABILITIES'][0]
@@ -996,7 +997,7 @@ async def viewboss(self, ctx, boss : str):
             embedVar = discord.Embed(title=f":japanese_ogre: | {uboss_name}\n:earth_africa: | {uboss_show} Boss", description=textwrap.dedent(f"""
             *{message}*
             
-            :flower_playing_cards: | **Card** - {uboss_name}
+            :flower_playing_cards: | **Card** - {uboss_card}
             :reminder_ribbon: | **Title** - {uboss_title}: **{title_passive_type}** - {title_passive_value}
             :mechanical_arm: | **Arm** - {uboss_arm}: **{arm_passive_type}** - {arm_passive_value}
             :dna: | **Summon** - {uboss_pet}: **{pet_ability_type}**: {pet_ability_value}
@@ -1011,7 +1012,7 @@ async def viewboss(self, ctx, boss : str):
 
 
         else:
-            await ctx.send(m.ARM_DOESNT_EXIST, delete_after=3)
+            await ctx.send(m.BOSS_DOESNT_EXIST, delete_after=3)
         
     except Exception as ex:
         trace = []
