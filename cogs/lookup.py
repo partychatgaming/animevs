@@ -961,7 +961,7 @@ class Lookup(commands.Cog):
                 **Family Explanations**
                 - **Earnings**: Families earn coin for every completed battle by its members
                 - **Allowance**: Disperse Family Savings to a family member
-                - **Invest*: Invest money into Family Bank
+                - **Invest**: Invest money into Family Bank
                 - **Houses**: Give Coin Multipliers in all game modes towards Family Earnings
                 - **Home Universe**: Earn Extra gold in Home Universe,
                 - **Real Estate**: Own multiple houses, swap your current house buy and sell real estate.add

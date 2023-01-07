@@ -2199,28 +2199,48 @@ async def traits(ctx):
 @slash.slash(name="Allowance", description="Gift Family member an allowance", guild_ids=guild_ids)
 @commands.check(validate_user)
 async def allowance(ctx, player: User, amount):
-   user2 = player
-   user = db.queryUser({'DID': str(ctx.author.id)})
-   family = db.queryFamily({'HEAD' : user['FAMILY']})
-   if user['FAMILY'] == 'PCG' or (user['FAMILY'] != user['DISNAME'] and user['DISNAME'] != family['PARTNER']):
-      await ctx.send("You must be the Head of a Household or Partner to give allowance. ")
-      return
+   try: 
+      user2 = player
+      user = db.queryUser({'DID': str(ctx.author.id)})
+      user2_info = db.queryUser({'DID' : str(user2.id)})
+      family = db.queryFamily({'HEAD' : user['FAMILY']})
+      if user['FAMILY'] == 'PCG' or (user['FAMILY'] != user['DISNAME'] and user['DISNAME'] != family['PARTNER']):
+         await ctx.send("You must be the Head of a Household or Partner to give allowance. ")
+         return
 
-   family = db.queryFamily({'HEAD': user['FAMILY']})
-   kids = family['KIDS']
+      family = db.queryFamily({'HEAD': user['FAMILY']})
+      kids = family['KIDS']
 
-   if str(user2) not in family['KIDS'] and str(user2) not in family['PARTNER'] and str(user2) not in family['HEAD']:
-      await ctx.send("You can only give allowance family members. ")
-      return
-   balance = family['BANK']
-   if balance <= int(amount):
-      await ctx.send("You do not have that amount saved.")
-   else:
-      await crown_utilities.bless(int(amount), user2.id)
-      await crown_utilities.cursefamily(int(amount), family['HEAD'])
-      transaction_message = f"{user['DISNAME']} paid :coin:{amount}  allowance to {user2['DISNAME']}"
-      update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
-      await ctx.send(f":coin:{amount} has been gifted to {user2.mention}.")
+      if str(user2) not in family['KIDS'] and str(user2) not in family['PARTNER'] and str(user2) not in family['HEAD']:
+         await ctx.send("You can only give allowance family members. ")
+         return
+      balance = family['BANK']
+      if balance <= int(amount):
+         await ctx.send("You do not have that amount saved.")
+      else:
+         await crown_utilities.bless(int(amount), user2.id)
+         await crown_utilities.cursefamily(int(amount), family['HEAD'])
+         transaction_message = f"{user['DISNAME']} paid :coin:{amount}  allowance to {user2_info['DISNAME']}"
+         print(transaction_message)
+         update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
+         await ctx.send(f":coin:{amount} has been gifted to {user2.mention}.")
+         return
+   except Exception as ex:
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+         trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+         })
+         tb = tb.tb_next
+      print(str({
+         'type': type(ex).__name__,
+         'message': str(ex),
+         'trace': trace
+      }))
+      await ctx.send("There's an issue with your Allowance. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
       return
 
 
