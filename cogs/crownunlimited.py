@@ -4300,7 +4300,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         oarm_price = oarm['PRICE']
         oarm_element = oarm['ELEMENT']
 
-        vault = db.queryVault({'DID': str(o_user['DID']), 'PETS.NAME': o_user['PET']})
+        vault = db.queryVault({'DID': str(o_user['DID'])})
         
         balance = vault['BALANCE']
         if mode == "RAID":
@@ -4328,7 +4328,6 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             opet_exp = o_family_pet['EXP']
             opet_lvl = o_family_pet['LVL']
             opet_bond = o_family_pet['BOND']
-            print(opet)
         else:
             opet = {}
             for pet in vault['PETS']:
@@ -4436,7 +4435,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             else:
                 cperformance = c_user['PERFORMANCE']
                 c_talisman = c_user['TALISMAN']
-                cvault = db.queryVault({'DID': c_user['DID'], 'PETS.NAME': c_user['PET']})
+                cvault = db.queryVault({'DID': c_user['DID']})
                 cpet = {}
                 cpet_info = c_user['PET']
                 if c_user['FAMILY_PET']:
@@ -4562,7 +4561,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             tarm_price = tarm['PRICE']
             tarm_element = tarm['ELEMENT']
 
-            tvault = db.queryVault({'DID': str(t_user['DID']), 'PETS.NAME': t_user['PET']})
+            tvault = db.queryVault({'DID': str(t_user['DID'])})
             if mode in pvp_modes and tutorial ==False:
                 tupdate_durability_message = update_arm_durability(self, tvault, tarm, tarm_universe, tarm_price, t)
                 if tupdate_durability_message['MESSAGE']:
@@ -22959,7 +22958,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
                                         if selected_universe in o_user['DUNGEONS']:
                                             await crown_utilities.bless(300000, ctx.author.id)
-                                            print(oteam)
                                             teambank = await crown_utilities.blessteam(bank_amount, oteam)
                                             # await crown_utilities.bless(125, user2)
                                             # await ctx.send(embed=embedVar)
