@@ -4580,6 +4580,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 tpet_exp = t_family_pet['EXP']
                 tpet_lvl = t_family_pet['LVL']
                 tpet_bond = t_family_pet['BOND']
+                tpet_lookup = db.queryPet({'PET': tpet_name})
+                tpet_passive = tpet_lookup['ABILITIES'][0]
                 
             else:
                 tpet = {}
