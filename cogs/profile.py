@@ -4270,9 +4270,9 @@ class Profile(commands.Cog):
                                         msg = await self.bot.wait_for('message', check=check, timeout=30)
                                         author = msg.author
                                         content = msg.content
-                                        print("Author: " + str(author))
-                                        print("Content: " + str(content))
-                                        print(msg)
+                                        # print("Author: " + str(author))
+                                        # print("Content: " + str(content))
+                                        # print(msg)
                                         if storage[int(msg.content)]:
                                             swap_with = storage[int(msg.content)]
                                             query = {'DID': str(msg.author.id)}
@@ -6041,8 +6041,8 @@ async def menucards(self, ctx):
                                     msg = await self.bot.wait_for('message', check=check, timeout=30)
                                     author = msg.author
                                     content = msg.content
-                                    print("Author: " + str(author))
-                                    print("Content: " + str(content))
+                                    # print("Author: " + str(author))
+                                    # print("Content: " + str(content))
                                     if storage[int(msg.content)]:
                                         swap_with = storage[int(msg.content)]
                                         query = {'DID': str(msg.author.id)}
