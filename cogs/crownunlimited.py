@@ -5513,7 +5513,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         if mode == "RAID":
             STATS = {
                 'o_base_health': o_base_health,
-                'o_base_health': t_base_health,
+                't_base_health': t_base_health,
                 't_talisman': t_talisman,
                 'o_talisman': o_talisman,
                 'o_card_passive_type': o_card_passive_type,
@@ -22532,6 +22532,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     """),colour=0xe91e63)
                                     # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
                                     if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
+                                        print(gameClock[2])
                                         embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
                                     elif int(gameClock[0]) == 0:
                                         embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
