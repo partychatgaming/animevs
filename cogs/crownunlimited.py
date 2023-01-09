@@ -2463,7 +2463,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
 
             if hit_roll < miss_hit:
                 if universe == 'Crown Rift Slayers':
-                    true_dmg = round(true_dmg * 2)
+                    true_dmg = round(true_dmg * 3)
                     message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits for **{true_dmg}**!! :boom: '
                 if is_wind_element:
                     true_dmg = round(true_dmg)

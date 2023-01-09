@@ -345,6 +345,17 @@ class PET():
 
 @dataclass(frozen=True, order=True)
 class UNIVERSE():
+    # def __init__(self, tales, dungeons):  Class Update Template
+    #     self.tales = tales
+    #     self.dungeons = dungeons
+        
+    # bengal = new UNIVERSE(tales, dungeons)
+    # bengal.tookdamage(dmg_type, is_enhancer, Ap_value)
+    # bengal.healed()
+    # def tookdamage():
+    #     ahsjdofhnaosdnvsnn
+    
+    # def health()
     TITLE: str
     PATH: str = field(default_factory=lambda: '')
     CROWN_TALES: list[str] = field(default_factory=lambda: [''])
@@ -366,6 +377,7 @@ class UNIVERSE():
     CORRUPTED: bool = field(default_factory=lambda: False)
     CORRUPTION_LEVEL: int = field(default_factory=lambda: 0)
     ESSENCE: str = field(default_factory=lambda: "NULL")
+
 
 @dataclass(frozen=True, order=True)
 class SCENARIO():
