@@ -7449,10 +7449,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             o_focus_count = 0
             t_focus_count = 0
             turn = 0
-            if o_speed > t_speed:
+            if mode in B_modes
                 turn = 0
             else:
-                turn = 1
+                if o_speed > t_speed:
+                    turn = 0
+                else:
+                    turn = 1
             turn_total = 0
 
             def set_talisman():
