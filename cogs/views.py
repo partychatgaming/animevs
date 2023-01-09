@@ -807,7 +807,7 @@ async def viewuniverse(self, ctx, universe: str):
             dpet = universe['DPET']
             boss = universe['UNIVERSE_BOSS']
             tier = universe['TIER']
-            bossmessage = f"**/view {boss} 👹 It's A Boss*"
+            bossmessage = f"*/view {boss} 👹 It's A Boss*"
             if boss == "":
                 bossmessage = f"No {universe_title} Boss available yet!"
             prerec = universe['PREREQUISITE']
