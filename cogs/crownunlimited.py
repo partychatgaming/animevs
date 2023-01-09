@@ -7449,7 +7449,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             o_focus_count = 0
             t_focus_count = 0
             turn = 0
-            if mode in B_modes
+            if mode in B_modes:
                 turn = 0
             else:
                 if o_speed > t_speed:
