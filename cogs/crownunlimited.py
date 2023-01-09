@@ -4256,8 +4256,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         opponent_health_scaling = 25
         enemy_arm = "ARM"
     if mode in B_modes:
-        bossname = boss['CARD']
+        bossname = boss['NAME']
         boss = db.queryBoss({'NAME': str(bossname)})
+        bossname = boss['CARD']
         enemy_arm = boss['ARM']
         enemy_pet = boss['PET']
         t_user = boss
