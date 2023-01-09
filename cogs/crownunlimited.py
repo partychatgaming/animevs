@@ -4074,6 +4074,9 @@ async def destinylist(self, ctx: SlashContext, universe: str):
             f":sparkles: **{de['NAME']}**\nDefeat {de['DEFEAT']} with {' '.join(de['USE_CARDS'])} {str(de['REQUIRED'])} times: Unlock **{de['EARN']}**\n")
 
     total_destinies = len(destiny_details)
+    if total_destinies <= 0:
+        await ctx.send(f"There are no current Destinies in **{universe_data['TITLE']}**. Check again later")
+        return
 
     # Adding to array until divisible by 10
     while len(destiny_details) % 10 != 0:
