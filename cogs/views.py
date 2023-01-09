@@ -796,6 +796,7 @@ async def viewuniverse(self, ctx, universe: str):
         if universe:
             universe_title= universe['TITLE']
             fights = len(universe['CROWN_TALES'])
+            dungeon_fights = len(universe['DUNGEONS'])
             crest = crown_utilities.crest_dict[universe_title]
             universe_image = universe['PATH']
             ttitle = universe['UTITLE']
@@ -806,7 +807,7 @@ async def viewuniverse(self, ctx, universe: str):
             dpet = universe['DPET']
             boss = universe['UNIVERSE_BOSS']
             tier = universe['TIER']
-            bossmessage = f"*/viewboss {boss}*"
+            bossmessage = f"**/view {boss} 👹 It's A Boss*"
             if boss == "":
                 bossmessage = f"No {universe_title} Boss available yet!"
             prerec = universe['PREREQUISITE']
@@ -818,12 +819,12 @@ async def viewuniverse(self, ctx, universe: str):
                     prerecmessage = "Complete Battles To Open Crown Rifts!"
                 else:
                     prerec = "Starter Universe"
-                    prerecmessage = "Complete this Season 1 Tale to unlock rewards!"
+                    prerecmessage = "Complete this Tale to unlock rewards!"
             owner = universe['GUILD']
             ownermessage = f"{universe_title} is owned by the {owner} Guild!"
             if owner == "PCG":
                 owner = "Crest Unclaimed"
-                ownermessage = "*Complete the /dungeon and Claim this Universe for your Guild!*"
+                ownermessage = "*Complete the **Dungeon** and Claim this Universe for your Guild!*"
                 
             
             mytrait = {}
@@ -838,11 +839,11 @@ async def viewuniverse(self, ctx, universe: str):
                 traitmessage = f"**{mytrait['EFFECT']}**: {mytrait['TRAIT']}"
                 
 
-            embedVar = discord.Embed(title=f":earth_africa: | {universe_title} :crossed_swords: {fights}", description=textwrap.dedent(f"""
+            embedVar = discord.Embed(title=f":earth_africa: | {universe_title} :crossed_swords: {fights} :fire: {dungeon_fights} ", description=textwrap.dedent(f"""
             {crest} | **{ownermessage}**
             
             🗒️ | **Details**
-            :crown: | **Tales Build**
+            :crown: | **Tales Build** 
             :reminder_ribbon: | **Title** - {ttitle}
             :mechanical_arm: | **Arm** - {tarm}
             🧬 | **Universe Summon ** - {upet}
