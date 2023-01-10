@@ -2610,6 +2610,7 @@ async def sponsor(ctx, guild: str, amount):
    if guild_name == 'PCG':
       await ctx.send(m.GUILD_DOESNT_EXIST, delete_after=5)
       return
+   
    guild_query = {'GNAME' :guild_name}
    guild = db.queryGuildAlt(guild_query)
    founder = guild['FDID']
@@ -2624,7 +2625,7 @@ async def sponsor(ctx, guild: str, amount):
       await ctx.send(m.NOT_LEADER, delete_after=5)
       return
 
-   team_name = team
+   team_name = team.lower()
    team_data = db.queryTeam({'TEAM_NAME' : team_name})
 
    if not team_data:

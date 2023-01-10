@@ -2455,8 +2455,8 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
             if move_element == "SPIRIT" and hit_roll > 3:
                 hit_roll = hit_roll + 4
                 
-            if universe == "Crown Rift Awakening" and hit_roll > 6:
-                hit_roll = hit_roll + 4
+            if universe == "Crown Rift Awakening" and hit_roll > 10:
+                hit_roll = hit_roll + 2
 
             if ranged_attack:
                 true_dmg = round(true_dmg * 1.7)
@@ -2465,7 +2465,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 if universe == 'Crown Rift Slayers':
                     true_dmg = round(true_dmg * 3)
                     message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits for **{true_dmg}**!! :boom: '
-                if is_wind_element:
+                elif is_wind_element:
                     true_dmg = round(true_dmg)
                     message = f'🌪️ Wind Attack! {move} hits for **{true_dmg}**!'       
                 else:
@@ -6833,7 +6833,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             await crown_utilities.blessguild(entrance_fee, universe['GUILD'])
                             await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | {crest_guild['GNAME']} Universe Toll Paid! :coin:{'{:,}'.format(entrance_fee)}")
             categoryname = "Crown Unlimited"
-            category = discord.utils.get(guild.categories, name=categoryname)
+            #category = discord.utils.get(guild.categories, name=categoryname)
 
             # if category is None: #If there's no category matching with the `name`
             #     category = await guild.create_category_channel(categoryname)
@@ -6862,7 +6862,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 'trace': trace
             }))
             #embedVar = discord.Embed(title=f"Unable to start boss fight. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", delete_after=30, colour=0xe91e63)
-            await ctx.send(embed=embedVar)
+            #await ctx.send(embed=embedVar)
             guild = self.bot.get_guild(main.guild_id)
             channel = guild.get_channel(main.guild_channel)
             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
@@ -8060,7 +8060,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 embedVar.add_field(name=f"{t_arena}", value=f"{t_arenades}")
                                 embedVar.add_field(name=f"Entering the {t_arena}", value=f"{t_entrance}", inline=False)
                                 embedVar.set_footer(text=f"{t_card} waits for you to strike....")
-                        
+                                await ctx.send(embed=embedVar)
                             if mode in co_op_modes:
                                 if c_universe == "Death Note" and turn_total == 0:
                                     embedVar = discord.Embed(title=f"{c_card} Scheduled Death 📓",
@@ -8186,6 +8186,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     embedVar = discord.Embed(title=f"{t_punish}")
                                     embedVar.add_field(name=f"{t_arena}", value=f"{t_world}", inline=False)
                                     embedVar.set_footer(text=f"{t_assault}")
+                                    await ctx.send(embed=embedVar)
                                     
                                     # await asyncio.sleep(2)
                                 # fortitude or luck is based on health
@@ -8730,6 +8731,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
+                                                    await ctx.send(embed=embedVar)
                                                 
                                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: PLUS ULTRA!")
 
@@ -8761,7 +8763,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
-                                                
+                                                    await ctx.send(embed=embedVar)
                                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: Conquerors Haki!")
 
                                                 turn_total = turn_total + 1
@@ -8857,7 +8859,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
-
+                                                    await ctx.send(embed=embedVar)
                                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
 
                                                 turn_total = turn_total + 1
@@ -8893,7 +8895,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
-
+                                                    await ctx.send(embed=embedVar)
 
                                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: Bankai!")
 
@@ -8939,7 +8941,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
-
+                                                    await ctx.send(embed=embedVar)
                                                 
                                                 turn_total = turn_total + 1
                                                 turn = 1
@@ -8971,6 +8973,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
+                                                    await ctx.send(embed=embedVar)
                                                 dmg = damage_cal(o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense,
                                                                 t_defense, o_stamina, o_enhancer_used, o_health,
                                                                 t_health, t_stamina, o_max_health, t_attack,
@@ -9020,7 +9023,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
-
+                                                    await ctx.send(embed=embedVar)
                                                 if turn_total >= 50:
                                                     o_max_health = o_max_health + 1000
                                                     o_health = o_health + 1000
@@ -9077,7 +9080,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
-                                                # await button_ctx.send(embed=embedVar)
+                                                    await button_ctx.send(embed=embedVar)
                                                 turn_total = turn_total + 1
                                                 turn = 1
                                         else:
@@ -10144,7 +10147,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                         inline=False)
                                                         embedVar.set_footer(text=f"{o_card} this is your chance!")
-                                                    
+                                                        await ctx.send(embed=embedVar)
                                                     previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: PLUS ULTRA!")
                                                     await button_ctx.defer(ignore=True)
 
@@ -10176,7 +10179,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                         inline=False)
                                                         embedVar.set_footer(text=f"{o_card} this is your chance!")
-                                                    
+                                                        await ctx.send(embed=embedVar)
                                                     previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: Conquerors Haki!")
 
                                                     turn_total = turn_total + 1
@@ -10277,7 +10280,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                         inline=False)
                                                         embedVar.set_footer(text=f"{o_card} this is your chance!")
-
+                                                        await ctx.send(embed=embedVar)
                                                     previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
                                                     await button_ctx.defer(ignore=True)
 
@@ -10393,6 +10396,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                         inline=False)
                                                         embedVar.set_footer(text=f"{o_card} this is your chance!")
+                                                        await ctx.send(embed=embedVar)
                                                     dmg = damage_cal(o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense,
                                                                     t_defense, o_stamina, o_enhancer_used, o_health,
                                                                     t_health, t_stamina, o_max_health, t_attack,
@@ -10442,7 +10446,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                         inline=False)
                                                         embedVar.set_footer(text=f"{o_card} this is your chance!")
-
+                                                        await ctx.send(embed=embedVar)
                                                     if turn_total >= 50:
                                                         o_max_health = o_max_health + 1000
                                                         o_health = o_health + 1000
@@ -10503,7 +10507,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         embedVar.add_field(name=f"{t_card}'s Rebuke", value=f"{t_rebuke}",
                                                                         inline=False)
                                                         embedVar.set_footer(text=f"{o_card} this is your chance!")
-                                                    # await button_ctx.send(embed=embedVar)
+                                                        await button_ctx.send(embed=embedVar)
                                                     turn_total = turn_total + 1
                                                     turn = 1
                                             else:
@@ -11462,9 +11466,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         await battle_msg.delete()
                                         if mode != "ABYSS" and mode != "SCENARIO":
                                             if not tutorial:
-                                                await save_spot(self, ctx, universe, mode, currentopponent)
-                                                await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
-                                                await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+                                                if mode in pvp_modes: #pvp check 
+                                                    await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed")
+                                                else:
+                                                    await save_spot(self, ctx, universe, mode, currentopponent)
+                                                    await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+                                                    await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             else:
                                                 await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed, restart the tutorial with **/solo**.")
                                                 await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed , restart the tutorial with **/solo**.")
@@ -11712,7 +11719,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         colour=0xe91e63)
                                 embedVar.add_field(name=f"**{o_card}** Braces: ", value=f"{t_feeling}")
                                 embedVar.set_footer(text=f"{t_card} begins his assault")
-                                await private_channel.send(embed=embedVar)
+                                await ctx.send(embed=embedVar)
                                 await asyncio.sleep(2)
                                                             
                             if t_block_used == True:
@@ -11834,7 +11841,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     embedVar.add_field(name=f"A great aura starts to envelop **{t_card}** ",
                                                     value=f"{t_aura}")
                                     embedVar.set_footer(text=f"{t_card} Says: 'Now, are you ready for a real fight?'")
-                                    
+                                    await ctx.send(embed=embedVar)
                                     previous_moves.append(f"(**{turn_total}**) 🌀 **{t_card}** focused and {healmessage}")
                                     # await asyncio.sleep(2)
                                 else:
@@ -11880,7 +11887,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         embedVar = discord.Embed(title=f"(**{turn_total}**) :zap: **{t_card}** Resolved!", description=f"{t_rmessage}",
                                                                 colour=0xe91e63)
                                         embedVar.set_footer(text=f"{o_card} this will not be easy...")
-                                        await private_channel.send(embed=embedVar)
+                                        await ctx.send(embed=embedVar)
                                         await asyncio.sleep(2)
 
                                 elif t_universe == "League Of Legends":
@@ -14780,7 +14787,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 embedVar = discord.Embed(title=f":zap: **{t_card}** Resolved!",
                                                                         description=f"{t_rmessage}", colour=0xe91e63)
                                                 embedVar.set_footer(text=f"{o_card} this will not be easy...")
-                                                await private_channel.send(embed=embedVar)
+                                                await ctx.send(embed=embedVar)
                                                 await asyncio.sleep(2)
 
                                             if t_universe == "My Hero Academia":  # My hero TRait
@@ -20208,6 +20215,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         embedVar.add_field(name=f"A great aura starts to envelop **{t_card}** ",
                                                         value=f"{t_aura}")
                                         embedVar.set_footer(text=f"{t_card} Says: 'Now, are you ready for a real fight?'")
+                                        await ctx.send(embed=embedVar)
                                         previous_moves.append(f"(**{turn_total}**) 🌀 **{t_card}** Focused and Says: 'Now, are you ready for a real fight?'")
                                     else:
                                         previous_moves.append(f"(**{turn_total}**) 🌀 **{t_card}** focused and {healmessage}")
@@ -20612,7 +20620,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 embedVar = discord.Embed(title=f"**{t_card}** Resolved!",
                                                                         description=f"{t_rmessage}", colour=0xe91e63)
                                                 embedVar.set_footer(text=f"{o_card} this will not be easy...")
-                                                await private_channel.send(embed=embedVar)
+                                                await ctx.send(embed=embedVar)
                                             if t_universe == "My Hero Academia":  # My hero TRait
                                                 # fortitude or luck is based on health
                                                 fortitude = 0.0
@@ -23069,9 +23077,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 if mode != "ABYSS" and mode != "SCENARIO":
                     #await msg.edit(components=[])
                     if not tutorial:
-                        await save_spot(self, ctx, universe, mode, currentopponent)
-                        await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
-                        await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+                        if mode in pvp_modes #pvp check
+                            await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed.")
+                        else:
+                            await save_spot(self, ctx, universe, mode, currentopponent)
+                            await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+                            await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                     else:
                         await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed, restart the tutorial with **/solo**.")
                         await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed , restart the tutorial with **/solo**.")
@@ -23106,7 +23117,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
     except asyncio.TimeoutError:
         await battle_msg.edit(components=[])
         if mode != "ABYSS" and mode != "SCENARIO":
-            if not tutorial:
+            if mode in pvp_modes #pvp check
+                await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed.")
+            else:
                 await save_spot(self, ctx, universe, mode, currentopponent)
                 await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                 await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
