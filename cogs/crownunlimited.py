@@ -23117,12 +23117,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
     except asyncio.TimeoutError:
         await battle_msg.edit(components=[])
         if mode != "ABYSS" and mode != "SCENARIO":
-            if mode in pvp_modes: #pvp check
-                await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed.")
-            else:
-                await save_spot(self, ctx, universe, mode, currentopponent)
-                await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
-                await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+            if not tutorial:
+                if mode in pvp_modes: #pvp check
+                    await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed.")
+                else:
+                    await save_spot(self, ctx, universe, mode, currentopponent)
+                    await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
+                    await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
             else:
                 await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed, restart the tutorial with **/solo**.")
                 await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed , restart the tutorial with **/solo**.")
