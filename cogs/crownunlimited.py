@@ -2815,6 +2815,12 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
             if len(list(d['RNAME'])) >= 18 and resolved:
                 name_font_size = 40
                 title_size = (600, 80)
+            if len(list(d['NAME'])) >= 20 and not resolved:
+                name_font_size = 35
+                title_size = (600, 80)
+            if len(list(d['RNAME'])) >= 20 and resolved:
+                name_font_size = 35
+                title_size = (600, 80)
             
             
             title_len = int(len(list(title['TITLE'])))
@@ -8060,7 +8066,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 embedVar.add_field(name=f"{t_arena}", value=f"{t_arenades}")
                                 embedVar.add_field(name=f"Entering the {t_arena}", value=f"{t_entrance}", inline=False)
                                 embedVar.set_footer(text=f"{t_card} waits for you to strike....")
-                                await ctx.send(embed=embedVar)
+                                
                             if mode in co_op_modes:
                                 if c_universe == "Death Note" and turn_total == 0:
                                     embedVar = discord.Embed(title=f"{c_card} Scheduled Death 📓",
@@ -8114,7 +8120,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     embedVar.add_field(name=f"{t_arena}", value=f"{t_arenades}")
                                     embedVar.add_field(name=f"Entering the {t_arena}", value=f"{t_entrance}", inline=False)
                                     embedVar.set_footer(text=f"{t_card} waits for you to strike....")
-                                    # await asyncio.sleep(2)
+                                    await ctx.send(embed=embedVar)
+                                    await asyncio.sleep(2)
                                 elif mode in co_op_modes and mode not in B_modes:
                                     embedVar = discord.Embed(
                                         title=f"**{o_card}** & **{c_card}** 🆚 **{t_card}** has begun! {lineup}\n{t_universe} {mode} Battle",
