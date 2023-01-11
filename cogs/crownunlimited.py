@@ -6464,6 +6464,10 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         corruption_message = "📢 Not Corrupted"
                         if uni['CORRUPTED']:
                             corruption_message = "👾 **Corrupted**"
+                        if uni['GUILD'] != "PCG":
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
+                        else: 
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Unclaimed**"
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
@@ -6475,6 +6479,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
                         **Completed**: 🟢
                         {corruption_message}
+                        {owner_message}
+                        🔮 *Crown Rift open. New Universes Available...*
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -6512,12 +6518,15 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             for save in saved_spots:
                                 if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
                                     save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = ""
+                        corruption_message = "📢 Not Corrupted"
                         if uni['CORRUPTED']:
                             corruption_message = "👾 **Corrupted**"
                         owner_message = ""
                         if uni['GUILD'] != "PCG":
                             owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
+                        else: 
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Unclaimed**"
+                        
 
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
@@ -6541,12 +6550,14 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             for save in saved_spots:
                                 if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
                                     save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = ""
+                        corruption_message = "📢 Not Corrupted"
                         owner_message = ""
                         if uni['CORRUPTED']:
                             corruption_message = "👾 **Corrupted**"
                         if uni['GUILD'] != "PCG":
                             owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
+                        else: 
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Unclaimed**"
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
@@ -6678,12 +6689,14 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 for save in saved_spots:
                     if save['UNIVERSE'] == uni and save['MODE'] in D_modes:
                         save_spot_text = str(save['CURRENTOPPONENT'])
-                corruption_message = ""
+                corruption_message = "📢 Not Corrupted"
                 owner_message = ""
                 if uni_option['CORRUPTED']:
                     corruption_message = "👾 **Corrupted**"
                 if uni_option['GUILD'] != "PCG":
                     owner_message = f"{crown_utilities.crest_dict[uni_option['TITLE']]} **Crest Owned**: {uni_option['GUILD']}"
+                else: 
+                    owner_message = f"{crown_utilities.crest_dict[uni_option['TITLE']]} **Crest Unclaimed**"
 
                 if uni in completed_dungeons:
                     completed = "🟢"
@@ -6790,7 +6803,9 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
             if uni != "":
                 searchUni = db.queryUniverse({'TITLE': str(uni)})
                 if searchUni['GUILD'] != "PCG":
-                     owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} **Crest Owned**: {searchUni['GUILD']}"
+                    owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} **Crest Owned**: {searchUni['GUILD']}"
+                else: 
+                    owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} **Crest Unclaimed**"
                 if searchUni['UNIVERSE_BOSS'] != "":
                     boss_info = db.queryBoss({"NAME": searchUni['UNIVERSE_BOSS']})
                     if boss_info:
@@ -23202,7 +23217,7 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
         if player_info['DIFFICULTY'] == "EASY":
             return
         pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
-        if card['UNIVERSE'] == 'Crown Rift Awakening':
+        if card['UNIVERSE'] == 'Crown Rift Slayers':
             arm_universe = card['UNIVERSE']
             
         if arm_universe in pokemon_universes:
