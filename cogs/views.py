@@ -306,14 +306,14 @@ async def viewcard(self, ctx, card: str):
             tip = ""
             if o_is_skin:
                 message = f"{o_card} is a card Skin. "
-                tip = f"Earn the {o_skin_for} card and use gems to unlock this Skin!"
+                tip = f"Earn the {o_skin_for} card and use gems to /craft this Skin!"
             elif o_has_collection == True or dungeon == True:
                 if o_has_collection:
                     message = f"{o_card} is a Destiny card. "
                     tip = f"Complete {o_show} Destiny: {o_collection} to unlock this card."
                 else:
                     message = f"{o_card} is a Dungeon card. "
-                    tip = f"Find this card in the {o_show} Dungeon"
+                    tip = f"/craft or Find this card in the {o_show} Dungeon"
             elif o_has_collection == False and o_available == False and o_exclusive == False:
                 message = f"{o_card} is a Boss card. "
                 tip = f"Defeat {o_show} Boss to earn this card."
