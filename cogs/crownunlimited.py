@@ -4842,6 +4842,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 c_title_passive_bool = True
             if (c_universe in pokemon_universes) and c_title_universe in pokemon_universes:
                 c_title_passive_bool = True
+            if c_universe == "Crown Rift Slayers":
+                c_title_passive_bool = True
+
 
             # Player 1 Focus & Resolve
             c_focus = 90
@@ -4947,6 +4950,8 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         if (o_universe == o_title_universe) or (o_title_universe == "Unbound"):
             o_title_passive_bool = True
         if (o_universe in pokemon_universes) and o_title_universe in pokemon_universes:
+            o_title_passive_bool = True
+        if o_universe == "Crown Rift Slayers":
             o_title_passive_bool = True
 
         # Player 1 Focus & Resolve
@@ -5120,6 +5125,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_title_passive_bool = True
         if (t_universe in pokemon_universes) and t_title_universe in pokemon_universes:
             t_title_passive_bool = True
+        if t_universe == "Crown Rift Slayers":
+            t_title_passive_bool = True
+
 
         # Player 1 Card Passive
         t_card_passive_type = list(t_passive.values())[1]
@@ -11473,7 +11481,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         await battle_msg.delete()
                                         if mode != "ABYSS" and mode != "SCENARIO":
                                             if not tutorial:
-                                                if mode in pvp_modes: #pvp check 
+                                                if mode in PVP_MODES: #pvp check 
                                                     await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed")
                                                 else:
                                                     await save_spot(self, ctx, universe, mode, currentopponent)
@@ -23084,7 +23092,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 if mode != "ABYSS" and mode != "SCENARIO":
                     #await msg.edit(components=[])
                     if not tutorial:
-                        if mode in pvp_modes: #pvp check
+                        if mode in PVP_MODES: #pvp check
                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed.")
                         else:
                             await save_spot(self, ctx, universe, mode, currentopponent)
@@ -23125,7 +23133,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
         await battle_msg.edit(components=[])
         if mode != "ABYSS" and mode != "SCENARIO":
             if not tutorial:
-                if mode in pvp_modes: #pvp check
+                if mode in PVP_MODES: #pvp check
                     await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed.")
                 else:
                     await save_spot(self, ctx, universe, mode, currentopponent)

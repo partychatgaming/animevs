@@ -85,14 +85,14 @@ traits = [{
     'TRAIT': '**Observation**:Tier 1-7: Before focus OPP dmg reduced by 60% **Armament**: Tier 4-7: Double Focus Stacking. **Conquerors**: Tier 6-7: Decrease OPP AP by 125 on Resolve'
 },{
     'NAME': 'Crown Rift Slayers',
-    'EFFECT': 'Feint Attack',
-    'TRAIT': 'If you miss, Crit!'
+    'EFFECT': 'Feint Attack, Spiritual Weapons',
+    'TRAIT': '**Feint Attack**: If you miss, Crit! **Spiritual Weapons**: Can use Arms from all Uninverses'
 },{
     'NAME': 'Crown Rift Madness',
     'EFFECT': 'Madness',
     'TRAIT': 'Do not lose turn on Focus, but also do not Heal.'
 },{
     'NAME': 'Crown Rift Awakening',
-    'EFFECT': 'Blood Awakening, Spiritual Weapons',
-    'TRAIT': '**Blood Awakening**: Deal 4x damage on Crit, Increased Crit Chance. **Spiritual Weapons**: Can use Arms from all Universes'
+    'EFFECT': 'Blood Awakening, Bloodlines',
+    'TRAIT': '**Blood Awakening**: Deal 4x damage on Crit, Increased Crit Chance. **Bloodlines**: Can use Titles from all Universes'
 }]
