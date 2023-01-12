@@ -6461,9 +6461,9 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             for save in saved_spots:
                                 if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
                                     save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted"
+                        corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts Available*"
                         if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted**"
+                            corruption_message = "👾 **Corrupted** | 🔮 *Crown Rifts Available*"
                         if uni['GUILD'] != "PCG":
                             owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
                         else: 
@@ -6480,7 +6480,6 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         **Completed**: 🟢
                         {corruption_message}
                         {owner_message}
-                        🔮 *Crown Rifts Available...*
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
