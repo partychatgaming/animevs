@@ -2744,10 +2744,10 @@ class Profile(commands.Cog):
                             guild_buff = await crown_utilities.guild_buff_update_function(sowner['TEAM'].lower())
                             
 
-                            if sowner['LEVEL'] < 4:
-                                await button_ctx.send("🔓 Unlock **Tales** by completing **Floor 3** of the 🌑 **Abyss**! Use /solo to enter the abyss.")
-                                self.stop = True
-                                return
+                            # if sowner['LEVEL'] < 4:
+                            #     await button_ctx.send("🔓 Unlock **Tales** by completing **Floor 3** of the 🌑 **Abyss**! Use /solo to enter the abyss.")
+                            #     self.stop = True
+                            #     return
 
                             if oteam != 'PCG':
                                 team_info = db.queryTeam({'TEAM_NAME': oteam.lower()})
@@ -3499,9 +3499,9 @@ class Profile(commands.Cog):
             card_info = db.queryCard({"NAME": user['CARD']})
             destiny_alert_message = f"No Skins or Destinies available for {card_info['NAME']}"
             destiny_alert = False
-            if user['LEVEL'] < 9:
-                await ctx.send("🔓 Unlock Crafting by completeing Floor 8 of the 🌑 Abyss! Use /solo to enter the abyss.")
-                return
+            # if user['LEVEL'] < 9:
+            #     await ctx.send("🔓 Unlock Crafting by completing Floor 8 of the 🌑 Abyss! Use **/solo** to enter the abyss.")
+            #     return
 
             #skin_alert_message = f"No Skins for {card_info['NAME']}"
             
@@ -7952,10 +7952,10 @@ async def menuquests(self, ctx):
                         guild_buff = await crown_utilities.guild_buff_update_function(sowner['TEAM'].lower())
                         
 
-                        if sowner['LEVEL'] < 4:
-                            await button_ctx.send("🔓 Unlock **Tales** by completing **Floor 3** of the 🌑 **Abyss**! Use /solo to enter the abyss.")
-                            self.stop = True
-                            return
+                        # if sowner['LEVEL'] < 4:
+                        #     await button_ctx.send("🔓 Unlock **Tales** by completing **Floor 3** of the 🌑 **Abyss**! Use /solo to enter the abyss.")
+                        #     self.stop = True
+                        #     return
 
                         if oteam != 'PCG':
                             team_info = db.queryTeam({'TEAM_NAME': oteam.lower()})
@@ -8587,9 +8587,9 @@ async def menucraft(self, ctx):
         card_info = db.queryCard({"NAME": user['CARD']})
         destiny_alert_message = f"No Skins or Destinies available for {card_info['NAME']}"
         destiny_alert = False
-        if user['LEVEL'] < 9:
-            await ctx.send("🔓 Unlock Crafting by completeing Floor 8 of the 🌑 Abyss! Use /solo to enter the abyss.")
-            return
+        # if user['LEVEL'] < 9:
+        #     await ctx.send("🔓 Unlock Crafting by completeing Floor 8 of the 🌑 Abyss! Use /solo to enter the abyss.")
+        #     return
 
         #skin_alert_message = f"No Skins for {card_info['NAME']}"
         

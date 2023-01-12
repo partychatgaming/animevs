@@ -486,7 +486,6 @@ async def animevs(ctx):
    **3 Difficulties**
    **Easy** *Play the game freely and casually*
    - Lower Enemy Scaling
-   - Bypass Abyss Requirements for Tales, Coop and Duo
    - No Destinies, Dungeons, Bosses, Drops, Raids or Abyss
    
    **Normal** *Play Anime VS+ the Intended Way*
@@ -505,19 +504,15 @@ async def animevs(ctx):
    - Earn Title of God on completion of Floor 100
    
    🎊**Abyss Floor Unlocks**
-   0 - Shop
-   2 - Tales
-   3 - Coop
-   6 - PVP
-   7 - Duo
-   8 - Crafting
-   9 - Guilds, Families and Associations
-   10- Trading
-   20 - Gifting
-   25 - Explore Mode
-   40 - Dungeons
-   60 - Bosses
-   100 - Boss Soul Exchange
+   **3** - *PvP and Guilds*
+   **10** - *Trading*
+   **15** - *Associations and Raids*
+   **20** - *Gifting*
+   **25** - *Explore Mode*
+   **40** - *Dungeons*
+   **60** - *Bosses*
+   **100** - *Boss Soul Exchange*
+   **Earn :coin:100,000 * Floor**
    """),colour=0x7289da)
    embedVar16.set_thumbnail(url=avatar)
 

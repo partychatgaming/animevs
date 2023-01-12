@@ -49,8 +49,8 @@ class Guild(commands.Cog):
             founder_profile = db.queryUser({'DID': str(ctx.author.id)})
             guildsearch_name = founder_profile['GUILD']
             
-            if founder_profile['LEVEL'] < 10:
-                await ctx.send("🔓 Unlock Associations by completing Floor 9 of the 🌑 Abyss! Use /solo to enter the abyss.")
+            if founder_profile['LEVEL'] < 16:
+                await ctx.send("🔓 Unlock Associations by completing Floor 15 of the 🌑 Abyss! Use /solo to enter the abyss.")
                 return
             if guildsearch_name != "PCG":
                 guildsearch_query = {'GNAME' : guildsearch_name}
@@ -61,11 +61,11 @@ class Guild(commands.Cog):
                         return
                     await ctx.send(f"{guildsearch_name} NEW OATH!")
                     sworn_profile = db.queryUser({'DID': str(owner.id)}) 
-                    if sworn_profile['LEVEL'] < 10:
-                        await ctx.send("🔓 Sworn Must Unlock Associations by completing Floor 9 of the 🌑 Abyss! Use /solo to enter the abyss.")
+                    if sworn_profile['LEVEL'] < 16:
+                        await ctx.send("🔓 Sworn Must Unlock Associations by completing Floor 15 of the 🌑 Abyss! Use /solo to enter the abyss.")
                         return
-                    if sworn_profile['LEVEL'] < 10:
-                        await ctx.send(f"🔓 {sworn.mention} Has not Unlocked Associations! Complete Floor 9 of the 🌑 Abyss! Use /solo to enter the abyss.")
+                    if sworn_profile['LEVEL'] < 16:
+                        await ctx.send(f"🔓 {sworn.mention} Has not Unlocked Associations! Complete Floor 15 of the 🌑 Abyss! Use /solo to enter the abyss.")
                         return             
                     if sworn_profile['GUILD'] != 'PCG' and guildsearch['SHIELD'] != sworn_profile['DISNAME']:
                         await ctx.send(m.USER_IN_GUILD, delete_after=3)
