@@ -6480,7 +6480,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         **Completed**: 🟢
                         {corruption_message}
                         {owner_message}
-                        🔮 *Crown Rift open. New Universes Available...*
+                        🔮 *Crown Rifts Available...*
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -6494,6 +6494,10 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         corruption_message = "📢 Not Corrupted"
                         if uni['CORRUPTED']:
                             corruption_message = "👾 **Corrupted**"
+                        if uni['GUILD'] != "PCG":
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
+                        else: 
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Unclaimed**"
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
@@ -6505,6 +6509,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
                         **Completed**: 🔴
                         {corruption_message}
+                        {owner_message}
+                        🔮 *Crown Rifts Available...*
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
