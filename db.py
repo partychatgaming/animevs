@@ -1460,6 +1460,10 @@ def queryAllUniverse():
     data = universe_col.find({"HAS_CROWN_TALES": True})
     return data
 
+def queryAvailableUniverse():
+    data = universe_col.find({"AVAILABLE": True})
+    return data
+
 def queryExploreUniverses():
     data = universe_col.find({"HAS_CROWN_TALES": True, "HAS_DUNGEON": True})
     return data

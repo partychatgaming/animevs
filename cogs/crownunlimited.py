@@ -1458,6 +1458,7 @@ class CrownUnlimited(commands.Cog):
                     """))
                     embedVar.set_image(url=uni['PATH'])
                     universe_embed_list.append(embedVar)
+                
 
             buttons = [
                 manage_components.create_button(style=3, label="🎴 Cards", custom_id="cards"),
