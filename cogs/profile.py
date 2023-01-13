@@ -1931,17 +1931,29 @@ class Profile(commands.Cog):
 
         
         hundred_levels = 650000
+        thirty_levels = 220000
+        ten_levels = 80000
 
         if lvl >= 200 and lvl < 299:
             hundred_levels = 30000000
+            thirty_levels = 20000000
+            ten_levels = 10000000
         elif lvl >= 300 and lvl < 399:
             hundred_levels = 70000000
+            thirty_levels = 50000000
+            ten_levels = 25000000
         elif lvl >= 400 and lvl < 499:
             hundred_levels = 90000000
+            thirty_levels = 75000000
+            ten_levels = 50000000
         elif lvl >= 500 and lvl < 599:
             hundred_levels = 150000000
+            thirty_levels = 100000000
+            ten_levels = 75000000
         elif lvl >= 600 and lvl < 699:
             hundred_levels = 300000000
+            thirty_levels = 200000000
+            ten_levels = 100000000
         # if lvl >= 700 and lvl <= 800:
         #     hundred_levels = hundred_levels * 2000
         sell_buttons = [
@@ -2024,17 +2036,17 @@ class Profile(commands.Cog):
             price = 0
             exp_boost_buttons = ["1", "2", "3"]
             if button_ctx.custom_id == "1":
-                if lvl >= 200:
-                    await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                    return
+                # if lvl >= 200:
+                #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
+                #     return
                 levels_gained = 10
-                price = 80000
+                price = ten_levels
             if button_ctx.custom_id == "2":
-                if lvl >= 200:
-                    await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                    return
+                # if lvl >= 200:
+                #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
+                #     return
                 levels_gained = 30
-                price = 220000
+                price = thirty_levels
             if button_ctx.custom_id == "3":
                 levels_gained = 100
                 price=hundred_levels
@@ -7134,17 +7146,29 @@ async def menugems(self, ctx: SlashContext):
 
             
             hundred_levels = 650000
+            thirty_levels = 220000
+            ten_levels = 80000
 
             if lvl >= 200 and lvl < 299:
                 hundred_levels = 30000000
+                thirty_levels = 20000000
+                ten_levels = 10000000
             elif lvl >= 300 and lvl < 399:
                 hundred_levels = 70000000
+                thirty_levels = 50000000
+                ten_levels = 25000000
             elif lvl >= 400 and lvl < 499:
                 hundred_levels = 90000000
+                thirty_levels = 75000000
+                ten_levels = 50000000
             elif lvl >= 500 and lvl < 599:
                 hundred_levels = 150000000
+                thirty_levels = 100000000
+                ten_levels = 75000000
             elif lvl >= 600 and lvl < 699:
                 hundred_levels = 300000000
+                thirty_levels = 200000000
+                ten_levels = 100000000
             # if lvl >= 700 and lvl <= 800:
             #     hundred_levels = hundred_levels * 2000
             sell_buttons = [
@@ -7227,17 +7251,17 @@ async def menugems(self, ctx: SlashContext):
                 price = 0
                 exp_boost_buttons = ["1", "2", "3"]
                 if button_ctx.custom_id == "1":
-                    if lvl >= 200:
-                        await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                        return
+                    # if lvl >= 200:
+                    #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
+                    #     return
                     levels_gained = 10
-                    price = 80000
+                    price = ten_levels
                 if button_ctx.custom_id == "2":
-                    if lvl >= 200:
-                        await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                        return
+                    # if lvl >= 200:
+                    #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
+                    #     return
                     levels_gained = 30
-                    price = 220000
+                    price = thirty_levels
                 if button_ctx.custom_id == "3":
                     levels_gained = 100
                     price=hundred_levels

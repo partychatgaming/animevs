@@ -1474,19 +1474,19 @@ class CrownUnlimited(commands.Cog):
                 if button_ctx.author == ctx.author:
                     if button_ctx.custom_id == "cards":
                         await cardlist(self, ctx, universe_name)
-                        self.stop = True
+                        #self.stop = True
                     if button_ctx.custom_id == "titles":
                         await titlelist(self, ctx, universe_name)
-                        self.stop = True
+                        #self.stop = True
                     if button_ctx.custom_id == "arms":
                         await armlist(self, ctx, universe_name)
-                        self.stop = True
+                        #self.stop = True
                     if button_ctx.custom_id == "summons":
                         await summonlist(self, ctx, universe_name)
-                        self.stop = True
+                        #self.stop = True
                     if button_ctx.custom_id == "destinies":
                         await destinylist(self, ctx, universe_name)
-                        self.stop = True
+                        #self.stop = True
                 else:
                     await ctx.send("This is not your command.")
 
@@ -1548,7 +1548,7 @@ class CrownUnlimited(commands.Cog):
         for i in range(0, len(houses_broken_up)):
             globals()['embedVar%s' % i] = discord.Embed(title=f":house: House List",
                                                         description="\n".join(houses_broken_up[i]), colour=0x7289da)
-            globals()['embedVar%s' % i].set_footer(text=f"{total_houses} Total Houses\n/view `House Name` House - View House Details")
+            globals()['embedVar%s' % i].set_footer(text=f"{total_houses} Total Houses\n/view *House Name* `:house: It's a House` - View House Details")
             embed_list.append(globals()['embedVar%s' % i])
 
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -1595,7 +1595,7 @@ class CrownUnlimited(commands.Cog):
         for i in range(0, len(halls_broken_up)):
             globals()['embedVar%s' % i] = discord.Embed(title=f":flags: Hall List",
                                                         description="\n".join(halls_broken_up[i]), colour=0x7289da)
-            globals()['embedVar%s' % i].set_footer(text=f"{total_halls} Total Halls\n/view `Hall Name` Hall - View Hall Details")
+            globals()['embedVar%s' % i].set_footer(text=f"{total_halls} Total Halls\n/view *Hall Name* `:flags: It's A Hall` - View Hall Details")
             embed_list.append(globals()['embedVar%s' % i])
 
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -3882,7 +3882,7 @@ async def cardlist(self, ctx: SlashContext, universe: str):
             title=f":flower_playing_cards: {universe_data['TITLE']} Card List",
             description="\n".join(cards_broken_up[i]), colour=0x7289da)
         globals()['embedVar%s' % i].set_footer(
-            text=f"{total_cards} Total Cards\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔵 Destiny Line\n🟠 Scenario Drop\n⚪ Skin")
+            text=f"{total_cards} Total Cards\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔵 Destiny Line\n🟠 Scenario Drop\n⚪ Skin\n/view *Card Name* `🎴 It's A Card`")
         embed_list.append(globals()['embedVar%s' % i])
 
     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -3961,7 +3961,7 @@ async def titlelist(self, ctx: SlashContext, universe: str):
                                                     description="\n".join(titles_broken_up[i]), colour=0x7289da)
         # globals()['embedVar%s' % i].set_thumbnail(url={universe_data['PATH']})
         globals()['embedVar%s' % i].set_footer(
-            text=f"{total_titles} Total Titles\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n/viewtitle 'Title Name' - View Title Details")
+            text=f"{total_titles} Total Titles\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n/view *Title Name* `🎗️ It's A Title` - View Title Details")
         embed_list.append(globals()['embedVar%s' % i])
 
     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -4048,7 +4048,7 @@ async def armlist(self, ctx: SlashContext, universe: str):
         globals()['embedVar%s' % i] = discord.Embed(title=f"🦾 {universe_data['TITLE']} Arms List",
                                                     description="\n".join(arms_broken_up[i]), colour=0x7289da)
         globals()['embedVar%s' % i].set_footer(
-            text=f"{total_arms} Total Arms\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop")
+            text=f"{total_arms} Total Arms\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n /view *Arm Name* `🦾Its' An Arm`")
         embed_list.append(globals()['embedVar%s' % i])
 
     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -4184,7 +4184,7 @@ async def summonlist(self, ctx: SlashContext, universe: str):
         globals()['embedVar%s' % i] = discord.Embed(title=f"🧬 {universe_data['TITLE']} Summon List",
                                                     description="\n".join(pets_broken_up[i]), colour=0x7289da)
         globals()['embedVar%s' % i].set_footer(
-            text=f"{total_pets} Total Summons\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop")
+            text=f"{total_pets} Total Summons\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n/view *Summon Name* `:dna: It's A Summon`")
         embed_list.append(globals()['embedVar%s' % i])
 
     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -4842,7 +4842,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 c_title_passive_bool = True
             if (c_universe in pokemon_universes) and c_title_universe in pokemon_universes:
                 c_title_passive_bool = True
-            if c_universe == "Crown Rift Slayers":
+            if c_universe == "Crown Rift Awakening":
                 c_title_passive_bool = True
 
 
@@ -4951,7 +4951,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             o_title_passive_bool = True
         if (o_universe in pokemon_universes) and o_title_universe in pokemon_universes:
             o_title_passive_bool = True
-        if o_universe == "Crown Rift Slayers":
+        if o_universe == "Crown Rift Awakening":
             o_title_passive_bool = True
 
         # Player 1 Focus & Resolve
@@ -5125,7 +5125,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_title_passive_bool = True
         if (t_universe in pokemon_universes) and t_title_universe in pokemon_universes:
             t_title_passive_bool = True
-        if t_universe == "Crown Rift Slayers":
+        if t_universe == "Crown Rift Awakening":
             t_title_passive_bool = True
 
 
@@ -6461,13 +6461,13 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             for save in saved_spots:
                                 if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
                                     save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts Available*"
+                        corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
                         if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted** | 🔮 *Crown Rifts Available*"
+                            corruption_message = "👾 **Corrupted** | 🔮 *Crown Rifts*"
                         if uni['GUILD'] != "PCG":
                             owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
                         else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Unclaimed**"
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
@@ -6490,13 +6490,13 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             for save in saved_spots:
                                 if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
                                     save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted"
+                        corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
                         if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted**"
+                            corruption_message = "👾 **Corrupted** | 🔮 *Crown Rifts*"
                         if uni['GUILD'] != "PCG":
                             owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
                         else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Unclaimed**"
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
@@ -6530,7 +6530,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         if uni['GUILD'] != "PCG":
                             owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
                         else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Unclaimed**"
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
                         
 
 
@@ -6562,7 +6562,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         if uni['GUILD'] != "PCG":
                             owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
                         else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Unclaimed**"
+                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
@@ -6701,7 +6701,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 if uni_option['GUILD'] != "PCG":
                     owner_message = f"{crown_utilities.crest_dict[uni_option['TITLE']]} **Crest Owned**: {uni_option['GUILD']}"
                 else: 
-                    owner_message = f"{crown_utilities.crest_dict[uni_option['TITLE']]} **Crest Unclaimed**"
+                    owner_message = f"{crown_utilities.crest_dict[uni_option['TITLE']]} *Crest Unclaimed*"
 
                 if uni in completed_dungeons:
                     completed = "🟢"
@@ -6810,7 +6810,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 if searchUni['GUILD'] != "PCG":
                     owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} **Crest Owned**: {searchUni['GUILD']}"
                 else: 
-                    owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} **Crest Unclaimed**"
+                    owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} *Crest Unclaimed*"
                 if searchUni['UNIVERSE_BOSS'] != "":
                     boss_info = db.queryBoss({"NAME": searchUni['UNIVERSE_BOSS']})
                     if boss_info:
