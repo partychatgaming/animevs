@@ -6507,10 +6507,9 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
 
                         **Saved Game**: :crossed_swords: *{save_spot_text}*
                         **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
-                        **Completed**: 🔴
+                        **Completed**: 🔴s
                         {corruption_message}
                         {owner_message}
-                        🔮 *Crown Rifts Available...*
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
