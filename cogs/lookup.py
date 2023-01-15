@@ -687,6 +687,7 @@ class Lookup(commands.Cog):
                 sword_list = []
                 sword_count = 0
                 blade_count = 0
+                total_blade_count = 0
                 for swords in guild['SWORDS']:
                     blade_count = 0
                     sword_count = sword_count + 1
@@ -695,6 +696,7 @@ class Lookup(commands.Cog):
                     els = sword_team['LOSSES']
                     for blades in sword_team['MEMBERS']:
                         blade_count = blade_count + 1
+                        total_blade_count = total_blade_count + 1
                     sword_bank = sword_team['BANK']
                     sword_list.append(f"~ {swords} ~ W**{dubs}** / L**{els}**\n:man_detective: | **Owner: **{sword_team['OWNER']}\n:coin: | **Bank: **{'{:,}'.format(sword_bank)}\n:knife: | **Members: **{blade_count}\n_______________________")
                 crest_list = []
@@ -734,7 +736,7 @@ class Lookup(commands.Cog):
                 embed1.set_footer(text=f"/raid {guild_name} - Raid Association")
                 
                 embed2 = discord.Embed(title=f":flags: |  {guild_name} **Guild** List".format(self), description=":bank: |  Party Chat Gaming Database", colour=000000)
-                embed2.add_field(name=f"**Guilds: | ** :ninja: ~ {sword_count}", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
+                embed2.add_field(name=f"**Guilds: | ** :ninja: ~ {sword_count}/:knife: {total_blade_count}", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
                 embed2.set_footer(text=f"/guild - View Association Guild")
                 
                 embed3 = discord.Embed(title=f":flags: |  {guild_name} **OWNED CREST**".format(self), description=":bank: |  Party Chat Gaming Database", colour=000000)

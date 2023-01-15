@@ -2447,16 +2447,19 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
 
             miss_hit = 2  # Miss
             low_hit = 6  # Lower Damage
-            med_hit = 13  # Medium Damage
+            med_hit = 15  # Medium Damage
             standard_hit = 19  # Standard Damage
             high_hit = 20  # Crit Hit
-            hit_roll = round(random.randint(1, 21))
+            hit_roll = round(random.randint(0, 20))
             # print(f"HIT ROLL: {str(hit_roll)}")
             if move_element == "SPIRIT" and hit_roll > 3:
                 hit_roll = hit_roll + 3
                 
-            if universe == "Crown Rift Awakening" and hit_roll > 10:
+            if universe == "Crown Rift Awakening" and hit_roll > med_hit:
                 hit_roll = hit_roll + 2
+            
+            if universe == "Crown Rift Slayers" and hit_roll <=low_hit:
+                hit_roll = hit_roll - 3
 
             if ranged_attack:
                 true_dmg = round(true_dmg * 1.7)
@@ -2482,7 +2485,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 message = f'{move_emoji} {move} used! Hits for **{true_dmg}**! :anger_right:'
             elif hit_roll >= 20:
                 if universe =="Crown Rift Awakening":
-                    true_dmg = round(true_dmg * 4.0)
+                    true_dmg = round(true_dmg * 2.5)
                     message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits for **{true_dmg}**!! :boom:"
                 else:
                     true_dmg = round(true_dmg * 2.5)
