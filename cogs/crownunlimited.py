@@ -22504,6 +22504,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         winbonus = bounty
                                     wage = int(total_bounty)
                                     endmessage = ":yen: SHIELD BOUNTY CLAIMED"
+                                    hall_info = db.queryHall("HALL":oguild['HALL'])
+                                    fee = hall_info['FEE']
                                     if title_match_active:
                                         if shield_test_active:
                                             endmessage = f":flags: {oguild['GNAME']} DEFENSE TEST OVER!"

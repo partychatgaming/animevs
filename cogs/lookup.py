@@ -1013,6 +1013,7 @@ class Lookup(commands.Cog):
                                         '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
                                     }
                                 response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
+                                await ctx.send(f"**{button_ctx.author.mention}** Said Hello! to {family_name}'s Family!")
                                 self.stop = True
                                 return
                             elif button_ctx.custom_id == "property":
