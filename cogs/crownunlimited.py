@@ -22588,7 +22588,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 
                                 if mode == "RAID":
                                     embedVar = discord.Embed(
-                                        title=f"{endmessage}\n\n You have defeated the {oguild['GNAME']} SHIELD!\nMatch concluded in {turn_total} turns",
+                                        title=f"{endmessage}\n\n You have defeated the {tguild['GNAME']} SHIELD!\nMatch concluded in {turn_total} turns",
                                         description=textwrap.dedent(f"""
                                                                     {previous_moves_into_embed}
                                                                     
