@@ -7869,7 +7869,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             previous_moves_into_embed = "\n\n".join(previous_moves)
                             
                         if mode in AUTO_BATTLE_modes:
-                            if turn_toal >=250:
+                            if turn_total >=250:
                                 previous_moves.append(f"⚙️**{o_card}** could not defeat {t_card} before the turn Limit...")
                                 o_health = 0
 
