@@ -6507,7 +6507,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
 
                         **Saved Game**: :crossed_swords: *{save_spot_text}*
                         **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
-                        **Completed**: 🔴s
+                        **Completed**: 🔴
                         {corruption_message}
                         {owner_message}
                         """))
@@ -22345,7 +22345,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             play_again_buttons = [
                                 manage_components.create_button(
                                     style=ButtonStyle.blue,
-                                    label="Play Again",
+                                    label="Start Over",
                                     custom_id="Yes"
                                 ),
                                 manage_components.create_button(
@@ -22354,6 +22354,32 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     custom_id="No"
                                 )
                             ]
+                            o_user = db.queryUser({'DID': o_user['DID']})
+                            o_team = o_user['TEAM']
+                            rematch_buff = False
+                            if o_team != 'PCG':
+                                team_info = db.queryTeam({'TEAM_NAME': str(o_team.lower())})
+                                guild_buff_info = team_info['ACTIVE_GUILD_BUFF']
+                                if guild_buff_info == 'Rematch':
+                                    rematch_buff =True
+                            if rematch_buff: #rematch update
+                                play_again_buttons.append(
+                                    manage_components.create_button(
+                                        style=ButtonStyle.green,
+                                        label=f"Guild Rematches Available!",
+                                        custom_id="grematch"
+                                    )
+                                )        
+                            elif o_user['RETRIES'] >= 1:
+                                play_again_buttons.append(
+                                    manage_components.create_button(
+                                        style=ButtonStyle.green,
+                                        label=f"{o_user['RETRIES']} Rematches Available!",
+                                        custom_id="rematch"
+                                    )
+                                )
+                            else:
+                                rematch_buff = False
                             play_again_buttons_action_row = manage_components.create_actionrow(*play_again_buttons)
                             if mode not in B_modes and mode not in co_op_modes:
                                 embedVar = discord.Embed(title=f":zap: **{t_card}** wins the match!\nThe game lasted {turn_total} rounds.", description=textwrap.dedent(f"""
@@ -22424,6 +22450,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                 if button_ctx.custom_id == "Yes":
                                     currentopponent = 0
+                                    continued = True
+                                    
+                                if button_ctx.custom_id == "rematch":
+                                    new_info = await crown_utilities.updateRetry(button_ctx.author.id, "U","DEC")
+                                    continued = True
+                                if button_ctx.custom_id == "grematch":
+                                    new_info = await crown_utilities.guild_buff_update_function(str(o_team.lower()))
+                                    update_team_response = db.updateTeam(new_info['QUERY'], new_info['UPDATE_QUERY'])
                                     continued = True
                             except asyncio.TimeoutError:
                                 continued = False
@@ -23629,8 +23663,9 @@ async def drops(self,player, universe, matchcount):
         p = len(pets) - 1
         rand_pet = random.randint(0, p)
 
-    gold_drop = 150  # 150
-    rift_rate = 175  # 175
+    gold_drop = 125  # 125
+    rift_rate = 150  # 150
+    rematch_rate = 175 #175
     title_drop = 190  # 190
     arm_drop = 195  # 195
     pet_drop = 198  # 198
@@ -23640,8 +23675,9 @@ async def drops(self,player, universe, matchcount):
     
     if difficulty == "HARD":
         mode = "Purchase"
-        gold_drop = 40  
-        rift_rate = 65  
+        gold_drop = 30
+        rift_rate = 55
+        rematch_rate = 70
         title_drop = 75  
         arm_drop = 100  
         pet_drop = 180  
@@ -23658,10 +23694,15 @@ async def drops(self,player, universe, matchcount):
             return f"You earned :coin: **{bless_amount}**!"
         elif drop_rate <= rift_rate and drop_rate > gold_drop:
             response = db.updateUserNoFilter(user_query, {'$set': {'RIFT': 1}})
-            bless_amount = (200 + (100 * matchcount)) * (1 + rebirth)
+            bless_amount = (20000 + (1000 * matchcount)) * (1 + rebirth)
             await crown_utilities.bless(bless_amount, player.id)
             return f"A RIFT HAS OPENED! You have earned :coin: **{bless_amount}**!"
-        elif drop_rate <= title_drop and drop_rate > gold_drop:
+        elif drop_rate <= rematch_rate and drop_rate > rift_rate:
+            response = db.updateUserNoFilter(user_query, {'$inc': {'RETRIES': 1}})
+            bless_amount = (25000 + (1000 * matchcount)) * (1 + rebirth)
+            await crown_utilities.bless(bless_amount, player.id)
+            return f"🆚  You have earned 1 Rematch and  :coin: **{bless_amount}**!"
+        elif drop_rate <= title_drop and drop_rate > rematch_drop:
             if all_available_drop_titles:
                 if len(vault['TITLES']) >= 25:
                     await crown_utilities.bless(300, player.id)
@@ -23832,9 +23873,9 @@ async def dungeondrops(self, player, universe, matchcount):
     pets = []
 
     if matchcount <= 3:
-        bless_amount = (8000 + (2000 * matchcount)) * (1 + rebirth)
+        bless_amount = (20000 + (2000 * matchcount)) * (1 + rebirth)
         if difficulty == "HARD":
-            bless_amount = (30000 + (20000 * matchcount)) * (1 + rebirth)
+            bless_amount = (50000 + (20000 * matchcount)) * (1 + rebirth)
         await crown_utilities.bless(bless_amount, player.id)
         return f"You earned :coin: **{bless_amount}**!"
 
@@ -23877,8 +23918,9 @@ async def dungeondrops(self, player, universe, matchcount):
         rand_pet = random.randint(0, p)
 
 
-    gold_drop = 300  #
-    rift_rate = 350  #
+    gold_drop = 250  #
+    rift_rate = 300  #
+    rematch_rate = 350
     title_drop = 380  #
     arm_drop = 390  #
     pet_drop = 396  #
@@ -23888,7 +23930,8 @@ async def dungeondrops(self, player, universe, matchcount):
     mode="Dungeon"
     if difficulty == "HARD":
         gold_drop = 30  
-        rift_rate = 65  
+        rift_rate = 55
+        rematch_rate = 70
         title_drop = 75  
         arm_drop = 100  
         pet_drop = 250  
@@ -23899,17 +23942,22 @@ async def dungeondrops(self, player, universe, matchcount):
 
     try:
         if drop_rate <= gold_drop:
-            bless_amount = (20000 + (2000 * matchcount)) * (1 + rebirth)
+            bless_amount = (30000 + (2000 * matchcount)) * (1 + rebirth)
             if difficulty == "HARD":
                 bless_amount = (60000 + (5000 * matchcount)) * (1 + rebirth)
             await crown_utilities.bless(bless_amount, player.id)
             return f"You earned :coin: **{bless_amount}**!"
         elif drop_rate <= rift_rate and drop_rate > gold_drop:
             response = db.updateUserNoFilter(user_query, {'$set': {'RIFT': 1}})
-            bless_amount = (25000 + (2500 * matchcount)) * (1 + rebirth)
+            bless_amount = (35000 + (5000 * matchcount)) * (1 + rebirth)
             await crown_utilities.bless(bless_amount, player.id)
-            return f"*Coming Soon* A RIFT HAS OPENED! You have earned :coin: **{bless_amount}**!"
-        elif drop_rate <= title_drop and drop_rate > gold_drop:
+            return f"A RIFT HAS OPENED! You have earned :coin: **{bless_amount}**!"
+        elif drop_rate <= rematch_rate and drop_rate > rift_rate:
+            response = db.updateUserNoFilter(user_query, {'$inc': {'RETRIES': 3}})
+            bless_amount = (40000 + (5000 * matchcount)) * (1 + rebirth)
+            await crown_utilities.bless(bless_amount, player.id)
+            return f"🆚  You have earned 3 Rematches and  :coin: **{bless_amount}**!"
+        elif drop_rate <= title_drop and drop_rate > rematch_rate:
             if len(vault['TITLES']) >= 25:
                 await crown_utilities.bless(2500, player.id)
                 return f"You're maxed out on Titles! You earned :coin: 2500 instead!"
@@ -24047,7 +24095,8 @@ async def bossdrops(self,player, universe):
         rand_pet = random.randint(0, p)
 
 
-    gold_drop = 339  #
+    gold_drop = 300  #
+    rematch_drop = 330 #330
     title_drop = 340  #
     arm_drop = 370  #
     pet_drop = 390  #
@@ -24059,6 +24108,7 @@ async def bossdrops(self,player, universe):
 
     drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 500)
     durability = random.randint(25, 120)
+    
 
     try:
         if drop_rate <= gold_drop:
@@ -24067,6 +24117,11 @@ async def bossdrops(self,player, universe):
                 bless_amount = 5000000 * (1 + rebirth)
             await crown_utilities.bless(bless_amount, player.id)
             return f"You earned :coin: {bless_amount}!"
+        elif drop_rate <= rematch_drop and drop_rate > gold_drop:
+            response = db.updateUserNoFilter(user_query, {'$inc': {'RETRIES': 10}})
+            bless_amount = (1000000  * (1 + rebirth))
+            await crown_utilities.bless(bless_amount, player.id)
+            return f"🆚  You have earned 10 Rematches and  :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > gold_drop:
             if len(vault['TITLES']) >= 25:
                 await crown_utilities.bless(500000, player.id)

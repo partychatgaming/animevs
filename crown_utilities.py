@@ -205,6 +205,64 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
         # channel = guild.get_channel(957061470192033812)
         # await channel.send(f"'PLAYER': **{str(player)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
+async def updateRetry(player_id, mode, math_calc):
+    player_info = db.queryUser({'DID' : str(player_id)})
+    if player_info:
+        try:
+            mode = mode
+            math = math_calc
+            print("Got player info")
+            if math == "INC":
+                if player_info['RETRIES'] >=25:
+                    return print('You already have 25 Retries...')
+                if mode == "U":
+                    update_query = {"DID": player_info['DID']}
+                    new_value = {'$inc' : {"RETRIES": 1}}
+                    update_player = db.updateUserNoFilter(update_query, new_value)
+                    return update_player
+                elif mode == "D":
+                    update_query = {"DID": player_info['DID']}
+                    new_value = {'$inc' : {"RETRIES": 3}}
+                    update_player = db.updateUserNoFilter(update_query, new_value)
+                    return update_player
+                elif mode == "B":
+                    update_query = {"DID": player_info['DID']}
+                    new_value = {'$inc' : {"RETRIES": 5}}
+                    update_player = db.updateUserNoFilter(update_query, new_value)
+                    return update_player
+                else:
+                    print("Unable to find game mode")
+                    return False
+                    
+            elif math == "DEC":
+                if player_info['RETRIES'] >= 1:
+                    update_query = {"DID": player_info['DID']}
+                    new_value = {'$inc' : {"RETRIES": -1}}
+                    update_player = db.updateUserNoFilter(update_query, new_value)
+                    return update_player 
+                else:
+                    print("You have no retries avaialable")
+            else:
+                print("Could not find math_calc")
+                return
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+    else:
+        print("Could not find player info")
+        return False
 
 def set_emoji(element):
     emoji = ""
@@ -686,6 +744,7 @@ async def guild_buff_update_function(team):
                 level_buff = False
                 stat_buff = False
                 auto_battle_buff = False
+                rematch_buff = False
                 index = 0
 
                 active_guild_buff = team_info['ACTIVE_GUILD_BUFF']
@@ -705,8 +764,8 @@ async def guild_buff_update_function(team):
                         if buff['TYPE'] == "Stat":
                             stat_buff = True
 
-                        if buff['TYPE'] == "Auto Battle":
-                            auto_battle_buff = True
+                        if buff['TYPE'] == "Rematch":
+                            rematch_buff = True
 
 
                         if buff['USES'] == 1:
@@ -754,6 +813,7 @@ async def guild_buff_update_function(team):
                     'Level': level_buff,
                     'Stat': stat_buff,
                     'Auto Battle': auto_battle_buff,
+                    'Rematch' : rematch_buff,
                     'QUERY': team_query,
                     'UPDATE_QUERY': guild_buff_update_query,
                     'FILTER_QUERY': filter_query

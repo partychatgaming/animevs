@@ -756,7 +756,7 @@ async def voted(ctx):
          
          response = requests.get(f"https://top.gg/api/bots/955704903198711808/check?userId={ctx.author.id}", headers=head)
          response_dict = json.loads(response.text)
-
+         retry_message = f":vs: Rematches : **{user['RETRIES']}**"
          if response_dict['voted'] == 1:
             if gem_list:
                for universe in gem_list:
@@ -768,6 +768,10 @@ async def voted(ctx):
 
             await crown_utilities.bless(int(500000), ctx.author.id)
             respond = db.updateUserNoFilter(query, {'$set': {'VOTED': True}})
+            retry_message = f":vs: Rematches : **{user['RETRIES']}**"
+            if user['RETRIES'] <= 20:  
+               db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
+               retry_message = f":vs: Rematches : {user['RETRIES']} **+ 3**!"
 
 
             embedVar = discord.Embed(title=f"✅ Daily Voter Rewards!", description=textwrap.dedent(f"""\
@@ -776,11 +780,13 @@ async def voted(ctx):
             **Daily Voter Earnings** 
             :coin: **{'{:,}'.format(500000)}**
             💎 **{'{:,}'.format(500000)}** *all craftable universes*
+            {retry_message}
             """), colour=0xf1c40f)
             
             await ctx.send(embed=embedVar)
 
          else:
+            retry_message = f":vs: Rematches : **+3**"
             embedVar = discord.Embed(title=f"❌ Daily Voter Rewards!", description=textwrap.dedent(f"""\
             You have not voted for Anime VS+ today, {ctx.author.mention}!
 
@@ -789,6 +795,7 @@ async def voted(ctx):
             **What are the Daily Voter Rewards?** 
             :coin: **{'{:,}'.format(500000)}**
             💎 **{'{:,}'.format(500000)}**
+            {retry_message}
             """), colour=0xf1c40f)
             
             await ctx.send(embed=embedVar)
@@ -1680,11 +1687,15 @@ async def daily(ctx):
       db.updateVaultNoFilter(query, {'$set': {'QUESTS': quests}})
       db.updateUserNoFilter(query, {'$set': {'BOSS_FOUGHT': False}})
       db.updateUserNoFilter(query, {'$set': {'VOTED': False}})
-      
+      retry_message = f":vs: Rematches : **{user_data['RETRIES']}**"
+      if user_data['RETRIES'] <= 20:  
+         db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
+         retry_message = f":vs: Rematches : {user_data['RETRIES']} **+ 2**!"
       embedVar = discord.Embed(title=f"☀️ Daily Rewards!", description=textwrap.dedent(f"""\
       Welcome back, {ctx.author.mention}!
       **Daily Earnings** 
       :coin: {'{:,}'.format(dailyamount)}
+      {retry_message}
       
       📜 **New Quests**
       Defeat **{opponents[q1]}** to earn :coin: {'{:,}'.format(q1_earn)}
@@ -2280,6 +2291,7 @@ async def buffshop(ctx, player, team):
    level_buff = False
    stat_buff = False
    quest_buff = False
+   rematch_buff = False
    for buff in guild_buffs:
       if buff['TYPE'] == 'Stat':
          stat_buff = True
@@ -2289,6 +2301,8 @@ async def buffshop(ctx, player, team):
          quest_buff = True
       if buff['TYPE'] == 'Level':
          level_buff = True
+      if buff['TYPE'] == 'Rematch':
+         rematch_buff = True
       
    if shielding ==True and association != 'PCG':
       shield_buff = True
@@ -2312,13 +2326,13 @@ async def buffshop(ctx, player, team):
    rift_buff_cost = 18000000 + war_tax
    level_buff_cost = 15000000 + war_tax
    stat_buff_cost = 10000000 + war_tax
-   auto_buff_cost = 60000000 + war_tax
+   rematch_cost = 30000000 + war_tax
    if shield_buff:
       quest_buff_cost = round(quest_buff_cost * .60)
       rift_buff_cost = round(rift_buff_cost * .60)
       level_buff_cost = round(level_buff_cost * .60)
       stat_buff_cost = round(stat_buff_cost * .60)
-      auto_buff_cost = round(auto_buff_cost * .60)
+      rematch_cost = round(rematch_cost * .60)
       shield_message = f":flags: **{association} Shield Discount** 30%"
    sell_buttons = [
          manage_components.create_button(
@@ -2340,6 +2354,11 @@ async def buffshop(ctx, player, team):
             style=ButtonStyle.red,
             label="🔋 4️⃣",
             custom_id="4"
+         ),
+         manage_components.create_button(
+            style=ButtonStyle.red,
+            label="🔋 5️⃣",
+            custom_id="5"
          )
       ]
 
@@ -2364,6 +2383,8 @@ async def buffshop(ctx, player, team):
    🔋 3️⃣ **Stat Buff** for :money_with_wings: **{'{:,}'.format(stat_buff_cost)}**
 
    🔋 4️⃣ **Rift Buff** for :money_with_wings: **{'{:,}'.format(rift_buff_cost)}**
+   
+   🔋 5️⃣ **Rematch Buff** for :money_with_wings: **{'{:,}'.format(rematch_cost)}**
 
    All Buffs are available for 100 uses.
    What would you like to buy?
@@ -2445,14 +2466,18 @@ async def buffshop(ctx, player, team):
          }
 
       if button_ctx.custom_id == "5":
-         price= auto_buff_cost
+         if rematch_buff: 
+            await button_ctx.send("You Guild already owns this Buff", hidden=True)
+            await msg.edit(components=[])
+            return
+         price= rematch_cost
          if price > balance:
             await button_ctx.send("Insufficent Balance.", hidden=True)
             return
 
          update_query = {
-            '$set': {'GUILD_BUFF_AVAILABLE': True, 'ACTIVE_GUILD_BUFF': 'Auto Battle'},
-            '$push': {'TRANSACTIONS': f"{player['DISNAME']} purchased Auto Battle Buff", 'GUILD_BUFFS': {'TYPE': 'Auto Battle', 'USES': 1000}}
+            '$set': {'GUILD_BUFF_AVAILABLE': True, 'ACTIVE_GUILD_BUFF': 'Rematch'},
+            '$push': {'TRANSACTIONS': f"{player['DISNAME']} purchased Rematch Buff", 'GUILD_BUFFS': {'TYPE': 'Rematch', 'USES': 100}}
          }
 
 
@@ -2883,7 +2908,7 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       if field_type == 'string':
          field_type = "NULL"
       elif field_type == 'int':
-         field_type = 0
+         field_type = 5
       elif field_type == 'list':
          field_type = [
             {"ELEMENT": "PHYSICAL", "ESSENCE": 5000},

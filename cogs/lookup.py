@@ -88,6 +88,7 @@ class Lookup(commands.Cog):
                 difficulty = d['DIFFICULTY']
                 games = d['GAMES']
                 abyss_level = d['LEVEL']
+                retries = d['RETRIES']
                 card = d['CARD']
                 ign = d['IGN']
                 team = d['TEAM']
@@ -205,6 +206,7 @@ class Lookup(commands.Cog):
                 :military_helmet: | **Guild: **{team} 
                 :family_mwgb: | **Family: **{family}
                 
+                🆚 **Retries** {retries} available
                 ⚙️ **Battle History Setting** {str(battle_history)} messages
                 ⚙️ **Difficulty** {difficulty.lower().capitalize()}
                 """), colour=000000)
@@ -498,7 +500,7 @@ class Lookup(commands.Cog):
                 - **Rift Buff**: Rifts will always be available
 
                 **Guild Position Explanations**
-                - **Owner**:  All operations
+                - **Owner**:  All operations */guildoperations*
                 - **Officer**:  Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
                 - **Captain**:  Can Toggly Buffs, Pay members
                 - **Member**:  No operations
