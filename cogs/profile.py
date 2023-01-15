@@ -2006,9 +2006,9 @@ class Profile(commands.Cog):
         🦾 Arm: **{current_arm}** *{boss_message}*
         
 
-        🔋 1️⃣ **10 Levels** for :coin: **80,000**
+        🔋 1️⃣ **10 Levels** for :coin: **{'{:,}'.format(ten_levels)}**
         
-        🔋 2️⃣ **30 Levels** for :dollar: **220,000**
+        🔋 2️⃣ **30 Levels** for :dollar: **{'{:,}'.format(thirty_levels)}**
 
         🔋 3️⃣ **100 Levels** for :moneybag: **{'{:,}'.format(hundred_levels)}**
 
@@ -7221,9 +7221,9 @@ async def menugems(self, ctx: SlashContext):
             🦾 Arm: **{current_arm}** *{boss_message}*
             
 
-            🔋 1️⃣ **10 Levels** for :coin: **80,000**
-            
-            🔋 2️⃣ **30 Levels** for :dollar: **220,000**
+            🔋 1️⃣ **10 Levels** for :coin: **{'{:,}'.format(ten_levels)}**
+        
+            🔋 2️⃣ **30 Levels** for :dollar: **{'{:,}'.format(thirty_levels)}**
 
             🔋 3️⃣ **100 Levels** for :moneybag: **{'{:,}'.format(hundred_levels)}**
 

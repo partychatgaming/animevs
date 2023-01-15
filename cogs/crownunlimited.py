@@ -1333,7 +1333,6 @@ class CrownUnlimited(commands.Cog):
             tteam_info = db.queryTeam({'TEAM_NAME': tteam_name.lower()})
             tteam = tteam_info['TEAM_NAME']
             tguild = tteam_info['GUILD']
-            tteam_info = db.queryTeam({'TEAM_NAME': tteam.lower()})
             if tteam_info:
                 tguild = tteam_info['GUILD']
             tarm = db.queryArm({'ARM': t_user['ARM']})
