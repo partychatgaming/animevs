@@ -705,7 +705,6 @@ class Lookup(commands.Cog):
 
 
 
-
                 # embed1 = discord.Embed(title=f":flags: {guild_name} Guild Card - {icon}{'{:,}'.format(balance)}".format(self), description=":bank: Party Chat Gaming Database", colour=000000)
                 # if guild['LOGO_FLAG']:
                 #     embed1.set_image(url=logo)

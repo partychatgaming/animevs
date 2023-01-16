@@ -22505,7 +22505,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if winbonus == 0:
                                         winbonus = bounty
                                     wage = int(total_bounty)
-                                    endmessage = ":yen: SHIELD BOUNTY CLAIMED"
+                                    endmessage = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(winbonus)}"
                                     hall_info = db.queryHall({"HALL":oguild['HALL']})
                                     fee = hall_info['FEE']
                                     if title_match_active:
@@ -23711,7 +23711,7 @@ async def drops(self,player, universe, matchcount):
             bless_amount = (25000 + (1000 * matchcount)) * (1 + rebirth)
             await crown_utilities.bless(bless_amount, player.id)
             return f"🆚  You have earned 1 Rematch and  :coin: **{bless_amount}**!"
-        elif drop_rate <= title_drop and drop_rate > rematch_drop:
+        elif drop_rate <= title_drop and drop_rate > rematch_rate:
             if all_available_drop_titles:
                 if len(vault['TITLES']) >= 25:
                     await crown_utilities.bless(300, player.id)
