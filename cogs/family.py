@@ -320,8 +320,8 @@ class Family(commands.Cog):
             partner_mode = False
             if head_profile['FAMILY'] == 'PCG':
                 await ctx.send("Join or Start a family to adopt Kids!", delete_after=3)
-            elif kid_profile['FAMILY'] != 'PCG':
-                await ctx.send(m.USER_IN_FAMILY, delete_after=3)
+            #elif kid_profile['FAMILY'] != 'PCG':
+                #await ctx.send(m.USER_IN_FAMILY, delete_after=3)
             else:
                 family_query = {'HEAD': str(ctx.author)}
                 family = db.queryFamily(family_query)
