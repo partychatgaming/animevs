@@ -3508,6 +3508,8 @@ class Profile(commands.Cog):
             gems = 0
             all_universes = db.queryAllUniverse()
             user = db.queryUser({'DID': str(ctx.author.id)})
+            guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
+            guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
             completed_dungeons = user['DUNGEONS']
             completed_tales = user['CROWN_TALES']
             card_info = db.queryCard({"NAME": user['CARD']})
@@ -3523,7 +3525,7 @@ class Profile(commands.Cog):
             available_universes = []
             riftShopOpen = False
             shopName = ':shopping_cart: Shop'
-            if user['RIFT'] == 1:
+            if user['RIFT'] == 1 or guild_buff == "Rift":
                 riftShopOpen = True
                 shopName = ':crystal_ball: Rift Shop'
                 
@@ -5309,7 +5311,7 @@ async def menubuild(self, ctx):
                     else:
                         armmessage = f'☢️ {arm_name}'
                 warningmessage = f"Use {o_show} or Unbound Titles on this card"
-                if o_title_universe == "Unbound":
+                if o_title_universe == "Unbound" or o_show == "Crown Rift Awakening":
                     titled =True
                     titleicon = "👑"
                     if performance_mode:
@@ -5326,7 +5328,7 @@ async def menubuild(self, ctx):
                         titlemessage = f"🎗️ {title_name}"
                     warningmessage= f""
                 
-                if oarm_universe == "Unbound":
+                if oarm_universe == "Unbound" or o_show == "Crown Rift Slayers":
                     armicon = "💪"
                     if performance_mode:
                         armmessage = f'💪 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
@@ -8608,6 +8610,8 @@ async def menucraft(self, ctx):
         gems = 0
         all_universes = db.queryAllUniverse()
         user = db.queryUser({'DID': str(ctx.author.id)})
+        guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
+        guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
         completed_dungeons = user['DUNGEONS']
         completed_tales = user['CROWN_TALES']
         card_info = db.queryCard({"NAME": user['CARD']})
@@ -8623,7 +8627,7 @@ async def menucraft(self, ctx):
         available_universes = []
         riftShopOpen = False
         shopName = ':shopping_cart: Shop'
-        if user['RIFT'] == 1:
+        if user['RIFT'] == 1 or guild_buff == "Rift":
             riftShopOpen = True
             shopName = ':crystal_ball: Rift Shop'
             
