@@ -517,7 +517,7 @@ class Profile(commands.Cog):
                         else:
                             armmessage = f'⚠️ {arm_name}'
                     warningmessage = f"Use {o_show} or Unbound Titles on this card"
-                    if o_title_universe == "Unbound" or (pokemon_universes==True):
+                    if o_title_universe == "Unbound" or (pokemon_universes==True) or o_show == "Crown Rift Awakening":
                         titled =True
                         titleicon = "👑"
                         if performance_mode:
@@ -534,7 +534,7 @@ class Profile(commands.Cog):
                             titlemessage = f"🎗️ {title_name}"
                         warningmessage= f""
                     
-                    if oarm_universe == "Unbound":
+                    if oarm_universe == "Unbound" or o_show == "Crown Rift Slayers":
                         armicon = "💪"
                         if performance_mode:
                             armmessage = f'💪 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
