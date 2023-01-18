@@ -901,7 +901,7 @@ class Profile(commands.Cog):
                 available = ""
                 if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
                     dungeon_card_details.append(
-                        f"[{str(index)}]:mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                        f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
                 elif not card['HAS_COLLECTION']:
                     tales_card_details.append(
                         f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
