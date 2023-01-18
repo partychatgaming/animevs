@@ -24116,7 +24116,7 @@ async def bossdrops(self,player, universe):
     boss_card_drop = 500  #
 
     drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 500)
-    durability = random.randint(25, 120)
+    durability = random.randint(100, 150)
     
 
     try:
@@ -24145,7 +24145,7 @@ async def bossdrops(self,player, universe):
                 await crown_utilities.bless(500000, player.id)
                 return f"You're maxed out on Arms! You earned :coin: **50000**0 instead!"
             if str(arms[rand_arm]) in owned_arms:
-                await crown_utilities.bless(8000, player.id)
+                await crown_utilities.bless(500000, player.id)
                 return f"You already own **{arms[rand_arm]}**! You earn :coin: **500000**."
             else:
                 response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
