@@ -1029,8 +1029,8 @@ class Profile(commands.Cog):
                     for d in dungeon_title_details:
                         all_titles.append(d)
 
-                if destiny_title_details:
-                    for de in destiny_title_details:
+                if boss_title_details:
+                    for de in boss_title_details:
                         all_titles.append(de)
 
                 total_titles = len(all_titles)
