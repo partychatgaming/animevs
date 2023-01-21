@@ -23557,7 +23557,7 @@ async def scenario_drop(self, ctx, scenario, difficulty):
                 return f"You earned _Arm:_ {reward} with ⚒️**{str(100)} Durability** and :coin: **{'{:,}'.format(scenario_gold)}**!"
         else:
             card = db.queryCard({"NAME": rewarded})
-            response = await crown_utilities.store_drop_card(str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0)
+            response = await crown_utilities.store_drop_card(str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
             response = f"{response}\nYou earned :coin: **{'{:,}'.format(scenario_gold)}**!"
             if not response:
                 bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
@@ -23770,7 +23770,7 @@ async def drops(self,player, universe, matchcount):
                 return f"You earned :coin: **150**!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
             if all_available_drop_cards:
-                response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 3000, 1000, mode, False, 0)
+                response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
                 if not response:
                     bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
                     await crown_utilities.bless(bless_amount, player.id)
@@ -23820,7 +23820,7 @@ async def specific_drops(self,player, card, universe):
         owned_destinies.append(destiny['NAME'])
 
     try:
-        response = await crown_utilities.store_drop_card(player, card, universe, vault, owned_destinies, 3000, 1000, "Purchase", False, 0)
+        response = await crown_utilities.store_drop_card(player, card, universe, vault, owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
         return response
     except Exception as ex:
         trace = []
@@ -24009,7 +24009,7 @@ async def dungeondrops(self, player, universe, matchcount):
                 await crown_utilities.bless(10000, player.id)
                 return f"You earned _Summon:_ **{pets[rand_pet]}** + :coin: 10000!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 5000, 2500, mode, False, 0)
+            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 5000, 2500, mode, False, 0, "cards")
             return response
     except Exception as ex:
         trace = []
@@ -24165,7 +24165,7 @@ async def bossdrops(self,player, universe):
             await crown_utilities.bless(750000, player.id)
             return f"You earned {pets[rand_pet]} + :coin: 750000!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 30000, 10000, "Dungeon", False, 0)
+            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 30000, 10000, "Dungeon", False, 0, "cards")
             return response
         elif drop_rate <= boss_title_drop and drop_rate > card_drop:
             if len(vault['TITLES']) >= 25:
@@ -24198,7 +24198,7 @@ async def bossdrops(self,player, universe):
             await crown_utilities.bless(10000000, player.id)
             return f"You earned the Exclusive Boss Summon:  {boss['PET']} + :coin: **10,000,000**!"
         elif drop_rate <= boss_card_drop and drop_rate > boss_pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, boss_card, universe, vault, owned_destinies, 30000, 10000, "Dungeon", False, 0)
+            response = await crown_utilities.store_drop_card(player.id, boss_card, universe, vault, owned_destinies, 30000, 10000, "Dungeon", False, 0, "cards")
             return response
     except Exception as ex:
         trace = []

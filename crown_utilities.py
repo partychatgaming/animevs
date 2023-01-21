@@ -35,97 +35,170 @@ import requests
 
 print("Crown Utilities initiated")
 
-def storage_limit_hit(player_info, vault):
-    storage_amount = len(vault['STORAGE'])
-    storage_allowed_amount = player_info['STORAGE_TYPE'] * 15
-    limit_hit = False
+def storage_limit_hit(player_info, vault, type):
+    if type == "cards":
+        storage_amount = len(vault['STORAGE'])
+        storage_allowed_amount = player_info['STORAGE_TYPE'] * 15
+        limit_hit = False
 
-    if storage_amount >= storage_allowed_amount:
-        limit_hit = True
+        if storage_amount >= storage_allowed_amount:
+            limit_hit = True
+    elif type == "titles":
+        storage_amount = len(vault['TSTORAGE'])
+        storage_allowed_amount = player_info['STORAGE_TYPE'] * 15
+        limit_hit = False
+
+        if storage_amount >= storage_allowed_amount:
+            limit_hit = True
+    elif type == "arms":
+        storage_amount = len(vault['ASTORAGE'])
+        storage_allowed_amount = player_info['STORAGE_TYPE'] * 15
+        limit_hit = False
+
+        if storage_amount >= storage_allowed_amount:
+            limit_hit = True
     return limit_hit
 
 
-async def store_drop_card(player, card_name, card_universe, vault, owned_destinies, bless_amount_if_max_cards, bless_amount_if_card_owned, mode, is_shop, price):
+async def store_drop_card(player, card_name, card_universe, vault, owned_destinies, bless_amount_if_max_cards, bless_amount_if_card_owned, mode, is_shop, price, item_override):
     try:
         user = await main.bot.fetch_user(player)
         player_info = db.queryUser({"DID": str(player)})
-        storage_limit_has_been_hit = storage_limit_hit(player_info, vault)
+        if item_override == "cards":
+            storage_limit_has_been_hit = storage_limit_hit(player_info, vault, "cards")
 
-        current_storage = vault['STORAGE']
-        current_cards_in_vault = vault['CARDS']
+            current_storage = vault['STORAGE']
+            current_cards_in_vault = vault['CARDS']
 
-        vault_query = {'DID': str(player)}
-        hand_length = len(current_cards_in_vault)
+            vault_query = {'DID': str(player)}
+            hand_length = len(current_cards_in_vault)
 
 
-        list1 = current_cards_in_vault
-        list2 = current_storage
-        list2.extend(list1)
-        current_cards = list2
+            list1 = current_cards_in_vault
+            list2 = current_storage
+            list2.extend(list1)
+            current_cards = list2
 
-        card_owned = False
-        for owned_card in current_cards:
-            if owned_card == card_name:
-                card_owned = True
+            card_owned = False
+            for owned_card in current_cards:
+                if owned_card == card_name:
+                    card_owned = True
 
-        if card_owned:
-            if is_shop:
-                await cardlevel(card_name, player, mode, card_universe)
-                await curse(int(price), str(player))
-                return f"You earned experience points for 🎴: **{card_name}**"
-            await cardlevel(card_name, player, mode, card_universe)
-            await bless(int(bless_amount_if_card_owned), player)
-            return f"You earned experience points for 🎴: **{card_name}** & :coin: **{'{:,}'.format(bless_amount_if_card_owned)}**"
-        else:
-            if hand_length < 25:
-                response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'CARDS': str(card_name)}})
+            if card_owned:
                 if is_shop:
+                    await cardlevel(card_name, player, mode, card_universe)
                     await curse(int(price), str(player))
+                    return f"You earned experience points for 🎴: **{card_name}**"
+                await cardlevel(card_name, player, mode, card_universe)
+                await bless(int(bless_amount_if_card_owned), player)
+                return f"You earned experience points for 🎴: **{card_name}** & :coin: **{'{:,}'.format(bless_amount_if_card_owned)}**"
+            else:
+                if hand_length < 25:
+                    response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'CARDS': str(card_name)}})
+                    if is_shop:
+                        await curse(int(price), str(player))
 
-                # Add Card Level config
-                if not card_owned:
-                    update_query = {'$addToSet': {
-                        'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 0, 'TIER': 0,
-                                        'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
-                    r = db.updateVaultNoFilter(vault_query, update_query)
+                    # Add Card Level config
+                    if not card_owned:
+                        update_query = {'$addToSet': {
+                            'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 0, 'TIER': 0,
+                                            'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
+                        r = db.updateVaultNoFilter(vault_query, update_query)
 
-                # Add Destiny
-                for destiny in d.destiny:
-                    if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
-                        db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
-                        await user.send(
-                            f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
-
-                return f"You earned 🎴: **{card_name}**!"
-
-            
-            if hand_length >= 25 and not storage_limit_has_been_hit:
-                if is_shop:
-                    response = await route_to_storage(player, card_name, current_cards, card_owned, price, card_universe, owned_destinies, "Purchase")
-                    return response
-                else:
-                    update_query = {'$addToSet': {
-                        'CARD_LEVELS': {'CARD': card_name, 'LVL': 0, 'TIER': 0, 'EXP': 0, 'HLT': 0,
-                                        'ATK': 0, 'DEF': 0, 'AP': 0}}}
-                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'STORAGE': card_name}})
-                    r = db.updateVaultNoFilter(vault_query, update_query)
-                    message = ""
+                    # Add Destiny
                     for destiny in d.destiny:
                         if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
                             db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
                             await user.send(
                                 f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
 
-                    return f"**{card_name}** has been added to your storage 💼!\n{message}"
+                    return f"You earned 🎴: **{card_name}**!"
+
+                
+                if hand_length >= 25 and not storage_limit_has_been_hit:
+                    if is_shop:
+                        response = await route_to_storage(player, card_name, current_cards, card_owned, price, card_universe, owned_destinies, "Purchase", "cards")
+                        return response
+                    else:
+                        update_query = {'$addToSet': {
+                            'CARD_LEVELS': {'CARD': card_name, 'LVL': 0, 'TIER': 0, 'EXP': 0, 'HLT': 0,
+                                            'ATK': 0, 'DEF': 0, 'AP': 0}}}
+                        response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'STORAGE': card_name}})
+                        r = db.updateVaultNoFilter(vault_query, update_query)
+                        message = ""
+                        for destiny in d.destiny:
+                            if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
+                                db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
+                                await user.send(
+                                    f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
+
+                        return f"**{card_name}** has been added to your storage 💼!\n{message}"
 
 
-            if hand_length >= 25 and storage_limit_has_been_hit:
+                if hand_length >= 25 and storage_limit_has_been_hit:
+                    if is_shop:
+                        return "You have max amount of Cards. Transaction cancelled."   
+                    else:
+                        await bless(int(bless_amount_if_max_cards), player)
+                        return f"You're maxed out on Cards! You earned :coin: {str(bless_amount_if_max_cards)} instead!"
+        elif item_override =="titles":
+            title_name = card_name
+            title_universe = card_universe
+            bless_amount_if_max_titles = bless_amount_if_max_cards
+            bless_amount_if_title_owned = bless_amount_if_card_owned
+            
+            storage_limit_has_been_hit = storage_limit_hit(player_info, vault, "titles")
+
+            current_storage = vault['TSTORAGE']
+            current_titles_in_vault = vault['TITLES']
+
+            vault_query = {'DID': str(player)}
+            hand_length = len(current_titles_in_vault)
+
+
+            list1 = current_titles_in_vault
+            list2 = current_storage
+            list2.extend(list1)
+            current_titles = list2
+
+            title_owned = False
+            for owned_title in current_titles:
+                if owned_card == title_name:
+                    card_owned = True
+
+            if title_owned:
                 if is_shop:
-                    return "You have max amount of Cards. Transaction cancelled."   
-                else:
-                    await bless(int(bless_amount_if_max_cards), player)
-                    return f"You're maxed out on Cards! You earned :coin: {str(bless_amount_if_max_cards)} instead!"
+                    await curse(int(price), str(player))
+                    return f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!"
+                await bless(int(bless_amount_if_title_owned), player)
+                return f"You already own **{title_name}**! You earn  :coin:**{'{:,}'.format(bless_amount_if_title_owned)}**."
+            else:
+                if hand_length < 25:
+                    response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'TITLES': str(title_name)}})
+                    if is_shop:
+                        await curse(int(price), str(player))
+                if hand_length >= 25 and not storage_limit_has_been_hit:
 
+                    if is_shop:
+                        response = await route_to_storage(player, title_name, current_titles, title_owned, price, title_universe, owned_destinies, "Purchase", "titles")
+                        return response
+                    else:
+                        response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TSTORAGE': title_name}})
+                        message = ""
+                        return f"**{title_name}** has been added to your storage 💼!\n{message}"
+
+
+                if hand_length >= 25 and storage_limit_has_been_hit:
+                    if is_shop:
+                        return "You have max amount of Titles. Transaction cancelled."   
+                    else:
+                        await bless(int(bless_amount_if_max_cards), player)
+                        return f"You're maxed out on Titles! You earned :coin: {str(bless_amount_if_max_titles)} instead!"
+        elif item_override == "arms":
+            print("Arm storage coming soon")
+        
+        else:
+            print("Cannot find items of that type")
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -147,43 +220,66 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
         # await channel.send(f"'PLAYER': **{str(player)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
 
-async def route_to_storage(player, card_name, current_cards, card_owned, price, universe, owned_destinies, mode):
+async def route_to_storage(player, card_name, current_cards, card_owned, price, universe, owned_destinies, mode, storage_type):
     try:
         user = await main.bot.fetch_user(player)
         msg = ""
 
         user_query = {"DID": str(player)}
         vault_query = {"DID": str(player)}
-        update_query = {
-            "$addToSet": {"STORAGE": card_name}
-        }
-        update_storage = db.updateVaultNoFilter(user_query, update_query)
-        
+        if storage_type == "cards":
+            update_query = {
+                "$addToSet": {"STORAGE": card_name}
+            }
+            update_storage = db.updateVaultNoFilter(user_query, update_query)
+            
 
-        if card_owned:
-            await cardlevel(card_name, str(player), mode, universe)
-            msg = f"You received a level up for **{card_name}**!"
-            await curse(int(price), str(player))
-            return msg
+            if card_owned:
+                await cardlevel(card_name, str(player), mode, universe)
+                msg = f"You received a level up for **{card_name}**!"
+                await curse(int(price), str(player))
+                return msg
+            else:
+                await curse(int(price), str(player))
+
+                update_query = {'$addToSet': {
+                    'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 0, 'TIER': 0,
+                                    'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
+                r = db.updateVaultNoFilter(vault_query, update_query)
+
+                msg = f"**{card_name}** has been purchased and added to Storage!\n"
+
+                for destiny in d.destiny:
+                    if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
+                        db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
+                        await user.send(
+                            f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
+
+
+                msg = f"**{card_name}** has been purchased and added to Storage!"
+                return msg
+        elif storage_type == "titles":
+            title_name = card_name
+            current_titles = current_cards
+            title_owned = card_owned
+            update_query = {
+                "$addToSet": {"TSTORAGE": title_name}
+            }
+            update_storage = db.updateVaultNoFilter(user_query, update_query)
+            
+
+            if title_owned:
+                bless_amount = price
+                msg = f"You already own **{title_name}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!"
+                await curse(int(bless_amount), str(player))
+                return msg
+            else:
+                await curse(int(price), str(player))
+
+                msg = f"**{title_name}** has been purchased and added to Storage!\n"
+            
         else:
-            await curse(int(price), str(player))
-
-            update_query = {'$addToSet': {
-                'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 0, 'TIER': 0,
-                                'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
-            r = db.updateVaultNoFilter(vault_query, update_query)
-
-            msg = f"**{card_name}** has been purchased and added to Storage!\n"
-
-            for destiny in d.destiny:
-                if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
-                    db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
-                    await user.send(
-                        f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
-
-
-            msg = f"**{card_name}** has been purchased and added to Storage!"
-            return msg
+            await print("Could not find Storage of that Type")
 
     except Exception as ex:
         trace = []

@@ -963,7 +963,7 @@ class Profile(commands.Cog):
 
                 # If it's not an array greater than 10, show paginationless embed
                 if len(all_cards) < 10:
-                    embedVar = discord.Embed(title=f"💼 {user['DISNAME']}'s Storage", description="\n".join(all_cards), colour=0x7289da)
+                    embedVar = discord.Embed(title=f"💼 {user['DISNAME']}'s Card Storage", description="\n".join(all_cards), colour=0x7289da)
                     embedVar.set_footer(
                         text=f"{total_cards} Total Cards\n{str(storage_allowed_amount - len(vault['STORAGE']))} Storage Available")
                     await ctx.send(embed=embedVar)
@@ -975,6 +975,93 @@ class Profile(commands.Cog):
                         description="\n".join(cards_broken_up[i]), colour=0x7289da)
                     globals()['embedVar%s' % i].set_footer(
                         text=f"{total_cards} Total Cards\n{str(storage_allowed_amount - len(vault['STORAGE']))} Storage Available")
+                    embed_list.append(globals()['embedVar%s' % i])
+
+                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+                paginator.add_reaction('⏮️', "first")
+                paginator.add_reaction('⬅️', "back")
+                paginator.add_reaction('🔐', "lock")
+                paginator.add_reaction('➡️', "next")
+                paginator.add_reaction('⏭️', "last")
+                embeds = embed_list
+                await paginator.run(embeds)
+            elif mode == "title":
+                if not vault['TSTORAGE']:
+                    await ctx.send("Your Title storage is empty.", hidden=True)
+                    return
+
+                list_of_titles = db.querySpecificTitles(vault['TSTORAGE'])
+                titles = [x for x in list_of_titles]
+                dungeon_title_details = []
+                tales_title_details = []
+                boss_title_details = []
+               
+                for title in titles:
+                    title_title = title['TITLE']
+                    title_show = title['UNIVERSE']
+                    exclusive = title['EXCLUSIVE']
+                    available = title['AVAILABLE']
+                    title_passive = title['ABILITIES'][0]
+                    title_passive_type = list(title_passive.keys())[0]
+                    title_passive_value = list(title_passive.values())[0]
+
+
+                    
+                    universe_crest = crown_utilities.crest_dict[title_show]
+                    index = vault['TSTORAGE'].index(title_title)
+                    available = ""
+                    if not exclusive and not available:
+                        boss_title_details.append(
+                            f"[{str(index)}]{universe_crest}👹 **{title_title}**\n**:microbe:**: {title_passive_type} *{title_passive_value}*\n")
+                    elif exclusive and available:
+                        dungeon_title_details.append(
+                            f"[{str(index)}]{universe_crest}:fire: **{title_title}**\n**:microbe:**: {title_passive_type} *{title_passive_value}*\n")
+                    elif available and not exclusive:
+                        tales_title_details.append(
+                            f"[{str(index)}]{universe_crest}🎗️ **{title_title}**\n**:microbe:**: {title_passive_type} *{title_passive_value}*\n")
+
+                all_titles = []
+                if tales_title_details:
+                    for t in tales_title_details:
+                        all_titles.append(t)
+
+                if dungeon_title_details:
+                    for d in dungeon_title_details:
+                        all_titles.append(d)
+
+                if destiny_title_details:
+                    for de in destiny_title_details:
+                        all_titles.append(de)
+
+                total_titles = len(all_titles)
+
+                # Adding to array until divisible by 10
+                while len(all_titles) % 10 != 0:
+                    all_titles.append("")
+                # Check if divisible by 10, then start to split evenly
+
+                if len(all_titles) % 10 == 0:
+                    first_digit = int(str(len(all_titles))[:1])
+                    if len(all_titles) >= 89:
+                        if first_digit == 1:
+                            first_digit = 10
+                    # first_digit = 10
+                    titles_broken_up = np.array_split(all_titles, first_digit)
+
+                # If it's not an array greater than 10, show paginationless embed
+                if len(all_titles) < 10:
+                    embedVar = discord.Embed(title=f"💼 {user['DISNAME']}'s Title Storage", description="\n".join(all_titles), colour=0x7289da)
+                    embedVar.set_footer(
+                        text=f"{total_titles} Total Titles\n{str(storage_allowed_amount - len(vault['TSTORAGE']))} Storage Available")
+                    await ctx.send(embed=embedVar)
+
+                embed_list = []
+                for i in range(0, len(titles_broken_up)):
+                    globals()['embedVar%s' % i] = discord.Embed(
+                        title=f"💼 {user['DISNAME']}'s Title Storage",
+                        description="\n".join(titless_broken_up[i]), colour=0x7289da)
+                    globals()['embedVar%s' % i].set_footer(
+                        text=f"{total_cards} Total Titles\n{str(storage_allowed_amount - len(vault['TSTORAGE']))} Storage Available")
                     embed_list.append(globals()['embedVar%s' % i])
 
                 paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -3333,10 +3420,11 @@ class Profile(commands.Cog):
                         updated_vault = db.queryVault({'DID': user['DID']})
                         current_titles = updated_vault['TITLES']
                         price = price_adjuster(50000, universe, completed_tales, completed_dungeons)['TITLE_PRICE']
-                        if len(current_titles) >=25:
-                            await button_ctx.send("You have max amount of Titles. Transaction cancelled.")
-                            self.stop = True
-                            return
+                        bless_amount = price
+                        # if len(current_titles) >=25:
+                        #     await button_ctx.send("You have max amount of Titles. Transaction cancelled.")
+                        #     self.stop = True
+                        #     return
 
                         if price > balance:
                             await button_ctx.send("Insufficent funds.")
@@ -3364,13 +3452,16 @@ class Profile(commands.Cog):
                                 bless_reduction = bless_amount * .50
                                 bless_amount = round((bless_amount - bless_reduction)/2)
                             else: 
-                                bless_amount = round(bless_amount /2)
-                            await button_ctx.send(f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!") 
-                            await crown_utilities.curse(bless_amount, str(ctx.author.id))
-                        else:
-                            response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title['TITLE'])}})   
-                            await crown_utilities.curse(price, str(ctx.author.id))
-                            await button_ctx.send(f"You purchased **{title['TITLE']}**.")
+                                bless_amount = round(bless_amount /2) #Send bless amount for price in utilities
+                                
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), title['TITLE'], universe_name, updated_vault, "Titles_NoDestinies", bless_amount, bless_amount, "Purchase", True, int(price), "titles")
+                        await button_ctx.send(response)
+                            # await button_ctx.send(f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!") 
+                        #     #await crown_utilities.curse(bless_amount, str(ctx.author.id)) 
+                        # else:
+                        #     response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title['TITLE'])}})   
+                        #     await crown_utilities.curse(price, str(ctx.author.id))
+                        #     await button_ctx.send(f"You purchased **{title['TITLE']}**.")
 
 
                     elif button_ctx.custom_id == "arm":
@@ -3379,10 +3470,10 @@ class Profile(commands.Cog):
                         for arm in updated_vault['ARMS']:
                             current_arms.append(arm['ARM'])
                         price = price_adjuster(25000, universe, completed_tales, completed_dungeons)['ARM_PRICE']
-                        if len(current_arms) >=25:
-                            await button_ctx.send("You have max amount of Arms. Transaction cancelled.")
-                            self.stop = True
-                            return
+                        # if len(current_arms) >=25:
+                        #     await button_ctx.send("You have max amount of Arms. Transaction cancelled.")
+                        #     self.stop = True
+                        #     return
                         if price > balance:
                             await button_ctx.send("Insufficent funds.")
                             self.stop = True
@@ -3435,7 +3526,7 @@ class Profile(commands.Cog):
                         card_name = card['NAME']
                         tier = 0
 
-                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price))
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                         await button_ctx.send(response)
 
 
@@ -3463,7 +3554,7 @@ class Profile(commands.Cog):
                         card_name = card['NAME']
                         tier = 0
                         
-                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price))
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                         await button_ctx.send(response)
 
 
@@ -3500,7 +3591,7 @@ class Profile(commands.Cog):
                         card_name = card['NAME']
                         tier = 0
 
-                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price))
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                         await button_ctx.send(response)
 
                 else:
@@ -4674,7 +4765,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                             selection = random.randint(0,selection_length)
                             card = list_of_cards[selection]
                         card_name = card['NAME']
-                        response = await crown_utilities.store_drop_card(str(player.author.id), card_name, universe, vault, owned_destinies, 0, 100000, "Purchase", False, 0)
+                        response = await crown_utilities.store_drop_card(str(player.author.id), card_name, universe, vault, owned_destinies, 0, 100000, "Purchase", False, 0, "cards")
                         if response:
                             query = {'DID': str(player.author.id)}
                             update_query = {
@@ -8439,10 +8530,11 @@ async def menushop(self, ctx):
                     updated_vault = db.queryVault({'DID': user['DID']})
                     current_titles = updated_vault['TITLES']
                     price = price_adjuster(50000, universe, completed_tales, completed_dungeons)['TITLE_PRICE']
-                    if len(current_titles) >=25:
-                        await button_ctx.send("You have max amount of Titles. Transaction cancelled.")
-                        self.stop = True
-                        return
+                    bless_amount = price
+                    # if len(current_titles) >=25:
+                        # await button_ctx.send("You have max amount of Titles. Transaction cancelled.")
+                        # self.stop = True
+                        # return
 
                     if price > balance:
                         await button_ctx.send("Insufficent funds.")
@@ -8471,12 +8563,15 @@ async def menushop(self, ctx):
                             bless_amount = round((bless_amount - bless_reduction)/2)
                         else: 
                             bless_amount = round(bless_amount /2)
-                        await button_ctx.send(f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!") 
-                        await crown_utilities.curse(bless_amount, str(ctx.author.id))
-                    else:
-                        response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title['TITLE'])}})   
-                        await crown_utilities.curse(price, str(ctx.author.id))
-                        await button_ctx.send(f"You purchased **{title['TITLE']}**.")
+                            
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), title['TITLE'], universe_name, updated_vault, "Titles_NoDestinies", bless_amount, bless_amount, "Purchase", True, int(price), "titles")
+                    await button_ctx.send(response)
+                    #     await button_ctx.send(f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!") 
+                    #     await crown_utilities.curse(bless_amount, str(ctx.author.id))
+                    # else:
+                    #     response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title['TITLE'])}})   
+                    #     await crown_utilities.curse(price, str(ctx.author.id))
+                    #     await button_ctx.send(f"You purchased **{title['TITLE']}**.")
 
 
                 elif button_ctx.custom_id == "arm":
@@ -8541,7 +8636,7 @@ async def menushop(self, ctx):
                     card_name = card['NAME']
                     tier = 0
 
-                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price))
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                     await button_ctx.send(response)
 
 
@@ -8569,7 +8664,7 @@ async def menushop(self, ctx):
                     card_name = card['NAME']
                     tier = 0
                     
-                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price))
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                     await button_ctx.send(response)
 
 
@@ -8606,7 +8701,7 @@ async def menushop(self, ctx):
                     card_name = card['NAME']
                     tier = 0
 
-                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price))
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                     await button_ctx.send(response)
 
             else:
