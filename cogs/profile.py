@@ -886,7 +886,7 @@ class Profile(commands.Cog):
                         )
                     ]
         , guild_ids=main.guild_ids)
-    async def storage(self, ctx : SlashContext, mode=str):
+    async def storage(self, ctx : SlashContext, mode: str):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
