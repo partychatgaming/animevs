@@ -995,7 +995,7 @@ class Profile(commands.Cog):
                 dungeon_title_details = []
                 tales_title_details = []
                 boss_title_details = []
-               
+                unbound_title_details = []
                 for title in titles:
                     title_title = title['TITLE']
                     title_show = title['UNIVERSE']
@@ -1009,9 +1009,11 @@ class Profile(commands.Cog):
                     
                     universe_crest = crown_utilities.crest_dict[title_show]
                     index = vault['TSTORAGE'].index(title_title)
-                    print(exclusive)
-                    print(available)
-                    if not exclusive and not available:
+
+                    if title_show == "Unbound":
+                        unbound_title_details.append(
+                            f"[{str(index)}]{universe_crest}:crown: **{title_title}**\n**:microbe: : {title_passive_type}**: *{title_passive_value}*\n")
+                    elif not exclusive and not available:
                         boss_title_details.append(
                             f"[{str(index)}]{universe_crest}👹 **{title_title}**\n**:microbe: : {title_passive_type}**:  *{title_passive_value}*\n")
                     elif exclusive and available:
@@ -1022,6 +1024,11 @@ class Profile(commands.Cog):
                             f"[{str(index)}]{universe_crest}🎗️ **{title_title}**\n**:microbe: : {title_passive_type}**:  *{title_passive_value}*\n")
 
                 all_titles = []
+                
+                if unbound_title_details:
+                    for u in unbound_title_details:
+                        all_titles.append(u)
+                        
                 if tales_title_details:
                     for t in tales_title_details:
                         all_titles.append(t)
@@ -1033,6 +1040,8 @@ class Profile(commands.Cog):
                 if boss_title_details:
                     for de in boss_title_details:
                         all_titles.append(de)
+                
+                
 
                 total_titles = len(all_titles)
 
@@ -1133,10 +1142,13 @@ class Profile(commands.Cog):
                     title_available = resp['AVAILABLE']
                     title_exclusive = resp['EXCLUSIVE']
                     icon = "🎗️"
-                    if title_available and title_exclusive:
+                    if resp['UNIVERSE'] == "Unbound":
+                        icon = ":crown:"
+                    elif title_available and title_exclusive:
                         icon = ":fire:"
                     elif title_available == False and title_exclusive ==False:
                         icon = ":japanese_ogre:"
+                    
                     
                     embedVar = discord.Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
                     {icon} **[{index}]**
@@ -6417,7 +6429,9 @@ async def menutitles(self, ctx):
                 title_available = resp['AVAILABLE']
                 title_exclusive = resp['EXCLUSIVE']
                 icon = "🎗️"
-                if title_available and title_exclusive:
+                if resp['UNIVERSE'] == "Unbound":
+                        icon = ":crown:"
+                elif title_available and title_exclusive:
                     icon = ":fire:"
                 elif title_available == False and title_exclusive ==False:
                     icon = ":japanese_ogre:"
