@@ -164,7 +164,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
             title_owned = False
             for owned_title in current_titles:
                 if owned_card == title_name:
-                    card_owned = True
+                    title_owned = True
 
             if title_owned:
                 if is_shop:
