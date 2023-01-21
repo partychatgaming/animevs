@@ -165,7 +165,8 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
             for owned_title in current_titles:
                 if owned_title == title_name:
                     title_owned = True
-
+            print(title_owned)
+            print(is_shop)
             if title_owned:
                 if is_shop:
                     await curse(int(price), str(player))
