@@ -1006,7 +1006,7 @@ class Profile(commands.Cog):
                     title_passive_value = list(title_passive.values())[0]
 
 
-                    
+                   
                     universe_crest = crown_utilities.crest_dict[title_show]
                     index = vault['TSTORAGE'].index(title_title)
 

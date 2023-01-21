@@ -111,7 +111,8 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                             db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
                             await user.send(
                                 f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
-
+                    if mode == "Boss":
+                        return f"You earned the Exclusive Boss Card 🎴: **{card_name}**!"
                     return f"You earned 🎴: **{card_name}**!"
 
                 
@@ -165,8 +166,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
             for owned_title in current_titles:
                 if owned_title == title_name:
                     title_owned = True
-            print(title_owned)
-            print(is_shop)
+
             if title_owned:
                 if is_shop:
                     await curse(int(price), str(player))
@@ -178,12 +178,13 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                     response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'TITLES': str(title_name)}})
                     if is_shop:
                         await curse(int(price), str(player))
+                    if mode == "Boss":
+                        return f"You earned the Exclusive Boss Title 🎗️: **{title_name}**!"
                     return f"You earned {title_name}!"
                 if hand_length >= 25 and not storage_limit_has_been_hit:
 
                     if is_shop:
                         response = await route_to_storage(player, title_name, current_titles, title_owned, price, title_universe, owned_destinies, "Purchase", "titles")
-                        print(response)
                         return response
                     else:
                         response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TSTORAGE': title_name}})
