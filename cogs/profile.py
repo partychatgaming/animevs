@@ -3604,17 +3604,19 @@ class Profile(commands.Cog):
                         else:
                             selection = random.randint(0,selection_length)
                             arm = list_of_arms[selection]['ARM']
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), arm, universe_name, updated_vault, 25, price, price, "Purchase", True, int(price), "arms")
+                        await button_ctx.send(response)
                         
-                        if arm not in current_arms:
-                            response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 25}}})
-                            await crown_utilities.curse(price, str(ctx.author.id))
-                            await button_ctx.send(f"You purchased **{arm}**.")
-                        else:
-                            update_query = {'$inc': {'ARMS.$[type].' + 'DUR': 10}}
-                            filter_query = [{'type.' + "ARM": str(arm)}]
-                            resp = db.updateVault(vault_query, update_query, filter_query)
-                            await crown_utilities.curse(price, str(ctx.author.id))
-                            await button_ctx.send(f"You purchased **{arm}**. Increased durability for the arm by 10 as you already own it.")
+                        # if arm not in current_arms:
+                        #     response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 25}}})
+                        #     await crown_utilities.curse(price, str(ctx.author.id))
+                        #     await button_ctx.send(f"You purchased **{arm}**.")
+                        # else:
+                        #     update_query = {'$inc': {'ARMS.$[type].' + 'DUR': 10}}
+                        #     filter_query = [{'type.' + "ARM": str(arm)}]
+                        #     resp = db.updateVault(vault_query, update_query, filter_query)
+                        #     await crown_utilities.curse(price, str(ctx.author.id))
+                        #     await button_ctx.send(f"You purchased **{arm}**. Increased durability for the arm by 10 as you already own it.")
 
 
                     elif button_ctx.custom_id == "t1card":
@@ -6539,6 +6541,7 @@ async def menutitles(self, ctx):
     query = {'DID': str(ctx.author.id)}
     d = db.queryUser(query)
     vault = db.queryVault({'DID': d['DID']})
+    storage_type = d['STORAGE_TYPE']
     if vault:
         try:
             name = d['DISNAME'].split("#",1)[0]
@@ -6547,6 +6550,7 @@ async def menutitles(self, ctx):
             current_title = d['TITLE']
             titles_list = vault['TITLES']
             total_titles = len(titles_list)
+            storage = vault['TSTORAGE']
             titles=[]
             current_gems = []
             for gems in vault['GEMS']:
@@ -6571,11 +6575,12 @@ async def menutitles(self, ctx):
                 title_exclusive = resp['EXCLUSIVE']
                 icon = "🎗️"
                 if resp['UNIVERSE'] == "Unbound":
-                        icon = ":crown:"
+                    icon = ":crown:"
                 elif title_available and title_exclusive:
                     icon = ":fire:"
                 elif title_available == False and title_exclusive ==False:
                     icon = ":japanese_ogre:"
+                
                 
                 embedVar = discord.Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
                 {icon} **[{index}]**
@@ -6591,7 +6596,7 @@ async def menutitles(self, ctx):
                 manage_components.create_button(style=1, label="Resell", custom_id="Resell"),
                 manage_components.create_button(style=1, label="Dismantle", custom_id="Dismantle"),
                 manage_components.create_button(style=1, label="Trade", custom_id="Trade"),
-                manage_components.create_button(style=2, label="Exit", custom_id="Exit")
+                manage_components.create_button(style=2, label="Swap/Store", custom_id="Storage")
             ]
             custom_action_row = manage_components.create_actionrow(*buttons)
 
@@ -6870,14 +6875,112 @@ async def menutitles(self, ctx):
                                 await ctx.send("There's an issue with trading one or all of your items.")
                                 return   
                                                     
-                    elif button_ctx.custom_id == "Exit":
+                    elif button_ctx.custom_id == "Storage":
                         await button_ctx.defer(ignore=True)
+                        storage_buttons = [
+                                    manage_components.create_button(
+                                        style=ButtonStyle.green,
+                                        label="Swap Storage Title",
+                                        custom_id="swap"
+                                    ),
+                                    manage_components.create_button(
+                                        style=ButtonStyle.red,
+                                        label="Add to Storage",
+                                        custom_id="store"
+                                    )
+                                ]
+                        storage_buttons_action_row = manage_components.create_actionrow(*storage_buttons)
+                        msg = await ctx.send(f"Would you like to Swap Titles or Add Title to Storage", components=[storage_buttons_action_row])
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+                        try:
+                            button_ctx: ComponentContextStorage = await manage_components.wait_for_component(self.bot, components=[storage_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "swap":
+                                await button_ctx.defer(ignore=True)
+                                await msg.delete()
+                                await ctx.send(f"{ctx.author.mention}, Which title number would you like to swap with in storage?")
+                                def check(msg):
+                                    return msg.author == ctx.author
+
+                                try:
+                                    msg = await self.bot.wait_for('message', check=check, timeout=30)
+                                    author = msg.author
+                                    content = msg.content
+                                    # print("Author: " + str(author))
+                                    # print("Content: " + str(content))
+                                    # print(msg)
+                                    if storage[int(msg.content)]:
+                                        swap_with = storage[int(msg.content)]
+                                        query = {'DID': str(msg.author.id)}
+                                        update_storage_query = {
+                                            '$pull': {'TITLES': selected_title},
+                                            '$addToSet': {'TSTORAGE': selected_title},
+                                        }
+                                        response = db.updateVaultNoFilter(query, update_storage_query)
+
+                                        update_storage_query = {
+                                            '$pull': {'TSTORAGE': swap_with},
+                                            '$addToSet': {'TCARDS': swap_with}
+                                        }
+                                        response = db.updateVaultNoFilter(query, update_storage_query)
+
+                                        await msg.delete()
+                                        await ctx.send(f"**{selected_card}** has been swapped with **{swap_with}**")
+                                        return
+                                    else:
+                                        await ctx.send("The card number you want to swap with does not exist.")
+                                        return
+
+                                except Exception as e:
+                                    return False
+                            if button_ctx.custom_id == "store":
+                                await button_ctx.defer(ignore=True)
+                                
+                                try:
+                                    author = msg.author
+                                    content = msg.content
+                                    # print("Author: " + str(author))
+                                    # print("Content: " + str(content))
+                                    if len(storage) <= (storage_type * 15):
+                                        query = {'DID': str(ctx.author.id)}
+                                        update_storage_query = {
+                                            '$pull': {'TITLES': selected_title},
+                                            '$addToSet': {'TSTORAGE': selected_title},
+                                        }
+                                        response = db.updateVaultNoFilter(query, update_storage_query)
+                                        
+                                        await msg.delete()
+                                        await ctx.send(f"**{selected_title}** has been added to storage")
+                                        return
+                                    else:
+                                        await ctx.send("Not enough space in storage")
+                                        return
+
+                                except Exception as e:
+                                    return False
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                        
                         self.stop = True
                 else:
                     await ctx.send("This is not your Title list.")
 
 
-            await Paginator(bot=self.bot, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
+            await Paginator(bot=self.bot, ctx=ctx,useQuitButton=True, disableAfterTimeout=True,pages=embed_list, timeout=60, customActionRow=[
                 custom_action_row,
                 custom_function,
             ]).run()
