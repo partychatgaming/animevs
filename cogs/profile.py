@@ -1010,15 +1010,17 @@ class Profile(commands.Cog):
                     universe_crest = crown_utilities.crest_dict[title_show]
                     index = vault['TSTORAGE'].index(title_title)
                     available = ""
+                    print(exclusive)
+                    print(available)
                     if not exclusive and not available:
                         boss_title_details.append(
-                            f"[{str(index)}]{universe_crest}👹 **{title_title}**\n**:microbe:**: {title_passive_type} *{title_passive_value}*\n")
+                            f"[{str(index)}]{universe_crest}👹 **{title_title}**\n**:microbe: : {title_passive_type}**:  *{title_passive_value}*\n")
                     elif exclusive and available:
                         dungeon_title_details.append(
-                            f"[{str(index)}]{universe_crest}:fire: **{title_title}**\n**:microbe:**: {title_passive_type} *{title_passive_value}*\n")
+                            f"[{str(index)}]{universe_crest}:fire: **{title_title}**\n**:microbe: : {title_passive_type}**: *{title_passive_value}*\n")
                     elif available and not exclusive:
                         tales_title_details.append(
-                            f"[{str(index)}]{universe_crest}🎗️ **{title_title}**\n**:microbe:**: {title_passive_type} *{title_passive_value}*\n")
+                            f"[{str(index)}]{universe_crest}🎗️ **{title_title}**\n**:microbe: : {title_passive_type}**:  *{title_passive_value}*\n")
 
                 all_titles = []
                 if tales_title_details:
