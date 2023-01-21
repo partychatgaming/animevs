@@ -3184,8 +3184,10 @@ class Profile(commands.Cog):
             all_universes = db.queryAllUniverse()
             user = db.queryUser({'DID': str(ctx.author.id)})
             storage_allowed_amount = user['STORAGE_TYPE'] * 15
-            guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
-            guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
+            guild_buff = "NULL"
+            if user["TEAM"] != "PCG":
+                guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
+                guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
 
             if user['LEVEL'] < 1:
                 await ctx.send("🔓 Unlock the Shop by completing Floor 0 of the 🌑 Abyss! Use /solo to enter the abyss.")
@@ -8288,8 +8290,10 @@ async def menushop(self, ctx):
         all_universes = db.queryAllUniverse()
         user = db.queryUser({'DID': str(ctx.author.id)})
         storage_allowed_amount = user['STORAGE_TYPE'] * 15
-        guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
-        guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
+        guild_buff = "NULL"
+        if user["TEAM"] != "PCG":
+            guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
+            guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
 
         if user['LEVEL'] < 1:
             await ctx.send("🔓 Unlock the Shop by completing Floor 0 of the 🌑 Abyss! Use /solo to enter the abyss.")
