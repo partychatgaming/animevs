@@ -1059,7 +1059,7 @@ class Profile(commands.Cog):
                 for i in range(0, len(titles_broken_up)):
                     globals()['embedVar%s' % i] = discord.Embed(
                         title=f"💼 {user['DISNAME']}'s Title Storage",
-                        description="\n".join(titless_broken_up[i]), colour=0x7289da)
+                        description="\n".join(titles_broken_up[i]), colour=0x7289da)
                     globals()['embedVar%s' % i].set_footer(
                         text=f"{total_cards} Total Titles\n{str(storage_allowed_amount - len(vault['TSTORAGE']))} Storage Available")
                     embed_list.append(globals()['embedVar%s' % i])
