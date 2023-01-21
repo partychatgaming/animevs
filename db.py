@@ -973,7 +973,7 @@ def querySpecificCards(args):
 
 def querySpecificTitles(args):
     try:
-        data = title_col.find({'TITLE': {'$in': args}})
+        data = titles_col.find({'TITLE': {'$in': args}})
         return data 
     except Exception as e:
         return False

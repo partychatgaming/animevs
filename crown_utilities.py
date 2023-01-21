@@ -178,10 +178,12 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                     response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'TITLES': str(title_name)}})
                     if is_shop:
                         await curse(int(price), str(player))
+                    return f"You earned {title_name}!"
                 if hand_length >= 25 and not storage_limit_has_been_hit:
 
                     if is_shop:
                         response = await route_to_storage(player, title_name, current_titles, title_owned, price, title_universe, owned_destinies, "Purchase", "titles")
+                        print(response)
                         return response
                     else:
                         response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TSTORAGE': title_name}})
@@ -278,6 +280,7 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
                 await curse(int(price), str(player))
 
                 msg = f"**{title_name}** has been purchased and added to Storage!\n"
+                return msg
             
         else:
             await print("Could not find Storage of that Type")
