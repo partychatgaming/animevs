@@ -1119,6 +1119,7 @@ class Profile(commands.Cog):
                 current_title = d['TITLE']
                 titles_list = vault['TITLES']
                 total_titles = len(titles_list)
+                storage = vault['TSTORAGE']
                 titles=[]
                 current_gems = []
                 for gems in vault['GEMS']:
@@ -1164,7 +1165,7 @@ class Profile(commands.Cog):
                     manage_components.create_button(style=1, label="Resell", custom_id="Resell"),
                     manage_components.create_button(style=1, label="Dismantle", custom_id="Dismantle"),
                     manage_components.create_button(style=1, label="Trade", custom_id="Trade"),
-                    manage_components.create_button(style=2, label="Exit", custom_id="Exit")
+                    manage_components.create_button(style=2, label="Swap/Store", custom_id="Storage")
                 ]
                 custom_action_row = manage_components.create_actionrow(*buttons)
 
@@ -1443,14 +1444,112 @@ class Profile(commands.Cog):
                                     await ctx.send("There's an issue with trading one or all of your items.")
                                     return   
                                                         
-                        elif button_ctx.custom_id == "Exit":
+                        elif button_ctx.custom_id == "Storage":
                             await button_ctx.defer(ignore=True)
+                            storage_buttons = [
+                                        manage_components.create_button(
+                                            style=ButtonStyle.green,
+                                            label="Swap Storage Title",
+                                            custom_id="swap"
+                                        ),
+                                        manage_components.create_button(
+                                            style=ButtonStyle.red,
+                                            label="Add to Storage",
+                                            custom_id="store"
+                                        )
+                                    ]
+                            storage_buttons_action_row = manage_components.create_actionrow(*storage_buttons)
+                            msg = await ctx.send(f"Would you like to Swap Titles or Add Title to Storage", components=[storage_buttons_action_row])
+                            def check(button_ctx):
+                                return button_ctx.author == ctx.author
+                            try:
+                                button_ctx: ComponentContextStorage = await manage_components.wait_for_component(self.bot, components=[storage_buttons_action_row], timeout=120, check=check)
+
+                                if button_ctx.custom_id == "swap":
+                                    await button_ctx.defer(ignore=True)
+                                    await msg.delete()
+                                    await ctx.send(f"{ctx.author.mention}, Which title number would you like to swap with in storage?")
+                                    def check(msg):
+                                        return msg.author == ctx.author
+
+                                    try:
+                                        msg = await self.bot.wait_for('message', check=check, timeout=30)
+                                        author = msg.author
+                                        content = msg.content
+                                        # print("Author: " + str(author))
+                                        # print("Content: " + str(content))
+                                        # print(msg)
+                                        if storage[int(msg.content)]:
+                                            swap_with = storage[int(msg.content)]
+                                            query = {'DID': str(msg.author.id)}
+                                            update_storage_query = {
+                                                '$pull': {'TITLES': selected_title},
+                                                '$addToSet': {'TSTORAGE': selected_title},
+                                            }
+                                            response = db.updateVaultNoFilter(query, update_storage_query)
+
+                                            update_storage_query = {
+                                                '$pull': {'TSTORAGE': swap_with},
+                                                '$addToSet': {'TCARDS': swap_with}
+                                            }
+                                            response = db.updateVaultNoFilter(query, update_storage_query)
+
+                                            await msg.delete()
+                                            await ctx.send(f"**{selected_card}** has been swapped with **{swap_with}**")
+                                            return
+                                        else:
+                                            await ctx.send("The card number you want to swap with does not exist.")
+                                            return
+
+                                    except Exception as e:
+                                        return False
+                                if button_ctx.custom_id == "store":
+                                    await button_ctx.defer(ignore=True)
+                                    
+                                    try:
+                                        author = msg.author
+                                        content = msg.content
+                                        # print("Author: " + str(author))
+                                        # print("Content: " + str(content))
+                                        if len(storage) <= (storage_type * 15):
+                                            query = {'DID': str(ctx.author.id)}
+                                            update_storage_query = {
+                                                '$pull': {'CARDS': selected_title},
+                                                '$addToSet': {'STORAGE': selected_title},
+                                            }
+                                            response = db.updateVaultNoFilter(query, update_storage_query)
+                                            
+                                            await msg.delete()
+                                            await ctx.send(f"**{selected_title}** has been added to storage")
+                                            return
+                                        else:
+                                            await ctx.send("Not enough space in storage")
+                                            return
+
+                                    except Exception as e:
+                                        return False
+                            except Exception as ex:
+                                trace = []
+                                tb = ex.__traceback__
+                                while tb is not None:
+                                    trace.append({
+                                        "filename": tb.tb_frame.f_code.co_filename,
+                                        "name": tb.tb_frame.f_code.co_name,
+                                        "lineno": tb.tb_lineno
+                                    })
+                                    tb = tb.tb_next
+                                print(str({
+                                    'type': type(ex).__name__,
+                                    'message': str(ex),
+                                    'trace': trace
+                                }))
+                            
                             self.stop = True
                     else:
                         await ctx.send("This is not your Title list.")
 
 
-                await Paginator(bot=self.bot, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
+                await Paginator(bot=self.bot, ctx=ctx,useQuitButton=True, disableAfterTimeout=True,pages=embed_list, timeout=60, customActionRow=[
                     custom_action_row,
                     custom_function,
                 ]).run()
@@ -4525,27 +4624,38 @@ class Profile(commands.Cog):
                             required=True,
                             choices=[
                                 create_choice(
-                                    name="🎴 Draw Card",
-                                    value="draw"
+                                    name="💼🎴 Draw Card",
+                                    value="cdraw"
                                 ),
                                 create_choice(
-                                    name="💎 Dismantle Card",
-                                    value="dismantle"
+                                    name="💎🎴 Dismantle Card",
+                                    value="cdismantle"
                                 ),
                                 create_choice(
-                                    name="🪙 Resell Card",
-                                    value="resell"
+                                    name="🪙🎴 Resell Card",
+                                    value="cresell"
+                                ),create_choice(
+                                    name="💼🎗️ Draw Title",
+                                    value="tdraw"
                                 ),
+                                create_choice(
+                                    name="💎🎗️ Dismantle Title",
+                                    value="tdismantle"
+                                ),
+                                create_choice(
+                                    name="🪙🎗️ Resell Title",
+                                    value="tresell"
+                                )
                             ]
                         ),create_option(
-                            name="card",
-                            description="Storage Card Name",
+                            name="item",
+                            description="Storage Item Name",
                             option_type=3,
                             required=True,
                         )
                     ]
         , guild_ids=main.guild_ids)
-    async def draw(self, ctx: SlashContext, mode : str, card : str ):
+    async def draw(self, ctx: SlashContext, mode : str, item : str ):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -4554,7 +4664,9 @@ class Profile(commands.Cog):
         d = db.queryUser(query)#Storage Update
         storage_type = d['STORAGE_TYPE']
         vault = db.queryVault({'DID': d['DID']})
-        card_name = card
+        card_name = item
+        title_name = item
+        arm_name = item
         current_gems = []
         try: 
             if vault:
@@ -4562,14 +4674,18 @@ class Profile(commands.Cog):
                     current_gems.append(gems['UNIVERSE'])
                 cards_list = vault['CARDS']
                 total_cards = len(cards_list)
-                storage = vault['STORAGE']
-                storage_card = db.queryCard({'NAME': {"$regex": f"^{str(card_name)}$", "$options": "i"}})
-                if mode == 'draw':
+                cstorage = vault['STORAGE']
+                tstorage = vault['TSTORAGE']
+                astorage = vault['ASTORAGE']
+                storage_card = db.queryCard({'NAME': {"$regex": f"^{str(item)}$", "$options": "i"}})
+                storage_title = db.queryTitle({'TITLE':{"$regex": f"^{str(item)}$", "$options": "i"} })
+                storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"} })
+                if mode == 'cdraw':
                     if total_cards > 24:
                         await ctx.send("You already have 25 cards.")
                         return
                     if storage_card:                  
-                        if storage_card['NAME'] in storage:
+                        if storage_card['NAME'] in cstorage:
                             query = {'DID': str(ctx.author.id)}
                             update_storage_query = {
                                 '$pull': {'STORAGE': storage_card['NAME']},
@@ -4579,12 +4695,32 @@ class Profile(commands.Cog):
                             await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
                             return
                         else:
-                            await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
+                            await ctx.send(f"🎴:{storage_card['NAME']} does not exist in storage.")
                             return
                     else:
                         await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
                         return
-                if mode == 'dismantle':
+                if mode == 'tdraw':
+                    if total_titles > 24:
+                        await ctx.send("You already have 25 titles.")
+                        return
+                    if storage_title:                  
+                        if storage_title['TITLE'] in tstorage: #title storage update
+                            query = {'DID': str(ctx.author.id)}
+                            update_storage_query = {
+                                '$pull': {'TSTORAGE': storage_title['TITLE']},
+                                '$addToSet': {'TITLES': storage_title['TITLE']},
+                            }
+                            response = db.updateVaultNoFilter(query, update_storage_query)
+                            await ctx.send(f"🎗️ **{storage_title['TITLE']}** has been added to **/titles**")
+                            return
+                        else:
+                            await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist in storage.")
+                            return
+                    else:
+                        await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist.")
+                        return
+                if mode == 'cdismantle':
                     card_data = storage_card
                     card_tier =  card_data['TIER']
                     card_health = card_data['HLT']
@@ -4657,7 +4793,7 @@ class Profile(commands.Cog):
                     else:
                         await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
                         return
-                if mode == 'resell':
+                if mode == 'cresell':
                     card_data = storage_card
                     card_name = card_data['NAME']
                     sell_price = 0
