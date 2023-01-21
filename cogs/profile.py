@@ -862,8 +862,31 @@ class Profile(commands.Cog):
 
 
 
-    @cog_ext.cog_slash(description="View cards that are in storage", guild_ids=main.guild_ids)
-    async def storage(self, ctx : SlashContext):
+    @cog_ext.cog_slash(description="View Card, Title and Arm Storage",
+                    options=[
+                        create_option(
+                            name="mode",
+                            description="Card: View CArd Storage, Title: View Title Storage, Arm: View Arm Storage",
+                            option_type=3,
+                            required=True,
+                            choices=[
+                                create_choice(
+                                    name="🎴 Card Storage",
+                                    value="card"
+                                ),
+                                create_choice(
+                                    name="🎗️ Title Storage",
+                                    value="title"
+                                ),
+                                create_choice(
+                                    name="🦾 Arm Storage",
+                                    value="arm"
+                                ),
+                            ]
+                        )
+                    ]
+        , guild_ids=main.guild_ids)
+    async def storage(self, ctx : SlashContext, mode=mode):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -872,95 +895,98 @@ class Profile(commands.Cog):
             user = db.queryUser({'DID': str(ctx.author.id)})
             vault = db.queryVault({'DID': str(ctx.author.id)})
             storage_allowed_amount = user['STORAGE_TYPE'] * 15
-            if not vault['STORAGE']:
-                await ctx.send("Your storage is empty.", hidden=True)
-                return
+            if mode == "Card":
+                if not vault['STORAGE']:
+                    await ctx.send("Your Card storage is empty.", hidden=True)
+                    return
 
-            list_of_cards = db.querySpecificCards(vault['STORAGE'])
-            cards = [x for x in list_of_cards]
-            dungeon_card_details = []
-            tales_card_details = []
-            destiny_card_details = []
-            
-            for card in cards:
-                moveset = card['MOVESET']
-                move3 = moveset[2]
-                move2 = moveset[1]
-                move1 = moveset[0]
-                basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
-                super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
-                ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
-
+                list_of_cards = db.querySpecificCards(vault['STORAGE'])
+                cards = [x for x in list_of_cards]
+                dungeon_card_details = []
+                tales_card_details = []
+                destiny_card_details = []
                 
-                universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
-                index = vault['STORAGE'].index(card['NAME'])
-                level = ""
-                for c in vault['CARD_LEVELS']:
-                    if card['NAME'] == c['CARD']:
-                        level = str(c['LVL'])
-                available = ""
-                if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
-                    dungeon_card_details.append(
-                        f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
-                elif not card['HAS_COLLECTION']:
-                    tales_card_details.append(
-                        f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
-                elif card['HAS_COLLECTION']:
-                    destiny_card_details.append(
-                        f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                for card in cards:
+                    moveset = card['MOVESET']
+                    move3 = moveset[2]
+                    move2 = moveset[1]
+                    move1 = moveset[0]
+                    basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
+                    super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
+                    ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
 
-            all_cards = []
-            if tales_card_details:
-                for t in tales_card_details:
-                    all_cards.append(t)
+                    
+                    universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
+                    index = vault['STORAGE'].index(card['NAME'])
+                    level = ""
+                    for c in vault['CARD_LEVELS']:
+                        if card['NAME'] == c['CARD']:
+                            level = str(c['LVL'])
+                    available = ""
+                    if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
+                        dungeon_card_details.append(
+                            f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                    elif not card['HAS_COLLECTION']:
+                        tales_card_details.append(
+                            f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                    elif card['HAS_COLLECTION']:
+                        destiny_card_details.append(
+                            f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
 
-            if dungeon_card_details:
-                for d in dungeon_card_details:
-                    all_cards.append(d)
+                all_cards = []
+                if tales_card_details:
+                    for t in tales_card_details:
+                        all_cards.append(t)
 
-            if destiny_card_details:
-                for de in destiny_card_details:
-                    all_cards.append(de)
+                if dungeon_card_details:
+                    for d in dungeon_card_details:
+                        all_cards.append(d)
 
-            total_cards = len(all_cards)
+                if destiny_card_details:
+                    for de in destiny_card_details:
+                        all_cards.append(de)
 
-            # Adding to array until divisible by 10
-            while len(all_cards) % 10 != 0:
-                all_cards.append("")
-            # Check if divisible by 10, then start to split evenly
+                total_cards = len(all_cards)
 
-            if len(all_cards) % 10 == 0:
-                first_digit = int(str(len(all_cards))[:1])
-                if len(all_cards) >= 89:
-                    if first_digit == 1:
-                        first_digit = 10
-                # first_digit = 10
-                cards_broken_up = np.array_split(all_cards, first_digit)
+                # Adding to array until divisible by 10
+                while len(all_cards) % 10 != 0:
+                    all_cards.append("")
+                # Check if divisible by 10, then start to split evenly
 
-            # If it's not an array greater than 10, show paginationless embed
-            if len(all_cards) < 10:
-                embedVar = discord.Embed(title=f"💼 {user['DISNAME']}'s Storage", description="\n".join(all_cards), colour=0x7289da)
-                embedVar.set_footer(
-                    text=f"{total_cards} Total Cards\n{str(storage_allowed_amount - len(vault['STORAGE']))} Storage Available")
-                await ctx.send(embed=embedVar)
+                if len(all_cards) % 10 == 0:
+                    first_digit = int(str(len(all_cards))[:1])
+                    if len(all_cards) >= 89:
+                        if first_digit == 1:
+                            first_digit = 10
+                    # first_digit = 10
+                    cards_broken_up = np.array_split(all_cards, first_digit)
 
-            embed_list = []
-            for i in range(0, len(cards_broken_up)):
-                globals()['embedVar%s' % i] = discord.Embed(
-                    title=f"💼 {user['DISNAME']}'s Storage",
-                    description="\n".join(cards_broken_up[i]), colour=0x7289da)
-                globals()['embedVar%s' % i].set_footer(
-                    text=f"{total_cards} Total Cards\n{str(storage_allowed_amount - len(vault['STORAGE']))} Storage Available")
-                embed_list.append(globals()['embedVar%s' % i])
+                # If it's not an array greater than 10, show paginationless embed
+                if len(all_cards) < 10:
+                    embedVar = discord.Embed(title=f"💼 {user['DISNAME']}'s Storage", description="\n".join(all_cards), colour=0x7289da)
+                    embedVar.set_footer(
+                        text=f"{total_cards} Total Cards\n{str(storage_allowed_amount - len(vault['STORAGE']))} Storage Available")
+                    await ctx.send(embed=embedVar)
 
-            paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
-            paginator.add_reaction('⏮️', "first")
-            paginator.add_reaction('⬅️', "back")
-            paginator.add_reaction('🔐', "lock")
-            paginator.add_reaction('➡️', "next")
-            paginator.add_reaction('⏭️', "last")
-            embeds = embed_list
-            await paginator.run(embeds)
+                embed_list = []
+                for i in range(0, len(cards_broken_up)):
+                    globals()['embedVar%s' % i] = discord.Embed(
+                        title=f"💼 {user['DISNAME']}'s Storage",
+                        description="\n".join(cards_broken_up[i]), colour=0x7289da)
+                    globals()['embedVar%s' % i].set_footer(
+                        text=f"{total_cards} Total Cards\n{str(storage_allowed_amount - len(vault['STORAGE']))} Storage Available")
+                    embed_list.append(globals()['embedVar%s' % i])
+
+                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+                paginator.add_reaction('⏮️', "first")
+                paginator.add_reaction('⬅️', "back")
+                paginator.add_reaction('🔐', "lock")
+                paginator.add_reaction('➡️', "next")
+                paginator.add_reaction('⏭️', "last")
+                embeds = embed_list
+                await paginator.run(embeds)
+            else:
+                ctx.send("Title and Arm Storage Coming Soon!")
         except Exception as ex:
             trace = []
             tb = ex.__traceback__

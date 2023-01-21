@@ -2942,7 +2942,7 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
          response = db.updateManyCards({'$set': {new_field: field_type}})
       elif collection == 'titles':
          response = db.updateManyTitles({'$set': {new_field: field_type}})
-      elif collection == 'vaults':
+      elif collection == 'vault':
          response = db.updateManyVaults({'$set': {new_field: field_type}})
       elif collection == 'users':
          response = db.updateManyUsers({'$set': {new_field: field_type}})
