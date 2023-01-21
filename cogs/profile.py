@@ -1514,8 +1514,8 @@ class Profile(commands.Cog):
                                         if len(storage) <= (storage_type * 15):
                                             query = {'DID': str(ctx.author.id)}
                                             update_storage_query = {
-                                                '$pull': {'CARDS': selected_title},
-                                                '$addToSet': {'STORAGE': selected_title},
+                                                '$pull': {'TITLES': selected_title},
+                                                '$addToSet': {'TSTORAGE': selected_title},
                                             }
                                             response = db.updateVaultNoFilter(query, update_storage_query)
                                             
