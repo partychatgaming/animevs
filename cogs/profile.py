@@ -8839,10 +8839,10 @@ async def menushop(self, ctx):
                     for arm in updated_vault['ARMS']:
                         current_arms.append(arm['ARM'])
                     price = price_adjuster(25000, universe, completed_tales, completed_dungeons)['ARM_PRICE']
-                    if len(current_arms) >=25:
-                        await button_ctx.send("You have max amount of Arms. Transaction cancelled.")
-                        self.stop = True
-                        return
+                    # if len(current_arms) >=25:
+                    #     await button_ctx.send("You have max amount of Arms. Transaction cancelled.")
+                    #     self.stop = True
+                    #     return
                     if price > balance:
                         await button_ctx.send("Insufficent funds.")
                         self.stop = True

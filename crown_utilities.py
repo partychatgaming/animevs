@@ -346,7 +346,7 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
                 return msg
         elif storage_type == "arms":
             arm_name = card_name
-            current_titles = current_cards
+            current_arms = current_cards
             arm_owned = card_owned
             durability = owned_destinies
             update_query = {
