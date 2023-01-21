@@ -4674,7 +4674,11 @@ class Profile(commands.Cog):
                 for gems in vault['GEMS']:
                     current_gems.append(gems['UNIVERSE'])
                 cards_list = vault['CARDS']
+                title_list = vault['TITLES']
+                arm_list = vault['ARMS']
                 total_cards = len(cards_list)
+                total_titles = len(title_list)
+                total_arms = len(arm_list)
                 cstorage = vault['STORAGE']
                 tstorage = vault['TSTORAGE']
                 astorage = vault['ASTORAGE']
