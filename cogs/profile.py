@@ -1009,7 +1009,6 @@ class Profile(commands.Cog):
                     
                     universe_crest = crown_utilities.crest_dict[title_show]
                     index = vault['TSTORAGE'].index(title_title)
-                    available = ""
                     print(exclusive)
                     print(available)
                     if not exclusive and not available:
