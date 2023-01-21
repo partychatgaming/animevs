@@ -8860,17 +8860,19 @@ async def menushop(self, ctx):
                     else:
                         selection = random.randint(0,selection_length)
                         arm = list_of_arms[selection]['ARM']
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), arm, universe_name, updated_vault, 25, price, price, "Purchase", True, int(price), "arms")
+                    await button_ctx.send(response)
                     
-                    if arm not in current_arms:
-                        response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 25}}})
-                        await crown_utilities.curse(price, str(ctx.author.id))
-                        await button_ctx.send(f"You purchased **{arm}**.")
-                    else:
-                        update_query = {'$inc': {'ARMS.$[type].' + 'DUR': 10}}
-                        filter_query = [{'type.' + "ARM": str(arm)}]
-                        resp = db.updateVault(vault_query, update_query, filter_query)
-                        await crown_utilities.curse(price, str(ctx.author.id))
-                        await button_ctx.send(f"You purchased **{arm}**. Increased durability for the arm by 10 as you already own it.")
+                    # if arm not in current_arms:
+                    #     response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 25}}})
+                    #     await crown_utilities.curse(price, str(ctx.author.id))
+                    #     await button_ctx.send(f"You purchased **{arm}**.")
+                    # else:
+                    #     update_query = {'$inc': {'ARMS.$[type].' + 'DUR': 10}}
+                    #     filter_query = [{'type.' + "ARM": str(arm)}]
+                    #     resp = db.updateVault(vault_query, update_query, filter_query)
+                    #     await crown_utilities.curse(price, str(ctx.author.id))
+                    #     await button_ctx.send(f"You purchased **{arm}**. Increased durability for the arm by 10 as you already own it.")
 
 
                 elif button_ctx.custom_id == "t1card":

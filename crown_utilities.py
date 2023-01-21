@@ -243,7 +243,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                         response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': durability}}})
                         return f"You earned the Exclusive Boss Arm 🦾: **{arm_name}**!"
                     
-                    return f"You earned {arm_name}!"
+                    return f"You earned 🦾: **{arm_name}**!"
                 if hand_length >= 25 and not storage_limit_has_been_hit:
 
                     if is_shop:
@@ -259,7 +259,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                     if is_shop:
                         return "You have max amount of 🦾: Arms. Transaction cancelled."   
                     else:
-                        await bless(int(bless_amount_if_max_cards), player)
+                        await bless(int(bless_amount_if_max_arms), player)
                         return f"You're maxed out on 🦾: Arms! You earned :coin: {str(bless_amount_if_max_arms)} instead!"
             # print("Arm storage coming soon")
         
@@ -302,7 +302,7 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
 
             if card_owned:
                 await cardlevel(card_name, str(player), mode, universe)
-                msg = f"You received a level up for **{card_name}**!"
+                msg = f"You received a level up for 🎴: **{card_name}**!"
                 await curse(int(price), str(player))
                 return msg
             else:
@@ -313,16 +313,16 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
                                     'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
                 r = db.updateVaultNoFilter(vault_query, update_query)
 
-                msg = f"**{card_name}** has been purchased and added to Storage!\n"
+                msg = f"🎴: **{card_name}** has been purchased and added to Storage!\n"
 
                 for destiny in d.destiny:
                     if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
                         db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
                         await user.send(
-                            f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
+                            f"✨: **DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
 
 
-                msg = f"**{card_name}** has been purchased and added to Storage!"
+                msg = f"🎴:  **{card_name}** has been purchased and added to Storage!"
                 return msg
         elif storage_type == "titles":
             title_name = card_name
@@ -336,13 +336,13 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
 
             if title_owned:
                 bless_amount = price
-                msg = f"You already own **{title_name}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!"
+                msg = f"You already own 🎗️: **{title_name}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!"
                 await curse(int(bless_amount), str(player))
                 return msg
             else:
                 await curse(int(price), str(player))
 
-                msg = f"**{title_name}** has been purchased and added to Storage!\n"
+                msg = f"🎗️: **{title_name}** has been purchased and added to Storage!\n"
                 return msg
         elif storage_type == "arms":
             arm_name = card_name
@@ -360,13 +360,13 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
                 update_query = {'$inc': {'ARMS.$[type].' + 'DUR': 10}}
                 filter_query = [{'type.' + "ARM": str(arm_name)}]
                 resp = db.updateVault(vault_query, update_query, filter_query)
-                msg = f"You purchased **{arm_name}**. Increased durability for the arm by 10 as you already own it."
+                msg = f"You purchased 🦾: **{arm_name}**. Increased durability for the arm by 10 as you already own it."
                 await curse(int(bless_amount), str(player))
                 return msg
             else:
                 await curse(int(price), str(player))
 
-                msg = f"**{title_name}** has been purchased and added to Storage!\n"
+                msg = f"🦾: **{arm_name}** has been purchased and added to Storage!\n"
                 return msg
         else:
             await print("Could not find Storage of that Type")
