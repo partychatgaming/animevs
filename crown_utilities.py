@@ -163,13 +163,13 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
 
             title_owned = False
             for owned_title in current_titles:
-                if owned_card == title_name:
+                if owned_title == title_name:
                     title_owned = True
 
             if title_owned:
                 if is_shop:
                     await curse(int(price), str(player))
-                    return f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!"
+                    return f"You already own **{title_name}**. You get a :coin:**{'{:,}'.format(bless_amount_if_title_owned)}** refund!"
                 await bless(int(bless_amount_if_title_owned), player)
                 return f"You already own **{title_name}**! You earn  :coin:**{'{:,}'.format(bless_amount_if_title_owned)}**."
             else:
