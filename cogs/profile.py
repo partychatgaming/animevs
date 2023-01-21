@@ -895,7 +895,7 @@ class Profile(commands.Cog):
             user = db.queryUser({'DID': str(ctx.author.id)})
             vault = db.queryVault({'DID': str(ctx.author.id)})
             storage_allowed_amount = user['STORAGE_TYPE'] * 15
-            if mode == "Card":
+            if mode == "card":
                 if not vault['STORAGE']:
                     await ctx.send("Your Card storage is empty.", hidden=True)
                     return
@@ -986,7 +986,7 @@ class Profile(commands.Cog):
                 embeds = embed_list
                 await paginator.run(embeds)
             else:
-                ctx.send("Title and Arm Storage Coming Soon!")
+                await ctx.send("Title and Arm Storage Coming Soon!")
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
