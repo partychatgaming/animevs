@@ -1111,6 +1111,7 @@ class Profile(commands.Cog):
         query = {'DID': str(ctx.author.id)}
         d = db.queryUser(query)
         vault = db.queryVault({'DID': d['DID']})
+        storage_type = d['STORAGE_TYPE']
         if vault:
             try:
                 name = d['DISNAME'].split("#",1)[0]
