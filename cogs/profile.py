@@ -1087,12 +1087,15 @@ class Profile(commands.Cog):
                     await ctx.send("Your Arm storage is empty.", hidden=True)
                     return
 
+                print("ASTORAGE")
                 print(vault['ASTORAGE'])
                 storage_card_names = []
                 for name in vault['ASTORAGE']:
                     storage_card_names.append(name['ARM'])
+                print("STORAGE CARD NAMES")
                 print(storage_card_names)
                 list_of_arms = db.querySpecificArms(storage_card_names)
+                print("LIST")
                 print(list_of_arms)
                 arms = [x for x in list_of_arms]
                 dungeon_arm_details = []
@@ -1100,8 +1103,10 @@ class Profile(commands.Cog):
                 boss_arm_details = []
                 unbound_arm_details = []
                 icon = ""
+                print("ARMS")
+                print(arms)
                 for arm in arms:
-                    print(arm)
+                    print("arm: " + arm)
                     element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
                     arm_name = arm['ARM']
                     arm_show = arm['UNIVERSE']
@@ -1146,6 +1151,7 @@ class Profile(commands.Cog):
                             f"{universe_crest}:mechanical_arm: **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
 
                 all_arms = []
+                print("ALL ARMS")
                 print(all_arms)
                 if unbound_arm_details:
                     for u in unbound_arm_details:
