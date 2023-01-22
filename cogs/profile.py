@@ -1732,7 +1732,7 @@ class Profile(commands.Cog):
                 balance = vault['BALANCE']
                 arms_list = vault['ARMS']
                 total_arms = len(arms_list)
-                storage = vault['ASTOAGE']
+                storage = vault['ASTORAGE']
                 arms=[]
                 current_gems = []
                 for gems in vault['GEMS']:
@@ -2140,8 +2140,8 @@ class Profile(commands.Cog):
                                             response = db.updateVaultNoFilter(query, update_storage_query)
 
                                             update_storage_query = {
-                                                '$pull': {'TSTORAGE': swap_with},
-                                                '$addToSet': {'TCARDS': swap_with}
+                                                '$pull': {'ASTORAGE': swap_with},
+                                                '$addToSet': {'ARMS': swap_with}
                                             }
                                             response = db.updateVaultNoFilter(query, update_storage_query)
 
