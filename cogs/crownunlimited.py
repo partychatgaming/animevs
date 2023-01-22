@@ -7438,6 +7438,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 
             if mode in ai_co_op_modes:
                 c_talisman_emoji = "📿"
+                c_talisman = "N/A"
                 if c_talisman == "NULL" or c_talisman == "N/A":
                     c_talisman ='N/A'
                     c_talisman_emoji = "📿"
