@@ -2135,7 +2135,7 @@ class Profile(commands.Cog):
                                             query = {'DID': str(msg.author.id)}
                                             update_storage_query = {
                                                 '$pull': {'ARMS': {'ARM' : str(selected_arm)}},
-                                                '$addToSet': {'ASTORAGE' : {str(selected_arm), 'DUR' : int(durability)}},
+                                                '$addToSet': {'ASTORAGE' : { 'ARM' : str(selected_arm), 'DUR' : int(durability)}},
                                             }
                                             response = db.updateVaultNoFilter(query, update_storage_query)
 
