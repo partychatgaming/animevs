@@ -1159,7 +1159,7 @@ class Profile(commands.Cog):
                             f"[{str(index)}] {universe_crest} :fire: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** : *{arm_passive_value}*\n")
                     elif available and not exclusive:
                         tales_arm_details.append(
-                            f"[{str(index)}] {universe_crest} :mechanical_arm: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** :  *{arm_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} 🦾 {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** :  *{arm_passive_value}*\n")
 
                 all_arms = []
                 if unbound_arm_details:
@@ -1754,7 +1754,7 @@ class Profile(commands.Cog):
                     arm_passive_value = list(arm_passive.values())[0]
                     arm_available = resp['AVAILABLE']
                     arm_exclusive = resp['EXCLUSIVE']
-                    icon = ":mechanical_arm:"
+                    icon = "🦾"
                     if arm_available and arm_exclusive:
                         icon = ":fire:"
                     elif arm_available == False and arm_exclusive ==False:
@@ -1811,7 +1811,7 @@ class Profile(commands.Cog):
                                 custom_function.selected_universe = selected_arm
                                 user_query = {'DID': str(ctx.author.id)}
                                 response = db.updateUserNoFilter(user_query, {'$set': {'ARM': selected_arm}})
-                                await button_ctx.send(f":mechanical_arm: **{selected_arm}** equipped.")
+                                await button_ctx.send(f"🦾 **{selected_arm}** equipped.")
                                 self.stop = True
                             else:
                                 await button_ctx.send(f"**{selected_arm}** is no longer in your vault.")
@@ -4789,15 +4789,15 @@ class Profile(commands.Cog):
                                     name="🪙🎗️ Resell Title",
                                     value="tresell"
                                 ),create_choice(
-                                    name="💼:mechanical_arm: Draw Arm",
+                                    name="💼🦾 Draw Arm",
                                     value="adraw"
                                 ),
                                 create_choice(
-                                    name="💎:mechanical_arm: Dismantle Arm",
+                                    name="💎🦾 Dismantle Arm",
                                     value="adismantle"
                                 ),
                                 create_choice(
-                                    name="🪙:mechanical_arm: Resell Arm",
+                                    name="🪙🦾 Resell Arm",
                                     value="aresell"
                                 )
                             ]
@@ -4841,9 +4841,11 @@ class Profile(commands.Cog):
                 storage_arm_names = []
                 for snames in astorage:
                     storage_arm_names.append(snames['ARM'])
+                print(storage_arm_names)
                 storage_card = db.queryCard({'NAME': {"$regex": f"^{str(item)}$", "$options": "i"}})
                 storage_title = db.queryTitle({'TITLE':{"$regex": f"^{str(item)}$", "$options": "i"} })
-                storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"} })
+                storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"}})
+                print(storage_arm)
                 if mode == 'cdraw':
                     if total_cards > 24:
                         await ctx.send("You already have 25 cards.")
@@ -4900,13 +4902,13 @@ class Profile(commands.Cog):
                                 '$addToSet': {'ARMS': {'ARM' : str(item) , 'DUR': int(durability)}},
                             }
                             response = db.updateVaultNoFilter(query, update_storage_query)
-                            await ctx.send(f":mechanical_arm: **{storage_arm['ARM']}** has been added to **/titles**")
+                            await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/titles**")
                             return
                         else:
-                            await ctx.send(f":mechanical_arm: :{storage_arm['ARM']} does not exist in storage.")
+                            await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist in storage.")
                             return
                     else:
-                        await ctx.send(f":mechanical_arm: :{storage_arm['ARM']} does not exist.")
+                        await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist.")
                 if mode == 'cdismantle':
                     card_data = storage_card
                     card_tier =  card_data['TIER']
@@ -7241,7 +7243,7 @@ async def menuarms(self, ctx):
                 arm_passive_value = list(arm_passive.values())[0]
                 arm_available = resp['AVAILABLE']
                 arm_exclusive = resp['EXCLUSIVE']
-                icon = ":mechanical_arm:"
+                icon = "🦾"
                 if arm_available and arm_exclusive:
                     icon = ":fire:"
                 elif arm_available == False and arm_exclusive ==False:
@@ -7298,7 +7300,7 @@ async def menuarms(self, ctx):
                             custom_function.selected_universe = selected_arm
                             user_query = {'DID': str(ctx.author.id)}
                             response = db.updateUserNoFilter(user_query, {'$set': {'ARM': selected_arm}})
-                            await button_ctx.send(f":mechanical_arm: **{selected_arm}** equipped.")
+                            await button_ctx.send(f"🦾 **{selected_arm}** equipped.")
                             self.stop = True
                         else:
                             await button_ctx.send(f"**{selected_arm}** is no longer in your vault.")
