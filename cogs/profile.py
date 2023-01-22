@@ -504,10 +504,12 @@ class Profile(commands.Cog):
                     #Title errors 
                     titled =False
                     titleicon="⚠️"
-                    licon = "🔱"
+                    licon = "🔰"
                     armicon = "⚠️"
                     if card_lvl >= 200:
                         licon ="⚜️"
+                    if card_lvl >= 700:
+                        licon ="🔱"
                     if card_lvl >=999:
                         licon ="🏅"
                     titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
@@ -921,12 +923,14 @@ class Profile(commands.Cog):
                     universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
                     index = vault['STORAGE'].index(card['NAME'])
                     level = ""
-                    level_icon = "🔱"
+                    level_icon = "🔰"
                     for c in vault['CARD_LEVELS']:
                         if card['NAME'] == c['CARD']:
                             level = str(c['LVL'])
                             card_lvl = int(c['LVL'])
                     if card_lvl >= 200:
+                        level_icon = "🔱"
+                    if card_lvl >= 700:
                         level_icon ="⚜️"
                     if card_lvl >=999:
                         level_icon ="🏅"
@@ -4157,8 +4161,11 @@ class Profile(commands.Cog):
 
                     for cl in card_levels:
                         if card == cl['CARD']:
-                            licon = "🔱"
+                            
+                            licon = "🔰"
                             if cl['LVL'] >= 200:
+                                licon ="🔱"
+                            if cl['LVL'] >= 700:
                                 licon ="⚜️"
                             if cl['LVL'] >= 999:
                                 licon = "🏅"
@@ -5719,9 +5726,11 @@ async def menubuild(self, ctx):
                 #Title errors 
                 titled =False
                 titleicon="⚠️"
-                licon = "🔱"
+                licon = "🔰"
                 armicon = "⚠️"
                 if card_lvl >= 200:
+                    licon ="🔱"
+                if card_lvl >= 700:
                     licon ="⚜️"
                 if card_lvl >=999:
                     licon ="🏅"
@@ -5982,11 +5991,14 @@ async def menucards(self, ctx):
 
                 for cl in card_levels:
                     if card == cl['CARD']:
-                        licon = "🔱"
+                        licon = "🔰"
                         if cl['LVL'] >= 200:
+                            licon ="🔱"
+                        if cl['LVL'] >= 700:
                             licon ="⚜️"
                         if cl['LVL'] >= 999:
                             licon = "🏅"
+                        
                         lvl = f"{licon} **{cl['LVL']}**"
                         card_lvl = cl['LVL']
                         card_exp = cl['EXP']
@@ -6596,12 +6608,14 @@ async def menustorage(self, ctx):
         for card in cards:
             index = vault['STORAGE'].index(card['NAME'])
             level = ""
-            level_icon = "🔱"
+            level_icon = "🔰"
             for c in vault['CARD_LEVELS']:
                 if card['NAME'] == c['CARD']:
                     level = str(c['LVL'])
                     card_lvl = int(c['LVL'])
             if card_lvl >= 200:
+                level_icon = "🔱"
+            if card_lvl >= 700:
                 level_icon ="⚜️"
             if card_lvl >=999:
                 level_icon ="🏅"
