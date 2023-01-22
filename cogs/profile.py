@@ -4829,12 +4829,18 @@ class Profile(commands.Cog):
                 cards_list = vault['CARDS']
                 title_list = vault['TITLES']
                 arm_list = vault['ARMS']
+                arm_list_names = []
+                for names in arm_list:
+                    arm_list_names.append(names['ARM'])
                 total_cards = len(cards_list)
                 total_titles = len(title_list)
                 total_arms = len(arm_list)
                 cstorage = vault['STORAGE']
                 tstorage = vault['TSTORAGE']
                 astorage = vault['ASTORAGE']
+                storage_arm_names = []
+                for snames in astorage:
+                    storage_arm_names.append(snames['ARM'])
                 storage_card = db.queryCard({'NAME': {"$regex": f"^{str(item)}$", "$options": "i"}})
                 storage_title = db.queryTitle({'TITLE':{"$regex": f"^{str(item)}$", "$options": "i"} })
                 storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"} })
@@ -4878,6 +4884,29 @@ class Profile(commands.Cog):
                     else:
                         await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist.")
                         return
+                if mode == 'adraw':
+                    if total_arms > 24:
+                        await ctx.send("You already have 25 arms.")
+                        return
+                    if storage_arm:                  
+                        if storage_arm in storage_arm_names: #title storage update
+                            durability = 0
+                            for arms in astorage:
+                                if storage_arm == arms['ARM']:
+                                    durability = arms['DUR']
+                            query = {'DID': str(ctx.author.id)}
+                            update_storage_query = {
+                                '$pull': {'ASTORAGE': {'ARM' : str(item)}},
+                                '$addToSet': {'ARMS': {'ARM' : str(item) , 'DUR': int(durability)}},
+                            }
+                            response = db.updateVaultNoFilter(query, update_storage_query)
+                            await ctx.send(f":mechanical_arm: **{storage_arm['ARM']}** has been added to **/titles**")
+                            return
+                        else:
+                            await ctx.send(f":mechanical_arm: :{storage_arm['ARM']} does not exist in storage.")
+                            return
+                    else:
+                        await ctx.send(f":mechanical_arm: :{storage_arm['ARM']} does not exist.")
                 if mode == 'cdismantle':
                     card_data = storage_card
                     card_tier =  card_data['TIER']
