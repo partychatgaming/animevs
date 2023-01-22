@@ -1193,7 +1193,7 @@ class Profile(commands.Cog):
                         title=f"💼 {user['DISNAME']}'s Arm Storage",
                         description="\n".join(arms_broken_up[i]), colour=0x7289da)
                     globals()['embedVar%s' % i].set_footer(
-                        text=f"{total_titles} Total Arms\n{str(storage_allowed_amount - len(vault['ASTORAGE']))} Storage Available")
+                        text=f"{total_arms} Total Arms\n{str(storage_allowed_amount - len(vault['ASTORAGE']))} Storage Available")
                     embed_list.append(globals()['embedVar%s' % i])
 
                 paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
