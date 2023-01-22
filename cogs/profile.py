@@ -1134,7 +1134,7 @@ class Profile(commands.Cog):
 
                    
                     universe_crest = crown_utilities.crest_dict[arm_show]
-                    index = vault['ASTORAGE'].index(arm)
+                    index = vault['ASTORAGE'].index(arm_name)
 
                     if arm_show == "Unbound":
                         unbound_arm_details.append(
