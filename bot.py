@@ -594,6 +594,9 @@ async def animevs(ctx):
    **Blacksmith**
    **/menu** to purchase Card Levels, Arm Durability and **Storage**!
    
+   **Storage**
+   **/storage** to access Card, Title and Arm Storage, purchase additional storage in the Blacksmith
+   
     👛 **Gabe's Purse** - will allow you to keep all items after a **Rebirth**
    
    **Currency**
