@@ -1088,7 +1088,11 @@ class Profile(commands.Cog):
                     return
 
                 print(vault['ASTORAGE'])
-                list_of_arms = db.querySpecificArms(vault['ASTORAGE'])
+                storage_card_names = []
+                for name in vault['ASTORAGE']:
+                    storage_card_names.append(name['ARM'])
+                print(storage_card_names)
+                list_of_arms = db.querySpecificArms(storage_card_names)
                 print(list_of_arms)
                 arms = [x for x in list_of_arms]
                 dungeon_arm_details = []
