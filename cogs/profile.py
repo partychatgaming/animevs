@@ -1126,16 +1126,16 @@ class Profile(commands.Cog):
                     index = vault['ASTORAGE'].index(arm['ARM'])
 
                     if title_show == "Unbound":
-                        unbound_title_details.append(
+                        unbound_arm_details.append(
                             f"[{str(index)}]{universe_crest} **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif not exclusive and not available:
-                        boss_title_details.append(
+                        boss_arm_details.append(
                             f"[{str(index)}]{universe_crest}👹 **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
                     elif exclusive and available:
-                        dungeon_title_details.append(
+                        dungeon_arm_details.append(
                             f"[{str(index)}]{universe_crest}:fire: **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif available and not exclusive:
-                        tales_title_details.append(
+                        tales_arm_details.append(
                             f"[{str(index)}]{universe_crest}:mechanical_arm: **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
 
                 all_arms = []
