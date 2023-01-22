@@ -1108,7 +1108,7 @@ class Profile(commands.Cog):
                             print(name['ARM'])
                             print(name['DUR'])
                             print(arm['ARM'])
-                            durabilty = name['DUR']
+                            durability = int(name['DUR'])
                     print(durability)
                     element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
                     arm_name = arm['ARM']
