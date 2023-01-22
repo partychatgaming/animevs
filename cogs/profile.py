@@ -1097,6 +1097,7 @@ class Profile(commands.Cog):
                 unbound_arm_details = []
                 icon = ""
                 for arm in arms:
+                    print(arm)
                     element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
                     arm_name = arm['ARM']
                     arm_show = arm['UNIVERSE']
