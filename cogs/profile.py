@@ -1722,6 +1722,8 @@ class Profile(commands.Cog):
         query = {'DID': str(ctx.author.id)}
         d = db.queryUser(query)
         vault = db.queryVault({'DID': d['DID']})
+        
+        storage_type = d['STORAGE_TYPE']
         if vault:
             try:
                 name = d['DISNAME'].split("#",1)[0]
@@ -1730,7 +1732,7 @@ class Profile(commands.Cog):
                 balance = vault['BALANCE']
                 arms_list = vault['ARMS']
                 total_arms = len(arms_list)
-
+                storage = vault['ASTOAGE']
                 arms=[]
                 current_gems = []
                 for gems in vault['GEMS']:
@@ -1792,7 +1794,7 @@ class Profile(commands.Cog):
                     manage_components.create_button(style=1, label="Resell", custom_id="Resell"),
                     manage_components.create_button(style=1, label="Dismantle", custom_id="Dismantle"),
                     manage_components.create_button(style=1, label="Trade", custom_id="Trade"),
-                    manage_components.create_button(style=2, label="Exit", custom_id="Exit")
+                    manage_components.create_button(style=2, label="Swap/Store", custom_id="Storage")
                 ]
                 custom_action_row = manage_components.create_actionrow(*buttons)
 
@@ -1800,6 +1802,7 @@ class Profile(commands.Cog):
                     if button_ctx.author == ctx.author:
                         u_vault = db.queryVault({'DID': d['DID']})
                         updated_vault = []
+                        storage = u_vault['ASTORAGE']
                         for arm in u_vault['ARMS']:
                             updated_vault.append(arm['ARM'])
                         
@@ -1807,6 +1810,10 @@ class Profile(commands.Cog):
                         selected_arm = str(button_ctx.origin_message.embeds[0].title)
                         if button_ctx.custom_id == "Equip":
                             if selected_arm in updated_vault:
+                                durability = 0
+                                for names in storage:
+                                    if names['ARM'] == selected_arm:
+                                        durability = names['DUR']
                                 selected_universe = custom_function
                                 custom_function.selected_universe = selected_arm
                                 user_query = {'DID': str(ctx.author.id)}
@@ -1950,7 +1957,7 @@ class Profile(commands.Cog):
                                     await ctx.send("There's an issue with selling one or all of your items.")
                                     return
                             else:
-                                await button_ctx.send(f"**{card_name}** is no longer in your vault.")
+                                await button_ctx.send(f"**{arm_name}** is no longer in your vault.")
 
                         elif button_ctx.custom_id == "Trade":
                             arm_data = db.queryArm({'ARM' : selected_arm})
@@ -2088,13 +2095,111 @@ class Profile(commands.Cog):
                                     await ctx.send("There's an issue with trading one or all of your items.")
                                     return   
                                         
-                        elif button_ctx.custom_id == "Exit":
+                        elif button_ctx.custom_id == "Storage":
                             await button_ctx.defer(ignore=True)
-                            self.stop = True
+                            storage_buttons = [
+                                        manage_components.create_button(
+                                            style=ButtonStyle.green,
+                                            label="Swap Storage Arm",
+                                            custom_id="swap"
+                                        ),
+                                        manage_components.create_button(
+                                            style=ButtonStyle.red,
+                                            label="Add to Storage",
+                                            custom_id="store"
+                                        )
+                                    ]
+                            storage_buttons_action_row = manage_components.create_actionrow(*storage_buttons)
+                            msg = await ctx.send(f"Would you like to Swap Arms or Add Arm to Storage", components=[storage_buttons_action_row])
+                            def check(button_ctx):
+                                return button_ctx.author == ctx.author
+                            try:
+                                button_ctx: ComponentContextStorage = await manage_components.wait_for_component(self.bot, components=[storage_buttons_action_row], timeout=120, check=check)
+
+                                if button_ctx.custom_id == "swap":
+                                    await button_ctx.defer(ignore=True)
+                                    await msg.delete()
+                                    await ctx.send(f"{ctx.author.mention}, Which arm number would you like to swap with in storage?")
+                                    def check(msg):
+                                        return msg.author == ctx.author
+
+                                    try:
+                                        msg = await self.bot.wait_for('message', check=check, timeout=30)
+                                        author = msg.author
+                                        content = msg.content
+                                        # print("Author: " + str(author))
+                                        # print("Content: " + str(content))
+                                        # print(msg)
+                                        if storage[int(msg.content)]:
+                                            swap_with = storage[int(msg.content)]
+                                            query = {'DID': str(msg.author.id)}
+                                            update_storage_query = {
+                                                '$pull': {'ARMS': {'ARM' : str(selected_arm)}},
+                                                '$addToSet': {'ASTORAGE' : {str(selected_arm), 'DUR' : int(durability)}},
+                                            }
+                                            response = db.updateVaultNoFilter(query, update_storage_query)
+
+                                            update_storage_query = {
+                                                '$pull': {'TSTORAGE': swap_with},
+                                                '$addToSet': {'TCARDS': swap_with}
+                                            }
+                                            response = db.updateVaultNoFilter(query, update_storage_query)
+
+                                            await msg.delete()
+                                            await ctx.send(f"**{selected_card}** has been swapped with **{swap_with}**")
+                                            return
+                                        else:
+                                            await ctx.send("The card number you want to swap with does not exist.")
+                                            return
+
+                                    except Exception as e:
+                                        return False
+                                if button_ctx.custom_id == "store":
+                                    await button_ctx.defer(ignore=True)
+                                    
+                                    try:
+                                        author = msg.author
+                                        content = msg.content
+                                        # print("Author: " + str(author))
+                                        # print("Content: " + str(content))
+                                        if len(storage) <= (storage_type * 15):
+                                            query = {'DID': str(ctx.author.id)}
+                                            update_storage_query = {
+                                                '$pull': {'TITLES': selected_title},
+                                                '$addToSet': {'TSTORAGE': selected_title},
+                                            }
+                                            response = db.updateVaultNoFilter(query, update_storage_query)
+                                            
+                                            await msg.delete()
+                                            await ctx.send(f"**{selected_title}** has been added to storage")
+                                            return
+                                        else:
+                                            await ctx.send("Not enough space in storage")
+                                            return
+
+                                    except Exception as e:
+                                        return False
+                            except Exception as ex:
+                                trace = []
+                                tb = ex.__traceback__
+                                while tb is not None:
+                                    trace.append({
+                                        "filename": tb.tb_frame.f_code.co_filename,
+                                        "name": tb.tb_frame.f_code.co_name,
+                                        "lineno": tb.tb_lineno
+                                    })
+                                    tb = tb.tb_next
+                                print(str({
+                                    'type': type(ex).__name__,
+                                    'message': str(ex),
+                                    'trace': trace
+                                }))
+                                await ctx.send("There's an issue with your Arms list. Check with support.", hidden=True)
+                                return
                     else:
                         await ctx.send("This is not your Arms list.")        
 
-                await Paginator(bot=self.bot, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
+                await Paginator(bot=self.bot, ctx=ctx ,useQuitButton=True, disableAfterTimeout=True, pages=embed_list, timeout=60, customActionRow=[
                     custom_action_row,
                     custom_function,
                 ]).run()
