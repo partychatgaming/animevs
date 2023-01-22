@@ -1129,24 +1129,22 @@ class Profile(commands.Cog):
 
                    
                     universe_crest = crown_utilities.crest_dict[arm_show]
-                    #index = vault['ASTORAGE'].index(arm)
+                    index = vault['ASTORAGE'].index(arm)
 
                     if arm_show == "Unbound":
                         unbound_arm_details.append(
-                            f"{universe_crest} **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
+                            f"{index}{universe_crest} **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif not exclusive and not available:
                         boss_arm_details.append(
-                            f"{universe_crest}👹 **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
+                            f"{index}{universe_crest}👹 **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
                     elif exclusive and available:
                         dungeon_arm_details.append(
-                            f"{universe_crest}:fire: **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
+                            f"{index}{universe_crest}:fire: **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif available and not exclusive:
                         tales_arm_details.append(
-                            f"{universe_crest}:mechanical_arm: **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
+                            f"{index}{universe_crest}:mechanical_arm: **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
 
                 all_arms = []
-                print("ALL ARMS")
-                print(all_arms)
                 if unbound_arm_details:
                     for u in unbound_arm_details:
                         all_arms.append(u)
@@ -1162,7 +1160,7 @@ class Profile(commands.Cog):
                 if boss_arm_details:
                     for de in boss_arm_details:
                         all_arms.append(de)
-                print(all_arms)
+
                 
 
                 total_arms = len(all_arms)
