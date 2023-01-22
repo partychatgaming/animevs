@@ -1087,7 +1087,9 @@ class Profile(commands.Cog):
                     await ctx.send("Your Arm storage is empty.", hidden=True)
                     return
 
+                print(vault['ASTORAGE'])
                 list_of_arms = db.querySpecificArms(vault['ASTORAGE'])
+                print(list_of_arms)
                 arms = [x for x in list_of_arms]
                 dungeon_arm_details = []
                 tales_arm_details = []
@@ -1123,9 +1125,9 @@ class Profile(commands.Cog):
 
                    
                     universe_crest = crown_utilities.crest_dict[arm_show]
-                    index = vault['ASTORAGE'].index(arm['ARM'])
+                    index = vault['ASTORAGE'].index(arm)
 
-                    if title_show == "Unbound":
+                    if arm_show == "Unbound":
                         unbound_arm_details.append(
                             f"{universe_crest} **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif not exclusive and not available:
