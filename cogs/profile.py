@@ -4896,13 +4896,14 @@ class Profile(commands.Cog):
                             for arms in astorage:
                                 if storage_arm == arms['ARM']:
                                     durability = arms['DUR']
+                                    print(arms)
                             query = {'DID': str(ctx.author.id)}
                             update_storage_query = {
                                 '$pull': {'ASTORAGE': {'ARM' : str(item)}},
                                 '$addToSet': {'ARMS': {'ARM' : str(item) , 'DUR': int(durability)}},
                             }
                             response = db.updateVaultNoFilter(query, update_storage_query)
-                            await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/titles**")
+                            await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/arms**")
                             return
                         else:
                             await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist in storage.")
