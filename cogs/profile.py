@@ -504,9 +504,11 @@ class Profile(commands.Cog):
                     #Title errors 
                     titled =False
                     titleicon="⚠️"
-                    licon = "🔱"
+                    licon = "🔰"
                     armicon = "⚠️"
-                    if card_lvl == 200:
+                    if card_lvl >= 200:
+                        licon ="🔱"
+                    if card_lvl >=999:
                         licon ="⚜️"
                     titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
                     armmessage = f"🦾 ⚠️ {arm_name}: {durability}"
@@ -919,19 +921,24 @@ class Profile(commands.Cog):
                     universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
                     index = vault['STORAGE'].index(card['NAME'])
                     level = ""
+                    level_icon = "🔰"
                     for c in vault['CARD_LEVELS']:
                         if card['NAME'] == c['CARD']:
                             level = str(c['LVL'])
+                    if card_lvl >= 200:
+                        level_icon ="🔱"
+                    if card_lvl >=999:
+                        level_icon ="⚜️"
                     available = ""
                     if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
                         dungeon_card_details.append(
-                            f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
                     elif not card['HAS_COLLECTION']:
                         tales_card_details.append(
-                            f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
                     elif card['HAS_COLLECTION']:
                         destiny_card_details.append(
-                            f"[{str(index)}]{universe_crest} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
 
                 all_cards = []
                 if tales_card_details:
@@ -1012,16 +1019,16 @@ class Profile(commands.Cog):
 
                     if title_show == "Unbound":
                         unbound_title_details.append(
-                            f"[{str(index)}]{universe_crest}:crown: **{title_title}**\n**:microbe: : {title_passive_type}**: *{title_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} :crown: : **{title_title}**\n**:microbe: {title_passive_type}**: *{title_passive_value}*\n")
                     elif not exclusive and not available:
                         boss_title_details.append(
-                            f"[{str(index)}]{universe_crest}👹 **{title_title}**\n**:microbe: : {title_passive_type}**:  *{title_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} 👹 : **{title_title}**\n**:microbe: {title_passive_type}**:  *{title_passive_value}*\n")
                     elif exclusive and available:
                         dungeon_title_details.append(
-                            f"[{str(index)}]{universe_crest}:fire: **{title_title}**\n**:microbe: : {title_passive_type}**: *{title_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} :fire: : **{title_title}**\n**:microbe: {title_passive_type}**: *{title_passive_value}*\n")
                     elif available and not exclusive:
                         tales_title_details.append(
-                            f"[{str(index)}]{universe_crest}🎗️ **{title_title}**\n**:microbe: : {title_passive_type}**:  *{title_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} 🎗️ : **{title_title}**\n**:microbe: {title_passive_type}**:  *{title_passive_value}*\n")
 
                 all_titles = []
                 
@@ -1137,16 +1144,16 @@ class Profile(commands.Cog):
 
                     if arm_show == "Unbound":
                         unbound_arm_details.append(
-                            f"[{str(index)}]{universe_crest}:muscle: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}**: *{arm_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} :muscle: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** : *{arm_passive_value}*\n")
                     elif not exclusive and not available:
                         boss_arm_details.append(
-                            f"[{str(index)}]{universe_crest}👹 {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}**:  *{arm_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} 👹 {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** :  *{arm_passive_value}*\n")
                     elif exclusive and available:
                         dungeon_arm_details.append(
-                            f"[{str(index)}]{universe_crest}:fire: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}**: *{arm_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} :fire: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** : *{arm_passive_value}*\n")
                     elif available and not exclusive:
                         tales_arm_details.append(
-                            f"[{str(index)}]{universe_crest}:mechanical_arm: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}**:  *{arm_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} :mechanical_arm: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** :  *{arm_passive_value}*\n")
 
                 all_arms = []
                 if unbound_arm_details:
@@ -5699,9 +5706,11 @@ async def menubuild(self, ctx):
                 #Title errors 
                 titled =False
                 titleicon="⚠️"
-                licon = "🔱"
+                licon = "🔰"
                 armicon = "⚠️"
-                if card_lvl == 200:
+                if card_lvl >= 200:
+                    licon ="🔱"
+                if card_lvl >=999:
                     licon ="⚜️"
                 titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
                 armmessage = f"🦾 ⚠️ {arm_name}: {durability}"
