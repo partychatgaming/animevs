@@ -58,15 +58,25 @@ class Lookup(commands.Cog):
                 player = player.replace(">","")
                 player = player.replace("@","")
                 player = player.replace("!","")
+                
+                print(player)
+                
+                user = await self.bot.fetch_user(player)
+                avi = user.avatar_url
+                print(user)
                 # print(player)
                 # print(str(ctx.author.id))
             else:
                 player = ctx.author.id
+                avi = ctx.author.avatar_url
             query = {'DID': str(player)}
+            
             d = db.queryUser(query)
+            
             m = db.queryManyMatchesPerPlayer({'PLAYER': d['DISNAME']})
             v = db.queryVault({'DID': str(player)})
             b = db.queryAllBosses()
+            user = await self.bot.fetch_user(d['DID'])
             if d:
                 balance = v['BALANCE']
                 bal_icon = ":coin:"
@@ -83,6 +93,9 @@ class Lookup(commands.Cog):
                 all_titles = len(v['TITLES'])
                 all_arms = len(v['ARMS'])
                 all_pets = len(v['PETS'])
+                cstorage = len(v['STORAGE'])
+                astorage = len(v['ASTORAGE'])
+                tstorage = len(v['TSTORAGE'])
 
                 name = d['DISNAME'].split("#",1)[0]
                 difficulty = d['DIFFICULTY']
@@ -97,6 +110,14 @@ class Lookup(commands.Cog):
                     team_info = db.queryTeam({'TEAM_NAME' : str(team.lower())})
                     guild = team_info['GUILD']
                 family = d['FAMILY']
+                
+                family_info = db.queryFamily({"HEAD": str(family)})
+                if family_info:
+                    family_summon = family_info['SUMMON']
+                    family_summon_name = family_summon['NAME']
+                fs_message = ""
+                if d['FAMILY_PET']:
+                    fs_message = f":family_mwgb: **Family Summon** *{family_summon_name}*"
                 titles = d['TITLE']
                 arm = d['ARM']
                 battle_history = d['BATTLE_HISTORY']
@@ -110,6 +131,11 @@ class Lookup(commands.Cog):
                 pvp_loss = d['PVP_LOSS']
                 pet = d['PET']
                 rebirth = d['REBIRTH']
+                join_raw = d['TIMESTAMP']
+                year_joined = join_raw[20:]
+                day_joined = join_raw[:10]
+                #print(day_joined + " " + year_joined)
+                birthday = f":tada: | **Registered:** {day_joined} {year_joined}"
                 icon = ':triangular_flag_on_post:'
                 if rebirth == 0:
                     icon = ':triangular_flag_on_post:'
@@ -142,6 +168,8 @@ class Lookup(commands.Cog):
                 most_played_card = []
                 most_played_card_message = "_No Data For Analysis_"
                 match_history_message = ""
+                most_universe_played = []
+                most_played_universe_message = "_No Data For Analysis_"
 
                 wlmatches = list(d['MATCHES'][0].values())[0]
                 wins = wlmatches[0]
@@ -151,19 +179,25 @@ class Lookup(commands.Cog):
                         most_played_card.append(match['CARD'])
                         if match['UNIVERSE_TYPE'] == "Tales":
                             tales_matches.append(match)
+                            most_universe_played.append(match['UNIVERSE'])
                         elif match['UNIVERSE_TYPE'] == "Dungeon":
                             dungeon_matches.append(match)
+                            most_universe_played.append(match['UNIVERSE'])
                         elif match['UNIVERSE_TYPE'] == "Boss":
                             boss_matches.append(match)
+                            most_universe_played.append(match['UNIVERSE'])
                         elif match['UNIVERSE_TYPE'] == "PVP":
                             pvp_matches.append(match)
+                            
 
                     card_main = most_frequent(most_played_card)
-
+                    fav_uni = most_frequent(most_universe_played)
                     if not most_played_card:
                         most_played_card_message = "_No Data For Analysis_"
+                        most_played_universe_message ="_No Data For Analysis_"
                     else:
                         most_played_card_message = f"**Most Played Card: **{card_main}"
+                        most_played_universe_message = f"**Favorite Universe: **{fav_uni}"
                         match_history_message = f"""
                         **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                         **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
@@ -191,6 +225,8 @@ class Lookup(commands.Cog):
 
                 matches_to_string = dict(ChainMap(*matches))
                 ign_to_string = dict(ChainMap(*ign))
+                
+                
 
 
 
@@ -213,7 +249,6 @@ class Lookup(commands.Cog):
                 embed1.set_thumbnail(url=avatar)
                 
                 embed5 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Stats".format(self), description=textwrap.dedent(f"""\
-                :military_medal: | {most_played_card_message}
                 ⚔️ | **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                 🔥 | **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
                 👹 | **Bosses Played: **{'{:,}'.format(len(boss_matches))}
@@ -221,12 +256,21 @@ class Lookup(commands.Cog):
                 📊 | **Pvp Record: ** :regional_indicator_w: **{pvp_wins}** / :regional_indicator_l: **{pvp_loss}**
                 
                 **Balance** {bal_message}
-                :flower_playing_cards: **Cards** {all_cards}
-                :reminder_ribbon: **Titles** {all_titles}
-                :mechanical_arm: **Arms** {all_arms}
+                :flower_playing_cards: **Cards** {all_cards} ~ :briefcase: *{cstorage}*
+                :reminder_ribbon: **Titles** {all_titles} ~ :briefcase: *{tstorage}*
+                :mechanical_arm: **Arms** {all_arms} ~ :briefcase: *{astorage}*
                 🧬 **Summons** {all_pets}
+                {fs_message}
                 """), colour=000000)
                 embed5.set_thumbnail(url=avatar)
+                
+                embed6 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Avatar".format(self), description=textwrap.dedent(f"""\
+                    **:bust_in_silhouette: | User**: {user.mention}
+                    :military_medal: | {most_played_card_message}
+                    :earth_africa: | {most_played_universe_message}
+                    {birthday}
+                """), colour=000000)
+                embed6.set_image(url=avi)
                 # embed1.add_field(name="Team" + " :military_helmet:", value=team)
                 # embed1.add_field(name="Family" + " :family_mwgb:", value=family)
                 # embed1.add_field(name="Card" + " ::flower_playing_cards: :", value=' '.join(str(x) for x in titles))
@@ -260,7 +304,7 @@ class Lookup(commands.Cog):
                 paginator.add_reaction('🔐', "lock")
                 paginator.add_reaction('➡️', "next")
                 paginator.add_reaction('⏭️', "last")
-                embeds = [embed1, embed5, embed4 ]
+                embeds = [embed1, embed5, embed4, embed6 ]
                 await paginator.run(embeds)
             else:
                 await ctx.send(m.USER_NOT_REGISTERED)

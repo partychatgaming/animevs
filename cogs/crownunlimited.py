@@ -4438,6 +4438,12 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 for pet in vault['PETS']:
                     if activeDeck['PET'] == pet['NAME']:
                         cpet = pet
+                cpet_passive_type = cpet['TYPE']
+                cpet_name = cpet['NAME']
+                cpet_image = cpet['PATH']
+                cpet_exp = cpet['EXP']
+                cpet_lvl = cpet['LVL']
+                cpet_bond = cpet['BOND']
                 carm = db.queryArm({'ARM': activeDeck['ARM']})
                 carm_universe = carm['UNIVERSE']
                 carm_passive = carm['ABILITIES'][0]
@@ -4445,6 +4451,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 carm_price = carm['PRICE']
                 carm_element = carm['ELEMENT']
                 c_talisman = "N/A"
+                
             else:
                 cperformance = c_user['PERFORMANCE']
                 c_talisman = c_user['TALISMAN']
@@ -4902,6 +4909,9 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             # cpetmove_ap = 10
     
             cpetmove_text = list(cpet.keys())[3]  # Name of the ability
+            # if mode in ai_co_op_modes:
+            #     cpetmove_ap = (1 *  1) + list(cpet.values())[3] 
+            # else:
             cpetmove_ap = (cpet_bond *  cpet_lvl) + list(cpet.values())[3]  # Ability Power
 
             cpet_move = {str(cpetmove_text): int(cpetmove_ap), 'STAM': 15, 'TYPE': str(cpet_passive_type)}
@@ -7092,6 +7102,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             o_talisman = stats['o_talisman']
             if o_talisman == "NULL":
                 o_talisman ='N/A'
+                o_talisman_emoji = "📿"
+            else:
+                o_talisman_emoji = crown_utilities.set_emoji(o_talisman)
             #print(o_talisman)
             o_card_passive_type = stats['o_card_passive_type']
             battle_history_message_amount = sowner['BATTLE_HISTORY']
@@ -7106,12 +7119,21 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             o_super_emoji = crown_utilities.set_emoji(omove2_element)
             omove3_element = stats['omove3_element']
             o_ultimate_emoji = crown_utilities.set_emoji(omove3_element)
+
             # print(f"O BASIC: {}")
             # print(f"O SUPER: {}")
             # print(f"O ULTIMATE: {}")
             operformance = stats['operformance']
             o_card = stats['o_card']
             ocard_lvl = stats['ocard_lvl']
+            ocard_lvl_message = f"🔰*{ocard_lvl}*"
+            if int(ocard_lvl) >= 200:
+                ocard_lvl_message = f"🔱*{ocard_lvl}*"
+            if int(ocard_lvl) >= 700:
+                ocard_lvl_message = f"⚜️*{ocard_lvl}*"
+            if int(ocard_lvl) >=999:
+                ocard_lvl_message = f"🏅*{ocard_lvl}*"
+            o_info = f"{o_talisman_emoji} {ocard_lvl_message}"
             o_card_path = stats['o_card_path']
             oarm = stats['oarm']
             oarm_name = oarm['ARM']
@@ -7198,6 +7220,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 else:
                     tperformance = stats['tperformance']
                 t_talisman = stats['t_talisman']
+                t_talisman_emoji = "📿"
+                if t_talisman == "NULL":
+                    t_talisman ='N/A'
+                    t_talisman_emoji = "📿"
+                else:
+                    t_talisman_emoji = crown_utilities.set_emoji(t_talisman)
                 t_title_passive_type = stats['t_title_passive_type']
                 t_opponent_affinities = stats['t_opponent_affinities']
                 tmove1_element = stats['tmove1_element']
@@ -7214,6 +7242,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 t_full_card_info = stats['t_full_card_info']
                 t_affinity_message = crown_utilities.set_affinities(t_full_card_info)
                 tcard_lvl = stats['tcard_lvl']
+                tcard_lvl_message = f"🔰*{tcard_lvl}*"
+                if int(tcard_lvl) >= 200:
+                    tcard_lvl_message =f"🔱*{tcard_lvl}*"
+                if int(tcard_lvl) >= 700:
+                    tcard_lvl_message =f"⚜️*{tcard_lvl}*"
+                if int(tcard_lvl) >=999:
+                    tcard_lvl_message =f"🏅*{tcard_lvl}*"
+                t_info = f"{t_talisman_emoji} {tcard_lvl_message}"
                 t_card_path = stats['t_card_path']
                 tarm = stats['tarm']
                 tarm_name = stats['tarm_name']
@@ -7278,7 +7314,15 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 tmove1_element = stats['tmove1_element']
                 tmove2_element = stats['tmove2_element']
                 tmove3_element = stats['tmove3_element']
-                t_talisman = "N/A"
+                t_talisman = "NULL"
+                t_talisman_emoji = "📿"
+                if mode in B_modes:
+                    t_talisman = str(tmove3_element)
+                if t_talisman == "NULL":
+                    t_talisman ='N/A'
+                    t_talisman_emoji = "📿"
+                else:
+                    t_talisman_emoji = crown_utilities.set_emoji(t_talisman)
                 if difficulty == "HARD":
                     t_talisman = tmove3_element
                 t_basic_emoji = crown_utilities.set_emoji(tmove1_element)
@@ -7294,6 +7338,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 t_affinity_message = crown_utilities.set_affinities(t_full_card_info)
                 t_card_tier = t_full_card_info['TIER']
                 tcard_lvl = stats['tcard_lvl']
+                tcard_lvl_message = f"🔰*{tcard_lvl}*"
+                if int(tcard_lvl) >= 200:
+                    tcard_lvl_message =f"🔱*{tcard_lvl}*"
+                if int(tcard_lvl) >= 700:
+                    tcard_lvl_message =f"⚜️*{tcard_lvl}*"
+                if int(tcard_lvl) >=999:
+                    tcard_lvl_message =f"🏅*{tcard_lvl}*"
+                t_info = f"{t_talisman_emoji} {tcard_lvl_message}"
                 tcard_lvl_ap_buff = stats['tcard_lvl_ap_buff']
                 tarm = stats['tarm']
                 tarm_name = stats['tarm_name']
@@ -7383,9 +7435,23 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 c_block_used = False
                 c_card = "Not Co-op"
                 c_max_health = 0
+                
+            if mode in ai_co_op_modes:
+                c_talisman_emoji = "📿"
+                if c_talisman == "NULL" or c_talisman == "N/A":
+                    c_talisman ='N/A'
+                    c_talisman_emoji = "📿"
+                else:
+                    c_talisman_emoji = crown_utilities.set_emoji(c_talisman)
 
             if mode in co_op_modes:
                 c_talisman = stats['c_talisman']
+                c_talisman_emoji = "📿"
+                if c_talisman == "NULL" or c_talisman == "N/A":
+                    c_talisman ='N/A'
+                    c_talisman_emoji = "📿"
+                else:
+                    c_talisman_emoji = crown_utilities.set_emoji(c_talisman)
                 c_card_passive_type = stats['c_card_passive_type']
                 c_full_card_info = stats['c_full_card_info']
                 c_affinity_message = crown_utilities.set_affinities(c_full_card_info)
@@ -7404,6 +7470,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 cpet_bond = stats['cpet_bond']
                 c_card = stats['c_card']
                 ccard_lvl = stats['ccard_lvl']
+                ccard_lvl_message = f"🔰*{ccard_lvl}*"
+                if int(ccard_lvl) >= 200:
+                    ccard_lvl_message =f"🔱*{ccard_lvl}*"
+                if int(ccard_lvl) >= 700:
+                    ccard_lvl_message =f"⚜️*{ccard_lvl}*"
+                if int(ccard_lvl) >=999:
+                    ccard_lvl_message =f"🏅*{ccard_lvl}*"
+                c_info = f"{c_talisman_emoji} {ccard_lvl_message}"
                 c_card_path = stats['c_card_path']
                 carm = stats['carm']
                 carm_name = stats['carm_name']
@@ -7751,76 +7825,76 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             else:
                 battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚...")
             if mode not in PVP_MODES and mode not in B_modes and mode != "ABYSS" and mode not in RAID_MODES and mode not in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Start! ({currentopponent + 1}/{total_legends})", description=f"**{o_card}** 🆚 **{t_card}**")
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                embedVar = discord.Embed(title=f"✅ Confirm Start! ({currentopponent + 1}/{total_legends})", description=f"{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
             if mode == "ABYSS":
-                embedVar = discord.Embed(title=f"🌑 Abyss Floor {universe['FLOOR']}\n✨ Confirm Start!  ({currentopponent + 1}/{total_legends})", description=f"**{o_card}** 🆚 **{t_card}**")
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                embedVar = discord.Embed(title=f"🌑 Abyss Floor {universe['FLOOR']}\n✨ Confirm Start!  ({currentopponent + 1}/{total_legends})", description=f"{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
             
             if mode in PVP_MODES and tutorial:
-                embedVar = discord.Embed(title=f"✅ Click Start Match to Begin the Tutorial!", description=f"You : **{o_card}** 🆚 **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Click Start Match to Begin the Tutorial!", description=f"You: {ocard_lvl_message} **{o_card}** 🆚\nThem: {tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
                 
             elif mode in PVP_MODES and tutorial == False:
-                embedVar = discord.Embed(title=f"✅ Confirm PVP Battle!", description=f"{user2.mention}\n**{o_card}** 🆚 **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Confirm PVP Battle!", description=f"{user2.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
                 embedVar.set_thumbnail(url=user2.avatar_url)
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 # embedVar.set_author(name=f"AnimeVS+ PvP", icon_url=o_user['AVATAR'])
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row])      
                 
             elif mode in RAID_MODES:
-                embedVar = discord.Embed(title=f"✅ Confirm Raid Battle!", description=f"{ctx.author.mention}\n**{o_card}** 🆚 **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Confirm Raid Battle!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"{t_talisman_emoji}__Opponent Affinities__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
             
             if mode in co_op_modes and mode not in ai_co_op_modes and mode not in B_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Co-Op Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n**{o_card}** & **{c_card}** 🆚 **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Confirm Co-Op Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** &\n{ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Companion Affinities__", value=f"{c_affinity_message}")
-                embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
                 
             if mode in ai_co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Duo Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n**{o_card}** & **{c_card}** 🆚 **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Confirm Duo Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** &\n{ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Companion Affinities__", value=f"{c_affinity_message}")
-                embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card) 
                 
             if mode in B_modes and mode not in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n**{o_card}** 🆚 **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Opponent Affinities__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
                 
             if mode in B_modes and mode in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n**{o_card}** & **{c_card}** 🆚 **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** & {ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name="__Your Affinities__", value=f"{o_affinity_message}")
-                embedVar.add_field(name="__Companion Affinities__", value=f"{c_affinity_message}")
-                embedVar.add_field(name="__Boss Affinities__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
+                embedVar.add_field(name=f"__Boss Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
 
@@ -8159,20 +8233,20 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     await asyncio.sleep(2)
                                 elif mode in co_op_modes and mode not in B_modes:
                                     embedVar = discord.Embed(
-                                        title=f"**{o_card}** & **{c_card}** 🆚 **{t_card}** has begun! {lineup}\n{t_universe} {mode} Battle",
+                                        title=f"{ocard_lvl_message}**{o_card}** & {ccard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun! {lineup}\n{t_universe} {mode} Battle",
                                         description=f"`{o_card} Says:`\n{o_greeting_description}", colour=0xe91e63)
-                                    title = f"**{o_card}** & **{c_card}** 🆚 **{t_card}** has begun! {lineup}\n{t_universe} {mode} Battle"
+                                    title = f"{ocard_lvl_message}**{o_card}** & {ccard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun! {lineup}\n{t_universe} {mode} Battle"
                                 elif mode in AUTO_BATTLE_modes:
                                     embedVar = discord.Embed(
-                                        title=f"**{o_card}** 🆚 **{t_card}** has begun!\n{t_universe} {mode} Battle\nThe Result of this Automated Battle will be reported soon.",
+                                        title=f"{ocard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun!\n{t_universe} {mode} Battle\nThe Result of this Automated Battle will be reported soon.",
                                         colour=0xe91e63)
                                 elif randomized_battle:
                                     embedVar = discord.Embed(
-                                        title=f"**{o_card}** 🆚 **{t_card}** has begun!\n{t_universe} {mode} Battle",
+                                        title=f"{ocard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun!\n{t_universe} {mode} Battle",
                                         description=f"`{o_card} Says:`\n{o_greeting_description}", colour=0xe91e63)
-                                    title = f"**{o_card}** 🆚 **{t_card}** has begun!\n{t_universe} {mode} Battle"
+                                    title = f"{ocard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun!\n{t_universe} {mode} Battle"
                                 else:
-                                    title = f"**{o_card}** 🆚 **{t_card}** has begun!"
+                                    title = f"{ocard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun!"
 
                                 
 
@@ -9720,7 +9794,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     turn_total = turn_total + 1
                                                     turn = 1
                                         else:
-                                            previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability.")
+                                            previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability.{aiMove}")
                                             turn = 0
                                 else:
                                     # UNIVERSE CARD
@@ -10964,7 +11038,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     turn_total = turn_total + 1
                                                     turn = 1
                                                 else:
-                                                    previous_moves.append(f"(**{turn_total}**) Not enough Stamina to use this move")
+                                                    previous_moves.append(f"(**{turn_total}**) Not enough Stamina to use this move {button_ctx.custom_id}")
                                                     await button_ctx.defer(ignore=True)
                                                     turn = 0
                                             elif button_ctx.custom_id == "9":
@@ -11498,7 +11572,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         #if botActive:
                                                             #await button_ctx.defer(ignore=True)
                                             else:
-                                                previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability.")
+                                                previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability.{button_ctx.custom_id}")
                                                 # embedVar = discord.Embed(title=emessage,
                                                 #                         description=f"Use abilities to Increase `STAM` or enter `FOCUS STATE`!",
                                                 #                         colour=0xe91e63)
@@ -13334,7 +13408,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                             description=f"Use abilities to Increase `STAM` or enter `FOCUS STATE`!",
                                                                             colour=0xe91e63)
                                                     #await button_ctx.send(embed=embedVar)
-                                                    previous_moves.append(f"(**{turn_total}**) **{t_card}**: Not enough Stamina to use this ability.")
+                                                    previous_moves.append(f"(**{turn_total}**) **{t_card}**: Not enough Stamina to use this ability. {button_ctx.custom_id}")
                                                     turn = 1
                                         # except Exception as e:
                                         #     await ctx.send(f"{ctx.author.mention}, the match has ended. ")
@@ -14507,7 +14581,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         turn = 0
 
                                             else:
-                                                previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move") 
+                                                previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}") 
                                                 turn = 1
 
                                 if mode not in PVP_MODES:
@@ -16063,7 +16137,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             turn = turn_selector
                                                 else:
                                                     #await private_channel.send(m.NOT_ENOUGH_STAMINA)
-                                                    previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move") 
+                                                    previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}") 
                                                     turn = 1
                                             else:
                                                 if dmg['CAN_USE_MOVE']:
@@ -16394,7 +16468,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             turn_total = turn_total + 1
                                                             turn = turn_selector
                                                 else:
-                                                    previous_moves.append(f"(**{turn_total}**) {t_card} not enough Stamina to use move")
+                                                    previous_moves.append(f"(**{turn_total}**) {t_card} not enough Stamina to use move {aiMove}")
                                                     turn = 1
                                         else:
                                             if dmg['CAN_USE_MOVE']:
@@ -16730,7 +16804,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         turn_total = turn_total + 1
                                                         turn = turn_selector
                                             else:
-                                                previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move") 
+                                                previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}") 
                                                 
                                                 turn = 1
 
@@ -18086,7 +18160,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 turn = 3
                                             else:
                                                 #await private_channel.send(m.NOT_ENOUGH_STAMINA)
-                                                previous_moves.append(f"(**{turn_total}**) **{c_card}** not enough Stamina to use this move") 
+                                                previous_moves.append(f"(**{turn_total}**) **{c_card}** not enough Stamina to use this move {aiMove}") 
                                                 turn = 2
                                         elif aiMove == 7:
                                             if c_stamina >= 20:
@@ -18465,7 +18539,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                         description=f"Use abilities to Increase `STAM` or enter `FOCUS STATE`!",
                                                                         colour=0xe91e63)
                                                 #await private_channel.send(embed=embedVar)
-                                                previous_moves.append(f"(**{turn_total}**) **{c_card}** not enough Stamina to use this move") 
+                                                previous_moves.append(f"(**{turn_total}**) **{c_card}** not enough Stamina to use this move {aiMove}") 
                                                 turn = 2
                                     else:
                                         cap1 = list(c_1.values())[0] + ccard_lvl_ap_buff + c_shock_buff + c_basic_water_buff + c_ap_buff
