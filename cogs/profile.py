@@ -4891,7 +4891,7 @@ class Profile(commands.Cog):
                         await ctx.send("You already have 25 arms.")
                         return
                     if storage_arm:                  
-                        if storage_arm in storage_arm_names: #title storage update
+                        if storage_arm['ARM'] in storage_arm_names: #title storage update
                             durability = 0
                             for arms in astorage:
                                 if storage_arm == arms['ARM']:
