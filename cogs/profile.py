@@ -1127,19 +1127,19 @@ class Profile(commands.Cog):
 
                     if title_show == "Unbound":
                         unbound_arm_details.append(
-                            f"[{str(index)}]{universe_crest} **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
+                            f"{universe_crest} **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif not exclusive and not available:
                         boss_arm_details.append(
-                            f"[{str(index)}]{universe_crest}👹 **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
+                            f"{universe_crest}👹 **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
                     elif exclusive and available:
                         dungeon_arm_details.append(
-                            f"[{str(index)}]{universe_crest}:fire: **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
+                            f"{universe_crest}:fire: **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif available and not exclusive:
                         tales_arm_details.append(
-                            f"[{str(index)}]{universe_crest}:mechanical_arm: **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
+                            f"{universe_crest}:mechanical_arm: **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
 
                 all_arms = []
-                
+                print(all_arms)
                 if unbound_arm_details:
                     for u in unbound_arm_details:
                         all_arms.append(u)
