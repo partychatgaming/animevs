@@ -1106,6 +1106,7 @@ class Profile(commands.Cog):
                     for name in vault['ASTORAGE']:
                         if name['ARM'] == arm['ARM']:
                             print(name['ARM'])
+                            print(name['DUR'])
                             print(arm['ARM'])
                             durabilty = name['DUR']
                     print(durability)
