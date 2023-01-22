@@ -1106,7 +1106,8 @@ class Profile(commands.Cog):
                 print("ARMS")
                 print(arms)
                 for arm in arms:
-                    print("arm: " + arm)
+                    print("Arm Info")
+                    print( arm)
                     element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
                     arm_name = arm['ARM']
                     arm_show = arm['UNIVERSE']
