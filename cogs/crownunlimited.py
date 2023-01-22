@@ -23681,7 +23681,6 @@ async def drops(self,player, universe, matchcount):
     card_drop = 200  # 200
     drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 200)
     durability = random.randint(1, 45)
-    
     if difficulty == "HARD":
         mode = "Purchase"
         gold_drop = 30
@@ -23728,15 +23727,16 @@ async def drops(self,player, universe, matchcount):
                 return f"You earned :coin: **150**!"
         elif drop_rate <= arm_drop and drop_rate > title_drop:
             if all_available_drop_arms:
-                if len(vault['ARMS']) >= 25:
-                    await crown_utilities.bless(300, player.id)
-                    return f"You're maxed out on Arms! You earned :coin: 300 instead!"
-                if str(arms[rand_arm]) in owned_arms:
-                    await crown_utilities.bless(150, player.id)
-                    return f"You already own **{arms[rand_arm]}**! You earn :coin: **150**."
-                else:
-                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-                    return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
+                # if len(vault['ARMS']) >= 25:
+                #     await crown_utilities.bless(300, player.id)
+                #     return f"You're maxed out on Arms! You earned :coin: 300 instead!"
+                # if str(arms[rand_arm]) in owned_arms:
+                #     await crown_utilities.bless(150, player.id)
+                #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **150**."
+                # else:
+                #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
+                #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
+                response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 2000, 2000, mode, False, 0, "arms")
             else:
                 await crown_utilities.bless(150, player.id)
                 return f"You earned :coin: **150**!"
@@ -23980,15 +23980,17 @@ async def dungeondrops(self, player, universe, matchcount):
             response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000, mode, False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
-            if len(vault['ARMS']) >= 25:
-                await crown_utilities.bless(3000, player.id)
-                return f"You're maxed out on Arms! You earned :coin: 3000 instead!"
-            if str(arms[rand_arm]) in owned_arms:
-                await crown_utilities.bless(2500, player.id)
-                return f"You already own **{arms[rand_arm]}**! You earn :coin: **2500**."
-            else:
-                response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-                return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
+            # if len(vault['ARMS']) >= 25:
+            #     await crown_utilities.bless(3000, player.id)
+            #     return f"You're maxed out on Arms! You earned :coin: 3000 instead!"
+            # if str(arms[rand_arm]) in owned_arms:
+            #     await crown_utilities.bless(2500, player.id)
+            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **2500**."
+            # else:
+            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
+            #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
+            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 3000, 3000, mode, False, 0, "arms")
+            return response
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if len(vault['PETS']) >= 25:
                 await crown_utilities.bless(4000, player.id)
@@ -24121,7 +24123,6 @@ async def bossdrops(self,player, universe):
 
     drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 500)
     durability = random.randint(100, 150)
-    
 
     try:
         if drop_rate <= gold_drop:
@@ -24147,15 +24148,17 @@ async def bossdrops(self,player, universe):
             response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000, "Dungeon", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
-            if len(vault['ARMS']) >= 25:
-                await crown_utilities.bless(40000, player.id)
-                return f"You're maxed out on Arms! You earned :coin: **40000** instead!"
-            if str(arms[rand_arm]) in owned_arms:
-                await crown_utilities.bless(40000, player.id)
-                return f"You already own **{arms[rand_arm]}**! You earn :coin: **40000**."
-            else:
-                response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-                return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
+            # if len(vault['ARMS']) >= 25:
+            #     await crown_utilities.bless(40000, player.id)
+            #     return f"You're maxed out on Arms! You earned :coin: **40000** instead!"
+            # if str(arms[rand_arm]) in owned_arms:
+            #     await crown_utilities.bless(40000, player.id)
+            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **40000**."
+            # else:
+            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
+            #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
+            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 40000, 40000, "Dungeon", False, 0, "arms")
+            return response
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if len(vault['PETS']) >= 25:
                 await crown_utilities.bless(8000, player.id)
@@ -24174,23 +24177,25 @@ async def bossdrops(self,player, universe):
             response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 500000, 500000, "Dungeon", False, 0, "cards")
             return response
         elif drop_rate <= boss_title_drop and drop_rate > card_drop:
-            if len(vault['TITLES']) >= 25:
-                await crown_utilities.bless(10000000, player.id)
-                return f"You're maxed out on Titles! You earned :coin: **10,000,000** instead!"
-            response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(boss_title)}})
-            return f"You earned the Exclusive Boss Title: {boss_title}!"
+            # if len(vault['TITLES']) >= 25:
+            #     await crown_utilities.bless(10000000, player.id)
+            #     return f"You're maxed out on Titles! You earned :coin: **10,000,000** instead!"
+            # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(boss_title)}})
+            # return f"You earned the Exclusive Boss Title: {boss_title}!"
             response = await crown_utilities.store_drop_card(player.id, boss_title, universe, vault, owned_destinies, 50000, 50000, "Boss", False, 0, "titles")
             return response
         elif drop_rate <= boss_arm_drop and drop_rate > boss_title_drop:
-            if len(vault['ARMS']) >= 25:
-                await crown_utilities.bless(10000000, player.id)
-                return f"You're maxed out on Arms! You earned :coin: **10,000,000** instead!"
-            if str(boss_arm) in owned_arms:
-                await crown_utilities.bless(9000000, player.id)
-                return f"You already own **{arms[rand_arm]}**! You earn :coin: **9,000,000**."
-            else:
-                response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(boss_arm), 'DUR': durability}}})
-                return f"You earned the Exclusive Boss Arm: **{str(boss_arm)}** with ⚒️**{str(durability)}**!"
+            # if len(vault['ARMS']) >= 25:
+            #     await crown_utilities.bless(10000000, player.id)
+            #     return f"You're maxed out on Arms! You earned :coin: **10,000,000** instead!"
+            # if str(boss_arm) in owned_arms:
+            #     await crown_utilities.bless(9000000, player.id)
+            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **9,000,000**."
+            # else:
+            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(boss_arm), 'DUR': durability}}})
+            #     return f"You earned the Exclusive Boss Arm: **{str(boss_arm)}** with ⚒️**{str(durability)}**!"
+            response = await crown_utilities.store_drop_card(player.id, boss_arm, universe, vault, durability, 9000000, 9000000, "Boss", False, 0, "arms")
+            return response
         elif drop_rate <= boss_pet_drop and drop_rate > boss_arm_drop:
             if len(vault['PETS']) >= 25:
                 await crown_utilities.bless(1500000, player.id)

@@ -1836,7 +1836,7 @@ async def donate(ctx, amount, guild = None):
          if balance <= int(amount):
             await ctx.send("You do not have that amount to donate.")
          else:
-            await crown_utilities.blessteam(int(amount), dteam)
+            await crown_utilities.blessteam(int(round(int(amount * .90))), dteam)
             await crown_utilities.curse(int(amount), ctx.author.id)
             
             gem_bless = round(int(amount) * .10)
@@ -1848,9 +1848,9 @@ async def donate(ctx, amount, guild = None):
                   }
                   filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
                   res = db.updateVault(query, update_query, filter_query)
-               await ctx.send(f"**:coin:{amount}** has been gifted to **{team_display_name}**.\nYou earned **:gem:{gem_bless}** gems! *All Universes* ")
+               await ctx.send(f"**:coin:{round(int(amount * .90))}** has been gifted to **{team_display_name}**.\nCreated **:gem:{gem_bless}** gems! *All Universes* ")
             else:
-               await ctx.send(f"**:coin:{amount}** has been gifted to **{team_display_name}**.\n**Dismantle** *Items to earn Gems in return for Donations!*")
+               await ctx.send(f"**:coin:{round(int(amount * .90))}** has been gifted to **{team_display_name}**. *10% Converted to Gems*\n**Dismantle** *Items to earn Gems in return for Donations!*")
                
             
             return
