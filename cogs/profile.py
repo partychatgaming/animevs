@@ -925,9 +925,9 @@ class Profile(commands.Cog):
                     for c in vault['CARD_LEVELS']:
                         if card['NAME'] == c['CARD']:
                             level = str(c['LVL'])
-                    if card_lvl >= 200:
+                    if level >= 200:
                         level_icon ="🔱"
-                    if card_lvl >=999:
+                    if level >=999:
                         level_icon ="⚜️"
                     available = ""
                     if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
@@ -4779,6 +4779,17 @@ class Profile(commands.Cog):
                                 create_choice(
                                     name="🪙🎗️ Resell Title",
                                     value="tresell"
+                                ),create_choice(
+                                    name="💼:mechanical_arm: Draw Arm",
+                                    value="adraw"
+                                ),
+                                create_choice(
+                                    name="💎:mechanical_arm: Dismantle Arm",
+                                    value="adismantle"
+                                ),
+                                create_choice(
+                                    name="🪙:mechanical_arm: Resell Arm",
+                                    value="aresell"
                                 )
                             ]
                         ),create_option(
