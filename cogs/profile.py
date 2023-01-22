@@ -925,9 +925,10 @@ class Profile(commands.Cog):
                     for c in vault['CARD_LEVELS']:
                         if card['NAME'] == c['CARD']:
                             level = str(c['LVL'])
-                    if level >= 200:
+                            card_lvl = int(c['LVL'])
+                    if card_lvl >= 200:
                         level_icon ="🔱"
-                    if level >=999:
+                    if card_lvl >=999:
                         level_icon ="⚜️"
                     available = ""
                     if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
