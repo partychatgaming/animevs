@@ -1103,7 +1103,7 @@ class Profile(commands.Cog):
                 for arm in arms:
                     durability = 0
                     for name in vault['ASTORAGE']:
-                        if name['ARM'] == arm:
+                        if name['ARM'] == arm['ARM']:
                             durabilty = name['DUR']
                             
                     element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']

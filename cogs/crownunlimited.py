@@ -23032,7 +23032,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if crestsearch:
                                             await crown_utilities.blessguild(10000, oguild['GNAME'])
                                             embedVar.add_field(name=f"**{selected_universe} Crest Search!**",
-                                                            value=f":flags:**{oguild['GNAME']}** earned **10,000** :coin:")
+                                                            value=f":flags:**{oguild['GNAME']}** earned **100,000** :coin:")
                                     embedVar.set_author(name=f"{t_card} lost!")
                                     
                                     await battle_msg.delete(delay=2)
@@ -23050,7 +23050,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         embedVar.set_author(name=f"{selected_universe} Boss has been unlocked!")
                                         if crestsearch:
                                             await crown_utilities.blessguild(100000, oguild['GNAME'])
-                                            teambank = await crown_utilities.blessteam(10000, oteam)
+                                            teambank = await crown_utilities.blessteam(100000, oteam)
                                             await movecrest(selected_universe, oguild['GNAME'])
                                             embedVar.add_field(name=f"**{selected_universe}** CREST CLAIMED!",
                                                             value=f"**{oguild['GNAME']}** earned the {selected_universe} **Crest**")
