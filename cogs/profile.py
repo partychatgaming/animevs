@@ -1102,14 +1102,9 @@ class Profile(commands.Cog):
                 icon = ""
                 for arm in arms:
                     durability = 0
-                    print(arm)
                     for name in vault['ASTORAGE']:
                         if name['ARM'] == arm['ARM']:
-                            print(name['ARM'])
-                            print(name['DUR'])
-                            print(arm['ARM'])
                             durability = int(name['DUR'])
-                    print(durability)
                     element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
                     arm_name = arm['ARM']
                     arm_show = arm['UNIVERSE']
@@ -1142,16 +1137,16 @@ class Profile(commands.Cog):
 
                     if arm_show == "Unbound":
                         unbound_arm_details.append(
-                            f"{index}{universe_crest} **{arm_name}** |⚒️*{durability}*\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
+                            f"[{str(index)}]{universe_crest} **{arm_name}** ⚒️*{durability}*\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif not exclusive and not available:
                         boss_arm_details.append(
-                            f"{index}{universe_crest}👹 **{arm_name}** |⚒️*{durability}*\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
+                            f"[{str(index)}]{universe_crest}👹 **{arm_name}** ⚒️*{durability}*\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
                     elif exclusive and available:
                         dungeon_arm_details.append(
-                            f"{index}{universe_crest}:fire: **{arm_name}** |⚒️*{durability}*\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
+                            f"[{str(index)}]{universe_crest}:fire: **{arm_name}** ⚒️*{durability}*\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
                     elif available and not exclusive:
                         tales_arm_details.append(
-                            f"{index}{universe_crest}:mechanical_arm: **{arm_name}** |⚒️*{durability}*\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
+                            f"[{str(index)}]{universe_crest}:mechanical_arm: **{arm_name}** ⚒️*{durability}*\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
 
                 all_arms = []
                 if unbound_arm_details:
