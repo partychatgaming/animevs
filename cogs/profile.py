@@ -1155,7 +1155,7 @@ class Profile(commands.Cog):
                 if boss_arm_details:
                     for de in boss_arm_details:
                         all_arms.append(de)
-                
+                print(all_arms)
                 
 
                 total_arms = len(all_arms)
