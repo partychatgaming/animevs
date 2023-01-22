@@ -1082,6 +1082,121 @@ class Profile(commands.Cog):
                 paginator.add_reaction('⏭️', "last")
                 embeds = embed_list
                 await paginator.run(embeds)
+            elif mode == "arms":
+                if not vault['ASTORAGE']:
+                    await ctx.send("Your Arm storage is empty.", hidden=True)
+                    return
+
+                list_of_arms = db.querySpecificArms(vault['ASTORAGE'])
+                arms = [x for x in list_of_arms]
+                dungeon_arm_details = []
+                tales_arm_details = []
+                boss_arm_details = []
+                unbound_arm_details = []
+                icon = ""
+                for arm in arms:
+                    element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
+                    arm_name = arm['ARM']
+                    arm_show = arm['UNIVERSE']
+                    exclusive = arm['EXCLUSIVE']
+                    available = arm['AVAILABLE']
+                    element = arm['ELEMENT']
+                    if element:
+                        element_name = element.title()
+                        element = crown_utilities.set_emoji(element)
+                    else:
+                        element = ":microbe"
+                    arm_passive = arm['ABILITIES'][0]
+                        # Arm Passive
+                    arm_passive_type = list(arm_passive.keys())[0]
+                    arm_passive_value = list(arm_passive.values())[0]
+                    
+                    icon = element
+                    if arm_passive_type == "SHIELD":
+                        icon = "🌐"
+                    if arm_passive_type == "PARRY":
+                        icon = "🔄"
+                    if arm_passive_type == "BARRIER":
+                        icon = "💠"
+                    if arm_passive_type == "SIPHON":
+                        icon = "💉"
+
+                   
+                    universe_crest = crown_utilities.crest_dict[arm_show]
+                    index = vault['ASTORAGE'].index(arm['ARM'])
+
+                    if title_show == "Unbound":
+                        unbound_title_details.append(
+                            f"[{str(index)}]{universe_crest} **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
+                    elif not exclusive and not available:
+                        boss_title_details.append(
+                            f"[{str(index)}]{universe_crest}👹 **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
+                    elif exclusive and available:
+                        dungeon_title_details.append(
+                            f"[{str(index)}]{universe_crest}:fire: **{arm_name}**\n**{icon} : {arm_passive_type}**: *{arm_passive_value}*\n")
+                    elif available and not exclusive:
+                        tales_title_details.append(
+                            f"[{str(index)}]{universe_crest}:mechanical_arm: **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
+
+                all_titles = []
+                
+                if unbound_arm_details:
+                    for u in unbound_arm_details:
+                        all_titles.append(u)
+                        
+                if tales_arm_details:
+                    for t in tales_arm_details:
+                        all_titles.append(t)
+
+                if dungeon_arm_details:
+                    for d in dungeon_arm_details:
+                        all_titles.append(d)
+
+                if boss_arm_details:
+                    for de in boss_arm_details:
+                        all_titles.append(de)
+                
+                
+
+                total_arms = len(all_arms)
+
+                # Adding to array until divisible by 10
+                while len(all_arms) % 10 != 0:
+                    all_arms.append("")
+                # Check if divisible by 10, then start to split evenly
+
+                if len(all_arms) % 10 == 0:
+                    first_digit = int(str(len(all_arms))[:1])
+                    if len(all_arms) >= 89:
+                        if first_digit == 1:
+                            first_digit = 10
+                    # first_digit = 10
+                    arms_broken_up = np.array_split(all_arms, first_digit)
+
+                # If it's not an array greater than 10, show paginationless embed
+                if len(all_arms) < 10:
+                    embedVar = discord.Embed(title=f"💼 {user['DISNAME']}'s Arm Storage", description="\n".join(all_arms), colour=0x7289da)
+                    embedVar.set_footer(
+                        text=f"{total_arms} Total Arms\n{str(storage_allowed_amount - len(vault['ASTORAGE']))} Storage Available")
+                    await ctx.send(embed=embedVar)
+
+                embed_list = []
+                for i in range(0, len(arms_broken_up)):
+                    globals()['embedVar%s' % i] = discord.Embed(
+                        title=f"💼 {user['DISNAME']}'s Arm Storage",
+                        description="\n".join(arms_broken_up[i]), colour=0x7289da)
+                    globals()['embedVar%s' % i].set_footer(
+                        text=f"{total_titles} Total Arms\n{str(storage_allowed_amount - len(vault['ASTORAGE']))} Storage Available")
+                    embed_list.append(globals()['embedVar%s' % i])
+
+                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+                paginator.add_reaction('⏮️', "first")
+                paginator.add_reaction('⬅️', "back")
+                paginator.add_reaction('🔐', "lock")
+                paginator.add_reaction('➡️', "next")
+                paginator.add_reaction('⏭️', "last")
+                embeds = embed_list
+                await paginator.run(embeds)
             else:
                 await ctx.send("Title and Arm Storage Coming Soon!")
         except Exception as ex:

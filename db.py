@@ -977,6 +977,13 @@ def querySpecificTitles(args):
         return data 
     except Exception as e:
         return False
+    
+def querySpecificArms(args):
+    try:
+        data = arm_col.find({'ARM': {'$in': args}})
+        return data 
+    except Exception as e:
+        return False
    
 
 def querySpecificDropCards(args):
