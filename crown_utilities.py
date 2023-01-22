@@ -83,6 +83,10 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
             for owned_card in current_cards:
                 if owned_card == card_name:
                     card_owned = True
+            card_owned = False
+            for owned_card in current_storage:
+                if owned_card == card_name:
+                    card_owned = True
 
             if card_owned:
                 if is_shop:
@@ -166,6 +170,9 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
             for owned_title in current_titles:
                 if owned_title == title_name:
                     title_owned = True
+            for owned_title in current_storage:
+                if owned_title == title_name:
+                    title_owned = True
 
             if title_owned:
                 if is_shop:
@@ -221,6 +228,10 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
             arm_owned = False
             for owned_arm in current_arms:
                 if owned_arm == arm_name:
+                    arm_owned = True
+                    
+            for owned_arm in current_storage:
+                if owned_arm['ARM'] == arm_name:
                     arm_owned = True
 
             if arm_owned:
