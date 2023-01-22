@@ -1082,7 +1082,7 @@ class Profile(commands.Cog):
                 paginator.add_reaction('⏭️', "last")
                 embeds = embed_list
                 await paginator.run(embeds)
-            elif mode == "arms":
+            elif mode == "arm":
                 if not vault['ASTORAGE']:
                     await ctx.send("Your Arm storage is empty.", hidden=True)
                     return
