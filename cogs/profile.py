@@ -1102,10 +1102,13 @@ class Profile(commands.Cog):
                 icon = ""
                 for arm in arms:
                     durability = 0
+                    print(arm)
                     for name in vault['ASTORAGE']:
                         if name['ARM'] == arm['ARM']:
+                            print(name['ARM'])
+                            print(arm['ARM'])
                             durabilty = name['DUR']
-                            
+                    print(durability)
                     element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
                     arm_name = arm['ARM']
                     arm_show = arm['UNIVERSE']
