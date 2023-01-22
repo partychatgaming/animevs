@@ -507,9 +507,9 @@ class Profile(commands.Cog):
                     licon = "🔰"
                     armicon = "⚠️"
                     if card_lvl >= 200:
-                        licon ="⚜️"
-                    if card_lvl >= 700:
                         licon ="🔱"
+                    if card_lvl >= 700:
+                        licon ="⚜️"
                     if card_lvl >=999:
                         licon ="🏅"
                     titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
