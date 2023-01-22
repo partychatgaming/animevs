@@ -1138,7 +1138,7 @@ class Profile(commands.Cog):
                         tales_title_details.append(
                             f"[{str(index)}]{universe_crest}:mechanical_arm: **{arm_name}**\n**{icon} : {arm_passive_type}**:  *{arm_passive_value}*\n")
 
-                all_titles = []
+                all_arms = []
                 
                 if unbound_arm_details:
                     for u in unbound_arm_details:
