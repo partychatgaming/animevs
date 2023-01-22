@@ -1142,19 +1142,19 @@ class Profile(commands.Cog):
                 
                 if unbound_arm_details:
                     for u in unbound_arm_details:
-                        all_titles.append(u)
+                        all_arms.append(u)
                         
                 if tales_arm_details:
                     for t in tales_arm_details:
-                        all_titles.append(t)
+                        all_arms.append(t)
 
                 if dungeon_arm_details:
                     for d in dungeon_arm_details:
-                        all_titles.append(d)
+                        all_arms.append(d)
 
                 if boss_arm_details:
                     for de in boss_arm_details:
-                        all_titles.append(de)
+                        all_arms.append(de)
                 
                 
 
