@@ -504,12 +504,12 @@ class Profile(commands.Cog):
                     #Title errors 
                     titled =False
                     titleicon="⚠️"
-                    licon = "🔰"
+                    licon = "🔱"
                     armicon = "⚠️"
                     if card_lvl >= 200:
-                        licon ="🔱"
-                    if card_lvl >=999:
                         licon ="⚜️"
+                    if card_lvl >=999:
+                        licon ="🏅"
                     titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
                     armmessage = f"🦾 ⚠️ {arm_name}: {durability}"
                     if arm_passive_type in arm_moves_type_list:
@@ -921,15 +921,16 @@ class Profile(commands.Cog):
                     universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
                     index = vault['STORAGE'].index(card['NAME'])
                     level = ""
-                    level_icon = "🔰"
+                    level_icon = "🔱"
                     for c in vault['CARD_LEVELS']:
                         if card['NAME'] == c['CARD']:
                             level = str(c['LVL'])
                             card_lvl = int(c['LVL'])
                     if card_lvl >= 200:
-                        level_icon ="🔱"
-                    if card_lvl >=999:
                         level_icon ="⚜️"
+                    if card_lvl >=999:
+                        level_icon ="🏅"
+                        
                     available = ""
                     if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
                         dungeon_card_details.append(
@@ -5718,12 +5719,12 @@ async def menubuild(self, ctx):
                 #Title errors 
                 titled =False
                 titleicon="⚠️"
-                licon = "🔰"
+                licon = "🔱"
                 armicon = "⚠️"
                 if card_lvl >= 200:
-                    licon ="🔱"
-                if card_lvl >=999:
                     licon ="⚜️"
+                if card_lvl >=999:
+                    licon ="🏅"
                 titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
                 armmessage = f"🦾 ⚠️ {arm_name}: {durability}"
                 if arm_passive_type in arm_moves_type_list:
@@ -6595,19 +6596,25 @@ async def menustorage(self, ctx):
         for card in cards:
             index = vault['STORAGE'].index(card['NAME'])
             level = ""
+            level_icon = "🔱"
             for c in vault['CARD_LEVELS']:
                 if card['NAME'] == c['CARD']:
                     level = str(c['LVL'])
+                    card_lvl = int(c['LVL'])
+            if card_lvl >= 200:
+                level_icon ="⚜️"
+            if card_lvl >=999:
+                level_icon ="🏅"
             available = ""
             if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
                 dungeon_card_details.append(
-                    f"[{str(index)}] :mahjong: {card['TIER']} **{card['NAME']}**\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                    f"[{str(index)}] :mahjong: {card['TIER']} **{card['NAME']}**\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
             elif not card['HAS_COLLECTION']:
                 tales_card_details.append(
-                    f"[{str(index)}] :mahjong: {card['TIER']} **{card['NAME']}**\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                    f"[{str(index)}] :mahjong: {card['TIER']} **{card['NAME']}**\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
             elif card['HAS_COLLECTION']:
                 destiny_card_details.append(
-                    f"[{str(index)}] :mahjong: {card['TIER']} **{card['NAME']}**\n**🔱**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                    f"[{str(index)}] :mahjong: {card['TIER']} **{card['NAME']}**\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
 
         all_cards = []
         if tales_card_details:
