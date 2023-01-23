@@ -1657,12 +1657,13 @@ called_once_a_day.start()
 async def daily(ctx):
    try:
       dailyamount = 1000000
-      await crown_utilities.bless(dailyamount, ctx.author.id)
+      daily_bonus = int(dailyamount * rebirth)
+      await crown_utilities.bless(daily_bonus, ctx.author.id)
       query = {'DID': str(ctx.author.id)}
       user_data = db.queryUser(query)
       user_completed_tales = user_data['CROWN_TALES']
-      rebirth = user_data['REBIRTH']
-      daily_bonus = int(dailyamount * rebirth)
+      rebirth = int(user_data['REBIRTH'])
+      
       difference = daily_bonus - dailyamount
       bonus_message = ""
       if difference > 0:
