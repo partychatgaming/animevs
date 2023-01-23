@@ -1661,11 +1661,17 @@ async def daily(ctx):
       query = {'DID': str(ctx.author.id)}
       user_data = db.queryUser(query)
       user_completed_tales = user_data['CROWN_TALES']
+      rebirth = user_data['REBIRTH']
+      daily_bonus = int(dailyamount * rebirth)
+      difference = daily_bonus - dailyamount
+      bonus_message = ""
+      if difference <= 0:
+         bonus_message = f"*:heart_on_fire:+{'{:,}'.format(difference)}*"
       universes = db.queryAllUniverse()
       if ctx.author.guild:
          server_query = {'GNAME': str(ctx.author.guild)}
          update_server_query = {
-            '$inc': {'SERVER_BALANCE': 50000}
+            '$inc': {'SERVER_BALANCE': daily_bonus}
          }
          updated_server = db.updateServer(server_query, update_server_query)
 
@@ -1697,7 +1703,7 @@ async def daily(ctx):
       embedVar = discord.Embed(title=f"☀️ Daily Rewards!", description=textwrap.dedent(f"""\
       Welcome back, {ctx.author.mention}!
       **Daily Earnings** 
-      :coin: {'{:,}'.format(dailyamount)}
+      :coin: {'{:,}'.format(dailyamount)} {bonus_message}
       {retry_message}
       
       📜 **New Quests**
