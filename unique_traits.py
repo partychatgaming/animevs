@@ -94,5 +94,5 @@ traits = [{
 },{
     'NAME': 'Crown Rift Awakening',
     'EFFECT': 'Blood Awakening, Bloodlines',
-    'TRAIT': '**Blood Awakening**: Deal 3x damage on Crit, Increased Crit Chance. **Bloodlines**: Can use Titles from all Universes'
+    'TRAIT': '**Blood Awakening**: Deal 4x damage on Crit, Increased Crit Chance. **Bloodlines**: Can use Titles from all Universes'
 }]

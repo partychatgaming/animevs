@@ -2464,6 +2464,14 @@ class Profile(commands.Cog):
         hundred_levels = 650000
         thirty_levels = 220000
         ten_levels = 80000
+        
+        licon = "🔰"
+        if lvl>= 200:
+            licon ="🔱"
+        if lvl>= 700:
+            licon ="⚜️"
+        if lvl >= 999:
+            licon = "🏅"
 
         if lvl >= 200 and lvl < 299:
             hundred_levels = 30000000
@@ -2533,7 +2541,7 @@ class Profile(commands.Cog):
         embedVar = discord.Embed(title=f"🔨 | **Blacksmith** - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
         Welcome {ctx.author.mention}!
         Purchase **Card XP** and **Arm Durability**!
-        🎴 Card:  **{current_card}** 🔱**{lvl}**
+        🎴 Card:  **{current_card}** {licon}**{lvl}**
         🦾 Arm: **{current_arm}** *{boss_message}*
         
 
@@ -8293,6 +8301,14 @@ async def menugems(self, ctx: SlashContext):
             hundred_levels = 650000
             thirty_levels = 220000
             ten_levels = 80000
+            
+            licon = "🔰"
+            if lvl>= 200:
+                licon ="🔱"
+            if lvl>= 700:
+                licon ="⚜️"
+            if lvl >= 999:
+                licon = "🏅"
 
             if lvl >= 200 and lvl < 299:
                 hundred_levels = 30000000
@@ -8362,7 +8378,7 @@ async def menugems(self, ctx: SlashContext):
             embedVar = discord.Embed(title=f"🔨 | **Blacksmith** - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
             Welcome {ctx.author.mention}!
             Purchase **Card XP** and **Arm Durability**!
-            🎴 Card:  **{current_card}** 🔱**{lvl}**
+            🎴 Card:  **{current_card}** {licon}**{lvl}**
             🦾 Arm: **{current_arm}** *{boss_message}*
             
 
