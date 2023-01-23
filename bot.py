@@ -1656,13 +1656,14 @@ called_once_a_day.start()
 @commands.cooldown(1, 60*60*12, commands.BucketType.user)
 async def daily(ctx):
    try:
-      dailyamount = 1000000
-      daily_bonus = int(dailyamount * rebirth)
-      await crown_utilities.bless(daily_bonus, ctx.author.id)
       query = {'DID': str(ctx.author.id)}
       user_data = db.queryUser(query)
       user_completed_tales = user_data['CROWN_TALES']
       rebirth = int(user_data['REBIRTH'])
+      dailyamount = 1000000
+      daily_bonus = int(dailyamount * rebirth)
+      await crown_utilities.bless(daily_bonus, ctx.author.id)
+      
       
       difference = daily_bonus - dailyamount
       bonus_message = ""
