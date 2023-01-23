@@ -9961,7 +9961,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 )
                                             )
 
-                                    if mode in ai_co_op_modes and o_stamina>=20:
+                                    if mode in ai_co_op_modes and o_stamina >= 20:
                                         coop_util_buttons = [
                                             manage_components.create_button(
                                                 style=ButtonStyle.blue,
@@ -9980,7 +9980,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             ),
                                         ]
                                     
-                                    elif mode in co_op_modes and mode not in ai_co_op_modes and o_stamina>=20:
+                                    elif mode in co_op_modes and mode not in ai_co_op_modes and o_stamina >= 20:
                                         coop_util_buttons = [
                                             manage_components.create_button(
                                                 style=ButtonStyle.blue,
