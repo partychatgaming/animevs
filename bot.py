@@ -1133,7 +1133,7 @@ async def rebirth(ctx):
       if rLevel < 5:
          pursemessage = "You will lose all of your equipped and vaulted items."
          if gabes_purse == 1:
-            pursemessage = ":purse: | Gabe's Purse Activated! All Items Will Be Retained!\n*You will not be able to select a new starting universe!*"
+            pursemessage = ":purse: | Gabe's Purse Activated! All Items Will Be Retained! *You will not be able to select a new starting universe!*"
          rebirthCost = round(10000000 * (1 + (rLevel)))
 
          util_buttons = [
