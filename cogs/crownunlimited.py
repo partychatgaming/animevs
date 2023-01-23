@@ -7316,6 +7316,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 tmove3_element = stats['tmove3_element']
                 t_talisman = "NULL"
                 t_talisman_emoji = "📿"
+                if difficulty =="NORMAL":
+                    t_talisman = str(tmove1_element)
+                if difficulty == "HARD":
+                    t_talisman = tmove3_element
                 if mode in B_modes:
                     t_talisman = str(tmove3_element)
                 if t_talisman == "NULL":
@@ -7323,8 +7327,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                     t_talisman_emoji = "📿"
                 else:
                     t_talisman_emoji = crown_utilities.set_emoji(t_talisman)
-                if difficulty == "HARD":
-                    t_talisman = tmove3_element
+                
                 t_basic_emoji = crown_utilities.set_emoji(tmove1_element)
                 t_super_emoji = crown_utilities.set_emoji(tmove2_element)
                 t_ultimate_emoji = crown_utilities.set_emoji(tmove3_element)
@@ -7436,29 +7439,38 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 c_card = "Not Co-op"
                 c_max_health = 0
                 
-            if mode in ai_co_op_modes:
-                c_talisman_emoji = "📿"
-                c_talisman = "N/A"
-                if c_talisman == "NULL" or c_talisman == "N/A":
-                    c_talisman ='N/A'
-                    c_talisman_emoji = "📿"
-                else:
-                    c_talisman_emoji = crown_utilities.set_emoji(c_talisman)
+            
 
             if mode in co_op_modes:
-                c_talisman = stats['c_talisman']
-                c_talisman_emoji = "📿"
-                if c_talisman == "NULL" or c_talisman == "N/A":
-                    c_talisman ='N/A'
+                
+                if mode in ai_co_op_modes:
+                    cmove1_element = stats['cmove1_element']
+                    cmove2_element = stats['cmove2_element']
+                    cmove3_element = stats['cmove3_element']
                     c_talisman_emoji = "📿"
+                    c_talisman = "N/A"
+                    c_talisman = cmove1_element
+                    if c_talisman == "NULL" or c_talisman == "N/A":
+                        c_talisman ='N/A'
+                        c_talisman_emoji = "📿"
+                    else:
+                        c_talisman_emoji = crown_utilities.set_emoji(c_talisman)
                 else:
-                    c_talisman_emoji = crown_utilities.set_emoji(c_talisman)
+                    cmove1_element = stats['cmove1_element']
+                    cmove2_element = stats['cmove2_element']
+                    cmove3_element = stats['cmove3_element']
+                    
+                    c_talisman = stats['c_talisman']
+                    c_talisman_emoji = "📿"
+                    if c_talisman == "NULL" or c_talisman == "N/A":
+                        c_talisman ='N/A'
+                        c_talisman_emoji = "📿"
+                    else:
+                        c_talisman_emoji = crown_utilities.set_emoji(c_talisman)
                 c_card_passive_type = stats['c_card_passive_type']
                 c_full_card_info = stats['c_full_card_info']
                 c_affinity_message = crown_utilities.set_affinities(c_full_card_info)
-                cmove1_element = stats['cmove1_element']
-                cmove2_element = stats['cmove2_element']
-                cmove3_element = stats['cmove3_element']
+                
                 c_basic_emoji = crown_utilities.set_emoji(cmove1_element)
                 c_super_emoji = crown_utilities.set_emoji(cmove2_element)
                 c_ultimate_emoji = crown_utilities.set_emoji(cmove3_element)
@@ -7990,7 +8002,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 o_gravity_hit = False
                             t_burn_dmg = round(t_burn_dmg / 2)
                             o_freeze_enh = False
-
+                            if mode in co_op_modes:
+                                c_freeze_enh = False
                             # if previous_moves:
                             #     previous_moves_len = len(previous_moves)
                             #     # print(f"LIST LEN: {previous_moves_len}")
@@ -9864,30 +9877,25 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     main_options = ["1", "2", "3", "4"]
                                     if o_used_focus and o_used_resolve:
                                         if mode in co_op_modes:
-                                            options = ["q", "Q", "0", "1", "2", "3", "4", "6", "7", "8", "9", "s"]
+                                            options = ["q", "Q", "0", "1", "2", "3", "4", "6", "7", "8", "9", "s","b"]
                                         else:
                                             options = ["q", "Q", "0", "1", "2", "3", "4", "6", "s"]
 
                                     elif o_used_focus and not o_used_resolve:
                                         if mode in co_op_modes:
-                                            options = ["q", "Q", "0", "1", "2", "3", "4", "5", "7", "8", "9", "s"]
+                                            options = ["q", "Q", "0", "1", "2", "3", "4", "5", "7", "8", "9", "s","b"]
                                         else:
                                             options = ["q", "Q", "0", "1", "2", "3", "4", "5", "s"]
 
                                     else:
                                         if mode in co_op_modes:
-                                            options = ["q", "Q", "0", "1", "2", "3", "4", "7", "8", "9", "s"]
+                                            options = ["q", "Q", "0", "1", "2", "3", "4", "7", "8", "9", "s","b"]
                                         else:
                                             options = ["q", "Q", "0", "1", "2", "3", "4", "s"]
 
                                     battle_buttons = []
-                                    util_buttons = [
-                                        manage_components.create_button(
-                                            style=ButtonStyle.grey,
-                                            label="Quit",
-                                            custom_id="q"
-                                        ),
-                                    ]
+                                    coop_util_buttons = []
+                                    util_buttons = []
                                     if o_stamina >= 10:
                                         if o_universe == "Souls" and o_used_resolve:
                                             battle_buttons.append(
@@ -9950,36 +9958,34 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     custom_id="0"
                                                 )
                                             )
-
-                                    if not randomized_battle and difficulty == "NORMAL" and mode != "ABYSS" or mode !="ABYSS" and not tutorial:
-                                        if mode != "SCENARIO":
-                                                util_buttons.append(             
+                                            
+                                    if int(o_stamina) >= 20:
+                                        if mode in ai_co_op_modes:
+                                            if o_stamina >= 20:
+                                                coop_util_buttons = [
                                                     manage_components.create_button(
-                                                    style=ButtonStyle.red,
-                                                    label=f"Save",
-                                                    custom_id="s"
-                                                )
-                                            )
-
-                                    if mode in ai_co_op_modes and o_stamina >= 20:
-                                        coop_util_buttons = [
-                                            manage_components.create_button(
-                                                style=ButtonStyle.blue,
-                                                label="🦠 Assist Companion 20",
-                                                custom_id="7"
-                                            ),
-                                            manage_components.create_button(
-                                                style=ButtonStyle.blue,
-                                                label="🦠 Request Assistance",
-                                                custom_id="8"
-                                            ),
-                                            manage_components.create_button(
-                                                style=ButtonStyle.blue,
-                                                label="🛡️ Request Block",
-                                                custom_id="9"
-                                            ),
-                                        ]
-                                    
+                                                        style=ButtonStyle.blue,
+                                                        label="🦠 Enhance Allu 20",
+                                                        custom_id="7"
+                                                    ),
+                                                    manage_components.create_button(
+                                                        style=ButtonStyle.blue,
+                                                        label="👥 Ally Assist 20",
+                                                        custom_id="8"
+                                                    ),
+                                                    manage_components.create_button(
+                                                        style=ButtonStyle.blue,
+                                                        label="🛡️ Ally Block 20",
+                                                        custom_id="9"
+                                                    ),
+                                                ]
+                                            else:
+                                                coop_util_buttons = [           
+                                                        manage_components.create_button(
+                                                        style=ButtonStyle.red,
+                                                        label=f"Boost Companion",
+                                                        custom_id="b"
+                                                    )]
                                     elif mode in co_op_modes and mode not in ai_co_op_modes and o_stamina >= 20:
                                         coop_util_buttons = [
                                             manage_components.create_button(
@@ -10006,10 +10012,28 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 custom_id="5"
                                             )
                                         )
+                                            
+                                    util_buttons.append(
+                                        manage_components.create_button(
+                                            style=ButtonStyle.grey,
+                                            label="Quit",
+                                            custom_id="q"
+                                        ),
+                                    )
+
+                                    if not randomized_battle and difficulty == "NORMAL" and mode != "ABYSS" or mode !="ABYSS" and not tutorial:
+                                        if mode != "SCENARIO":
+                                                util_buttons.append(             
+                                                    manage_components.create_button(
+                                                    style=ButtonStyle.red,
+                                                    label=f"Save",
+                                                    custom_id="s"
+                                                )
+                                            )
 
                                     battle_action_row = manage_components.create_actionrow(*battle_buttons)
                                     util_action_row = manage_components.create_actionrow(*util_buttons)
-                                    if mode in co_op_modes:
+                                    if mode in co_op_modes and o_stamina >= 20:
                                         coop_util_action_row = manage_components.create_actionrow(*coop_util_buttons)
                                     
                                     if mode in co_op_modes:    
@@ -10032,7 +10056,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             carm_message = f"🌐{cshield_value}"
                                         elif carm_parry_active:
                                             carm_message = f"🔄{cparry_count}"
-                                        components = [battle_action_row, util_action_row, coop_util_action_row]
+                                        if o_stamina >= 20:
+                                            components = [battle_action_row, coop_util_action_row, util_action_row]
+                                        else:
+                                            components = [battle_action_row, util_action_row]
                                         companion_stats = f"\n{c_card}: ❤️{round(c_health)} 🌀{round(c_stamina)} 🗡️{round(c_attack)}/🛡️{round(c_defense)} {carm_message}"
                                     else:
                                         components = [battle_action_row, util_action_row]
@@ -10119,6 +10146,19 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 
 
                                         # calculate data based on selected move
+                                        if button_ctx.custom_id == "b":
+                                            c_stamina = c_stamina + 10
+                                            c_health = c_health + 50
+                                            boost_message = f"**{o_card}** Boosted **{c_card}** +10 🌀 +100 :heart:"
+                                            o_block_used = True
+                                            o_stamina = o_stamina - 20
+                                            o_defense = round(o_defense * 2)
+                                            embedVar = discord.Embed(title=f"{boost_message}", colour=0xe91e63)
+
+                                            previous_moves.append(f"(**{turn_total}**) {boost_message}")
+                                            # await button_ctx.defer(ignore=True)
+                                            turn_total = turn_total + 1
+                                            turn = 1
                                         if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
                                             o_health = 0
                                             previous_moves.append(f"(**{turn_total}**) 💨 **{o_card}** Fled...")
@@ -16850,6 +16890,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 
                                 t_burn_dmg = round(t_burn_dmg / 2)
                                 c_freeze_enh = False
+                                o_freeze_enh = False
 
                                 if c_title_passive_type:
                                     if c_title_passive_type == "HLT":
@@ -18611,13 +18652,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             options = ["q", "Q", "0", "1", "2", "3", "4", "7"]
 
                                         battle_buttons = []
-                                        util_buttons = [
-                                            manage_components.create_button(
-                                                style=ButtonStyle.grey,
-                                                label="Quit",
-                                                custom_id="q"
-                                            ),
-                                        ]
+                                        util_buttons = []
+                                        
                                         if c_stamina >= 10:
                                             if c_universe == "Souls" and c_used_resolve:
                                                 battle_buttons.append(
@@ -18686,7 +18722,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             coop_util_buttons = [
                                                 manage_components.create_button(
                                                     style=ButtonStyle.blue,
-                                                    label="🦠 Assist Companion 20",
+                                                    label="🦠 Enhance Companion 20",
                                                     custom_id="7"
                                                 )
                                             ]
@@ -18708,6 +18744,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     custom_id="5"
                                                 )
                                             )
+                                        util_buttons.append(
+                                            manage_components.create_button(
+                                                style=ButtonStyle.grey,
+                                                label="Quit",
+                                                custom_id="q"
+                                            ),
+                                        )
 
                                         battle_action_row = manage_components.create_actionrow(*battle_buttons)
                                         util_action_row = manage_components.create_actionrow(*util_buttons)
