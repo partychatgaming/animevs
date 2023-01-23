@@ -1665,7 +1665,7 @@ async def daily(ctx):
       daily_bonus = int(dailyamount * rebirth)
       difference = daily_bonus - dailyamount
       bonus_message = ""
-      if difference <= 0:
+      if difference > 0:
          bonus_message = f"*:heart_on_fire:+{'{:,}'.format(difference)}*"
       universes = db.queryAllUniverse()
       if ctx.author.guild:
