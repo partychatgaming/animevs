@@ -1816,7 +1816,7 @@ async def battlehistory(ctx, history: int):
 
 
 
-@slash.slash(name="Donate", description="Donate money to Guild", guild_ids=guild_ids)
+@slash.slash(name="Donate", description="Donate money to Guild, Convert 10% as Gems", guild_ids=guild_ids)
 @commands.check(validate_user)
 async def donate(ctx, amount, guild = None):
    try:
@@ -1835,11 +1835,12 @@ async def donate(ctx, amount, guild = None):
       team_data = db.queryTeam(query)
       team_display_name = team_data['TEAM_DISPLAY_NAME']
       gem_bless = 0
+      guild_amount = round(int(amount) * .90)
       if team_data:
          if balance <= int(amount):
             await ctx.send("You do not have that amount to donate.")
          else:
-            await crown_utilities.blessteam(int(round(int(amount * .90))), dteam)
+            await crown_utilities.blessteam(round(int(amount) * .90), dteam)
             await crown_utilities.curse(int(amount), ctx.author.id)
             
             gem_bless = round(int(amount) * .10)
@@ -1851,9 +1852,9 @@ async def donate(ctx, amount, guild = None):
                   }
                   filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
                   res = db.updateVault(query, update_query, filter_query)
-               await ctx.send(f"**:coin:{round(int(amount * .90))}** has been gifted to **{team_display_name}**.\nCreated **:gem:{gem_bless}** gems! *All Universes* ")
+               await ctx.send(f"**:coin:{guild_amount}** has been gifted to **{team_display_name}**.\nCreated **:gem:{gem_bless}** gems! *All Universes* ")
             else:
-               await ctx.send(f"**:coin:{round(int(amount * .90))}** has been gifted to **{team_display_name}**. *10% Converted to Gems*\n**Dismantle** *Items to earn Gems in return for Donations!*")
+               await ctx.send(f"**:coin:{guild_amount}** has been gifted to **{team_display_name}**. *10% Converted to Gems*\n**Dismantle** *Items to earn Gems in return for Donations!*")
                
             
             return

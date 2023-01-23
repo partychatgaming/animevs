@@ -759,8 +759,8 @@ class Lookup(commands.Cog):
                 :nesting_dolls: | **Founder ~** {founder_name.split("#",1)[0]}
                 :dolls: | **Sworn ~** {sworn_name.split("#",1)[0]}
                 
-
-                :japanese_goblin: | **Shield: ~**{shield_name.split("#",1)[0].format(self)} ~ {sicon} | **Victories: **{streak}
+                {sicon} | **Victories: **{streak}
+                :japanese_goblin: | **Shield: ~**{shield_name.split("#",1)[0].format(self)}
                 :flower_playing_cards: | **Card: **{shield_card}
                 :reminder_ribbon: | **Title: **{shield_title}
                 :mechanical_arm: | **Arm: **{shield_arm}

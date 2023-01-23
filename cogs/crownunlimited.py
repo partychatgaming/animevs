@@ -2466,7 +2466,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
 
             if hit_roll < miss_hit:
                 if universe == 'Crown Rift Slayers':
-                    true_dmg = round(true_dmg * 3)
+                    true_dmg = round(true_dmg * 2.5)
                     message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits for **{true_dmg}**!! :boom: '
                 elif is_wind_element:
                     true_dmg = round(true_dmg)
@@ -2485,7 +2485,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 message = f'{move_emoji} {move} used! Hits for **{true_dmg}**! :anger_right:'
             elif hit_roll >= 20:
                 if universe =="Crown Rift Awakening":
-                    true_dmg = round(true_dmg * 2.5)
+                    true_dmg = round(true_dmg * 4)
                     message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits for **{true_dmg}**!! :boom:"
                 else:
                     true_dmg = round(true_dmg * 2.5)

@@ -780,11 +780,13 @@ class Profile(commands.Cog):
             user = db.queryUser({"DID": str(ctx.author.id)})
             vault = db.queryVault({'DID': str(ctx.author.id)})
             talismans = vault["TALISMANS"]
+           
             if crown_utilities.does_exist(talismans):
                 embed_list = []
                 equipped_talisman = user["TALISMAN"]
 
                 for t in talismans:
+                    current_durability = t['DUR']
                     m = ""
                     emoji = crown_utilities.set_emoji(t["TYPE"])
                     durability = t["DUR"]
@@ -806,6 +808,7 @@ class Profile(commands.Cog):
                 buttons = [
                     manage_components.create_button(style=3, label="Equip", custom_id="Equip"),
                     manage_components.create_button(style=3, label="Unequip", custom_id="Unequip"),
+                    # manage_components.create_button(style=3, label="Repair", custom_id="Repair"),
                     manage_components.create_button(style=1, label="Dismantle", custom_id="Dismantle"),
                 ]
                 custom_action_row = manage_components.create_actionrow(*buttons)
@@ -815,7 +818,7 @@ class Profile(commands.Cog):
                     if button_ctx.author == ctx.author:
                         updated_vault = db.queryVault({'DID': str(ctx.author.id)})
                         selected_talisman = str(button_ctx.origin_message.embeds[0].title)
-
+                       
                         if button_ctx.custom_id == "Equip":
                             user_query = {'DID': str(ctx.author.id)}
                             response = db.updateUserNoFilter(user_query, {'$set': {'TALISMAN': selected_talisman.upper()}})
@@ -835,6 +838,26 @@ class Profile(commands.Cog):
                                 await button_ctx.send(f"Your Talisman has been unequipped.")
                             else:
                                 await button_ctx.send(f"You cannot unequip a Talisman that isn't equipped.")
+                        # if button_ctx.custom_id == "Repair":
+                        #     curseAmount = int(500)
+                        #     element = name
+                        #     negCurseAmount = 0 - abs(int(curseAmount))
+                        #     query = {'DID': str(user['DID'])}
+                        #     update_query = {'$inc': {'ESSENCE.$[type].' + "ESSENCE": negCurseAmount}}
+                        #     filter_query = [{'type.' + "ELEMENT": element}]
+                        #     response = db.updateVault(query, update_query, filter_query)
+                        #     levels_gained = int(30 - current_durability)
+                        #     new_durability = current_durability + levels_gained
+                        #     full_repair = False
+                        #     if new_durability > 30:
+                        #         levels_gained = 30 - current_durability
+                        #         full_repair=True
+                        #     query = {'DID': str(ctx.author.id)}
+                        #     update_query = {'$inc': {'TALISMANS.$[type].' + 'DUR': levels_gained}}
+                        #     filter_query = [{'type.' + "TYPE": str(t['TYPE'])}]
+                        #     resp = db.updateVault(query, update_query, filter_query)
+                            
+                        #     await button_ctx.send(f"{name}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
 
                     else:
                         await ctx.send("This is not your card list.")
