@@ -1667,7 +1667,7 @@ async def daily(ctx):
       difference = daily_bonus - dailyamount
       bonus_message = ""
       if difference > 0:
-         bonus_message = f"*:heart_on_fire:+{'{:,}'.format(difference)}*"
+         bonus_message = f"*:heart_on_fire:+:coin:{'{:,}'.format(difference)}*"
       universes = db.queryAllUniverse()
       if ctx.author.guild:
          server_query = {'GNAME': str(ctx.author.guild)}
