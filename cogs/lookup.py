@@ -304,7 +304,7 @@ class Lookup(commands.Cog):
                 paginator.add_reaction('🔐', "lock")
                 paginator.add_reaction('➡️', "next")
                 paginator.add_reaction('⏭️', "last")
-                embeds = [embed1, embed5, embed4, embed6 ]
+                embeds = [embed6, embed1, embed5, embed4]
                 await paginator.run(embeds)
             else:
                 await ctx.send(m.USER_NOT_REGISTERED)
