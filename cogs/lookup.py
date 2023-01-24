@@ -291,7 +291,7 @@ class Lookup(commands.Cog):
                     **:bust_in_silhouette: | User**: {user.mention}
                     :military_medal: | {most_played_card_message}
                     :earth_africa: | {most_played_universe_message}
-                    {prestige_message}
+                    🌑 | {prestige_message}
                     {birthday}
                 """), colour=000000)
                 embed6.set_image(url=avi)
