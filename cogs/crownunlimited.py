@@ -2551,7 +2551,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 'trace': trace
             }))
 
-def abyss_level_up_message(did, floor, card, title, arm):
+async def abyss_level_up_message(did, floor, card, title, arm):
     try:
         message = ""
         drop_message = []
@@ -2559,11 +2559,16 @@ def abyss_level_up_message(did, floor, card, title, arm):
         new_unlock = False
         vault_query = {'DID': did}
         vault = db.altQueryVault(vault_query)
+        owned_destinies = []
+        for destiny in vault['DESTINY']:
+            owned_destinies.append(destiny['NAME'])
+        card_info = db.queryCard({'NAME': str(card)})
+        title_info = db.queryTitle({'TITLE': str(title)})
         arm = db.queryArm({'ARM':str(arm)})
         arm_arm = arm['ARM']
         floor_val = int(floor)
         coin_drop = round(100000 + (floor_val * 10000))
-
+        durability = random.randint(75, 125)
         card_drop = card
         title_drop = title
         arm_drop = arm
@@ -2586,55 +2591,61 @@ def abyss_level_up_message(did, floor, card, title, arm):
 
         
         if floor in abyss_floor_reward_list:
-            current_titles = vault['TITLES']
-            if len(current_titles) >=25:
-                drop_message.append("You have max amount of Titles. You did not receive the **Floor Title**.")
-            elif title in current_titles:
-                maxed_out_messages.append(f"You already own {title_drop} so you did not receive it.")
-            else:
-                db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title_drop)}}) 
-                drop_message.append(f"🎗️ **{title_drop}**")
+            tresponse = await crown_utilities.store_drop_card(did, title_drop, title_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "titles")
+            # current_titles = vault['TITLES']
+            # if len(current_titles) >=25:
+            #     drop_message.append("You have max amount of Titles. You did not receive the **Floor Title**.")
+            # elif title in current_titles:
+            #     maxed_out_messages.append(f"You already own {title_drop} so you did not receive it.")
+            # else:
+            #     db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title_drop)}}) 
+            #     drop_message.append(f"🎗️ **{title_drop}**")
 
-            current_arms = []
-            for arm in vault['ARMS']:
-                current_arms.append(arm['ARM'])
-            if len(current_arms) >=25:
-                maxed_out_messages.append("You have max amount of Arms. You did not receive the **Floor Arm**.")
-            elif arm_arm in current_arms:
-                maxed_out_messages.append(f"You already own {arm_drop['ARM']} so you did not receive it.")
-            else:
-                db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm_drop['ARM']), 'DUR': 25}}})
-                drop_message.append(f"🦾 **{arm_drop['ARM']}**")
+            aresponse = await crown_utilities.store_drop_card(did, arm_arm, arm['UNIVERSE'], vault, durability, coin_drop, coin_drop, "Abyss", False, 0, "arms")
+            # current_arms = []
+            # for arm in vault['ARMS']:
+            #     current_arms.append(arm['ARM'])
+            # if len(current_arms) >=25:
+            #     maxed_out_messages.append("You have max amount of Arms. You did not receive the **Floor Arm**.")
+            # elif arm_arm in current_arms:
+            #     maxed_out_messages.append(f"You already own {arm_drop['ARM']} so you did not receive it.")
+            # else:
+            #     db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm_drop['ARM']), 'DUR': 25}}})
+            #     drop_message.append(f"🦾 **{arm_drop['ARM']}**")
 
-            current_cards = vault['CARDS']
-            if len(current_cards) >= 25:
-                maxed_out_messages.append("You have max amount of Cards. You did not earn receive **Floor Card**.")
-            elif card in current_cards:
-                maxed_out_messages.append(f"You already own {card_drop} so you did not receive it.")
-            else:
-                db.updateVaultNoFilter(vault_query,{'$addToSet': {'CARDS': str(card_drop)}})
-                drop_message.append(f"🎴 **{card_drop}**")
+            cresponse = await crown_utilities.store_drop_card(did, card_drop, card_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "cards")
+            drop_message.append(tresponse)
+            drop_message.append(aresponse)
+            drop_message.append(cresponse)
+            # current_cards = vault['CARDS']
+            # if len(current_cards) >= 25:
+            #     maxed_out_messages.append("You have max amount of Cards. You did not earn receive **Floor Card**.")
+            # elif card in current_cards:
+            #     maxed_out_messages.append(f"You already own {card_drop} so you did not receive it.")
+            # else:
+            #     db.updateVaultNoFilter(vault_query,{'$addToSet': {'CARDS': str(card_drop)}})
+            #     drop_message.append(f"🎴 **{card_drop}**")
 
             
-            owned_card_levels_list = []
-            for c in vault['CARD_LEVELS']:
-                owned_card_levels_list.append(c['CARD'])
+            # owned_card_levels_list = []
+            # for c in vault['CARD_LEVELS']:
+            #     owned_card_levels_list.append(c['CARD'])
 
-            owned_destinies = []
-            for destiny in vault['DESTINY']:
-                owned_destinies.append(destiny['NAME'])
+            # owned_destinies = []
+            # for destiny in vault['DESTINY']:
+            #     owned_destinies.append(destiny['NAME'])
             
-            if card not in owned_card_levels_list:
-                update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': str(card), 'LVL': 0, 'TIER': 0, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
-                r = db.updateVaultNoFilter(vault_query, update_query)
+            # if card not in owned_card_levels_list:
+            #     update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': str(card), 'LVL': 0, 'TIER': 0, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
+            #     r = db.updateVaultNoFilter(vault_query, update_query)
 
-            counter = 2
-            for destiny in d.destiny:
-                if card in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
-                    counter = counter - 1
-                    db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
-                    if counter >=1:
-                        drop_message.append(f"**DESTINY AWAITS!**")
+            # counter = 2
+            # for destiny in d.destiny:
+            #     if card in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
+            #         counter = counter - 1
+            #         db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
+            #         if counter >=1:
+            #             drop_message.append(f"**DESTINY AWAITS!**")
         else:
             drop_message.append(f":coin: **{'{:,}'.format(coin_drop)}** has been added to your vault!")
 
@@ -3728,7 +3739,20 @@ async def scenario(self, ctx: SlashContext, universe: str):
                         arm_passive = arm['ABILITIES'][0]
                         arm_passive_type = list(arm_passive.keys())[0]
                         arm_passive_value = list(arm_passive.values())[0]
-                        reward_list.append(f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** dmg")
+                        if arm_passive_type == "SHIELD":
+                            reward_list.append(f":globe_with_meridians: {arm_passive_type.title()} **{arm_name}** Shield: Absorbs **{arm_passive_value}** Damage.")
+                        elif arm_passive_type == "BARRIER":
+                            reward_list.append(f":diamond_shape_with_a_dot_inside:  {arm_passive_type.title()} **{arm_name}** Negates: **{arm_passive_value}** attacks.")
+                        elif arm_passive_type == "PARRY":
+                            reward_list.append(f":repeat: {arm_passive_type.title()} **{arm_name}** Parry: **{arm_passive_value}** attacks.")
+                        elif arm_passive_type == "SIPHON":
+                            reward_list.append(f":syringe: {arm_passive_type.title()} **{arm_name}** Siphon: **{arm_passive_value}** + 10% Health.")
+                        elif arm_passive_type == "MANA":
+                            reward_list.append(f"🦠 {arm_passive_type.title()} **{arm_name}** Mana: Multiply Enhancer by **{arm_passive_value}**%.")
+                        elif arm_passive_type == "ULTIMAX":
+                            reward_list.append(f"〽️ {arm_passive_type.title()} **{arm_name}** Ultimax: Increase all move AP by **{arm_passive_value}**.")
+                        else:
+                            reward_list.append(f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** Damage.")
                     else:
                         card = db.queryCard({"NAME": reward})
                         moveset = card['MOVESET']
@@ -6980,12 +7004,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
         continued = True
 
         while continued == True:
-
-            o = db.queryCard({'NAME': sowner['CARD']})
+            if mode != "ABYSS" and mode != "SCENARIO":
+                sowner = db.queryUser({"DID":sowner['DID']})
+            o = db.queryCard({'NAME': sowner['CARD']}) #here aj 
             otitle = db.queryTitle({'TITLE': sowner['TITLE']})
 
             if mode in PVP_MODES:
                 opponent = currentopponent
+                opponent = db.queryUser({"DID": currentopponent['DID']})
                 t = db.queryCard({'NAME': opponent['CARD']})
                 ttitle = db.queryTitle({'TITLE': opponent['TITLE']})
                 tguild = cfam
@@ -7947,6 +7973,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                         await asyncio.sleep(2)
                         battle_msg = await private_channel.send(embed=embedVar)
                     # await button_ctx.defer(ignore=True)
+                    tmove_issue = False
+                    omove_issue = False
                     while (((o_health > 0) and (c_health > 0)) and (t_health > 0) and mode in co_op_modes) or (
                             (o_health > 0) and (t_health > 0) and mode not in co_op_modes):
                         if previous_moves:
@@ -8232,7 +8260,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 description=f"Follow the instructions to learn how to play the Game!",
                                                                 colour=0xe91e63)
                                         embedVar.add_field(name="**Moveset**",
-                                                            value=f"{o_basic_emoji} - **Basic Attack** *10 :zap:ST*\n{o_super_emoji} - **Special Attack** *30 :zap:ST*\n{o_ultimate_emoji} - **Ultimate Move** *80 :zap:ST*\n:microbe: - **Enhancer** *20 :zap:ST*\n🛡️ - **Block** *20 :zap:ST*\n:zap: - **Resolve** : Heal and Activate Resolve\n:dna: - **Summon** : {opet_name}")
+                                                            value=f"{o_basic_emoji} - **Basic Attack** *10 :zap:ST*\n{o_super_emoji} - **Special Attack** *30 :zap:ST*\n{o_ultimate_emoji} - **Ultimate Move** *80 :zap:ST*\n🦠 - **Enhancer** *20 :zap:ST*\n🛡️ - **Block** *20 :zap:ST*\n:zap: - **Resolve** : Heal and Activate Resolve\n:dna: - **Summon** : {opet_name}")
                                         embedVar.set_footer(
                                             text="Focus State : When card deplete to 0 stamina, they focus to Heal they also gain ATK and DEF ")
                                         await private_channel.send(embed=embedVar)
@@ -8394,7 +8422,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         embedVar.add_field(name=f"Trade Offs!",
                                                         value="Sacrifice **DEF** and **Focusing** will not increase **ATK** or **DEF**")
                                         embedVar.add_field(name=f"🧬 Summons",
-                                                        value=f"🧬**Summons** will use their :microbe:**Enhancers** to assist you in battle! You're summon: 🧬 **{opet_name}**")
+                                                        value=f"🧬**Summons** will use their 🦠**Enhancers** to assist you in battle! You're summon: 🧬 **{opet_name}**")
                                         embedVar.set_footer(
                                             text=f"You can only enter ⚡Resolve once per match! Use the Heal Wisely!!!")
                                         await button_ctx.send(embed=embedVar)
@@ -10242,11 +10270,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         elif button_ctx.custom_id == "4":
                                             if tutorial and tutorial_enhancer==False:
                                                 tutorial_enhancer = True
-                                                embedVar = discord.Embed(title=f":microbe:Enhancers!",
-                                                                        description=f":microbe:**Enhancers** cost **20 ST(Stamina)** to Boost your Card or Debuff Your Opponent!",
+                                                embedVar = discord.Embed(title=f"🦠Enhancers!",
+                                                                        description=f"🦠**Enhancers** cost **20 ST(Stamina)** to Boost your Card or Debuff Your Opponent!",
                                                                         colour=0xe91e63)
                                                 embedVar.add_field(
-                                                    name=f"Your Enhancer::microbe: {omove_enhanced_text} is a {list(o_enhancer.values())[2]}",
+                                                    name=f"Your Enhancer:🦠 {omove_enhanced_text} is a {list(o_enhancer.values())[2]}",
                                                     value=f"**{list(o_enhancer.values())[2]}** : *{enhancer_mapping[list(o_enhancer.values())[2]]}*")
                                                 embedVar.set_footer(
                                                     text=f"Use /enhancers to view a full list of Enhancers! Look for the {list(o_enhancer.values())[2]} Enhancer")
@@ -13476,6 +13504,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                     # Play Bot
                                     else:
+                
                                         # UNIVERSE CARD
                                         tap1 = list(t_1.values())[0] + tcard_lvl_ap_buff + t_shock_buff + t_basic_water_buff + t_ap_buff
                                         tap2 = list(t_2.values())[0] + tcard_lvl_ap_buff + t_shock_buff + t_special_water_buff + t_ap_buff
@@ -13651,6 +13680,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             aiMove = 1
                                         else:
                                             aiMove = 0
+                                        if tmove_issue == True:
+                                            t_stamina = 0
+                                        tmove_issue = False
 
                                         if int(aiMove) == 0:
                                             t_health = 0
@@ -14622,7 +14654,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         turn = 0
 
                                             else:
-                                                previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}") 
+                                                previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}")
+                                                aiMove = 0
+                                                if tmove_issue == False and t_stamina > 0:
+                                                    tmove_issue = True
                                                 turn = 1
 
                                 if mode not in PVP_MODES:
@@ -14856,6 +14891,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         aiMove = 1
                                     else:
                                         aiMove = 0
+                                    
+                                    
+                                    if tmove_issue == True:
+                                        t_stamina = 0
+                                    tmove_issue = False
                                     
                                     t_special_move_description = " "
                                     if int(aiMove) == 0:
@@ -16846,7 +16886,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         turn = turn_selector
                                             else:
                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}") 
-                                                
+                                                if tmove_issue == False and t_stamina > 0:
+                                                    tmove_issue = True
                                                 turn = 1
 
 
@@ -22940,7 +22981,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     floor = universe['FLOOR']
                                     new_level = floor + 1
                                     response = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'LEVEL': new_level}})
-                                    abyss_message = abyss_level_up_message(str(ctx.author.id), floor, t_card, t_title, tarm_name)
+                                    abyss_message = await abyss_level_up_message(str(ctx.author.id), floor, t_card, t_title, tarm_name)
                                     cardlogger = await crown_utilities.cardlevel(o_card, ctx.author.id, "Purchase", "n/a")
                                     abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
                                     bless_amount = 100000 + (10000 * floor)
@@ -23032,6 +23073,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if difficulty == "HARD":
                                     bank_amount = 100000
                                     fam_amount = 50000
+                                    
 
                                 if difficulty == "EASY":
                                     bank_amount = 500

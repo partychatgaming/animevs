@@ -995,7 +995,7 @@ class Lookup(commands.Cog):
                 *Bond* **{pet_info['BOND']}**
                 *Level* **{pet_info['LVL']}**
                 :small_blue_diamond: **{pet_info['TYPE']}** ~ **{power}**{enhancer_suffix_mapping[pet_info['TYPE']]}
-                :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
+                🦠 : **{enhancer_mapping[pet_info['TYPE']]}**
                 """), colour=0x7289da)
                 summon_page.set_image(url=pet_info['PATH'])
                 
@@ -1373,7 +1373,7 @@ class Lookup(commands.Cog):
                                 *Bond* **{pet_info['BOND']}**
                                 *Level* **{pet_info['LVL']}**
                                 :small_blue_diamond: **{pet_info['TYPE']}** ~ **{power}**{enhancer_suffix_mapping[pet_info['TYPE']]}
-                                :microbe: : **{enhancer_mapping[pet_info['TYPE']]}**
+                                🦠 : **{enhancer_mapping[pet_info['TYPE']]}**
                                 """), color=0xe74c3c)
                                 summon_screen.set_image(url=pet_info['PATH'])
                                 
@@ -1429,7 +1429,7 @@ class Lookup(commands.Cog):
                                                 _Bond_ **{pet['BOND']}** {bond_message}
                                                 _Level_ **{pet['LVL']} {lvl_message}**
                                                 :small_blue_diamond: **{pet_ability}:** {power}{enhancer_suffix_mapping[pet['TYPE']]}
-                                                :microbe: **Type:** {pet['TYPE']}"""), 
+                                                🦠 **Type:** {pet['TYPE']}"""), 
                                                 colour=0x7289da)
                                                 embedVar.set_thumbnail(url=avatar)
                                                 embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")

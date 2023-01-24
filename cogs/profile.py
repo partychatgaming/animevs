@@ -1048,16 +1048,16 @@ class Profile(commands.Cog):
 
                     if title_show == "Unbound":
                         unbound_title_details.append(
-                            f"[{str(index)}] {universe_crest} :crown: : **{title_title}**\n**:microbe: {title_passive_type}**: *{title_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} :crown: : **{title_title}**\n**🦠 {title_passive_type}**: *{title_passive_value}*\n")
                     elif not exclusive and not available:
                         boss_title_details.append(
-                            f"[{str(index)}] {universe_crest} 👹 : **{title_title}**\n**:microbe: {title_passive_type}**:  *{title_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} 👹 : **{title_title}**\n**🦠 {title_passive_type}**:  *{title_passive_value}*\n")
                     elif exclusive and available:
                         dungeon_title_details.append(
-                            f"[{str(index)}] {universe_crest} :fire: : **{title_title}**\n**:microbe: {title_passive_type}**: *{title_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} :fire: : **{title_title}**\n**🦠 {title_passive_type}**: *{title_passive_value}*\n")
                     elif available and not exclusive:
                         tales_title_details.append(
-                            f"[{str(index)}] {universe_crest} 🎗️ : **{title_title}**\n**:microbe: {title_passive_type}**:  *{title_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} 🎗️ : **{title_title}**\n**🦠 {title_passive_type}**:  *{title_passive_value}*\n")
 
                 all_titles = []
                 
@@ -1151,7 +1151,7 @@ class Profile(commands.Cog):
                         element_name = element.title()
                         element = crown_utilities.set_emoji(element)
                     else:
-                        element = ":microbe"
+                        element = "🦠"
                     arm_passive = arm['ABILITIES'][0]
                         # Arm Passive
                     arm_passive_type = list(arm_passive.keys())[0]
@@ -1314,7 +1314,7 @@ class Profile(commands.Cog):
                     
                     embedVar = discord.Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
                     {icon} **[{index}]**
-                    :microbe: **{title_passive_type}:** {title_passive_value}
+                    🦠 **{title_passive_type}:** {title_passive_value}
                     :earth_africa: **Universe:** {resp['UNIVERSE']}"""), 
                     colour=0x7289da)
                     embedVar.set_thumbnail(url=avatar)
@@ -1794,7 +1794,7 @@ class Profile(commands.Cog):
 
                     else:
                         arm_type = f"**Unique Passive**"
-                        arm_message = f":microbe: **{arm_passive_type.title()}:** {arm_passive_value}"
+                        arm_message = f"🦠 **{arm_passive_type.title()}:** {arm_passive_value}"
                         footer = f"{arm_passive_type}: {enhancer_mapping[arm_passive_type]}"
 
 
@@ -2805,7 +2805,7 @@ class Profile(commands.Cog):
                     _Bond_ **{pet['BOND']}** | {bond_message}
                     _Level_ **{pet['LVL']}** | {lvl_message}
                     :small_blue_diamond: **{pet_ability}:** {power}
-                    :microbe: **Type:** {pet['TYPE']}"""), 
+                    🦠 **Type:** {pet['TYPE']}"""), 
                     colour=0x7289da)
                     embedVar.set_thumbnail(url=avatar)
                     embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
@@ -7210,7 +7210,7 @@ async def menutitles(self, ctx):
                 
                 embedVar = discord.Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
                 {icon} **[{index}]**
-                :microbe: **{title_passive_type}:** {title_passive_value}
+                🦠 **{title_passive_type}:** {title_passive_value}
                 :earth_africa: **Universe:** {resp['UNIVERSE']}"""), 
                 colour=0x7289da)
                 embedVar.set_thumbnail(url=avatar)
@@ -7689,7 +7689,7 @@ async def menuarms(self, ctx):
 
                 else:
                     arm_type = f"**Unique Passive**"
-                    arm_message = f":microbe: **{arm_passive_type.title()}:** {arm_passive_value}"
+                    arm_message = f"🦠 **{arm_passive_type.title()}:** {arm_passive_value}"
                     footer = f"{arm_passive_type}: {enhancer_mapping[arm_passive_type]}"
 
 
@@ -8655,7 +8655,7 @@ async def menusummons(self, ctx):
                 _Bond_ **{pet['BOND']}** {bond_message}
                 _Level_ **{pet['LVL']} {lvl_message}**
                 :small_blue_diamond: **{pet_ability}:** {power}
-                :microbe: **Type:** {pet['TYPE']}"""), 
+                🦠 **Type:** {pet['TYPE']}"""), 
                 colour=0x7289da)
                 embedVar.set_thumbnail(url=avatar)
                 embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
