@@ -115,9 +115,11 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                             db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
                             await user.send(
                                 f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
-                    if is_shop == "Boss":
+                    if mode == "Boss":
                         return f"You earned the Exclusive Boss Card 🎴: **{card_name}**!"
-                    elif is_shop == "Abyss":
+                    elif mode == "Ex":
+                        return f":japanese_ogre: **SOUL EXCHANGE:**  🎴: **{card_name}**"
+                    elif mode == "Abyss":
                         return f"🎴 **{card_name}**!"
                     return f"You earned 🎴: **{card_name}**!"
 
@@ -138,8 +140,10 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                                 db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
                                 await user.send(
                                     f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
-                        if is_shop == "Abyss:":
+                        if mode == "Abyss":
                             return f"💼🎴 **{card_name}**!"
+                        elif mode == "Ex":
+                            return f":japanese_ogre: **SOUL EXCHANGE:**  🎴: **{card_name}** has been added to your storage 💼!"
                         else:
                             return f"🎴: **{card_name}** has been added to your storage 💼!\n{message}"
 
@@ -149,7 +153,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                         return "You have max amount of 🎴: Cards. Transaction cancelled."   
                     else:
                         await bless(int(bless_amount_if_max_cards), player)
-                        if is_shop == "Abyss":
+                        if mode == "Abyss":
                             return f"💼🎴 Storage Full"
                         else:
                             return f"You're maxed out on 🎴: Cards! You earned :coin: {str(bless_amount_if_max_cards)} instead!"
@@ -192,9 +196,9 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                     response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'TITLES': str(title_name)}})
                     if is_shop:
                         await curse(int(price), str(player))
-                    if is_shop == "Boss":
+                    if mode == "Boss":
                         return f"You earned the Exclusive Boss Title 🎗️: **{title_name}**!"
-                    elif is_shop == "Abyss":
+                    elif mode == "Abyss":
                         return f"🎗️ **{title_name}**!"
                     return f"You earned 🎗️: **{title_name}**!"
                 if hand_length >= 25 and not storage_limit_has_been_hit:
@@ -205,7 +209,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                     else:
                         response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TSTORAGE': title_name}})
                         message = ""
-                        if is_shop == "Abyss:":
+                        if mode == "Abyss":
                             return f"💼🎗️ **{title_name}**!"
                         else:
                             return f"🎗️: **{title_name}** has been added to your storage 💼!\n{message}"
@@ -216,7 +220,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                         return "You have max amount of 🎗️: Titles. Transaction cancelled."   
                     else:
                         await bless(int(bless_amount_if_max_cards), player)
-                        if is_shop == "Abyss":
+                        if mode == "Abyss":
                             return f"💼🎗️ Storage Full"
                         else:
                             return f"You're maxed out on 🎗️: Titles! You earned :coin: {str(bless_amount_if_max_titles)} instead!"
@@ -264,11 +268,11 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                     if is_shop:
                         await curse(int(price), str(player))
                         response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': 25}}})
-                    if is_shop == "Boss":
+                    if mode == "Boss":
                         durability = random.randint(100, 150)
                         response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': durability}}})
                         return f"You earned the Exclusive Boss Arm 🦾: **{arm_name}**!"
-                    elif is_shop == "Abyss":
+                    elif mode == "Abyss":
                         return f"💼🦾 **{arm_name}**!"
                     return f"You earned 🦾: **{arm_name}**!"
                 if hand_length >= 25 and not storage_limit_has_been_hit:
@@ -279,7 +283,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                     else:
                         response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ASTORAGE': {'ARM': str(arm_name), 'DUR': durability}}})
                         message = ""
-                        if is_shop == "Abyss:":
+                        if is_shop == "Abyss":
                             return f"💼🦾 **{arm_name}**!"
                         else:
                             return f"🦾: **{arm_name}** has been added to your storage 💼!\n{message}"
@@ -290,7 +294,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                         return "You have max amount of 🦾: Arms. Transaction cancelled."   
                     else:
                         await bless(int(bless_amount_if_max_arms), player)
-                        if is_shop == "Abyss":
+                        if mode == "Abyss":
                             return f"💼🦾 Storage Full"
                         else:
                             return f"You're maxed out on 🦾: Arms! You earned :coin: {str(bless_amount_if_max_arms)} instead!"

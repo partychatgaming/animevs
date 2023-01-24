@@ -2920,7 +2920,7 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       if field_type == 'string':
          field_type = "NULL"
       elif field_type == 'int':
-         field_type = 5
+         field_type = 0
       elif field_type == 'list':
          field_type = [
             {"ELEMENT": "PHYSICAL", "ESSENCE": 5000},

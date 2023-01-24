@@ -302,7 +302,7 @@ class CrownUnlimited(commands.Cog):
     async def explore(self, ctx: SlashContext):
         try:
             player = db.queryUser({"DID": str(ctx.author.id)})
-            if player['LEVEL'] < 25:             
+            if player['LEVEL'] < 25 and player['PRESTIGE'] == 0:             
                 await ctx.send(f"🔓 Unlock the Explore Mode by completing Floor 25 of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss.")
                 return
             if not player["EXPLORE"]:
@@ -481,7 +481,7 @@ class CrownUnlimited(commands.Cog):
                 return
 
 
-            if mode in D_modes and sowner['LEVEL'] < 41:
+            if mode in D_modes and sowner['LEVEL'] < 41 and int(sowner['PRESTIGE']) == 0:
                 await ctx.send("🔓 Unlock **Duo Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
 
@@ -587,19 +587,19 @@ class CrownUnlimited(commands.Cog):
                 return
 
 
-            if mode in D_modes and sowner['LEVEL'] < 41:
+            if mode in D_modes and sowner['LEVEL'] < 41 and int(sowner['PRESTIGE']) == 0:
                 await ctx.send("🔓 Unlock **Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
 
-            if mode in B_MODES and sowner['LEVEL'] < 61:
+            if mode in B_MODES and sowner['LEVEL'] < 61 and int(sowner['PRESTIGE']) == 0:
                 await ctx.send("🔓 Unlock **Boss Fights** by completing **Floor 60** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
             
-            if mode in D_modes and companion['LEVEL'] < 41:
+            if mode in D_modes and companion['LEVEL'] < 41 and int(sowner['PRESTIGE']) == 0:
                 await ctx.send(f"🔓 {user.mention} Has not unlocked **Dungeons**! Complete **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
 
-            if mode in B_MODES and companion['LEVEL'] < 61:
+            if mode in B_MODES and companion['LEVEL'] < 61 and int(sowner['PRESTIGE']) == 0:
                 await ctx.send(f"🔓 {user.mention} Has not unlocked **Boss Fights**! Complete **Floor 60** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
 
@@ -1118,11 +1118,12 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send("Dungeons and Boss fights unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
                 return
                
-            if mode in D_modes and sowner['LEVEL'] < 41:
+            if mode in D_modes and sowner['LEVEL'] < 41 and int(sowner['PRESTIGE']) == 0:
+                print(int(sowner['PRESTIGE']))
                 await ctx.send("🔓 Unlock **Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
 
-            if mode in B_MODES and sowner['LEVEL'] < 61:
+            if mode in B_MODES and sowner['LEVEL'] < 61 and int(sowner['PRESTIGE']) == 0:
                 await ctx.send("🔓 Unlock **Boss Fights** by completing **Floor 60** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
 
@@ -1220,10 +1221,10 @@ class CrownUnlimited(commands.Cog):
 
             opponent = db.queryUser({'DID': str(player.id)})
 
-            if sowner['LEVEL'] < 4:
+            if sowner['LEVEL'] < 4 and int(opponent['PRESTIGE']) == 0:
                 await ctx.send(f"🔓 Unlock **PVP** by completing **Floor 3** of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss.")
                 return
-            if opponent['LEVEL'] < 4:
+            if opponent['LEVEL'] < 4 and int(opponent['PRESTIGE']) == 0:
                 await ctx.send(f"🔓 {player.mention} Has not unlocked **PVP**! Complete **Floor 3** of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss.")
                 return
 
@@ -7004,7 +7005,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
         continued = True
 
         while continued == True:
-            if mode != "ABYSS" and mode != "SCENARIO":
+
+            if mode != "ABYSS" and mode != "SCENARIO" and mode not in B_modes and mode not in co_op_modes and mode not in D_modes and mode not in ai_co_op_modes:
                 sowner = db.queryUser({"DID":sowner['DID']})
             o = db.queryCard({'NAME': sowner['CARD']}) #here aj 
             otitle = db.queryTitle({'TITLE': sowner['TITLE']})

@@ -5198,7 +5198,7 @@ class Profile(commands.Cog):
 
                                 db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'TSTORAGE': title_name}})
                                 await msg.delete()
-                                await button_ctx.send(f"**{title_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}. Acquired **{'{:,}'.format(essence_amount)}** {em} {element.title()} Essence.")
+                                await button_ctx.send(f"**{title_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}.")
                         except Exception as ex:
                             trace = []
                             tb = ex.__traceback__

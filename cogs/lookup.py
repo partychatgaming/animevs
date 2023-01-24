@@ -59,11 +59,9 @@ class Lookup(commands.Cog):
                 player = player.replace("@","")
                 player = player.replace("!","")
                 
-                print(player)
                 
                 user = await self.bot.fetch_user(player)
                 avi = user.avatar_url
-                print(user)
                 # print(player)
                 # print(str(ctx.author.id))
             else:
@@ -134,6 +132,31 @@ class Lookup(commands.Cog):
                 join_raw = d['TIMESTAMP']
                 year_joined = join_raw[20:]
                 day_joined = join_raw[:10]
+                prestige = d['PRESTIGE']
+                aicon = ":new_moon:"
+                if prestige == 1:
+                    aicon = ":waxing_crescent_moon:"
+                elif prestige == 2:
+                    aicon = ":first_quarter_moon:"
+                elif prestige == 3:
+                    aicon = ":waxing_gibbous_moon:"
+                elif prestige == 4:
+                    aicon = ":full_moon:"
+                elif prestige == 5:
+                    aicon = ":waning_gibbous_moon:"
+                elif prestige == 6:
+                    aicon = ":last_quarter_moon:"
+                elif prestige == 7:
+                    aicon = ":waning_crescent_moon:"
+                elif prestige == 8:
+                    aicon = ":crescent_moon:"
+                elif prestige == 9:
+                    aicon = ":crown:"
+                elif prestige >= 10:
+                    aicon = ":japanese_ogre:"
+                prestige_message = ""
+                if prestige > 0 :
+                    prestige_message = f"*Prestige {prestige}*"
                 #print(day_joined + " " + year_joined)
                 birthday = f":tada: | **Registered:** {day_joined} {year_joined}"
                 icon = ':triangular_flag_on_post:'
@@ -231,7 +254,7 @@ class Lookup(commands.Cog):
 
 
                 embed1 = discord.Embed(title= f"{icon} | " + f"{name}".format(self), description=textwrap.dedent(f"""\
-                :new_moon: | **Abyss Rank**: {abyss_level}
+                {aicon} | **Abyss Rank**: {abyss_level}
                 :flower_playing_cards: | **Card:** {card}
                 :reminder_ribbon:** | Title: **{titles}
                 :mechanical_arm: | **Arm: **{arm}
@@ -268,6 +291,7 @@ class Lookup(commands.Cog):
                     **:bust_in_silhouette: | User**: {user.mention}
                     :military_medal: | {most_played_card_message}
                     :earth_africa: | {most_played_universe_message}
+                    {prestige_message}
                     {birthday}
                 """), colour=000000)
                 embed6.set_image(url=avi)
