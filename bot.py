@@ -2916,7 +2916,8 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       
       if key != '513':
          return await ctx.send("Admin Only")
-
+      if field_type == "fix":
+         field_type = 0
       if field_type == 'string':
          field_type = "NULL"
       elif field_type == 'int':
@@ -2949,7 +2950,8 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
 
       elif field_type == 'bool':
          field_type = False
-
+      if collection == 'fix':
+         response = db.updateManyUsers({'$set': {new_field: field_type}})
       if collection == 'cards':
          response = db.updateManyCards({'$set': {new_field: field_type}})
       elif collection == 'titles':
