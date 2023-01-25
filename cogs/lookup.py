@@ -567,6 +567,7 @@ class Lookup(commands.Cog):
                 - **Level Buff**: Each fight will grant you a level up
                 - **Stat Buff**: Add 50 ATK & DEF, 30 AP, and 100 HLT
                 - **Rift Buff**: Rifts will always be available
+                - **Rematch Buff**: Unlimited Rematches
 
                 **Guild Position Explanations**
                 - **Owner**:  All operations */guildoperations*
