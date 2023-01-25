@@ -8114,7 +8114,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_health = round(t_health - o_title_passive_value)
                                 if o_title_passive_type == "WAVE":
                                     if turn_total % 10 == 0:
-                                    t_health = round(t_health - 100)
+                                        t_health = round(t_health - 100)
 
 
                             if o_card_passive_type:
