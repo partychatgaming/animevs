@@ -217,6 +217,7 @@ class Lookup(commands.Cog):
                     fav_uni = most_frequent(most_universe_played)
                     if not most_played_card:
                         most_played_card_message = "_No Data For Analysis_"
+                    if not most_universe_played:
                         most_played_universe_message ="_No Data For Analysis_"
                     else:
                         most_played_card_message = f"**Most Played Card: **{card_main}"

@@ -36,6 +36,7 @@ class USER():
     RIFT: int = field(default_factory=lambda: 0)
     REBIRTH: int = field(default_factory=lambda: 0)
     RETRIES: int = field(default_factory=lambda: 5)
+    PRESTIGE: int = field(default_factory=lambda: 0)
     PATRON: bool = field(default_factory=lambda: False)
     LEVEL: int = field(default_factory=lambda: 0)
     PVP_WINS: int = field(default_factory=lambda: 0)
