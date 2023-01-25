@@ -1701,7 +1701,7 @@ async def daily(ctx):
       retry_message = f":vs: Rematches : **{user_data['RETRIES']}**"
       if user_data['RETRIES'] >= 25:  
          db.updateUserNoFilter(query, {'$set': {'RETRIES': 22}})
-         retry_message = f":vs: Rematches : {user_data['RETRIES']}!"
+         retry_message = f":vs: Rematches : **{user_data['RETRIES']}**!"
       else:
          db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
          retry_message = f":vs: Rematches : {user_data['RETRIES']} **+ 2**!"
