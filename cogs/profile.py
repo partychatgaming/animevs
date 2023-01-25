@@ -3036,7 +3036,7 @@ class Profile(commands.Cog):
                                     'message': str(ex),
                                     'trace': trace
                                 }))
-                                await ctx.send(f"ERROR:\nTYPE: {type(ex).__name__}\nMESSAGE: {str(ex)}\nLINE: {trace} ")
+                                #await ctx.send(f"ERROR:\nTYPE: {type(ex).__name__}\nMESSAGE: {str(ex)}\nLINE: {trace} ")
                                 return
                         elif button_ctx.custom_id =="Exit":
                             await button_ctx.defer(ignore=True)
@@ -8887,7 +8887,7 @@ async def menusummons(self, ctx):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send(f"ERROR:\nTYPE: {type(ex).__name__}\nMESSAGE: {str(ex)}\nLINE: {trace} ")
+                            #await ctx.send(f"ERROR:\nTYPE: {type(ex).__name__}\nMESSAGE: {str(ex)}\nLINE: {trace} ")
                             return
                     elif button_ctx.custom_id =="Exit":
                         await button_ctx.defer(ignore=True)
