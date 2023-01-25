@@ -99,11 +99,17 @@ class Lookup(commands.Cog):
                 difficulty = d['DIFFICULTY']
                 games = d['GAMES']
                 abyss_level = d['LEVEL']
+                if abyss_level > 100:
+                    abyss_level = "**Conquered**"
                 retries = d['RETRIES']
                 card = d['CARD']
                 ign = d['IGN']
                 team = d['TEAM']
                 guild = d['GUILD']
+                patreon = d['PATRON']
+                patreon_message = ""
+                if patreon == True:
+                    patreon_message = "**💞 | Patreon Supporter**"
                 if team != "PCG":
                     team_info = db.queryTeam({'TEAM_NAME' : str(team.lower())})
                     guild = team_info['GUILD']
@@ -156,9 +162,9 @@ class Lookup(commands.Cog):
                     aicon = ":japanese_ogre:"
                 prestige_message = "*No Prestige*"
                 if prestige > 0 :
-                    prestige_message = f"*Prestige {prestige}*"
+                    prestige_message = f"**Prestige:** *{prestige}*"
                 #print(day_joined + " " + year_joined)
-                birthday = f":tada: | **Registered:** {day_joined} {year_joined}"
+                birthday = f"🎉 | Registered on {day_joined}, {year_joined}"
                 icon = ':triangular_flag_on_post:'
                 if rebirth == 0:
                     icon = ':triangular_flag_on_post:'
@@ -291,12 +297,13 @@ class Lookup(commands.Cog):
                 
                 embed6 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Avatar".format(self), description=textwrap.dedent(f"""\
                     **:bust_in_silhouette: | User**: {user.mention}
+                    {aicon} | {prestige_message}
                     :military_medal: | {most_played_card_message}
                     :earth_africa: | {most_played_universe_message}
-                    {aicon} | {prestige_message}
-                    {birthday}
+                    {patreon_message}
                 """), colour=000000)
                 embed6.set_image(url=avi)
+                embed6.set_footer(text=f"{birthday}")
                 # embed1.add_field(name="Team" + " :military_helmet:", value=team)
                 # embed1.add_field(name="Family" + " :family_mwgb:", value=family)
                 # embed1.add_field(name="Card" + " ::flower_playing_cards: :", value=' '.join(str(x) for x in titles))

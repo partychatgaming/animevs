@@ -3532,7 +3532,7 @@ async def abyss(self, ctx: SlashContext):
         abyss = db.queryAbyss({'FLOOR': sowner['LEVEL']})
 
         if not abyss:
-            await ctx.send("The **Abyss** has shifted. More floors will be available soon.")
+            await ctx.send("You have climbed out of :new_moon: **The Abyss**! Use /exchange to **Prestige**!")
             return
 
 

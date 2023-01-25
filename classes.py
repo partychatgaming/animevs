@@ -47,7 +47,7 @@ class USER():
     TRADING: bool = field(default_factory=lambda: False)
     BOSS_FOUGHT: bool = field(default_factory=lambda: False)
     SERVER: str = field(default_factory=lambda: "N/A")
-    DIFFICULTY: str = field(default_factory=lambda: "EASY")
+    DIFFICULTY: str = field(default_factory=lambda: "NORMAL")
     STORAGE_TYPE: int = field(default_factory=lambda: 1)
     CREATOR: bool = field(default_factory=lambda: False)
     VOTED: bool = field(default_factory=lambda: False)

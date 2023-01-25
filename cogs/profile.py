@@ -5069,8 +5069,9 @@ class Profile(commands.Cog):
                         if storage_arm['ARM'] in storage_arm_names: #title storage update
                             durability = 0
                             for arms in astorage:
-                                if storage_arm == arms['ARM']:
+                                if storage_arm['ARM'] == arms['ARM']:
                                     durability = arms['DUR']
+                                    print(durability)
                             query = {'DID': str(ctx.author.id)}
                             update_storage_query = {
                                 '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
