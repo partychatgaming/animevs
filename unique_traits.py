@@ -65,7 +65,7 @@ traits = [{
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death',
-    'TRAIT': ' Your First Focus After 60 Turns You Win.'
+    'TRAIT': ' Your First Focus After 100 Turns You Win.'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',
@@ -77,7 +77,7 @@ traits = [{
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Spirit Energy',
-    'TRAIT': 'Stamina + Turn Count added to each attack   Attack increased by Stamina each turn.'
+    'TRAIT': 'Stamina + Turn Count added to each Attack. Attack increased by Stamina each turn.'
 },
 {
     'NAME': 'One Piece',
@@ -89,8 +89,8 @@ traits = [{
     'TRAIT': '**Feint Attack**: If you miss, Crit! **Spiritual Weapons**: Can use Arms from all Uninverses'
 },{
     'NAME': 'Crown Rift Madness',
-    'EFFECT': 'Madness',
-    'TRAIT': 'Do not lose turn on Focus, but also do not Heal.'
+    'EFFECT': 'Madness, Beast Blood',
+    'TRAIT': '**Madness**: Do not lose turn on Focus, but also do not Heal. **Beast Blood**: Continue to Gain ATK and DEF after Resolved'
 },{
     'NAME': 'Crown Rift Awakening',
     'EFFECT': 'Blood Awakening, Bloodlines',

@@ -1699,9 +1699,12 @@ async def daily(ctx):
       db.updateUserNoFilter(query, {'$set': {'BOSS_FOUGHT': False}})
       db.updateUserNoFilter(query, {'$set': {'VOTED': False}})
       retry_message = f":vs: Rematches : **{user_data['RETRIES']}**"
-      if user_data['RETRIES'] <= 20:  
+      if user_data['RETRIES'] <= 25:  
          db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
          retry_message = f":vs: Rematches : {user_data['RETRIES']} **+ 2**!"
+      else:
+         db.updateUserNoFilter(query, {'$set': {'RETRIES': 25}})
+         retry_message = f":vs: Rematches : {user_data['RETRIES']}!"
       embedVar = discord.Embed(title=f"☀️ Daily Rewards!", description=textwrap.dedent(f"""\
       Welcome back, {ctx.author.mention}!
       **Daily Earnings** 

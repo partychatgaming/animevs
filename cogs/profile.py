@@ -3575,6 +3575,7 @@ class Profile(commands.Cog):
                             response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
                             await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
                             return  
+                
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__

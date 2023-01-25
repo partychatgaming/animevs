@@ -8045,7 +8045,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if o_title_passive_type == "HLT":
                                     o_health = round(o_health + ((o_title_passive_value / 100) * o_health))
                                 if o_title_passive_type == "LIFE":
-                                    if o_max_health != o_health:
+                                    if o_max_health <= o_health:
                                         t_health = round(t_health - ((o_title_passive_value / 100) * t_health))
                                         o_health = round(o_health + ((o_title_passive_value / 100) * t_health))
                                 if o_title_passive_type == "ATK":
@@ -8122,7 +8122,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if o_card_passive_type == "DESTRUCTION":
                                     t_max_health = round(round(t_max_health - ((o_value_for_passive / 100) * t_max_health)))
                                 if o_card_passive_type == "LIFE":
-                                    if o_max_health != o_health:
+                                    if o_max_health <= o_health:
                                         t_health = round(t_health - ((o_value_for_passive / 100) * t_health))
                                         o_health = round(o_health + ((o_value_for_passive / 100) * t_health))
                                 if o_card_passive_type == "ATK":
@@ -8207,7 +8207,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 t_max_health = round(t_max_health + (o_base_health *.40))
                             if o_universe == "Death Note" and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{o_card} says**\nYou will die in 60  turns...",
+                                                        description=f"**{o_card} says**\nYou will die in 100 turns...",
                                                         colour=0xe91e63)
                                 
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled Death 📓")
@@ -8222,7 +8222,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             if mode in co_op_modes:
                                 if c_universe == "Death Note" and turn_total == 0:
                                     embedVar = discord.Embed(title=f"{c_card} Scheduled Death 📓",
-                                                            description=f"**{c_card} says**\nYou will die in 60  turns...",
+                                                            description=f"**{c_card} says**\nYou will die in 100 turns...",
                                                             colour=0xe91e63)
                                     
                                     previous_moves.append(f"(**{turn_total}**) 🩸 {c_card} Scheduled Death 📓")
@@ -8495,7 +8495,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{o_card}** Increased AP & Stamina 🌀")
                                 
                                 elif o_universe == "Death Note":
-                                    if turn_total >= 60:
+                                    if turn_total >= 100:
                                         embedVar = discord.Embed(title=f"{t_card}'s' Scheduled Death 📓",
                                                                 description=f"**{o_card} says**\n**Delete**",
                                                                 colour=0xe91e63)
@@ -11806,7 +11806,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if t_card_passive_type == "DESTRUCTION":
                                     o_max_health = round(round(o_max_health - ((t_value_for_passive / 100) * o_max_health)))
                                 if t_card_passive_type == "LIFE":
-                                    if t_max_health != t_health:
+                                    if t_max_health <= t_health:
                                         o_health = round(o_health - ((t_value_for_passive / 100) * o_health))
                                         t_health = round(t_health + ((t_value_for_passive / 100) * o_health))
                                 if t_card_passive_type == "ATK":
@@ -11892,12 +11892,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 t_max_health = round(t_max_health + (o_base_health *.40))
                             if o_universe == "Death Note" and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{o_card} says**\nYou will die in 60  turns...",
+                                                        description=f"**{o_card} says**\nYou will die in 100  turns...",
                                                         colour=0xe91e63)
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled Death 📓")
                             if t_universe == 'Death Note' and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{t_card} says**\nYou will die in 60  turns...",
+                                                        description=f"**{t_card} says**\nYou will die in 100  turns...",
                                                         colour=0xe91e63)
                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled Death 📓")
                             if turn_total == 1 and botActive and mode in B_modes:
@@ -12101,7 +12101,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_stamina = 100
                                     tcard_lvl_ap_buff = tcard_lvl_ap_buff + 30
                                 elif t_universe == "Death Note":
-                                    if turn_total >= 60:
+                                    if turn_total >= 100:
                                         embedVar = discord.Embed(title=f"{o_card}'s' Scheduled Death 📓",
                                                                 description=f"**{t_card} says**\n**Delete**",
                                                                 colour=0xe91e63)
@@ -17015,7 +17015,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if c_card_passive_type == "DESTRUCTION":
                                         t_max_health = round(round(t_max_health - ((c_value_for_passive / 100) * t_max_health)))
                                     if c_card_passive_type == "LIFE":
-                                        if c_max_health != c_health:
+                                        if c_max_health <= c_health:
                                             t_health = round(t_health - ((c_value_for_passive / 100) * t_health))
                                             c_health = round(c_health + ((c_value_for_passive / 100) * t_health))
                                     if c_card_passive_type == "ATK":
@@ -17265,7 +17265,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_stamina = 100
                                         ccard_lvl_ap_buff = ccard_lvl_ap_buff + 30
                                     elif c_universe == "Death Note":
-                                        if turn_total >= 60:
+                                        if turn_total >= 100:
                                             embedVar = discord.Embed(title=f"{t_card}'s' Scheduled Death 📓",
                                                                     description=f"**{c_card} says**\n**Delete**",
                                                                     colour=0xe91e63)
@@ -20236,7 +20236,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_max_health = round(round(c_max_health - ((t_value_for_passive / 100) * c_max_health)))
 
                                     if t_card_passive_type == "LIFE":
-                                        if t_max_health != t_health:
+                                        if t_max_health <= t_health:
                                             c_health = round(c_health - ((t_value_for_passive / 100) * c_health))
                                             t_health = round(t_health + ((t_value_for_passive / 100) * c_health))
                                     if t_card_passive_type == "ATK":
@@ -20489,7 +20489,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         tcard_lvl_ap_buff = tcard_lvl_ap_buff + 30
 
                                     elif t_universe == "Death Note":
-                                        if turn_total >= 60:
+                                        if turn_total >= 100:
                                             embedVar = discord.Embed(title=f"{o_card}'s' Scheduled Death 📓",
                                                                     description=f"**{t_card} says**\n**Delete**",
                                                                     colour=0xe91e63)

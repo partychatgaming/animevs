@@ -900,7 +900,7 @@ async def cardlevel(card: str, player, mode: str, universe: str):
                 response = db.updateVault(query, update_query, filter_query)
                 await user.send(f"**{card}** leveled up!")
 
-        if lvl < 500 and lvl >= 200 and has_universe_heart:
+        if lvl < 999 and lvl >= 200 and has_universe_heart:
             if guild_buff:
                 if guild_buff['Level']:
                     exp_gain = 150
