@@ -8043,9 +8043,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             # await asyncio.sleep(1)
                             if o_title_passive_type:
                                 if o_title_passive_type == "HLT":
-                                    o_health = round(o_health + ((o_title_passive_value / 100) * o_health))
+                                    if o_max_health > o_health:
+                                        o_health = round(o_health + ((o_title_passive_value / 100) * o_health))
                                 if o_title_passive_type == "LIFE":
-                                    if o_max_health <= o_health:
+                                    if o_max_health > o_health:
                                         t_health = round(t_health - ((o_title_passive_value / 100) * t_health))
                                         o_health = round(o_health + ((o_title_passive_value / 100) * t_health))
                                 if o_title_passive_type == "ATK":
@@ -8109,6 +8110,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_max_health = round(round(o_max_health + ((o_title_passive_value / 100) * o_max_health)))
                                 if o_title_passive_type == "DESTRUCTION":
                                     t_max_health = round(t_max_health - ((o_title_passive_value / 100) * t_max_health))
+                                if o_title_passive_type == "BLAST":
+                                    t_health = round(t_health - o_title_passive_value)
+                                if o_title_passive_type == "WAVE":
+                                    if turn_total % 10 == 0:
+                                    t_health = round(t_health - 100)
 
 
                             if o_card_passive_type:
@@ -8116,13 +8122,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 o_flat_for_passive = 10 * (o_card_tier * .5)
                                 o_stam_for_passive = 5 * (o_card_tier * .5)
                                 if o_card_passive_type == "HLT":
-                                    o_health = round(round(o_health + ((o_value_for_passive / 100) * o_health)))
+                                    if o_max_health > o_health:
+                                        o_health = round(round(o_health + ((o_value_for_passive / 100) * o_health)))
                                 if o_card_passive_type == "CREATION":
                                     o_max_health = round(round(o_max_health + ((o_value_for_passive / 100) * o_max_health)))
                                 if o_card_passive_type == "DESTRUCTION":
                                     t_max_health = round(round(t_max_health - ((o_value_for_passive / 100) * t_max_health)))
                                 if o_card_passive_type == "LIFE":
-                                    if o_max_health <= o_health:
+                                    if o_max_health > o_health:
                                         t_health = round(t_health - ((o_value_for_passive / 100) * t_health))
                                         o_health = round(o_health + ((o_value_for_passive / 100) * t_health))
                                 if o_card_passive_type == "ATK":
@@ -8182,6 +8189,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_stamina = o_stamina - o_stam_for_passive
                                     if t_stamina >=10:
                                         t_stamina = t_stamina + o_stam_for_passive
+                                if o_card_passive_type == "BLAST":
+                                    t_health = round(t_health - o_value_for_passive)
+                                if o_card_passive_type == "WAVE":
+                                    if turn_total % 10 == 0:
+                                        t_health = round(t_health - 100)
 
                             if o_block_used == True:
                                 o_defense = int(o_defense / 2)
@@ -11728,9 +11740,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                             if t_title_passive_type:
                                 if t_title_passive_type == "HLT":
-                                    t_health = round(t_health + ((t_title_passive_value / 100) * t_health))
+                                    if t_max_health > t_health:
+                                        t_health = round(t_health + ((t_title_passive_value / 100) * t_health))
                                 if t_title_passive_type == "LIFE":
-                                    if t_max_health != o_health:
+                                    if t_max_health > t_health:
                                         o_health = round(o_health - ((t_title_passive_value / 100) * o_health))
                                         t_health = round(t_health + ((t_title_passive_value / 100) * o_health))
                                 if t_title_passive_type == "ATK":
@@ -11794,19 +11807,25 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_max_health = round(round(t_max_health + ((t_title_passive_value / 100) * t_max_health)))
                                 if t_title_passive_type == "DESTRUCTION":
                                     o_max_health = round(o_max_health - ((t_title_passive_value / 100) * o_max_health))
+                                if t_title_passive_type == "BLAST":
+                                    o_health = round(o_health - t_title_passive_value)
+                                if t_title_passive_type == "WAVE":
+                                    if turn_total % 10 == 0:
+                                        o_health = round(o_health - 100)
 
                             if t_card_passive_type:
                                 t_value_for_passive = t_card_tier * .5
                                 t_flat_for_passive = 10 * (t_card_tier * .5)
                                 t_stam_for_passive = 5 * (t_card_tier * .5)
                                 if t_card_passive_type == "HLT":
-                                    t_health = round(round(t_health + ((t_value_for_passive / 100) * t_health)))
+                                    if t_max_health > t_health:
+                                        t_health = round(round(t_health + ((t_value_for_passive / 100) * t_health)))
                                 if t_card_passive_type == "CREATION":
                                     t_max_health = round(round(t_max_health + ((t_value_for_passive / 100) * t_max_health)))
                                 if t_card_passive_type == "DESTRUCTION":
                                     o_max_health = round(round(o_max_health - ((t_value_for_passive / 100) * o_max_health)))
                                 if t_card_passive_type == "LIFE":
-                                    if t_max_health <= t_health:
+                                    if t_max_health > t_health:
                                         o_health = round(o_health - ((t_value_for_passive / 100) * o_health))
                                         t_health = round(t_health + ((t_value_for_passive / 100) * o_health))
                                 if t_card_passive_type == "ATK":
@@ -11841,14 +11860,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if t_card_passive_type == "FEAR":
                                     if t_universe != "Chainsawman":
                                         t_max_health = t_max_health - (t_max_health * .03)
-                                    o_defense = o_defense - t_title_passive_value
-                                    o_attack = o_attack - t_title_passive_value
-                                    o_ap_buff = o_ap_buff - t_title_passive_value
+                                    o_defense = o_defense - t_value_for_passive
+                                    o_attack = o_attack - t_value_for_passive
+                                    o_ap_buff = o_ap_buff - t_value_for_passive
                                 if t_card_passive_type == "GROWTH":
                                     t_max_health = t_max_health - (t_max_health * .03)
-                                    t_defense = t_defense + t_title_passive_value
-                                    t_attack = t_attack + t_title_passive_value
-                                    t_ap_buff = t_ap_buff + t_title_passive_value
+                                    t_defense = t_defense + t_value_for_passive
+                                    t_attack = t_attack + t_value_for_passive
+                                    t_ap_buff = t_ap_buff + t_value_for_passive
                                 if t_card_passive_type == "SLOW":
                                     if turn_total != 0:
                                         turn_total = turn_total - 1
@@ -11866,6 +11885,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_stamina = t_stamina - t_stam_for_passive
                                     if o_stamina >=10:
                                         o_stamina = o_stamina + t_stam_for_passive
+                                if t_card_passive_type == "BLAST":
+                                    o_health = round(o_health - t_value_for_passive)
+                                if t_card_passive_type == "WAVE":
+                                    if turn_total % 10 == 0:
+                                        o_health = round(o_health - 100)
 
                             # if previous_moves:
                             #     previous_moves_len = len(previous_moves)
@@ -16936,9 +16960,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                 if c_title_passive_type:
                                     if c_title_passive_type == "HLT":
-                                        c_health = round(c_health + ((c_title_passive_value / 100) * c_health))
+                                        if c_max_health > c_health:
+                                            c_health = round(c_health + ((c_title_passive_value / 100) * c_health))
                                     if c_title_passive_type == "LIFE":
-                                        if c_max_health != o_health:
+                                        if c_max_health > c_health:
                                             t_health = round(t_health - ((c_title_passive_value / 100) * t_health))
                                             c_health = round(c_health + ((c_title_passive_value / 100) * t_health))
                                     if c_title_passive_type == "ATK":
@@ -17002,6 +17027,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_max_health = round(round(c_max_health + ((c_title_passive_value / 100) * c_max_health)))
                                     if c_title_passive_type == "DESTRUCTION":
                                         t_max_health = round(t_max_health - ((c_title_passive_value / 100) * t_max_health))
+                                    if c_title_passive_type == "BLAST":
+                                        t_health = round(t_health - c_title_passive_value)
+                                    if c_title_passive_type == "WAVE":
+                                        if turn_total % 10 == 0:
+                                            t_health = round(t_health - 100)
 
 
                                 if c_card_passive_type:
@@ -17009,13 +17039,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     c_flat_for_passive = 10 * (c_card_tier * .5)
                                     c_stam_for_passive = 5 * (c_card_tier * .5)
                                     if c_card_passive_type == "HLT":
-                                        c_health = round(round(c_health + ((c_value_for_passive / 100) * c_health)))
+                                        if c_max_health > c_health:
+                                            c_health = round(round(c_health + ((c_value_for_passive / 100) * c_health)))
                                     if c_card_passive_type == "CREATION":
                                         c_max_health = round(round(c_max_health + ((c_value_for_passive / 100) * c_max_health)))
                                     if c_card_passive_type == "DESTRUCTION":
                                         t_max_health = round(round(t_max_health - ((c_value_for_passive / 100) * t_max_health)))
                                     if c_card_passive_type == "LIFE":
-                                        if c_max_health <= c_health:
+                                        if c_max_health > c_health:
                                             t_health = round(t_health - ((c_value_for_passive / 100) * t_health))
                                             c_health = round(c_health + ((c_value_for_passive / 100) * t_health))
                                     if c_card_passive_type == "ATK":
@@ -17075,6 +17106,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_stamina = c_stamina - c_stam_for_passive
                                         if t_stamina >= 10:
                                             t_stamina = t_stamina + c_stam_for_passive
+                                    if c_card_passive_type == "BLAST":
+                                        t_health = round(t_health - c_value_for_passive)
+                                    if c_card_passive_type == "WAVE":
+                                        if turn_total % 10 == 0:
+                                            t_health = round(t_health - 100)
 
 
 
@@ -20155,10 +20191,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                 if t_title_passive_type:
                                     if t_title_passive_type == "HLT":
-                                        t_health = round(t_health + ((t_title_passive_value / 100) * t_health))
+                                        if t_max_health > t_health:
+                                            t_health = round(t_health + ((t_title_passive_value / 100) * t_health))
 
                                     if t_title_passive_type == "LIFE":
-                                        if t_max_health != o_health:
+                                        if t_max_health > t_health:
                                             c_health = c_health - ((t_title_passive_value / 100) * c_health)
                                             t_health = t_health + ((t_title_passive_value / 100) * c_health)
                                     if t_title_passive_type == "ATK":
@@ -20222,21 +20259,26 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_max_health = round(round(t_max_health + ((t_title_passive_value / 100) * t_max_health)))
                                     if t_title_passive_type == "DESTRUCTION":
                                         c_max_health = round(c_max_health - ((t_title_passive_value / 100) * c_max_health))
-
+                                    if t_title_passive_type == "BLAST":
+                                        c_health = round(c_health - t_title_passive_value)
+                                    if t_title_passive_type == "WAVE":
+                                        if turn_total % 10 == 0:
+                                            c_health = round(c_health - 100)
 
                                 if t_card_passive_type:
                                     t_value_for_passive = t_card_tier * .5
                                     t_flat_for_passive = 10 * (t_card_tier * .5)
                                     t_stam_for_passive = 5 * (t_card_tier * .5)
                                     if t_card_passive_type == "HLT":
-                                        t_health = round(round(t_health + ((t_value_for_passive / 100) * t_health)))
+                                        if t_max_health > t_health:
+                                            t_health = round(round(t_health + ((t_value_for_passive / 100) * t_health)))
                                     if t_card_passive_type == "CREATION":
                                         t_max_health = round(round(t_max_health + ((t_value_for_passive / 100) * t_max_health)))
                                     if t_card_passive_type == "DESTRUCTION":
                                         c_max_health = round(round(c_max_health - ((t_value_for_passive / 100) * c_max_health)))
 
                                     if t_card_passive_type == "LIFE":
-                                        if t_max_health <= t_health:
+                                        if t_max_health > t_health:
                                             c_health = round(c_health - ((t_value_for_passive / 100) * c_health))
                                             t_health = round(t_health + ((t_value_for_passive / 100) * c_health))
                                     if t_card_passive_type == "ATK":
