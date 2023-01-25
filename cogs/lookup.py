@@ -212,14 +212,15 @@ class Lookup(commands.Cog):
                         elif match['UNIVERSE_TYPE'] == "PVP":
                             pvp_matches.append(match)
                             
-
-                    card_main = most_frequent(most_played_card)
                     
+                    card_main = most_frequent(most_played_card)
+                    if not most_universe_played:
+                        
                     if not most_played_card:
                         most_played_card_message = "_No Data For Analysis_"
                     else:
                         most_played_card_message = f"**Most Played Card: **{card_main}"
-                        #most_played_universe_message = f"**Favorite Universe: **{fav_uni}"
+                        most_played_universe_message = f"**Favorite Universe: **{fav_uni}"
                         match_history_message = f"""
                         **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                         **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}

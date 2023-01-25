@@ -5071,11 +5071,10 @@ class Profile(commands.Cog):
                             for arms in astorage:
                                 if storage_arm == arms['ARM']:
                                     durability = arms['DUR']
-                                    print(arms)
                             query = {'DID': str(ctx.author.id)}
                             update_storage_query = {
-                                '$pull': {'ASTORAGE': {'ARM' : str(item)}},
-                                '$addToSet': {'ARMS': {'ARM' : str(item) , 'DUR': int(durability)}},
+                                '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
+                                '$addToSet': {'ARMS': {'ARM' : str(storage_arm['ARM']) , 'DUR': int(durability)}},
                             }
                             response = db.updateVaultNoFilter(query, update_storage_query)
                             await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/arms**")
