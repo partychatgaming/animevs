@@ -214,14 +214,12 @@ class Lookup(commands.Cog):
                             
 
                     card_main = most_frequent(most_played_card)
-                    fav_uni = most_frequent(most_universe_played)
+                    
                     if not most_played_card:
                         most_played_card_message = "_No Data For Analysis_"
-                    if not most_universe_played:
-                        most_played_universe_message ="_No Data For Analysis_"
                     else:
                         most_played_card_message = f"**Most Played Card: **{card_main}"
-                        most_played_universe_message = f"**Favorite Universe: **{fav_uni}"
+                        #most_played_universe_message = f"**Favorite Universe: **{fav_uni}"
                         match_history_message = f"""
                         **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                         **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
@@ -291,7 +289,6 @@ class Lookup(commands.Cog):
                 embed6 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Avatar".format(self), description=textwrap.dedent(f"""\
                     **:bust_in_silhouette: | User**: {user.mention}
                     :military_medal: | {most_played_card_message}
-                    :earth_africa: | {most_played_universe_message}
                     {aicon} | {prestige_message}
                     {birthday}
                 """), colour=000000)
