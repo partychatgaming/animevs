@@ -278,11 +278,11 @@ class Lookup(commands.Cog):
                 🆚 | **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
                 📊 | **Pvp Record: ** :regional_indicator_w: **{pvp_wins}** / :regional_indicator_l: **{pvp_loss}**
                 
-                **Balance** {bal_message}
-                :flower_playing_cards: **Cards** {all_cards} ~ :briefcase: *{cstorage}*
-                :reminder_ribbon: **Titles** {all_titles} ~ :briefcase: *{tstorage}*
-                :mechanical_arm: **Arms** {all_arms} ~ :briefcase: *{astorage}*
-                🧬 **Summons** {all_pets}
+                **Balance** | {bal_message}
+                :flower_playing_cards: **Cards** | {all_cards} ~ :briefcase: *{cstorage}*
+                :reminder_ribbon: **Titles** | {all_titles} ~ :briefcase: *{tstorage}*
+                :mechanical_arm: **Arms** | {all_arms} ~ :briefcase: *{astorage}*
+                🧬 **Summons** | {all_pets}
                 {fs_message}
                 """), colour=000000)
                 embed5.set_thumbnail(url=avatar)

@@ -10842,7 +10842,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=None)
-                                                        await button_ctx.defer(ignore=True)
+                                                        # await button_ctx.defer(ignore=True)
                                                             
                                                         # await button_ctx.send(embed=embedVar, file=summon_file)
                                                     else:
