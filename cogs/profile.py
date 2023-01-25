@@ -7,7 +7,7 @@ from pymongo import response
 import bot as main
 import crown_utilities
 import db
-import classes as data
+import classes as data #
 import messages as m
 import numpy as np
 import help_commands as h
@@ -3005,7 +3005,7 @@ class Profile(commands.Cog):
                                     if pet_universe in current_gems:
                                         query = {'DID': str(ctx.author.id)}
                                         family_query = {'HEAD':d['FAMILY']}
-                                        if family_query != 'PCG':
+                                        if d['FAMILY'] != 'PCG':
                                             family_info = db.queryFamily(family_query)
                                             if summon_name == family_info['SUMMON']:
                                                 update_query = {'$set' : {'SUMMON': d['PET']}}
@@ -8854,6 +8854,13 @@ async def menusummons(self, ctx):
                                 self.stop = True
                             if button_ctx.custom_id == "yes":
                                 if pet_universe in current_gems:
+                                    query = {'DID': str(ctx.author.id)}
+                                    family_query = {'HEAD':d['FAMILY']}
+                                    if d['FAMILY'] != 'PCG':
+                                        family_info = db.queryFamily(family_query)
+                                        if summon_name == family_info['SUMMON']:
+                                            update_query = {'$set' : {'SUMMON': d['PET']}}
+                                            family_update = db.updateFamily(family_query,update_query)
                                     query = {'DID': str(ctx.author.id)}
                                     update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
                                     filter_query = [{'type.' + "UNIVERSE": pet_universe}]
