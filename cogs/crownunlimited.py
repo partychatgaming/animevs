@@ -2018,8 +2018,9 @@ def starting_position(o, t):
         return False
 
 
-def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, move_element, universe, card, ability, attack, defense, op_defense, stamina, enhancer, health, op_health, op_stamina,
+def damage_cal(mode,card_tier, talisman_dict, move_ap, opponent_affinity, move_type, move_element, universe, card, ability, attack, defense, op_defense, stamina, enhancer, health, op_health, op_stamina,
                maxhealth, op_attack, special_description, turn, ap_buff, other):
+    B_modes = ['Boss', 'CBoss']
     if op_defense <= 0:
         op_defense = 25
     if attack <= 0:
@@ -2028,11 +2029,18 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
         defense = 25
     if op_attack <= 0:
         op_attack = 25
+    boss_active = False
     if other == None:
         move = list(ability.keys())[0]
         ap = move_ap
         move_stamina = list(ability.values())[1]
         can_use_move_flag = True
+    elif mode in B_modes:
+        move = list(ability.keys())[0]
+        ap = move_ap
+        move_stamina = list(ability.values())[1]
+        can_use_move_flag = True
+        boss_active = True
     else:
         move = list(ability.keys())[0]
         ap = move_ap
@@ -2515,7 +2523,7 @@ def damage_cal(card_tier, talisman_dict, move_ap, opponent_affinity, move_type, 
                 true_dmg = round(true_dmg * 1.6)
                 message = f"Opponent is weak to **{move_emoji} {move_element.lower()}**! Strong hit for **{true_dmg}**!"
 
-            if not talisman_dict[move_element]:
+            if not talisman_dict[move_element] and not boss_active:
                 if opponent_affinity[move_type] == "RESISTANT" and not (hit_roll <= miss_hit) :
                     true_dmg = round(true_dmg * .45)
                     message = f"Opponent is resistant to **{move_emoji} {move_element.lower()}**.. Weak hit for **{true_dmg}**!"
@@ -6860,6 +6868,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         """))
                         embedVar.set_image(url=boss_info['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                        embedVar.set_footer(text="📿| Boss Talismans ignore all Affinities. Be Prepared")
                         universe_embed_list.append(embedVar)
         if not universe_embed_list:
             await ctx.send("No available Bosses for you at this time!")
@@ -8836,36 +8845,36 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                     if aiMove == 1:
                                         if o_universe == "Souls" and o_used_resolve:
-                                            dmg = damage_cal(o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense, o_stamina,
+                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense, o_stamina,
                                                             o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                             t_attack, o_special_move_description, turn_total,
                                                             ocard_lvl_ap_buff, o_1)                                                
                                         else:
-                                            dmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
+                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
                                                             o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                             t_attack, o_special_move_description, turn_total,
                                                             ocard_lvl_ap_buff, None)
                                     elif aiMove == 2:
                                         if o_universe == "Souls" and o_used_resolve:
-                                            dmg = damage_cal(o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense, o_stamina,
+                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense, o_stamina,
                                                             o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                             t_attack, o_special_move_description, turn_total,
                                                             ocard_lvl_ap_buff, o_2)                                                
                                         else:
-                                            dmg = damage_cal(o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense, o_stamina,
+                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense, o_stamina,
                                                             o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                             t_attack, o_special_move_description, turn_total,
                                                             ocard_lvl_ap_buff, None)
                                     elif aiMove == 3:
 
-                                        dmg = damage_cal(o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense, o_stamina,
+                                        dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense, o_stamina,
                                                         o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                         t_attack, o_special_move_description, turn_total,
                                                         ocard_lvl_ap_buff, None)
                                     elif aiMove == 4:
                                         o_enhancer_used = True
 
-                                        dmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_enhancer, o_attack, o_defense, t_defense,
+                                        dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_enhancer, o_attack, o_defense, t_defense,
                                                         o_stamina, o_enhancer_used, o_health, t_health, t_stamina,
                                                         o_max_health, t_attack, o_special_move_description, turn_total,
                                                         ocard_lvl_ap_buff, None)
@@ -9145,7 +9154,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                     inline=False)
                                                     embedVar.set_footer(text=f"{o_card} this is your chance!")
                                                     await ctx.send(embed=embedVar)
-                                                dmg = damage_cal(o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense,
+                                                dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense,
                                                                 t_defense, o_stamina, o_enhancer_used, o_health,
                                                                 t_health, t_stamina, o_max_health, t_attack,
                                                                 o_special_move_description, turn_total,
@@ -9264,7 +9273,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         # Resolve Check and Calculation
                                         if o_used_resolve and o_used_focus and not o_pet_used:
                                             o_enhancer_used = True
-                                            dmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, opet_move, o_attack, o_defense,
+                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, opet_move, o_attack, o_defense,
                                                             t_defense, o_stamina, o_enhancer_used, o_health, t_health,
                                                             t_stamina, o_max_health, t_attack,
                                                             o_special_move_description, turn_total, ocard_lvl_ap_buff, None)
@@ -9362,7 +9371,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                 o_stamina = o_stamina - int(dmg['STAMINA_USED'])
                                                 if o_universe == "Persona":
-                                                    petdmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense,
+                                                    petdmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense,
                                                                         t_defense, o_stamina, o_enhancer_used, o_health,
                                                                         t_health, t_stamina, o_max_health, t_attack,
                                                                         o_special_move_description, turn_total,
@@ -9390,7 +9399,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 o_health = o_health + 100
 
                                             if o_universe == "Bleach":
-                                                dmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
+                                                dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
                                                                 o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                                 t_attack, o_special_move_description, turn_total,
                                                                 ocard_lvl_ap_buff, None)
@@ -10222,12 +10231,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 await button_ctx.send(embed=embedVar)
                                                 await asyncio.sleep(2)
                                             if o_universe == "Souls" and o_used_resolve:
-                                                dmg = damage_cal(o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense, o_stamina,
+                                                dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense, o_stamina,
                                                                 o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                                 t_attack, o_special_move_description, turn_total,
                                                                 ocard_lvl_ap_buff, o_1)                                                
                                             else:
-                                                dmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense,
+                                                dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense,
                                                                 o_stamina, o_enhancer_used, o_health, t_health, t_stamina,
                                                                 o_max_health, t_attack, o_special_move_description, turn_total,
                                                                 ocard_lvl_ap_buff, None)
@@ -10245,12 +10254,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 await button_ctx.send(embed=embedVar)
                                                 await asyncio.sleep(2)
                                             if o_universe == "Souls" and o_used_resolve:
-                                                dmg = damage_cal(o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense, o_stamina,
+                                                dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense, o_stamina,
                                                                 o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                                 t_attack, o_special_move_description, turn_total,
                                                                 ocard_lvl_ap_buff, o_2)                                                
                                             else:
-                                                dmg = damage_cal(o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense,
+                                                dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense,
                                                                 o_stamina, o_enhancer_used, o_health, t_health, t_stamina,
                                                                 o_max_health, t_attack, o_special_move_description, turn_total,
                                                                 ocard_lvl_ap_buff, None)
@@ -10269,7 +10278,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     text=f"Ultimate moves will consume most of your ST(Stamina) for Incredible Damage! Use Them Wisely!")
                                                 await button_ctx.send(embed=embedVar)
                                                 await asyncio.sleep(2)
-                                            dmg = damage_cal(o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense,
+                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense,
                                                             o_stamina, o_enhancer_used, o_health, t_health, t_stamina,
                                                             o_max_health, t_attack, o_special_move_description, turn_total,
                                                             ocard_lvl_ap_buff, None)
@@ -10295,7 +10304,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 await asyncio.sleep(2)
                                             o_enhancer_used = True
 
-                                            dmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_enhancer, o_attack, o_defense, t_defense,
+                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_enhancer, o_attack, o_defense, t_defense,
                                                             o_stamina, o_enhancer_used, o_health, t_health, t_stamina,
                                                             o_max_health, t_attack, o_special_move_description, turn_total,
                                                             ocard_lvl_ap_buff, None)
@@ -10595,7 +10604,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                         inline=False)
                                                         embedVar.set_footer(text=f"{o_card} this is your chance!")
                                                         await ctx.send(embed=embedVar)
-                                                    dmg = damage_cal(o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense,
+                                                    dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense,
                                                                     t_defense, o_stamina, o_enhancer_used, o_health,
                                                                     t_health, t_stamina, o_max_health, t_attack,
                                                                     o_special_move_description, turn_total,
@@ -10730,7 +10739,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     await button_ctx.send(embed=embedVar)
                                                     await asyncio.sleep(2)
                                                 o_enhancer_used = True
-                                                dmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, opet_move, o_attack, o_defense,
+                                                dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, opet_move, o_attack, o_defense,
                                                                 t_defense, o_stamina, o_enhancer_used, o_health, t_health,
                                                                 t_stamina, o_max_health, t_attack,
                                                                 o_special_move_description, turn_total, ocard_lvl_ap_buff, None)
@@ -10828,7 +10837,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                     o_stamina = o_stamina - int(dmg['STAMINA_USED'])
                                                     if o_universe == "Persona":
-                                                        petdmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense,
+                                                        petdmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense,
                                                                             t_defense, o_stamina, o_enhancer_used, o_health,
                                                                             t_health, t_stamina, o_max_health, t_attack,
                                                                             o_special_move_description, turn_total,
@@ -10892,7 +10901,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         elif mode in co_op_modes:
                                             if button_ctx.custom_id == "7":
                                                 o_enhancer_used = True
-                                                dmg = damage_cal(o_card_tier, o_talisman_dict, ap1,t_for_c_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_enhancer, o_attack, o_defense,
+                                                dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1,t_for_c_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_enhancer, o_attack, o_defense,
                                                                 c_defense, o_stamina, o_enhancer_used, o_health, c_health,
                                                                 c_stamina, o_max_health, c_attack,
                                                                 o_special_move_description, turn_total, ocard_lvl_ap_buff, None)
@@ -11010,7 +11019,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     turn = 0
                                             elif button_ctx.custom_id == "8":
                                                 c_enhancer_used = True
-                                                dmg = damage_cal(o_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense,
+                                                dmg = damage_cal(mode,o_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense,
                                                                 o_defense, c_stamina, c_enhancer_used, c_health, o_health,
                                                                 o_stamina, c_max_health, o_attack,
                                                                 c_special_move_description, turn_total, ccard_lvl_ap_buff, None)
@@ -11164,7 +11173,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     o_health = o_health + 100
 
                                                 if o_universe == "Bleach":
-                                                    dmg = damage_cal(o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
+                                                    dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
                                                                     o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
                                                                     t_attack, o_special_move_description, turn_total,
                                                                     ocard_lvl_ap_buff, None)
@@ -12486,29 +12495,29 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 #return
                                             if button_ctx.custom_id == "1":
                                                 if t_universe == "Souls" and t_used_resolve:
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
                                                                     t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                     o_attack, t_special_move_description, turn_total,
                                                                     tcard_lvl_ap_buff, t_1)
                                                 else:
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
                                                                     t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                     t_max_health, o_attack, t_special_move_description, turn_total,
                                                                     tcard_lvl_ap_buff, None)
                                             elif button_ctx.custom_id == "2":
                                                 if t_universe == "Souls" and t_used_resolve:
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
                                                                     t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                     o_attack, t_special_move_description, turn_total,
                                                                     tcard_lvl_ap_buff, t_2)
                                                 else:
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense,
                                                                     t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                     t_max_health, o_attack, t_special_move_description, turn_total,
                                                                     tcard_lvl_ap_buff, None)
                                             elif button_ctx.custom_id == "3":
 
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense,
                                                                 t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                 t_max_health, o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
@@ -12520,7 +12529,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             elif button_ctx.custom_id == "4":
                                                 t_enhancer_used = True
 
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, o_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, o_defense,
                                                                 t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                 t_max_health, o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
@@ -12765,7 +12774,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_defense = round(t_defense - t_resolve_defense)
                                                         t_used_resolve = True
 
-                                                        dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense,
+                                                        dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense,
                                                                         o_defense, t_stamina, t_enhancer_used, t_health,
                                                                         o_health, o_stamina, t_max_health, o_attack,
                                                                         t_special_move_description, turn_total,
@@ -12871,7 +12880,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 # Resolve Check and Calculation
                                                 if t_used_resolve and t_used_focus and not t_pet_used:
                                                     t_enhancer_used = True
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
                                                                     o_defense, t_stamina, t_enhancer_used, t_health, o_health,
                                                                     o_stamina, t_max_health, o_attack,
                                                                     t_special_move_description, turn_total, tcard_lvl_ap_buff, None)
@@ -12969,7 +12978,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_stamina = t_stamina - int(dmg['STAMINA_USED'])
 
                                                         if t_universe == "Persona":
-                                                            petdmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
+                                                            petdmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
                                                                                 o_defense, t_stamina, t_enhancer_used, t_health,
                                                                                 o_health, o_stamina, t_max_health, o_attack,
                                                                                 t_special_move_description, turn_total,
@@ -13027,7 +13036,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health + 100
 
                                                     if t_universe == "Bleach":
-                                                        dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
+                                                        dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
                                                                         t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                         t_max_health, o_attack, t_special_move_description, turn_total,
                                                                         tcard_lvl_ap_buff, None)
@@ -13713,28 +13722,28 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             t_health = 0
                                         if int(aiMove) == 1:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_1)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
                                         elif int(aiMove) == 2:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_2)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
                                         elif int(aiMove) == 3:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
                                                             t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                             o_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
@@ -13745,7 +13754,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 await asyncio.sleep(1)
                                         elif int(aiMove) == 4:
                                             t_enhancer_used = True
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, o_defense,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, o_defense,
                                                             t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                             t_max_health, o_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
@@ -13985,7 +13994,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_defense = round(t_defense - t_resolve_defense)
                                                     t_used_resolve = True
 
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense,
                                                                     t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                     t_max_health, o_attack, t_special_move_description,
                                                                     turn_total, tcard_lvl_ap_buff, None)
@@ -14083,7 +14092,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             # Resolve Check and Calculation
                                             if t_used_resolve and t_used_focus and not t_pet_used and mode != "RAID":
                                                 t_enhancer_used = True
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense, o_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense, o_defense,
                                                                 t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                 t_max_health, o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
@@ -14180,7 +14189,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_stamina = t_stamina - int(dmg['STAMINA_USED'])
 
                                                     if t_universe == "Persona":
-                                                        petdmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack,
+                                                        petdmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack,
                                                                             t_defense, o_defense, t_stamina,
                                                                             t_enhancer_used, t_health, o_health, o_stamina,
                                                                             t_max_health, o_attack,
@@ -14236,7 +14245,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_health = t_health + 100
 
                                                 if t_universe == "Bleach":
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
                                                                     t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                     t_max_health, o_attack, t_special_move_description, turn_total,
                                                                     tcard_lvl_ap_buff, None)
@@ -14928,23 +14937,23 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if int(aiMove) == 1:                                    
                                         if c_block_used == True:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, c_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, c_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, c_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, c_defense, t_stamina,
                                                                 t_enhancer_used, t_health, c_health, c_stamina, t_max_health,
                                                                 c_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_1)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, c_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, c_defense, t_stamina,
                                                                 t_enhancer_used, t_health, c_health, c_stamina, t_max_health,
                                                                 c_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
                                         else:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_1)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
@@ -14952,34 +14961,34 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                         if c_block_used == True:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense, t_stamina,
                                                                 t_enhancer_used, t_health, c_health, c_stamina, t_max_health,
                                                                 c_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_2)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, c_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, c_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, c_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, c_defense, t_stamina,
                                                                 t_enhancer_used, t_health, c_health, c_stamina, t_max_health,
                                                                 c_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
                                         else:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_2)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
                                     elif int(aiMove) == 3:
                                         if c_block_used == True:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense, t_stamina,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense, t_stamina,
                                                             t_enhancer_used, t_health, c_health, c_stamina, t_max_health,
                                                             c_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
                                         else:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
                                                             t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                             o_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None) #bug here
@@ -14993,12 +15002,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                         t_enhancer_used = True
                                         if c_block_used == True:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, c_defense,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, c_defense,
                                                             t_stamina, t_enhancer_used, t_health, c_health, c_stamina,
                                                             t_max_health, c_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
                                         else:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, o_defense,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, o_defense,
                                                             t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                             t_max_health, o_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
@@ -15210,13 +15219,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 t_used_resolve = True
                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Resolved: Command Seal! {dmg['MESSAGE']}")
                                                 if c_block_used == True:
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense,
                                                                     t_stamina, t_enhancer_used, t_health, c_health, c_stamina,
                                                                     t_max_health, c_attack, t_special_move_description,
                                                                     turn_total, tcard_lvl_ap_buff, None)
                                                     c_health = c_health - int(dmg['DMG'])
                                                 else:
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense,
                                                                     t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                     t_max_health, o_attack, t_special_move_description,
                                                                     turn_total, tcard_lvl_ap_buff, None)
@@ -15314,7 +15323,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             if mode in co_op_modes:
                                                 if c_block_used == True:
                                                     t_enhancer_used = True
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
                                                                     c_defense, t_stamina, t_enhancer_used, t_health, c_health,
                                                                     c_stamina, t_max_health, c_attack,
                                                                     t_special_move_description, turn_total, tcard_lvl_ap_buff, None)
@@ -15410,7 +15419,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 c_max_health = 1
                                                         t_stamina = t_stamina - int(dmg['STAMINA_USED'])
                                                         if t_universe == "Persona":
-                                                            petdmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack,
+                                                            petdmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack,
                                                                                 t_defense, c_defense, t_stamina,
                                                                                 t_enhancer_used, t_health, c_health,
                                                                                 c_stamina, t_max_health, c_attack,
@@ -15459,7 +15468,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             #     await battle_msg.delete(delay=2)
 
                                                         # if t_universe == "Persona":
-                                                        #     petdmg = damage_cal(card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
+                                                        #     petdmg = damage_cal(mode,card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
                                                         #                         c_defense, t_stamina, t_enhancer_used, t_health,
                                                         #                         c_health, c_stamina, t_max_health, c_attack,
                                                         #                         t_special_move_description, turn_total,
@@ -15473,7 +15482,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         turn = 1
                                                 else:
                                                     t_enhancer_used = True
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
                                                                     o_defense, t_stamina, t_enhancer_used, t_health, o_health,
                                                                     o_stamina, t_max_health, o_attack,
                                                                     t_special_move_description, turn_total, tcard_lvl_ap_buff, None)
@@ -15571,7 +15580,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                         
                                                         if t_universe == "Persona":
-                                                            petdmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack,
+                                                            petdmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack,
                                                                                 t_defense, c_defense, t_stamina,
                                                                                 t_enhancer_used, t_health, c_health,
                                                                                 c_stamina, t_max_health, c_attack,
@@ -15621,7 +15630,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                     await battle_msg.delete(delay=2)
 
                                                         # if t_universe == "Persona":
-                                                        #     petdmg = damage_cal(card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
+                                                        #     petdmg = damage_cal(mode,card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
                                                         #                         c_defense, t_stamina, t_enhancer_used, t_health,
                                                         #                         c_health, c_stamina, t_max_health, c_attack,
                                                         #                         t_special_move_description, turn_total,
@@ -15634,7 +15643,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                             else:
                                                 t_enhancer_used = True
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense, o_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense, o_defense,
                                                                 t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                 t_max_health, o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
@@ -15732,7 +15741,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                     
                                                     if t_universe == "Persona":
-                                                        petdmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack,
+                                                        petdmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack,
                                                                             t_defense, o_defense, t_stamina,
                                                                             t_enhancer_used, t_health, o_health, o_stamina,
                                                                             t_max_health, o_attack,
@@ -15792,7 +15801,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 t_health = t_health + 100
 
                                             if t_universe == "Bleach":
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
                                                                 t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                 t_max_health, o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
@@ -17634,29 +17643,29 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             return
                                         if aiMove == 1:
                                             if c_universe == "Souls" and c_used_resolve:
-                                                dmg = damage_cal(c_card_tier, c_talisman_dict, cap2, t_for_c_opponent_affinities, special_attack_name, cmove2_element, c_universe, c_card, c_2, c_attack, c_defense, t_defense,
+                                                dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap2, t_for_c_opponent_affinities, special_attack_name, cmove2_element, c_universe, c_card, c_2, c_attack, c_defense, t_defense,
                                                             c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                             c_max_health, t_attack, c_special_move_description, turn_total,
                                                             ccard_lvl_ap_buff, c_1)
                                             else:
-                                                dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense, t_defense,
+                                                dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense, t_defense,
                                                                 c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                                 c_max_health, t_attack, c_special_move_description, turn_total,
                                                                 ccard_lvl_ap_buff, None)
                                         elif aiMove == 2:
                                             if c_universe == "Souls" and c_used_resolve:
-                                                dmg = damage_cal(c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense, t_defense,
+                                                dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense, t_defense,
                                                             c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                             c_max_health, t_attack, c_special_move_description, turn_total,
                                                             ccard_lvl_ap_buff, c_2)
                                             else:
-                                                dmg = damage_cal(c_card_tier, c_talisman_dict, cap2, t_for_c_opponent_affinities, special_attack_name, cmove2_element, c_universe, c_card, c_2, c_attack, c_defense, t_defense,
+                                                dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap2, t_for_c_opponent_affinities, special_attack_name, cmove2_element, c_universe, c_card, c_2, c_attack, c_defense, t_defense,
                                                                 c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                                 c_max_health, t_attack, c_special_move_description, turn_total,
                                                                 ccard_lvl_ap_buff, None)
                                         elif aiMove == 3:
 
-                                            dmg = damage_cal(c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense, t_defense,
+                                            dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense, t_defense,
                                                             c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                             c_max_health, t_attack, c_special_move_description, turn_total,
                                                             ccard_lvl_ap_buff, None)
@@ -17668,7 +17677,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         elif aiMove == 4:
                                             c_enhancer_used = True
 
-                                            dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense, t_defense,
+                                            dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense, t_defense,
                                                             c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                             c_max_health, t_attack, c_special_move_description, turn_total,
                                                             ccard_lvl_ap_buff, None)
@@ -17917,7 +17926,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     c_attack = round(c_attack + c_resolve_attack)
                                                     c_defense = round(c_defense - c_resolve_defense)
 
-                                                    dmg = damage_cal(c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense,
+                                                    dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense,
                                                                     t_defense, c_stamina, c_enhancer_used, c_health,
                                                                     t_health, t_stamina, c_max_health, t_attack,
                                                                     c_special_move_description, turn_total,
@@ -18021,7 +18030,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             # Resolve Check and Calculation
                                             if c_used_resolve and c_used_focus and not c_pet_used:
                                                 c_enhancer_used = True
-                                                dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, cpet_move, c_attack, c_defense,
+                                                dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, cpet_move, c_attack, c_defense,
                                                                 t_defense, c_stamina, c_enhancer_used, c_health, t_health,
                                                                 t_stamina, c_max_health, t_attack,
                                                                 c_special_move_description, turn_total, ccard_lvl_ap_buff, None)
@@ -18118,7 +18127,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                     #c_stamina = c_stamina - int(dmg['STAMINA_USED'])
                                                     if c_universe == "Persona":
-                                                        petdmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense,
+                                                        petdmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense,
                                                                             t_defense, c_stamina, c_enhancer_used, c_health,
                                                                             t_health, t_stamina, c_max_health, t_attack,
                                                                             c_special_move_description, turn_total,
@@ -18167,7 +18176,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 previous_moves.append(f"(**{turn_total}**) {c_card} Could not summon 🧬 **{cpet_name}**. Needs rest")
                                         elif aiMove == 8:
                                             c_enhancer_used = True
-                                            dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense, o_defense,
+                                            dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense, o_defense,
                                                             c_stamina, c_enhancer_used, c_health, o_health, o_stamina,
                                                             c_max_health, o_attack, c_special_move_description, turn_total,
                                                             ccard_lvl_ap_buff, None)
@@ -18924,29 +18933,29 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 #return
                                             if button_ctx.custom_id == "1":
                                                 if c_universe == "Souls" and c_used_resolve:
-                                                    dmg = damage_cal(c_card_tier, c_talisman_dict, cap2, t_for_c_opponent_affinities, special_attack_name, cmove2_element, c_universe, c_card, c_2, c_attack, c_defense, t_defense,
+                                                    dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap2, t_for_c_opponent_affinities, special_attack_name, cmove2_element, c_universe, c_card, c_2, c_attack, c_defense, t_defense,
                                                                 c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                                 c_max_health, t_attack, c_special_move_description, turn_total,
                                                                 ccard_lvl_ap_buff, c_1)
                                                 else:
-                                                    dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense, t_defense,
+                                                    dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense, t_defense,
                                                                     c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                                     c_max_health, t_attack, c_special_move_description,
                                                                     turn_total, ccard_lvl_ap_buff, None)
                                             elif button_ctx.custom_id == "2":
                                                 if c_universe == "Souls" and c_used_resolve:
-                                                    dmg = damage_cal(c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense, t_defense,
+                                                    dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense, t_defense,
                                                                 c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                                 c_max_health, t_attack, c_special_move_description, turn_total,
                                                                 ccard_lvl_ap_buff, c_2)
                                                 else:
-                                                    dmg = damage_cal(c_card_tier, c_talisman_dict, cap2, t_for_c_opponent_affinities, special_attack_name, cmove2_element, c_universe, c_card, c_2, c_attack, c_defense, t_defense,
+                                                    dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap2, t_for_c_opponent_affinities, special_attack_name, cmove2_element, c_universe, c_card, c_2, c_attack, c_defense, t_defense,
                                                                     c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                                     c_max_health, t_attack, c_special_move_description,
                                                                     turn_total, ccard_lvl_ap_buff, None)
                                             elif button_ctx.custom_id == "3":
 
-                                                dmg = damage_cal(c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense, t_defense,
+                                                dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense, t_defense,
                                                                 c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                                 c_max_health, t_attack, c_special_move_description,
                                                                 turn_total, ccard_lvl_ap_buff, None)
@@ -18958,7 +18967,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             elif button_ctx.custom_id == "4":
                                                 c_enhancer_used = True
 
-                                                dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense,
+                                                dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense,
                                                                 t_defense, c_stamina, c_enhancer_used, c_health, t_health,
                                                                 t_stamina, c_max_health, t_attack,
                                                                 c_special_move_description, turn_total, ccard_lvl_ap_buff, None)
@@ -19211,7 +19220,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         c_attack = round(c_attack + c_resolve_attack)
                                                         c_defense = round(c_defense - c_resolve_defense)
 
-                                                        dmg = damage_cal(c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense,
+                                                        dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap3, t_for_c_opponent_affinities, ultimate_attack_name, cmove3_element, c_universe, c_card, c_3, c_attack, c_defense,
                                                                         t_defense, c_stamina, c_enhancer_used, c_health,
                                                                         t_health, t_stamina, c_max_health, t_attack,
                                                                         c_special_move_description, turn_total,
@@ -19320,7 +19329,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 # Resolve Check and Calculation
                                                 if c_used_resolve and c_used_focus and not c_pet_used:
                                                     c_enhancer_used = True
-                                                    dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, cpet_move, c_attack, c_defense,
+                                                    dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, cpet_move, c_attack, c_defense,
                                                                     t_defense, c_stamina, c_enhancer_used, c_health,
                                                                     t_health, t_stamina, c_max_health, t_attack,
                                                                     c_special_move_description, turn_total,
@@ -19419,7 +19428,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                         #c_stamina = c_stamina - int(dmg['STAMINA_USED'])
                                                         if c_universe == "Persona":
-                                                            petdmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack,
+                                                            petdmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack,
                                                                                 c_defense, t_defense, c_stamina,
                                                                                 c_enhancer_used, c_health, t_health,
                                                                                 t_stamina, c_max_health, t_attack,
@@ -19473,7 +19482,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     await button_ctx.defer(ignore=True)
                                             elif button_ctx.custom_id == "7":
                                                 c_enhancer_used = True
-                                                dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense,
+                                                dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_enhancer, c_attack, c_defense,
                                                                 o_defense, c_stamina, c_enhancer_used, c_health, o_health,
                                                                 o_stamina, c_max_health, o_attack,
                                                                 c_special_move_description, turn_total, ccard_lvl_ap_buff, None)
@@ -19597,7 +19606,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         c_health = c_health + 100
 
                                                     if c_universe == "Bleach":
-                                                        dmg = damage_cal(c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense, t_defense,
+                                                        dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense, t_defense,
                                                                     c_stamina, c_enhancer_used, c_health, t_health, t_stamina,
                                                                     c_max_health, t_attack, c_special_move_description,
                                                                     turn_total, ccard_lvl_ap_buff, None)
@@ -20783,23 +20792,23 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                         if o_defend_used == True:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_1)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
                                                                 t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                 t_max_health, o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
                                         else:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, c_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, c_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, c_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, c_defense, t_stamina,
                                                                 t_enhancer_used, t_health, c_health, c_stamina, t_max_health,
                                                                 c_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_1)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, c_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, c_defense,
                                                                 t_stamina, t_enhancer_used, t_health, c_health, c_stamina,
                                                                 t_max_health, c_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
@@ -20807,35 +20816,35 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                         if o_defend_used == True:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense, t_stamina,
                                                                 t_enhancer_used, t_health, o_health, o_stamina, t_max_health,
                                                                 o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_2)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, o_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, o_defense,
                                                                 t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                 t_max_health, o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
                                         else:
                                             if t_universe == "Souls" and t_used_resolve:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense, t_stamina,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense, t_stamina,
                                                                 t_enhancer_used, t_health, c_health, c_stamina, t_max_health,
                                                                 c_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, t_2)
                                             else:
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap2, c_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, c_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap2, c_opponent_affinities, special_attack_name, tmove2_element, t_universe, t_card, t_2, t_attack, t_defense, c_defense,
                                                                 t_stamina, t_enhancer_used, t_health, c_health, c_stamina,
                                                                 t_max_health, c_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
                                     elif int(aiMove) == 3:
 
                                         if o_defend_used == True:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, o_defense,
                                                             t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                             t_max_health, o_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
                                         else:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense, c_defense,
                                                             t_stamina, t_enhancer_used, t_health, c_health, c_stamina,
                                                             t_max_health, c_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
@@ -20848,12 +20857,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                         t_enhancer_used = True
                                         if o_defend_used == True:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, o_defense,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, o_defense,
                                                             t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                             t_max_health, o_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
                                         else:
-                                            dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, t_for_c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, c_defense,
+                                            dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, t_for_c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_enhancer, t_attack, t_defense, c_defense,
                                                             t_stamina, t_enhancer_used, t_health, c_health, c_stamina,
                                                             t_max_health, c_attack, t_special_move_description, turn_total,
                                                             tcard_lvl_ap_buff, None)
@@ -21101,14 +21110,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 value="On Resolve, Strike with Ultimate, then Focus.")
                                                 #await private_channel.send(embed=embedVar)
                                                 if o_defend_used == True:
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, o_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense,
                                                                     o_defense, t_stamina, t_enhancer_used, t_health,
                                                                     o_health, o_stamina, t_max_health, o_attack,
                                                                     t_special_move_description, turn_total,
                                                                     tcard_lvl_ap_buff, None)
                                                     o_health = o_health - int(dmg['DMG'])
                                                 else:
-                                                    dmg = damage_cal(t_card_tier, t_talisman_dict, tap3, t_for_c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense,
+                                                    dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap3, t_for_c_opponent_affinities, ultimate_attack_name, tmove3_element, t_universe, t_card, t_3, t_attack, t_defense,
                                                                     c_defense, t_stamina, t_enhancer_used, t_health,
                                                                     c_health, c_stamina, t_max_health, c_attack,
                                                                     t_special_move_description, turn_total,
@@ -21217,7 +21226,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if t_used_resolve and t_used_focus and not t_pet_used:
                                             if o_defend_used == True:
                                                 t_enhancer_used = True
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
                                                                 o_defense, t_stamina, t_enhancer_used, t_health, o_health,
                                                                 o_stamina, t_max_health, o_attack,
                                                                 t_special_move_description, turn_total, tcard_lvl_ap_buff, None)
@@ -21314,7 +21323,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_stamina = t_stamina - int(dmg['STAMINA_USED'])
 
                                                     if t_universe == "Persona":
-                                                        petdmg = damage_cal(t_card_tier, t_talisman_dict, tap1, t_for_c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
+                                                        petdmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, t_for_c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
                                                                             c_defense, t_stamina, t_enhancer_used, t_health,
                                                                             c_health, c_stamina, t_max_health, c_attack,
                                                                             t_special_move_description, turn_total,
@@ -21363,7 +21372,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     turn = 3
                                             else:
                                                 t_enhancer_used = True
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, t_for_c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, t_for_c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, tpet_move, t_attack, t_defense,
                                                                 c_defense, t_stamina, t_enhancer_used, t_health, c_health,
                                                                 c_stamina, t_max_health, c_attack,
                                                                 t_special_move_description, turn_total, tcard_lvl_ap_buff, None)
@@ -21460,7 +21469,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_stamina = t_stamina - int(dmg['STAMINA_USED'])
 
                                                     if t_universe == "Persona":
-                                                        petdmg = damage_cal(t_card_tier, t_talisman_dict, tap1, t_for_c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
+                                                        petdmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, t_for_c_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense,
                                                                             c_defense, t_stamina, t_enhancer_used, t_health,
                                                                             c_health, c_stamina, t_max_health, c_attack,
                                                                             t_special_move_description, turn_total,
@@ -21515,7 +21524,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 t_health = t_health + 100
 
                                             if t_universe == "Bleach":
-                                                dmg = damage_cal(t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
+                                                dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
                                                                 t_stamina, t_enhancer_used, t_health, o_health, o_stamina,
                                                                 t_max_health, o_attack, t_special_move_description, turn_total,
                                                                 tcard_lvl_ap_buff, None)
