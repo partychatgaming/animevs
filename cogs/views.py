@@ -18,6 +18,7 @@ import requests
 import random
 from .classes.card_class import Card
 from .classes.title_class import Title
+from .classes.arm_class import Arm
 from .crownunlimited import showcard, showsummon, cardback, enhancer_mapping, enhancer_suffix_mapping, passive_enhancer_suffix_mapping, title_enhancer_suffix_mapping, title_enhancer_mapping
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash import cog_ext, SlashContext
@@ -266,73 +267,21 @@ async def viewarm(self, ctx, arm: str):
     arm = db.queryArm({'ARM': {"$regex": f"^{str(arm_name)}$", "$options": "i"}})
     try:
         if arm:
-            element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
-            arm_arm = arm['ARM']
-            arm_show = arm['UNIVERSE']
-            arm_price = arm['PRICE']
-            exclusive = arm['EXCLUSIVE']
-            element = arm['ELEMENT']
-            if element:
-                element_name = element.title()
-                element = crown_utilities.set_emoji(element)
+            a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
+            a.set_element_emoji()
+            a.set_message_and_price_message()
+            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[a.universe]} {a.name}\n{a.price_message}".format(self), colour=000000)
+            if a.is_not_universe_unbound():
+                embedVar.set_thumbnail(url=a.show_img)
 
-            if arm_show != 'Unbound':
-                arm_show_img = db.queryUniverse({'TITLE': arm_show})['PATH']
-            arm_passive = arm['ABILITIES'][0]
-                # Arm Passive
-            o_arm_passive_type = list(arm_passive.keys())[0]
-            o_arm_passive_value = list(arm_passive.values())[0]
-
-            message=""
-            
-            price_message ="" 
-            if exclusive:
-                price_message = "_Priceless_"
-            else:
-                price_message = f"_Shop & Drop_"
-
-            if o_arm_passive_type == 'BASIC':
-                typetext = 'Basic'
-                message=f"{arm_arm} is a basic attack arm"
-            elif o_arm_passive_type == 'SPECIAL':
-                typetext = 'Special'
-                message=f"{arm_arm} is a special attack arm"
-            elif o_arm_passive_type == 'ULTIMATE':
-                typetext = 'Ultimate'
-                message=f"{arm_arm} is an ultimate attack arm"
-            elif o_arm_passive_type == 'ULTIMAX':
-                typetext = 'Ultimax'
-                message=f"{arm_arm} is a ULTIMAX arm"
-            elif o_arm_passive_type == 'SHIELD':
-                typetext = 'Shield'
-                message=f"{arm_arm} is a SHIELD arm"
-            elif o_arm_passive_type == 'BARRIER':
-                typetext = 'Barrier'
-                message=f"{arm_arm} is an BARRIER arm"
-            elif o_arm_passive_type == 'PARRY':
-                typetext = 'Parry'
-                message=f"{arm_arm} is a PARRY arm"
-            elif o_arm_passive_type == 'MANA':
-                typetext = 'Mana'
-                message=f"{arm_arm} is a MANA arm"
-            elif o_arm_passive_type == 'SIPHON':
-                typetext = 'Siphon'
-                message=f"{arm_arm} is a SIPHON arm"
-
-
-
-
-            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[arm_show]} {arm_arm}\n{price_message}".format(self), colour=000000)
-            if arm_show != "Unbound":
-                embedVar.set_thumbnail(url=arm_show_img)
-            if o_arm_passive_type in element_available:
+            if a.is_move():
                 # embedVar.add_field(name=f"Arm Move Element", value=f"{element}", inline=False)
-                embedVar.add_field(name=f"{typetext} {element_name} Attack", value=f"{element} **{arm_arm}**: **{o_arm_passive_value}**", inline=False)
-                embedVar.set_footer(text=f"The new {typetext} attack will reflect on your card when equipped")
+                embedVar.add_field(name=f"{a.type_message} {a.element} Attack", value=f"{a.element} **{a.name}**: **{a.passive_value}**", inline=False)
+                embedVar.set_footer(text=f"The new {a.type_message} attack will reflect on your card when equipped")
 
             else:
-                embedVar.add_field(name=f"Unique Passive", value=f"Increases {typetext} by **{o_arm_passive_value}**", inline=False)
-                embedVar.set_footer(text=f"{o_arm_passive_type}: {enhancer_mapping[o_arm_passive_type]}")
+                embedVar.add_field(name=f"Unique Passive", value=f"Increases {a.type_message} by **{a.passive_value}**", inline=False)
+                embedVar.set_footer(text=f"{a.passive_type}: {enhancer_mapping[a.passive_type]}")
 
             await ctx.send(embed=embedVar)
 
