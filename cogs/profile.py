@@ -22,6 +22,12 @@ from PIL import Image, ImageFont, ImageDraw
 import requests
 from collections import ChainMap
 import DiscordUtils
+from .classes.card_class import Card
+from .classes.title_class import Title
+from .classes.arm_class import Arm
+from .classes.summon_class import Summon
+from .classes.player_class import Player
+from .classes.vault_class import Vault
 from .crownunlimited import showcard, cardback, enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping, battle_commands, destiny as update_destiny_call
 import random
 import textwrap
@@ -254,362 +260,83 @@ class Profile(commands.Cog):
             vault = db.queryVault({'DID': d['DID']})
             if card:
                 try:
-                    durability = ""
-                    base_arm_names = ['Reborn Stock', 'Stock', 'Deadgun', 'Glaive', 'Kings Glaive', 'Legendary Weapon']
-                    for a in vault['ARMS']:
-                        if a['ARM'] == str(d['ARM']) and a['ARM'] in base_arm_names:
-                            durability = f""
-                        elif a['ARM'] == str(d['ARM']) and a['ARM'] not in base_arm_names:
-                            durability = f"⚒️ {a['DUR']}"
+                    c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'])
+                    t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
+                    a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
+                    v = Vault(vault['OWNER'], vault['DID'], vault['BALANCE'], vault['CARDS'], vault['TITLES'], vault['ARMS'], vault['PETS'], vault['DECK'], vault['CARD_LEVELS'], vault['QUESTS'], vault['DESTINY'], vault['GEMS'], vault['STORAGE'], vault['TALISMANS'], vault['ESSENCE'], vault['TSTORAGE'], vault['ASTORAGE'])
+                    player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'])                 
                     
-                    # Acquire Card Levels data
-                    card_lvl = 0
-                    card_tier = 0
-                    card_exp = 0
-                    card_lvl_attack_buff = 0
-                    card_lvl_defense_buff = 0
-                    card_lvl_ap_buff = 0
-                    card_lvl_hlt_buff = 0
-
-                    for x in vault['CARD_LEVELS']:
-                        if x['CARD'] == card['NAME']:
-                            card_lvl = x['LVL']
-                            card_exp = x['EXP']
-                            card_lvl_ap_buff = crown_utilities.level_sync_stats(card_lvl, "AP")
-                            card_lvl_attack_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
-                            card_lvl_defense_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
-                            card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
-
-                    pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
-                    pokemon_arm=False
-                    pokemon_title=False
-                    oarm_universe = arm['UNIVERSE']
-                    if oarm_universe in pokemon_universes:
-                        pokemon_arm=True
-                    o_title_universe = title['UNIVERSE']
-                    if o_title_universe in pokemon_universes:
-                        pokemon_title=True
-                    o_card = card['NAME']
-                    o_card_path=card['PATH']
-                    o_max_health = card['HLT'] + card_lvl_hlt_buff
-                    o_health = card['HLT'] + card_lvl_hlt_buff
-                    o_stamina = card['STAM']
-                    o_max_stamina = card['STAM']
-                    o_moveset = card['MOVESET']
-                    o_attack = card['ATK'] + card_lvl_attack_buff
-                    o_defense = card['DEF'] + card_lvl_defense_buff
-                    o_type = card['TYPE']
-                    o_passive = card['PASS'][0]
-                    o_speed = card['SPD']
-                    o_show = card['UNIVERSE']
-                    o_collection = card['COLLECTION']
-                    o_destiny = card['HAS_COLLECTION']
-                    o_rebirth = d['REBIRTH']
-                    performance_mode = d['PERFORMANCE']
-                    card_tier = card['TIER']
-                    affinity_message = crown_utilities.set_affinities(card)
-                    talisman = d['TALISMAN']
-                    talisman_message = "No Talisman Equipped"
-                    talisman_emoji = '🔅'
-                    talisman_durability = '0'
-                    if talisman == "NULL":
-                        talisman_message = "No Talisman Equipped"
-                    else:
-                        for t in vault["TALISMANS"]:
-                            if t["TYPE"].upper() == talisman.upper():
-                                talisman_emoji = crown_utilities.set_emoji(talisman.upper())
-                                talisman_durability = t["DUR"]
-                        talisman_message = f"{talisman_emoji} {talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
-            
-                    rebirthBonus = o_rebirth * 10
-                    traits = ut.traits
-                    mytrait = {}
-                    traitmessage = ''
-                    pokemon_universes = False
-                    for trait in traits:
-                        if trait['NAME'] == o_show:
-                            mytrait = trait
-                        if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
-                            pokemon_universes =True
-                            if trait['NAME'] == 'Pokemon':
-                                mytrait = trait
-                                
-                    if mytrait:
-                        traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
-
-                    pets = vault['PETS']
-
-                    active_pet = {}
-                    pet_names = []
-
-                    for pet in pets:
-                        pet_names.append(pet['NAME'])
-                        if pet['NAME'] == d['PET']:
-                            active_pet = pet
-
-                    power = list(active_pet.values())[3]
-                    pet_ability_power = (active_pet['BOND'] * active_pet['LVL']) + power
-                    bond = active_pet['BOND']
-                    lvl = active_pet['LVL']
-
-                    bond_message = ""
-                    lvl_message = ""
-                    if bond == 3:
-                        bond_message = "🌟"
+                    durability = a.set_durability(player.equipped_arm, v.arms)
                     
-                    if lvl == 10:
-                        lvl_message = "⭐"
-
-                    # Arm Information
-                    arm_name = arm['ARM']
-                    arm_passive = arm['ABILITIES'][0]
-                    arm_passive_type = list(arm_passive.keys())[0]
-                    arm_moves_type_list = ['BASIC', 'SPECIAL', 'ULTIMATE']
-                    if arm_passive_type in arm_moves_type_list:
-                        arm_element = arm['ELEMENT']
-                    arm_passive_value = list(arm_passive.values())[0]
-                    title_name= title['TITLE']
-                    title_passive = title['ABILITIES'][0]
-                    title_passive_type = list(title_passive.keys())[0]
-                    title_passive_value = list(title_passive.values())[0]
-
-                    o_1 = o_moveset[0]
-                    o_2 = o_moveset[1]
-                    o_3 = o_moveset[2]
-                    o_enhancer = o_moveset[3]
+                    c.set_card_level_buffs(v.card_levels)
+                    c.set_affinity_message()
+                    c.set_arm_attack_swap(a.passive_type, a.name, a.passive_value, a.element)
+                    c.set_passive_values()
                     
-                    # Move 1
-                    move1 = list(o_1.keys())[0]
-                    move1ap = list(o_1.values())[0] + card_lvl_ap_buff
-                    move1_stamina = list(o_1.values())[1]
-                    move1_element = list(o_1.values())[2]
-                    move1_emoji = crown_utilities.set_emoji(move1_element)
-                    if arm_passive_type == 'BASIC':
-                        move1 = arm_name
-                        move1ap = list(o_1.values())[0] + card_lvl_ap_buff + arm_passive_value
-                        move1_stamina = list(o_1.values())[1]
-                        move1_element = arm_element
-                        move1_emoji = crown_utilities.set_emoji(move1_element)
-                    
-                    # Move 2
-                    move2 = list(o_2.keys())[0]
-                    move2ap = list(o_2.values())[0] + card_lvl_ap_buff
-                    move2_stamina = list(o_2.values())[1]
-                    move2_element = list(o_2.values())[2]
-                    move2_emoji = crown_utilities.set_emoji(move2_element)
-                    if arm_passive_type == 'SPECIAL':
-                        move2 = arm_name
-                        move2ap = list(o_2.values())[0] + card_lvl_ap_buff + arm_passive_value
-                        move2_stamina = list(o_2.values())[1]
-                        move2_element = arm_element
-                        move2_emoji = crown_utilities.set_emoji(move2_element)
+                    a.set_pokemon_arm()
+                    t.set_pokemon_title()
+
+  
+                    player.set_talisman_message(v.talismans)
+                    player.set_summon_messages(v.summons)
+
+                    a.set_arm_message(player.performance, c.universe)
+                    t.set_title_message(player.performance, c.universe)
 
 
-                    # Move 3
-                    move3 = list(o_3.keys())[0]
-                    move3ap = list(o_3.values())[0] + card_lvl_ap_buff
-                    move3_stamina = list(o_3.values())[1]
-                    move3_element = list(o_3.values())[2]
-                    move3_emoji = crown_utilities.set_emoji(move3_element)
-                    if arm_passive_type == 'ULTIMATE':
-                        move3 = arm_name
-                        move3ap = list(o_3.values())[0] + card_lvl_ap_buff + arm_passive_value
-                        move3_stamina = list(o_3.values())[1]
-                        move3_element = arm_element
-                        move3_emoji = crown_utilities.set_emoji(move3_element)
+                    if player.performance:
+                        embedVar = discord.Embed(title=f"{c.set_card_level_icon()}{c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
+                        :mahjong: **{c.tier}**
+                        ❤️ **{c.max_health}**
+                        🗡️ **{c.attack}**
+                        🛡️ **{c.defense}**
+                        🏃 **{c.speed}**
 
 
-                    # Move Enhancer
-                    move4 = list(o_enhancer.keys())[0]
-                    move4ap = list(o_enhancer.values())[0]
-                    move4_stamina = list(o_enhancer.values())[1]
-                    move4enh = list(o_enhancer.values())[2]
+                        **{t.title_message}**
+                        **{a.arm_message}**
+                        **{player.talisman_message}**
+                        {player.summon_power_message}
+                        {player.summon_lvl_message}
 
-
-                    resolved = False
-                    focused = False
-                    att = 0
-                    defe = 0
-                    turn = 0
-
-                    passive_name = list(o_passive.keys())[0]
-                    passive_num = list(o_passive.values())[0]
-                    passive_type = list(o_passive.values())[1]
-
-               
-                    if passive_type:
-                        value_for_passive = card_tier * .5
-                        flat_for_passive = round(10 * (card_tier * .5))
-                        stam_for_passive = 5 * (card_tier * .5)
-                        if passive_type == "HLT":
-                            passive_num = value_for_passive
-                        if passive_type == "LIFE":
-                            passive_num = value_for_passive
-                        if passive_type == "ATK":
-                            passive_num = value_for_passive
-                        if passive_type == "DEF":
-                            passive_num = value_for_passive
-                        if passive_type == "STAM":
-                            passive_num = stam_for_passive
-                        if passive_type == "DRAIN":
-                            passive_num = stam_for_passive
-                        if passive_type == "FLOG":
-                            passive_num = value_for_passive
-                        if passive_type == "WITHER":
-                            passive_num = value_for_passive
-                        if passive_type == "RAGE":
-                            passive_num = value_for_passive
-                        if passive_type == "BRACE":
-                            passive_num = value_for_passive
-                        if passive_type == "BZRK":
-                            passive_num = value_for_passive
-                        if passive_type == "CRYSTAL":
-                            passive_num = value_for_passive
-                        if passive_type == "FEAR":
-                            passive_num = flat_for_passive
-                        if passive_type == "GROWTH":
-                            passive_num = flat_for_passive
-                        if passive_type == "CREATION":
-                            passive_num = value_for_passive
-                        if passive_type == "DESTRUCTION":
-                            passive_num = value_for_passive
-                        if passive_type == "SLOW":
-                            passive_num = "1"
-                        if passive_type == "HASTE":
-                            passive_num = "1"
-                        if passive_type == "STANCE":
-                            passive_num = flat_for_passive
-                        if passive_type == "CONFUSE":
-                            passive_num = flat_for_passive
-                        if passive_type == "BLINK":
-                            passive_num = stam_for_passive
-
-                    atk_buff = ""
-                    def_buff = ""
-                    hlt_buff = ""
-                    message = ""
-                    if (oarm_universe == o_show) and (o_title_universe == o_show):
-                        o_attack = o_attack + 20
-                        o_defense = o_defense + 20
-                        o_health = o_health + 100
-                        o_max_health = o_max_health + 100
-                        message = "_Universe Buff Applied_"
-                        if o_destiny:
-                            o_attack = o_attack + 25
-                            o_defense = o_defense + 25
-                            o_health = o_health + 150
-                            o_max_health = o_max_health + 150
-                            message = "_Destiny Buff Applied_"
-
-                    #Title errors 
-                    titled =False
-                    titleicon="⚠️"
-                    licon = "🔰"
-                    armicon = "⚠️"
-                    if card_lvl >= 200:
-                        licon ="🔱"
-                    if card_lvl >= 700:
-                        licon ="⚜️"
-                    if card_lvl >=999:
-                        licon ="🏅"
-                    titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
-                    armmessage = f"🦾 ⚠️ {arm_name}: {durability}"
-                    if arm_passive_type in arm_moves_type_list:
-                        arm_emoji = crown_utilities.set_emoji(arm_element)
-                        if performance_mode:
-                            armmessage = f'⚠️ {arm_name}: {arm_emoji} {arm_passive_type.title()} Attack: {arm_passive_value} | {durability}'
-                        else:
-                            armmessage = f'⚠️ {arm_name}'
-                    warningmessage = f"Use {o_show} or Unbound Titles on this card"
-                    if o_title_universe == "Unbound" or (pokemon_universes==True) or o_show == "Crown Rift Awakening":
-                        titled =True
-                        titleicon = "👑"
-                        if performance_mode:
-                            titlemessage = f"👑 {title_name}: {title_passive_type} {title_passive_value}{title_enhancer_suffix_mapping[title_passive_type]}"
-                        else:
-                            titlemessage = f"👑 {title_name}" 
-                        warningmessage= f""
-                    elif o_title_universe == o_show or (pokemon_universes==True and pokemon_title==True):
-                        titled =True
-                        titleicon = "🎗️"
-                        if performance_mode:
-                            titlemessage = f"🎗️ {title_name}: {title_passive_type} {title_passive_value}{title_enhancer_suffix_mapping[title_passive_type]}"
-                        else:
-                            titlemessage = f"🎗️ {title_name}"
-                        warningmessage= f""
-                    
-                    if oarm_universe == "Unbound" or o_show == "Crown Rift Slayers":
-                        armicon = "💪"
-                        if performance_mode:
-                            armmessage = f'💪 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
-                        else:
-                            armmessage = f'💪 {arm_name}'
-
-                    elif oarm_universe == o_show or (pokemon_universes==True and pokemon_arm==True):
-                        armicon = "🦾"
-                        if performance_mode:
-                            armmessage = f'🦾 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
-                        else:
-                            armmessage = f'🦾 {arm_name}: {durability}'
+                        🩸 **{c.passive_name}:** {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
                         
+                        {c.move1_emoji} **{c.move1}:** {c.move1ap}
+                        {c.move2_emoji} **{c.move2}:** {c.move2ap}
+                        {c.move3_emoji} **{c.move3}:** {c.move3ap}
+                        🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
 
-                    cardtitle = {'TITLE': title_name}
-                    
-
-                    #<:PCG:769471288083218432>
-                    if performance_mode:
-                        embedVar = discord.Embed(title=f"{licon}{card_lvl} {o_card}".format(self), description=textwrap.dedent(f"""\
-                        :mahjong: **{card_tier}**
-                        ❤️ **{o_max_health}**
-                        🗡️ **{o_attack}**
-                        🛡️ **{o_defense}**
-                        🏃 **{o_speed}**
-
-
-                        **{titlemessage}**
-                        **{armmessage}**
-                        **{talisman_message}**
-                        🧬 **{active_pet['NAME']}:** {active_pet['TYPE']}: {pet_ability_power}{enhancer_suffix_mapping[active_pet['TYPE']]}
-                        🧬 Bond {bond} {bond_message} & Level {lvl} {lvl_message}
-
-                        🩸 **{passive_name}:** {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}                
-                        
-                        {move1_emoji} **{move1}:** {move1ap}
-                        {move2_emoji} **{move2}:** {move2ap}
-                        {move3_emoji} **{move3}:** {move3ap}
-                        🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
-
-                        ♾️ {traitmessage}
+                        ♾️ {c.set_trait_message()}
                         """),colour=000000)
-                        embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
+                        embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                         embedVar.set_image(url="attachment://image.png")
-                        if card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {150 - card_exp}\nRebirth Buff: +{rebirthBonus}\n{warningmessage}")
+                        if c.card_lvl != 999:
+                            embedVar.set_footer(text=f"EXP Until Next Level: {150 - c.card_exp}\nRebirth Buff: +{player.rebirthBonus}")
                         else:
-                            embedVar.set_footer(text=f"Max Level\nRebirth Buff: +{rebirthBonus}\n{warningmessage}")
-                        embedVar.set_author(name=f"{ctx.author}", icon_url=user_info['AVATAR'])
+                            embedVar.set_footer(text=f"Max Level\nRebirth Buff: +{player.rebirthBonus}")
+                        embedVar.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                         
                         await ctx.send(embed=embedVar)
                     
                     else:
-                        card_file = showcard("non-battle", card, arm, o_max_health, o_health, o_max_stamina, o_stamina, resolved, title, focused, o_attack, o_defense, turn, move1ap, move2ap, move3ap, move4ap, move4enh, card_lvl, None)
+                        card_file = showcard("non-battle", card, arm, c.max_health, c.health, c.max_stamina, c.stamina, c.resolved, title, c.focused, c.attack, c.defense, c.turn, c.move1ap, c.move2ap, c.move3ap, c.move4ap, c.move4enh, c.card_lvl, None)
 
                         embedVar = discord.Embed(title=f"".format(self), colour=000000)
-                        embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
+                        embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                         embedVar.set_image(url="attachment://image.png")
                         embedVar.set_author(name=textwrap.dedent(f"""\
-                        🧬 {active_pet['NAME']}: {active_pet['TYPE'].title()}: {pet_ability_power}{enhancer_suffix_mapping[active_pet['TYPE']]} 
-                        🧬 Bond {bond} {bond_message} & Level {lvl} {lvl_message}
-                        {titlemessage}
-                        {armmessage}
-                        {talisman_message}
+                        {player.summon_power_message}
+                        {player.summon_lvl_message}
+                        {t.title_message}
+                        {a.arm_message}
+                        {player.talisman_message}
 
-                        🩸 {passive_name}      
-                        🏃 {o_speed}
+                        🩸 {c.passive_name}      
+                        🏃 {c.speed}
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        if card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {150 - card_exp}\nRebirth Buff: +{rebirthBonus}\n♾️ {traitmessage}\n{warningmessage}")
+                        if c.card_lvl != 999:
+                            embedVar.set_footer(text=f"EXP Until Next Level: {150 - c.card_exp}\nRebirth Buff: +{player.rebirthBonus}\n♾️ {c.set_trait_message()}")
                         else:
                             embedVar.set_footer(text=f"Max Level")
                         
@@ -644,7 +371,6 @@ class Profile(commands.Cog):
                 })
                 tb = tb.tb_next
             print(str({
-                'player': str(player),
                 'type': type(ex).__name__,
                 'message': str(ex),
                 'trace': trace
@@ -884,9 +610,6 @@ class Profile(commands.Cog):
                 'message': str(ex),
                 'trace': trace
             }))
-
-
-
 
 
     @cog_ext.cog_slash(description="View Card, Title and Arm Storage",

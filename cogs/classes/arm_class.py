@@ -18,6 +18,12 @@ class Arm:
         self.price_message = ""
         self.message = ""
         self.type_message = ""
+        self.durability = "0"
+
+        self.arm_message = f"🦾 ⚠️ {self.name}: {self.durability}"
+
+        self.pokemon_arm = False
+
 
     def is_not_universe_unbound(self):
         if(self.universe != "Unbound"):
@@ -68,8 +74,50 @@ class Arm:
 
 
     def is_move(self):
-        move_types = ['BASIC', 'SPECIAL', 'ULTIMATE']
         if self.passive_type in move_types:
             return True
         else:
             return False
+
+
+    def set_pokemon_arm(self):
+        if self.universe in crown_utilities.pokemon_universes:
+            self.pokemon_arm = True
+
+
+    def set_durability(self, equipped_arm, list_of_arms):
+        base_names = ['Reborn Stock', 'Stock', 'Deadgun', 'Glaive', 'Kings Glaive', 'Legendary Weapon']
+        for a in list_of_arms:
+            if a['ARM'] == equipped_arm and a['ARM'] in base_names:
+                self.durability = f""
+            elif a['ARM'] == equipped_arm and a['ARM'] not in base_names:
+                self.durability = f"⚒️ {a['DUR']}"
+
+        return self.durability
+
+
+    def set_arm_message(self, performance_mode, card_universe):
+        if self.passive_type in move_types:
+            arm_emoji = crown_utilities.set_emoji(self.element)
+            if performance_mode:
+                self.arm_message = f'⚠️ {self.name}: {arm_emoji} {self.passive_type.title()} Attack: {self.passive_value} | {self.durability}'
+            else:
+                self.arm_message = f'⚠️ {self.name}'
+        self.arm_message = f"Use {card_universe} or Unbound arms on this card"
+
+        if self.universe == "Unbound" or card_universe == "Crown Rift Slayers":
+            armicon = "💪"
+            if performance_mode:
+                self.arm_message = f'💪 {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
+            else:
+                self.arm_message = f'💪 {self.name}'
+
+        elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_arm==True):
+            armicon = "🦾"
+            if performance_mode:
+                self.arm_message = f'🦾 {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
+            else:
+                self.arm_message = f'🦾 {self.name}: {self.durability}'
+
+
+move_types = ['BASIC', 'SPECIAL', 'ULTIMATE']

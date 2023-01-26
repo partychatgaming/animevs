@@ -263,6 +263,7 @@ async def viewtitle(self, ctx, title: str):
             'trace': trace
         }))
 
+
 async def viewarm(self, ctx, arm: str):
     arm_name = arm
     arm = db.queryArm({'ARM': {"$regex": f"^{str(arm_name)}$", "$options": "i"}})

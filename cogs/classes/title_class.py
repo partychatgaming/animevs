@@ -1,4 +1,5 @@
 import db
+import crown_utilities
 
 class Title:
     def __init__(self, title, universe, price, exclusive, available, abilities):
@@ -18,11 +19,20 @@ class Title:
         self.type_message = ""
         self.type2_message = ""
         self.message = ""
+        self.pokemon_title = False
+
+        self.title_message = f"⚠️ {self.name} ~ INEFFECTIVE"
+
     def set_title_image(self):
         if self.universe != 'Unbound':
             self.title_img = db.queryUniverse({'TITLE': self.universe})['PATH']
         
         return self.title_img
+
+
+    def set_pokemon_title(self):
+        if self.universe in crown_utilities.pokemon_universes:
+            self.pokemon_title = True
 
 
     def set_type_message_and_price_message(self):
@@ -138,6 +148,23 @@ class Title:
         }
         return title_suffix_mapping[self.passive_type]
         
+
+    def set_title_message(self, performance_mode, card_universe):
+        try:
+            if self.universe == "Unbound" or (card_universe in crown_utilities.pokemon_universes) or card_universe == "Crown Rift Awakening":
+                if performance_mode:
+                    self.title_message = f"👑 {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
+                else:
+                    self.title_message = f"👑 {self.name}" 
+
+            elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_title==True):
+                if performance_mode:
+                    self.title_message = f"🎗️ {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
+                else:
+                    self.title_message = f"🎗️ {self.name}"
+                        
+        except:
+            print("error setting title message")
 
     def set_title_embed_message(self):
         if self.passive_type == "ATK" or self.passive_type == "DEF" or self.passive_type == "HLT" or self.passive_type == "STAM":

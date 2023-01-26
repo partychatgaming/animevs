@@ -533,11 +533,6 @@ def set_emoji(element):
 
     return emoji
 
-        
-        
-
-    
-    
 
 def showsummon(url, summon, message, lvl, bond):
     # Card Name can be 16 Characters before going off Card
@@ -617,6 +612,7 @@ def showsummon(url, summon, message, lvl, bond):
             'trace': trace
         }))
         return
+
 
 def check_affinities(player, card, basic_element, super_element, ultimate_element):
     # card = card you want to check
@@ -1567,7 +1563,86 @@ elements = [
     "GRAVITY"
 ]
 
-crest_dict = {'Unbound': ':ideograph_advantage:',
+enhancer_suffix_mapping = {'ATK': '%',
+    'DEF': '%',
+    'STAM': ' Flat',
+    'HLT': '%',
+    'LIFE': '%',
+    'DRAIN': ' Flat',
+    'FLOG': '%',
+    'WITHER': '%',
+    'RAGE': '%',
+    'BRACE': '%',
+    'BZRK': '%',
+    'CRYSTAL': '%',
+    'GROWTH': ' Flat',
+    'STANCE': ' Flat',
+    'CONFUSE': ' Flat',
+    'BLINK': ' Flat',
+    'SLOW': ' Flat',
+    'HASTE': ' Flat',
+    'FEAR': ' Flat',
+    'SOULCHAIN': ' Flat',
+    'GAMBLE': ' Flat',
+    'WAVE': ' Flat',
+    'CREATION': ' Flat',
+    'BLAST': ' Flat',
+    'DESTRUCTION': ' Flat',
+    'BASIC': ' Flat',
+    'SPECIAL': ' Flat',
+    'ULTIMATE': ' Flat',
+    'ULTIMAX': ' Flat',
+    'MANA': ' %',
+    'SHIELD': ' DMG 🌐',
+    'BARRIER': ' Blocks 💠',
+    'PARRY': ' Counters 🔄',
+    'SIPHON': ' Healing 💉'
+}
+
+
+title_enhancer_suffix_mapping = {'ATK': ' Flat',
+    'DEF': ' Flat',
+    'STAM': ' Flat',
+    'HLT': ' %',
+    'LIFE': '%',
+    'DRAIN': ' Flat',
+    'FLOG': '%',
+    'WITHER': '%',
+    'RAGE': '%',
+    'BRACE': '%',
+    'BZRK': '%',
+    'CRYSTAL': '%',
+    'GROWTH': ' Flat',
+    'STANCE': ' Flat',
+    'CONFUSE': ' Flat',
+    'BLINK': ' Flat',
+    'SLOW': ' Turn',
+    'HASTE': ' Turn',
+    'FEAR': ' Flat',
+    'SOULCHAIN': ' Flat',
+    'GAMBLE': ' Flat',
+    'WAVE': ' Flat',
+    'CREATION': '%',
+    'BLAST': ' Flat',
+    'DESTRUCTION': '%',
+    'BASIC': ' Flat',
+    'SPECIAL': ' Flat',
+    'ULTIMATE': ' Flat',
+    'ULTIMAX': ' Flat',
+    'MANA': ' %',
+    'SHIELD': ' DMG 🌐',
+    'BARRIER': ' Blocks 💠',
+    'PARRY': ' Counters 🔄',
+    'SIPHON': ' Healing 💉'
+}
+
+
+
+
+pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
+
+
+crest_dict = { 'Unbound': ':ideograph_advantage:',
               'My Hero Academia': ':sparkle:',
               'League Of Legends': ':u6307:',
               'Kanto Region': ':chart:',
@@ -1595,4 +1670,5 @@ crest_dict = {'Unbound': ':ideograph_advantage:',
               'Persona': ':o:',
               'YuYu Hakusho': ':wheel_of_dharma:',
               'One Piece': ':sailboat:'
-              }
+}
+
