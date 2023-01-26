@@ -8839,7 +8839,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     elif o_stamina >= 10:
                                         aiMove = 1
                                     else:
-                                        aiMove = 0
+                                        aiMove = 1
+                                    if omove_issue == True:
+                                        o_stamina = 0
+                                    omove_issue = False
 
                                     # Make sure user is responding with move
 
@@ -9859,6 +9862,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     turn = 1
                                         else:
                                             previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability.{aiMove}")
+                                            if omove_issue == False and o_stamina > 0:
+                                                omove_issue = True
                                             turn = 0
                                 else:
                                     # UNIVERSE CARD
