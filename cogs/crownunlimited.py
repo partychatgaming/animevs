@@ -8687,8 +8687,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     
                                     if o_used_resolve and not o_pet_used and o_stamina >= 30:
                                         aiMove = 6
-                                    elif t_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
-                                        if t_stamina >=20:
+                                    elif o_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
+                                        if o_stamina >=20:
                                             aiMove =4
                                     elif oarm_barrier_active: #Ai Barrier Checks
                                         if o_stamina >=20: #Stamina Check For Enhancer
@@ -9861,7 +9861,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     turn_total = turn_total + 1
                                                     turn = 1
                                         else:
-                                            previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability.{aiMove}")
+                                            previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability. {aiMove}")
                                             if omove_issue == False and o_stamina > 0:
                                                 omove_issue = True
                                             turn = 0
@@ -11299,7 +11299,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 await button_ctx.defer(ignore=True)
                                                 turn = 0
 
-                                        if button_ctx.custom_id in main_options:
+                                        if button_ctx.custom_id in main_options: #look here
                                             # If you have enough stamina for move, use it
                                             if dmg['CAN_USE_MOVE']:
                                                 if dmg['ENHANCE']:
@@ -11668,7 +11668,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         #if botActive:
                                                             #await button_ctx.defer(ignore=True)
                                             else:
-                                                previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability.{button_ctx.custom_id}")
+                                                previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability. {button_ctx.custom_id}")
                                                 # embedVar = discord.Embed(title=emessage,
                                                 #                         description=f"Use abilities to Increase `STAM` or enter `FOCUS STATE`!",
                                                 #                         colour=0xe91e63)
@@ -17432,9 +17432,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                         if c_used_resolve and not c_pet_used:
                                             aiMove = 6
-                                        elif t_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
-                                            if t_stamina >=20:
-                                                aiMove =4
+                                        elif c_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
+                                            if c_stamina >= 20:
+                                                aiMove = 4
                                         elif carm_barrier_active: #Ai Barrier Checks
                                             if c_stamina >=20: #Stamina Check For Enhancer
                                                 aiMove = await ai_enhancer_moves(turn_total,c_used_focus,c_used_resolve,c_pet_used,c_stamina,
