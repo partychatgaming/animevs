@@ -16,6 +16,7 @@ from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
 import random
+from .classes.card_class import Card
 from .crownunlimited import showcard, showsummon, cardback, enhancer_mapping, enhancer_suffix_mapping, passive_enhancer_suffix_mapping, title_enhancer_suffix_mapping, title_enhancer_mapping
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash import cog_ext, SlashContext
@@ -145,226 +146,61 @@ async def viewcard(self, ctx, card: str):
     card = db.queryCard({'NAME': {"$regex": f"^{str(card_name)}$", "$options": "i"}})
     try:
         if card:
-            o_card = card['NAME']
-            o_card_path = card['PATH']
-            o_price = card['PRICE']
-            o_exclusive = card['EXCLUSIVE']
-            o_available = card['AVAILABLE']
-            o_is_skin = card['IS_SKIN']
-            o_skin_for = card['SKIN_FOR']
-            o_max_health = card['HLT']
-            o_health = card['HLT']
-            o_stamina = card['STAM']
-            o_max_stamina = card['STAM']
-            o_moveset = card['MOVESET']
-            o_attack = card['ATK']
-            o_defense = card['DEF']
-            o_type = card['TYPE']
-            o_passive = card['PASS'][0]
-            affinity_message = crown_utilities.set_affinities(card)
-            o_speed = card['SPD']
-            o_show = card['UNIVERSE']
-            o_has_collection = card['HAS_COLLECTION']
-            o_tier = card['TIER']
-            traits = ut.traits
-            show_img = db.queryUniverse({'TITLE': o_show})['PATH']
-            o_collection = card['COLLECTION']
-            performance_mode = d['PERFORMANCE']
-            resolved = False
-            focused = False
-            dungeon = False
+            c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'])
             title = {'TITLE': 'CARD PREVIEW'}
             arm = {'ARM': 'CARD PREVIEW'}
 
-            if o_show == "Unbound":
+            if c.is_universe_unbound():
                 await ctx.send("You cannot view this card at this time. ", hidden=True)
                 return
-
-            price_message = ""
-            card_icon = ""
-            if o_is_skin:
-                price_message = "Card Skin"
-                card_icon = f"💎"
-            elif o_exclusive or o_has_collection:
-                if o_has_collection == True:
-                    price_message = "Destiny Only"
-                    card_icon = f"✨"
-                else:
-                    price_message = "Dungeon Only"
-                    card_icon = f"🔥"
-                    dungeon = True
-            elif o_exclusive == False and o_available == False and o_has_collection == False:
-                price_message = "Boss Only"
-                card_icon = f"👹"
-            else:
-                price_message = f"Shop & Drop"
-                card_icon = f"🎴"
+            c.set_price_message_and_card_icon()
+            c.set_tip_and_view_card_message()
             att = 0
             defe = 0
             turn = 0
-            mytrait = {}
-            traitmessage = ''
-            for trait in traits:
-                if trait['NAME'] == o_show:
-                    mytrait = trait
-                if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
-                    if trait['NAME'] == 'Pokemon':
-                        mytrait = trait
-            if mytrait:
-                traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
 
-            passive_name = list(o_passive.keys())[0]
-            passive_num = list(o_passive.values())[0]
-            passive_type = list(o_passive.values())[1]
-
-        
-            if passive_type:
-                value_for_passive = o_tier * .5
-                flat_for_passive = round(10 * (o_tier * .5))
-                stam_for_passive = 5 * (o_tier * .5)
-                if passive_type == "HLT":
-                    passive_num = value_for_passive
-                if passive_type == "LIFE":
-                    passive_num = value_for_passive
-                if passive_type == "ATK":
-                    passive_num = flat_for_passive
-                if passive_type == "DEF":
-                    passive_num = flat_for_passive
-                if passive_type == "STAM":
-                    passive_num = stam_for_passive
-                if passive_type == "DRAIN":
-                    passive_num = stam_for_passive
-                if passive_type == "FLOG":
-                    passive_num = value_for_passive
-                if passive_type == "WITHER":
-                    passive_num = value_for_passive
-                if passive_type == "RAGE":
-                    passive_num = value_for_passive
-                if passive_type == "BRACE":
-                    passive_num = value_for_passive
-                if passive_type == "BZRK":
-                    passive_num = value_for_passive
-                if passive_type == "CRYSTAL":
-                    passive_num = value_for_passive
-                if passive_type == "FEAR":
-                    passive_num = flat_for_passive
-                if passive_type == "GROWTH":
-                    passive_num = flat_for_passive
-                if passive_type == "CREATION":
-                    passive_num = value_for_passive
-                if passive_type == "DESTRUCTION":
-                    passive_num = value_for_passive
-                if passive_type == "SLOW":
-                    passive_num = "1"
-                if passive_type == "HASTE":
-                    passive_num = "1"
-                if passive_type == "STANCE":
-                    passive_num = flat_for_passive
-                if passive_type == "CONFUSE":
-                    passive_num = flat_for_passive
-                if passive_type == "BLINK":
-                    passive_num = stam_for_passive
-
-
-            o_1 = o_moveset[0]
-            o_2 = o_moveset[1]
-            o_3 = o_moveset[2]
-            o_enhancer = o_moveset[3]
-
-            # Move 1
-            move1 = list(o_1.keys())[0]
-            move1ap = list(o_1.values())[0]
-            move1_stamina = list(o_1.values())[1]
-            move1_element = list(o_1.values())[2]
-            move1_emoji = crown_utilities.set_emoji(move1_element)
-
-            # Move 2
-            move2 = list(o_2.keys())[0]
-            move2ap = list(o_2.values())[0]
-            move2_stamina = list(o_2.values())[1]
-            move2_element = list(o_2.values())[2]
-            move2_emoji = crown_utilities.set_emoji(move2_element)
-
-            # Move 3
-            move3 = list(o_3.keys())[0]
-            move3ap = list(o_3.values())[0]
-            move3_stamina = list(o_3.values())[1]
-            move3_element = list(o_3.values())[2]
-            move3_emoji = crown_utilities.set_emoji(move3_element)
-
-            # Move Enhancer
-            move4 = list(o_enhancer.keys())[0]
-            move4ap = list(o_enhancer.values())[0]
-            move4_stamina = list(o_enhancer.values())[1]
-            move4enh = list(o_enhancer.values())[2]
             active_pet = {}
             pet_ability_power = 0
             card_exp = 150
 
-
-            message = ""
-            tip = ""
-            if o_is_skin:
-                message = f"{o_card} is a card Skin. "
-                tip = f"Earn the {o_skin_for} card and use gems to /craft this Skin!"
-            elif o_has_collection == True or dungeon == True:
-                if o_has_collection:
-                    message = f"{o_card} is a Destiny card. "
-                    tip = f"Complete {o_show} Destiny: {o_collection} to unlock this card."
-                else:
-                    message = f"{o_card} is a Dungeon card. "
-                    tip = f"/craft or Find this card in the {o_show} Dungeon"
-            elif o_has_collection == False and o_available == False and o_exclusive == False:
-                message = f"{o_card} is a Boss card. "
-                tip = f"Defeat {o_show} Boss to earn this card."
-            elif o_attack > o_defense:
-                message = f"{o_card} is an offensive card. "
-                tip = f"Tip: Equipping {o_show} /titles and defensive /arms would help boost survivability"
-            elif o_defense > o_attack:
-                message = f"{o_card} is a defensive card. "
-                tip = f"Tip: Equipping {o_show} /titles and offensive /arms would help boost killability"
-            else:
-                message = f"{o_card} is a balanced card. "
-                tip = f"Tip: Equip {o_show} /titles and /arms that will maximize your Enhancer"
-
             
-            if performance_mode:
-                embedVar = discord.Embed(title=f"{card_icon} {price_message} {o_card}", description=textwrap.dedent(f"""\
-                :mahjong: {o_tier}
-                ❤️ {o_max_health}
-                🗡️ {o_attack}
-                🛡️ {o_defense}
-                🏃 {o_speed}
+            if d['PERFORMANCE']:
+                embedVar = discord.Embed(title=f"{c.card_icon} {c.price_message} {c.name}", description=textwrap.dedent(f"""\
+                :mahjong: {c.tier}
+                ❤️ {c.max_health}
+                🗡️ {c.attack}
+                🛡️ {c.defense}
+                🏃 {c.speed}
 
-                🩸 {passive_name}: {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}                
+                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
 
-                {move1_emoji} {move1}: {move1ap}
-                {move2_emoji} {move2}: {move2ap}
-                {move3_emoji} {move3}: {move3ap}
-                🦠 {move4}: {move4enh} {move4ap} {passive_enhancer_suffix_mapping[move4enh]}   
+                {c.move1_emoji} {c.move1}: {c.move1ap}
+                {c.move2_emoji} {c.move2}: {c.move2ap}
+                {c.move3_emoji} {c.move3}: {c.move3ap}
+                🦠 {c.move4}: {c.move4enh} {c.move4ap} {passive_enhancer_suffix_mapping[c.move4enh]}   
 
-                ♾️ {traitmessage}
+                ♾️ {c.set_trait_message()}
                 """), colour=000000)
-                embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
-                embedVar.set_footer(text=f"{tip}")
+                embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
+                embedVar.set_footer(text=f"{c.tip}")
                 await ctx.send(embed=embedVar)
 
             else:
-                card_file = showcard("non-battle", card, "none", o_max_health, o_health, o_max_stamina, o_stamina, resolved, title, focused,
-                                    o_attack, o_defense, turn, move1ap, move2ap, move3ap, move4ap, move4enh, 0, None)
+                card_file = showcard("non-battle", card, "none", c.max_health, c.health, c.max_stamina, c.stamina, c.resolved, title, c.focused,
+                                    c.attack, c.defense, c.turn, c.move1ap, c.move2ap, c.move3ap, c.move4ap, c.move4enh, 0, None)
 
                 embedVar = discord.Embed(title=f"", colour=000000)
-                embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
+                embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.set_thumbnail(url=show_img)
+                embedVar.set_thumbnail(url=c.set_universe_image())
                 embedVar.set_author(name=textwrap.dedent(f"""\
-                {card_icon} {price_message}
+                {c.card_icon} {c.price_message}
                 Passive & Universe Trait
-                🩸 {passive_name}: {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
-                ♾️ {traitmessage}
-                🏃 {o_speed}
+                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}
+                ♾️ {c.set_trait_message()}
+                🏃 {c.speed}
                 """))
-                embedVar.set_footer(text=f"{tip}")
+                embedVar.set_footer(text=f"{c.tip}")
 
                 await ctx.send(file=card_file, embed=embedVar)
         else:

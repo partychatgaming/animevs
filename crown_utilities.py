@@ -488,6 +488,7 @@ async def updateRetry(player_id, mode, math_calc):
         print("Could not find player info")
         return False
 
+
 def set_emoji(element):
     emoji = ""
     if element == "PHYSICAL":
