@@ -9,3 +9,9 @@ Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'
 
 new summon
 Summon(pet['PET'], pet['UNIVERSE'], pet['PATH'], pet['ABILITIES'], pet['AVAILABLE'], pet['EXCLUSIVE'])
+
+new vault
+Vault(vault['OWNER'], vault['DID'], vault['BALANCE'], vault['CARDS'], vault['TITLES'], vault['ARMS'], vault['PETS'], vault['DECK'], vault['CARD_LEVELS'], vault['QUESTS'], vault['DESTINY'], vault['GEMS'], vault['STORAGE'], vault['TALISMANS'], vault['ESSENCE'], vault['TSTORAGE'], vault['ASTORAGE'])
+
+new player
+Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'])                 
