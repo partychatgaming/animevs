@@ -17,6 +17,7 @@ from PIL import Image, ImageFont, ImageDraw
 import requests
 import random
 from .classes.card_class import Card
+from .classes.title_class import Title
 from .crownunlimited import showcard, showsummon, cardback, enhancer_mapping, enhancer_suffix_mapping, passive_enhancer_suffix_mapping, title_enhancer_suffix_mapping, title_enhancer_mapping
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash import cog_ext, SlashContext
@@ -231,115 +232,15 @@ async def viewtitle(self, ctx, title: str):
 
         title_name = title
         title = db.queryTitle({'TITLE': {"$regex": f"^{str(title)}$", "$options": "i"}})
-        print(title)
         if title:
-            title_title = title['TITLE']
-            title_show = title['UNIVERSE']
-            title_price = title['PRICE']
-            exclusive = title['EXCLUSIVE']
+            t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
+            t.set_type_message_and_price_message()
 
-            if title_show != 'Unbound':
-                title_img = db.queryUniverse({'TITLE': title_show})['PATH']
-            title_passive = title['ABILITIES'][0]
-                # Title Passive
-            o_title_passive_type = list(title_passive.keys())[0]
-            o_title_passive_value = list(title_passive.values())[0]
-            
-            message=""
-
-            price_message ="" 
-            if exclusive:
-                price_message = "_Priceless_"
-            else:
-                price_message = f"_Shop & Drop_"
-            typetext = " "
-            type2 = " "
-            if o_title_passive_type == 'ATK':
-                typetext = "Attack"
-                message=f"{title_title} is an ATK title"
-            elif o_title_passive_type == 'DEF':
-                typetext = "Defense"
-                message=f"{title_title} is a DEF title"
-            elif o_title_passive_type == 'STAM':
-                typetext = "Stamina"
-                message=f"{title_title} is a STAM title"
-            elif o_title_passive_type == 'HLT':
-                typetext = "Health"
-                message=f"{title_title} is a HLT title"
-            elif o_title_passive_type == 'LIFE':
-                typetext = "Health"
-                message=f"{title_title} is a LIFE title"
-            elif o_title_passive_type == 'DRAIN':
-                typetext = "Stamina"
-                message=f"{title_title} is a DRAIN title"
-            elif o_title_passive_type == 'FLOG':
-                typetext = "Attack"
-                message=f"{title_title} is a FLOG title"
-            elif o_title_passive_type == 'WITHER':
-                typetext = "Defense"
-                message=f"{title_title} is a WITHER title"
-            elif o_title_passive_type == 'RAGE':
-                typetext = "Defense gain Attack"
-                message=f"{title_title} is a RAGE title"
-            elif o_title_passive_type == 'BRACE':    
-                typetext = "Attack gain Defense"        
-                message=f"{title_title} is a BRACE title"
-            elif o_title_passive_type == 'BZRK':    
-                typetext = "Health gain Attack"        
-                message=f"{title_title} is a BZRK title"
-            elif o_title_passive_type == 'CRYSTAL':    
-                typetext = "Health gain Defense"        
-                message=f"{title_title} is a CRYSTAL title"
-            elif o_title_passive_type == 'GROWTH':    
-                typetext = "Max Health gain Attack and Defense"        
-                message=f"{title_title} is a GROWTH title"
-            elif o_title_passive_type == 'STANCE':
-                typetext = "Attack and Defense increase"
-                message=f"{title_title} is a STANCE title"
-            elif o_title_passive_type == 'CONFUSE':
-                typetext = "Opponent Attack And Defense decrease Opponent"
-                message=f"{title_title} is a CONFUSE title"
-            elif o_title_passive_type == 'BLINK':
-                typetext = "Decrease Stamina"
-                type2 ="Increase Target Stamina"
-                message=f"{title_title} is a BLINK title"
-            elif o_title_passive_type == 'SLOW':
-                typetext = "Decrease Turn Count"
-                type2 = "Decrease Stamina"
-                message=f"{title_title} is a SLOW title"
-            elif o_title_passive_type == 'HASTE':
-                typetext = "Increase Turn Count"
-                type2 = "Decrease Opponent Stamina"
-                message=f"{title_title} is a HASTE title" 
-            elif o_title_passive_type == 'SOULCHAIN':
-                typetext = "Stamina Regen"
-                message=f"{title_title} is a SOULCHAIN title"
-            elif o_title_passive_type == 'FEAR':
-                typetext = "Max Health reduce Opponent Attack and Defense"
-                message=f"{title_title} is a FEAR title"
-            elif o_title_passive_type == 'GAMBLE':
-                typetext = "Health Regen "
-                message=f"{title_title} is a GAMBLE title" 
-
-            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[title_show]} {title_title}\n{price_message}".format(self), colour=000000)
-            if title_show != "Unbound":
-                embedVar.set_thumbnail(url=title_img)
-            if o_title_passive_type == "ATK" or o_title_passive_type == "DEF" or o_title_passive_type == "HLT" or o_title_passive_type == "STAM":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your Turn, Increases **{typetext}** by **{o_title_passive_value}{title_enhancer_suffix_mapping[o_title_passive_type]}**", inline=False)
-            elif o_title_passive_type == "FLOG" or o_title_passive_type == "WITHER" or o_title_passive_type == "LIFE" or o_title_passive_type == "DRAIN":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, Steals **{o_title_passive_value}{title_enhancer_suffix_mapping[o_title_passive_type]} {typetext}**", inline=False)
-            elif o_title_passive_type == "RAGE" or o_title_passive_type == "BRACE" or o_title_passive_type == "BZRK" or o_title_passive_type == "CRYSTAL" or o_title_passive_type == "GROWTH" or o_title_passive_type == "FEAR":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, Sacrifice **{o_title_passive_value}{title_enhancer_suffix_mapping[o_title_passive_type]} {typetext}**", inline=False)
-            elif o_title_passive_type == "STANCE" or o_title_passive_type == "CONFUSE":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, Swap {typetext} Defense by **{o_title_passive_value}**", inline=False)
-            elif o_title_passive_type == "BLINK":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, **{typetext}** by **{o_title_passive_value}**, **{type2}** by **{o_title_passive_value}**", inline=False)
-            elif o_title_passive_type == "SLOW" or o_title_passive_type == "HASTE":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, **{typetext}** by **{o_title_passive_value}**", inline=False)
-            elif o_title_passive_type == "SOULCHAIN" or o_title_passive_type == "GAMBLE":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"During Focus, **{typetext}** equal **{o_title_passive_value}**", inline=False)
-            embedVar.set_footer(text=f"{o_title_passive_type}: {title_enhancer_mapping[o_title_passive_type]}")
-
+            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[t.universe]} {t.name}\n{t.price_message}".format(self), colour=000000)
+            if t.universe != "Unbound":
+                embedVar.set_thumbnail(url=t.title_img)
+            embedVar.add_field(name=f"**Unique Passive**", value=f"{t.set_title_embed_message()}", inline=False)
+            embedVar.set_footer(text=f"{t.passive_type}: {title_enhancer_mapping[t.passive_type]}")
             await ctx.send(embed=embedVar)
 
         else:
