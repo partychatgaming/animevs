@@ -24,7 +24,6 @@ class Arm:
 
         self.pokemon_arm = False
 
-
     def is_not_universe_unbound(self):
         if(self.universe != "Unbound"):
             self.show_img = db.queryUniverse({'TITLE': self.universe})['PATH']

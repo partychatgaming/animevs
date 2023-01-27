@@ -1563,6 +1563,7 @@ elements = [
     "GRAVITY"
 ]
 
+
 enhancer_suffix_mapping = {'ATK': '%',
     'DEF': '%',
     'STAM': ' Flat',
@@ -1637,8 +1638,6 @@ title_enhancer_suffix_mapping = {'ATK': ' Flat',
 }
 
 
-
-
 pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
 
 
@@ -1672,3 +1671,13 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'One Piece': ':sailboat:'
 }
 
+CO_OP_M = ['CTales', 'DTales', 'CDungeon', 'DDungeon', 'CBoss']
+AI_CO_OP_M = ['DTales', 'DDungeon']
+AUTO_BATTLE_M = ['ATales', 'ADungeon']
+TALE_M = ['ATales', 'Tales', 'CTales', 'DTales']
+DUNGEON_M = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon']
+BOSS_M = ['Boss', 'CBoss']
+PVP_M = ['PVP']
+SOLO_M = ['ATales', 'Tales', 'Dungeon', 'Boss']
+OPPONENT_SUMMON_M = ['Dungeon', 'DDungeon', 'CDungeon']
+RAID_M = ['RAID']

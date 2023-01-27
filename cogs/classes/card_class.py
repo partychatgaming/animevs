@@ -2,6 +2,7 @@ import unique_traits as ut
 import crown_utilities
 import textwrap
 import db
+import random
 
 
 class Card:
@@ -45,7 +46,7 @@ class Card:
         self.card_lvl_hlt_buff = 0
         self.card_lvl_ap_buff = 0
 
-        # 
+        # Battle requirements
         self.resolved = False
         self.focused = False
         self.dungeon = False
@@ -53,6 +54,11 @@ class Card:
         self.tales_card_details = ""
         self.destiny_card_details = ""
         self.turn = 1
+        self.used_focus = False
+        self.used_resolved = False
+        self.enhancer_used = False
+        self.summon_used = False
+        self.block_used = False
 
         # Passive Ability
         self.passive_name  = list(passive.keys())[0]
@@ -108,6 +114,31 @@ class Card:
         self.dungeon_card_details
         
         self.pokemon_universe = False
+
+        # Explore Config
+        self.bounty = 0
+        self.approach_message = " "
+        self.bounty_message = " "
+        self.battle_message = " "
+        self._explore_cardtitle = " "
+
+        # Universe Traits
+        self._final_stand = False
+        self._atk_chainsawman_buff = False
+        self._def_chainsawman_buff = False
+
+        # Card Defense From Arm
+        # Arm Help
+        self._shield_active = False
+        self._barrier_active = False
+        self._parry_active = False
+        self._siphon_active = False
+
+        self._shield_value = 0
+        self._barrier_value = 0
+        self._parry_value = 0
+        self._siphon_value = 0
+
         
         
     def is_universe_unbound(self):
@@ -116,25 +147,65 @@ class Card:
 
 
     # This method will set the level buffs & apply them
-    def set_card_level_buffs(self, list_of_card_levels):
+    def set_card_level_buffs(self, list_of_card_levels=None):
         try:
-            for x in list_of_card_levels:
-                if x['CARD'] == self.name:
-                    self.card_lvl = x['LVL']
-                    self.card_exp = x['EXP']
-                    self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
-                    self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
-                    self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
-                    self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
-            
+            if list_of_card_levels:
+                for x in list_of_card_levels:
+                    if x['CARD'] == self.name:
+                        self.card_lvl = x['LVL']
+                        self.card_exp = x['EXP']
+                        self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
+                        self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+                        self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+                        self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
+                
+            # If not leveling from card lvl vault
+            if not list_of_card_levels:
+                self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
+                self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+                self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+                self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
+
             # applying buffs. If no buffs, adds 0
             self.max_health = self.max_health + self.card_lvl_hlt_buff
             self.health = self.health + self.card_lvl_hlt_buff
             self.attack = self.attack + self.card_lvl_attack_buff
             self.defense = self.defense + self.card_lvl_defense_buff
+            self.move1ap = self.move1ap + self.card_lvl_ap_buff
+            self.move2ap = self.move2ap + self.card_lvl_ap_buff
+            self.move3ap = self.move3ap + self.card_lvl_ap_buff
+
 
         except:
+            print("Error setting card levels")
             return False
+
+
+    async def set_guild_stat_level_buffs(self, guild_name):
+        try:
+            guild_buff = await crown_utilities.guild_buff_update_function(guild_name.lower())
+            
+            if guild_buff:
+                if guild_buff['Stat']:
+                    self.card_lvl_ap_buff = 100
+                    self.card_lvl_attack_buff = 100
+                    self.card_lvl_defense_buff = 100
+                    self.card_lvl_hlt_buff = 300
+
+                    self.max_health = self.max_health + self.card_lvl_hlt_buff
+                    self.health = self.health + self.card_lvl_hlt_buff
+                    self.attack = self.attack + self.card_lvl_attack_buff
+                    self.defense = self.defense + self.card_lvl_defense_buff
+                    self.move1ap = self.move1ap + self.card_lvl_ap_buff
+                    self.move2ap = self.move2ap + self.card_lvl_ap_buff
+                    self.move3ap = self.move3ap + self.card_lvl_ap_buff
+                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+
+        except:
+            print("Error setting guild level stats")
+            return False
+
+
 
 
     def set_trait_message(self):
@@ -343,19 +414,6 @@ class Card:
             if self.passive_type == "BLINK":
                 self.passive_num = stam_for_passive
 
-
-    # def set_card_details(self):
-    #     if self.exclusive and not self.has_collection:
-    #         self.dungeon_card_details.append(
-    #             f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
-    #     elif not self.has_collection:
-    #         tales_card_details.append(
-    #             f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
-    #     elif self.has_collection:
-    #         destiny_card_details.append(
-    #             f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
-
-
     
     def get_card_index(self, list_of_cards):
         try:
@@ -365,7 +423,7 @@ class Card:
             return 0
 
 
-    def set_arm_attack_swap(self, arm_type, arm_name, arm_value, arm_element=None):
+    def set_arm_config(self, arm_type, arm_name, arm_value, arm_element=None):
         try:
             if arm_type == "BASIC":
                 self.move1 = arm_name
@@ -389,6 +447,25 @@ class Card:
                 self.move1ap = self.move1ap + arm_value
                 self.move2ap = self.move2ap + arm_value
                 self.move3ap = self.move3ap + arm_value
+
+            if arm_type == "SHIELD":
+                self._shield_active = True
+                self._shield_value = self._shield_value + arm_value
+
+            if arm_type == "BARRIER":
+                self._barrier_active = True
+                self._barrier_value = self._barrier_value + arm_value
+
+            if arm_type == "PARRY":
+                self._parry_active = True
+                self._parry_value = self._parry_value + arm_value
+
+            if arm_type == "SIPHON":
+                self._siphon_active = True
+                self._siphon_value = self._siphon_value + arm_value
+
+            if arm_type == "MANA":
+                self.move4ap = self.move4ap * (arm_value / 100)
 
         except:
             print("Error")
@@ -418,3 +495,70 @@ class Card:
             licon ="🏅"
         
         return licon
+
+
+    # Explore Methods    
+    def set_explore_bounty_and_difficulty(self):
+        if self.tier == 1:
+            self.bounty = random.randint(5000, 10000)
+        if self.tier == 2:
+            self.bounty = random.randint(15000, 20000)
+        if self.tier == 3:
+            self.bounty = random.randint(20000, 24000)
+        if self.tier == 4:
+            self.bounty = random.randint(25000, 40000)
+        if self.tier == 5:
+            self.bounty = random.randint(50000, 60000)
+        if self.tier == 6:
+            self.bounty = random.randint(100000, 150000)
+        if self.tier == 7:
+            self.bounty = random.randint(200000, 300000)
+
+        mode_selector_randomizer = random.randint(0, 200)
+
+        if mode_selector_randomizer >= 100:
+            selected_mode = "Easy"
+            self.approach_message = "💡 A Basic "
+            self._explore_cardtitle = {'TITLE': 'Universe Title'}
+            self.card_lvl = random.randint(5, 30)
+
+
+        if mode_selector_randomizer <= 99 and mode_selector_randomizer >= 70:
+            selected_mode = "Normal"
+            self.approach_message = "👑 A Formidable "
+            self._explore_cardtitle = {'TITLE': 'Universe Title'}
+            self.card_lvl = random.randint(50, 200)
+            self.bounty = self.bounty * 5
+
+        if mode_selector_randomizer <= 69 and mode_selector_randomizer >= 20:
+            selected_mode = "Hard"
+            self.approach_message = "🔥 An Empowered "
+            self._explore_cardtitle = {'TITLE': 'Dungeon Title'}
+            self.card_lvl = random.randint(350, 600)
+            self.bounty = self.bounty * 30
+
+
+        if mode_selector_randomizer <= 19:
+            selected_mode = "Impossible"
+            self.approach_message = "😈 An Impossible "
+            self._explore_cardtitle = {'TITLE': 'Dungeon Title'}
+            self.card_lvl = random.randint(850, 1500)
+            self.bounty = self.bounty * 150
+
+
+        self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+        self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+        self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
+        self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
+
+        if self.bounty >= 150000:
+            bounty_icon = ":money_with_wings:"
+        elif self.bounty >= 100000:
+            bounty_icon = ":moneybag:"
+        elif self.bounty >= 50000 or self.bounty <= 49999:
+            bounty_icon = ":dollar:"
+
+        self.bounty_message = f"{bounty_icon} {'{:,}'.format(self.bounty)}"
+        self.battle_message = "Glory: Defeat the card and earn the card and the bounty, but if you lose you lose gold! Gold: Earn gold only!"
+
+        self.set_card_level_buffs(None)

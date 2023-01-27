@@ -26,6 +26,12 @@ from io import BytesIO
 import io
 import asyncio
 import textwrap
+from .classes.player_class import Player
+from .classes.card_class import Card
+from .classes.vault_class import Vault
+from .classes.title_class import Title
+from .classes.arm_class import Arm
+from .classes.summon_class import Summon
 from discord import Embed
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils import manage_components
@@ -41,7 +47,7 @@ class CrownUnlimited(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
-        self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 600, commands.BucketType.member)
+        self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.member)
     co_op_modes = ['CTales', 'DTales', 'CDungeon', 'DDungeon']
     ai_co_op_modes = ['DTales', 'DDungeon']
     U_modes = ['ATales', 'Tales', 'CTales', 'DTales']
@@ -131,10 +137,7 @@ class CrownUnlimited(commands.Cog):
                 return
 
             all_universes = db.queryExploreUniverses()
-            available_universes = []
-            for uni in all_universes:
-                if uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
-                    available_universes.append(uni)
+            available_universes = [x for x in all_universes]
 
             u = len(available_universes) - 1
             rand_universe = random.randint(1, u)
@@ -143,119 +146,39 @@ class CrownUnlimited(commands.Cog):
 
             # Select Card at Random
             all_available_drop_cards = db.querySpecificDropCards(universetitle)
-            cards = []
-            for card in all_available_drop_cards:
-                cards.append(card)
+            cards = [x for x in all_available_drop_cards]
 
             c = len(cards) - 1
-            rand_card = random.randint(0, c)
-            selected_mode = ""
-            approach_message = ""
-            mode_selector_randomizer = random.randint(0, 100)
-            if mode_selector_randomizer <= 10 or cards[rand_card]['EXCLUSIVE']:
-                selected_mode = "Dungeon"
-                approach_message = ":fire: An Empowered "
-                icon = "https://cdn.discordapp.com/emojis/744887136125190204.gif?v=1"
-            else:
-                selected_mode = "Tales"
-                approach_message = ":crown: "
-                icon = "https://cdn.discordapp.com/emojis/788000259996516373.gif?v=1"
+            rand_card = random.randint(1, c)
+            selected_card = Card(cards[rand_card]['NAME'], cards[rand_card]['PATH'], cards[rand_card]['PRICE'], cards[rand_card]['EXCLUSIVE'], cards[rand_card]['AVAILABLE'], cards[rand_card]['IS_SKIN'], cards[rand_card]['SKIN_FOR'], cards[rand_card]['HLT'], cards[rand_card]['HLT'], cards[rand_card]['STAM'], cards[rand_card]['STAM'], cards[rand_card]['MOVESET'], cards[rand_card]['ATK'], cards[rand_card]['DEF'], cards[rand_card]['TYPE'], cards[rand_card]['PASS'][0], cards[rand_card]['SPD'], cards[rand_card]['UNIVERSE'], cards[rand_card]['HAS_COLLECTION'], cards[rand_card]['TIER'], cards[rand_card]['COLLECTION'], cards[rand_card]['WEAKNESS'], cards[rand_card]['RESISTANT'], cards[rand_card]['REPEL'], cards[rand_card]['ABSORB'], cards[rand_card]['IMMUNE'], cards[rand_card]['GIF'], cards[rand_card]['FPATH'], cards[rand_card]['RNAME'])
+            selected_card.set_affinity_message()
+            selected_card.set_passive_values()
+            selected_card.set_explore_bounty_and_difficulty()
+
 
             random_battle_buttons = [
                 manage_components.create_button(
                     style=ButtonStyle.blue,
-                    label="Start Explore Battle",
-                    custom_id="exploreYes"
+                    label="Glory",
+                    custom_id="glory"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="Gold",
+                    custom_id="gold"
                 ),
             ]
             random_battle_buttons_action_row = manage_components.create_actionrow(*random_battle_buttons)
 
-            # Lose / Bounty
-            bounty = random.randint(1, 80000)
-
-            if bounty >= 150000:
-                bounty_icon = ":money_with_wings:"
-            elif bounty >= 100000:
-                bounty_icon = ":moneybag:"
-            elif bounty >= 50000 or bounty <= 49999:
-                bounty_icon = ":dollar:"
-
-            bounty_message = f"{bounty_icon} {'{:,}'.format(bounty)}"
-            battle_message = "Defeat the card to earn it, and it's bounty!"
-            if selected_mode == "Dungeon":
-                bounty = bounty * 2
-                battle_message = "Defeat the card to earn it, and 2x it's bounty!!"
 
             # Send Message
-            embedVar = discord.Embed(title=f"**{approach_message}{cards[rand_card]['NAME']}** has a bounty!",
+            embedVar = discord.Embed(title=f"**{selected_card.approach_message}{selected_card.name}** has a bounty!",
                                      description=textwrap.dedent(f"""\
-            **Bounty** **{bounty_message}**
-            {battle_message}
+            **Bounty** **{selected_card.bounty_message}**
+            {selected_card.battle_message}
             """), colour=0xf1c40f)
-            card_lvl = 0
-
-            if selected_mode == "Tales":
-                cardtitle = {'TITLE': 'Universe Title'}
-                card_lvl = 50
-                card_lvl_attack_buff = crown_utilities.level_sync_stats(50, "ATK_DEF")
-                card_lvl_defense_buff = crown_utilities.level_sync_stats(50, "ATK_DEF")
-                card_lvl_ap_buff = crown_utilities.level_sync_stats(50, "AP")
-                card_lvl_hlt_buff = crown_utilities.level_sync_stats(50, "HLT")
-            else:
-                cardtitle = {'TITLE': 'Dungeon Title'}
-                card_lvl = 350
-                card_lvl_attack_buff = crown_utilities.level_sync_stats(350, "ATK_DEF")
-                card_lvl_defense_buff = crown_utilities.level_sync_stats(350, "ATK_DEF")
-                card_lvl_ap_buff = crown_utilities.level_sync_stats(350, "AP")
-                card_lvl_hlt_buff = crown_utilities.level_sync_stats(350, "HLT")
-            
-        
-            o_card = cards[rand_card]['NAME']
-            o_card_path=cards[rand_card]['PATH']
-            o_max_health = cards[rand_card]['HLT'] + card_lvl_hlt_buff
-            o_health = cards[rand_card]['HLT'] + card_lvl_hlt_buff
-            o_stamina = cards[rand_card]['STAM']
-            o_max_stamina = cards[rand_card]['STAM']
-            o_moveset = cards[rand_card]['MOVESET']
-            o_attack = cards[rand_card]['ATK'] + card_lvl_attack_buff
-            o_defense = cards[rand_card]['DEF'] + card_lvl_defense_buff
-            o_type = cards[rand_card]['TYPE']
-            o_passive = cards[rand_card]['PASS'][0]
-            o_speed = cards[rand_card]['SPD']
-            o_show = cards[rand_card]['UNIVERSE']
-            o_collection = cards[rand_card]['COLLECTION']
-            o_destiny = cards[rand_card]['HAS_COLLECTION']
-            affinity_message = crown_utilities.set_affinities(cards[rand_card])
-            
-            o_1 = o_moveset[0]
-            o_2 = o_moveset[1]
-            o_3 = o_moveset[2]
-            o_enhancer = o_moveset[3]
-   
-            # Move 1
-            move1 = list(o_1.keys())[0]
-            move1ap = list(o_1.values())[0] + card_lvl_ap_buff
-            move1_stamina = list(o_1.values())[1]
-            
-            # Move 2
-            move2 = list(o_2.keys())[0]
-            move2ap = list(o_2.values())[0] + card_lvl_ap_buff
-            move2_stamina = list(o_2.values())[1]
-
-            # Move 3
-            move3 = list(o_3.keys())[0]
-            move3ap = list(o_3.values())[0] + card_lvl_ap_buff
-            move3_stamina = list(o_3.values())[1]
-
-            # Move Enhancer
-            move4 = list(o_enhancer.keys())[0]
-            move4ap = list(o_enhancer.values())[0]
-            move4_stamina = list(o_enhancer.values())[1]
-            move4enh = list(o_enhancer.values())[2]
-            resolved = False
-            focused = False
-            turn = 0
-            card_file = showcard("non-battle", cards[rand_card], "none", o_max_health, o_health, o_max_stamina, o_stamina, resolved, cardtitle, focused, o_attack, o_defense, turn, move1ap, move2ap, move3ap, move4ap, move4enh, card_lvl, None)
+         
+            card_file = showcard("non-battle", cards[rand_card], "none", selected_card.max_health, selected_card.health, selected_card.max_stamina, selected_card.stamina, selected_card.resolved, selected_card._explore_cardtitle, selected_card.focused, selected_card.attack, selected_card.defense, selected_card.turn, selected_card.move1ap, selected_card.move2ap, selected_card.move3ap, selected_card.move4ap, selected_card.move4enh, selected_card.card_lvl, None)
 
             embedVar.set_image(url="attachment://image.png")
             embedVar.set_thumbnail(url=message.author.avatar_url)
@@ -271,48 +194,29 @@ class CrownUnlimited(commands.Cog):
                 button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[
                     random_battle_buttons_action_row], timeout=120, check=check)
 
-                if button_ctx.custom_id == "exploreYes":
+                if button_ctx.custom_id == "glory":
                     await button_ctx.defer(ignore=True)
-                    await enemy_approached(self, message, setchannel, player, selected_mode, universe,
-                                           cards[rand_card]['NAME'], bounty)
+                    await enemy_approached(self, message, setchannel, player, 'Dungeon', universe,
+                                           selected_card.name, selected_card.bounty, 'glory')
+                    await msg.edit(components=[])
+
+                if button_ctx.custom_id == "gold":
+                    await button_ctx.defer(ignore=True)
+                    await enemy_approached(self, message, setchannel, player, 'Dungeon', universe,
+                                           selected_card.name, selected_card.bounty, 'gold')
                     await msg.edit(components=[])
 
             except Exception as ex:
-                # trace = []
-                # tb = ex.__traceback__
-                # while tb is not None:
-                #     trace.append({
-                #         "filename": tb.tb_frame.f_code.co_filename,
-                #         "name": tb.tb_frame.f_code.co_name,
-                #         "lineno": tb.tb_lineno
-                #     })
-                #     tb = tb.tb_next
-                # print(str({
-                #     'type': type(ex).__name__,
-                #     'message': str(ex),
-                #     'trace': trace
-                # }))
                 await msg.edit(components=[])
 
-                # print("Explore Exception. Likely nothing, but yea.")
-                # await message.channel.send("Something ain't right, my guy.Check with support.")
-                # print("")
+
     @cog_ext.cog_slash(description="Toggle Explore Mode On/Off", guild_ids=main.guild_ids)
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def explore(self, ctx: SlashContext):
         try:
             player = db.queryUser({"DID": str(ctx.author.id)})
-            if player['LEVEL'] < 25 and player['PRESTIGE'] == 0:             
-                await ctx.send(f"🔓 Unlock the Explore Mode by completing Floor 25 of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss.")
-                return
-            if not player["EXPLORE"]:
-                await ctx.send(f"Entering Explorer Mode :milky_way: ")
-                db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'EXPLORE': True}})
-                return
-            if player["EXPLORE"]:
-                await ctx.send(f"Exiting Explorer Mode :rotating_light: ")
-                db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'EXPLORE': False}})
-                return
+            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'])
+            await ctx.send(f"{p.set_explore()}")
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -507,7 +411,7 @@ class CrownUnlimited(commands.Cog):
 
             await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild, crestlist,
                                   crestsearch, sowner, oteam, ofam, currentopponent, cowner, cteam, cfam, deckNumber,
-                                  None, None, None, None)
+                                  None, None, None, None, None)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -631,7 +535,7 @@ class CrownUnlimited(commands.Cog):
                     oguild = "PCG"
             
             await battle_commands(self, ctx, mode, universe, selected_universe, None, oguild, crestlist, crestsearch,
-                             sowner, oteam, ofam, currentopponent, companion, cteam, cfam, None, user, None, None, None)
+                             sowner, oteam, ofam, currentopponent, companion, cteam, cfam, None, user, None, None, None, None)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -650,324 +554,6 @@ class CrownUnlimited(commands.Cog):
             return
 
 
-    # @cog_ext.cog_slash(description="Operate Arena", guild_ids=main.guild_ids)
-    # async def checkarena(self, ctx, owner: User):
-    #     a_registered_player = await crown_utilities.player_check(ctx)
-    #     if not a_registered_player:
-    #         return
-
-    #     try:
-    #         arena = db.queryArena({"OWNER": str(owner), "ACTIVE": True})
-    #         if arena:
-    #             owner = arena['OWNER']
-    #             private_channel = ctx
-    #             opponent_entered = False
-    #             singles = arena['SINGLES']
-    #             guild_war = arena['GUILD_WAR']
-    #             subbed = arena['SUBBED_PLAYER']
-    #             active = arena['ACTIVE']
-    #             ready = arena['READY']
-    #             is_full = arena['IS_FULL']
-    #             winner = arena['WINNER']
-    #             loser = arena['LOSER']
-    #             guild1 = arena['GUILD1']
-    #             guild2 = arena['GUILD2']
-    #             description_tip = ""
-    #             guild1_team_members = []
-    #             guild1_ready_player = arena['GUILD1_MEMBERS'][0]['NAME']
-    #             for member in arena['GUILD1_MEMBERS']:
-    #                 guild1_team_members.append(f'**{member["NAME"]}:** ❌ {str(member["STRIKES"])}')
-    #             guild2_team_members = []
-    #             guild2_team = arena['GUILD2_MEMBERS']
-    #             for member in arena['GUILD2_MEMBERS']:
-    #                 guild2_team_members.append(f'**{member["NAME"]}:** ❌ {str(member["STRIKES"])}')
-    #             g1_mems = "\n".join(guild1_team_members)
-    #             g2_mems = "\n".join(guild2_team_members)
-    #             g1_count = len(guild1_team_members)
-    #             g2_count = len(guild2_team_members)
-    #             warning = ""
-    #             vs = f"**{str(g1_count)}** vs **{str(g2_count)}**"
-    #             if guild_war and g1_count != g2_count:
-    #                 warning = "\n**Warning!** You must have equal members to begin."
-    #             elif guild_war and g1_count == g2_count:
-    #                 warning = f"\n**{str(g1_count)}** vs **{str(g2_count)}**"
-    #             buttons = []
-    #             embed_list = []
-    #             if singles:
-    #                 description_tip = "*1v1 best out of 3 Arena*"
-    #             else:
-    #                 description_tip = f"*Open Arena!*"
-                
-    #             if guild_war:
-    #                 description_tip = f"*Guild War*{warning}"
-
-    #             if guild2_team_members:
-    #                 opponent_entered = True
-
-
-
-    #             embedVar = discord.Embed(title= f"{str(owner)}", description=textwrap.dedent(f"""
-    #             🎭 {description_tip}
-                
-    #             {g1_mems}
-    #             """), colour=0x7289da)
-    #             embed_list.append(embedVar)
-
-
-    #             if opponent_entered:
-    #                 guild2_ready_player = arena['GUILD2_MEMBERS'][0]['NAME']
-    #                 guild2_owner = guild2_team[0]['NAME']
-    #                 embedVar2 = discord.Embed(title= f"{guild2_owner}", description=textwrap.dedent(f"""
-    #                 🎭 {description_tip}
-                    
-    #                 {g2_mems}
-    #                 """), colour=0x7289da)
-    #                 embed_list.append(embedVar2)
-                
-    #             ### Button Layouts ###
-    #             if singles and not opponent_entered:
-    #                 buttons = [
-    #                     manage_components.create_button(style=3, label="Join Arena", custom_id="join_arena_singles"),
-    #                     manage_components.create_button(style=3, label="Delete Arena", custom_id="delete_arena_singles"),
-    #                 ]
-    #             if singles and opponent_entered:
-    #                 buttons = [
-    #                     manage_components.create_button(style=3, label="Start Arena Match", custom_id="start_singles"),
-    #                     manage_components.create_button(style=3, label="Delete Arena", custom_id="delete_arena_singles"),
-    #                 ]
-                    
-
-    #             custom_action_row = manage_components.create_actionrow(*buttons)
-
-    #             async def custom_function(self, button_ctx):
-    #                 if button_ctx.author == ctx.author:
-    #                     player = str(button_ctx.origin_message.embeds[0].title)
-    #                     if button_ctx.custom_id == "join_arena_singles":
-    #                         owns_arena_already = db.queryArena({"OWNER": str(ctx.author), "ACTIVE": True})
-    #                         if owns_arena_already:
-    #                             await button_ctx.send("You already have an open arena.")
-    #                             self.stop = True
-    #                             return
-    #                         else:
-    #                             accept_buttons = [
-    #                                 manage_components.create_button(
-    #                                     style=ButtonStyle.green,
-    #                                     label="Yes",
-    #                                     custom_id="yes"
-    #                                 ),
-    #                                 manage_components.create_button(
-    #                                     style=ButtonStyle.blue,
-    #                                     label="No",
-    #                                     custom_id="no"
-    #                                 )
-    #                             ]
-    #                             accept_buttons_action_row = manage_components.create_actionrow(*accept_buttons)
-    #                             await button_ctx.send(f"Can {ctx.author.mention} join your arena?", components=[accept_buttons_action_row])
-
-    #                             def check(button_ctx):
-    #                                 return str(button_ctx.author) == str(owner)
-
-    #                             try:
-    #                                 button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[accept_buttons_action_row], timeout=120, check=check)
-    #                                 if button_ctx.custom_id == "no":
-    #                                     await button_ctx.send("Player not joined. ")
-    #                                     self.stop = True
-    #                                 if button_ctx.custom_id == "yes":
-    #                                     query = {'OWNER': str(owner), "ACTIVE": True}
-    #                                     update_query = {
-    #                                         '$push': {"GUILD2_MEMBERS": {"NAME": str(ctx.author), "POSITION": 1, "STRIKES": 0}},
-    #                                         '$set': {"IS_FULL": True, "READY": True}
-    #                                         }
-    #                                     res = db.updateArenaNoFilter(query, update_query)
-    #                                     await button_ctx.send("You have been added successfully to the Arena.")
-    #                                     self.stop = True        
-    #                             except Exception as ex:
-    #                                 trace = []
-    #                                 tb = ex.__traceback__
-    #                                 while tb is not None:
-    #                                     trace.append({
-    #                                         "filename": tb.tb_frame.f_code.co_filename,
-    #                                         "name": tb.tb_frame.f_code.co_name,
-    #                                         "lineno": tb.tb_lineno
-    #                                     })
-    #                                     tb = tb.tb_next
-    #                                 print(str({
-    #                                     'PLAYER': str(ctx.author),
-    #                                     'type': type(ex).__name__,
-    #                                     'message': str(ex),
-    #                                     'trace': trace
-    #                                 }))
-    #                                 guild = self.bot.get_guild(main.guild_id)
-    #                                 channel = guild.get_channel(main.guild_channel)
-    #                                 await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
-
-    #                     elif button_ctx.custom_id == "start_singles":
-    #                         try:
-    #                             if str(button_ctx.author) != str(owner):
-    #                                 await button_ctx.send("Arena Owner must start the match.")
-    #                                 self.stop = True
-    #                                 return
-    #                             mode = "PVP"
-    #                             sowner = db.queryUser({'DISNAME': str(guild1_ready_player)})
-    #                             opponent = db.queryUser({'DISNAME': str(guild2_ready_player)})
-    #                             oteam = sowner['TEAM']
-    #                             tteam = opponent['TEAM']
-    #                             oteam_info = db.queryTeam({'TEAM_NAME':str(oteam)})
-    #                             tteam_info = db.queryTeam({'TEAM_NAME':str(tteam)})
-    #                             if oteam_info:
-    #                                 oguild = oteam_info['GUILD']
-    #                             else:
-    #                                 oguild ="PCG"
-    #                             if tteam_info:
-    #                                 tguild = tteam_info['GUILD']
-    #                             else:
-    #                                 tguild ="PCG"
-
-    #                             o = db.queryCard({'NAME': sowner['CARD']})
-    #                             otitle = db.queryTitle({'TITLE': sowner['TITLE']})
-
-    #                             t = db.queryCard({'NAME': opponent['CARD']})
-    #                             ttitle = db.queryTitle({'TITLE': opponent['TITLE']})
-    #                             await button_ctx.send("Arena match starting!")                    
-    #                             await battle_commands(self, ctx, mode, None, None, None, oguild, None, None, sowner,
-    #                                                 oteam, None, opponent, tteam, tguild, None, None, None, True, owner, "SINGLES")
-    #                         except Exception as ex:
-    #                             trace = []
-    #                             tb = ex.__traceback__
-    #                             while tb is not None:
-    #                                 trace.append({
-    #                                     "filename": tb.tb_frame.f_code.co_filename,
-    #                                     "name": tb.tb_frame.f_code.co_name,
-    #                                     "lineno": tb.tb_lineno
-    #                                 })
-    #                                 tb = tb.tb_next
-    #                             print(str({
-    #                                 'PLAYER': str(ctx.author),
-    #                                 'type': type(ex).__name__,
-    #                                 'message': str(ex),
-    #                                 'trace': trace
-    #                             }))
-    #                             guild = self.bot.get_guild(main.guild_id)
-    #                             channel = guild.get_channel(main.guild_channel)
-    #                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
-
-    #                             return
-    #                     elif button_ctx.custom_id == "delete_arena_singles":
-    #                         if str(button_ctx.author) != str(owner):
-    #                             await button_ctx.send("Arena Owner only command.")
-    #                             self.stop = True
-    #                             return
-
-    #                         accept_buttons = [
-    #                             manage_components.create_button(
-    #                                 style=ButtonStyle.green,
-    #                                 label="Yes",
-    #                                 custom_id="yes"
-    #                             ),
-    #                             manage_components.create_button(
-    #                                 style=ButtonStyle.blue,
-    #                                 label="No",
-    #                                 custom_id="no"
-    #                             )
-    #                         ]
-    #                         accept_buttons_action_row = manage_components.create_actionrow(*accept_buttons)
-    #                         await button_ctx.send(f"Are you sure you want to delete your Arena?", components=[accept_buttons_action_row])
-
-    #                         def check(button_ctx):
-    #                             return str(button_ctx.author) == str(owner)
-
-    #                         try:
-    #                             button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[accept_buttons_action_row], timeout=120, check=check)
-    #                             if button_ctx.custom_id == "no":
-    #                                 await button_ctx.send("Aborted.")
-    #                                 self.stop = True
-    #                             if button_ctx.custom_id == "yes":
-    #                                 query = {'OWNER': str(owner)}
-    #                                 update_query = {
-    #                                     '$set': {"ACTIVE": False}
-    #                                     }
-    #                                 res = db.updateArenaNoFilter(query, update_query)
-    #                                 await button_ctx.send("You have been added successfully cancelled your Arena.")
-    #                                 self.stop = True        
-    #                         except Exception as ex:
-    #                             trace = []
-    #                             tb = ex.__traceback__
-    #                             while tb is not None:
-    #                                 trace.append({
-    #                                     "filename": tb.tb_frame.f_code.co_filename,
-    #                                     "name": tb.tb_frame.f_code.co_name,
-    #                                     "lineno": tb.tb_lineno
-    #                                 })
-    #                                 tb = tb.tb_next
-    #                             print(str({
-    #                                 'PLAYER': str(ctx.author),
-    #                                 'type': type(ex).__name__,
-    #                                 'message': str(ex),
-    #                                 'trace': trace
-    #                             }))
-    #                             guild = self.bot.get_guild(main.guild_id)
-    #                             channel = guild.get_channel(main.guild_channel)
-    #                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
-
-                        
-                    
-    #                 else:
-    #                     await ctx.send("This is not your Arena Menu.")
-
-
-    #             await Paginator(bot=self.bot, useQuitButton=True, disableAfterTimeout=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
-    #                 custom_action_row,
-    #                 custom_function,
-    #             ]).run()  
-    #         else:
-    #             await ctx.send("No arena available.")
-    #     except Exception as ex:
-    #         trace = []
-    #         tb = ex.__traceback__
-    #         while tb is not None:
-    #             trace.append({
-    #                 "filename": tb.tb_frame.f_code.co_filename,
-    #                 "name": tb.tb_frame.f_code.co_name,
-    #                 "lineno": tb.tb_lineno
-    #             })
-    #             tb = tb.tb_next
-    #         print(str({
-    #             'PLAYER': str(ctx.author),
-    #             'type': type(ex).__name__,
-    #             'message': str(ex),
-    #             'trace': trace
-    #         }))
-    #         guild = self.bot.get_guild(main.guild_id)
-    #         channel = guild.get_channel(main.guild_channel)
-    #         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
-
-    #         return
-
-
-    # @cog_ext.cog_slash(description="Arena Battle!",
-    #                 options=[
-    #                     create_option(
-    #                         name="mode",
-    #                         description="Arena Mode",
-    #                         option_type=3,
-    #                         required=True,
-    #                         choices=[
-    #                             create_choice(
-    #                                 name="1v1",
-    #                                 value="SINGLES"
-    #                             ),
-    #                             create_choice(
-    #                                 name="Team Battle",
-    #                                 value="TEAMS"
-    #                             ),
-    #                             create_choice(
-    #                                 name="Guild War",
-    #                                 value="GUILD_WAR"
-    #                             ),
-    #                         ]
-    #                     )
-    #                 ]
-    #     , guild_ids=main.guild_ids)
     async def arena(self, ctx: SlashContext, mode: str):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -1157,11 +743,11 @@ class CrownUnlimited(commands.Cog):
 
             if mode in B_MODES:
                 await battle_commands(self, ctx, mode, universe, selected_universe, None, oguild, crestlist,
-                                    crestsearch, sowner, oteam, ofam, None, None, None, None, None, None, None, None, None)
+                                    crestsearch, sowner, oteam, ofam, None, None, None, None, None, None, None, None, None, None)
             else:
                 await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild,
                                     crestlist, crestsearch, sowner, oteam, ofam, currentopponent, None, None, None,
-                                    None, None, None, None, None)
+                                    None, None, None, None, None, None)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -1249,7 +835,7 @@ class CrownUnlimited(commands.Cog):
             # universe = "Naruto"
             # selected_universe = {"TITLE": "Naruto"}
             if private_channel:
-                await battle_commands(self, ctx, mode, None, None, None, oguild, None, None, sowner, oteam, None, opponent, tteam, tguild, None, None, None, None, None, None)
+                await battle_commands(self, ctx, mode, None, None, None, oguild, None, None, sowner, oteam, None, opponent, tteam, tguild, None, None, None, None, None, None, None)
             else:
                 await ctx.send("Failed to start battle!")
         except Exception as ex:
@@ -1353,7 +939,7 @@ class CrownUnlimited(commands.Cog):
             ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
             
             if private_channel:
-                await battle_commands(self, ctx, mode, hall_info, title_match_active, shield_test_active, oguild, shield_training_active, None, sowner, oteam, None, t_user,tteam, tguild, None, None, None, None, None, None)
+                await battle_commands(self, ctx, mode, hall_info, title_match_active, shield_test_active, oguild, shield_training_active, None, sowner, oteam, None, t_user,tteam, tguild, None, None, None, None, None, None, None)
             else:
                 await ctx.send("Failed to start raid battle!")
         except Exception as ex:
@@ -1376,57 +962,6 @@ class CrownUnlimited(commands.Cog):
             channel = guild.get_channel(main.guild_channel)
             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
             return
-
-
-    # @cog_ext.cog_slash(description="view all cards, titles, arms, or more that an universe has to offer",
-    #                    options=[
-    #                        create_option(
-    #                            name="universe_name",
-    #                            description="name of the universe to view stuff from",
-    #                            option_type=3,
-    #                            required=True
-    #                        ),
-    #                        create_option(
-    #                            name="selection",
-    #                            description="view all cards, titles, arms, summons, or destiny lines",
-    #                            option_type=3,
-    #                            required=True,
-    #                            choices=[
-    #                             create_choice(
-    #                                 name="🎴 View All Cards",
-    #                                 value="cards",
-    #                             ),
-    #                             create_choice(
-    #                                 name="🎗️ View All Titles",
-    #                                 value="titles",
-    #                             ),
-    #                             create_choice(
-    #                                 name="🦾 View All Arms",
-    #                                 value="arms",
-    #                             ),
-    #                             create_choice(
-    #                                 name="🧬 View All Summons",
-    #                                 value="summons",
-    #                             ),
-    #                             create_choice(
-    #                                 name="✨ View All Destiny Lines",
-    #                                 value="destinies",
-    #                             )
-    #                            ]
-    #                        )
-    #                    ]
-    #     , guild_ids=main.guild_ids)
-    # async def viewall(self, ctx, selection, universe_name):
-    #     if selection == "cards":
-    #         await cardlist(self, ctx, universe_name)
-    #     if selection == "titles":
-    #         await titlelist(self, ctx, universe_name)
-    #     if selection == "arms":
-    #         await armlist(self, ctx, universe_name)
-    #     if selection == "summons":
-    #         await summonlist(self, ctx, universe_name)
-    #     if selection == "destinies":
-    #         await destinylist(self, ctx, universe_name)
 
 
     @cog_ext.cog_slash(description="View all available Universes and their cards, summons, destinies, and accessories", guild_ids=main.guild_ids)
@@ -1607,18 +1142,6 @@ class CrownUnlimited(commands.Cog):
         embeds = embed_list
         await paginator.run(embeds)
 
-    # @cog_ext.cog_slash(description="Quit and Close your private channel", guild_ids=main.guild_ids)
-    # async def forcequit(self, ctx: SlashContext):
-    #     private_channel = ctx
-    #     ov = private_channel.channel.overwrites
-    #     validator = False
-    #     for o in ov:
-    #         if str(ctx.author) == str(o):
-    #             validator = True
-    #     if private_channel.guild and validator:
-    #         await discord.TextChannel.delete(private_channel.channel, reason=None)
-
-
 
 async def tutorial(self, ctx: SlashContext):
     try:
@@ -1670,7 +1193,7 @@ async def tutorial(self, ctx: SlashContext):
         # universe = "Naruto"
         # selected_universe = {"TITLE": "Naruto"}
         if private_channel:
-            await battle_commands(self, ctx, mode, None, None, None, oguild, None, None, sowner, oteam, None, opponent, tteam, tguild, None, None, None, None, None, "Tutorial")
+            await battle_commands(self, ctx, mode, None, None, None, oguild, None, None, sowner, oteam, None, opponent, tteam, tguild, None, None, None, None, None, "Tutorial", None)
         else:
             await ctx.send("Failed to start battle!")
     except Exception as ex:
@@ -2004,6 +1527,7 @@ async def summonlevel(pet, player):
         await ctx.send(
             "There's an issue with leveling your Summon. Alert support.")
         return
+
 
 async def savematch(player, card, path, title, arm, universe, universe_type, exclusive):
     matchquery = {'PLAYER': player, 'CARD': card, 'PATH': path, 'TITLE': title, 'ARM': arm, 'UNIVERSE': universe,
@@ -2794,6 +2318,7 @@ def get_card(url, cardname, cardtype):
         }))
         return
 
+
 def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, title, focused, attack, defense, turn_total, ap1,
              ap2, ap3, enh1, enhname, lvl, op_defense):
     # Card Name can be 16 Characters before going off Card
@@ -3276,8 +2801,7 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
         }))
         return
 
-
-       
+     
 def showsummon(url, summon, message, lvl, bond):
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
@@ -3356,7 +2880,6 @@ def showsummon(url, summon, message, lvl, bond):
             'trace': trace
         }))
         return
-
 
 
 def cardback(d, max_health, health, max_stamina, stamina, resolved, arm, focused, attack, defense, turn_total, passive_name,
@@ -3649,7 +3172,7 @@ async def abyss(self, ctx: SlashContext):
                     await private_channel.send(
                         f":x: Tier **{str(checks['TIER'])}** cards are banned on floor {floor}. Use another card.")
                     return
-                await battle_commands(self, ctx, mode, abyss, None, None, oguild, None, None, sowner, oteam, ofam, 0, None, None, None, level, None, None, None, None)
+                await battle_commands(self, ctx, mode, abyss, None, None, oguild, None, None, sowner, oteam, ofam, 0, None, None, None, level, None, None, None, None, None)
                 
             elif button_ctx.custom_id == "No":
                 await button_ctx.send("Leaving the Abyss...")
@@ -3804,7 +3327,7 @@ async def scenario(self, ctx: SlashContext, universe: str):
                     await button_ctx.defer(ignore=True)
                     scenario = db.queryScenario({'TITLE':selected_scenario})
                     level = scenario['ENEMY_LEVEL']
-                    await battle_commands(self, ctx, mode, scenario, None, None, oguild, None, None, sowner, oteam, ofam, 0, None, None, None, level, None, None, None, None)
+                    await battle_commands(self, ctx, mode, scenario, None, None, oguild, None, None, sowner, oteam, ofam, 0, None, None, None, level, None, None, None, None, None)
                     
                     self.stop = True
             else:
@@ -3831,6 +3354,7 @@ async def scenario(self, ctx: SlashContext, universe: str):
             'message': str(ex),
             'trace': trace
         }))
+
 
 async def cardlist(self, ctx: SlashContext, universe: str):
     a_registered_player = await crown_utilities.player_check(ctx)
@@ -4270,7 +3794,6 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             health_buff_from_difficulty = 7000
             ap_buff_from_difficulty = 100
             stat_buff_from_difficulty = 0
-
 
 
     if mode not in pvp_modes and mode not in raid_modes:
@@ -6347,25 +5870,18 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         return
 
 
-async def enemy_approached(self, message, channel, player, selected_mode, universe, opponent, bounty):
+async def enemy_approached(self, message, channel, player, selected_mode, universe, opponent, bounty, explore_type):
     try:
         private_channel = channel
         mode = selected_mode
 
         sowner = player
         oteam = sowner['TEAM']
-        # guild = message.guild
-        # overwrites = {
-        #     guild.default_role: discord.PermissionOverwrite(read_messages=False),
-        #     guild.me: discord.PermissionOverwrite(read_messages=True),
-        #     message.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
-        # }    
-        # private_channel = await guild.create_text_channel(f'{str(message.author)}-{selected_mode}-run',
-        #                                                   overwrites=overwrites)
+
         oguild = "RANDOMIZED_BATTLE"
         crestlist = opponent
         crestsearch = bounty
-        await battle_commands(self, message, mode, universe, universe['TITLE'], None, oguild, crestlist, crestsearch, sowner, oteam, private_channel, None, None, None, None, None, None, None, None, None)
+        await battle_commands(self, message, mode, universe, universe['TITLE'], None, oguild, crestlist, crestsearch, sowner, oteam, private_channel, None, None, None, None, None, None, None, None, None, explore_type)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -6384,36 +5900,19 @@ async def enemy_approached(self, message, channel, player, selected_mode, univer
 
 
 
-async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode: str, user: None):
-    U_modes = ['ATales', 'Tales', 'CTales', 'DTales', 'SCENARIO']
-    AUTO_BATTLE_modes = ['ATales', 'ADungeon']
-    D_modes = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon']
-    B_modes = ['Boss', 'CBoss']
-    C_MODES = ['CTales', 'CDungeon', 'CBoss']
+async def select_universe(self, ctx, player: object, oteam: str, ofam: str, mode: str, user: None):
+    vault = db.queryVault({'DID': str(ctx.author.id)})
 
-    saved_spots = sowner['SAVE_SPOT']
-    # if isinstance(ctx.channel, discord.channel.DMChannel):
-    #     await ctx.send(m.SERVER_FUNCTION_ONLY)
-    #     return
-    oguild = "PCG"
-    prevault = db.queryVault({'DID': sowner['DID']})
-    balance = prevault['BALANCE']
-    difficulty = sowner['DIFFICULTY']
-    crestlist = []
-    crestsearch = False
-    autoBattle = False
-    guild = ctx.guild
-    rift_on = False
-    team_query = {'TEAM_NAME': oteam.lower()}
-    guild_buff_update_query = {}
-    filter_query = {}
-    # overwrites = { guild.default_role: discord.PermissionOverwrite(read_messages=False), guild.me: discord.PermissionOverwrite(read_messages=True), ctx.author: discord.PermissionOverwrite(read_messages=True),}    
+    v = Vault(vault['OWNER'], vault['DID'], vault['BALANCE'], vault['CARDS'], vault['TITLES'], vault['ARMS'], vault['PETS'], vault['DECK'], vault['CARD_LEVELS'], vault['QUESTS'], vault['DESTINY'], vault['GEMS'], vault['STORAGE'], vault['TALISMANS'], vault['ESSENCE'], vault['TSTORAGE'], vault['ASTORAGE'])
 
-    if sowner['RIFT'] == 1:
-        rift_on = True
+    p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'])                 
 
-    if mode in C_MODES:
-        await user.send(f"{sowner['NAME']} needs your help! React in server to join their Coop Tale!!")
+
+    p.set_rift_on()
+    await p.set_guild_data()
+
+    if mode in crown_utilities.CO_OP_M:
+        await user.send(f"{player.name} needs your help! React in server to join their Coop Tale!!")
         coop_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.green,
@@ -6437,14 +5936,10 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 await button_ctx.send("Coop **Declined**")
                 self.stop = True
                 return
+            
             if button_ctx.custom_id == "yes":
-                # overwrites = {
-                #     guild.default_role: discord.PermissionOverwrite(read_messages=False),
-                #     guild.me: discord.PermissionOverwrite(read_messages=True),
-                #     ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
-                #     user: discord.PermissionOverwrite(read_messages=True, send_messages=True),
-                # }
                 await button_ctx.defer(ignore=True)
+        
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -6465,22 +5960,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
             return
     
-    if oteam != 'PCG':
-        team_info = db.queryTeam(team_query)
-        team_buff = await crown_utilities.guild_buff_update_function(oteam)
-        if team_buff:
-            if team_buff['Rift']:
-                rift_on = True
-                guild_buff_update_query = team_buff['UPDATE_QUERY']
-                filter_query = team_buff['FILTER_QUERY']
-
-        guildname = team_info['GUILD']
-        if guildname != "PCG":
-            oguild = db.queryGuildAlt({'GNAME': guildname})
-            if oguild:
-                crestlist = oguild['CREST']
-                crestsearch = True
-    if sowner['PATRON'] != True and mode in AUTO_BATTLE_modes:
+    
+    if p.set_auto_battle_on(mode):
         embedVar = discord.Embed(title=f"Auto-Battles Locked", description=f"To Unlock Auto-Battles Join Patreon!",
                                  colour=0xe91e63)
         embedVar.add_field(
@@ -6488,152 +5969,16 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
             value="-Party Chat Dev Team")
         await ctx.send(embed=embedVar)
         return
-        autoBattle = True
 
-    if mode in U_modes:
-        completed_crown_tales = sowner['CROWN_TALES']
-        all_universes = db.queryAllUniverse()
-        available_universes = []
-        universe_menu = []
-        selected_universe = ""
-        universe_embed_list = []
-        if rift_on:
-            for uni in all_universes:
-                if uni['HAS_CROWN_TALES'] == True or uni['TIER'] == 9:
-                    if uni['TITLE'] in completed_crown_tales:
-                        save_spot_text = "No Save Data"
-                        if difficulty != "EASY":
-                            for save in saved_spots:
-                                if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
-                                    save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
-                        if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted** | 🔮 *Crown Rifts*"
-                        if uni['GUILD'] != "PCG":
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
-                        else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
-
-                        embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Universe Title**: {uni['UTITLE']}
-                        🦾 **Universe Arm**: {uni['UARM']}
-                        🧬 **Universe Summon**: {uni['UPET']}
-
-                        **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
-                        **Completed**: 🟢
-                        {corruption_message}
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=uni['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        universe_embed_list.append(embedVar)
-                    else:
-                        save_spot_text = "No Save Data"
-                        if difficulty != "EASY":
-                            for save in saved_spots:
-                                if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
-                                    save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
-                        if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted** | 🔮 *Crown Rifts*"
-                        if uni['GUILD'] != "PCG":
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
-                        else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
-
-                        embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Universe Title**: {uni['UTITLE']}
-                        🦾 **Universe Arm**: {uni['UARM']}
-                        🧬 **Universe Summon**: {uni['UPET']}
-
-                        **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
-                        **Completed**: 🔴
-                        {corruption_message}
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=uni['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        universe_embed_list.append(embedVar)
-        else:
-            for uni in all_universes:
-                if uni['HAS_CROWN_TALES'] == True and uni['TIER'] != 9:
-                    if uni['TITLE'] in completed_crown_tales:
-                        save_spot_text = "No Save Data"
-                        if difficulty != "EASY":
-                            for save in saved_spots:
-                                if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
-                                    save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted"
-                        if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted**"
-                        owner_message = ""
-                        if uni['GUILD'] != "PCG":
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
-                        else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
-                        
-
-
-                        embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Universe Title**: {uni['UTITLE']}
-                        🦾 **Universe Arm**: {uni['UARM']}
-                        🧬 **Universe Summon**: {uni['UPET']}
-
-                        **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
-                        **Completed**: 🟢
-                        {corruption_message}
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=uni['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        universe_embed_list.append(embedVar)
-                    else:
-                        save_spot_text = "No Save Data"
-                        if difficulty != "EASY":
-                            for save in saved_spots:
-                                if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
-                                    save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted"
-                        owner_message = ""
-                        if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted**"
-                        if uni['GUILD'] != "PCG":
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
-                        else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
-
-                        embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Universe Title**: {uni['UTITLE']}
-                        🦾 **Universe Arm**: {uni['UARM']}
-                        🧬 **Universe Summon**: {uni['UPET']}
-
-                        **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
-                        **Completed**: 🔴
-                        {corruption_message}
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=uni['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        universe_embed_list.append(embedVar)
+    if mode in crown_utilities.TALE_M or mode in crown_utilities.DUNGEON_M:
+        available_universes = p.set_selectable_universes(ctx, mode)
 
         buttons = [
-            manage_components.create_button(style=3, label="Start Tales!", custom_id="start"),
+            manage_components.create_button(style=3, label="Start Battle!", custom_id="start"),
             manage_components.create_button(style=1, label="View Available Scenario Battles!", custom_id="scenario"),
         ]
-        custom_action_row = manage_components.create_actionrow(*buttons)
+        custom_action_row = manage_components.create_actionrow(*buttons)        
 
-
-        # custom_button = manage_components.create_button(style=3, label="Start")
-        # custom_button = manage_components.create_button(style=3, label="View Scenario Battles!")
-        
 
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
@@ -6651,7 +5996,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
             else:
                 await ctx.send("This is not your button.", hidden=True)
 
-        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=universe_embed_list, timeout=60, customActionRow=[
+        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=available_universes, timeout=60, customActionRow=[
             custom_action_row,
             custom_function,
         ]).run()
@@ -6665,15 +6010,18 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
 
             universe = db.queryUniverse({'TITLE': str(selected_universe)})
             universe_owner = universe['GUILD']
-            if not universe['CROWN_TALES']:
-                await ctx.send(f"{selected_universe} is not ready to be explored! Check back later!")
-                return
+
             #Universe Cost
             entrance_fee = 1000
-            if selected_universe in crestlist:
-                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {guildname} {selected_universe} Crest Activated! No entrance fee!")
+
+
+            if mode in crown_utilities.DUNGEON_M:
+                entrance_fee = 5000
+                
+            if selected_universe in p.crestlist:
+                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {p.association} {selected_universe} Crest Activated! No entrance fee!")
             else:
-                if balance <= entrance_fee:
+                if v.balance <= entrance_fee:
                     await ctx.send(f"Tales require an :coin: {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
                     db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
                     return
@@ -6685,27 +6033,25 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                             await crown_utilities.blessguild(entrance_fee, universe['GUILD'])
                             await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | {crest_guild['GNAME']} Universe Toll Paid! :coin:{'{:,}'.format(entrance_fee)}")
             
-            # #Create Explore Category
-            # categoryname = "Crown Unlimited"
-            # category = discord.utils.get(guild.categories, name=categoryname)
-
-            # if category is None: #If there's no category matching with the `name`
-            #     category = await guild.create_category_channel(categoryname)
-            # private_channel = await guild.create_text_channel(f'{str(ctx.author)}-{mode}-run', overwrites=overwrites, category=category)
-            # await private_channel.send(f"{ctx.author.mention} private channel has been opened for you. Good luck!")
-            
-            # React to Saved Spots
             currentopponent = 0
-            if difficulty != "EASY":
-                currentopponent = update_save_spot(self, ctx, saved_spots, selected_universe, U_modes)
+            if p.difficulty != "EASY":
+                currentopponent = update_save_spot(self, ctx, p.save_spot, selected_universe, crown_utilities.TALE_M)
+                if mode in crown_utilities.DUNGEON_M:
+                    currentopponent = update_save_spot(self, ctx, p.save_spot, selected_universe, crown_utilities.DUNGEON_M)
             else:
                 currentopponent = 0
 
-            if rift_on:
-                update_team_response = db.updateTeam(team_query, guild_buff_update_query)
-            return {'SELECTED_UNIVERSE': selected_universe,
-                    'UNIVERSE_DATA': universe, 'CREST_LIST': crestlist, 'CREST_SEARCH': crestsearch,
-                    'COMPLETED_TALES': completed_crown_tales, 'OGUILD': oguild, 'CURRENTOPPONENT': currentopponent}
+            if p.rift_on:
+                update_team_response = db.updateTeam(p.filter_query, p.guild_buff_update_query)
+
+            response = {'SELECTED_UNIVERSE': selected_universe,
+                    'UNIVERSE_DATA': universe, 'CREST_LIST': p.crestlist, 'CREST_SEARCH': p.crestsearch,
+                    'COMPLETED_TALES': p.completed_tales, 'OGUILD': p.association_info, 'CURRENTOPPONENT': currentopponent}
+            
+            if mode in crown_utilities.DUNGEON_M:
+                response.update({'COMPLETED_DUNGEONS': p.completed_dungeons})
+
+            return response
             
         except Exception as ex:
             trace = []
@@ -6723,124 +6069,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 'trace': trace
             }))
 
-    if mode in D_modes:
-        completed_dungeons = sowner['DUNGEONS']
-        completed_crown_tales = sowner['CROWN_TALES']
-        all_universes = db.queryAllUniverse()
-        available_universes = []
-        universe_menu = []
-        selected_universe = ""
-        universe_embed_list = []
-        for uni in completed_crown_tales:
-            if uni != "":
-                uni_option = db.queryUniverse({"TITLE": str(uni)})
-                save_spot_text = "No Save Data"
-                for save in saved_spots:
-                    if save['UNIVERSE'] == uni and save['MODE'] in D_modes:
-                        save_spot_text = str(save['CURRENTOPPONENT'])
-                corruption_message = "📢 Not Corrupted"
-                owner_message = ""
-                if uni_option['CORRUPTED']:
-                    corruption_message = "👾 **Corrupted**"
-                if uni_option['GUILD'] != "PCG":
-                    owner_message = f"{crown_utilities.crest_dict[uni_option['TITLE']]} **Crest Owned**: {uni_option['GUILD']}"
-                else: 
-                    owner_message = f"{crown_utilities.crest_dict[uni_option['TITLE']]} *Crest Unclaimed*"
-
-                if uni in completed_dungeons:
-                    completed = "🟢"
-                else:
-                    completed = "🔴"
-
-                embedVar = discord.Embed(title= f"{uni}", description=textwrap.dedent(f"""
-                {crown_utilities.crest_dict[uni_option['TITLE']]} **Number of Fights**: :fire: **{len(uni_option['DUNGEONS'])}**
-                🎗️ **Dungeon Title**: {uni_option['DTITLE']}
-                🦾 **Dungeon Arm**: {uni_option['DARM']}
-                🧬 **Dungeon Summon**: {uni_option['DPET']}
-
-                **Saved Game**: :fire: *{save_spot_text}*
-                **Completed**: {completed}
-                {corruption_message}
-                {owner_message}
-                """))
-                embedVar.set_image(url=uni_option['PATH'])
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                universe_embed_list.append(embedVar)
-
-        if not universe_embed_list:
-            await ctx.send("No available Dungeons for you at this time!")
-            return
-        custom_button = manage_components.create_button(style=3, label="Select")
-
-        async def custom_function(self, button_ctx):
-            if button_ctx.author == ctx.author:
-                await button_ctx.defer(ignore=True)
-                selected_universe = custom_function
-                custom_function.selected_universe = str(button_ctx.origin_message.embeds[0].title)
-                self.stop = True
-            else:
-                await ctx.send("This is not your button.", hidden=True)
-
-            
-        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=universe_embed_list, timeout=60,  customButton=[
-            custom_button,
-            custom_function,
-        ]).run()
-
-        try:
-            # Universe Cost
-            selected_universe = custom_function.selected_universe
-            universe = db.queryUniverse({'TITLE': str(selected_universe)})
-            universe_owner = universe['GUILD']
-            if not universe['HAS_DUNGEON']:
-                await ctx.send(f"**{selected_universe}'s** dungeon is not available at this time. ")
-                return
-            #Universe Cost
-            entrance_fee = 5000
-            if selected_universe in crestlist:
-                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {guildname} {selected_universe} Crest Activated! No entrance fee!")
-            else:
-                if balance <= entrance_fee:
-                    await ctx.send(f"Tales require an :coin: {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
-                    db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
-                    return
-                else:
-                    await crown_utilities.curse(entrance_fee, str(ctx.author.id))
-                    if universe['GUILD'] != 'PCG':
-                        crest_guild = db.queryGuildAlt({'GNAME' : universe['GUILD']})
-                        if crest_guild:
-                            await crown_utilities.blessguild(entrance_fee, universe['GUILD'])
-                            await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | {crest_guild['GNAME']} Universe Toll Paid! :coin:{'{:,}'.format(entrance_fee)}")
-            #categoryname = "Crown Unlimited"
-            #category = discord.utils.get(guild.categories, name=categoryname)
-
-            # if category is None: #If there's no category matching with the `name`
-            #     category = await guild.create_category_channel(categoryname)
-            # private_channel = await guild.create_text_channel(f'{str(ctx.author)}-{mode}-run', overwrites=overwrites, category=category)
-            # await private_channel.send(f"{ctx.author.mention} private channel has been opened for you. Good luck!")
-            
-            
-            currentopponent = update_save_spot(self, ctx, saved_spots, selected_universe, D_modes)
-            return {'SELECTED_UNIVERSE': selected_universe,
-                    'UNIVERSE_DATA': universe, 'CREST_LIST': crestlist, 'CREST_SEARCH': crestsearch,
-                    'COMPLETED_DUNGEONS': completed_dungeons, 'OGUILD': oguild, 'CURRENTOPPONENT': currentopponent}
-        except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-
-    if mode in B_modes:
+    if mode in crown_utilities.BOSS_M:
         completed_crown_tales = sowner['CROWN_TALES']
         completed_dungeons = sowner['DUNGEONS']
         all_universes = db.queryAllUniverse()
@@ -6947,8 +6176,9 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
             return
 
+
 async def battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild, crestlist,
-                          crestsearch, sowner, oteam, ofam, currentopponent, cowner, cteam, cfam, deckNumber, user, arena_flag, arena_owner, arena_type):
+                          crestsearch, sowner, oteam, ofam, currentopponent, cowner, cteam, cfam, deckNumber, user, arena_flag, arena_owner, arena_type, explore_type):
     private_channel = ctx.channel
     randomized_battle = False
     co_op_modes = ['CTales', 'DTales', 'CDungeon', 'DDungeon', 'CBoss']
@@ -22894,7 +22124,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                             if randomized_battle:
                                 bounty = abyss_scaling
-                                drop_response = await specific_drops(self,str(o_user['DID']), t_card, t_universe)
+                                if explore_type == "glory":
+                                    drop_response = await specific_drops(self,str(o_user['DID']), t_card, t_universe, explore_type)
                                 await crown_utilities.bless(bounty, str(o_user['DID']))
                                 embedVar = discord.Embed(title=f"VICTORY\n:coin: {bounty} Bounty Received!\nThe game lasted {turn_total} rounds.\n\n{drop_response}",description=textwrap.dedent(f"""
                                 {previous_moves_into_embed}
@@ -24447,6 +23678,7 @@ async def bossdrops(self,player, universe):
         await channel.send(f"'PLAYER': **{str(player)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
         return f"You earned :coin: **5000**!"
+
 
 async def ai_enhancer_moves(turn_total,focus, resolve, summon, stamina, enhancer_type, health, maxhealth, attack, defense, oppstamina, oppattack, oppdefense, opphealth):
     aiMove = 1
