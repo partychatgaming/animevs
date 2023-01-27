@@ -7983,8 +7983,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                         await asyncio.sleep(2)
                         battle_msg = await private_channel.send(embed=embedVar)
                     # await button_ctx.defer(ignore=True)
-                    tmove_issue = False
-                    omove_issue = False
+                    # tmove_issue = False
+                    # omove_issue = False
                     while (((o_health > 0) and (c_health > 0)) and (t_health > 0) and mode in co_op_modes) or (
                             (o_health > 0) and (t_health > 0) and mode not in co_op_modes):
                         if previous_moves:
@@ -8840,9 +8840,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         aiMove = 1
                                     else:
                                         aiMove = 1
-                                    if omove_issue == True:
-                                        o_stamina = 0
-                                    omove_issue = False
+                                    # if omove_issue == True:
+                                    #     o_stamina = 0
+                                    # omove_issue = False
 
                                     # Make sure user is responding with move
 
@@ -9862,8 +9862,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     turn = 1
                                         else:
                                             previous_moves.append(f"(**{turn_total}**) **{o_card}**: Not enough Stamina to use this ability. {aiMove}")
-                                            if omove_issue == False and o_stamina > 0:
-                                                omove_issue = True
                                             turn = 0
                                 else:
                                     # UNIVERSE CARD
@@ -13719,9 +13717,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             aiMove = 1
                                         else:
                                             aiMove = 0
-                                        if tmove_issue == True:
-                                            t_stamina = 0
-                                        tmove_issue = False
+                                        # if tmove_issue == True:
+                                        #     t_stamina = 0
+                                        # tmove_issue = False
 
                                         if int(aiMove) == 0:
                                             t_health = 0
@@ -14694,9 +14692,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                             else:
                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}")
-                                                aiMove = 0
-                                                if tmove_issue == False and t_stamina > 0:
-                                                    tmove_issue = True
                                                 turn = 1
 
                                 if mode not in PVP_MODES:
@@ -14932,9 +14927,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         aiMove = 0
                                     
                                     
-                                    if tmove_issue == True:
-                                        t_stamina = 0
-                                    tmove_issue = False
+                                    # if tmove_issue == True:
+                                    #     t_stamina = 0
+                                    # tmove_issue = False
                                     
                                     t_special_move_description = " "
                                     if int(aiMove) == 0:
@@ -16925,8 +16920,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         turn = turn_selector
                                             else:
                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}") 
-                                                if tmove_issue == False and t_stamina > 0:
-                                                    tmove_issue = True
                                                 turn = 1
 
 
