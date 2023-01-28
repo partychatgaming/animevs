@@ -6970,6 +6970,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
     mid_tier_cards = [4, 5]
     high_tier_cards = [6, 7]
 
+
     # mode = 'ATales'
     try:
         starttime = time.asctime()
@@ -8231,7 +8232,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         description=f"**{o_card} says**\nYou will die in 100 turns...",
                                                         colour=0xe91e63)
                                 
-                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled Death 📓")
+                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled {t_card}'s Death 📓")
                             
                             if mode in B_modes:
                                 embedVar = discord.Embed(title=f"**{t_card}** Boss of `{t_universe}`",
@@ -8246,7 +8247,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             description=f"**{c_card} says**\nYou will die in 100 turns...",
                                                             colour=0xe91e63)
                                     
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 {c_card} Scheduled Death 📓")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 {c_card} Scheduled {t_card}'s Death 📓")
                                 if c_universe == "Demon Slayer" and turn_total == 0:
                                     embedVar = discord.Embed(title=f"{c_card} Total Concentration Breathing",
                                                             description=f"{c_card} gains **{round(t_base_health * .40)}** Health",
@@ -8255,13 +8256,20 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Total Concentration Breathing: **Increased HP {round(t_base_health * .40)}**")
                                     c_health = round(c_health + (t_base_health * .40))
                                     c_max_health = round(c_max_health + (t_base_health *.40))
-                            if t_universe == 'Death Note' and turn_total == 0:
-                                embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{t_card} says**\nYou will die in 60 turns...",
-                                                        colour=0xe91e63)
-                                
-                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled Death 📓")
-                            
+                            if mode in co_op_modes:
+                                if t_universe == 'Death Note' and turn_total == 0:
+                                    embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
+                                                            description=f"**{t_card} says**\nYou will die in 100 turns...",
+                                                            colour=0xe91e63)
+                                    
+                                    previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled {o_card}'s & {c_card}'s Death 📓")
+                            else:
+                                if t_universe == 'Death Note' and turn_total == 0:
+                                    embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
+                                                            description=f"**{t_card} says**\nYou will die in 100 turns...",
+                                                            colour=0xe91e63)
+                                    
+                                    previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled {o_card}'s Death 📓")
                             if o_attack <= 25:
                                 o_attack = 25
                             if o_defense <= 30:
@@ -8499,21 +8507,21 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                 elif o_universe == "Solo Leveling":
                                     embedVar = discord.Embed(
-                                        title=f"Ruler's Authority... Opponent loses **{30 + turn_total}** 🛡️ 🔻",
+                                        title=f"Ruler's Authority... Opponent loses **{30 + turn_total}** Defense 🛡️ 🔻",
                                         colour=0xe91e63)
                                     
                                     t_defense = round(t_defense - (30 + turn_total))
                                     
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + turn_total}** 🛡️ 🔻")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + turn_total}** Defense 🛡️ 🔻")
                                 
                                 elif o_universe == "Black Clover":
-                                    embedVar = discord.Embed(title=f"Mana Zone! **{o_card}** Increased Stamina 🌀",
+                                    embedVar = discord.Embed(title=f"Mana Zone! **{o_card}** Increased **30** Stamina 🌀",
                                                             colour=0xe91e63)
                                     
                                     o_stamina = 100
                                     ocard_lvl_ap_buff = ocard_lvl_ap_buff + 30
 
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{o_card}** Increased AP & Stamina 🌀")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{o_card}** Increased **30** AP & **100** Stamina 🌀")
                                 
                                 elif o_universe == "Death Note":
                                     if turn_total >= 100:
@@ -8526,6 +8534,24 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 had a heart attack and died")
                                         
                                         t_health = 0
+                                elif o_universe == "One Punch Man":
+                                    rank = "F"
+                                    ap_boost = 10 * o_card_tier
+                                    if o_card_tier == 7:
+                                        rank = ":regional_indicator_s:"
+                                    if o_card_tier in low_tier_cards:
+                                        rank = ":regional_indicator_c:"
+                                    if o_card_tier in mid_tier_cards:
+                                        rank = ":regional_indicator_b:"
+                                    if o_card_tier in high_tier_cards:
+                                        rank = ":regional_indicator_a:"
+                                    ocard_lvl_ap_buff = ocard_lvl_ap_buff + ap_boost
+                                    
+                                    previous_moves.append(f"(**{turn_total}**) 🩸{rank} Rank Hero : **{o_card}** increased AP by **{ap_boost}** :sunny:!")
+                                        
+                                    embedVar = discord.Embed(
+                                        title=f"Hero Ranking {rank}! **{o_card}** increased AP by **{ap_boost}** :sunny:!",
+                                        colour=0xe91e63)
 
                                 if t_universe == "One Punch Man" and o_universe != "Death Note":
                                     embedVar = discord.Embed(
@@ -8535,16 +8561,16 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_health = round(t_health + 100)
                                     t_max_health = round(t_max_health + 100)
 
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Hero Reinforcements! **{t_card}**  Increased Health & Max Health ❤️")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Hero Reinforcements! **{t_card}**  Increased **100** Health & Max Health ❤️")
 
                                 elif t_universe == "7ds":
-                                    embedVar = discord.Embed(title=f"Power Of Friendship! 🧬 **{opet_name}** Rested, **{o_card}** Increased Stamina 🌀",
+                                    embedVar = discord.Embed(title=f"Power Of Friendship! 🧬 **{opet_name}** Rested, **{o_card}** Increased **60** Stamina 🌀",
                                                             colour=0xe91e63)
                                     
                                     t_stamina = t_stamina + 60
                                     t_pet_used = False
                                     
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased Stamina 🌀")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased **60** Stamina 🌀")
                                 
                                 elif t_universe == "Souls":
                                     embedVar = discord.Embed(
@@ -9031,7 +9057,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 o_defense = round(o_defense - o_resolve_defense)
                                                 o_used_resolve = True
                                                 o_pet_used = False
-                                                health_boost = 100 * o_focus_count
+                                                health_boost = 200 * o_focus_count 
                                                 o_health = o_health + health_boost
                                                 embedVar = discord.Embed(title=f"{o_card} Titan Mode",
                                                                         description=f"**{o_card} says**\n{o_resolve_description}",
@@ -9397,9 +9423,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         block_message = ""
                                         if o_stamina >= 20:
                                             if o_universe == "Attack On Titan":
-                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{o_card}** Increased Max Health ❤️")
-                                                o_max_health = round(o_max_health + 100)
-                                                o_health = o_health + 100
+                                                boost = 100 * o_card_tier
+                                                o_max_health = round(o_max_health + (boost))
+                                                o_health = o_health + (boost)
+                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{o_card}** Increased **{boost}** Max Health ❤️")
 
                                             if o_universe == "Bleach":
                                                 dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
@@ -10479,7 +10506,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     o_defense = round(o_defense - o_resolve_defense)
                                                     o_used_resolve = True
                                                     o_pet_used = False
-                                                    health_boost = 100 * o_focus_count
+                                                    health_boost = 200 * o_focus_count
                                                     o_health = o_health + health_boost
                                                     embedVar = discord.Embed(title=f"{o_card} Titan Mode",
                                                                             description=f"**{o_card} says**\n{o_resolve_description}",
@@ -11171,9 +11198,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             if o_stamina >= 20:
 
                                                 if o_universe == "Attack On Titan":
-                                                    previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{o_card}** Increased Max Health ❤️")
-                                                    o_max_health = round(o_max_health + 100)
-                                                    o_health = o_health + 100
+                                                    boost = 100 * o_card_tier
+                                                    o_max_health = round(o_max_health + (boost))
+                                                    o_health = o_health + (boost)
+                                                    previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{o_card}** Increased **{boost}** Max Health ❤️")
 
                                                 if o_universe == "Bleach":
                                                     dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
@@ -11930,12 +11958,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{o_card} says**\nYou will die in 100  turns...",
                                                         colour=0xe91e63)
-                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled Death 📓")
+                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled {t_card}'s Death 📓")
                             if t_universe == 'Death Note' and turn_total == 0:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{t_card} says**\nYou will die in 100  turns...",
                                                         colour=0xe91e63)
-                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled Death 📓")
+                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled {o_card}'s Death 📓")
                             if turn_total == 1 and botActive and mode in B_modes:
                                 embedVar = discord.Embed(title=f"**{t_card}** Says : ", description=f"{t_welcome}",
                                                         colour=0xe91e63)
@@ -12125,15 +12153,15 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                 elif t_universe == "Solo Leveling":
                                     embedVar = discord.Embed(
-                                        title=f"Ruler's Authority... {o_card} loses **{30 + turn_total}** 🛡️ 🔻",
+                                        title=f"Ruler's Authority... {o_card} loses **{30 + turn_total}** Defense 🛡️ 🔻",
                                         colour=0xe91e63)
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... {o_card} loses **{30 + turn_total}** 🛡️ 🔻")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... {o_card} loses **{30 + turn_total}** Defense 🛡️ 🔻")
                                     o_defense = round(o_defense - (30 + turn_total))
 
                                 elif t_universe == "Black Clover":
-                                    embedVar = discord.Embed(title=f"Mana Zone! **{t_card}** Increased Stamina 🌀",
+                                    embedVar = discord.Embed(title=f"Mana Zone! **{t_card}** Increased **30** Stamina 🌀",
                                                             colour=0xe91e63)
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{t_card}** Increased AP & Stamina 🌀")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{t_card}** Increased **30** AP & **100** Stamina 🌀")
                                     t_stamina = 100
                                     tcard_lvl_ap_buff = tcard_lvl_ap_buff + 30
                                 elif t_universe == "Death Note":
@@ -12144,18 +12172,36 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         embedVar.add_field(name=f"{o_card} had a heart attack and died", value=f"Death....")
                                         previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 had a heart attack and died")
                                         o_health = 0
-
+                                elif t_universe == "One Punch Man":
+                                    rank = "F"
+                                    ap_boost = 10 * t_card_tier
+                                    if t_card_tier == 7:
+                                        rank = ":regional_indicator_s:"
+                                    if t_card_tier in low_tier_cards:
+                                        rank = ":regional_indicator_c:"
+                                    if t_card_tier in mid_tier_cards:
+                                        rank = ":regional_indicator_b:"
+                                    if t_card_tier in high_tier_cards:
+                                        rank = ":regional_indicator_a:"
+                                    tcard_lvl_ap_buff = tcard_lvl_ap_buff + ap_boost
+                                    
+                                    previous_moves.append(f"(**{turn_total}**) 🩸{rank} Rank Hero : **{t_card}** increased AP by **{ap_boost}** :sunny:!")
+                                        
+                                    embedVar = discord.Embed(
+                                        title=f"Hero Ranking {rank}! **{t_card}** increased AP by **{ap_boost}** :sunny:!",
+                                        colour=0xe91e63)
+                                    
                                 if o_universe == "One Punch Man" and t_universe != "Death Note":
-                                    embedVar = discord.Embed(title=f"Hero Reinforcements! **{t_card}** Increased Health!  ❤️",
+                                    embedVar = discord.Embed(title=f"Hero Reinforcements! **{t_card}** Increased **100** Health!  ❤️",
                                                             colour=0xe91e63)
-                                    previous_moves.append(f"(**{turn_total}**) Hero Reinforcements! **{o_card}** Increased Health!  ❤️")
                                     o_health = round(o_health + 100)
                                     o_max_health = round(o_max_health + 100)
+                                    previous_moves.append(f"(**{turn_total}**) Hero Reinforcements! **{o_card}** Increased **100** Health & Max Health ❤️")
 
                                 elif o_universe == "7ds":
-                                    embedVar = discord.Embed(title=f"Power Of Friendship! 🧬 **{opet_name}** Rested, **{o_card}** Increased Stamina 🌀",
+                                    embedVar = discord.Embed(title=f"Power Of Friendship! 🧬 **{opet_name}** Rested, **{o_card}** Increased **60** Stamina 🌀",
                                                             colour=0xe91e63)
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{opet_name}** Rested, **{o_card}** Increased Stamina 🌀")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{opet_name}** Rested, **{o_card}** Increased **60** Stamina 🌀")
                                     o_stamina = o_stamina + 60
                                     o_pet_used = False
 
@@ -12675,7 +12721,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_defense = round(t_defense - t_resolve_defense)
                                                         t_used_resolve = True
                                                         t_pet_used = False
-                                                        health_boost = 100 * t_focus_count
+                                                        health_boost = 200 * t_focus_count
                                                         t_health = t_health + health_boost
                                                         embedVar = discord.Embed(title=f"{t_card} Titan Mode",
                                                                                 description=f"**{t_card} says**\n{t_resolve_description}",
@@ -13034,9 +13080,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             elif button_ctx.custom_id == "0":
                                                 if t_stamina >= 20:
                                                     if t_universe == "Attack On Titan":
-                                                        previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased Max Health ❤️")
-                                                        t_max_health = round(t_max_health + 100)
-                                                        t_health = t_health + 100
+                                                        boost = 100 * t_card_tier
+                                                        t_max_health = round(t_max_health + (boost))
+                                                        t_health = t_health + (boost)
+                                                        previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost} Max Health ❤️")
 
                                                     if t_universe == "Bleach":
                                                         dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
@@ -13900,7 +13947,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_defense = round(t_defense - t_resolve_defense)
                                                     t_used_resolve = True
                                                     t_pet_used = False
-                                                    health_boost = 100 * t_focus_count
+                                                    health_boost = 200 * t_focus_count
                                                     t_health = t_health + health_boost
                                                     embedVar = discord.Embed(title=f"{t_card} Titan Mode",
                                                                             description=f"**{t_card} says**\n{t_resolve_description}",
@@ -14243,9 +14290,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         elif int(aiMove) == 7:
                                             if t_stamina >= 20:
                                                 if t_universe == "Attack On Titan":
-                                                    previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased Max Health ❤️")
-                                                    t_max_health = round(t_max_health + 100)
-                                                    t_health = t_health + 100
+                                                    boost = 100 * t_card_tier
+                                                    t_max_health = round(t_max_health + (boost))
+                                                    t_health = t_health + (boost)
+                                                    previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost} Max Health ❤️")
 
                                                 if t_universe == "Bleach":
                                                     dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
@@ -15143,7 +15191,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 t_defense = round(t_defense - t_resolve_defense)
                                                 t_used_resolve = True
                                                 t_pet_used = False
-                                                health_boost = 100 * t_focus_count
+                                                health_boost = 200 * t_focus_count
                                                 t_health = t_health + health_boost
                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
 
@@ -15796,9 +15844,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     elif int(aiMove) == 7:
                                         if t_stamina >= 20:
                                             if t_universe == "Attack On Titan":
-                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased Max Health ❤️")
-                                                t_max_health = round(t_max_health + 100)
-                                                t_health = t_health + 100
+                                                boost = 100 * t_card_tier
+                                                t_max_health = round(t_max_health + (boost))
+                                                t_health = t_health + (boost)
+                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost} Max Health ❤️")
 
                                             if t_universe == "Bleach":
                                                 dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
@@ -17294,17 +17343,17 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                     elif c_universe == "Solo Leveling":
                                         embedVar = discord.Embed(
-                                            title=f"Ruler's Authority... {t_card} loses **{30 + turn_total}** 🛡️ 🔻",
+                                            title=f"Ruler's Authority... {t_card} loses **{30 + turn_total}** Defense 🛡️ 🔻",
                                             colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... {t_card} loses **{30 + turn_total}** 🛡️ 🔻")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... {t_card} loses **{30 + turn_total}** Defense 🛡️ 🔻")
                                         t_defense = round(t_defense - (30 + turn_total))
 
                                     elif c_universe == "Black Clover":
-                                        embedVar = discord.Embed(title=f"Mana Zone! {c_card} Increased Stamina 🌀",
+                                        embedVar = discord.Embed(title=f"Mana Zone! {c_card} Increased **30** Stamina 🌀",
                                                                 colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{c_card}** Increased AP & Stamina 🌀")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{c_card}** Increased **30** AP & **100** Stamina 🌀")
                                         c_stamina = 100
                                         ccard_lvl_ap_buff = ccard_lvl_ap_buff + 30
                                     elif c_universe == "Death Note":
@@ -17317,21 +17366,39 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             #await private_channel.send(embed=embedVar)
                                             previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 had a heart attack and died")
                                             t_health = 0
+                                    elif c_universe == "One Punch Man":
+                                        rank = "F"
+                                        ap_boost = 10 * c_card_tier
+                                        if c_card_tier == 7:
+                                            rank = ":regional_indicator_s:"
+                                        if c_card_tier in low_tier_cards:
+                                            rank = ":regional_indicator_c:"
+                                        if c_card_tier in mid_tier_cards:
+                                            rank = ":regional_indicator_b:"
+                                        if c_card_tier in high_tier_cards:
+                                            rank = ":regional_indicator_a:"
+                                        ccard_lvl_ap_buff = ccard_lvl_ap_buff + ap_boost
+                                        
+                                        previous_moves.append(f"(**{turn_total}**) 🩸{rank} Rank Hero : **{c_card}** increased AP by **{ap_boost}** :sunny:!")
+                                            
+                                        embedVar = discord.Embed(
+                                            title=f"Hero Ranking {rank}! **{c_card}** increased AP by **{ap_boost}** :sunny:!",
+                                            colour=0xe91e63)
 
                                     if t_universe == "One Punch Man" and c_universe != "Death Note":
                                         embedVar = discord.Embed(
                                             title=f"Hero Reinforcements! **{t_card}**  Increased Health & Max Health ❤️",
                                             colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) Hero Reinforcements! **{t_card}** Increased Health!  ❤️")
+                                        previous_moves.append(f"(**{turn_total}**) Hero Reinforcements! **{t_card}** Increased **100** Health & Max Health ❤️")
                                         t_health = round(t_health + 100)
                                         t_max_health = round(t_max_health + 100)
 
                                     elif t_universe == "7ds":
                                         embedVar = discord.Embed(
-                                            title=f"Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased Stamina 🌀", colour=0xe91e63)
+                                            title=f"Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased **60** Stamina 🌀", colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased Stamina 🌀")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased **60** Stamina 🌀")
                                         t_stamina = t_stamina + 60
                                         t_pet_used = False
 
@@ -17823,7 +17890,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     c_defense = round(c_defense - c_resolve_defense)
                                                     c_used_resolve = True
                                                     c_pet_used = False
-                                                    health_boost = 100 * c_focus_count
+                                                    health_boost = 200 * c_focus_count
                                                     c_health = c_health + health_boost
                                                     embedVar = discord.Embed(title=f"{c_card} Titan Mode",
                                                                             description=f"**{c_card} says**\n{c_resolve_description}",
@@ -19115,7 +19182,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         c_defense = round(c_defense - c_resolve_defense)
                                                         c_used_resolve = True
                                                         c_pet_used = False
-                                                        health_boost = 100 * c_focus_count
+                                                        health_boost = 200 * c_focus_count
                                                         c_health = c_health + health_boost
                                                         embedVar = discord.Embed(title=f"{c_card} Titan Mode",
                                                                                 description=f"**{c_card} says**\n{c_resolve_description}",
@@ -19599,9 +19666,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             elif button_ctx.custom_id == "0":
                                                 if c_stamina >= 20:
                                                     if c_universe == "Attack On Titan":
-                                                        previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{c_card}** Increased Max Health ❤️")
-                                                        c_max_health = round(c_max_health + 100)
-                                                        c_health = c_health + 100
+                                                        boost = 100 * c_card_tier
+                                                        c_max_health = round(c_max_health + (boost))
+                                                        c_health = c_health + (boost)
+                                                        previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{c_card}** Increased **{boost}** Max Health ❤️")
 
                                                     if c_universe == "Bleach":
                                                         dmg = damage_cal(mode,c_card_tier, c_talisman_dict, cap1, t_for_c_opponent_affinities, basic_attack_name, cmove1_element, c_universe, c_card, c_1, c_attack, c_defense, t_defense,
@@ -20523,17 +20591,17 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                     elif t_universe == "Solo Leveling":
                                         embedVar = discord.Embed(
-                                            title=f"Ruler's Authority... {c_card} loses **{30 + turn_total}** 🛡️ 🔻",
+                                            title=f"Ruler's Authority... {c_card} loses **{30 + turn_total}** Defense 🛡️ 🔻",
                                             colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... {c_card} loses **{30 + turn_total}** 🛡️ 🔻")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... {c_card} loses **{30 + turn_total}** Defense 🛡️ 🔻")
                                         c_defense = round(c_defense - (30 + turn_total))
 
                                     elif t_universe == "Black Clover":
-                                        embedVar = discord.Embed(title=f"Mana Zone! **{t_card}** Increased Stamina 🌀",
+                                        embedVar = discord.Embed(title=f"Mana Zone! **{t_card}** Increased **30** Stamina 🌀",
                                                                 colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{t_card}** Increased AP & Stamina 🌀")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{t_card}** Increased **30** AP & **100** Stamina 🌀")
                                         t_stamina = 100
                                         tcard_lvl_ap_buff = tcard_lvl_ap_buff + 30
 
@@ -20547,21 +20615,38 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             #await private_channel.send(embed=embedVar)
                                             previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 had a heart attack and died")
                                             c_health = 0
-
+                                    elif t_universe == "One Punch Man":
+                                        rank = "F"
+                                        ap_boost = 10 * t_card_tier
+                                        if t_card_tier == 7:
+                                            rank = ":regional_indicator_s:"
+                                        if t_card_tier in low_tier_cards:
+                                            rank = ":regional_indicator_c:"
+                                        if t_card_tier in mid_tier_cards:
+                                            rank = ":regional_indicator_b:"
+                                        if t_card_tier in high_tier_cards:
+                                            rank = ":regional_indicator_a:"
+                                        tcard_lvl_ap_buff = tcard_lvl_ap_buff + ap_boost
+                                        previous_moves.append(f"(**{turn_total}**) 🩸{rank} Rank Hero : **{t_card}** increased AP by **{ap_boost}** :sunny:!")
+                                            
+                                        embedVar = discord.Embed(
+                                            title=f"Hero Ranking {rank}! **{t_card}** increased AP by **{ap_boost}** :sunny:!",
+                                            colour=0xe91e63)
+                                        
                                     if c_universe == "One Punch Man" and t_universe != "Death Note":
                                         embedVar = discord.Embed(
                                             title=f"Hero Reinforcements! {c_card}  Increased Health & Max Health ❤️",
                                             colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Hero Reinforcements! **{c_card}**  Increased Health & Max Health ❤️")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Hero Reinforcements! **{c_card}**  Increased **100** Health & Max Health ❤️")
                                         c_health = round(c_health + 100)
                                         c_max_health = round(c_max_health + 100)
 
                                     elif c_universe == "7ds":
                                         embedVar = discord.Embed(
-                                            title=f"Power Of Friendship! 🧬 Summon Rested {c_card} Increased Stamina 🌀", colour=0xe91e63)
+                                            title=f"Power Of Friendship! 🧬 Summon Rested {c_card} Increased **60** Stamina 🌀", colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{cpet_name}** Rested, **{c_card}** Increased Stamina 🌀")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{cpet_name}** Rested, **{c_card}** Increased **60** Stamina 🌀")
                                         c_stamina = c_stamina + 60
                                         c_pet_used = False
 
@@ -21008,7 +21093,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 t_defense = round(t_defense - t_resolve_defense)
                                                 t_used_resolve = True
                                                 t_pet_used = False
-                                                health_boost = 100 * t_focus_count
+                                                health_boost = 200 * t_focus_count
                                                 t_health = t_health + health_boost
 
                                                 embedVar = discord.Embed(title=f"{t_card} Titan Mode",
@@ -21517,9 +21602,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     elif int(aiMove) == 7:
                                         if t_stamina >= 20:
                                             if t_universe == "Attack On Titan":
-                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased Max Health ❤️")
-                                                t_max_health = round(t_max_health + 100)
-                                                t_health = t_health + 100
+                                                boost = 100 * t_card_tier
+                                                t_max_health = round(t_max_health + (boost))
+                                                t_health = t_health + (boost)
+                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost} Max Health ❤️")
 
                                             if t_universe == "Bleach":
                                                 dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,

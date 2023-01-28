@@ -850,10 +850,10 @@ async def register(ctx):
 
    if r_response:
       try:
-         await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
+         await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a **Starting Universe**.")
          vault = db.createVault(data.newVault({'OWNER': str(ctx.author), 'DID' : str(ctx.author.id)}))
          await asyncio.sleep(2)
-         await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
+         await ctx.send(f"{ctx.author.mention}, your **Starting Universe** will give you 🎴 **Cards** and 🎗️ 🦾 **Accessories** to get you started!")
          await asyncio.sleep(2)
       except Exception as ex:
          trace = []
@@ -880,6 +880,7 @@ async def register(ctx):
                traits = ut.traits
                mytrait = {}
                traitmessage = ''
+               traittitle = ''
                o_show = uni['TITLE']
                universe = o_show
                for trait in traits:
@@ -889,17 +890,20 @@ async def register(ctx):
                         if trait['NAME'] == 'Pokemon':
                            mytrait = trait
                if mytrait:
-                  traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                  traittitle = f"**{mytrait['EFFECT']}**"
+                  traitmessage = f"{mytrait['TRAIT']}"
                available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
                
                tales_list = ", ".join(uni['CROWN_TALES'])
 
                embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
                **Select A Starting Universe, {ctx.author.mention}!**
-
-               Selecting a Starter Universe will give you *3* 🎴 Cards, :reminder_ribbon: Titles, and :mechanical_arm: Arms to begin!
+               *You begin with 3 Starter Builds in your* **/preset**
+               
+               Selecting a **Starter Universe** will give you up to *3* addtional 🎴 Cards, :reminder_ribbon: Titles, and :mechanical_arm: Arms to begin!
                
                :infinity: - Unique Universe Trait
+               {traittitle}
                {traitmessage}
                """))
                embedVar.set_image(url=uni['PATH'])
