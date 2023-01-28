@@ -15065,7 +15065,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 t_pet_used = False
 
                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Resolved: Conquerors Haki!")
-                                                await button_ctx.defer(ignore=True)
+                                                #await button_ctx.defer(ignore=True)
                                                 turn_total = turn_total + 1
                                                 turn = 1
 
