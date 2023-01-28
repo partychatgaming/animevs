@@ -565,7 +565,6 @@ class Profile(commands.Cog):
                         🛡️ **{o_defense}**
                         🏃 **{o_speed}**
 
-
                         **{titlemessage}**
                         **{armmessage}**
                         **{talisman_message}**
