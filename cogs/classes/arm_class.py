@@ -10,6 +10,7 @@ class Arm:
         self.exclusive = exclusive
         self.available = available
         self.element = element
+        self.element_emoji = ""
         self.new_move = ""
         self.show_img = ""
 
@@ -23,21 +24,15 @@ class Arm:
         self.arm_message = f"🦾 ⚠️ {self.name}: {self.durability}"
 
         self.pokemon_arm = False
-
-    def is_not_universe_unbound(self):
+        if self.element:
+            self.element_emoji = crown_utilities.set_emoji(self.element)
+        
         if(self.universe != "Unbound"):
             self.show_img = db.queryUniverse({'TITLE': self.universe})['PATH']
             return True
         else:
             return False
-
     
-    def set_element_emoji(self):
-        if self.element:
-            self.element = crown_utilities.set_emoji(self.element)
-
-    
-    def set_message_and_price_message(self):
         if self.exclusive:
             self.price_message = "_Priceless_"
         else:
@@ -71,17 +66,16 @@ class Arm:
             self.type_message = 'Siphon'
             self.message =f"{self.name} is a SIPHON arm"
 
+        if self.universe in crown_utilities.pokemon_universes:
+            self.pokemon_arm = True
+
+
 
     def is_move(self):
         if self.passive_type in move_types:
             return True
         else:
             return False
-
-
-    def set_pokemon_arm(self):
-        if self.universe in crown_utilities.pokemon_universes:
-            self.pokemon_arm = True
 
 
     def set_durability(self, equipped_arm, list_of_arms):

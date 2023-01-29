@@ -544,7 +544,7 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send(p._locked_feature_message)
                 return
 
-            universe_selection = await select_universe(self, ctx, player, mode, None)
+            universe_selection = await select_universe(self, ctx, p, mode, None)
             
             if universe_selection == None:
                 return
@@ -552,11 +552,11 @@ class CrownUnlimited(commands.Cog):
             battle = Battle(mode, p)
 
 
-            if mode == "Abyss":
+            if battle.mode == "Abyss":
                 await abyss(self, ctx)
                 return
 
-            if mode == "Tutorial":
+            if battle.mode == "Tutorial":
                 await tutorial(self, ctx)
                 return
                 
@@ -5606,7 +5606,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             return
 
 
-async def battle_commands(self, ctx, mode, _battle, _player, _player2=None):
+async def battle_commands(self, ctx, _battle, _player, _player2=None):
                           
     private_channel = ctx.channel
 
@@ -5629,8 +5629,40 @@ async def battle_commands(self, ctx, mode, _battle, _player, _player2=None):
             player1_title = Title(_player._equipped_title_data['TITLE'], _player._equipped_title_data['UNIVERSE'], _player._equipped_title_data['PRICE'], _player._equipped_title_data['EXCLUSIVE'], _player._equipped_title_data['AVAILABLE'], _player._equipped_title_data['ABILITIES'])            
             player1_arm = Arm(_player._equipped_arm_data['ARM'], _player._equipped_arm_data['UNIVERSE'], _player._equipped_arm_data['PRICE'], _player._equipped_arm_data['ABILITIES'], _player._equipped_arm_data['EXCLUSIVE'], _player._equipped_arm_data['AVAILABLE'], _player._equipped_arm_data['ELEMENT'])
 
+            player1_arm.set_durability(_player1.equipped_arm, _player1._arms)
+            player1_card.set_card_level_buffs()
+            player1_card.set_arm_config(player1_arm.passive_type, player1_arm.name, player1_arm.passive_value, player1.element)
 
+            if _battle.mode in crown_utilities.CO_OP_M or _battle.mode in crown_utilities.PVP_M:
+                _player2.get_battle_ready()
+                player2_card = Card(_player2._equipped_card_data['NAME'], _player2._equipped_card_data['PATH'], _player2._equipped_card_data['PRICE'], _player2._equipped_card_data['EXCLUSIVE'], _player2._equipped_card_data['AVAILABLE'], _player2._equipped_card_data['IS_SKIN'], _player2._equipped_card_data['SKIN_FOR'], _player2._equipped_card_data['HLT'], _player2._equipped_card_data['HLT'], _player2._equipped_card_data['STAM'], _player2._equipped_card_data['STAM'], _player2._equipped_card_data['MOVESET'], _player2._equipped_card_data['ATK'], _player2._equipped_card_data['DEF'], _player2._equipped_card_data['TYPE'], _player2._equipped_card_data['PASS'][0], _player2._equipped_card_data['SPD'], _player2._equipped_card_data['UNIVERSE'], _player2._equipped_card_data['HAS_COLLECTION'], _player2._equipped_card_data['TIER'], _player2._equipped_card_data['COLLECTION'], _player2._equipped_card_data['WEAKNESS'], _player2._equipped_card_data['RESISTANT'], _player2._equipped_card_data['REPEL'], _player2._equipped_card_data['ABSORB'], _player2._equipped_card_data['IMMUNE'], _player2._equipped_card_data['GIF'], _player2._equipped_card_data['FPATH'], _player2._equipped_card_data['RNAME'])
+                player2_title = Title(_player2._equipped_title_data['TITLE'], _player2._equipped_title_data['UNIVERSE'], _player2._equipped_title_data['PRICE'], _player2._equipped_title_data['EXCLUSIVE'], _player2._equipped_title_data['AVAILABLE'], _player2._equipped_title_data['ABILITIES'])            
+                player2_arm = Arm(_player2._equipped_arm_data['ARM'], _player2._equipped_arm_data['UNIVERSE'], _player2._equipped_arm_data['PRICE'], _player2._equipped_arm_data['ABILITIES'], _player2._equipped_arm_data['EXCLUSIVE'], _player2._equipped_arm_data['AVAILABLE'], _player2._equipped_arm_data['ELEMENT'])
 
+                player2_arm.set_durability(_player2.equipped_arm, _player2._arms)
+                player2_card.set_card_level_buffs()
+                player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2.element)
+                player2_card.set_solo_leveling_config(player1._shield_active, player1._shield_value, player1._barrier_active, player1._barrier_value, player1._parry_active, player1._parry_value)
+
+            if _battle.is_ai_opponent:
+                _battle.get_ai_battle_ready()
+                ai_opponent_card = Card(_battle._ai_opponent_card_data['NAME'], _battle._ai_opponent_card_data['PATH'], _battle._ai_opponent_card_data['PRICE'], _battle._ai_opponent_card_data['EXCLUSIVE'], _battle._ai_opponent_card_data['AVAILABLE'], _battle._ai_opponent_card_data['IS_SKIN'], _battle._ai_opponent_card_data['SKIN_FOR'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['MOVESET'], _battle._ai_opponent_card_data['ATK'], _battle._ai_opponent_card_data['DEF'], _battle._ai_opponent_card_data['TYPE'], _battle._ai_opponent_card_data['PASS'][0], _battle._ai_opponent_card_data['SPD'], _battle._ai_opponent_card_data['UNIVERSE'], _battle._ai_opponent_card_data['HAS_COLLECTION'], _battle._ai_opponent_card_data['TIER'], _battle._ai_opponent_card_data['COLLECTION'], _battle._ai_opponent_card_data['WEAKNESS'], _battle._ai_opponent_card_data['RESISTANT'], _battle._ai_opponent_card_data['REPEL'], _battle._ai_opponent_card_data['ABSORB'], _battle._ai_opponent_card_data['IMMUNE'], _battle._ai_opponent_card_data['GIF'], _battle._ai_opponent_card_data['FPATH'], _battle._ai_opponent_card_data['RNAME'])
+                ai_opponent_title = Title(_battle._ai_opponent_title_data['TITLE'], _battle._ai_opponent_title_data['UNIVERSE'], _battle._ai_opponent_title_data['PRICE'], _battle._ai_opponent_title_data['EXCLUSIVE'], _battle._ai_opponent_title_data['AVAILABLE'], _battle._ai_opponent_title_data['ABILITIES'])            
+                ai_opponent_arm = Arm(_battle._ai_opponent_arm_data['ARM'], _battle._ai_opponent_arm_data['UNIVERSE'], _battle._ai_opponent_arm_data['PRICE'], _battle._ai_opponent_arm_data['ABILITIES'], _battle._ai_opponent_arm_data['EXCLUSIVE'], _battle._ai_opponent_arm_data['AVAILABLE'], _battle._ai_opponent_arm_data['ELEMENT'])
+                
+                ai_opponent_card.set_ai_card_buffs(_battle._ai_opponent_card_lvl, _battle.stat_buff, _battle.stat_debuff, _battle.health_buff, _battle.health_debuff, _battle._ap_buff, _battle.ap_debuff)
+                ai_opponent_card.set_arm_config(ai_opponent_arm.passive_type, ai_opponent_arm.name, ai_opponent_arm.passive_value, ai_opponent_arm.element)
+                
+                # Set potential boss descriptions
+                _battle.set_boss_descriptions(ai_opponent_card.name)
+                
+                ai_opponent_card.set_solo_leveling_config(player1._shield_active, player1._shield_value, player1._barrier_active, player1._barrier_value, player1._parry_active, player1._parry_value)
+                player1.set_solo_leveling_config(ai_opponent_card._shield_active, ai_opponent_card._shield_value, ai_opponent_card._barrier_active, ai_opponent_card._barrier_value, ai_opponent_card._parry_active, ai_opponent_card._parry_value)
+                if mode in crown_utilities.CO_OP_M:
+                    player2.set_solo_leveling_config(ai_opponent_card._shield_active, ai_opponent_card._shield_value, ai_opponent_card._barrier_active, ai_opponent_card._barrier_value, ai_opponent_card._parry_active, ai_opponent_card._parry_value)
+            
+            if _battle.mode in crown_utilities.PVP_M:
+                player1_card.set_solo_leveling_config(player2._shield_active, player2._shield_value, player2._barrier_active, player2._barrier_value, player2._parry_active, player2._parry_value)
 
 
             if mode in PVP_MODES or mode in RAID_MODES:
@@ -5835,163 +5867,6 @@ async def battle_commands(self, ctx, mode, _battle, _player, _player2=None):
                 t_title = ttitle['TITLE']
 
             if mode in B_modes:
-                t_arena = stats['t_arena']
-                t_arenades = stats['t_arenades']
-                t_entrance = stats['t_entrance']
-                t_description = stats['t_description']
-                t_welcome = stats['t_welcome']
-                t_feeling = stats['t_feeling']
-                t_powerup = stats['t_powerup']
-                t_aura = stats['t_aura']
-                t_assault = stats['t_assault']
-                t_world = stats['t_world']
-                t_punish = stats['t_punish']
-                t_rmessage = stats['t_rmessage']
-                t_rebuke = stats['t_rebuke']
-                t_concede = stats['t_concede']
-                t_wins = stats['t_wins']
-                boss_special_move_default_msg = t_special_move_description
-
-            if mode not in co_op_modes:
-                c_health = 0
-                c_block_used = False
-                c_card = "Not Co-op"
-                c_max_health = 0
-                
-            
-
-            if mode in co_op_modes:
-                
-                if mode in ai_co_op_modes:
-                    cmove1_element = stats['cmove1_element']
-                    cmove2_element = stats['cmove2_element']
-                    cmove3_element = stats['cmove3_element']
-                    c_talisman_emoji = "📿"
-                    c_talisman = "N/A"
-                    c_talisman = cmove1_element
-                    if c_talisman == "NULL" or c_talisman == "N/A":
-                        c_talisman ='N/A'
-                        c_talisman_emoji = "📿"
-                    else:
-                        c_talisman_emoji = crown_utilities.set_emoji(c_talisman)
-                else:
-                    cmove1_element = stats['cmove1_element']
-                    cmove2_element = stats['cmove2_element']
-                    cmove3_element = stats['cmove3_element']
-                    
-                    c_talisman = stats['c_talisman']
-                    c_talisman_emoji = "📿"
-                    if c_talisman == "NULL" or c_talisman == "N/A":
-                        c_talisman ='N/A'
-                        c_talisman_emoji = "📿"
-                    else:
-                        c_talisman_emoji = crown_utilities.set_emoji(c_talisman)
-                c_card_passive_type = stats['c_card_passive_type']
-                c_full_card_info = stats['c_full_card_info']
-                c_affinity_message = crown_utilities.set_affinities(c_full_card_info)
-                
-                c_basic_emoji = crown_utilities.set_emoji(cmove1_element)
-                c_super_emoji = crown_utilities.set_emoji(cmove2_element)
-                c_ultimate_emoji = crown_utilities.set_emoji(cmove3_element)
-
-                t_for_c_opponent_affinities = stats['t_for_c_opponent_affinities']
-                c_opponent_affinities = stats['c_opponent_affinities']
-                c_title_passive_type = stats['c_title_passive_type']
-                c_title_passive_value = stats['c_title_passive_value']
-                cpet_lvl = stats['cpet_lvl']
-                cpet_bond = stats['cpet_bond']
-                c_card = stats['c_card']
-                ccard_lvl = stats['ccard_lvl']
-                ccard_lvl_message = f"🔰*{ccard_lvl}*"
-                if int(ccard_lvl) >= 200:
-                    ccard_lvl_message =f"🔱*{ccard_lvl}*"
-                if int(ccard_lvl) >= 700:
-                    ccard_lvl_message =f"⚜️*{ccard_lvl}*"
-                if int(ccard_lvl) >=999:
-                    ccard_lvl_message =f"🏅*{ccard_lvl}*"
-                c_info = f"{c_talisman_emoji} {ccard_lvl_message}"
-                c_card_path = stats['c_card_path']
-                carm = stats['carm']
-                carm_name = stats['carm_name']
-                carm_passive_type = stats['carm_passive_type']
-                carm_passive_value = stats['carm_passive_value']
-                c_user = stats['c_user']
-                c_universe = stats['c_universe']
-                c_attack = stats['c_attack']
-                c_defense = stats['c_defense']
-                c_stamina = stats['c_stamina']
-                c_max_stamina = stats['c_max_stamina']
-                c_health = stats['c_health']
-                c_base_health = stats['c_base_health']
-                c_max_health = stats['c_max_health']
-                c_DID = stats['c_DID']
-                c_chainsaw = stats['c_chainsaw']
-                c_atk_chainsaw = stats['c_atk_chainsaw']
-                c_def_chainsaw = stats['c_def_chainsaw']
-                cmove1_text = stats['cmove1_text']
-                cmove2_text = stats['cmove2_text']
-                cmove3_text = stats['cmove3_text']
-                cmove_enhanced_text = stats['cmove_enhanced_text']
-                c_enhancer_used = stats['c_enhancer_used']
-                c_1 = stats['c_1']
-                c_2 = stats['c_2']
-                c_3 = stats['c_3']
-                carm_shield_active = stats['carm_shield_active']
-                cshield_value = stats['cshield_value']
-                carm_barrier_active = stats['carm_barrier_active']
-                cbarrier_count = stats['cbarrier_count']
-                carm_parry_active = stats['carm_parry_active']
-                cparry_count = stats['cparry_count']
-                carm_siphon_active = stats['carm_siphon_active']
-                csiphon_value = stats['csiphon_value']
-                c_gif = stats['c_gif']
-                c_enhancer = stats['c_enhancer']
-                c_speed = stats['c_speed']
-                c_special_move_description = stats['c_special_move_description']
-                c_greeting_description = stats['c_greeting_description']
-                c_focus_description = stats['c_focus_description']
-                c_resolve_description = stats['c_resolve_description']
-                c_special_move_description = stats['c_special_move_description']
-                c_win_description = stats['c_win_description']
-                c_lose_description = stats['c_lose_description']
-                ccard_lvl_ap_buff = stats['ccard_lvl_ap_buff']
-                cpet_name = stats['cpet_name']
-                cpet_move = stats['cpet_move']
-                cpetmove_text = stats['cpetmove_text']
-                cpet_image = stats['cpet_image']
-                c_pet_used = stats['c_pet_used']
-                user2 = stats['user2']
-                c_focus = stats['c_focus']
-                c_used_focus = stats['c_used_focus']
-                c_resolve = stats['c_resolve']
-                c_used_resolve = stats['c_used_resolve']
-                c_block_used = stats['c_block_used']
-                c_defend_used = stats['c_defend_used']
-                c_final_stand = stats['c_final_stand']
-                c_focus_count = 0
-                c_card_tier = c_full_card_info['TIER']
-                if c_universe == "Solo Leveling":
-                    temp_tarm_shield_active = stats['tarm_shield_active']
-                    temp_tshield_value = stats['tshield_value']
-                    temp_tarm_barrier_active = stats['tarm_barrier_active']
-                    temp_tbarrier_count = stats['tbarrier_count']
-                    temp_tarm_parry_active = stats['tarm_parry_active']
-                    temp_tparry_count = stats['tparry_count']
-                    c_swapped = False
-                if t_universe == "Solo Leveling":
-                    temp_carm_shield_active = stats['carm_shield_active']
-                    temp_cshield_value = stats['cshield_value']
-                    temp_carm_barrier_active = stats['carm_barrier_active']
-                    temp_cbarrier_count = stats['cbarrier_count']
-                    temp_carm_parry_active = stats['carm_parry_active']
-                    temp_cparry_count = stats['cparry_count']
-                    t_swapped = False
-
-            # Turn iterator
-            o_focus_count = 0
-            t_focus_count = 0
-            turn = 0
-            if mode in B_modes:
                 turn = 0
             else:
                 if o_speed > t_speed:
@@ -6000,138 +5875,6 @@ async def battle_commands(self, ctx, mode, _battle, _player, _player2=None):
                     turn = 1
             turn_total = 0
 
-            def set_talisman():
-                obj = {
-                    "FIRE": False,
-                    "PHYSICAL": False,
-                    "ICE": False,
-                    "WATER": False,
-                    "EARTH": False,
-                    "ELECTRIC": False,
-                    "WIND": False,
-                    "SPIRIT": False,
-                    "PSYCHIC": False,
-                    "DEATH": False,
-                    "LIFE": False,
-                    "LIGHT": False,
-                    "DARK": False,
-                    "POISON": False,
-                    "RANGED": False,
-                    "BLEED": False,
-                    "TIME": False,
-                    "GRAVITY": False,
-                    "RECOIL": False,
-                    "NULL": False
-                }
-                return obj
-
-            o_talisman_dict = set_talisman()
-            o_talisman_dict[o_talisman.upper()] = True
-
-            t_talisman_dict = set_talisman()
-            t_talisman_dict[t_talisman.upper()] = True
-
-            if mode in co_op_modes:     
-                c_talisman_dict = set_talisman()
-                c_talisman_dict[c_talisman.upper()] = True
-
-            demon_slayer_buff = 0
-            tdemon_slayer_buff = 0
-            cdemon_slayer_buff = 0
-            o_naruto_heal_buff = 0
-            t_naruto_heal_buff = 0
-            c_naruto_heal_buff = 0
-            o_gow_resolve = False
-            t_gow_resolve = False
-            c_gow_resolve = False
-
-            fire_element = "FIRE"
-            ice_element = "ICE"
-            water_element = "WATER"
-            earth_element = "EARTH"
-            electric_element = "ELECTRIC"
-            wind_element = "WIND"
-            spirit_element = "SPIRIT"
-            psychic_element = "PSYCHIC"
-            death_element = "DEATH"
-            life_element = "LIFE"
-            light_element = "LIGHT"
-            dark_element = "DARK"
-            poison_element = "POISON"
-            ranged_element = "RANGED"
-            bleed_element = "BLEED"
-            time_element = "TIME"
-            gravity_element = "GRAVITY"
-            recoil_element = "RECOIL"
-
-            o_burn_dmg = 0
-            o_poison_dmg = 0
-            o_freeze_enh = False
-            o_ice_counter = 0
-            o_water_buff = 0
-            o_shock_buff = 0
-            o_psychic_debuff = 0
-            o_bleed_counter = 0
-            o_bleed_hit = False
-            o_basic_water_buff = 0
-            o_special_water_buff = 0
-            o_ultimate_water_buff = 0
-            o_gravity_hit =False
-
-            t_burn_dmg = 0
-            t_poison_dmg = 0
-            t_freeze_enh = False
-            t_ice_counter = 0
-            t_water_buff = 0
-            t_shock_buff = 0
-            t_psychic_debuff = 0
-            t_bleed_counter = 0
-            t_bleed_hit = False
-            t_basic_water_buff = 0
-            t_special_water_buff = 0
-            t_ultimate_water_buff = 0
-            t_gravity_hit=False
-
-            c_burn_dmg = 0
-            c_poison_dmg = 0
-            c_freeze_enh = False
-            c_ice_counter = 0
-            c_water_buff = 0
-            c_shock_buff = 0
-            c_psychic_debuff = 0
-            c_bleed_counter = 0
-            c_bleed_hit = False
-            c_basic_water_buff = 0
-            c_special_water_buff = 0
-            c_ultimate_water_buff = 0
-            c_gravity_hit =False
-
-
-
-            if o_universe == "Solo Leveling":
-                temp_tarm_shield_active = stats['tarm_shield_active']
-                temp_tshield_value = stats['tshield_value']
-                temp_tarm_barrier_active = stats['tarm_barrier_active']
-                temp_tbarrier_count = stats['tbarrier_count']
-                temp_tarm_parry_active = stats['tarm_parry_active']
-                temp_tparry_count = stats['tparry_count']
-                o_swapped = False
-
-            if t_universe == "Solo Leveling":
-                temp_oarm_shield_active = stats['oarm_shield_active']
-                temp_oshield_value = stats['oshield_value']
-                temp_oarm_barrier_active = stats['oarm_barrier_active']
-                temp_obarrier_count = stats['obarrier_count']
-                temp_oarm_parry_active = stats['oarm_parry_active']
-                temp_oparry_count = stats['oparry_count']
-                t_swapped = False
-
-
-
-
-            # Enhance Turn Iterators
-            eo = 0
-            et = 0
             botActive = True
             tutorial = False
             raidActive = False
@@ -6143,9 +5886,6 @@ async def battle_commands(self, ctx, mode, _battle, _player, _player2=None):
             tutorial_resolve = False
             tutorial_summon = False
             tutorial_focus= False
-            o_ap_buff = 0
-            t_ap_buff = 0
-            c_ap_buff = 0
 
             if mode == "RAID":
                 raidActive = True
@@ -6175,11 +5915,6 @@ async def battle_commands(self, ctx, mode, _battle, _player, _player2=None):
             if mode not in B_modes and not randomized_battle and mode not in PVP_MODES and mode not in RAID_MODES:
                 lineup = f"{currentopponent + 1}/{total_legends}"
             options = [1, 2, 3, 4, 5, 0]
-
-            
-            previous_moves = []
-            previous_moves_len = 0
-            previous_moves_into_embed = "\n".join(previous_moves)
 
 
             

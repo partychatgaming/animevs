@@ -100,6 +100,7 @@ class Player:
         self._equipped_summon_name = ""
         self._equipped_summon_ability_name = ""
         self._equipped_summon_image = ""
+        self._equipped_summon_universe = ""
 
 
     def set_talisman_message(self):
@@ -326,7 +327,7 @@ class Player:
 
     def get_battle_ready(self):
         try:
-            self._equipped_card_data = db.queryCard({'NAME': self.equipped_card)})
+            self._equipped_card_data = db.queryCard({'NAME': self.equipped_card})
             self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
             self._equipped_arm_data = db.queryArm({'ARM': self.equipped_arm})
 
@@ -340,11 +341,12 @@ class Player:
             self._equipped_summon_type = active_summon['TYPE']
             self._equipped_summon_name = active_summon['NAME']
             self._equipped_summon_image = active_summon['PATH']
+            self._equipped_summon_universe = db.queryPet({'PET': active_summon['NAME']})['UNIVERSE']
+
         except:
             print("Failed to get battle ready")
 
 
-    # VAULT
     def has_storage(self):
         if self._storage:
             return True

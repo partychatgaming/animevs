@@ -59,6 +59,8 @@ class Card:
         self.enhancer_used = False
         self.summon_used = False
         self.block_used = False
+        self.focus_count = 0
+        self.enhance_turn_iterators = 0
 
         # Passive Ability
         self.passive_name  = list(passive.keys())[0]
@@ -113,6 +115,32 @@ class Card:
         self._final_stand = False
         self._atk_chainsawman_buff = False
         self._def_chainsawman_buff = False
+        self._demon_slayer_buff = 0
+        self._naruto_heal_buff = 0
+        self._gow_resolve = False
+        self.temp_opp_arm_shield_active = False
+        self.temp_opp_shield_value = 0
+        self.temp_opp_arm_barrier_active = False
+        self.temp_opp_barrier_value = 0
+        self.temp_opp_arm_parry_active = False
+        self.temp_opp_parry_value = 0
+        self.solo_leveling_trait_swapped = False
+        self.solo_leveling_trait_active = False
+
+        # Elemental Effect Meters
+        self.burn_dmg = 0
+        self.poison_dmg = 0
+        self.freeze_enh = False
+        self.ice_counter = 0
+        self.water_buff = 0
+        self.shock_buff = 0
+        self.psychic_debuff = 0
+        self.bleed_counter = 0
+        self.bleed_hit = False
+        self.basic_water_buff = 0
+        self.special_water_buff = 0
+        self.ultimate_water_buff = 0
+        self.gravity_hit =False
 
         # Card Defense From Arm
         # Arm Help
@@ -158,6 +186,23 @@ class Card:
     def is_universe_unbound(self):
         if(self.universe == "Unbound"):
             return True
+
+    # AI ONLY BUFFS
+    def set_ai_card_buffs(self, _ai_lvl_buff, _ai_stat_buff, _ai_stat_debuff, _ai_health_buff, _ai_health_debuff, _ai_ap_buff, _ai_ap_debuff):
+        self.card_lvl = _ai_lvl_buff
+
+        self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
+        self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+        self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+        self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
+
+        self.max_health = self.max_health + card_lvl_hlt_buff + _ai_health_buff + _ai_health_debuff
+        self.health = self.health + self.card_lvl_hlt_buff + _ai_health_buff + _ai_health_debuff
+        self.attack = self.attack + self.card_lvl_attack_buff + _ai_stat_buff + _ai_stat_debuff
+        self.defense = self.defense + self.card_lvl_defense_buff + _ai_stat_buff + _ai_stat_debuff
+        self.move1ap = self.move1ap + self.card_lvl_ap_buff + _ai_ap_buff + _ai_ap_debuff
+        self.move2ap = self.move2ap + self.card_lvl_ap_buff + _ai_ap_buff + _ai_ap_debuff
+        self.move3ap = self.move3ap + self.card_lvl_ap_buff + _ai_ap_buff + _ai_ap_debuff
 
 
     # This method will set the level buffs & apply them
@@ -427,14 +472,6 @@ class Card:
                 self.passive_num = stam_for_passive
 
     
-    def get_card_index(self, list_of_cards):
-        try:
-            self.index = list_of_cards.index(self.name)
-            return self.index
-        except:
-            return 0
-
-
     def set_arm_config(self, arm_type, arm_name, arm_value, arm_element=None):
         try:
             if arm_type == "BASIC":
@@ -574,3 +611,25 @@ class Card:
         self.battle_message = "Glory: Defeat the card and earn the card and the bounty, but if you lose you lose gold! Gold: Earn gold only!"
 
         self.set_card_level_buffs(None)
+
+
+
+    #  TRAIT METHODS
+    def set_solo_leveling_config(self, opponent_shield_active, opponent_shield_value, opponent_barrier_active, opponent_barrier_value, opponent_parry_active, opponent_parry_value):
+        if self.universe == "Solo Leveling":
+            self.solo_leveling_trait_active = True 
+            self.temp_opp_arm_shield_active = opponent_shield_active
+            self.temp_opp_shield_value = opponent_shield_value
+            self.temp_opp_arm_barrier_active = opponent_barrier_active
+            self.temp_opp_barrier_value = opponent_barrier_value
+            self.temp_opp_arm_parry_active = opponent_parry_active
+            self.temp_opp_parry_value = opponent_parry_value
+
+
+    def get_card_index(self, list_of_cards):
+        try:
+            self.index = list_of_cards.index(self.name)
+            return self.index
+        except:
+            return 0
+

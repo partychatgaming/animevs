@@ -278,7 +278,7 @@ async def viewarm(self, ctx, arm: str):
 
             if a.is_move():
                 # embedVar.add_field(name=f"Arm Move Element", value=f"{element}", inline=False)
-                embedVar.add_field(name=f"{a.type_message} {a.element} Attack", value=f"{a.element} **{a.name}**: **{a.passive_value}**", inline=False)
+                embedVar.add_field(name=f"{a.type_message} {a.element} Attack", value=f"{a.element_emoji} **{a.name}**: **{a.passive_value}**", inline=False)
                 embedVar.set_footer(text=f"The new {a.type_message} attack will reflect on your card when equipped")
 
             else:
