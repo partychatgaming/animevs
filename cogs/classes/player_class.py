@@ -41,6 +41,8 @@ class Player:
         self.prestige = prestige
         self.patron = patron
         self.family_pet = family_pet
+        self._is_locked_feature = False
+        self._locked_feature_message = ""
 
         self.talisman_message = "No Talisman Equipped"
 
@@ -61,10 +63,49 @@ class Player:
         self.crestlist = ""
         self.crestsearch = False
 
-    def set_talisman_message(self, list_of_talismans):
+        # Vault Infoo
+        self.vault = db.queryVault({'DID': str(self.did)})
+        if self.vault:
+            self._balance = self.vault['DID']
+            self._cards = self.vault['CARDS']
+            self._titles = self.vault['TITLES']
+            self._arms = self.vault['ARMS']
+            self._summons = self.vault['PETS']
+            self._deck = self.vault['DECK']
+            self._card_levels = self.vault['CARD_LEVELS']
+            self._quests = self.vault['QUESTS']
+            self._destiny = self.vault['DESTINY']
+            self._gems = self.vault['GEMS']
+            self._storage = self.vault['STORAGE']
+            self._talismans = self.vault['TALISMANS']
+            self._essence = self.vault['ESSENCE']
+            self._tstorage = self.vault['TSTORAGE']
+            self._astorage = self.vault['ASTORAGE']
+
+            self.list_of_cards = ""
+
+        self._deck_card = ""
+        self._deck_title = ""
+        self._deck_arm = ""
+        self._deck_summon = ""
+
+        self._equipped_card_data = ""
+        self._equipped_title_data = ""
+        self._equipped_arm_data = ""
+        self._equipped_summon_data = ""
+        self._equipped_summon_power = 0
+        self._equipped_summon_bond = 0
+        self._equipped_summon_lvl = 0
+        self._equipped_summon_type = ""
+        self._equipped_summon_name = ""
+        self._equipped_summon_ability_name = ""
+        self._equipped_summon_image = ""
+
+
+    def set_talisman_message(self):
         try:
             if self.equipped_talisman != "NULL":
-                for t in list_of_talismans:
+                for t in self._talismans:
                     if t["TYPE"].upper() == self.equipped_talisman.upper():
                         talisman_emoji = crown_utilities.set_emoji(self.equipped_talisman.upper())
                         talisman_durability = t["DUR"]
@@ -77,9 +118,9 @@ class Player:
             return self.talisman_message
         
 
-    def set_summon_messages(self, list_of_summons):
+    def set_summon_messages(self):
         try:
-            for summon in list_of_summons:
+            for summon in self._summons:
                 if summon['NAME'] == self.equipped_summon:
                     active_summon = summon
 
@@ -257,3 +298,72 @@ class Player:
         if guild_buff['Auto Battle']:
             self.auto_battle = True
             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+
+
+    def get_locked_feature(self, mode):
+        if self.difficulty == "EASY" and mode in crown_utilities.EASY_BLOCKED:
+            self._locked_feature_message = "Dungeons, Boss, PVP, Expplore, and Abyss fights are unavailable on Easy Mode! Use /difficulty to change your difficulty setting."
+            self._is_locked_feature = True
+        
+        if self.level < 26 and mode == "EXPLORE":
+            self._locked_feature_message = "Explore fights are blocked until level 26"
+            self._is_locked_feature = True
+
+        if mode in crown_utilities.DUNGEON_M and self.level < 41 and int(self.prestige) == 0:
+            self._locked_feature_message = "🔓 Unlock **Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss."
+            self._is_locked_feature = True
+
+        if mode in crown_utilities.BOSS_M and self.level < 61 and int(self.prestige) == 0:
+            self._locked_feature_message = "🔓 Unlock **Boss Fights** by completing **Floor 60** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss."
+            self._is_locked_feature = True
+
+        if self.level < 4:
+            self._locked_feature_message = f"🔓 Unlock **PVP** by completing **Floor 3** of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss."
+            self._is_locked_feature = True
+            
+        return self._is_locked_feature
+
+
+    def get_battle_ready(self):
+        try:
+            self._equipped_card_data = db.queryCard({'NAME': self.equipped_card)})
+            self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
+            self._equipped_arm_data = db.queryArm({'ARM': self.equipped_arm})
+
+            for summon in self._summons:
+                if summon['NAME'] == self.equipped_summon:
+                    active_summon = summon
+            self._equipped_summon_ability_name = list(active_summon.keys())[3]
+            self._equipped_summon_power = list(active_summon.values())[3]
+            self._equipped_summon_bond = active_summon['BOND']
+            self._equipped_summon_lvl = active_summon['LVL']
+            self._equipped_summon_type = active_summon['TYPE']
+            self._equipped_summon_name = active_summon['NAME']
+            self._equipped_summon_image = active_summon['PATH']
+        except:
+            print("Failed to get battle ready")
+
+
+    # VAULT
+    def has_storage(self):
+        if self._storage:
+            return True
+        else:
+            return False
+
+
+    def set_list_of_cards(self):
+        cards = db.querySpecificCards(self._storage)
+        self.list_of_cards = [x for x in cards]
+        return self.list_of_cards
+
+
+    def set_deck_config(self, selected_deck):
+        try:
+            active_deck = self.deck[selected_deck]
+            self._deck_card = db.queryCard({'NAME': str(active_deck['CARD'])})
+            self._deck_title = db.queryTitle({'TITLE': str(active_deck['TITLE'])})
+            self._deck_arm = db.queryArm({'ARM': str(active_deck['ARM'])})
+            self._deck_summon = db.queryPet({'PET': str(active_deck['PET'])})
+        except:
+            print("Error setting deck config")

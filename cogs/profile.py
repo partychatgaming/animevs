@@ -27,8 +27,7 @@ from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.player_class import Player
-from .classes.vault_class import Vault
-from .crownunlimited import showcard, cardback, enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping, battle_commands, destiny as update_destiny_call
+from .crownunlimited import showcard, enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping, battle_commands, destiny as update_destiny_call
 import random
 import textwrap
 from discord_slash import cog_ext, SlashContext
@@ -263,12 +262,11 @@ class Profile(commands.Cog):
                     c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'])
                     t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                     a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
-                    v = Vault(vault['OWNER'], vault['DID'], vault['BALANCE'], vault['CARDS'], vault['TITLES'], vault['ARMS'], vault['PETS'], vault['DECK'], vault['CARD_LEVELS'], vault['QUESTS'], vault['DESTINY'], vault['GEMS'], vault['STORAGE'], vault['TALISMANS'], vault['ESSENCE'], vault['TSTORAGE'], vault['ASTORAGE'])
                     player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'])                 
                     
-                    durability = a.set_durability(player.equipped_arm, v.arms)
+                    durability = a.set_durability(player.equipped_arm, player._arms)
                     
-                    c.set_card_level_buffs(v.card_levels)
+                    c.set_card_level_buffs(player._card_levels)
                     c.set_affinity_message()
                     c.set_arm_config(a.passive_type, a.name, a.passive_value, a.element)
                     c.set_passive_values()
@@ -277,8 +275,8 @@ class Profile(commands.Cog):
                     t.set_pokemon_title()
 
   
-                    player.set_talisman_message(v.talismans)
-                    player.set_summon_messages(v.summons)
+                    player.set_talisman_message(player._talismans)
+                    player.set_summon_messages(player._summons)
 
                     a.set_arm_message(player.performance, c.universe)
                     t.set_title_message(player.performance, c.universe)

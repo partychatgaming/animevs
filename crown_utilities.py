@@ -1671,6 +1671,8 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'One Piece': ':sailboat:'
 }
 
+ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
+
 CO_OP_M = ['CTales', 'DTales', 'CDungeon', 'DDungeon', 'CBoss']
 AI_CO_OP_M = ['DTales', 'DDungeon']
 AUTO_BATTLE_M = ['ATales', 'ADungeon']
@@ -1681,3 +1683,16 @@ PVP_M = ['PVP']
 SOLO_M = ['ATales', 'Tales', 'Dungeon', 'Boss']
 OPPONENT_SUMMON_M = ['Dungeon', 'DDungeon', 'CDungeon']
 RAID_M = ['RAID']
+ABYSS = "ABYSS"
+SCENARIO = "SCENARIO"
+EXPLORE = "EXPLORE"
+
+EASY_BLOCKED = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon', 'Boss', 'CBoss', 'ABYSS', 'PVP', 'EXPLORE']
+
+BASIC_ATTACK = "BASIC"
+SPECIAL_ATTACK = "SUPER"
+ULTIMATE_ATTACK = "ULTIMATE"
+
+LOW_TIER_CARDS = [1, 2, 3]
+MID_TIER_CARDS = [4, 5]
+HIGH_TIER_CARDS = [6, 7]

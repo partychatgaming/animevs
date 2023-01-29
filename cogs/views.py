@@ -20,7 +20,7 @@ from .classes.card_class import Card
 from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
-from .crownunlimited import showcard, showsummon, cardback, enhancer_mapping, enhancer_suffix_mapping, passive_enhancer_suffix_mapping, title_enhancer_suffix_mapping, title_enhancer_mapping
+from .crownunlimited import showcard, showsummon, enhancer_mapping, enhancer_suffix_mapping, passive_enhancer_suffix_mapping, title_enhancer_suffix_mapping, title_enhancer_mapping
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash import cog_ext, SlashContext
 from discord_slash import SlashCommand

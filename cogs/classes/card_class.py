@@ -97,19 +97,6 @@ class Card:
         self.move4ap = list(self.enhancer.values())[0]
         self.move4_stamina = list(self.enhancer.values())[1]
         self.move4enh = list(self.enhancer.values())[2]
-        
-        self.affinity_message = ""
-        self.price_message = ""
-        self.card_icon = ""
-        self.trait_message = ""
-        self.universe_buff_message = " "
-
-        self.universe_image = ""
-        self.tip = ""
-        self.view_card_message = ""
-        self.universe_crest = crown_utilities.crest_dict[self.universe]
-        self.index = ""
-        
 
         self.dungeon_card_details
         
@@ -139,7 +126,34 @@ class Card:
         self._parry_value = 0
         self._siphon_value = 0
 
-        
+        # Boss Descriptions
+        self._boss_arena_message = ""
+        self._boss_arenades_message = ""
+        self._boss_entrance_message = ""
+        self._boss_description_message = ""
+        self._boss_welcome_message = ""
+        self._boss_feeling_message = ""
+        self._boss_powerup_message = ""
+        self._boss_aura_message = ""
+        self._boss_assault_message = ""
+        self._boss_world_message = ""
+        self._boss_punish_message = ""
+        self._boss_rmessage_message = ""
+        self._boss_rebuke_message = ""
+        self._boss_concede_message = ""
+        self._boss_wins_message = ""
+
+        self.affinity_message = ""
+        self.price_message = ""
+        self.card_icon = ""
+        self.trait_message = ""
+        self.universe_buff_message = " "
+
+        self.universe_image = ""
+        self.tip = ""
+        self.view_card_message = ""
+        self.universe_crest = crown_utilities.crest_dict[self.universe]
+        self.index = ""
         
     def is_universe_unbound(self):
         if(self.universe == "Unbound"):
@@ -204,8 +218,6 @@ class Card:
         except:
             print("Error setting guild level stats")
             return False
-
-
 
 
     def set_trait_message(self):
