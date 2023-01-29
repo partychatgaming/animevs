@@ -162,7 +162,7 @@ class Lookup(commands.Cog):
                     aicon = ":japanese_ogre:"
                 prestige_message = "*No Prestige*"
                 if prestige > 0 :
-                    prestige_message = f"**Prestige[]:** *{prestige}*"
+                    prestige_message = f"**Prestige:** *{prestige}*"
                 #print(day_joined + " " + year_joined)
                 birthday = f"🎉 | Registered on {day_joined}, {year_joined}"
                 icon = ':triangular_flag_on_post:'

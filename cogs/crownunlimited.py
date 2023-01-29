@@ -8118,10 +8118,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_stamina = t_stamina + o_title_passive_value
                                 if o_title_passive_type == "CREATION":
                                     o_max_health = round(round(o_max_health + ((o_title_passive_value / 100) * o_max_health)))
-                                if o_title_passive_type == "DESTRUCTION":
-                                    t_max_health = round(t_max_health - ((o_title_passive_value / 100) * t_max_health))
-                                if o_title_passive_type == "BLAST":
-                                    t_health = round(t_health - o_title_passive_value)
                                 if o_title_passive_type == "WAVE":
                                     if turn_total % 10 == 0:
                                         t_health = round(t_health - 100)
@@ -8136,8 +8132,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         o_health = round(round(o_health + ((o_value_for_passive / 100) * o_health)))
                                 if o_card_passive_type == "CREATION":
                                     o_max_health = round(round(o_max_health + ((o_value_for_passive / 100) * o_max_health)))
-                                if o_card_passive_type == "DESTRUCTION":
-                                    t_max_health = round(round(t_max_health - ((o_value_for_passive / 100) * t_max_health)))
                                 if o_card_passive_type == "LIFE":
                                     if o_max_health > o_health:
                                         t_health = round(t_health - ((o_value_for_passive / 100) * t_health))
@@ -8199,8 +8193,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_stamina = o_stamina - o_stam_for_passive
                                     if t_stamina >=10:
                                         t_stamina = t_stamina + o_stam_for_passive
-                                if o_card_passive_type == "BLAST":
-                                    t_health = round(t_health - o_value_for_passive)
                                 if o_card_passive_type == "WAVE":
                                     if turn_total % 10 == 0:
                                         t_health = round(t_health - 100)
@@ -8400,7 +8392,27 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if mode in co_op_modes:
                                             c_stmina = o_title_passive_value
                                     if o_title_passive_type == "BLAST":
-                                        t_health = t_health - (o_title_passive_value * turn_total)
+                                        dmg = o_title_passive_value * turn_total
+                                        if dmg > 100 * o_card_tier:
+                                            dmg = 100 * o_card_tier
+                                        t_health = t_health - (dmg)
+                                    if o_title_passive_type == "DESTRUCTION":
+                                        dmg = o_title_passive_value * turn_total
+                                        if dmg > 100 * o_card_tier:
+                                            dmg = 100 * o_card_tier
+                                        t_health = t_health - (dmg)
+                                        
+                                if o_card_passive_type == "BLAST":
+                                    dmg = o_value_for_passive * turn_total
+                                    if dmg > 100 * o_card_tier:
+                                        dmg = 100 * o_card_tier
+                                    t_health = t_health - (dmg)
+                                if o_card_passive_type == "DESTRUCTION":
+                                    dmg = o_value_for_passive * turn_total
+                                    if dmg > 100 * o_card_tier:
+                                        dmg = 100 * o_card_tier
+                                    t_health = t_health - (dmg)
+
 
 
 
@@ -11845,10 +11857,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_stamina = t_stamina - t_title_passive_value
                                 if t_title_passive_type == "CREATION":
                                     t_max_health = round(round(t_max_health + ((t_title_passive_value / 100) * t_max_health)))
-                                if t_title_passive_type == "DESTRUCTION":
-                                    o_max_health = round(o_max_health - ((t_title_passive_value / 100) * o_max_health))
-                                if t_title_passive_type == "BLAST":
-                                    o_health = round(o_health - t_title_passive_value)
                                 if t_title_passive_type == "WAVE":
                                     if turn_total % 10 == 0:
                                         o_health = round(o_health - 100)
@@ -11862,8 +11870,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_health = round(round(t_health + ((t_value_for_passive / 100) * t_health)))
                                 if t_card_passive_type == "CREATION":
                                     t_max_health = round(round(t_max_health + ((t_value_for_passive / 100) * t_max_health)))
-                                if t_card_passive_type == "DESTRUCTION":
-                                    o_max_health = round(round(o_max_health - ((t_value_for_passive / 100) * o_max_health)))
                                 if t_card_passive_type == "LIFE":
                                     if t_max_health > t_health:
                                         o_health = round(o_health - ((t_value_for_passive / 100) * o_health))
@@ -11925,8 +11931,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_stamina = t_stamina - t_stam_for_passive
                                     if o_stamina >=10:
                                         o_stamina = o_stamina + t_stam_for_passive
-                                if t_card_passive_type == "BLAST":
-                                    o_health = round(o_health - t_value_for_passive)
                                 if t_card_passive_type == "WAVE":
                                     if turn_total % 10 == 0:
                                         o_health = round(o_health - 100)
@@ -12049,9 +12053,33 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if mode in co_op_modes:
                                             c_stmina = t_title_passive_value
                                     if t_title_passive_type == "BLAST":
-                                            o_health = o_health - (t_title_passive_value * turn_total)
-                                            if mode in co_op_modes:
-                                                    c_health = c_health - (t_title_passive_value * turn_total)
+                                        dmg = t_title_passive_value * turn_total
+                                        if dmg > 100 * t_card_tier:
+                                            dmg = 100 * t_card_tier
+                                        o_health = o_health - (dmg)
+                                        if mode in co_op_modes:
+                                            c_health = c_health - (dmg)
+                                    if t_title_passive_type == "DESTRUCTION":
+                                        dmg = t_title_passive_value * turn_total
+                                        if dmg > 100 * t_card_tier:
+                                            dmg = 100 * t_card_tier
+                                        o_health = o_health - (dmg)
+                                        if mode in co_op_modes:
+                                            c_health = c_health - (dmg)
+                                if t_card_passive_type == "BLAST":
+                                    dmg = t_value_for_passive * turn_total
+                                    if dmg > 100 * t_card_tier:
+                                        dmg = 100 * t_card_tier
+                                    o_health = o_health - (dmg)
+                                    if mode in co_op_modes:
+                                        c_health = c_health - (dmg)
+                                if t_card_passive_type == "DESTRUCTION":
+                                    dmg = t_value_for_passive * turn_total
+                                    if dmg > 100 * t_card_tier:
+                                        dmg = 100 * t_card_tier
+                                    o_health = o_health - (dmg)
+                                    if mode in co_op_modes:
+                                        c_health = c_health - (dmg)
 
 
                                 if o_title_passive_type:
@@ -17081,10 +17109,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             t_stamina = t_stamina - c_title_passive_value
                                     if c_title_passive_type == "CREATION":
                                         c_max_health = round(round(c_max_health + ((c_title_passive_value / 100) * c_max_health)))
-                                    if c_title_passive_type == "DESTRUCTION":
-                                        t_max_health = round(t_max_health - ((c_title_passive_value / 100) * t_max_health))
-                                    if c_title_passive_type == "BLAST":
-                                        t_health = round(t_health - c_title_passive_value)
                                     if c_title_passive_type == "WAVE":
                                         if turn_total % 10 == 0:
                                             t_health = round(t_health - 100)
@@ -17099,8 +17123,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             c_health = round(round(c_health + ((c_value_for_passive / 100) * c_health)))
                                     if c_card_passive_type == "CREATION":
                                         c_max_health = round(round(c_max_health + ((c_value_for_passive / 100) * c_max_health)))
-                                    if c_card_passive_type == "DESTRUCTION":
-                                        t_max_health = round(round(t_max_health - ((c_value_for_passive / 100) * t_max_health)))
                                     if c_card_passive_type == "LIFE":
                                         if c_max_health > c_health:
                                             t_health = round(t_health - ((c_value_for_passive / 100) * t_health))
@@ -17162,8 +17184,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_stamina = c_stamina - c_stam_for_passive
                                         if t_stamina >= 10:
                                             t_stamina = t_stamina + c_stam_for_passive
-                                    if c_card_passive_type == "BLAST":
-                                        t_health = round(t_health - c_value_for_passive)
                                     if c_card_passive_type == "WAVE":
                                         if turn_total % 10 == 0:
                                             t_health = round(t_health - 100)
@@ -17254,7 +17274,26 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             t_stamina = c_title_passive_value
                                             o_stamina = c_title_passive_value
                                         if c_title_passive_type == "BLAST":
-                                            t_health = t_health - (c_title_passive_value * turn_total)
+                                            dmg = c_title_passive_value * turn_total
+                                            if dmg > 100 * c_card_tier:
+                                                dmg = 100 * c_card_tier
+                                            t_health = t_health - (dmg)   
+                                        if c_title_passive_type == "DESTRUCTION":
+                                            dmg = c_title_passive_value * turn_total
+                                            if dmg > 100 * c_card_tier:
+                                                dmg = 100 * c_card_tier
+                                            t_health = t_health - (dmg)
+                                            
+                                    if c_card_passive_type == "BLAST":
+                                        dmg = c_value_for_passive * turn_total
+                                        if dmg > 100 * c_card_tier:
+                                            dmg = 100 * c_card_tier
+                                        t_health = t_health - (dmg)
+                                    if c_card_passive_type == "DESTRUCTION":
+                                        dmg = o_value_for_passive * turn_total
+                                        if dmg > 100 * c_card_tier:
+                                            dmg = 100 * c_card_tier
+                                        t_health = t_health - (dmg)
 
                                     if o_title_passive_type:
                                         if o_title_passive_type == "GAMBLE":
@@ -20332,10 +20371,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_stamina = t_stamina - t_title_passive_value
                                     if t_title_passive_type == "CREATION":
                                         t_max_health = round(round(t_max_health + ((t_title_passive_value / 100) * t_max_health)))
-                                    if t_title_passive_type == "DESTRUCTION":
-                                        c_max_health = round(c_max_health - ((t_title_passive_value / 100) * c_max_health))
-                                    if t_title_passive_type == "BLAST":
-                                        c_health = round(c_health - t_title_passive_value)
                                     if t_title_passive_type == "WAVE":
                                         if turn_total % 10 == 0:
                                             c_health = round(c_health - 100)
@@ -20349,8 +20384,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             t_health = round(round(t_health + ((t_value_for_passive / 100) * t_health)))
                                     if t_card_passive_type == "CREATION":
                                         t_max_health = round(round(t_max_health + ((t_value_for_passive / 100) * t_max_health)))
-                                    if t_card_passive_type == "DESTRUCTION":
-                                        c_max_health = round(round(c_max_health - ((t_value_for_passive / 100) * c_max_health)))
 
                                     if t_card_passive_type == "LIFE":
                                         if t_max_health > t_health:
@@ -20413,8 +20446,6 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_stamina = t_stamina - t_stam_for_passive
                                         if c_stamina >=10:
                                             c_stamina = c_stamina + t_stam_for_passive
-                                    if t_card_passive_type == "BLAST":
-                                        c_health = round(c_health - t_value_for_passive)
                                     if t_card_passive_type == "WAVE":
                                         if turn_total % 10 == 0:
                                             c_health = round(c_health - 100)
@@ -20496,9 +20527,34 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             if mode in co_op_modes:
                                                 c_stmina = t_title_passive_value
                                         if t_title_passive_type == "BLAST":
-                                            o_health = o_health - (t_title_passive_value * turn_total)
+                                            dmg = t_title_passive_value * turn_total
+                                            if dmg > 100 * t_card_tier:
+                                                dmg = 100 * t_card_tier
+                                            o_health = o_health - (dmg)
                                             if mode in co_op_modes:
-                                                    c_health = c_health - (t_title_passive_value * turn_total)
+                                                    c_health = c_health - (dmg)
+                                        if t_title_passive_type == "DESTRUCTION":
+                                            dmg = t_title_passive_value * turn_total
+                                            if dmg > 100 * t_card_tier:
+                                                dmg = 100 * t_card_tier
+                                            o_health = o_health - (dmg)
+                                            if mode in co_op_modes:
+                                                c_health = c_health - (dmg)
+                                                    
+                                    if t_card_passive_type == "BLAST":
+                                        dmg = t_value_for_passive * turn_total
+                                        if dmg > 100 * t_card_tier:
+                                            dmg = 100 * t_card_tier
+                                        o_health = o_health - (dmg)
+                                        if mode in co_op_modes:
+                                            c_health = c_health - (dmg)
+                                    if t_card_passive_type == "DESTRUCTION":
+                                        dmg = t_value_for_passive * turn_total
+                                        if dmg > 100 * t_card_tier:
+                                            dmg = 100 * t_card_tier
+                                        o_health = o_health - (dmg)
+                                        if mode in co_op_modes:
+                                            c_health = c_health - (dmg)
 
 
                                     if o_title_passive_type:
