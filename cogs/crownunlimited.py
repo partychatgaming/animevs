@@ -2108,23 +2108,23 @@ def damage_cal(mode,card_tier, talisman_dict, move_ap, opponent_affinity, move_t
             drain = ap
         elif enh == 'FLOG':
             enh_type = "FLOG"
-            if op_attack >= 5000:
-                op_attack = 5000
+            if op_attack >= 3500:
+                op_attack = 3500
             flog = round((ap / 100) * op_attack)
         elif enh == 'WITHER':
             enh_type = "WITHER"
-            if op_defense >= 5000:
-                op_defense = 5000
+            if op_defense >= 3500:
+                op_defense = 3500
             wither = round((ap / 100) * op_defense)
         elif enh == 'RAGE':
             enh_type = "RAGE"
-            if defense >= 5000:
-                defense = 5000
+            if defense >= 3500:
+                defense = 3500
             rage = round((ap / 100) * defense)
         elif enh == 'BRACE':
             enh_type = "BRACE"
-            if attack >= 5000:
-                attack = 5000
+            if attack >= 3500:
+                attack = 3500
             brace = round((ap / 100) * attack)
         elif enh == 'BZRK':
             enh_type = "BZRK"
@@ -8393,24 +8393,24 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             c_stmina = o_title_passive_value
                                     if o_title_passive_type == "BLAST":
                                         dmg = o_title_passive_value * turn_total
-                                        if dmg > 50 * o_card_tier:
-                                            dmg = 50 * o_card_tier
+                                        if dmg > 100 * o_card_tier:
+                                            dmg = 100 * o_card_tier
                                         t_health = t_health - (dmg)
                                     if o_title_passive_type == "DESTRUCTION":
                                         dmg = o_title_passive_value * turn_total
-                                        if dmg > 50 * o_card_tier:
-                                            dmg = 50 * o_card_tier
+                                        if dmg > 100 * o_card_tier:
+                                            dmg = 100 * o_card_tier
                                         t_health = t_health - (dmg)
                                         
                                 if o_card_passive_type == "BLAST":
                                     dmg = o_value_for_passive * turn_total
-                                    if dmg > 50 * o_card_tier:
-                                        dmg = 50 * o_card_tier
+                                    if dmg > 100 * o_card_tier:
+                                        dmg = 100 * o_card_tier
                                     t_health = t_health - (dmg)
                                 if o_card_passive_type == "DESTRUCTION":
                                     dmg = o_value_for_passive * turn_total
-                                    if dmg > 50 * o_card_tier:
-                                        dmg = 50 * o_card_tier
+                                    if dmg > 100 * o_card_tier:
+                                        dmg = 100 * o_card_tier
                                     t_health = t_health - (dmg)
 
 
@@ -12054,29 +12054,29 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             c_stmina = t_title_passive_value
                                     if t_title_passive_type == "BLAST":
                                         dmg = t_title_passive_value * turn_total
-                                        if dmg > 50 * t_card_tier:
-                                            dmg = 50 * t_card_tier
+                                        if dmg > 100 * t_card_tier:
+                                            dmg = 100 * t_card_tier
                                         o_health = o_health - (dmg)
                                         if mode in co_op_modes:
                                             c_health = c_health - (dmg)
                                     if t_title_passive_type == "DESTRUCTION":
                                         dmg = t_title_passive_value * turn_total
-                                        if dmg > 50 * t_card_tier:
-                                            dmg = 50 * t_card_tier
+                                        if dmg > 100 * t_card_tier:
+                                            dmg = 100 * t_card_tier
                                         o_health = o_health - (dmg)
                                         if mode in co_op_modes:
                                             c_health = c_health - (dmg)
                                 if t_card_passive_type == "BLAST":
                                     dmg = t_value_for_passive * turn_total
-                                    if dmg > 50 * t_card_tier:
-                                        dmg = 50 * t_card_tier
+                                    if dmg > 100 * t_card_tier:
+                                        dmg = 100 * t_card_tier
                                     o_health = o_health - (dmg)
                                     if mode in co_op_modes:
                                         c_health = c_health - (dmg)
                                 if t_card_passive_type == "DESTRUCTION":
                                     dmg = t_value_for_passive * turn_total
-                                    if dmg > 50 * t_card_tier:
-                                        dmg = 50 * t_card_tier
+                                    if dmg > 100 * t_card_tier:
+                                        dmg = 100 * t_card_tier
                                     o_health = o_health - (dmg)
                                     if mode in co_op_modes:
                                         c_health = c_health - (dmg)
@@ -17275,24 +17275,24 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             o_stamina = c_title_passive_value
                                         if c_title_passive_type == "BLAST":
                                             dmg = c_title_passive_value * turn_total
-                                            if dmg > 50 * c_card_tier:
-                                                dmg = 50 * c_card_tier
+                                            if dmg > 100 * c_card_tier:
+                                                dmg = 100 * c_card_tier
                                             t_health = t_health - (dmg)   
                                         if c_title_passive_type == "DESTRUCTION":
                                             dmg = c_title_passive_value * turn_total
-                                            if dmg > 50 * c_card_tier:
-                                                dmg = 50 * c_card_tier
+                                            if dmg > 100 * c_card_tier:
+                                                dmg = 100 * c_card_tier
                                             t_health = t_health - (dmg)
                                             
                                     if c_card_passive_type == "BLAST":
                                         dmg = c_value_for_passive * turn_total
-                                        if dmg > 50 * c_card_tier:
-                                            dmg = 50 * c_card_tier
+                                        if dmg > 100 * c_card_tier:
+                                            dmg = 100 * c_card_tier
                                         t_health = t_health - (dmg)
                                     if c_card_passive_type == "DESTRUCTION":
                                         dmg = o_value_for_passive * turn_total
-                                        if dmg > 50 * c_card_tier:
-                                            dmg = 50 * c_card_tier
+                                        if dmg > 100 * c_card_tier:
+                                            dmg = 100 * c_card_tier
                                         t_health = t_health - (dmg)
 
                                     if o_title_passive_type:
@@ -20528,30 +20528,30 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 c_stmina = t_title_passive_value
                                         if t_title_passive_type == "BLAST":
                                             dmg = t_title_passive_value * turn_total
-                                            if dmg > 50 * t_card_tier:
-                                                dmg = 50 * t_card_tier
+                                            if dmg > 100 * t_card_tier:
+                                                dmg = 100 * t_card_tier
                                             o_health = o_health - (dmg)
                                             if mode in co_op_modes:
                                                     c_health = c_health - (dmg)
                                         if t_title_passive_type == "DESTRUCTION":
                                             dmg = t_title_passive_value * turn_total
-                                            if dmg > 50 * t_card_tier:
-                                                dmg = 50 * t_card_tier
+                                            if dmg > 100 * t_card_tier:
+                                                dmg = 100 * t_card_tier
                                             o_health = o_health - (dmg)
                                             if mode in co_op_modes:
                                                 c_health = c_health - (dmg)
                                                     
                                     if t_card_passive_type == "BLAST":
                                         dmg = t_value_for_passive * turn_total
-                                        if dmg > 50 * t_card_tier:
-                                            dmg = 50 * t_card_tier
+                                        if dmg > 100 * t_card_tier:
+                                            dmg = 100 * t_card_tier
                                         o_health = o_health - (dmg)
                                         if mode in co_op_modes:
                                             c_health = c_health - (dmg)
                                     if t_card_passive_type == "DESTRUCTION":
                                         dmg = t_value_for_passive * turn_total
-                                        if dmg > 50 * t_card_tier:
-                                            dmg = 50 * t_card_tier
+                                        if dmg > 100 * t_card_tier:
+                                            dmg = 100 * t_card_tier
                                         o_health = o_health - (dmg)
                                         if mode in co_op_modes:
                                             c_health = c_health - (dmg)
