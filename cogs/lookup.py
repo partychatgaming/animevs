@@ -955,11 +955,12 @@ class Lookup(commands.Cog):
                             pet_name = pet_info["NAME"]
                             summon_bond = l["BOND"]
                             summon_lvl = level
-                            print("hello")
+                            print(pet_name)
                             summon_type = pet_info["TYPE"]
                             power = (summon_bond * summon_lvl) + int(pet_ability_power)
                             path = pet_info["PATH"]
                             summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
+                    print(pet_name)
                 else:
                     partnervault =  db.queryVault({'DID' : partner_data['DID']})
                     if partnervault:
@@ -980,10 +981,10 @@ class Lookup(commands.Cog):
                                 summon_lvl = level
                                 power = (summon_bond * summon_lvl) + int(pet_ability_power)
                                 path = pet_info["PATH"]
-                                print("patt")
+                                print(pet_name)
+                        print(pet_name)
                                 
                     else:
-                        print("else")
                         pet_info = db.queryPet({'PET': summon})
                         summon_img = pet_info['PATH']
                         pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
@@ -995,7 +996,8 @@ class Lookup(commands.Cog):
                         summon_img = pet_info['PATH']
                         power = (summon_bond * summon_lvl) + int(pet_ability_power)
                         path = pet_info["PATH"]
-                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_enh], 0, 0)
+                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
+                        print(pet_name)
                 universe = family['UNIVERSE']
                 universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']
