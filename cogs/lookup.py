@@ -1,4 +1,4 @@
-import discord
+hmm import discord
 from discord.embeds import Embed
 from discord.ext import commands
 import bot as main
@@ -956,7 +956,7 @@ class Lookup(commands.Cog):
                             summon_bond = l["BOND"]
                             summon_lvl = level
                             summon_type = pet_info["TYPE"]
-                            power = (summon_bond * summon_lvl) + pet_ability_power
+                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
                             path = pet_info["PATH"]
                             summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                         else:
@@ -969,7 +969,7 @@ class Lookup(commands.Cog):
                             summon_bond = 0
                             pet_name = pet_info["PET"]
                             summon_lvl = 0
-                            power = (summon_bond * summon_lvl) + pet_ability_power
+                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
                             path = pet_info["PATH"]
                             summon_img = pet_info['PATH']
                             summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_enh], 0, 0)
@@ -991,7 +991,7 @@ class Lookup(commands.Cog):
                                 pet_name = pet_info["NAME"]
                                 summon_bond = pet_info["BOND"]
                                 summon_lvl = level
-                                power = (summon_bond * summon_lvl) + pet_ability_power
+                                power = (summon_bond * summon_lvl) + int(pet_ability_power)
                                 path = pet_info["PATH"]
                             else:
                                 pet_info = db.queryPet({'PET': summon})
@@ -1004,7 +1004,7 @@ class Lookup(commands.Cog):
                                 pet_name = pet_info["PET"]
                                 summon_lvl = 0
                                 summon_img = pet_info['PATH']
-                                power = (summon_bond * summon_lvl) + pet_ability_power
+                                power = (summon_bond * summon_lvl) + int(pet_ability_power)
                                 path = pet_info["PATH"]
                                 summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_enh], 0, 0)
                     else:
@@ -1018,7 +1018,7 @@ class Lookup(commands.Cog):
                         pet_name = pet_info["PET"]
                         summon_lvl = 0
                         summon_img = pet_info['PATH']
-                        power = (summon_bond * summon_lvl) + pet_ability_power
+                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
                         path = pet_info["PATH"]
                         summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_enh], 0, 0)
                 universe = family['UNIVERSE']
