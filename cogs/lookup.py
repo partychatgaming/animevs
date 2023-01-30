@@ -963,7 +963,6 @@ class Lookup(commands.Cog):
                             pet_name = pet_info["NAME"]
                             summon_bond = l["BOND"]
                             summon_lvl = level
-                            print(pet_name)
                             summon_type = pet_info["TYPE"]
                             power = (summon_bond * summon_lvl) + int(pet_ability_power)
                             path = pet_info["PATH"]
@@ -981,7 +980,6 @@ class Lookup(commands.Cog):
                         power = (summon_bond * summon_lvl) + int(pet_ability_power)
                         path = pet_info["PATH"]
                         summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
-                        print(pet_name)
                 else:
                     partnervault =  db.queryVault({'DID' : partner_data['DID']})
                     if partnervault:
@@ -1003,7 +1001,6 @@ class Lookup(commands.Cog):
                                 summon_lvl = level
                                 power = (summon_bond * summon_lvl) + int(pet_ability_power)
                                 path = pet_info["PATH"]
-                                print(pet_name)
                         if found_summon_in_vault == False:
                             pet_info = db.queryPet({'PET': summon})
                             summon_img = pet_info['PATH']
@@ -1017,7 +1014,6 @@ class Lookup(commands.Cog):
                             power = (summon_bond * summon_lvl) + int(pet_ability_power)
                             path = pet_info["PATH"]
                             summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
-                            print(pet_name)
                                 
                     else:
                         pet_info = db.queryPet({'PET': summon})
@@ -1032,7 +1028,6 @@ class Lookup(commands.Cog):
                         power = (summon_bond * summon_lvl) + int(pet_ability_power)
                         path = pet_info["PATH"]
                         summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
-                        print(pet_name)
                 universe = family['UNIVERSE']
                 universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']
@@ -1114,7 +1109,6 @@ class Lookup(commands.Cog):
                 buttons = []
                 
                 if not member:
-                    print(member)
                     buttons.append(
                         manage_components.create_button(style=3, label="Say Hello", custom_id="hello")
                     )
@@ -1147,7 +1141,7 @@ class Lookup(commands.Cog):
                                         '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
                                     }
                                 response = db.updateFamily({'HEAD': family['HEAD']}, update_query)
-                                await ctx.send(f"**{button_ctx.author.mention}** Said Hello! to {family_name}'s Family!")
+                                await ctx.send(f"**{button_ctx.author.mention}** Said Hello! to {family_name}!")
                                 self.stop = True
                                 return
                             elif button_ctx.custom_id == "property":
