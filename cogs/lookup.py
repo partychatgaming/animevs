@@ -962,7 +962,7 @@ class Lookup(commands.Cog):
                         else:
                             pet_info = db.queryPet({'PET': summon})
                             summon_img = pet_info['PATH']
-                            pet_ability_power = list(pet_info['ABILITIES'][0].values())[1]
+                            pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
                             print(pet_info["ABILITIES"])
                             pet_ability = list(pet_info['ABILITIES'])[0]
                             summon_type = pet_ability['TYPE']
@@ -996,7 +996,7 @@ class Lookup(commands.Cog):
                             else:
                                 pet_info = db.queryPet({'PET': summon})
                                 summon_img = pet_info['PATH']
-                                pet_ability_power = list(pet_info['ABILITIES'][0].values())[1]
+                                pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
                                 
                                 pet_ability = list(pet_info['ABILITIES'])[0]
                                 summon_type = pet_ability['TYPE']
@@ -1010,7 +1010,7 @@ class Lookup(commands.Cog):
                     else:
                         pet_info = db.queryPet({'PET': summon})
                         summon_img = pet_info['PATH']
-                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[1]
+                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
                         
                         pet_ability = list(pet_info['ABILITIES'])[0]
                         summon_type = pet_ability['TYPE']
