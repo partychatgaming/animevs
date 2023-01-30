@@ -3,7 +3,7 @@ from discord.ext import commands
 import bot as main
 import crown_utilities
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
@@ -16,7 +16,6 @@ from discord_slash import cog_ext, SlashContext
 from discord_slash import SlashCommand
 from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
-from .crownunlimited import enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping
 
 class Titles(commands.Cog):
     def __init__(self, bot):

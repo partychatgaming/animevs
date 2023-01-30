@@ -17,13 +17,16 @@ class Battle:
         self._is_pvp_match = False
         self._is_available = True
         self._is_corrupted = False
+        self._can_save_match = False
 
         self._is_auto_battle = False
 
         self._list_of_opponents = []
         self._length_of_opponents = 0
         self._currentopponent = 0
+        self._match_lineup = ""
         self._is_turn = 0
+        self._turn_total = 0
         self._max_turns_allowed = 250
         self.previous_moves = []
         self.previous_moves_len = 0
@@ -63,6 +66,9 @@ class Battle:
         self.stat_debuff = 0
         self.ap_buff = 0
         self.ap_debuff = 0
+
+        # Universal Elemetal Buffs
+        self._wind_buff = 0
 
         self._ai_opponent_card_lvl = 0
         self._ai_opponent_summon_bond = 0
@@ -111,6 +117,7 @@ class Battle:
 
         if self.mode not in crown_utilities.PVP_M:
             self._is_tales = True
+            self._length_of_opponents = 1
 
         if self.mode in crown_utilities.AUTO_BATTLE_M:
             self._is_auto_battle = True
@@ -149,6 +156,7 @@ class Battle:
             self.health_buff = self.health_buff + 5000
             self.stat_buff = self.stat_buff + 250
             self.ap_buff = self.ap_buff + 250
+            self._length_of_opponents = 1
 
 
         if self.mode == crown_utilities.ABYSS:
@@ -159,6 +167,7 @@ class Battle:
 
         if self.mode == crown_utilities.EXPLORE:
             self._is_explore = True
+            self._length_of_opponents = 1
 
         if self.difficulty == "EASY":
             self._is_easy = True
@@ -406,6 +415,22 @@ class Battle:
             self._wins_boss_description = boss['DESCRIPTION'][14]
             # boss_special_move_default_msg = t_special_move_description
 
+
+    def set_who_starts_match(self, player1_speed, player2_speed):
+        if player1_speed >= player2_speed:
+            self._is_turn = 0
+        if player2_speed > player1_speed:
+            self._is_turn = 1
+
+
+    def get_lineup(self):
+        self._match_lineup = f"{str(self._currentopponent + 1)}/{str(self._length_of_opponents)}"
+
+
+    def get_can_save_match(self):
+        if self.mode not in crown_utilities.NOT_SAVE_MODES and self.difficulty != "EASY":
+            self._can_save_match = True
+        return self._can_save_match
 
 
     def get_ai_battle_ready(self):

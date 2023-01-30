@@ -111,9 +111,6 @@ class Player:
                         talisman_emoji = crown_utilities.set_emoji(self.equipped_talisman.upper())
                         talisman_durability = t["DUR"]
                 self.talisman_message = f"{talisman_emoji} {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
-            
-            return self.talisman_message
-
         except:
             print("Error setting talisman message.")
             return self.talisman_message

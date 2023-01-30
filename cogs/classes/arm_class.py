@@ -29,9 +29,7 @@ class Arm:
         
         if(self.universe != "Unbound"):
             self.show_img = db.queryUniverse({'TITLE': self.universe})['PATH']
-            return True
-        else:
-            return False
+
     
         if self.exclusive:
             self.price_message = "_Priceless_"

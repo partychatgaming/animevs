@@ -4,7 +4,7 @@ from discord.ext import commands
 import bot as main
 import crown_utilities
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
@@ -14,7 +14,6 @@ from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
 from discord_slash import cog_ext, SlashContext
-from .crownunlimited import showsummon
 
 class Pet(commands.Cog):
     def __init__(self, bot):

@@ -1,13 +1,11 @@
+import time
 from operator import floordiv
 from discord import guild, message
-import time
 from re import T
 import discord
 from discord.ext import commands
-import bot as main
-import crown_utilities
 import db
-import classes as data
+import dcf_file as data
 import destiny as d
 import messages as m
 import numpy as np
@@ -26,6 +24,8 @@ from io import BytesIO
 import io
 import asyncio
 import textwrap
+import bot as main
+import crown_utilities
 from .classes.player_class import Player
 from .classes.card_class import Card
 from .classes.title_class import Title
@@ -47,7 +47,7 @@ class CrownUnlimited(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
-        self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.member)
+        self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)
     co_op_modes = ['CTales', 'DTales', 'CDungeon', 'DDungeon']
     ai_co_op_modes = ['DTales', 'DDungeon']
     U_modes = ['ATales', 'Tales', 'CTales', 'DTales']
@@ -93,7 +93,8 @@ class CrownUnlimited(commands.Cog):
                     uni = card_that_leveled['UNIVERSE']
                     nam = card_that_leveled['NAME']
                     mode = "Tales"
-                    await crown_utilities.cardlevel(nam, str(message.author.id), mode, uni)
+                    u = await main.bot.fetch_user(str(message.author.id))
+                    await crown_utilities.cardlevel(u, nam, str(message.author.id), mode, uni)
                 else:
                     return
             except Exception as e:
@@ -126,13 +127,14 @@ class CrownUnlimited(commands.Cog):
             player = db.queryUser({'DID': str(message.author.id)})
             if not player:
                 return
-            if p.explore is False:
-                return
-
             p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'])    
             battle = Battle(mode, p)
             if p.get_locked_feature(mode):
                 return
+
+            if p.explore is False:
+                return
+
 
             all_universes = db.queryExploreUniverses()
             available_universes = [x for x in all_universes]
@@ -1902,7 +1904,8 @@ async def abyss_level_up_message(did, floor, card, title, arm):
 
         
         if floor in abyss_floor_reward_list:
-            tresponse = await crown_utilities.store_drop_card(did, title_drop, title_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "titles")
+            u = await main.bot.fetch_user(did)
+            tresponse = await crown_utilities.store_drop_card(u, did, title_drop, title_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "titles")
             # current_titles = vault['TITLES']
             # if len(current_titles) >=25:
             #     drop_message.append("You have max amount of Titles. You did not receive the **Floor Title**.")
@@ -1912,7 +1915,7 @@ async def abyss_level_up_message(did, floor, card, title, arm):
             #     db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title_drop)}}) 
             #     drop_message.append(f"🎗️ **{title_drop}**")
 
-            aresponse = await crown_utilities.store_drop_card(did, arm_arm, arm['UNIVERSE'], vault, durability, coin_drop, coin_drop, "Abyss", False, 0, "arms")
+            aresponse = await crown_utilities.store_drop_card(u, did, arm_arm, arm['UNIVERSE'], vault, durability, coin_drop, coin_drop, "Abyss", False, 0, "arms")
             # current_arms = []
             # for arm in vault['ARMS']:
             #     current_arms.append(arm['ARM'])
@@ -1923,8 +1926,8 @@ async def abyss_level_up_message(did, floor, card, title, arm):
             # else:
             #     db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm_drop['ARM']), 'DUR': 25}}})
             #     drop_message.append(f"🦾 **{arm_drop['ARM']}**")
-
-            cresponse = await crown_utilities.store_drop_card(did, card_drop, card_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "cards")
+            
+            cresponse = await crown_utilities.store_drop_card(u, did, card_drop, card_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "cards")
             drop_message.append(tresponse)
             drop_message.append(aresponse)
             drop_message.append(cresponse)
@@ -2080,489 +2083,6 @@ def get_card(url, cardname, cardtype):
         }))
         return         
           
-    except Exception as ex:
-        trace = []
-        tb = ex.__traceback__
-        while tb is not None:
-            trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-        print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-        }))
-        return
-
-
-def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, title, focused, attack, defense, turn_total, ap1,
-             ap2, ap3, enh1, enhname, lvl, op_defense):
-    # Card Name can be 16 Characters before going off Card
-    # Lower Card Name Font once after 16 characters
-    try:
-        
-        if health <= 0:
-            im = get_card(d['PATH'], d['NAME'], "base")
-            im.save("text.png")
-            return discord.File("text.png")
-        else:
-            if resolved:
-                im = get_card(d['RPATH'], d['RNAME'], "resolve")
-            elif focused:
-                if d["FPATH"]:
-                    im = get_card(d['FPATH'], d['NAME'], "focus")
-                else:
-                    im = get_card(d['PATH'], d['NAME'], "base")
-            else:
-                im = get_card(d['PATH'], d['NAME'], "base")
-
-            draw = ImageDraw.Draw(im)
-
-            # Font Size Adjustments
-            # Name not go over Card
-            card_tier = d['TIER']
-            name_font_size = 60
-            title_font_size = 35
-            basic_font_size = 30
-            super_font_size = 30
-            ultimate_font_size = 30
-            enhancer_font_size = 30
-            title_size = (600, 65)
-            if len(list(d['NAME'])) >= 15 and not resolved:
-                name_font_size = 45
-            if len(list(d['RNAME'])) >= 15 and resolved:
-                name_font_size = 45
-            if len(list(d['NAME'])) >= 18 and not resolved:
-                name_font_size = 40
-                title_size = (600, 80)
-            if len(list(d['RNAME'])) >= 18 and resolved:
-                name_font_size = 40
-                title_size = (600, 80)
-            if len(list(d['NAME'])) >= 25 and not resolved:
-                name_font_size = 35
-                title_size = (600, 80)
-            if len(list(d['RNAME'])) >= 25 and resolved:
-                name_font_size = 35
-                title_size = (600, 80)
-            
-            
-            title_len = int(len(list(title['TITLE'])))
-            title_message = f"{title['TITLE']}"
-            if 'ABILITIES' in title:
-                title_passive = title['ABILITIES'][0]
-                title_passive_type = list(title_passive.keys())[0]
-                title_passive_value = list(title_passive.values())[0]
-                title_message = f"{title_passive_type.title()} {title_passive_value}"
-
-            # Card Passive
-            passive = d['PASS'][0]
-            card_passive_type = list(passive.values())[1]
-            passive_num = 0
-            if card_passive_type:
-                value_for_passive = d['TIER'] * .5
-                flat_for_passive = round(10 * (d['TIER'] * .5))
-                stam_for_passive = 5 * (d['TIER'] * .5)
-                if card_passive_type == "HLT":
-                    passive_num = value_for_passive
-                if card_passive_type == "LIFE":
-                    passive_num = value_for_passive
-                if card_passive_type == "ATK":
-                    passive_num = value_for_passive
-                if card_passive_type == "DEF":
-                    passive_num = value_for_passive
-                if card_passive_type == "STAM":
-                    passive_num = stam_for_passive
-                if card_passive_type == "DRAIN":
-                    passive_num = stam_for_passive
-                if card_passive_type == "FLOG":
-                    passive_num = value_for_passive
-                if card_passive_type == "WITHER":
-                    passive_num = value_for_passive
-                if card_passive_type == "RAGE":
-                    passive_num = value_for_passive
-                if card_passive_type == "BRACE":
-                    passive_num = value_for_passive
-                if card_passive_type == "BZRK":
-                    passive_num = value_for_passive
-                if card_passive_type == "CRYSTAL":
-                    passive_num = value_for_passive
-                if card_passive_type == "FEAR":
-                    passive_num = flat_for_passive
-                if card_passive_type == "GROWTH":
-                    passive_num = flat_for_passive
-                if card_passive_type == "CREATION":
-                    passive_num = value_for_passive
-                if card_passive_type == "DESTRUCTION":
-                    passive_num = value_for_passive
-                if card_passive_type == "SLOW":
-                    passive_num = "1"
-                if card_passive_type == "HASTE":
-                    passive_num = "1"
-                if card_passive_type == "STANCE":
-                    passive_num = flat_for_passive
-                if card_passive_type == "CONFUSE":
-                    passive_num = flat_for_passive
-                if card_passive_type == "BLINK":
-                    passive_num = stam_for_passive
-
-            card_message = f"{card_passive_type.title()} {passive_num}"
-
-
-            # if title_len >= 18:
-            #     title_font_size = 10
-            # if title_len >= 20:
-            #     title_font_size = 10
-            # if title_len >= 25:
-            #     title_font_size = 10
-                
-            #Moveset Emojis
-                
-            engagement_basic = 0
-            engagement_special = 0
-            engagement_ultimate = 0
-            ebasic = '💢'
-            especial = '💢'
-            eultimate = '🗯️'
-            if op_defense is None:
-                ebasic = ' '
-                especial = ' '
-                eultimate = ' '
-            else:
-                defensepower = op_defense - attack
-                if defensepower <=0:
-                    defensepower = 1
-                
-                basic_ability_power =  attack - op_defense + ap1
-                if basic_ability_power <= 0:
-                    basic_ability_power = ap1
-                
-                basic = round((basic_ability_power / defensepower))
-                if basic > (ap1 * 2):
-                    engagement_basic = 5
-                    ebasic = '❌x2'
-                elif basic > (ap1 * 1.5):
-                    engagement_basic = 4
-                    ebasic = '〽️x1.5'
-                elif basic >= (ap1 * 1.1):
-                    engagement_basic = 3
-                    ebasic = '‼️'
-                elif basic < (ap1 / 2)  and basic > (ap1 / 3):
-                    engagement_basic = 2
-                    ebasic = '❕'
-                elif basic < (ap1 / 3):
-                    engagement_basic = 1
-                    ebasic = '💢'
-            
-                special_ability_power =  attack - op_defense + ap2
-                if special_ability_power <= 0:
-                    special_ability_power = ap2
-                    
-                special = round(special_ability_power/ defensepower)
-                if special > (ap1 * 2):
-                    engagement_special = 5
-                    especial = '❌x2'
-                elif special > (ap1 * 1.5):
-                    engagement_special = 4
-                    especial = '〽️x1.5'
-                elif special >= (ap2 * 1.1):
-                    engagement_special = 3
-                    especial = '‼️'
-                elif special < (ap2 / 2) and special > (ap2 / 3):
-                    engagement_special = 2
-                    especial = '❕'
-                elif special < (ap2 / 3):
-                    engagement_special = 1
-                    especial = '💢'
-        
-                ultimate_ability_power =  attack - op_defense + ap3
-                if ultimate_ability_power <= 0:
-                    ultimate_ability_power = ap3
-                ultimate = round(ultimate_ability_power / defensepower)
-                if ultimate > (ap1 * 2):
-                    engagement_ultimate = 5
-                    eultimate = '❌x2'
-                elif ultimate > (ap1 * 1.5):
-                    engagement_ultimate = 4
-                    eultimate = '〽️x1.5'
-                elif ultimate >= (ap3 * 1.1):
-                    engagement_ultimate = 3
-                    eultimate = '‼️'
-                elif ultimate < (ap3 / 2) and ultimate > (ap3 / 3):
-                    engagement_ultimate = 2
-                    eultimate = '❕'
-                elif ultimate < (ap3 / 3):
-                    engagement_ultimate = 1
-                    eultimate = '💢'
-                
-            
-            # Moveset Start
-            moveset = d['MOVESET']
-            
-            if d['UNIVERSE'] == "Souls" and resolved:
-                move3 = moveset[2]
-                move2 = moveset[2]
-                move1 = moveset[1]
-            else:
-                move3 = moveset[2]
-                move2 = moveset[1]
-                move1 = moveset[0]
-                
-            
-
-            if arm != "none":
-                arm_passive = arm['ABILITIES'][0]
-                arm_name = arm['ARM']
-                arm_price = arm['PRICE']
-                arm_element = arm['ELEMENT']
-                arm_passive_type = list(arm_passive.keys())[0]
-                arm_passive_value = list(arm_passive.values())[0]
-                arm_message = f"{arm_passive_type.title()} {arm_passive_value}"
-                if d['UNIVERSE'] == "Souls" and resolved:
-                    if arm_passive_type == 'SPECIAL':
-                        move1 = {arm_name: (arm_passive_value), "STAM": 10, "ELEMENT": arm_element}
-                        arm_message = "Ability"
-                    elif arm_passive_type == 'ULTIMATE':
-                        move2 = {arm_name: (arm_passive_value), "STAM": 30, "ELEMENT": arm_element}
-                        arm_message = "Ability"
-                else:
-                    if arm_passive_type == 'BASIC':
-                        move1 = {arm_name: (arm_passive_value), "STAM": 10, "ELEMENT": arm_element}
-                        arm_message = "Ability"
-                    elif arm_passive_type == 'SPECIAL':
-                        move2 = {arm_name: (arm_passive_value), "STAM": 30, "ELEMENT": arm_element}
-                        arm_message = "Ability"
-                    elif arm_passive_type == 'ULTIMATE':
-                        move3 = {arm_name: (arm_passive_value), "STAM": 80, "ELEMENT": arm_element}
-                        arm_message = "Ability"
-
-                
-            
-            basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
-            super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
-            ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
-
-            move1_ap = round(ap1)
-            move2_ap = round(ap2)
-            move3_ap = round(ap3)
-            if arm != "none":
-                if d['UNIVERSE'] == "Souls" and resolved:
-                    if arm_passive_type == 'SPECIAL':
-                        move1_ap = round(move2_ap)
-                    if arm_passive_type == 'ULTIMATE':
-                        move2_ap = round(move3_ap)
-                else:
-                    if arm_passive_type == 'BASIC':
-                        move1_ap = round(move1_ap )
-                    if arm_passive_type == 'SPECIAL':
-                        move2_ap = round(move2_ap)
-                    if arm_passive_type == 'ULTIMATE':
-                        move3_ap = round(move3_ap)
-
-                
-
-            move1_text = f"{basic_attack_emoji} {list(move1.keys())[0]}: {move1_ap} {ebasic}"
-            move2_text = f"{super_attack_emoji} {list(move2.keys())[0]}: {move2_ap} {especial}"
-            move3_text = f"{ultimate_attack_emoji} {list(move3.keys())[0]}: {move3_ap} {eultimate}"
-            
-
-            move_enhanced = moveset[3]
-            move_enhanced_ap = enh1
-            move_enhanced_name = enhname
-            turn_crit = False
-            if enhname in Turn_Enhancer_Check:
-                if turn_total == 0:
-                    move_enhanced_ap = round(enh1)
-                    turn_crit = True
-                elif turn_total % 10 == 0:
-                    move_enhanced_ap = round(enh1)
-                    turn_crit = True
-                elif turn_total >= 1:
-                    move_enhanced_ap = round(enh1 / turn_total)
-                else:
-                    move_enhanced_ap = enh1
-            elif enhname in Damage_Enhancer_Check:
-                if turn_total > 0:
-                    move_enhanced_ap = round(enh1 * turn_total)
-                    if move_enhanced_ap >= (100 * card_tier):
-                        if move_enhanced_name == "BLAST":
-                            move_enhanced_ap = (100 * card_tier)
-                        else:
-                            move_enhanced_ap = (100 * card_tier)
-                        turn_crit = True
-                else:
-                    move_enhanced_ap = enh1
-            
-            if not turn_crit:
-                move_enhanced_text = f"🦠 {list(move_enhanced.keys())[0]}: {move_enhanced_name} {move_enhanced_ap}{enhancer_suffix_mapping[enhname]}"
-            elif enhname in Damage_Enhancer_Check and move_enhanced_ap == (100 * card_tier):
-                move_enhanced_text = f"🎇 {list(move_enhanced.keys())[0]}: {move_enhanced_name} {move_enhanced_ap}{enhancer_suffix_mapping[enhname]}"
-            elif enhname in Turn_Enhancer_Check and (turn_total % 10 == 0 or turn_total == 0):
-                move_enhanced_text = f"🎇 {list(move_enhanced.keys())[0]}: {move_enhanced_name} {move_enhanced_ap}{enhancer_suffix_mapping[enhname]}"
-            else:
-                move_enhanced_text = f"🎇 {list(move_enhanced.keys())[0]}: {move_enhanced_name} {move_enhanced_ap}{enhancer_suffix_mapping[enhname]}"
-
-
-            #Moveset Length
-            
-            basic_length = int(len(move1_text))
-            super_length = int(len(move2_text))
-            ultimate_length = int(len(move3_text))
-            enhancer_length = int(len(move_enhanced_text))
-            
-            
-            if basic_length >= 53:
-                basic_font_size = 27
-            if basic_length >= 60:
-                basic_font_size = 25
-            if basic_length >= 65:
-                basic_font_size = 23
-                
-            if super_length >= 53:
-                super_font_size = 27
-            if super_length >= 60:
-                super_font_size = 25
-            if super_length >= 65:
-                super_font_size = 23
-                
-            if ultimate_length >= 53:
-                ultimate_font_size = 27
-            if ultimate_length >= 60:
-                ultimate_font_size = 25
-            if ultimate_length >= 65:
-                ultimate_font_size = 23
-                
-            if enhancer_length >= 53:
-                enhancer_font_size = 27
-            if enhancer_length >= 60:
-                enhancer_font_size = 25
-            if enhancer_length >= 65:
-                enhancer_font_size = 23
-                
-            
-
-            header = ImageFont.truetype("YesevaOne-Regular.ttf", name_font_size)
-            title_font = ImageFont.truetype("YesevaOne-Regular.ttf", title_font_size)
-            passive_font = ImageFont.truetype("YesevaOne-Regular.ttf", 35)
-            s = ImageFont.truetype("Roboto-Bold.ttf", 22)
-            h = ImageFont.truetype("YesevaOne-Regular.ttf", 37)
-            m = ImageFont.truetype("Roboto-Bold.ttf", 25)
-            r = ImageFont.truetype("Freedom-10eM.ttf", 40)
-            lvl_font = ImageFont.truetype("Neuton-Bold.ttf", 68)
-            health_and_stamina_font = ImageFont.truetype("Neuton-Light.ttf", 41)
-            attack_and_shield_font = ImageFont.truetype("Neuton-Bold.ttf", 48)
-            moveset_font_1 = ImageFont.truetype("antonio.regular.ttf", basic_font_size)
-            moveset_font_2 = ImageFont.truetype("antonio.regular.ttf", super_font_size)
-            moveset_font_3 = ImageFont.truetype("antonio.regular.ttf", ultimate_font_size)
-            moveset_font_4 = ImageFont.truetype("antonio.regular.ttf", enhancer_font_size)
-            rhs = ImageFont.truetype("destructobeambb_bold.ttf", 35)
-            stats = ImageFont.truetype("Freedom-10eM.ttf", 30)
-            card_details_font_size = ImageFont.truetype("destructobeambb_bold.ttf", 25)
-            card_levels = ImageFont.truetype("destructobeambb_bold.ttf", 40)
-            
-
-            if health == max_health:
-                health_bar = f"{round(max_health)}"
-            else:
-                health_bar = f"{round(health)}/{round(max_health)}"
-
-            # Character & Title Name
-            if not resolved:
-                draw.text(title_size, d['NAME'], (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
-                          align="left")
-            if resolved:
-                if d['RNAME'] != "":
-                    draw.text(title_size, d['RNAME'], (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
-                            align="left")
-                else:
-                    draw.text(title_size, d['NAME'], (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
-                            align="left")
-
-            # draw.text((602, 150), title['TITLE'], (255, 255, 255), font=h, stroke_width=1, stroke_fill=(0, 0, 0),
-            #           align="left")
-
-            # Level
-            lvl_sizing = (89, 70)
-            if int(lvl) > 9:
-                lvl_sizing = (75, 70)
-            if int(lvl) > 99:
-                lvl_sizing = (55, 70)
-            draw.text(lvl_sizing, f"{lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
-                      align="center")
-
-            # Health & Stamina
-            rift_universes = ['Crown Rift Awakening']
-            if d['UNIVERSE'] in rift_universes:
-                draw.text((730, 417), health_bar, (0, 0, 0), font=health_and_stamina_font, align="left")
-                draw.text((730, 457), f"{stamina}", (0, 0, 0), font=health_and_stamina_font, align="left")
-            else:
-                draw.text((730, 417), health_bar, (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
-                        stroke_fill=(0, 0, 0), align="left")
-                draw.text((730, 457), f"{stamina}", (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
-                        stroke_fill=(0, 0, 0), align="left")
-
-            # Attack & Shield (Defense)
-            a_sizing = (89, 515)
-            d_sizing = (1062, 515)
-            if int(attack) > 99:
-                a_sizing = (78, 515)
-            if int(defense) > 99:
-                d_sizing = (1048, 515)
-            if int(attack) > 999:
-                a_sizing = (70, 515)
-            if int(defense) > 999:
-                d_sizing = (1040, 515)
-
-
-            draw.text(a_sizing, f"{round(attack)}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
-                      stroke_fill=(0, 0, 0), align="center")
-            draw.text(d_sizing, f"{round(defense)}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
-                      stroke_fill=(0, 0, 0), align="center")
-
-            
-            
-            # attack_stat = f"🗡️{round(attack)}"
-            # defense_stat = f"🛡️{round(defense)}"
-            if 'ABILITIES' in title:
-                title_suffix = title_enhancer_suffix_mapping[title_passive_type]
-                if mode == "battle":
-                    title_message_on_card = f"🎗️ {title_message}{title_suffix}"
-                else:
-                    title_message_on_card = f"🎗️ {title_message}{title_suffix}  🦾 {arm_message}"
-
-            else:
-                title_message_on_card = f"🎗️ None 🦾 None"
-            card_suffix = passive_enhancer_suffix_mapping[card_passive_type]
-            speed = d['SPD']
-            with Pilmoji(im) as pilmoji:
-                pilmoji.text((602, 138), f"{title_message_on_card}", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
-                      align="left")
-                pilmoji.text((602, 180), f"🩸 {card_message}{card_suffix} 🏃 {speed}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
-                      align="left")
-                pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
-                             stroke_fill=(0, 0, 0))
-                pilmoji.text((600, 290), move2_text.strip(), (255, 255, 255), font=moveset_font_2, stroke_width=2,
-                             stroke_fill=(0, 0, 0))
-                pilmoji.text((600, 330), move3_text.strip(), (255, 255, 255), font=moveset_font_3, stroke_width=2,
-                             stroke_fill=(0, 0, 0))
-                pilmoji.text((600, 370), move_enhanced_text.strip(), (255, 255, 255), font=moveset_font_4, stroke_width=2,
-                             stroke_fill=(0, 0, 0))
-
-                # pilmoji.text((40, 545), "🗡️", (255, 255, 255), font=moveset_font, stroke_width=2,
-                #              stroke_fill=(0, 0, 0))
-                # pilmoji.text((1000, 545), "🛡️", (255, 255, 255), font=moveset_font, stroke_width=2,
-                #              stroke_fill=(0, 0, 0))
-            # Moveset End
-
-            with BytesIO() as image_binary:
-                im.save(image_binary, "PNG")
-                image_binary.seek(0)
-                # await ctx.send(file=discord.File(fp=image_binary,filename="image.png"))
-                file = discord.File(fp=image_binary,filename="image.png")
-                return file
-
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -5625,7 +5145,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
             # If player changes their equipment after a round the new class will pick it up
 
             _player.get_battle_ready()
-            player1_card = Card(_player._equipped_card_data['NAME'], _player._equipped_card_data['PATH'], _player._equipped_card_data['PRICE'], _player._equipped_card_data['EXCLUSIVE'], _player._equipped_card_data['AVAILABLE'], _player._equipped_card_data['IS_SKIN'], _player._equipped_card_data['SKIN_FOR'], _player._equipped_card_data['HLT'], _player._equipped_card_data['HLT'], _player._equipped_card_data['STAM'], _player._equipped_card_data['STAM'], _player._equipped_card_data['MOVESET'], _player._equipped_card_data['ATK'], _player._equipped_card_data['DEF'], _player._equipped_card_data['TYPE'], _player._equipped_card_data['PASS'][0], _player._equipped_card_data['SPD'], _player._equipped_card_data['UNIVERSE'], _player._equipped_card_data['HAS_COLLECTION'], _player._equipped_card_data['TIER'], _player._equipped_card_data['COLLECTION'], _player._equipped_card_data['WEAKNESS'], _player._equipped_card_data['RESISTANT'], _player._equipped_card_data['REPEL'], _player._equipped_card_data['ABSORB'], _player._equipped_card_data['IMMUNE'], _player._equipped_card_data['GIF'], _player._equipped_card_data['FPATH'], _player._equipped_card_data['RNAME'])
+            player1_card = Card(_player._equipped_card_data['NAME'], _player._equipped_card_data['PATH'], _player._equipped_card_data['PRICE'], _player._equipped_card_data['EXCLUSIVE'], _player._equipped_card_data['AVAILABLE'], _player._equipped_card_data['IS_SKIN'], _player._equipped_card_data['SKIN_FOR'], _player._equipped_card_data['HLT'], _player._equipped_card_data['HLT'], _player._equipped_card_data['STAM'], _player._equipped_card_data['STAM'], _player._equipped_card_data['MOVESET'], _player._equipped_card_data['ATK'], _player._equipped_card_data['DEF'], _player._equipped_card_data['TYPE'], _player._equipped_card_data['PASS'][0], _player._equipped_card_data['SPD'], _player._equipped_card_data['UNIVERSE'], _player._equipped_card_data['HAS_COLLECTION'], _player._equipped_card_data['TIER'], _player._equipped_card_data['COLLECTION'], _player._equipped_card_data['WEAKNESS'], _player._equipped_card_data['RESISTANT'], _player._equipped_card_data['REPEL'], _player._equipped_card_data['ABSORB'], _player._equipped_card_data['IMMUNE'], _player._equipped_card_data['GIF'], _player._equipped_card_data['FPATH'], _player._equipped_card_data['RNAME'], _player._equipped_card_data['RPATH'])
             player1_title = Title(_player._equipped_title_data['TITLE'], _player._equipped_title_data['UNIVERSE'], _player._equipped_title_data['PRICE'], _player._equipped_title_data['EXCLUSIVE'], _player._equipped_title_data['AVAILABLE'], _player._equipped_title_data['ABILITIES'])            
             player1_arm = Arm(_player._equipped_arm_data['ARM'], _player._equipped_arm_data['UNIVERSE'], _player._equipped_arm_data['PRICE'], _player._equipped_arm_data['ABILITIES'], _player._equipped_arm_data['EXCLUSIVE'], _player._equipped_arm_data['AVAILABLE'], _player._equipped_arm_data['ELEMENT'])
 
@@ -5635,7 +5155,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
 
             if _battle.mode in crown_utilities.CO_OP_M or _battle.mode in crown_utilities.PVP_M:
                 _player2.get_battle_ready()
-                player2_card = Card(_player2._equipped_card_data['NAME'], _player2._equipped_card_data['PATH'], _player2._equipped_card_data['PRICE'], _player2._equipped_card_data['EXCLUSIVE'], _player2._equipped_card_data['AVAILABLE'], _player2._equipped_card_data['IS_SKIN'], _player2._equipped_card_data['SKIN_FOR'], _player2._equipped_card_data['HLT'], _player2._equipped_card_data['HLT'], _player2._equipped_card_data['STAM'], _player2._equipped_card_data['STAM'], _player2._equipped_card_data['MOVESET'], _player2._equipped_card_data['ATK'], _player2._equipped_card_data['DEF'], _player2._equipped_card_data['TYPE'], _player2._equipped_card_data['PASS'][0], _player2._equipped_card_data['SPD'], _player2._equipped_card_data['UNIVERSE'], _player2._equipped_card_data['HAS_COLLECTION'], _player2._equipped_card_data['TIER'], _player2._equipped_card_data['COLLECTION'], _player2._equipped_card_data['WEAKNESS'], _player2._equipped_card_data['RESISTANT'], _player2._equipped_card_data['REPEL'], _player2._equipped_card_data['ABSORB'], _player2._equipped_card_data['IMMUNE'], _player2._equipped_card_data['GIF'], _player2._equipped_card_data['FPATH'], _player2._equipped_card_data['RNAME'])
+                player2_card = Card(_player2._equipped_card_data['NAME'], _player2._equipped_card_data['PATH'], _player2._equipped_card_data['PRICE'], _player2._equipped_card_data['EXCLUSIVE'], _player2._equipped_card_data['AVAILABLE'], _player2._equipped_card_data['IS_SKIN'], _player2._equipped_card_data['SKIN_FOR'], _player2._equipped_card_data['HLT'], _player2._equipped_card_data['HLT'], _player2._equipped_card_data['STAM'], _player2._equipped_card_data['STAM'], _player2._equipped_card_data['MOVESET'], _player2._equipped_card_data['ATK'], _player2._equipped_card_data['DEF'], _player2._equipped_card_data['TYPE'], _player2._equipped_card_data['PASS'][0], _player2._equipped_card_data['SPD'], _player2._equipped_card_data['UNIVERSE'], _player2._equipped_card_data['HAS_COLLECTION'], _player2._equipped_card_data['TIER'], _player2._equipped_card_data['COLLECTION'], _player2._equipped_card_data['WEAKNESS'], _player2._equipped_card_data['RESISTANT'], _player2._equipped_card_data['REPEL'], _player2._equipped_card_data['ABSORB'], _player2._equipped_card_data['IMMUNE'], _player2._equipped_card_data['GIF'], _player2._equipped_card_data['FPATH'], _player2._equipped_card_data['RNAME'], _player2._equipped_card_data['RPATH'])
                 player2_title = Title(_player2._equipped_title_data['TITLE'], _player2._equipped_title_data['UNIVERSE'], _player2._equipped_title_data['PRICE'], _player2._equipped_title_data['EXCLUSIVE'], _player2._equipped_title_data['AVAILABLE'], _player2._equipped_title_data['ABILITIES'])            
                 player2_arm = Arm(_player2._equipped_arm_data['ARM'], _player2._equipped_arm_data['UNIVERSE'], _player2._equipped_arm_data['PRICE'], _player2._equipped_arm_data['ABILITIES'], _player2._equipped_arm_data['EXCLUSIVE'], _player2._equipped_arm_data['AVAILABLE'], _player2._equipped_arm_data['ELEMENT'])
 
@@ -5646,7 +5166,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
 
             if _battle.is_ai_opponent:
                 _battle.get_ai_battle_ready()
-                ai_opponent_card = Card(_battle._ai_opponent_card_data['NAME'], _battle._ai_opponent_card_data['PATH'], _battle._ai_opponent_card_data['PRICE'], _battle._ai_opponent_card_data['EXCLUSIVE'], _battle._ai_opponent_card_data['AVAILABLE'], _battle._ai_opponent_card_data['IS_SKIN'], _battle._ai_opponent_card_data['SKIN_FOR'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['MOVESET'], _battle._ai_opponent_card_data['ATK'], _battle._ai_opponent_card_data['DEF'], _battle._ai_opponent_card_data['TYPE'], _battle._ai_opponent_card_data['PASS'][0], _battle._ai_opponent_card_data['SPD'], _battle._ai_opponent_card_data['UNIVERSE'], _battle._ai_opponent_card_data['HAS_COLLECTION'], _battle._ai_opponent_card_data['TIER'], _battle._ai_opponent_card_data['COLLECTION'], _battle._ai_opponent_card_data['WEAKNESS'], _battle._ai_opponent_card_data['RESISTANT'], _battle._ai_opponent_card_data['REPEL'], _battle._ai_opponent_card_data['ABSORB'], _battle._ai_opponent_card_data['IMMUNE'], _battle._ai_opponent_card_data['GIF'], _battle._ai_opponent_card_data['FPATH'], _battle._ai_opponent_card_data['RNAME'])
+                ai_opponent_card = Card(_battle._ai_opponent_card_data['NAME'], _battle._ai_opponent_card_data['PATH'], _battle._ai_opponent_card_data['PRICE'], _battle._ai_opponent_card_data['EXCLUSIVE'], _battle._ai_opponent_card_data['AVAILABLE'], _battle._ai_opponent_card_data['IS_SKIN'], _battle._ai_opponent_card_data['SKIN_FOR'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['MOVESET'], _battle._ai_opponent_card_data['ATK'], _battle._ai_opponent_card_data['DEF'], _battle._ai_opponent_card_data['TYPE'], _battle._ai_opponent_card_data['PASS'][0], _battle._ai_opponent_card_data['SPD'], _battle._ai_opponent_card_data['UNIVERSE'], _battle._ai_opponent_card_data['HAS_COLLECTION'], _battle._ai_opponent_card_data['TIER'], _battle._ai_opponent_card_data['COLLECTION'], _battle._ai_opponent_card_data['WEAKNESS'], _battle._ai_opponent_card_data['RESISTANT'], _battle._ai_opponent_card_data['REPEL'], _battle._ai_opponent_card_data['ABSORB'], _battle._ai_opponent_card_data['IMMUNE'], _battle._ai_opponent_card_data['GIF'], _battle._ai_opponent_card_data['FPATH'], _battle._ai_opponent_card_data['RNAME'], _battle._ai_opponent_card_data['RPATH'])
                 ai_opponent_title = Title(_battle._ai_opponent_title_data['TITLE'], _battle._ai_opponent_title_data['UNIVERSE'], _battle._ai_opponent_title_data['PRICE'], _battle._ai_opponent_title_data['EXCLUSIVE'], _battle._ai_opponent_title_data['AVAILABLE'], _battle._ai_opponent_title_data['ABILITIES'])            
                 ai_opponent_arm = Arm(_battle._ai_opponent_arm_data['ARM'], _battle._ai_opponent_arm_data['UNIVERSE'], _battle._ai_opponent_arm_data['PRICE'], _battle._ai_opponent_arm_data['ABILITIES'], _battle._ai_opponent_arm_data['EXCLUSIVE'], _battle._ai_opponent_arm_data['AVAILABLE'], _battle._ai_opponent_arm_data['ELEMENT'])
                 
@@ -5665,7 +5185,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                 player1_card.set_solo_leveling_config(player2._shield_active, player2._shield_value, player2._barrier_active, player2._barrier_value, player2._parry_active, player2._parry_value)
 
 
-            if mode in PVP_MODES or mode in RAID_MODES:
+            if _battle.mode in PVP_MODES or _battle.mode in RAID_MODES:
                 if mode in RAID_MODES:
                     tperformance = stats['operformance']
                 else:
@@ -5866,15 +5386,6 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                 t_defend_used = stats['t_defend_used']
                 t_title = ttitle['TITLE']
 
-            if mode in B_modes:
-                turn = 0
-            else:
-                if o_speed > t_speed:
-                    turn = 0
-                else:
-                    turn = 1
-            turn_total = 0
-
             botActive = True
             tutorial = False
             raidActive = False
@@ -5887,10 +5398,10 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
             tutorial_summon = False
             tutorial_focus= False
 
-            if mode == "RAID":
+            if _battle.mode == "RAID":
                 raidActive = True
                 botActive= False
-            if mode in PVP_MODES:
+            if _battle.mode in PVP_MODES:
                 botActive = False
                 tutorialbot = '837538366509154407'
                 legendbot = '845672426113466395'
@@ -5912,8 +5423,6 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                     else:
                         turn = 1
 
-            if mode not in B_modes and not randomized_battle and mode not in PVP_MODES and mode not in RAID_MODES:
-                lineup = f"{currentopponent + 1}/{total_legends}"
             options = [1, 2, 3, 4, 5, 0]
 
 
@@ -5932,7 +5441,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                 ),
             ]
 
-            if auto_battle and mode not in ai_co_op_modes and mode not in co_op_modes:
+            if _battle._is_auto_battle and not _battle._is_co_op and not _battle._is_duo:
                 start_tales_buttons.append(
                     manage_components.create_button(
                         style=ButtonStyle.grey,
@@ -5942,46 +5451,24 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
 
                 )
             
-            original_mode = mode
+            # original_mode = mode
 
-            if tutorial ==False and mode not in PVP_MODES and mode not in RAID_MODES and mode not in B_modes and mode != "ABYSS" and mode != "SCENARIO":
-                if currentopponent > 0 and not randomized_battle and mode not in PVP_MODES and mode not in B_modes:
-                    if difficulty != "EASY":
-                        start_tales_buttons.append(
-
-                            manage_components.create_button(
-                                style=ButtonStyle.green,
-                                label="Save Game",
-                                custom_id="save_tales_yes"
-                            )
+            if not _battle._is_tutorial and _battle.get_can_save_match():
+                if _battle.currentopponent > 0:
+                    start_tales_buttons.append(
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="Save Game",
+                            custom_id="save_tales_yes"
                         )
+                    )
 
             start_tales_buttons_action_row = manage_components.create_actionrow(*start_tales_buttons)
-
-            tap1 = list(t_1.values())[0] + tcard_lvl_ap_buff + t_shock_buff + t_basic_water_buff + t_ap_buff
-            tap2 = list(t_2.values())[0] + tcard_lvl_ap_buff + t_shock_buff + t_special_water_buff + t_ap_buff
-            tap3 = list(t_3.values())[0] + tcard_lvl_ap_buff + tdemon_slayer_buff + t_shock_buff + t_ultimate_water_buff + t_ap_buff
-            tenh1 = list(t_enhancer.values())[0]
-            tenh_name = list(t_enhancer.values())[2]
-
-            if tap1 < 150:
-                tap1 = 150
-            if tap2 < 150:
-                tap2 = 150            
-            if tap3 < 150:
-                tap3 = 150
             
 
-            # UNIVERSE CARD
-            if t_universe == "Souls" and t_used_resolve:
-                player_2_card = showcard("non-battle", t, tarm, t_max_health, t_health, t_max_stamina, t_stamina,
+            player_2_card_image = showcard("non-battle", player, tarm, t_max_health, t_health, t_max_stamina, t_stamina,
                                     t_used_resolve, ttitle, t_used_focus, t_attack, t_defense,
                                     turn_total, tap2, tap3, tap3, tenh1, tenh_name, tcard_lvl, o_defense)
-            else:
-                player_2_card = showcard("non-battle", t, tarm, t_max_health, t_health, t_max_stamina, t_stamina,
-                                        t_used_resolve, ttitle, t_used_focus, t_attack, t_defense,
-                                        turn_total, tap1, tap2, tap3, tenh1, tenh_name, tcard_lvl, o_defense)
-            # await private_channel.send(file=player_2_card)
             
             
 
@@ -21054,7 +20541,8 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                     cfambank = await crown_utilities.blessfamily(bank_amount, cfam)
                                     cteambank = await crown_utilities.blessteam(bank_amount, cteam)
                                     cpetlogger = await summonlevel(cpet_name, user2)
-                                    ccardlogger = await crown_utilities.cardlevel(c_card, user2.id, "Dungeon", selected_universe)
+                                    uc = await main.bot.fetch_user(user2.id)
+                                    ccardlogger = await crown_utilities.cardlevel(uc, c_card, user2.id, "Dungeon", selected_universe)
                                     await crown_utilities.bless(50000, str(user2.id))
                                     teammates = False
                                     fam_members =False
@@ -21091,7 +20579,8 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                 ofambank = await crown_utilities.blessfamily(fam_amount, ofam)
                                 oteambank = await crown_utilities.blessteam(bank_amount, oteam)
                                 petlogger = await summonlevel(opet_name, ouser)
-                                cardlogger = await crown_utilities.cardlevel(o_card, ouser.id, "Dungeon", selected_universe)
+                                u = await main.bot.fetch_user(ouser.id)
+                                cardlogger = await crown_utilities.cardlevel(u, o_card, ouser.id, "Dungeon", selected_universe)
 
                                 if crestsearch:
                                     await crown_utilities.blessguild(25000, oguild['GNAME'])
@@ -21153,7 +20642,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                     new_level = floor + 1
                                     response = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'LEVEL': new_level}})
                                     abyss_message = await abyss_level_up_message(str(ctx.author.id), floor, t_card, t_title, tarm_name)
-                                    cardlogger = await crown_utilities.cardlevel(o_card, ctx.author.id, "Purchase", "n/a")
+                                    cardlogger = await crown_utilities.cardlevel(ouser, o_card, ctx.author.id, "Purchase", "n/a")
                                     abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
                                     bless_amount = 100000 + (10000 * floor)
                                     await crown_utilities.bless(bless_amount, ctx.author.id)
@@ -21191,7 +20680,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                 if currentopponent != (total_legends):
                                     uid = o_DID
                                     ouser = await self.bot.fetch_user(uid)
-                                    cardlogger = await crown_utilities.cardlevel(o_card, ouser.id, "Tales", universe['UNIVERSE'])
+                                    cardlogger = await crown_utilities.cardlevel(ouser, o_card, ouser.id, "Tales", universe['UNIVERSE'])
 
                                     embedVar = discord.Embed(title=f"VICTORY\nThe game lasted {turn_total} rounds.",description=textwrap.dedent(f"""
                                     {previous_moves_into_embed}
@@ -21275,7 +20764,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                     questlogger = await quest(ouser, t_card, tale_or_dungeon_only)
                                     destinylogger = await destiny(ouser, t_card, tale_or_dungeon_only)
                                     petlogger = await summonlevel(opet_name, ouser)
-                                    cardlogger = await crown_utilities.cardlevel(o_card, ouser.id, tale_or_dungeon_only, selected_universe)
+                                    cardlogger = await crown_utilities.cardlevel(ouser, o_card, ouser.id, tale_or_dungeon_only, selected_universe)
                                     # if questlogger:
                                     #     await private_channel.send(questlogger)
                                     # if destinylogger:
@@ -21325,7 +20814,8 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                     cfambank = await crown_utilities.blessfamily(fam_amount, cfam)
                                     cteambank = await crown_utilities.blessteam(bank_amount, cteam)
                                     cpetlogger = await summonlevel(cpet_name, user2)
-                                    ccardlogger = await crown_utilities.cardlevel(c_card, user2.id, tale_or_dungeon_only, selected_universe)
+                                    ucc = await main.bot.fetch_user(user2.id)
+                                    ccardlogger = await crown_utilities.cardlevel(ucc, c_card, user2.id, tale_or_dungeon_only, selected_universe)
                                     await crown_utilities.bless(5000, str(user2.id))
                                     cessence = crown_utilities.inc_essence(cuser.id, ran_element["ELEMENT"], ran_element["ESSENCE"])
                                 if currentopponent != (total_legends):
@@ -21888,7 +21378,8 @@ async def scenario_drop(self, ctx, scenario, difficulty):
                 return f"You earned _Arm:_ {reward} with ⚒️**{str(100)} Durability** and :coin: **{'{:,}'.format(scenario_gold)}**!"
         else:
             card = db.queryCard({"NAME": rewarded})
-            response = await crown_utilities.store_drop_card(str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
+            u = await main.bot.fetch_user(str(ctx.author.id))
+            response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
             response = f"{response}\nYou earned :coin: **{'{:,}'.format(scenario_gold)}**!"
             if not response:
                 bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
@@ -22051,7 +21542,8 @@ async def drops(self,player, universe, matchcount):
                 #     return f"You already own **{titles[rand_title]}**! You earn :coin: **150**."
                 # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
                 # return f"You earned _Title:_ **{titles[rand_title]}**!"
-                response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 150, 150, "mode", False, 0, "titles")
+                u = await main.bot.fetch_user(player.id)
+                response = await crown_utilities.store_drop_card(u, player.id, titles[rand_title], universe, vault, owned_destinies, 150, 150, "mode", False, 0, "titles")
                 return response
             else:
                 await crown_utilities.bless(150, player.id)
@@ -22067,7 +21559,8 @@ async def drops(self,player, universe, matchcount):
                 # else:
                 #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
                 #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
-                response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 2000, 2000, "mode", False, 0, "arms")
+                u = await main.bot.fetch_user(player.id)
+                response = await crown_utilities.store_drop_card(u, player.id, arms[rand_arm], universe, vault, durability, 2000, 2000, "mode", False, 0, "arms")
             else:
                 await crown_utilities.bless(150, player.id)
                 return f"You earned :coin: **150**!"
@@ -22103,7 +21596,8 @@ async def drops(self,player, universe, matchcount):
                 return f"You earned :coin: **150**!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
             if all_available_drop_cards:
-                response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 3000, 1000, "mode", False, 0, "cards")
+                u = await main.bot.fetch_user(player.id)
+                response = await crown_utilities.store_drop_card(u, player.id, cards[rand_card], universe, vault, owned_destinies, 3000, 1000, "mode", False, 0, "cards")
                 if not response:
                     bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
                     await crown_utilities.bless(bless_amount, player.id)
@@ -22153,7 +21647,8 @@ async def specific_drops(self,player, card, universe):
         owned_destinies.append(destiny['NAME'])
 
     try:
-        response = await crown_utilities.store_drop_card(player, card, universe, vault, owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
+        u = await main.bot.fetch_user(player)
+        response = await crown_utilities.store_drop_card(u, player, card, universe, vault, owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
         return response
     except Exception as ex:
         trace = []
@@ -22308,7 +21803,8 @@ async def dungeondrops(self, player, universe, matchcount):
             #         return f"You already own **{titles[rand_title]}**! You earn :coin: **2000**."
             # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
             # return f"You earned _Title:_ **{titles[rand_title]}**!"
-            response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000,"mode", False, 0, "titles")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000,"mode", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
             # if len(vault['ARMS']) >= 25:
@@ -22320,7 +21816,8 @@ async def dungeondrops(self, player, universe, matchcount):
             # else:
             #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
             #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
-            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 3000, 3000,"mode", False, 0, "arms")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, arms[rand_arm], universe, vault, durability, 3000, 3000,"mode", False, 0, "arms")
             return response
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if len(vault['PETS']) >= 25:
@@ -22346,7 +21843,8 @@ async def dungeondrops(self, player, universe, matchcount):
                 await crown_utilities.bless(10000, player.id)
                 return f"You earned _Summon:_ **{pets[rand_pet]}** + :coin: 10000!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 5000, 2500,"mode", False, 0, "cards")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, cards[rand_card], universe, vault, owned_destinies, 5000, 2500,"mode", False, 0, "cards")
             return response
     except Exception as ex:
         trace = []
@@ -22476,7 +21974,8 @@ async def bossdrops(self,player, universe):
             #         return f"You already own **{titles[rand_title]}**! You earn :coin: **30000**."
             # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
             # return f"You earned {titles[rand_title]}!"
-            response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000, "Dungeon", False, 0, "titles")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000, "Dungeon", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
             # if len(vault['ARMS']) >= 25:
@@ -22488,7 +21987,8 @@ async def bossdrops(self,player, universe):
             # else:
             #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
             #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
-            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 40000, 40000, "Dungeon", False, 0, "arms")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, arms[rand_arm], universe, vault, durability, 40000, 40000, "Dungeon", False, 0, "arms")
             return response
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if len(vault['PETS']) >= 25:
@@ -22505,7 +22005,8 @@ async def bossdrops(self,player, universe):
             await crown_utilities.bless(750000, player.id)
             return f"You earned {pets[rand_pet]} + :coin: 750000!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 500000, 500000, "Dungeon", False, 0, "cards")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, cards[rand_card], universe, vault, owned_destinies, 500000, 500000, "Dungeon", False, 0, "cards")
             return response
         elif drop_rate <= boss_title_drop and drop_rate > card_drop:
             # if len(vault['TITLES']) >= 25:
@@ -22513,7 +22014,8 @@ async def bossdrops(self,player, universe):
             #     return f"You're maxed out on Titles! You earned :coin: **10,000,000** instead!"
             # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(boss_title)}})
             # return f"You earned the Exclusive Boss Title: {boss_title}!"
-            response = await crown_utilities.store_drop_card(player.id, boss_title, universe, vault, owned_destinies, 50000, 50000, "Boss", False, 0, "titles")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, boss_title, universe, vault, owned_destinies, 50000, 50000, "Boss", False, 0, "titles")
             return response
         elif drop_rate <= boss_arm_drop and drop_rate > boss_title_drop:
             # if len(vault['ARMS']) >= 25:
@@ -22525,7 +22027,8 @@ async def bossdrops(self,player, universe):
             # else:
             #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(boss_arm), 'DUR': durability}}})
             #     return f"You earned the Exclusive Boss Arm: **{str(boss_arm)}** with ⚒️**{str(durability)}**!"
-            response = await crown_utilities.store_drop_card(player.id, boss_arm, universe, vault, durability, 9000000, 9000000, "Boss", False, 0, "arms")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, boss_arm, universe, vault, durability, 9000000, 9000000, "Boss", False, 0, "arms")
             return response
         elif drop_rate <= boss_pet_drop and drop_rate > boss_arm_drop:
             if len(vault['PETS']) >= 25:
@@ -22542,7 +22045,8 @@ async def bossdrops(self,player, universe):
             await crown_utilities.bless(10000000, player.id)
             return f"You earned the Exclusive Boss Summon:  {boss['PET']} + :coin: **10,000,000**!"
         elif drop_rate <= boss_card_drop and drop_rate > boss_pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, boss_card, universe, vault, owned_destinies, 30000, 10000, "Boss", False, 0, "cards")
+            u = await main.bot.fetch_user(player.id)
+            response = await crown_utilities.store_drop_card(u, player.id, boss_card, universe, vault, owned_destinies, 30000, 10000, "Boss", False, 0, "cards")
             return response
     except Exception as ex:
         trace = []
@@ -22846,6 +22350,7 @@ title_enhancer_mapping = {'ATK': 'Increase Attack',
 'PARRY': 'Returns 25% Damage, until broken',
 'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
+
 element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Damage',
 'FIRE': 'Does 25% damage of previous attack over the next opponent turns, stacks',
 'ICE': 'After 2 uses opponent freezes and loses 1 turn',
@@ -22866,6 +22371,7 @@ element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Dam
 'BLEED': 'After 3 Attacks deal 10x turn count damage to opponent',
 'GRAVITY': 'Disables Opponent Block and Reduce opponent DEF by 25% AP'
 }
+
 passive_enhancer_suffix_mapping = {'ATK': ' %',
 'DEF': ' %',
 'STAM': ' Flat',
@@ -22901,6 +22407,8 @@ passive_enhancer_suffix_mapping = {'ATK': ' %',
 'PARRY': ' Counters 🔄',
 'SIPHON': ' Healing 💉'
 }
+
+
 enhancer_suffix_mapping = {'ATK': '%',
 'DEF': '%',
 'STAM': ' Flat',

@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 import bot as main
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
@@ -16,7 +16,6 @@ from PIL import Image, ImageFont, ImageDraw
 import requests
 from collections import ChainMap
 import DiscordUtils
-from .crownunlimited import showcard
 import random
 import textwrap
 from collections import Counter

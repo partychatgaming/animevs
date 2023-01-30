@@ -4,7 +4,7 @@ from discord.ext import commands
 import bot as main
 import crown_utilities
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
@@ -18,14 +18,12 @@ from io import BytesIO
 import io
 import DiscordUtils
 import textwrap
-from .crownunlimited import enhancer_mapping, enhancer_suffix_mapping
 from collections import Counter
 from discord_slash import cog_ext, SlashContext
 from dinteractions_Paginator import Paginator
 from discord_slash import SlashCommand
 from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
-from crown_utilities import crest_dict
 
 
 
@@ -239,12 +237,12 @@ class Lookup(commands.Cog):
                 crown_list = []
                 for crown in crown_tales:
                     if crown != "":
-                        crown_list.append(f"{crest_dict[crown]} | {crown}")
+                        crown_list.append(f"{crown_utilities.crest_dict[crown]} | {crown}")
                 
                 dungeon_list = []
                 for dungeon in dungeons:
                     if dungeon != "":
-                        dungeon_list.append(f"{crest_dict[dungeon]} | {dungeon}")
+                        dungeon_list.append(f"{crown_utilities.crest_dict[dungeon]} | {dungeon}")
 
                 boss_list =[]
                 uni = "Unbound"
@@ -252,7 +250,7 @@ class Lookup(commands.Cog):
                     if boss != "":
                         boss_info = db.queryBoss({'NAME': str(boss)})
                         uni = boss_info['UNIVERSE']
-                        boss_list.append(f"{crest_dict[uni]} | {boss}")
+                        boss_list.append(f"{crown_utilities.crest_dict[uni]} | {boss}")
 
                 matches_to_string = dict(ChainMap(*matches))
                 ign_to_string = dict(ChainMap(*ign))
@@ -779,7 +777,7 @@ class Lookup(commands.Cog):
                     sword_list.append(f"~ {swords} ~ W**{dubs}** / L**{els}**\n:man_detective: | **Owner: **{sword_team['OWNER']}\n:coin: | **Bank: **{'{:,}'.format(sword_bank)}\n:knife: | **Members: **{blade_count}\n_______________________")
                 crest_list = []
                 for c in crest:
-                    crest_list.append(f"{crown_utilities.crest_dict[c]} | {c}")
+                    crest_list.append(f"{crown_utilities.crown_utilities.crest_dict[c]} | {c}")
 
 
 
@@ -952,7 +950,7 @@ class Lookup(commands.Cog):
                             power = (l['BOND'] * l['LVL']) + pet_ability_power
                             pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                     summon_img = pet_info['PATH']
-                    summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
+                    summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], crown_utilities.enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                 else:
                     partnervault =  db.queryVault({'OWNER' : partner_data['DISNAME']})
                     if partnervault:
@@ -966,7 +964,7 @@ class Lookup(commands.Cog):
                                 power = (l['BOND'] * l['LVL']) + pet_ability_power
                                 pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                 summon_img = pet_info['PATH']
-                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
+                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], crown_utilities.enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                     else:
                         summon_data = db.queryPet({'PET': summon})
                         summon_img = summon_data['PATH']
@@ -977,7 +975,7 @@ class Lookup(commands.Cog):
                         summon_bond = 0
                         summon_lvl = 0
                         summon_img = pet_info['PATH']
-                        summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_enh], 0, 0)
+                        summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], crown_utilities.enhancer_mapping[summon_enh], 0, 0)
                 universe = family['UNIVERSE']
                 universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']
@@ -1028,8 +1026,8 @@ class Lookup(commands.Cog):
                 🧬**{pet_info['NAME']}**
                 *Bond* **{pet_info['BOND']}**
                 *Level* **{pet_info['LVL']}**
-                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{power}**{enhancer_suffix_mapping[pet_info['TYPE']]}
-                🦠 : **{enhancer_mapping[pet_info['TYPE']]}**
+                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{power}**{crown_utilities.enhancer_suffix_mapping[pet_info['TYPE']]}
+                🦠 : **{crown_utilities.enhancer_mapping[pet_info['TYPE']]}**
                 """), colour=0x7289da)
                 summon_page.set_image(url=pet_info['PATH'])
                 
@@ -1354,7 +1352,7 @@ class Lookup(commands.Cog):
                                             power = (l['BOND'] * l['LVL']) + pet_ability_power
                                             pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                     summon_img = pet_info['PATH']
-                                    summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
+                                    summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], crown_utilities.enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                                 else:
                                     partnervault =  db.queryVault({'OWNER' : partner_data['DISNAME']})
                                     if partnervault:
@@ -1369,7 +1367,7 @@ class Lookup(commands.Cog):
                                                 power = (l['BOND'] * l['LVL']) + pet_ability_power
                                                 pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                                 summon_img = pet_info['PATH']
-                                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
+                                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], crown_utilities.enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                                     else:
                                         summon_data = db.queryPet({'PET': summon})
                                         summon_img = summon_data['PATH']
@@ -1380,7 +1378,7 @@ class Lookup(commands.Cog):
                                         summon_bond = 0
                                         summon_lvl = 0
                                         summon_img = pet_info['PATH']
-                                        summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_enh], 0, 0)
+                                        summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], crown_utilities.enhancer_mapping[summon_enh], 0, 0)
                                 summon_buttons = []
                                 if is_head:
                                     summon_message = "Welcome Head of Household! Equip or Change Family Summon Here!"
@@ -1406,8 +1404,8 @@ class Lookup(commands.Cog):
                                 :dna: : **{pet_info['NAME']}**
                                 *Bond* **{pet_info['BOND']}**
                                 *Level* **{pet_info['LVL']}**
-                                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{power}**{enhancer_suffix_mapping[pet_info['TYPE']]}
-                                🦠 : **{enhancer_mapping[pet_info['TYPE']]}**
+                                :small_blue_diamond: **{pet_info['TYPE']}** ~ **{power}**{crown_utilities.enhancer_suffix_mapping[pet_info['TYPE']]}
+                                🦠 : **{crown_utilities.enhancer_mapping[pet_info['TYPE']]}**
                                 """), color=0xe74c3c)
                                 summon_screen.set_image(url=pet_info['PATH'])
                                 
@@ -1462,11 +1460,11 @@ class Lookup(commands.Cog):
                                                 {icon}
                                                 _Bond_ **{pet['BOND']}** {bond_message}
                                                 _Level_ **{pet['LVL']} {lvl_message}**
-                                                :small_blue_diamond: **{pet_ability}:** {power}{enhancer_suffix_mapping[pet['TYPE']]}
+                                                :small_blue_diamond: **{pet_ability}:** {power}{crown_utilities.enhancer_suffix_mapping[pet['TYPE']]}
                                                 🦠 **Type:** {pet['TYPE']}"""), 
                                                 colour=0x7289da)
                                                 embedVar.set_thumbnail(url=avatar)
-                                                embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
+                                                embedVar.set_footer(text=f"{pet['TYPE']}: {crown_utilities.enhancer_mapping[pet['TYPE']]}")
                                                 embed_list.append(embedVar)
                                             
                                             buttons = [
@@ -1677,7 +1675,7 @@ async def apply(self, ctx, owner: User):
             await ctx.send(m.OWNER_ONLY_COMMAND, delete_after=5)
 
 
-enhancer_mapping = {'ATK': 'Increase Attack %',
+crown_utilities.enhancer_mapping = {'ATK': 'Increase Attack %',
 'DEF': 'Increase Defense %',
 'STAM': 'Increase Stamina',
 'HLT': 'Heal yourself or companion',

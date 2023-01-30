@@ -1,10 +1,9 @@
 import textwrap
 import discord
-import crown_utilities
 from discord.ext import commands
 import bot as main
+import crown_utilities
 import db
-import classes as data
 import messages as m
 import numpy as np
 import help_commands as h
@@ -13,20 +12,19 @@ import destiny as d
 # Converters
 from discord import User
 from discord import Member
-from PIL import Image, ImageFont, ImageDraw
-import requests
+# from PIL import Image, ImageFont, ImageDraw
 import random
 from .classes.card_class import Card
 from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
-from .crownunlimited import showcard, showsummon, enhancer_mapping, enhancer_suffix_mapping, passive_enhancer_suffix_mapping, title_enhancer_suffix_mapping, title_enhancer_mapping
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash import cog_ext, SlashContext
 from discord_slash import SlashCommand
 from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
 from dinteractions_Paginator import Paginator
+
 
 
 
@@ -115,6 +113,8 @@ class Views(commands.Cog):
                         )
                     ], guild_ids=main.guild_ids)
     async def view(self, ctx, selection, name):
+        if not await crown_utilities.player_check(ctx):
+            return
         if selection == "cards":
             await viewcard(self, ctx, name)
         if selection == "titles":
@@ -139,17 +139,13 @@ def setup(bot):
 
 
 async def viewcard(self, ctx, card: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
     card_name = card
     query = {'DID': str(ctx.author.id)}
     d = db.queryUser(query)
     card = db.queryCard({'NAME': {"$regex": f"^{str(card_name)}$", "$options": "i"}})
     try:
         if card:
-            c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'])
+            c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'])
             title = {'TITLE': 'CARD PREVIEW'}
             arm = {'ARM': 'CARD PREVIEW'}
 
@@ -175,12 +171,12 @@ async def viewcard(self, ctx, card: str):
                 🛡️ {c.defense}
                 🏃 {c.speed}
 
-                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
+                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}                
 
                 {c.move1_emoji} {c.move1}: {c.move1ap}
                 {c.move2_emoji} {c.move2}: {c.move2ap}
                 {c.move3_emoji} {c.move3}: {c.move3ap}
-                🦠 {c.move4}: {c.move4enh} {c.move4ap} {passive_enhancer_suffix_mapping[c.move4enh]}   
+                🦠 {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.passive_enhancer_suffix_mapping[c.move4enh]}   
 
                 ♾️ {c.set_trait_message()}
                 """), colour=000000)
@@ -189,9 +185,6 @@ async def viewcard(self, ctx, card: str):
                 await ctx.send(embed=embedVar)
 
             else:
-                card_file = showcard("non-battle", card, "none", c.max_health, c.health, c.max_stamina, c.stamina, c.resolved, title, c.focused,
-                                    c.attack, c.defense, c.turn, c.move1ap, c.move2ap, c.move3ap, c.move4ap, c.move4enh, 0, None)
-
                 embedVar = discord.Embed(title=f"", colour=000000)
                 embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
                 embedVar.set_image(url="attachment://image.png")
@@ -199,13 +192,13 @@ async def viewcard(self, ctx, card: str):
                 embedVar.set_author(name=textwrap.dedent(f"""\
                 {c.card_icon} {c.price_message}
                 Passive & Universe Trait
-                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}
+                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
                 ♾️ {c.set_trait_message()}
                 🏃 {c.speed}
                 """))
                 embedVar.set_footer(text=f"{c.tip}")
 
-                await ctx.send(file=card_file, embed=embedVar)
+                await ctx.send(file=c.showcard("non-battle", "none", title, 0, 0), embed=embedVar)
         else:
             await ctx.send(m.CARD_DOESNT_EXIST, hidden=True)
     except Exception as ex:
@@ -242,7 +235,7 @@ async def viewtitle(self, ctx, title: str):
             if t.universe != "Unbound":
                 embedVar.set_thumbnail(url=t.title_img)
             embedVar.add_field(name=f"**Unique Passive**", value=f"{t.set_title_embed_message()}", inline=False)
-            embedVar.set_footer(text=f"{t.passive_type}: {title_enhancer_mapping[t.passive_type]}")
+            embedVar.set_footer(text=f"{t.passive_type}: {crown_utilities.title_enhancer_mapping[t.passive_type]}")
             await ctx.send(embed=embedVar)
 
         else:
@@ -283,7 +276,7 @@ async def viewarm(self, ctx, arm: str):
 
             else:
                 embedVar.add_field(name=f"Unique Passive", value=f"Increases {a.type_message} by **{a.passive_value}**", inline=False)
-                embedVar.set_footer(text=f"{a.passive_type}: {enhancer_mapping[a.passive_type]}")
+                embedVar.set_footer(text=f"{a.passive_type}: {crown_utilities.enhancer_mapping[a.passive_type]}")
 
             await ctx.send(embed=embedVar)
 
@@ -318,7 +311,7 @@ async def viewsummon(self, ctx, summon: str):
             s = Summon(pet['PET'], pet['UNIVERSE'], pet['PATH'], pet['ABILITIES'], pet['AVAILABLE'], pet['EXCLUSIVE'])
             s.set_messages()
 
-            summon_file = showsummon(s.path, s.name, s.value, 0, 0)
+            summon_file = crown_utilities.showsummon(s.path, s.name, s.value, 0, 0)
             embedVar = discord.Embed(title=f"Summon".format(self), colour=000000)
             if s.is_not_universe_unbound:
                 embedVar.set_thumbnail(url=s.show_img)

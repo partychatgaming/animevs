@@ -22,6 +22,8 @@ class Title:
         self.pokemon_title = False
 
         self.title_message = f"⚠️ {self.name} ~ INEFFECTIVE"
+        if self.universe in crown_utilities.pokemon_universes:
+            self.pokemon_title = True
 
     def set_title_image(self):
         if self.universe != 'Unbound':
