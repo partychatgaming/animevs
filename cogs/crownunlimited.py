@@ -5394,9 +5394,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
 
             options = [1, 2, 3, 4, 5, 0]
 
-
             
-            title = ""
             start_tales_buttons = [
                 manage_components.create_button(
                     style=ButtonStyle.blue,
