@@ -972,7 +972,7 @@ class Lookup(commands.Cog):
                             power = (summon_bond * summon_lvl) + int(pet_ability_power)
                             path = pet_info["PATH"]
                             summon_img = pet_info['PATH']
-                            summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_enh], 0, 0)
+                            summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
                 else:
                     partnervault =  db.queryVault({'OWNER' : partner_data['DISNAME']})
                     if partnervault:
