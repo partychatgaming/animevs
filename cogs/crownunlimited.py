@@ -5386,42 +5386,11 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                 t_defend_used = stats['t_defend_used']
                 t_title = ttitle['TITLE']
 
-            botActive = True
-            tutorial = False
-            raidActive = False
-            tutorial_basic = False
-            tutorial_special = False
-            tutorial_ultimate = False
-            tutorial_enhancer = False
-            tutorial_block = False
-            tutorial_resolve = False
-            tutorial_summon = False
-            tutorial_focus= False
 
             if _battle.mode == "RAID":
                 raidActive = True
                 botActive= False
-            if _battle.mode in PVP_MODES:
-                botActive = False
-                tutorialbot = '837538366509154407'
-                legendbot = '845672426113466395'
-                userID = t_user['DID']
-                if tutorialbot == userID:
-                    botActive = True
-                    tutorial = True
-                    turn = 0
-                elif legendbot == userID:
-                    botActive = True
-                    tutorial = True
-                    await ctx.send(f"Welcome to Legends!")
-                    turn = 0
-                else:
-                    botActive = False
-                    start = starting_position(o_speed, t_speed)
-                    if start == True:
-                        turn = 0
-                    else:
-                        turn = 1
+
 
             options = [1, 2, 3, 4, 5, 0]
 

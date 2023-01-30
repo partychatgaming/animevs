@@ -114,6 +114,17 @@ class Battle:
         self._concede_boss_description = ""
         self._wins_boss_description = ""
 
+        # AI Tutorial Config
+        self.raidActive = False
+        self.tutorial_basic = False
+        self.tutorial_special = False
+        self.tutorial_ultimate = False
+        self.tutorial_enhancer = False
+        self.tutorial_block = False
+        self.tutorial_resolve = False
+        self.tutorial_summon = False
+        self.tutorial_focus= False
+
 
         if self.mode not in crown_utilities.PVP_M:
             self._is_tales = True
@@ -371,6 +382,16 @@ class Battle:
 
         if opponent_did in bot_dids:
             self._is_tutorial = True
+            self.is_ai_opponent = True
+            self._is_turn = 0
+
+
+    def set_starting_turn(self, player_speed, opponent_speed):
+        if player_speed >= opponent_speed:
+            self._is_turn = 0
+        
+        if opponent_speed >= player_speed:
+            self._is_turn = 1
 
 
     def set_explore_config(self, universe_data, card_data):
