@@ -955,6 +955,7 @@ class Lookup(commands.Cog):
                             pet_name = pet_info["NAME"]
                             summon_bond = l["BOND"]
                             summon_lvl = level
+                            print("hello")
                             summon_type = pet_info["TYPE"]
                             power = (summon_bond * summon_lvl) + int(pet_ability_power)
                             path = pet_info["PATH"]
@@ -979,9 +980,10 @@ class Lookup(commands.Cog):
                                 summon_lvl = level
                                 power = (summon_bond * summon_lvl) + int(pet_ability_power)
                                 path = pet_info["PATH"]
-                                
+                                print("patt")
                                 
                     else:
+                        print("else")
                         pet_info = db.queryPet({'PET': summon})
                         summon_img = pet_info['PATH']
                         pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
