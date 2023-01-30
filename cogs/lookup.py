@@ -941,10 +941,18 @@ class Lookup(commands.Cog):
                 summon_object = family['SUMMON']
                 summon = list(summon_object.values())[0]
                 head_vault = db.queryVault({'DID' : head_data['DID']})
+                pet_name = ""
+                summon_bond = 0
+                summon_lvl = 0
+                summon_type = "Unbound"
+                power = 0
+                path = "N/A"
+                found_summon_in_vault = False
                 if head_vault:
                     vault_summons = head_vault['PETS']
                     for l in vault_summons:
                         if summon == l['NAME']:
+                            found_summon_in_vault = True
                             level = l['LVL']
                             xp = l['EXP']
                             pet_ability = list(l.keys())[3]
@@ -960,13 +968,27 @@ class Lookup(commands.Cog):
                             power = (summon_bond * summon_lvl) + int(pet_ability_power)
                             path = pet_info["PATH"]
                             summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
-                    print(pet_name)
+                    if found_summon_in_vault == False:
+                        pet_info = db.queryPet({'PET': summon})
+                        summon_img = pet_info['PATH']
+                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
+                        pet_ability = list(pet_info['ABILITIES'])[0]
+                        summon_type = pet_ability['TYPE']
+                        summon_bond = 0
+                        pet_name = pet_info["PET"]
+                        summon_lvl = 0
+                        summon_img = pet_info['PATH']
+                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
+                        path = pet_info["PATH"]
+                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
+                        print(pet_name)
                 else:
                     partnervault =  db.queryVault({'DID' : partner_data['DID']})
                     if partnervault:
                         vault_summons = partnervault['PETS']
                         for l in vault_summons:
                             if summon == l['NAME']:
+                                found_summon_in_vault = True
                                 level = l['LVL']
                                 xp = l['EXP']
                                 pet_ability = list(l.keys())[3]
@@ -982,7 +1004,20 @@ class Lookup(commands.Cog):
                                 power = (summon_bond * summon_lvl) + int(pet_ability_power)
                                 path = pet_info["PATH"]
                                 print(pet_name)
-                        print(pet_name)
+                        if found_summon_in_vault == False:
+                            pet_info = db.queryPet({'PET': summon})
+                            summon_img = pet_info['PATH']
+                            pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
+                            pet_ability = list(pet_info['ABILITIES'])[0]
+                            summon_type = pet_ability['TYPE']
+                            summon_bond = 0
+                            pet_name = pet_info["PET"]
+                            summon_lvl = 0
+                            summon_img = pet_info['PATH']
+                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
+                            path = pet_info["PATH"]
+                            summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
+                            print(pet_name)
                                 
                     else:
                         pet_info = db.queryPet({'PET': summon})
