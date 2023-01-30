@@ -940,7 +940,7 @@ class Lookup(commands.Cog):
                         
                 summon_object = family['SUMMON']
                 summon = list(summon_object.values())[0]
-                head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
+                head_vault = db.queryVault({'DID' : head_data['DID']})
                 if head_vault:
                     vault_summons = head_vault['PETS']
                     for l in vault_summons:
@@ -974,7 +974,7 @@ class Lookup(commands.Cog):
                             summon_img = pet_info['PATH']
                             summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
                 else:
-                    partnervault =  db.queryVault({'OWNER' : partner_data['DISNAME']})
+                    partnervault =  db.queryVault({'DID' : partner_data['DID']})
                     if partnervault:
                         vault_summons = partnervault['PETS']
                         for l in vault_summons:
