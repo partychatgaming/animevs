@@ -968,16 +968,16 @@ class Lookup(commands.Cog):
                                 summon_img = pet_info['PATH']
                                 summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                     else:
-                        summon_data = db.queryPet({'PET': summon})
-                        summon_img = summon_data['PATH']
-                        pet_ability_power = list(summon_data['ABILITIES'][0].values())[1]
+                        pet_info = db.queryPet({'PET': summon})
+                        summon_img = pet_info['PATH']
+                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[1]
                         
-                        pet_ability = list(summon_data['ABILITIES'])[0]
+                        pet_ability = list(pet_info['ABILITIES'])[0]
                         summon_enh = pet_ability['TYPE']
                         summon_bond = 0
                         summon_lvl = 0
                         summon_img = pet_info['PATH']
-                        summon_file = crown_utilities.showsummon(summon_img, summon_data['PET'], enhancer_mapping[summon_enh], 0, 0)
+                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_enh], 0, 0)
                 universe = family['UNIVERSE']
                 universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']
