@@ -951,8 +951,8 @@ class Lookup(commands.Cog):
                             pet_ability_power = list(l.values())[3]
                             power = (l['BOND'] * l['LVL']) + pet_ability_power
                             pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                    summon_img = pet_info['PATH']
-                    summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
+                            summon_img = pet_info['PATH']
+                            summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
                 else:
                     partnervault =  db.queryVault({'OWNER' : partner_data['DISNAME']})
                     if partnervault:
