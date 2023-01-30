@@ -963,7 +963,7 @@ class Lookup(commands.Cog):
                             pet_info = db.queryPet({'PET': summon})
                             summon_img = pet_info['PATH']
                             pet_ability_power = list(pet_info['ABILITIES'][0].values())[1]
-                            
+                            print(pet_info["ABILITIES"]
                             pet_ability = list(pet_info['ABILITIES'])[0]
                             summon_type = pet_ability['TYPE']
                             summon_bond = 0
