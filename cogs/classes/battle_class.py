@@ -23,7 +23,7 @@ class Battle:
         self._is_auto_battle = False
 
         self._list_of_opponents = []
-        self._length_of_opponents = 0
+        self._total_enemies = 0
         self._currentopponent = 0
         self._match_lineup = ""
         self._is_turn = 0
@@ -86,6 +86,7 @@ class Battle:
 
         # Messages
         self.abyss_message = ""
+        self.starting_match_title = f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
 
         # Abyss / Scenario / Explore Config
         self.abyss_floor = ""
@@ -130,22 +131,30 @@ class Battle:
 
         if self.mode not in crown_utilities.PVP_M:
             self._is_tales = True
-            self._length_of_opponents = 1
+            self._total_enemies = 1
 
         if self.mode in crown_utilities.AUTO_BATTLE_M:
             self._is_auto_battle = True
+            self.is_ai_opponent = True
 
         if self.mode in crown_utilities.AI_CO_OP_M:
             self._is_duo = True
-        
+            self.is_ai_opponent = True
+            self.starting_match_title = f"Duo Battle! ({self._currentopponent + 1}/{self._total_enemies})"
+
         if self.mode in crown_utilities.CO_OP_M:
             self._is_co_op = True
+            self.is_ai_opponent = True
+            self.starting_match_title = f"Co-op Battle! ({self._currentopponent + 1}/{self._total_enemies})"
 
         if self.mode in crown_utilities.RAID_M:
             self._is_raid = True
+            self.is_ai_opponent = True
+            self.starting_match_title = f"Raid Battle!"
 
         if self.mode in crown_utilities.TALE_M:
             self._is_tales = True
+            self.is_ai_opponent = True
             self._ai_opponent_summon_lvl = 5
             self._ai_opponent_summon_bond = 1
             self._ai_opponent_card_lvl = 30
@@ -153,6 +162,7 @@ class Battle:
         
         if self.mode in crown_utilities.DUNGEON_M:
             self._is_dungeon = True
+            self.is_ai_opponent = True
             self._ai_opponent_summon_lvl = 10
             self._ai_opponent_summon_bond = 3
             self._ai_opponent_card_lvl = 400
@@ -163,24 +173,31 @@ class Battle:
 
         if self.mode in crown_utilities.BOSS_M:
             self._is_boss = True
+            self.is_ai_opponent = True
             self._ai_opponent_summon_lvl = 15
             self._ai_opponent_summon_bond = 4
             self._ai_opponent_card_lvl = 1000
             self.health_buff = self.health_buff + 5000
             self.stat_buff = self.stat_buff + 250
             self.ap_buff = self.ap_buff + 250
-            self._length_of_opponents = 1
+            self._total_enemies = 1
+            self.starting_match_title = "👿 BOSS BATTLE!"
 
 
         if self.mode == crown_utilities.ABYSS:
             self._is_abyss = True
+            self.is_ai_opponent = True
 
         if self.mode == crown_utilities.SCENARIO:
             self._is_scenario = True
+            self.is_ai_opponent = True
+            self.starting_match_title = f"Scenario Battle Confirm Start!  ({self._currentopponent + 1}/{self._total_enemies})"
 
         if self.mode == crown_utilities.EXPLORE:
             self._is_explore = True
-            self._length_of_opponents = 1
+            self.is_ai_opponent = True
+            self._total_enemies = 1
+            self.starting_match_title = f"{self.explore_type.title()} Battle!"
 
         if self.difficulty == "EASY":
             self._is_easy = True
@@ -199,8 +216,12 @@ class Battle:
             self.stat_buff = self.stat_buff + 200
             self.ap_buff = self.ap_buff + 150
 
-            if self.is_ai_opponent:
-                self._ai_can_use_summon = True
+        if self.is_ai_opponent:
+            self._ai_can_use_summon = True
+
+        if self._is_tutorial:
+            self.starting_match_title = "Click Start Match to Begin the Tutorial!"
+        
 
         
     def set_universe_selection_config(self, universe_selection):
@@ -211,17 +232,26 @@ class Battle:
             self.crestsearch = universe_selection['CREST_SEARCH']
             self._currentopponent =  universe_selection['CURRENTOPPONENT']
 
+            if self.mode in crown_utilities.DUNGEON_M:
+                self._list_of_opponents = self._selected_universe_data['DUNGEONS']
+                self._total_enemies = len(self._list_of_opponents)
+            if self.mode in crown_utilities.TALE_M:
+                self._list_of_opponents = self._selected_universe_data['CROWN_TALES']
+                self._total_enemies = len(self._list_of_opponents)
+
             if self.mode in crown_utilities.BOSS_M:
                 self._name_of_boss = universe_selection['BOSS_NAME']
                 self._player_association = universe_selection['OGUILD']
                 if self.player.boss_fought:
                     self._boss_fought_already = True
 
-            
             if self.crestsearch:
                 self._player_association = universe_selection['OGUILD']
             else:
                 self._player_association = "PCG"
+
+            self.starting_match_title = f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
+
 
 
     def set_abyss_config(self):
@@ -245,10 +275,10 @@ class Battle:
                     unlockable_message = ""
 
                 self._list_of_opponents = abyss['ENEMIES']
-                self._length_of_opponents = len(self._list_of_opponents)
+                self._total_enemies = len(self._list_of_opponents)
                 self._ai_opponent_card_lvl = int(abyss['SPECIAL_BUFF'])
                 self.abyss_floor = abyss['FLOOR']
-                self.abyss_card_to_earn = enemies[-1] 
+                self.abyss_card_to_earn = self._total_enemies[-1] 
                 self._ai_title = abyss['TITLE']
                 self._ai_arm = abyss['ARM']
                 self.abyss_banned_card_tiers = abyss['BANNED_TIERS']
@@ -368,7 +398,7 @@ class Battle:
     def set_scenario_config(self, scenario_data):
         try:
             self._list_of_opponents = scenario_data['ENEMIES']
-            self._length_of_opponents = len(self._list_of_opponents)
+            self._total_enemies = len(self._list_of_opponents)
             self._ai_opponent_card_lvl = int(scenario_data['ENEMY_LEVEL'])
             self._selected_universe = scenario_data['UNIVERSE']
             self._is_available = scenario_data['AVAILABLE']
@@ -447,7 +477,7 @@ class Battle:
 
 
     def get_lineup(self):
-        self._match_lineup = f"{str(self._currentopponent + 1)}/{str(self._length_of_opponents)}"
+        self._match_lineup = f"{str(self._currentopponent + 1)}/{str(self._total_enemies)}"
 
 
     def get_can_save_match(self):
@@ -457,6 +487,7 @@ class Battle:
 
 
     def get_ai_battle_ready(self):
+        # print(self._list_of_opponents)
         self._ai_opponent_card_data = db.queryCard({'NAME': self._list_of_opponents[self._currentopponent]})
         universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
         if self.mode in crown_utilities.DUNGEON_M:

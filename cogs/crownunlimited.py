@@ -150,7 +150,7 @@ class CrownUnlimited(commands.Cog):
 
             c = len(cards) - 1
             rand_card = random.randint(1, c)
-            selected_card = Card(cards[rand_card]['NAME'], cards[rand_card]['PATH'], cards[rand_card]['PRICE'], cards[rand_card]['EXCLUSIVE'], cards[rand_card]['AVAILABLE'], cards[rand_card]['IS_SKIN'], cards[rand_card]['SKIN_FOR'], cards[rand_card]['HLT'], cards[rand_card]['HLT'], cards[rand_card]['STAM'], cards[rand_card]['STAM'], cards[rand_card]['MOVESET'], cards[rand_card]['ATK'], cards[rand_card]['DEF'], cards[rand_card]['TYPE'], cards[rand_card]['PASS'][0], cards[rand_card]['SPD'], cards[rand_card]['UNIVERSE'], cards[rand_card]['HAS_COLLECTION'], cards[rand_card]['TIER'], cards[rand_card]['COLLECTION'], cards[rand_card]['WEAKNESS'], cards[rand_card]['RESISTANT'], cards[rand_card]['REPEL'], cards[rand_card]['ABSORB'], cards[rand_card]['IMMUNE'], cards[rand_card]['GIF'], cards[rand_card]['FPATH'], cards[rand_card]['RNAME'])
+            selected_card = Card(cards[rand_card]['NAME'], cards[rand_card]['PATH'], cards[rand_card]['PRICE'], cards[rand_card]['EXCLUSIVE'], cards[rand_card]['AVAILABLE'], cards[rand_card]['IS_SKIN'], cards[rand_card]['SKIN_FOR'], cards[rand_card]['HLT'], cards[rand_card]['HLT'], cards[rand_card]['STAM'], cards[rand_card]['STAM'], cards[rand_card]['MOVESET'], cards[rand_card]['ATK'], cards[rand_card]['DEF'], cards[rand_card]['TYPE'], cards[rand_card]['PASS'][0], cards[rand_card]['SPD'], cards[rand_card]['UNIVERSE'], cards[rand_card]['HAS_COLLECTION'], cards[rand_card]['TIER'], cards[rand_card]['COLLECTION'], cards[rand_card]['WEAKNESS'], cards[rand_card]['RESISTANT'], cards[rand_card]['REPEL'], cards[rand_card]['ABSORB'], cards[rand_card]['IMMUNE'], cards[rand_card]['GIF'], cards[rand_card]['FPATH'], cards[rand_card]['RNAME'], cards[rand_card]['RPATH'])
             selected_card.set_affinity_message()
             selected_card.set_passive_values()
             selected_card.set_explore_bounty_and_difficulty()
@@ -561,8 +561,10 @@ class CrownUnlimited(commands.Cog):
             if battle.mode == "Tutorial":
                 await tutorial(self, ctx)
                 return
+
+            battle.set_universe_selection_config(universe_selection)
                 
-            await battle_commands(self, ctx, abyss, p, _player2=None)
+            await battle_commands(self, ctx, battle, p, _player2=None)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -4971,7 +4973,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             if selected_universe in p.crestlist:
                 await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {p.association} {selected_universe} Crest Activated! No entrance fee!")
             else:
-                if p._balance <= entrance_fee:
+                if int(p._balance) <= entrance_fee:
                     await ctx.send(f"Tales require an :coin: {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
                     db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
                     return
@@ -5127,7 +5129,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 
 
 async def battle_commands(self, ctx, _battle, _player, _player2=None):
-                          
+    
     private_channel = ctx.channel
 
     try:
@@ -5139,51 +5141,64 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
         continued = True
 
         while continued == True:
-
+            opponent_talisman_emoji = ""
             # While "continued" is True, Create Class for Players and Opponents anew
             # Opponent card will be based on list of enemies[current oppponent]
             # If player changes their equipment after a round the new class will pick it up
+            player1 = _player
+            player1.get_battle_ready()
+            player1_card = Card(player1._equipped_card_data['NAME'], player1._equipped_card_data['PATH'], player1._equipped_card_data['PRICE'], player1._equipped_card_data['EXCLUSIVE'], player1._equipped_card_data['AVAILABLE'], player1._equipped_card_data['IS_SKIN'], player1._equipped_card_data['SKIN_FOR'], player1._equipped_card_data['HLT'], player1._equipped_card_data['HLT'], player1._equipped_card_data['STAM'], player1._equipped_card_data['STAM'], player1._equipped_card_data['MOVESET'], player1._equipped_card_data['ATK'], player1._equipped_card_data['DEF'], player1._equipped_card_data['TYPE'], player1._equipped_card_data['PASS'][0], player1._equipped_card_data['SPD'], player1._equipped_card_data['UNIVERSE'], player1._equipped_card_data['HAS_COLLECTION'], player1._equipped_card_data['TIER'], player1._equipped_card_data['COLLECTION'], player1._equipped_card_data['WEAKNESS'], player1._equipped_card_data['RESISTANT'], player1._equipped_card_data['REPEL'], player1._equipped_card_data['ABSORB'], player1._equipped_card_data['IMMUNE'], player1._equipped_card_data['GIF'], player1._equipped_card_data['FPATH'], player1._equipped_card_data['RNAME'], player1._equipped_card_data['RPATH'])
+            player1_title = Title(player1._equipped_title_data['TITLE'], player1._equipped_title_data['UNIVERSE'], player1._equipped_title_data['PRICE'], player1._equipped_title_data['EXCLUSIVE'], player1._equipped_title_data['AVAILABLE'], player1._equipped_title_data['ABILITIES'])            
+            player1_arm = Arm(player1._equipped_arm_data['ARM'], player1._equipped_arm_data['UNIVERSE'], player1._equipped_arm_data['PRICE'], player1._equipped_arm_data['ABILITIES'], player1._equipped_arm_data['EXCLUSIVE'], player1._equipped_arm_data['AVAILABLE'], player1._equipped_arm_data['ELEMENT'])
 
-            _player.get_battle_ready()
-            player1_card = Card(_player._equipped_card_data['NAME'], _player._equipped_card_data['PATH'], _player._equipped_card_data['PRICE'], _player._equipped_card_data['EXCLUSIVE'], _player._equipped_card_data['AVAILABLE'], _player._equipped_card_data['IS_SKIN'], _player._equipped_card_data['SKIN_FOR'], _player._equipped_card_data['HLT'], _player._equipped_card_data['HLT'], _player._equipped_card_data['STAM'], _player._equipped_card_data['STAM'], _player._equipped_card_data['MOVESET'], _player._equipped_card_data['ATK'], _player._equipped_card_data['DEF'], _player._equipped_card_data['TYPE'], _player._equipped_card_data['PASS'][0], _player._equipped_card_data['SPD'], _player._equipped_card_data['UNIVERSE'], _player._equipped_card_data['HAS_COLLECTION'], _player._equipped_card_data['TIER'], _player._equipped_card_data['COLLECTION'], _player._equipped_card_data['WEAKNESS'], _player._equipped_card_data['RESISTANT'], _player._equipped_card_data['REPEL'], _player._equipped_card_data['ABSORB'], _player._equipped_card_data['IMMUNE'], _player._equipped_card_data['GIF'], _player._equipped_card_data['FPATH'], _player._equipped_card_data['RNAME'], _player._equipped_card_data['RPATH'])
-            player1_title = Title(_player._equipped_title_data['TITLE'], _player._equipped_title_data['UNIVERSE'], _player._equipped_title_data['PRICE'], _player._equipped_title_data['EXCLUSIVE'], _player._equipped_title_data['AVAILABLE'], _player._equipped_title_data['ABILITIES'])            
-            player1_arm = Arm(_player._equipped_arm_data['ARM'], _player._equipped_arm_data['UNIVERSE'], _player._equipped_arm_data['PRICE'], _player._equipped_arm_data['ABILITIES'], _player._equipped_arm_data['EXCLUSIVE'], _player._equipped_arm_data['AVAILABLE'], _player._equipped_arm_data['ELEMENT'])
-
-            player1_arm.set_durability(_player1.equipped_arm, _player1._arms)
+            player1_arm.set_durability(player1.equipped_arm, player1._arms)
             player1_card.set_card_level_buffs()
-            player1_card.set_arm_config(player1_arm.passive_type, player1_arm.name, player1_arm.passive_value, player1.element)
+            player1_card.set_arm_config(player1_arm.passive_type, player1_arm.name, player1_arm.passive_value, player1_arm.element)
+            player1_card.set_affinity_message()
 
-            if _battle.mode in crown_utilities.CO_OP_M or _battle.mode in crown_utilities.PVP_M:
+            if _battle.mode in crown_utilities.PVP_M:
                 _player2.get_battle_ready()
                 player2_card = Card(_player2._equipped_card_data['NAME'], _player2._equipped_card_data['PATH'], _player2._equipped_card_data['PRICE'], _player2._equipped_card_data['EXCLUSIVE'], _player2._equipped_card_data['AVAILABLE'], _player2._equipped_card_data['IS_SKIN'], _player2._equipped_card_data['SKIN_FOR'], _player2._equipped_card_data['HLT'], _player2._equipped_card_data['HLT'], _player2._equipped_card_data['STAM'], _player2._equipped_card_data['STAM'], _player2._equipped_card_data['MOVESET'], _player2._equipped_card_data['ATK'], _player2._equipped_card_data['DEF'], _player2._equipped_card_data['TYPE'], _player2._equipped_card_data['PASS'][0], _player2._equipped_card_data['SPD'], _player2._equipped_card_data['UNIVERSE'], _player2._equipped_card_data['HAS_COLLECTION'], _player2._equipped_card_data['TIER'], _player2._equipped_card_data['COLLECTION'], _player2._equipped_card_data['WEAKNESS'], _player2._equipped_card_data['RESISTANT'], _player2._equipped_card_data['REPEL'], _player2._equipped_card_data['ABSORB'], _player2._equipped_card_data['IMMUNE'], _player2._equipped_card_data['GIF'], _player2._equipped_card_data['FPATH'], _player2._equipped_card_data['RNAME'], _player2._equipped_card_data['RPATH'])
                 player2_title = Title(_player2._equipped_title_data['TITLE'], _player2._equipped_title_data['UNIVERSE'], _player2._equipped_title_data['PRICE'], _player2._equipped_title_data['EXCLUSIVE'], _player2._equipped_title_data['AVAILABLE'], _player2._equipped_title_data['ABILITIES'])            
                 player2_arm = Arm(_player2._equipped_arm_data['ARM'], _player2._equipped_arm_data['UNIVERSE'], _player2._equipped_arm_data['PRICE'], _player2._equipped_arm_data['ABILITIES'], _player2._equipped_arm_data['EXCLUSIVE'], _player2._equipped_arm_data['AVAILABLE'], _player2._equipped_arm_data['ELEMENT'])
-
+                opponent_talisman_emoji = crown_utilities.set_emoji(_player2.equipped_talisman)
                 player2_arm.set_durability(_player2.equipped_arm, _player2._arms)
                 player2_card.set_card_level_buffs()
-                player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2.element)
-                player2_card.set_solo_leveling_config(player1._shield_active, player1._shield_value, player1._barrier_active, player1._barrier_value, player1._parry_active, player1._parry_value)
+                player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
+                player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
+                player2_card.set_affinity_message()
 
+            if _battle.mode in crown_utilities.CO_OP_M:
+                _player3.get_battle_ready()
+                player3_card = Card(_player3._equipped_card_data['NAME'], _player3._equipped_card_data['PATH'], _player3._equipped_card_data['PRICE'], _player3._equipped_card_data['EXCLUSIVE'], _player3._equipped_card_data['AVAILABLE'], _player3._equipped_card_data['IS_SKIN'], _player3._equipped_card_data['SKIN_FOR'], _player3._equipped_card_data['HLT'], _player3._equipped_card_data['HLT'], _player3._equipped_card_data['STAM'], _player3._equipped_card_data['STAM'], _player3._equipped_card_data['MOVESET'], _player3._equipped_card_data['ATK'], _player3._equipped_card_data['DEF'], _player3._equipped_card_data['TYPE'], _player3._equipped_card_data['PASS'][0], _player3._equipped_card_data['SPD'], _player3._equipped_card_data['UNIVERSE'], _player3._equipped_card_data['HAS_COLLECTION'], _player3._equipped_card_data['TIER'], _player3._equipped_card_data['COLLECTION'], _player3._equipped_card_data['WEAKNESS'], _player3._equipped_card_data['RESISTANT'], _player3._equipped_card_data['REPEL'], _player3._equipped_card_data['ABSORB'], _player3._equipped_card_data['IMMUNE'], _player3._equipped_card_data['GIF'], _player3._equipped_card_data['FPATH'], _player3._equipped_card_data['RNAME'], _player3._equipped_card_data['RPATH'])
+                player3_title = Title(_player3._equipped_title_data['TITLE'], _player3._equipped_title_data['UNIVERSE'], _player3._equipped_title_data['PRICE'], _player3._equipped_title_data['EXCLUSIVE'], _player3._equipped_title_data['AVAILABLE'], _player3._equipped_title_data['ABILITIES'])            
+                player3_arm = Arm(_player3._equipped_arm_data['ARM'], _player3._equipped_arm_data['UNIVERSE'], _player3._equipped_arm_data['PRICE'], _player3._equipped_arm_data['ABILITIES'], _player3._equipped_arm_data['EXCLUSIVE'], _player3._equipped_arm_data['AVAILABLE'], _player3._equipped_arm_data['ELEMENT'])
+                opponent_talisman_emoji = crown_utilities.set_emoji(_player3.equipped_talisman)
+                player3_arm.set_durability(_player3.equipped_arm, _player3._arms)
+                player3_card.set_card_level_buffs()
+                player3_card.set_arm_config(player3_arm.passive_type, player3_arm.name, player3_arm.passive_value, player3_arm.element)
+                player3_card.set_solo_leveling_config(player1._shield_active, player1._shield_value, player1._barrier_active, player1._barrier_value, player1._parry_active, player1._parry_value)
+                player3_card.set_affinity_message()
+            
             if _battle.is_ai_opponent:
                 _battle.get_ai_battle_ready()
-                ai_opponent_card = Card(_battle._ai_opponent_card_data['NAME'], _battle._ai_opponent_card_data['PATH'], _battle._ai_opponent_card_data['PRICE'], _battle._ai_opponent_card_data['EXCLUSIVE'], _battle._ai_opponent_card_data['AVAILABLE'], _battle._ai_opponent_card_data['IS_SKIN'], _battle._ai_opponent_card_data['SKIN_FOR'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['MOVESET'], _battle._ai_opponent_card_data['ATK'], _battle._ai_opponent_card_data['DEF'], _battle._ai_opponent_card_data['TYPE'], _battle._ai_opponent_card_data['PASS'][0], _battle._ai_opponent_card_data['SPD'], _battle._ai_opponent_card_data['UNIVERSE'], _battle._ai_opponent_card_data['HAS_COLLECTION'], _battle._ai_opponent_card_data['TIER'], _battle._ai_opponent_card_data['COLLECTION'], _battle._ai_opponent_card_data['WEAKNESS'], _battle._ai_opponent_card_data['RESISTANT'], _battle._ai_opponent_card_data['REPEL'], _battle._ai_opponent_card_data['ABSORB'], _battle._ai_opponent_card_data['IMMUNE'], _battle._ai_opponent_card_data['GIF'], _battle._ai_opponent_card_data['FPATH'], _battle._ai_opponent_card_data['RNAME'], _battle._ai_opponent_card_data['RPATH'])
-                ai_opponent_title = Title(_battle._ai_opponent_title_data['TITLE'], _battle._ai_opponent_title_data['UNIVERSE'], _battle._ai_opponent_title_data['PRICE'], _battle._ai_opponent_title_data['EXCLUSIVE'], _battle._ai_opponent_title_data['AVAILABLE'], _battle._ai_opponent_title_data['ABILITIES'])            
-                ai_opponent_arm = Arm(_battle._ai_opponent_arm_data['ARM'], _battle._ai_opponent_arm_data['UNIVERSE'], _battle._ai_opponent_arm_data['PRICE'], _battle._ai_opponent_arm_data['ABILITIES'], _battle._ai_opponent_arm_data['EXCLUSIVE'], _battle._ai_opponent_arm_data['AVAILABLE'], _battle._ai_opponent_arm_data['ELEMENT'])
-                
-                ai_opponent_card.set_ai_card_buffs(_battle._ai_opponent_card_lvl, _battle.stat_buff, _battle.stat_debuff, _battle.health_buff, _battle.health_debuff, _battle._ap_buff, _battle.ap_debuff)
-                ai_opponent_card.set_arm_config(ai_opponent_arm.passive_type, ai_opponent_arm.name, ai_opponent_arm.passive_value, ai_opponent_arm.element)
-                
+                player2_card = Card(_battle._ai_opponent_card_data['NAME'], _battle._ai_opponent_card_data['PATH'], _battle._ai_opponent_card_data['PRICE'], _battle._ai_opponent_card_data['EXCLUSIVE'], _battle._ai_opponent_card_data['AVAILABLE'], _battle._ai_opponent_card_data['IS_SKIN'], _battle._ai_opponent_card_data['SKIN_FOR'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['MOVESET'], _battle._ai_opponent_card_data['ATK'], _battle._ai_opponent_card_data['DEF'], _battle._ai_opponent_card_data['TYPE'], _battle._ai_opponent_card_data['PASS'][0], _battle._ai_opponent_card_data['SPD'], _battle._ai_opponent_card_data['UNIVERSE'], _battle._ai_opponent_card_data['HAS_COLLECTION'], _battle._ai_opponent_card_data['TIER'], _battle._ai_opponent_card_data['COLLECTION'], _battle._ai_opponent_card_data['WEAKNESS'], _battle._ai_opponent_card_data['RESISTANT'], _battle._ai_opponent_card_data['REPEL'], _battle._ai_opponent_card_data['ABSORB'], _battle._ai_opponent_card_data['IMMUNE'], _battle._ai_opponent_card_data['GIF'], _battle._ai_opponent_card_data['FPATH'], _battle._ai_opponent_card_data['RNAME'], _battle._ai_opponent_card_data['RPATH'])
+                player2_title = Title(_battle._ai_opponent_title_data['TITLE'], _battle._ai_opponent_title_data['UNIVERSE'], _battle._ai_opponent_title_data['PRICE'], _battle._ai_opponent_title_data['EXCLUSIVE'], _battle._ai_opponent_title_data['AVAILABLE'], _battle._ai_opponent_title_data['ABILITIES'])            
+                player2_arm = Arm(_battle._ai_opponent_arm_data['ARM'], _battle._ai_opponent_arm_data['UNIVERSE'], _battle._ai_opponent_arm_data['PRICE'], _battle._ai_opponent_arm_data['ABILITIES'], _battle._ai_opponent_arm_data['EXCLUSIVE'], _battle._ai_opponent_arm_data['AVAILABLE'], _battle._ai_opponent_arm_data['ELEMENT'])
+                opponent_talisman_emoji = ""
+                player2_card.set_ai_card_buffs(_battle._ai_opponent_card_lvl, _battle.stat_buff, _battle.stat_debuff, _battle.health_buff, _battle.health_debuff, _battle.ap_buff, _battle.ap_debuff)
+                player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
+                player2_card.set_affinity_message()
                 # Set potential boss descriptions
-                _battle.set_boss_descriptions(ai_opponent_card.name)
+                _battle.set_boss_descriptions(player2_card.name)
+                player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
+                player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
                 
-                ai_opponent_card.set_solo_leveling_config(player1._shield_active, player1._shield_value, player1._barrier_active, player1._barrier_value, player1._parry_active, player1._parry_value)
-                player1.set_solo_leveling_config(ai_opponent_card._shield_active, ai_opponent_card._shield_value, ai_opponent_card._barrier_active, ai_opponent_card._barrier_value, ai_opponent_card._parry_active, ai_opponent_card._parry_value)
-                if mode in crown_utilities.CO_OP_M:
-                    player2.set_solo_leveling_config(ai_opponent_card._shield_active, ai_opponent_card._shield_value, ai_opponent_card._barrier_active, ai_opponent_card._barrier_value, ai_opponent_card._parry_active, ai_opponent_card._parry_value)
+                if _battle.mode in crown_utilities.CO_OP_M:
+                    player2_card.set_solo_leveling_config(player3_card._shield_active, player3_card._shield_value, player3_card._barrier_active, player3_card._barrier_value, player3_card._parry_active, player3_card._parry_value)
             
             if _battle.mode in crown_utilities.PVP_M:
-                player1_card.set_solo_leveling_config(player2._shield_active, player2._shield_value, player2._barrier_active, player2._barrier_value, player2._parry_active, player2._parry_value)
-
+                player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
 
             if _battle.mode == "RAID":
                 raidActive = True
@@ -5216,10 +5231,8 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
 
                 )
             
-            # original_mode = mode
-
             if not _battle._is_tutorial and _battle.get_can_save_match():
-                if _battle.currentopponent > 0:
+                if _battle._currentopponent > 0:
                     start_tales_buttons.append(
                         manage_components.create_button(
                             style=ButtonStyle.green,
@@ -5228,101 +5241,30 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                         )
                     )
 
-            start_tales_buttons_action_row = manage_components.create_actionrow(*start_tales_buttons)
+            start_tales_buttons_action_row = manage_components.create_actionrow(*start_tales_buttons)            
             
+            # Collect Discord info for users
+            player_1_fetched_user = await main.bot.fetch_user(player1.did)
 
-            player_2_card_image = showcard("non-battle", player, tarm, t_max_health, t_health, t_max_stamina, t_stamina,
-                                    t_used_resolve, ttitle, t_used_focus, t_attack, t_defense,
-                                    turn_total, tap2, tap3, tap3, tenh1, tenh_name, tcard_lvl, o_defense)
-            
-            
+            if _battle._is_pvp_match and not _battle._is_tutorial:
+                player_2_fetched_user = await main.bot.fetch_user(_player2.did)
+                battle_ping_message = await private_channel.send(f"{player_1_fetched_user.mention} 🆚 {player_2_fetched_user.mention} ")
+            # else:
+            #     battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚...")
 
-            player_1_fetched_user = await main.bot.fetch_user(player.did)
-
-            if mode in PVP_MODES and not _battle._is_tutorial:
-                battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚 {user2.mention} ")
-            else:
-                battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚...")
-            if mode not in PVP_MODES and mode not in B_modes and mode != "ABYSS" and mode not in RAID_MODES and mode not in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Start! ({currentopponent + 1}/{total_legends})", description=f"{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
-                embedVar.set_image(url="attachment://image.png")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
-            if mode == "ABYSS":
-                embedVar = discord.Embed(title=f"🌑 Abyss Floor {universe['FLOOR']}\n✨ Confirm Start!  ({currentopponent + 1}/{total_legends})", description=f"{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
-                embedVar.set_image(url="attachment://image.png")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
-            
-            if mode in PVP_MODES and tutorial:
-                embedVar = discord.Embed(title=f"✅ Click Start Match to Begin the Tutorial!", description=f"You: {ocard_lvl_message} **{o_card}** 🆚\nThem: {tcard_lvl_message} **{t_card}**")
-                embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
-                
-            elif mode in PVP_MODES and tutorial == False:
-                embedVar = discord.Embed(title=f"✅ Confirm PVP Battle!", description=f"{user2.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.set_thumbnail(url=user2.avatar_url)
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
-                # embedVar.set_author(name=f"AnimeVS+ PvP", icon_url=o_user['AVATAR'])
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row])      
-                
-            elif mode in RAID_MODES:
-                embedVar = discord.Embed(title=f"✅ Confirm Raid Battle!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"{t_talisman_emoji}__Opponent Affinities__", value=f"{t_affinity_message}")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
-            
-            if mode in co_op_modes and mode not in ai_co_op_modes and mode not in B_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Co-Op Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** &\n{ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
-                
-            if mode in ai_co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Duo Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** &\n{ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card) 
-                
-            if mode in B_modes and mode not in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
-                
-            if mode in B_modes and mode in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** & {ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
-                embedVar.add_field(name=f"__Boss Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
-                embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
+            embedVar = discord.Embed(title=f"{_battle.starting_match_title}")
+            embedVar.add_field(name=f"__Your Affinities: {crown_utilities.set_emoji(player1.equipped_talisman)}__", value=f"{player1_card.affinity_message}")
+            embedVar.add_field(name=f"__Opponent Affinities: {opponent_talisman_emoji}__", value=f"{player2_card.affinity_message}")
+            embedVar.set_image(url="attachment://image.png")
+            embedVar.set_thumbnail(url=ctx.author.avatar_url)
+            battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player2_card.showcard(_battle.mode, player2_arm, player2_title, _battle._turn_total, player1_card.defense))                
 
             def check(button_ctx):
                 if mode in PVP_MODES:
                     if tutorial:
                         return button_ctx.author == ctx.author
                     else:
-                        return button_ctx.author == user2
+                        return button_ctx.author == _player2.did
                 elif mode in co_op_modes:
                     return button_ctx.author == ctx.author
                 else:

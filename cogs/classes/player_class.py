@@ -66,7 +66,7 @@ class Player:
         # Vault Infoo
         self.vault = db.queryVault({'DID': str(self.did)})
         if self.vault:
-            self._balance = self.vault['DID']
+            self._balance = self.vault['BALANCE']
             self._cards = self.vault['CARDS']
             self._titles = self.vault['TITLES']
             self._arms = self.vault['ARMS']
