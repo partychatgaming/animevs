@@ -2706,8 +2706,12 @@ class Profile(commands.Cog):
                     return
                 else:
                     await crown_utilities.curse(price, str(ctx.author.id))
-                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :"**New Preset 4**", 'TITLE': "**New Preset 4**",'ARM': "**New Preset 4**", 'PET': "**New Preset 4**"}}})
-                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :"**New Preset 5**", 'TITLE': "**New Preset 5**",'ARM': "**New Preset 5**", 'PET': "**New Preset 5**"}}})
+                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD'  str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': "Preset Gear 4", 'PET': "Cat"}}})
+                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': "Preset Omega 5", 'PET': "Dog"}}})
+                    response = db.updateVaultNoFilter(vault_query, {'addToSet' : {'TITLES' : "Preset Upgrade Ver 4.0"}})
+                    response = db.updateVaultNoFilter(vault_query, {'addToSet' : {'TITLES' : "Preset Upgrade Ver 5.0"}})
+                    response = db.updateVaultNoFilter(vault_query, {'addToSet' : {'ARMS' : {'ARM' : "Preset Gear 4", 'DUR' : 100}}})
+                    response = db.updateVaultNoFilter(vault_query, {'addToSet' : {'ARMS' : {'ARM' : "Preset Omega 5", 'DUR' : 100}}})
                     #response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
                     update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
                     await button_ctx.send("🔖 | Preset Upgraded")
