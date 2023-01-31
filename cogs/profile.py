@@ -2434,9 +2434,12 @@ class Profile(commands.Cog):
         gabes_message = "Purse Purchased!"
         gabes_explain = ""
         
+        storage_message = f"{str(storage_type + 1)}"
+        
         if storage_type >=10:
             storage_pricing_text = "Max Storage Level"
             storage_tier_message = "MAX"
+            storage_message = "MAX"
         
         arm_info = db.queryArm({'ARM': str(current_arm)})
         boss_arm = False
@@ -2482,7 +2485,7 @@ class Profile(commands.Cog):
                 card_info = level
 
         lvl = card_info['LVL']
-        print(lvl)
+        
 
         
         hundred_levels = 650000
@@ -2592,7 +2595,7 @@ class Profile(commands.Cog):
 
         ⚒️ 4️⃣ **50 Durability** for :dollar: **{durability_message}**
 
-        💼 **Storage Tier {str(storage_type + 1)}**: :money_with_wings: **{storage_pricing_text}**
+        💼 **Storage Tier {storage_message}**: :money_with_wings: **{storage_pricing_text}**
         
         🔖 **Preset Upgrade** *+ 2 Slots* :money_with_wings: **{preset_message}**
 
