@@ -822,7 +822,7 @@ async def cardlevel(card: str, player, mode: str, universe: str):
     try:
         vault = db.queryVault({'DID': str(player)})
         player_info = db.queryUser({'DID': str(player)})
-        rebirth_buff = player_ino['REBIRTH']
+        rebirth_buff = player_info['REBIRTH']
         guild_buff = await guild_buff_update_function(player_info['TEAM'].lower())
         if player_info['DIFFICULTY'] == "EASY":
             return

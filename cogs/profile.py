@@ -2517,8 +2517,18 @@ class Profile(commands.Cog):
             hundred_levels = 300000000
             thirty_levels = 200000000
             ten_levels = 100000000
-        # if lvl >= 700 and lvl <= 800:
-        #     hundred_levels = hundred_levels * 2000
+        elif lvl >= 700 and lvl <= 800:
+            hundred_levels = 750000000
+            thirty_levels = 500000000
+            ten_levels = 250000000
+        elif lvl >= 800 and lvl <= 900:
+            hundred_levels = 1000000000
+            thirty_levels = 800000000
+            ten_levels = 500000000
+        elif lvl >= 900 and lvl <= 1000:
+            hundred_levels = 5000000000
+            thirty_levels = 2500000000
+            ten_levels = 1000000000
         sell_buttons = [
                 manage_components.create_button(
                     style=ButtonStyle.green,
