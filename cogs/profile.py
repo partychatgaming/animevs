@@ -2416,6 +2416,16 @@ class Profile(commands.Cog):
         storage_pricing = (storage_type + 1) * 1500000
         storage_pricing_text = f"{'{:,}'.format(storage_pricing)}" 
         storage_tier_message = (storage_type + 1)
+        preset_upgrade = user['U_PRESET']
+        preset_message = "Preset Upgraded!"
+        if preset_upgrade == False:
+            preset_message = "10,000,000"
+        gabes = user['TOURNAMENT_WINS']
+        gabes_message = "Purse Purchased!"
+        gabes_explain = ""
+        if gabes == 1:
+            gabes_message = "25,000,000"
+            gabes_explain = "Purchase **Gabe's Purse** to Keep ALL ITEMS during **/rebirth**"
         if storage_type >=10:
             storage_pricing_text = "Max Storage Level"
             storage_tier_message = "MAX"
@@ -2562,12 +2572,11 @@ class Profile(commands.Cog):
 
         💼 **Storage Tier {str(storage_type + 1)}**: :money_with_wings: **{storage_pricing_text}**
         
-        🔖 **Preset Upgrade** *+ 2 Slots* :money_with_wings: **10,000,000**
+        🔖 **Preset Upgrade** *+ 2 Slots* :money_with_wings: **{preset_message}**
 
-        Purchase **Gabe's Purse** to Keep ALL ITEMS when **Rebirthing**
-        *You will not be able to select a new starting universe!*
+        {gabes_explain}
 
-        **Gabe's Purse** 👛 for :money_with_wings: **30,000,000**
+        **Gabe's Purse** 👛 for :money_with_wings: **{gabes_message}**
 
         What would you like to buy?
         """), colour=0xf1c40f)
