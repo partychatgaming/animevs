@@ -3897,7 +3897,7 @@ class Profile(commands.Cog):
                         if response:
                             await button_ctx.send("📝 4️⃣| Preset Updated!")
                             return
-                    elif button_ctx.custom_id == "4":
+                    elif button_ctx.custom_id == "5":
                         response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.4.CARD' :str(current_card), 'DECK.4.TITLE': str(current_title),'DECK.4.ARM': str(current_arm), 'DECK.4.PET': str(current_pet)}})
                         if response:
                             await button_ctx.send("📝 5️⃣| Preset Updated!")
@@ -9907,7 +9907,7 @@ async def menusavepreset(self, ctx):
                     if response:
                         await button_ctx.send("📝 4️⃣| Preset Updated!")
                         return
-                elif button_ctx.custom_id == "4":
+                elif button_ctx.custom_id == "5":
                     response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.4.CARD' :str(current_card), 'DECK.4.TITLE': str(current_title),'DECK.4.ARM': str(current_arm), 'DECK.4.PET': str(current_pet)}})
                     if response:
                         await button_ctx.send("📝 5️⃣| Preset Updated!")
