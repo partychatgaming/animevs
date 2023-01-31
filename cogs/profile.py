@@ -2584,7 +2584,7 @@ class Profile(commands.Cog):
         Welcome {ctx.author.mention}!
         Purchase **Card XP** and **Arm Durability**!
         🎴 Card:  **{current_card}** {licon}**{lvl}**
-        🦾 Arm: **{current_arm}** *{boss_message}*
+        🦾 Arm: **{current_arm}** *{boss_message}* ⚒️*{current_durability}*
         
 
         🔋 1️⃣ **10 Levels** for :coin: **{'{:,}'.format(ten_levels)}**
