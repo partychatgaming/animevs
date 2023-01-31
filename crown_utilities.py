@@ -849,7 +849,7 @@ async def cardlevel(card: str, player, mode: str, universe: str):
         new_lvl = lvl + 1
         x = 0.2
         y = 2.0
-        lvl_req = (lvl/x)^y
+        lvl_req = (float(lvl)/x)^y
         exp = cardinfo['EXP']
         exp_gain = 0
         if has_universe_soul:

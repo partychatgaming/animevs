@@ -283,7 +283,7 @@ class Profile(commands.Cog):
 
                     x = 0.2
                     y = 2.0
-                    lvl_req = (card_lvl/x)^y
+                    lvl_req = (float(card_lvl)/x)^y
                     pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
                     pokemon_arm=False
                     pokemon_title=False
