@@ -9469,6 +9469,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     o_defense = round(o_defense * 2)
                                                     previous_moves.append(f"**{o_card}** Blocked 🛡️")
                                                     t_health = t_health - dmg['DMG']
+                                                    turn_total = turn_total + 1
 
                                                 elif dmg['ELEMENT'] == earth_element:
                                                     o_defense = o_defense + (dmg['DMG'] * .25)
@@ -9504,7 +9505,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_health = t_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == fire_element:
-                                                    o_burn_dmg = o_burn_dmg + round(dmg['DMG'] * .25)
+                                                    o_burn_dmg = o_burn_dmg + round(dmg['DMG'] * .33)
                                                     t_health = t_health - dmg['DMG']
 
 
@@ -9513,7 +9514,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_health = t_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == poison_element:
-                                                    if o_poison_dmg <= 600:
+                                                    if o_poison_dmg <= (100 * o_card_tier):
                                                         o_poison_dmg = o_poison_dmg + 30
                                                     t_health = t_health - dmg['DMG']
 
@@ -9532,6 +9533,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_health = t_health - dmg['DMG']
                                                     
                                                 elif dmg['ELEMENT'] == gravity_element:
+                                                    if turn_total > 0:
+                                                        turn_total = turn_total - 1
                                                     o_gravity_hit = True
                                                     t_health = t_health - dmg['DMG']
                                                     t_defense = t_defense - (dmg['DMG'] * .25)
@@ -9694,7 +9697,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 elif tarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                     
                                                     if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                        if o_poison_dmg <= 600:
+                                                        if o_poison_dmg <= (100 * o_card_tier):
                                                             o_poison_dmg = o_poison_dmg + 30
                                                         
 
@@ -9788,7 +9791,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         o_block_used = True
                                                         o_defense = round(o_defense * 2)
                                                         previous_moves.append(f"**{o_card}** Blocked 🛡️")
-
+                                                        turn_total = turn_total + 1
                                                         t_health = t_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == earth_element:
@@ -9825,7 +9828,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == fire_element:
-                                                        o_burn_dmg = o_burn_dmg + round(dmg['DMG'] * .25)
+                                                        o_burn_dmg = o_burn_dmg + round(dmg['DMG'] * .33)
                                                         t_health = t_health - dmg['DMG']
 
 
@@ -9834,7 +9837,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == poison_element:
-                                                        if o_poison_dmg <= 600:
+                                                        if o_poison_dmg <= (100 * o_card_tier):
                                                             o_poison_dmg = o_poison_dmg + 30
                                                         t_health = t_health - dmg['DMG']
 
@@ -9853,6 +9856,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health - dmg['DMG']
                                                         
                                                     elif dmg['ELEMENT'] == gravity_element:
+                                                        if turn_total > 0:
+                                                            turn_total = turn_total - 1
                                                         o_gravity_hit = True
                                                         t_health = t_health - dmg['DMG']
                                                         t_defense = t_defense - (dmg['DMG'] * .25)
@@ -11248,6 +11253,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         o_defense = round(o_defense * 2)
                                                         previous_moves.append(f"**{o_card}** Blocked 🛡️")
                                                         t_health = t_health - dmg['DMG']
+                                                        turn_total = turn_total + 1
 
                                                     elif dmg['ELEMENT'] == earth_element:
                                                         o_defense = o_defense + (dmg['DMG'] * .25)
@@ -11283,7 +11289,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == fire_element:
-                                                        o_burn_dmg = o_burn_dmg + round(dmg['DMG'] * .25)
+                                                        o_burn_dmg = o_burn_dmg + round(dmg['DMG'] * .33)
                                                         t_health = t_health - dmg['DMG']
 
 
@@ -11292,7 +11298,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == poison_element:
-                                                        if o_poison_dmg <= 600:
+                                                        if o_poison_dmg <= (100 * o_card_tier):
                                                             o_poison_dmg = o_poison_dmg + 30
                                                         t_health = t_health - dmg['DMG']
 
@@ -11311,6 +11317,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health - dmg['DMG']
                                                         
                                                     elif dmg['ELEMENT'] == gravity_element:
+                                                        if turn_total > 0:
+                                                            turn_total = turn_total - 1
                                                         o_gravity_hit = True
                                                         t_health = t_health - dmg['DMG']
                                                         t_defense = t_defense - (dmg['DMG'] * .25)
@@ -11479,7 +11487,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     elif tarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if o_poison_dmg <= 600:
+                                                            if o_poison_dmg <= (100 * o_card_tier):
                                                                 o_poison_dmg = o_poison_dmg + 30
                                                            
 
@@ -11586,6 +11594,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_defense = round(o_defense * 2)
                                                             previous_moves.append(f"**{o_card}** Blocked 🛡️")
                                                             t_health = t_health - dmg['DMG']
+                                                            turn_total = turn_total + 1
 
                                                         elif dmg['ELEMENT'] == earth_element:
                                                             o_defense = o_defense + (dmg['DMG'] * .25)
@@ -11621,7 +11630,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == fire_element:
-                                                            o_burn_dmg = o_burn_dmg + round(dmg['DMG'] * .25)
+                                                            o_burn_dmg = o_burn_dmg + round(dmg['DMG'] * .33)
                                                             t_health = t_health - dmg['DMG']
 
 
@@ -11630,7 +11639,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if o_poison_dmg <= 600:
+                                                            if o_poison_dmg <= (100 * o_card_tier):
                                                                 o_poison_dmg = o_poison_dmg + 30
                                                             t_health = t_health - dmg['DMG']
 
@@ -11649,6 +11658,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
                                                             
                                                         elif dmg['ELEMENT'] == gravity_element:
+                                                            if turn_total > 0:
+                                                                turn_total = turn_total - 1
                                                             o_gravity_hit = True
                                                             t_health = t_health - dmg['DMG']
                                                             t_defense = t_defense - (dmg['DMG'] * .25)
@@ -13155,6 +13166,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_defense = round(t_defense * 2)
                                                             previous_moves.append(f"**{t_card}** Blocked 🛡️")
                                                             o_health = o_health - dmg['DMG']
+                                                            turn_total = turn_total + 1
 
 
                                                         elif dmg['ELEMENT'] == death_element:
@@ -13180,7 +13192,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == fire_element:
-                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                             o_health = o_health - dmg['DMG']
 
 
@@ -13189,7 +13201,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * o_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             o_health = o_health - dmg['DMG']
     
@@ -13208,6 +13220,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
                                                             
                                                         elif dmg['ELEMENT'] == gravity_element:
+                                                            if turn_total > 0:
+                                                                turn_total = turn_total - 1
                                                             t_gravity_hit = True
                                                             o_health = o_health - dmg['DMG']
                                                             o_defense = o_defense - (dmg['DMG'] * .25)
@@ -13363,7 +13377,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                         elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                             if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                                if t_poison_dmg <= 600:
+                                                                if t_poison_dmg <= (100 * t_card_tier):
                                                                     t_poison_dmg = t_poison_dmg + 30
                                                                 
                                                             if oshield_value > 0:
@@ -13473,7 +13487,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 t_block_used = True
                                                                 t_defense = round(t_defense * 2)
                                                                 previous_moves.append(f"**{t_card}** Blocked 🛡️")
-
+                                                                turn_total = turn_total + 1
                                                                 o_health = o_health - dmg['DMG']
 
 
@@ -13500,7 +13514,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == fire_element:
-                                                                t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                                t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                                 o_health = o_health - dmg['DMG']
 
 
@@ -13509,7 +13523,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == poison_element:
-                                                                if t_poison_dmg <= 600:
+                                                                if t_poison_dmg <= (100 * t_card_tier):
                                                                     t_poison_dmg = t_poison_dmg + 30
                                                                 o_health = o_health - dmg['DMG']
         
@@ -13528,6 +13542,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health - dmg['DMG']
                                                                 
                                                             elif dmg['ELEMENT'] == gravity_element:
+                                                                if turn_total > 0:
+                                                                    turn_total = turn_total - 1
                                                                 t_gravity_hit = True
                                                                 o_health = o_health - dmg['DMG']
                                                                 o_defense = o_defense - (dmg['DMG'] * .25)
@@ -14364,6 +14380,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_defense = round(t_defense * 2)
                                                         previous_moves.append(f"**{t_card}** Blocked 🛡️")
                                                         o_health = o_health - dmg['DMG']
+                                                        turn_total = turn_total + 1
 
 
                                                     elif dmg['ELEMENT'] == death_element:
@@ -14389,7 +14406,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         o_health = o_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == fire_element:
-                                                        t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                        t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                         o_health = o_health - dmg['DMG']
 
 
@@ -14398,7 +14415,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         o_health = o_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == poison_element:
-                                                        if t_poison_dmg <= 600:
+                                                        if t_poison_dmg <= (100 * t_card_tier):
                                                             t_poison_dmg = t_poison_dmg + 30
                                                         o_health = o_health - dmg['DMG']
 
@@ -14417,6 +14434,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         o_health = o_health - dmg['DMG']
                                                         
                                                     elif dmg['ELEMENT'] == gravity_element:
+                                                        if turn_total > 0:
+                                                            turn_total = turn_total - 1
                                                         t_gravity_hit = True
                                                         o_health = o_health - dmg['DMG']
                                                         o_defense = o_defense - (dmg['DMG'] * .25)
@@ -14561,7 +14580,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 💠 Barrier Disabled!")
                                                     elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * t_card_tier):
                                                                 t_poison_dmg = o_poison_dmg + 30
                                                             
                                                         if oshield_value > 0:
@@ -14661,7 +14680,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_block_used = True
                                                             t_defense = round(t_defense * 2)
                                                             previous_moves.append(f"**{t_card}** Blocked 🛡️")
-
+                                                            turn_total = turn_total + 1
                                                             o_health = o_health - dmg['DMG']
 
 
@@ -14689,7 +14708,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == fire_element:
-                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                             o_health = o_health - dmg['DMG']
 
 
@@ -14698,7 +14717,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * t_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             o_health = o_health - dmg['DMG']
     
@@ -14717,6 +14736,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
                                                             
                                                         elif dmg['ELEMENT'] == gravity_element:
+                                                            if turn_total > 0:
+                                                                turn_total = turn_total - 1
                                                             t_gravity_hit = True
                                                             o_health = o_health - dmg['DMG']
                                                             o_defense = o_defense - (dmg['DMG'] * .25)
@@ -15918,7 +15939,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_block_used = True
                                                     t_defense = round(t_defense * 2)
                                                     previous_moves.append(f"**{t_card}** Blocked 🛡️")
-
+                                                    turn_total = turn_total + 1
                                                     o_health = o_health - dmg['DMG']
 
 
@@ -15945,7 +15966,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     o_health = o_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == fire_element:
-                                                    t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                    t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                     o_health = o_health - dmg['DMG']
 
 
@@ -15954,7 +15975,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     o_health = o_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == poison_element:
-                                                    if t_poison_dmg <= 600:
+                                                    if t_poison_dmg <= (100 * t_card_tier):
                                                         t_poison_dmg = t_poison_dmg + 30
                                                     o_health = o_health - dmg['DMG']
 
@@ -15973,6 +15994,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     o_health = o_health - dmg['DMG']
                                                     
                                                 elif dmg['ELEMENT'] == gravity_element:
+                                                    if turn_total > 0:
+                                                        turn_total = turn_total - 1
                                                     t_gravity_hit = True
                                                     o_health = o_health - dmg['DMG']
                                                     o_defense = o_defense - (dmg['DMG'] * .25)
@@ -16123,7 +16146,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 💠 Barrier Disabled!")
                                                         elif carm_shield_active and dmg['ELEMENT'] != dark_element:
                                                             if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                                if t_poison_dmg <= 600:
+                                                                if t_poison_dmg <= (100 * t_card_tier):
                                                                     t_poison_dmg = o_poison_dmg + 30
                                                                 
                                                             if cshield_value > 0:
@@ -16222,7 +16245,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 t_block_used = True
                                                                 t_defense = round(t_defense * 2)
                                                                 previous_moves.append(f"**{t_card}** Blocked 🛡️")
-
+                                                                turn_total = turn_total + 1
                                                                 c_health = c_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == bleed_element:
@@ -16265,7 +16288,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 c_health = c_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == fire_element:
-                                                                t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                                t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                                 c_health = c_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == electric_element:
@@ -16273,11 +16296,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 c_health = c_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == poison_element:
-                                                                if t_poison_dmg <= 600:
+                                                                if t_poison_dmg <= (100 * t_card_tier):
                                                                     t_poison_dmg = t_poison_dmg + 30
                                                                 c_health = c_health - dmg['DMG']
                                                                 
                                                             elif dmg['ELEMENT'] == gravity_element:
+                                                                if turn_total > 0:
+                                                                    turn_total = turn_total - 1
                                                                 t_gravity_hit = True
                                                                 c_health = c_health - dmg['DMG']
                                                                 c_defense = c_defense - (dmg['DMG'] * .25)
@@ -16455,7 +16480,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 💠 Barrier Disabled!")
                                                         elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                             if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                                if t_poison_dmg <= 600:
+                                                                if t_poison_dmg <= (100 * t_card_tier):
                                                                     t_poison_dmg = o_poison_dmg + 30
                                                               
                                                             if oshield_value > 0:
@@ -16554,7 +16579,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 t_block_used = True
                                                                 t_defense = round(t_defense * 2)
                                                                 previous_moves.append(f"**{t_card}** Blocked 🛡️")
-
+                                                                turn_total = turn_total + 1
                                                                 o_health = o_health - dmg['DMG']
 
 
@@ -16581,7 +16606,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == fire_element:
-                                                                t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                                t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                                 o_health = o_health - dmg['DMG']
 
 
@@ -16590,7 +16615,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == poison_element:
-                                                                if t_poison_dmg <= 600:
+                                                                if t_poison_dmg <= (100 * t_card_tier):
                                                                     t_poison_dmg = t_poison_dmg + 30
                                                                 o_health = o_health - dmg['DMG']
         
@@ -16609,6 +16634,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health - dmg['DMG']
                                                                 
                                                             elif dmg['ELEMENT'] == gravity_element:
+                                                                if turn_total > 0:
+                                                                    turn_total = turn_total - 1
                                                                 t_gravity_hit = True
                                                                 o_health = o_health - dmg['DMG']
                                                                 o_defense = o_defense - (dmg['DMG'] * .25)
@@ -16791,7 +16818,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 💠 Barrier Disabled!")
                                                     elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * t_card_tier):
                                                                 t_poison_dmg = o_poison_dmg + 30
                                                             
                                                         if oshield_value > 0:
@@ -16891,7 +16918,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_block_used = True
                                                             t_defense = round(t_defense * 2)
                                                             previous_moves.append(f"**{t_card}** Blocked 🛡️")
-
+                                                            turn_total = turn_total + 1
                                                             o_health = o_health - dmg['DMG']
 
 
@@ -16918,7 +16945,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == fire_element:
-                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                             o_health = o_health - dmg['DMG']
 
 
@@ -16927,7 +16954,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * t_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             o_health = o_health - dmg['DMG']
     
@@ -16946,6 +16973,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
                                                             
                                                         elif dmg['ELEMENT'] == gravity_element:
+                                                            if turn_total > 0:
+                                                                turn_total = turn_total - 1
                                                             t_gravity_hit = True
                                                             o_health = o_health - dmg['DMG']
                                                             o_defense = o_defense - (dmg['DMG'] * .25)
@@ -17191,7 +17220,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
 
                                 # await asyncio.sleep(2)
-                                if c_block_used == True:
+                                if c_block_used == True: #gravity update
                                     c_defense = int(c_defense / 2)
                                     c_block_used = False
                                 if c_attack <= 25:
@@ -18553,7 +18582,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     elif tarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if c_poison_dmg <= 600:
+                                                            if c_poison_dmg <= (100 * t_card_tier):
                                                                 c_poison_dmg = c_poison_dmg + 30
                                                             
                                                         
@@ -18659,7 +18688,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             c_block_used = True
                                                             c_defense = round(c_defense * 2)
                                                             previous_moves.append(f"**{c_card}** Blocked 🛡️")
-
+                                                            turn_total = turn_total + 1
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == bleed_element:
@@ -18702,7 +18731,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == fire_element:
-                                                            c_burn_dmg = c_burn_dmg + round(dmg['DMG'] * .25)
+                                                            c_burn_dmg = c_burn_dmg + round(dmg['DMG'] * .33)
                                                             t_health = t_health - dmg['DMG']
 
 
@@ -18711,7 +18740,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if c_poison_dmg <= 600:
+                                                            if c_poison_dmg <= (100 * c_card_tier):
                                                                 c_poison_dmg = c_poison_dmg + 30
                                                             t_health = t_health - dmg['DMG']
                                                             
@@ -18719,6 +18748,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             c_gravity_hit = True
                                                             t_health = t_health - dmg['DMG']
                                                             t_defense = t_defense - (dmg['DMG'] * .25)
+                                                            if turn_total > 0:
+                                                                turn_total = turn_total - 1
                                                         else:
                                                             t_health = t_health - dmg['DMG']
 
@@ -19748,6 +19779,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             c_defense = round(c_defense * 2)
                                                             previous_moves.append(f"**{c_card}** Blocked 🛡️")
                                                             t_health = t_health - dmg['DMG']
+                                                            turn_total = turn_total + 1
 
                                                         elif dmg['ELEMENT'] == bleed_element:
                                                             c_bleed_counter = c_bleed_counter + 1
@@ -19789,7 +19821,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == fire_element:
-                                                            c_burn_dmg = c_burn_dmg + round(dmg['DMG'] * .25)
+                                                            c_burn_dmg = c_burn_dmg + round(dmg['DMG'] * .33)
                                                             t_health = t_health - dmg['DMG']
 
 
@@ -19798,11 +19830,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if c_poison_dmg <= 600:
+                                                            if c_poison_dmg <= (100 * c_card_tier):
                                                                 c_poison_dmg = c_poison_dmg + 30
                                                             t_health = t_health - dmg['DMG']
                                                             
                                                         elif dmg['ELEMENT'] == gravity_element:
+                                                            if turn_total > 0:
+                                                                turn_total = turn_total - 1
                                                             c_gravity_hit = True
                                                             t_health = t_health - dmg['DMG']
                                                             t_defense = t_defense - (dmg['DMG'] * .25)
@@ -19971,7 +20005,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             await button_ctx.defer(ignore=True)
                                                         elif tarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                             if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                                if c_poison_dmg <= 600:
+                                                                if c_poison_dmg <= (100 * c_card_tier):
                                                                     c_poison_dmg = o_poison_dmg + 30
                                                          
                                                             if tshield_value > 0:
@@ -20084,7 +20118,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 c_block_used = True
                                                                 c_defense = round(c_defense * 2)
                                                                 previous_moves.append(f"**{c_card}** Blocked 🛡️")
-
+                                                                turn_total = turn_total + 1
                                                                 t_health = t_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == bleed_element:
@@ -20127,7 +20161,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 t_health = t_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == fire_element:
-                                                                c_burn_dmg = c_burn_dmg + round(dmg['DMG'] * .25)
+                                                                c_burn_dmg = c_burn_dmg + round(dmg['DMG'] * .33)
                                                                 t_health = t_health - dmg['DMG']
 
 
@@ -20136,11 +20170,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 t_health = t_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == poison_element:
-                                                                if c_poison_dmg <= 600:
+                                                                if c_poison_dmg <= (100 * c_card_tier):
                                                                     c_poison_dmg = c_poison_dmg + 30
                                                                 t_health = t_health - dmg['DMG']
                                                                 
                                                             elif dmg['ELEMENT'] == gravity_element:
+                                                                if turn_total > 0:
+                                                                    turn_total = turn_total - 1
                                                                 c_gravity_hit = True
                                                                 t_health = t_health - dmg['DMG']
                                                                 t_defense = t_defense - (dmg['DMG'] * .25)
@@ -21700,7 +21736,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_block_used = True
                                                     t_defense = round(t_defense * 2)
                                                     previous_moves.append(f"**{t_card}** Blocked 🛡️")
-
+                                                    turn_total = turn_total + 1
                                                     c_health = c_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == bleed_element:
@@ -21743,7 +21779,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     c_health = c_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == fire_element:
-                                                    t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                    t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                     c_health = c_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == electric_element:
@@ -21751,11 +21787,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     c_health = c_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == poison_element:
-                                                    if t_poison_dmg <= 600:
+                                                    if t_poison_dmg <= (100 * t_card_tier):
                                                         t_poison_dmg = t_poison_dmg + 30
                                                     c_health = c_health - dmg['DMG']
                                                     
                                                 elif dmg['ELEMENT'] == gravity_element:
+                                                    if turn_total > 0:
+                                                        turn_total = turn_total - 1
                                                     t_gravity_hit = True
                                                     c_health = c_health - dmg['DMG']
                                                     c_defense = c_defense - (dmg['DMG'] * .25)
@@ -21912,11 +21950,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         #await private_channel.send(embed=embedVar)
                                                     elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * t_card_tier):
                                                                 t_poison_dmg = o_poison_dmg + 30
                                                    
                                                         if oshield_value > 0:
-                                                            oshield_value = oshield_value -dmg['DMG']
+                                                            oshield_value = oshield_value - dmg['DMG']
                                                             o_health = o_health 
                                                             if oshield_value <=0:
                                                                 embedVar = discord.Embed(title=f"{o_card}'s' **Shield** Shattered!", description=f"{t_card} breaks the **Shield**!", colour=0xe91e63)
@@ -22018,7 +22056,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_block_used = True
                                                             t_defense = round(t_defense * 2)
                                                             previous_moves.append(f"**{t_card}** Blocked 🛡️")
-
+                                                            turn_total = turn_total + 1
                                                             o_health = o_health - dmg['DMG']
 
 
@@ -22045,7 +22083,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == fire_element:
-                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                             o_health = o_health - dmg['DMG']
 
 
@@ -22054,7 +22092,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * t_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             o_health = o_health - dmg['DMG']
     
@@ -22073,6 +22111,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
                                                             
                                                         elif dmg['ELEMENT'] == gravity_element:
+                                                            if turn_total > 0:
+                                                                turn_total = turn_total - 1
                                                             t_gravity_hit = True
                                                             o_health = o_health - dmg['DMG']
                                                             o_defense = o_defense - (dmg['DMG'] * .25)
@@ -22262,7 +22302,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         #await private_channel.send(embed=embedVar)
                                                     elif carm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * t_card_tier):
                                                                 t_poison_dmg = o_poison_dmg + 30
                                                             c_health = c_health - dmg['DMG']
                                                         if cshield_value > 0:
@@ -22368,6 +22408,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_defense = round(t_defense * 2)
                                                             previous_moves.append(f"**{t_card}** Blocked 🛡️")
                                                             c_health = c_health - dmg['DMG']
+                                                            turn_total = turn_total + 1
 
                                                         elif dmg['ELEMENT'] == bleed_element:
                                                             t_bleed_counter = t_bleed_counter + 1
@@ -22409,7 +22450,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             c_health = c_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == fire_element:
-                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .25)
+                                                            t_burn_dmg = t_burn_dmg + round(dmg['DMG'] * .33)
                                                             c_health = c_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == electric_element:
@@ -22417,11 +22458,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             c_health = c_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= 600:
+                                                            if t_poison_dmg <= (100 * t_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             c_health = c_health - dmg['DMG']
                                                             
                                                         elif dmg['ELEMENT'] == gravity_element:
+                                                            if turn_total > 0:
+                                                                turn_total = turn_total - 1
                                                             t_gravity_hit = True
                                                             c_health = c_health - dmg['DMG']
                                                             c_defense = c_defense - (dmg['DMG'] * .25)

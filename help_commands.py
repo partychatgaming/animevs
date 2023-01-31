@@ -79,9 +79,9 @@ ELEMENTS = textwrap.dedent(f"""\
 
 👊 Physical - If ST(stamina) greater than 80, Deals double Damage 
 
-🔥 Fire - Does 25% damage of previous attack over the next opponent turns, stacks.
+🔥 Fire - Does 33% damage of previous attack over the next opponent turns, stacks.
 
-❄️ Ice - After 2 uses opponent freezes and loses 1 turn.
+❄️ Ice - After 2 attacks, opponent freezes and loses 1 turn.
 
 💧 Water - Increases all water attack dmg by 40 Flat.
 
@@ -101,19 +101,19 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ♠️ Dark- Penetrates shields & decreases opponent stamina by 15.
 
-🧪 Poison - Penetrades shields, Poison 30 damage stacking up to 600.
+🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (100 * Card Tier).
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
 
 🧿 Spirit - Has higher chance of Crit.
 
-♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent. If Recoild would kill you reduce HP to 1
+♻️ Recoil - Deals Incredible Bonus Damage, take 60% as recoil. If Recoil would kill you reduce HP to 1
 
-⌛ Time - If ST is less than 80, You Block and Focus for 1 Turn. 
+⌛ Time - Block and Increase Turn Count by 1, If ST(Stamina) is < 80, Focus for 1 Turn. 
 
 🅱️ Bleed - After 3 Attacks deal 10x turn count damage to opponent.
 
-🪐 Gravity - Disables Opponent Block and Reduce opponent DEF by 25% AP.
+🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 25% AP, Decrease Turn Count By 1.
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
