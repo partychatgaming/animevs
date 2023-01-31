@@ -2676,14 +2676,14 @@ class Profile(commands.Cog):
                     await button_ctx.send("Insufficent funds.", hidden=True)
                     await msg.edit(components=[])
                     return
-                if has_gabes_purse:
+                if preset_upgrade:
                     await button_ctx.send("You already have 5 Presets!", hidden=True)
                     await msg.edit(components=[])
                     return
                 else:
                     await crown_utilities.curse(price, str(ctx.author.id))
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
-                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
+                    #response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
                     update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
                     await button_ctx.send("🔖 | Preset Upgraded")
                     await msg.edit(components=[])
