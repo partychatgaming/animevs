@@ -116,6 +116,10 @@ class Card:
         self.block_used = False
         self.focus_count = 0
         self.enhance_turn_iterators = 0
+        self.stamina_required_to_focus = 10
+        self.stamina_focus_recovery_amount = 90
+        self._tutorial_message = ""
+        self.resolve_value = 60
 
         # Passive Ability
         self.passive_name  = list(passive.keys())[0]
@@ -1027,7 +1031,7 @@ class Card:
             return
 
 
-    def damage_cal(self, mode, selected_move, turn, _battle, _player, _opponent, _opponent_card):
+    def damage_cal(self, selected_move, turn, _battle, _player, _opponent, _opponent_card):
         if _opponent_card.defense <= 0:
             _opponent_card.defense = 25
         if self.attack <= 0:
@@ -1077,9 +1081,8 @@ class Card:
                 is_physical_element = True
             move_emoji = crown_utilities.set_emoji(move_element)
 
-
-
         if selected_move in ENHANCERS:
+            enhancer = True
             enh = self.move4enh
             ap = self.move4ap
             move_stamina = self.move4_stamina
@@ -1125,27 +1128,27 @@ class Card:
 
         if enhancer:
             if enh == "ATK":
-                enhancer_value = round((ap / 100) * attack)
+                enhancer_value = round((ap / 100) * atk)
             elif enh == "DEF":
                 enhancer_value = round((ap / 100) * defense)
             elif enh == "STAM":
                 enhancer_value = ap
             elif enh == "HLT":
-                hlt = round(ap + (.16 * health))
-                newhealth = hlt + health
-                if health >= self.max_health:
+                hlt = round(ap + (.16 * self.health))
+                newhealth = hlt + self.health
+                if self.health >= self.max_health:
                     enhancer_value = 0
                 elif newhealth >= self.max_health:
-                    enhancer_value = round(self.max_health - health)
+                    enhancer_value = round(self.max_health - self.health)
                 else:
                     enhancer_value = round(hlt)
             elif enh == 'LIFE':
-                lifesteal = round(ap + (.09 * _opponent_card.health))
-                newhealth = lifesteal + health
-                if health >= self.max_health:
+                lifesteal = round(ap + (.09 * _opponent_card.self.health))
+                newhealth = lifesteal + self.health
+                if self.health >= self.max_health:
                     enhancer_value = 0
                 elif newhealth >= self.max_health:
-                    enhancer_value = round(self.max_health - health)
+                    enhancer_value = round(self.max_health - self.health)
                 else:
                     enhancer_value = round(lifesteal)
             elif enh == 'DRAIN':
@@ -1167,9 +1170,9 @@ class Card:
                     self.attack = 2000
                 enhancer_value = round((ap / 100) * self.attack)
             elif enh == 'BZRK':
-                enhancer_value = round((ap / 100) * health)
+                enhancer_value = round((ap / 100) * self.health)
             elif enh == "CRYSTAL":
-                enhancer_value = round((ap / 100) * health)
+                enhancer_value = round((ap / 100) * self.health)
             elif enh == "GROWTH":
                 enhancer_value = ap
             elif enh == "STANCE":
@@ -1236,67 +1239,67 @@ class Card:
                     message = f'Opponent has been reduced.'
                     enhancer_value = _opponent_card.health - 1
             
-            if enh_type == 'ATK':
-                message = f'{move} used! Increasing Attack by {enhanced}'
-            elif enh_type == 'DEF':
-                message = f'{move} used! Increasing Defense by {enhanced}'
-            elif enh_type == 'STAM':
-                message = f'{move} used! Increasing Stamina by {enhanced}'
-            elif enh_type == 'LIFE':
-                if enhanced == 0:
-                    message = f'{move} used! Stealing {enhanced} Health  Your Health is full!'
+            if enh == 'ATK':
+                message = f'{move} used! Increasing Attack by {enhancer_value}'
+            elif enh == 'DEF':
+                message = f'{move} used! Increasing Defense by {enhancer_value}'
+            elif enh == 'STAM':
+                message = f'{move} used! Increasing Stamina by {enhancer_value}'
+            elif enh == 'LIFE':
+                if enhancer_value == 0:
+                    message = f'{move} used! Stealing {enhancer_value} Health  Your Health is full!'
                 else:
-                    message = f'{move} used! Stealing {enhanced} Health'
-            elif enh_type == 'DRAIN':
-                message = f'{move} used! Draining {enhanced} Stamina'
-            elif enh_type == 'FLOG':
-                message = f'{move} used! Stealing {enhanced} Attack'
-            elif enh_type == 'WITHER':
-                message = f'{move} used! Stealing {enhanced} Defense'
-            elif enh_type == 'RAGE':
-                message = f'{move} used! Sacrificing {enhanced} Defense, Increasing AP by {enhanced}'
-            elif enh_type == 'BRACE':
-                message = f'{move} used! Sacrificing {enhanced} Attack, Increasing AP by {enhanced}'
-            elif enh_type == 'BZRK':
-                message = f'{move} used! Sacrificing {enhanced} Health, Increasing Attack by {enhanced}'
-            elif enh_type == 'CRYSTAL':
-                message = f'{move} used! Sacrifices {enhanced} Health, Increasing Defense by {enhanced}'
-            elif enh_type == 'WAVE' or enh_type == 'BLAST':
-                if enh_type == 'BLAST' and enhanced > (100 * tier):
-                    enhanced =(100 * tier)
-                message = f'{move} used! Dealing {round(enhanced)} {enh_type} Damage!'
-            elif enh_type == 'CREATION':
-                message = f'{move} used! Healing and Increasing Max Health by {round(enhanced)}'
-            elif enh_type == 'DESTRUCTION':
-                if enhanced > (100 * tier):
-                    enhanced =(100 * tier)
-                message = f'{move} used! Destroying {round(enhanced)} Max Health'
-            elif enh_type == 'GROWTH':
-                message = f'{move} used! Sacrificing 10% Max Health to Increase Attack, Defense and AP by {round(enhanced)}'
-            elif enh_type == 'STANCE':
-                message = f'{move} used! Swapping Attack and Defense, Increasing Defense to {enhanced}'
-            elif enh_type == 'CONFUSE':
-                message = f'{move} used! Swapping Opponent Attack and Defense, Decreasing Defense to {enhanced}'
-            elif enh_type == 'HLT':
-                if enhanced == 0:
-                    message = f'{move} used! Healing for {enhanced} Health... Your Health is full!'
+                    message = f'{move} used! Stealing {enhancer_value} Health'
+            elif enh == 'DRAIN':
+                message = f'{move} used! Draining {enhancer_value} Stamina'
+            elif enh == 'FLOG':
+                message = f'{move} used! Stealing {enhancer_value} Attack'
+            elif enh == 'WITHER':
+                message = f'{move} used! Stealing {enhancer_value} Defense'
+            elif enh == 'RAGE':
+                message = f'{move} used! Sacrificing {enhancer_value} Defense, Increasing AP by {enhancer_value}'
+            elif enh == 'BRACE':
+                message = f'{move} used! Sacrificing {enhancer_value} Attack, Increasing AP by {enhancer_value}'
+            elif enh == 'BZRK':
+                message = f'{move} used! Sacrificing {enhancer_value} Health, Increasing Attack by {enhancer_value}'
+            elif enh == 'CRYSTAL':
+                message = f'{move} used! Sacrifices {enhancer_value} Health, Increasing Defense by {enhancer_value}'
+            elif enh == 'WAVE' or enh == 'BLAST':
+                if enh == 'BLAST' and enhancer_value > (100 * tier):
+                    enhancer_value =(100 * tier)
+                message = f'{move} used! Dealing {round(enhancer_value)} {enh} Damage!'
+            elif enh == 'CREATION':
+                message = f'{move} used! Healing and Increasing Max Health by {round(enhancer_value)}'
+            elif enh == 'DESTRUCTION':
+                if enhancer_value > (100 * tier):
+                    enhancer_value =(100 * tier)
+                message = f'{move} used! Destroying {round(enhancer_value)} Max Health'
+            elif enh == 'GROWTH':
+                message = f'{move} used! Sacrificing 10% Max Health to Increase Attack, Defense and AP by {round(enhancer_value)}'
+            elif enh == 'STANCE':
+                message = f'{move} used! Swapping Attack and Defense, Increasing Defense to {enhancer_value}'
+            elif enh == 'CONFUSE':
+                message = f'{move} used! Swapping Opponent Attack and Defense, Decreasing Defense to {enhancer_value}'
+            elif enh == 'HLT':
+                if enhancer_value == 0:
+                    message = f'{move} used! Healing for {enhancer_value} Health... Your Health is full!'
                 else:
-                    message = f'{move} used! Healing for {enhanced}!'
-                message = f'{move} used! Healing for {enhanced}!'
-            elif enh_type == 'FEAR':
-                message = f'{move} used! Sacrificing 10% Max Health to Decrease Opponent Attack, Defense and AP by {round(enhanced)}'
-            elif enh_type == 'SOULCHAIN':
-                message = f'{move} used! Synchronizing Stamina to {enhanced}'
-            elif enh_type == 'GAMBLE':
-                message = f'{move} used! Synchronizing Health to {enhanced}'
+                    message = f'{move} used! Healing for {enhancer_value}!'
+                message = f'{move} used! Healing for {enhancer_value}!'
+            elif enh == 'FEAR':
+                message = f'{move} used! Sacrificing 10% Max Health to Decrease Opponent Attack, Defense and AP by {round(enhancer_value)}'
+            elif enh == 'SOULCHAIN':
+                message = f'{move} used! Synchronizing Stamina to {enhancer_value}'
+            elif enh == 'GAMBLE':
+                message = f'{move} used! Synchronizing Health to {enhancer_value}'
             else:
-                message = f'{move} used! Inflicts {enh_type}'
+                message = f'{move} used! Inflicts {enh}'
 
             
             self.stamina = self.stamina - move_stamina
 
-            response = {"DMG": enhanced, "MESSAGE": message,
-                        "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh_type, "ENHANCE": True}
+            response = {"DMG": enhancer_value, "MESSAGE": message,
+                        "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh, "ENHANCE": True}
             return response
 
         else:
@@ -1361,10 +1364,10 @@ class Card:
                 if move_element == "SPIRIT" and hit_roll > 3:
                     hit_roll = hit_roll + 4
                     
-                if universe == "Crown Rift Awakening" and hit_roll > med_hit:
+                if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
                     hit_roll = hit_roll + 2
                 
-                if universe == "Crown Rift Slayers" and hit_roll <=low_hit:
+                if self.universe == "Crown Rift Slayers" and hit_roll <=low_hit:
                     hit_roll = hit_roll - 3
 
                 if ranged_attack:
@@ -1378,7 +1381,7 @@ class Card:
                     true_dmg = round(true_dmg + _battle._wind_buff)
 
                 if hit_roll < miss_hit:
-                    if universe == 'Crown Rift Slayers':
+                    if self.universe == 'Crown Rift Slayers':
                         true_dmg = round(true_dmg * 2.5)
                         message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits for **{true_dmg}**!! :boom: '
                     elif is_wind_element:
@@ -1401,7 +1404,7 @@ class Card:
                     message = f'{move_emoji} {move} used! Hits for **{true_dmg}**! :anger_right:'
                 
                 elif hit_roll >= 20:
-                    if universe =="Crown Rift Awakening":
+                    if self.universe =="Crown Rift Awakening":
                         true_dmg = round(true_dmg * 4)
                         message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits for **{true_dmg}**!! :boom:"
                     else:
@@ -1463,6 +1466,189 @@ class Card:
                 }))
 
 
+    def focusing(self, _title, _opponent_title, _opponent_card, _battle, _co_op_card=None, _co_op_title=None ):
+        if self.stamina < self.stamina_required_to_focus:
+            if _battle._is_tutorial and _opponent_card.used_focus is False:
+                _opponent_card.used_focus = True
+                embedVar = discord.Embed(title=f"You've entered :cyclone:**Focus State**!",
+                                        description=f"Entering :cyclone:**Focus State** sacrifices a turn to **Heal** and regain **ST (Stamina)**!",
+                                        colour=0xe91e63)
+                embedVar.add_field(name=":cyclone:**Focusing**",
+                                value="Increase **ATK** (🟦) and **DEF** (🟥)!")
+                embedVar.set_footer(
+                    text="Pay attention to your oppononets ST(Stamina). If they are entering Focus State, you will have the ability to strike twice!")
+                
+                _battle._tutorial_message = embedVar
+
+            self.summon_used = False
+            self.focus_count = self.focus_count + 1
+
+            if _battle._is_boss:
+                embedVar = discord.Embed(title=f"{_battle._punish_boss_description}")
+                embedVar.add_field(name=f"{_battle._arena_boss_description}", value=f"{_battle._world_boss_description}", inline=False)
+                embedVar.set_footer(text=f"{_battle._assault_boss_description}")
+                _battle._boss_embed_message = embedVar
+                
+
+            # fortitude or luck is based on health
+            fortitude = round(self.health * .1)
+            if fortitude <= 50:
+                fortitude = 50
+
+            self.stamina = self.stamina_focus_recovery_amount
+            health_calculation = round(fortitude)
+            attack_calculation = round(fortitude * (self.tier / 10))
+            defense_calculation = round(fortitude * (self.tier / 10))
+            
+            if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
+                attack_calculation = attack_calculation + attack_calculation
+                defense_calculation = defense_calculation + defense_calculation
+
+            if _title.passive_type:
+                if _title.passive_type == "GAMBLE":
+                    health_calculation = _title.passive_value
+                if _title.passive_type == "SOULCHAIN":
+                    self.stamina = _title.passive_value
+                    _opponent_card.stamina = _title.passive_value
+                    if _battle._is_co_op:
+                        _co_op_card.stamina = _title.passive_value
+                if _title.passive_type == "BLAST":
+                    _opponent_card.health = _opponent_card.health - (_title.passive_value * _battle.turn_total)
+
+            if _opponent_title.passive_type:
+                if _opponent_title.passive_type == "GAMBLE":
+                    health_calculation = _opponent_title.passive_value
+            
+            if _battle._is_co_op:
+                if _co_op_title.passive_type:
+                    if _co_op_title.passive_type == "GAMBLE":
+                        health_calculation = _co_op_title.passive_value
+            # check if user is at max health and sets messages and focus health value
+            new_health_value = 0
+            heal_message = ""
+            message_number = 0
+            if self.universe == "Crown Rift Madness":
+                heal_message = "yet inner **Madness** drags on..."
+                message_number = 3
+            else:
+                if self.health <= self.max_health:
+                    new_health_value = self.health + health_calculation
+                    if new_health_value > self.max_health:
+                        heal_message = "the injuries dissapeared!"
+                        message_number = 1
+                        self.health = self.max_health
+                    else:
+                        heal_message = "regained some vitality."
+                        message_number = 2
+                        self.health = new_health_value
+                else:
+                    heal_message = f"**{_opponent_card.name}**'s blows don't appear to have any effect!"
+                    message_number = 0
+            if not self.used_resolved:
+                self.attack = self.attack + attack_calculation
+                self.defense = self.defense + defense_calculation
+            self.used_focus = True
+            _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
+            
+
+            # Resolve Check and Calculation
+            if not self.used_resolve and self.used_focus and self.universe == "Digimon":  # Digimon Universal Trait
+                if _battle._is_tutorial and _opponent_card.used_resolve is False:
+                    _opponent_card.used_resolve = True
+                    embedVar = discord.Embed(title=f"⚡**Resolve Transformation**!",
+                                            description=f"**Heal**, Boost **ATK**, and gain the ability to 🧬**Summon**!",
+                                            colour=0xe91e63)
+                    embedVar.add_field(name=f"Trade Offs!",
+                                    value="Sacrifice **DEF** and **Focusing** will not increase **ATK** or **DEF**")
+                    embedVar.add_field(name=f"🧬 Summons",
+                                    value=f"🧬**Summons** will use their 🦠**Enhancers** to assist you in battle!")
+                    embedVar.set_footer(
+                        text=f"You can only enter ⚡Resolve once per match! Use the Heal Wisely!!!")
+                    _battle.tutorial_message = embedVar
+
+                
+                # fortitude or luck is based on health
+                fortitude = 0.0
+                low = self.health - (self.health * .75)
+                high = self.health - (self.health * .66)
+                fortitude = round(random.randint(int(low), int(high)))
+                # Resolve Scaling
+                o_resolve_health = round(fortitude + (.5 * self.resolve))
+                o_resolve_attack = round((.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
+                o_resolve_defense = round((.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
+
+                self.stamina = self.stamina + self.resolve_value
+                self.health = self.health + o_resolve_health
+                self.attack = round(self.attack + o_resolve_attack)
+                self.defense = round(self.defense - o_resolve_defense)
+                self.attack = round(self.attack * 1.5)
+                self.defense = round(self.defense * 1.5)
+                self.used_resolve = True
+                self.summon_used = False
+                if _battle._turn_total <=5:
+                    self.attack = round(self.attack * 2)
+                    self.defense = round(self.defense * 2 )
+                    self.health = self.health + 500
+                    self.max_health = self.max_health + 500
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Transformation: Mega Digivolution!!!")
+                else:
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Transformation: Digivolve")
+
+            elif self.universe == "League Of Legends":                
+                _opponent_card.health = round(_opponent_card.health - (60 + _battle._turn_total))
+                
+                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{60 + _battle._turn_total}** Damage 💥")
+
+            elif self.universe == "Dragon Ball Z":
+                self.health = self.health + _opponent_card.stamina + _battle._turn_total
+                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + _battle._turn_total}** ❤️")
+
+            elif self.universe == "Solo Leveling":
+                t_defense = round(t_defense - (30 + _battle._turn_total))
+                
+                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + _battle._turn_total}** 🛡️ 🔻")
+            
+            elif self.universe == "Black Clover":                
+                self.stamina = 100
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (20 * self.tier)
+
+                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
+            
+            elif self.universe == "Death Note":
+                if _battle._turn_total >= 100:
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{_opponent_card.name}** 🩸 had a heart attack and died")
+                    
+                    _opponent_card.health = 0
+
+            if _opponent_card.universe == "One Punch Man" and self.universe != "Death Note":
+                _opponent_card.health = round(_opponent_card.health + 100)
+                t_max_health = round(t_max_health + 100)
+
+                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
+
+            elif _opponent_card.universe == "7ds":
+                _opponent_card.stamina = _opponent_card.stamina + 60
+                _opponent_card.summon_used = False
+                
+                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina 🌀")
+            
+            elif _opponent_card.universe == "Souls":
+                _opponent_card.attack = round(_opponent_card.attack + (60 + _battle._turn_total))
+
+                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{60 + _battle._turn_total}** 🔺")
+            
+            else:
+                _battle._turn_total = _battle._turn_total + 1
+                if self.universe != "Crown Rift Madness":
+                    _battle._is_turn = 1
+                else:
+                    _battle._is_turn = 0
+            _battle._turn_total = _battle._turn_total + 1
+            if self.universe != "Crown Rift Madness":
+                _battle._is_turn = 1
+            else:
+                _battle._is_turn = 0
+        
 
 def get_card(url, cardname, cardtype):
         try:

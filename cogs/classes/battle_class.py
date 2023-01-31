@@ -1,5 +1,6 @@
 import db
 import crown_utilities
+import discord
 
 class Battle:
     def __init__(self, mode, _player):
@@ -30,7 +31,7 @@ class Battle:
         self._max_turns_allowed = 250
         self.previous_moves = []
         self.previous_moves_len = 0
-        self.previous_moves_into_embed = "\n".join(previous_moves)
+        self.previous_moves_into_embed = "\n".join(self.previous_moves)
 
         self._selected_universe = ""
         self._selected_universe_data = ""
@@ -113,6 +114,7 @@ class Battle:
         self._rebuke_boss_description = ""
         self._concede_boss_description = ""
         self._wins_boss_description = ""
+        self._boss_embed_message = ""
 
         # AI Tutorial Config
         self.raidActive = False
@@ -123,7 +125,7 @@ class Battle:
         self.tutorial_block = False
         self.tutorial_resolve = False
         self.tutorial_summon = False
-        self.tutorial_focus= False
+        self.tutorial_message = ""
 
 
         if self.mode not in crown_utilities.PVP_M:
