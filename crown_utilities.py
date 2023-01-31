@@ -847,8 +847,8 @@ async def cardlevel(card: str, player, mode: str, universe: str):
 
         lvl = cardinfo['LVL']
         new_lvl = lvl + 1
-        x = 0.5
-        y = 2.0
+        x = 0.09
+        y = 1.5
         lvl_req = round((float(lvl)/x)**y)
         exp = cardinfo['EXP']
         exp_gain = 0
