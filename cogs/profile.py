@@ -2423,9 +2423,7 @@ class Profile(commands.Cog):
         gabes = user['TOURNAMENT_WINS']
         gabes_message = "Purse Purchased!"
         gabes_explain = ""
-        if gabes == 1:
-            gabes_message = "25,000,000"
-            gabes_explain = "Purchase **Gabe's Purse** to Keep ALL ITEMS during **/rebirth**"
+        
         if storage_type >=10:
             storage_pricing_text = "Max Storage Level"
             storage_tier_message = "MAX"
@@ -2450,6 +2448,9 @@ class Profile(commands.Cog):
         current_title = user['TITLE']
         current_pet = user['PET']
         has_gabes_purse = user['TOURNAMENT_WINS']
+        if not has_gabes_purse:
+            gabes_message = "25,000,000"
+            gabes_explain = "Purchase **Gabe's Purse** to Keep ALL ITEMS during **/rebirth**"
         balance = vault['BALANCE']
         icon = ":coin:"
         if balance >= 1000000:
