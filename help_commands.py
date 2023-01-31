@@ -97,9 +97,9 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ❤️‍🔥 Life - Heal for 20% AP.
 
-🌕 Light - Regain 50% Stamina Cost, Increases ATK by 20% of DMG.
+🌕 Light - Regain 50% ST(Stamina) Cost, Increases ATK by 20% of DMG.
 
-♠️ Dark- Penetrates shields & decreases opponent stamina by 15.
+🌑 Dark- Penetrates shields & decreases opponent ST(Stamina) by 15.
 
 🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (100 * Card Tier).
 
