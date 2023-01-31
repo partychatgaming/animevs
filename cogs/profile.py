@@ -9427,6 +9427,8 @@ async def menudestinies(self, ctx):
             paginator.add_reaction('⏭️', "last")
             embeds = embed_list
             await paginator.run(embeds)
+        except asyncio.TimeoutError:
+            await ctx.send(f"{ctx.authour.mention} Destiny Menu closed.", hidden=True)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -9614,7 +9616,8 @@ async def menuquests(self, ctx):
                 custom_action_row,
                 custom_function,
             ]).run()
-
+        except asyncio.TimeoutError:
+            await ctx.send(f"{ctx.authour.mention} Quest Menu closed.", hidden=True)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -9682,7 +9685,7 @@ async def menubalance(self, ctx):
         }))
         
 async def menupreset(self, ctx):
-     try:
+    try:
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -9945,7 +9948,8 @@ async def menupreset(self, ctx):
                             response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
                             await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset5_card}")
                             return  
-                
+            except asyncio.TimeoutError:
+                await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__
@@ -10297,6 +10301,8 @@ async def menushop(self, ctx):
             custom_action_row,
             custom_function,
         ]).run()
+    except asyncio.TimeoutError:
+        await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -10524,6 +10530,8 @@ async def menucraft(self, ctx):
             custom_action_row,
             custom_function,
         ]).run()
+    except asyncio.TimeoutError:
+        await ctx.send(f"{ctx.authour.mention} Craft Menu closed.", hidden=True)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
