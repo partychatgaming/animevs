@@ -3565,19 +3565,23 @@ class Profile(commands.Cog):
                 ]
                 
                 if preset_update:
-                    util_buttons.append([
+                    util_buttons.append(
                         manage_components.create_button(
                             style=ButtonStyle.blue,
                             label="4️⃣",
                             custom_id="4"
-                        ),
+                        )
+                    )
+                    util_buttons.append(
                         manage_components.create_button(
                             style=ButtonStyle.blue,
                             label="5️⃣",
                             custom_id="5"
                         )
+                    )
+                    
+                        
 
-                    ])
                 util_action_row = manage_components.create_actionrow(*util_buttons)
                 components = [util_action_row]
                 await ctx.send(embed=embedVar,components=[util_action_row])
