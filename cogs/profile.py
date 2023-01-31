@@ -3556,12 +3556,7 @@ class Profile(commands.Cog):
                         style=ButtonStyle.blue,
                         label="3️⃣",
                         custom_id = "3"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.grey,
-                        label="Quit",
-                        custom_id = "0"
-                    ),
+                    )
                 ]
                 
                 if preset_update:
@@ -3589,7 +3584,7 @@ class Profile(commands.Cog):
                 def check(button_ctx):
                     return button_ctx.author == ctx.author
                 try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=30,check=check)
 
                     if  button_ctx.custom_id == "0":
                         await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
