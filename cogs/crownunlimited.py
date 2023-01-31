@@ -429,6 +429,14 @@ class CrownUnlimited(commands.Cog):
                                    create_choice(
                                        name="Preset 3",
                                        value="3"
+                                   ),
+                                   create_choice(
+                                       name="Preset 4",
+                                       value="4"
+                                   ),
+                                   create_choice(
+                                       name="Preset 5",
+                                       value="5"
                                    )
                                ]
                            ),
@@ -461,7 +469,7 @@ class CrownUnlimited(commands.Cog):
         try:
             # await ctx.defer()
             deck = int(deck)
-            if deck != 1 and deck != 2 and deck != 3:
+            if deck != 1 and deck != 2 and deck != 3 and deck != 4 and deck != 5:
                 await ctx.send("Not a valid Deck Option")
                 return
             deckNumber = deck - 1
@@ -480,7 +488,10 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send("Dungeons and Boss fights unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
                 return
 
-
+            if not sowner['U_PRESET'] and int(deck) > 3:
+                await ctx.send(":coin: Purchase additional **/preset** slots at the **/blacksmith**")
+                return
+                
             if mode in D_modes and sowner['LEVEL'] < 41 and int(sowner['PRESTIGE']) == 0:
                 await ctx.send("🔓 Unlock **Duo Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
@@ -10062,7 +10073,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 coop_util_buttons = [
                                                     manage_components.create_button(
                                                         style=ButtonStyle.blue,
-                                                        label="🦠 Enhance Allu 20",
+                                                        label="🦠 Enhance Ally 20",
                                                         custom_id="7"
                                                     ),
                                                     manage_components.create_button(
