@@ -849,7 +849,7 @@ async def cardlevel(card: str, player, mode: str, universe: str):
         lvl = cardinfo['LVL']
         new_lvl = lvl + 1
         x = 0.099
-        y = 1.45
+        y = 1.25
         lvl_req = round((float(lvl)/x)**y)
         exp = cardinfo['EXP']
         exp_gain = 0
@@ -857,9 +857,9 @@ async def cardlevel(card: str, player, mode: str, universe: str):
         d_exp_gain = (100 * (1 + rebirth_buff))
         if has_universe_soul:
             if mode == "Dungeon":
-                exp_gain = d_exp_gain * 2
+                exp_gain = d_exp_gain * 4
             if mode == "Tales":
-                exp_gain = t_exp_gain * 2
+                exp_gain = t_exp_gain * 4
             if mode == "Purchase":
                 exp_gain = lvl_req
         else:

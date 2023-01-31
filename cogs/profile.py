@@ -252,8 +252,17 @@ class Profile(commands.Cog):
             arm = db.queryArm({'ARM': str(d['ARM'])})
             user_info = db.queryUser(query)
             vault = db.queryVault({'DID': d['DID']})
+            has_universe_heart = False
+            has_universe_soul = False
+            
             if card:
                 try:
+                    if card['UNIVERSE'] != "n/a":
+                        for gems in vault['GEMS']:
+                            if gems['UNIVERSE'] == card['UNIVERSE'] and gems['UNIVERSE_HEART']:
+                                has_universe_heart = True
+                            if gems['UNIVERSE'] == card['UNIVERSE'] and gems['UNIVERSE_SOUL']:
+                                has_universe_soul = True
                     durability = ""
                     base_arm_names = ['Reborn Stock', 'Stock', 'Deadgun', 'Glaive', 'Kings Glaive', 'Legendary Weapon']
                     for a in vault['ARMS']:
@@ -281,8 +290,8 @@ class Profile(commands.Cog):
                             card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
                             
 
-                    x = 0.099
-                    y = 1.45
+                    x = 0.0999
+                    y = 1.25
                     lvl_req = round((float(card_lvl)/x)**y)
                     pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
                     pokemon_arm=False
@@ -324,14 +333,21 @@ class Profile(commands.Cog):
                                 talisman_emoji = crown_utilities.set_emoji(talisman.upper())
                                 talisman_durability = t["DUR"]
                         talisman_message = f"{talisman_emoji} {talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
-            
+                    
+                    trebirth_message = f"+0"
+                    drebirth_message = f""
                     trebirthBonus = o_rebirth + 25
-                    drebirthBonus = o_rebirth * 100
-                    trebirth_message = f"+0*"
-                    drebirth_message = f"+0"
+                    drebirthBonus = (o_rebirth + 1) * 100
                     if o_rebirth > 0:
                         trebirth_message = f"_⚔️Tales: {trebirthBonus}xp_"
                         drebirth_message = f"_🔥Dungeon: {drebirthBonus}xp_"
+                    if has_universe_soul:
+                        trebirthBonus = (o_rebirth + 25) * 4
+                        drebirthBonus = ((o_rebirth + 1) * 100) * 4
+                        trebirth_message = f"_🌹⚔️Tales: {trebirthBonus}xp_"
+                        drebirth_message = f"_🌹🔥Dungeon: {drebirthBonus}xp_"
+                    
+                    
                     traits = ut.traits
                     mytrait = {}
                     traitmessage = ''
