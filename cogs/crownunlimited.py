@@ -4862,7 +4862,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
     await p.set_guild_data()
 
     if mode in crown_utilities.CO_OP_M:
-        await ctx.send(f"{player.name} needs your help! React in server to join their Coop Tale!!")
+        await ctx.send(f"{p.name} needs your help! React in server to join their Coop Tale!!")
         coop_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.green,
@@ -4878,7 +4878,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         coop_buttons_action_row = manage_components.create_actionrow(*coop_buttons)
         msg = await ctx.send(f"{p2.did.mention} Do you accept the **Coop Invite**?", components=[coop_buttons_action_row])
         def check(button_ctx):
-            return button_ctx.author.id == user.did
+            return button_ctx.author.id == p2.did
         try:
             button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[coop_buttons_action_row], timeout=120, check=check)
 
@@ -5185,208 +5185,6 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                 player1_card.set_solo_leveling_config(player2._shield_active, player2._shield_value, player2._barrier_active, player2._barrier_value, player2._parry_active, player2._parry_value)
 
 
-            if _battle.mode in PVP_MODES or _battle.mode in RAID_MODES:
-                if mode in RAID_MODES:
-                    tperformance = stats['operformance']
-                else:
-                    tperformance = stats['tperformance']
-                t_talisman = stats['t_talisman']
-                t_talisman_emoji = "📿"
-                if t_talisman == "NULL":
-                    t_talisman ='N/A'
-                    t_talisman_emoji = "📿"
-                else:
-                    t_talisman_emoji = crown_utilities.set_emoji(t_talisman)
-                t_title_passive_type = stats['t_title_passive_type']
-                t_opponent_affinities = stats['t_opponent_affinities']
-                tmove1_element = stats['tmove1_element']
-                tmove2_element = stats['tmove2_element']
-                tmove3_element = stats['tmove3_element']
-                t_basic_emoji = crown_utilities.set_emoji(tmove1_element)
-                t_super_emoji = crown_utilities.set_emoji(tmove2_element)
-                t_ultimate_emoji = crown_utilities.set_emoji(tmove3_element)
-                t_card_passive_type = stats['t_card_passive_type']
-                t_title_passive_value = stats['t_title_passive_value']
-                tpet_lvl = stats['tpet_lvl']
-                tpet_bond = stats['tpet_bond']
-                t_card = stats['t_card']
-                t_full_card_info = stats['t_full_card_info']
-                t_affinity_message = crown_utilities.set_affinities(t_full_card_info)
-                tcard_lvl = stats['tcard_lvl']
-                tcard_lvl_message = f"🔰*{tcard_lvl}*"
-                if int(tcard_lvl) >= 200:
-                    tcard_lvl_message =f"🔱*{tcard_lvl}*"
-                if int(tcard_lvl) >= 700:
-                    tcard_lvl_message =f"⚜️*{tcard_lvl}*"
-                if int(tcard_lvl) >=999:
-                    tcard_lvl_message =f"🏅*{tcard_lvl}*"
-                t_info = f"{t_talisman_emoji} {tcard_lvl_message}"
-                t_card_path = stats['t_card_path']
-                tarm = stats['tarm']
-                tarm_name = stats['tarm_name']
-                tarm_passive_type = stats['tarm_passive_type']
-                tarm_passive_value = stats['tarm_passive_value']
-                t_user = stats['t_user']
-                t_universe = stats['t_universe']
-                t_attack = stats['t_attack']
-                t_defense = stats['t_defense']
-                t_stamina = stats['t_stamina']
-                t_max_stamina = stats['t_max_stamina']
-                t_health = stats['t_health']
-                t_base_health = stats['t_base_health']
-                t_max_health = stats['t_max_health']
-                t_DID = stats['t_DID']
-                t_chainsaw = stats['t_chainsaw']
-                t_atk_chainsaw = stats['t_atk_chainsaw']
-                t_def_chainsaw = stats['t_def_chainsaw']
-                tmove1_text = stats['tmove1_text']
-                tmove2_text = stats['tmove2_text']
-                tmove3_text = stats['tmove3_text']
-                tmove_enhanced_text = stats['tmove_enhanced_text']
-                t_enhancer_used = stats['t_enhancer_used']
-                t_1 = stats['t_1']
-                t_2 = stats['t_2']
-                t_3 = stats['t_3']
-                tarm_shield_active = stats['tarm_shield_active']
-                tshield_value = stats['tshield_value']
-                tarm_barrier_active = stats['tarm_barrier_active']
-                tbarrier_count = stats['tbarrier_count']
-                tarm_parry_active = stats['tarm_parry_active']
-                tparry_count = stats['tparry_count']
-                tarm_siphon_active = stats['tarm_siphon_active']
-                tsiphon_value = stats['tsiphon_value']
-                t_gif = stats['t_gif']
-                t_enhancer = stats['t_enhancer']
-                t_speed = stats['t_speed']
-                t_special_move_description = stats['t_special_move_description']
-                t_greeting_description = stats['t_greeting_description']
-                t_focus_description = stats['t_focus_description']
-                t_resolve_description = stats['t_resolve_description']
-                t_special_move_description = stats['t_special_move_description']
-                t_win_description = stats['t_win_description']
-                t_lose_description = stats['t_lose_description']
-                tcard_lvl_ap_buff = stats['tcard_lvl_ap_buff']
-                tpet_name = stats['tpet_name']
-                tpet_move = stats['tpet_move']
-                tpetmove_text = stats['tpetmove_text']
-                tpet_image = stats['tpet_image']
-                t_pet_used = stats['t_pet_used']
-                user2 = stats['user2']
-                t_focus = stats['t_focus']
-                t_used_focus = stats['t_used_focus']
-                t_resolve = stats['t_resolve']
-                t_used_resolve = stats['t_used_resolve']
-                t_block_used = stats['t_block_used']
-                t_defend_used = stats['t_defend_used']
-                t_final_stand = stats['t_final_stand']
-                t_card_tier = t_full_card_info['TIER']
-            else:
-                t_card_passive_type = stats['t_card_passive_type']
-                tmove1_element = stats['tmove1_element']
-                tmove2_element = stats['tmove2_element']
-                tmove3_element = stats['tmove3_element']
-                t_talisman = "NULL"
-                t_talisman_emoji = "📿"
-                if difficulty =="NORMAL":
-                    t_talisman = str(tmove1_element)
-                if difficulty == "HARD":
-                    t_talisman = tmove3_element
-                if mode in B_modes:
-                    t_talisman = str(tmove3_element)
-                if t_talisman == "NULL":
-                    t_talisman ='N/A'
-                    t_talisman_emoji = "📿"
-                else:
-                    t_talisman_emoji = crown_utilities.set_emoji(t_talisman)
-                
-                t_basic_emoji = crown_utilities.set_emoji(tmove1_element)
-                t_super_emoji = crown_utilities.set_emoji(tmove2_element)
-                t_ultimate_emoji = crown_utilities.set_emoji(tmove3_element)
-                t_opponent_affinities = stats['t_opponent_affinities']
-                t_title_passive_type = stats['t_title_passive_type']
-                t_title_passive_value = stats['t_title_passive_value']
-                tpet_lvl = stats['tpet_lvl']
-                tpet_bond = stats['tpet_bond']
-                t_card = stats['t_card']
-                t_full_card_info = stats['t_full_card_info']
-                t_affinity_message = crown_utilities.set_affinities(t_full_card_info)
-                t_card_tier = t_full_card_info['TIER']
-                tcard_lvl = stats['tcard_lvl']
-                tcard_lvl_message = f"🔰*{tcard_lvl}*"
-                if int(tcard_lvl) >= 200:
-                    tcard_lvl_message =f"🔱*{tcard_lvl}*"
-                if int(tcard_lvl) >= 700:
-                    tcard_lvl_message =f"⚜️*{tcard_lvl}*"
-                if int(tcard_lvl) >=999:
-                    tcard_lvl_message =f"🏅*{tcard_lvl}*"
-                t_info = f"{t_talisman_emoji} {tcard_lvl_message}"
-                tcard_lvl_ap_buff = stats['tcard_lvl_ap_buff']
-                tarm = stats['tarm']
-                tarm_name = stats['tarm_name']
-                tarm_passive_type = stats['tarm_passive_type']
-                tarm_passive_value = stats['tarm_passive_value']
-                # if mode in D_modes:
-                #     tcard_lvl = tcard_lvl
-                #     tcard_lvl_ap_buff = 100
-                # elif mode in U_modes:
-                #     tcard_lvl = 30
-                #     tcard_lvl_ap_buff = 10
-                # elif mode in B_modes:
-                #     tcard_lvl = 500
-                #     tcard_lvl_ap_buff = 166
-                t_universe = stats['t_universe']
-                t_attack = stats['t_attack'] + corruption_atk_buff
-                t_defense = stats['t_defense'] + corruption_def_buff
-                t_health = stats['t_health'] + corruption_hlt_buff
-                t_base_health = stats['t_base_health'] + corruption_hlt_buff
-                t_max_health = stats['t_max_health'] + corruption_hlt_buff
-                t_chainsaw = stats['t_chainsaw']
-                t_atk_chainsaw = stats['t_atk_chainsaw']
-                t_def_chainsaw = stats['t_def_chainsaw']
-                t_stamina = stats['t_stamina']
-                t_max_stamina = stats['t_max_stamina']
-                tmove1_text = stats['tmove1_text']
-                tmove2_text = stats['tmove2_text']
-                tmove3_text = stats['tmove3_text']
-                tmove_enhanced_text = stats['tmove_enhanced_text']
-                t_enhancer_used = stats['t_enhancer_used']
-                t_1 = stats['t_1']
-                t_2 = stats['t_2']
-                t_3 = stats['t_3']
-                tarm_shield_active = stats['tarm_shield_active']
-                tshield_value = stats['tshield_value']
-                tarm_barrier_active = stats['tarm_barrier_active']
-                tbarrier_count = stats['tbarrier_count']
-                tarm_parry_active = stats['tarm_parry_active']
-                tparry_count = stats['tparry_count']
-                tarm_siphon_active = stats['tarm_siphon_active']
-                tsiphon_value = stats['tsiphon_value']
-                t_enhancer = stats['t_enhancer']
-                t_enhancer_used = stats['t_enhancer_used']
-                t_speed = stats['t_speed']
-                t_special_move_description = stats['t_special_move_description']
-                t_gif = stats['t_gif']
-                t_greeting_description = stats['t_greeting_description']
-                t_focus_description = stats['t_focus_description']
-                t_resolve_description = stats['t_resolve_description']
-                t_special_move_description = stats['t_special_move_description']
-                t_win_description = stats['t_win_description']
-                t_lose_description = stats['t_lose_description']
-                t_focus = stats['t_focus']
-                t_used_focus = stats['t_used_focus']
-                t_resolve = stats['t_resolve']
-                t_used_resolve = stats['t_used_resolve']
-                t_final_stand = stats['t_final_stand']
-                tpet_move = stats['tpet_move']
-                tpet_name = stats['tpet_name']
-                tpet_image = stats['tpet_image']
-                t_pet_used = stats['t_pet_used']
-                tpetmove_text = stats['tpetmove_text']
-                t_block_used = stats['t_block_used']
-                t_defend_used = stats['t_defend_used']
-                t_title = ttitle['TITLE']
-
-
             if _battle.mode == "RAID":
                 raidActive = True
                 botActive= False
@@ -5439,9 +5237,9 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
             
             
 
-            # if randomized_battle:
-            #     private_channel = ctx.author
-            if mode in PVP_MODES and tutorial == False:
+            player_1_fetched_user = await main.bot.fetch_user(player.did)
+
+            if mode in PVP_MODES and not _battle._is_tutorial:
                 battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚 {user2.mention} ")
             else:
                 battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚...")
