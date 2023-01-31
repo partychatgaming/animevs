@@ -136,28 +136,28 @@ async def help(ctx: SlashContext, selection):
    if selection == "menu":
       embedVar = discord.Embed(title= f"Your stuff, your way!", description=h.CTAP_COMMANDS, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "legend":
       embedVar = discord.Embed(title= f"What do these emoji's mean?", description=h.LEGEND, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "elements":
       embedVar = discord.Embed(title= f"What does each element do?", description=h.ELEMENTS, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "play":
       embedVar = discord.Embed(title= f"Start playing now!", description=h.CROWN_UNLIMITED_GAMES, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
@@ -165,14 +165,14 @@ async def help(ctx: SlashContext, selection):
    if selection == "universe":
       embedVar = discord.Embed(title= f"🌍 Universe Info!", description=h.UNIVERSE_STUFF, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "teams":
       embedVar = discord.Embed(title= f"Gang up and play!", description=h.BOT_COMMANDS, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
@@ -3580,22 +3580,22 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
 
 #       embedVar1 = discord.Embed(title= f"Story Mode", description="Journey through Universes to defeat powerful foes to unlock vast new worlds, tough boss fights, and new possibilities! Click arrow below to go to the next page!", colour=0x7289da)
 #       embedVar1.set_image(url=story)
-#       embedVar1.set_footer(text=f"use /animevs for additional assistance")
+#       embedVar1.set_footer(text=f"use /help for additional assistance")
 
 #       embedVar2 = discord.Embed(title= f"Profile Menu", description="View and Edit your Cards, Titles, Arms, and Summons to craft new Builds and strategies.", colour=0x7289da)
 #       embedVar2.set_image(url=profile)
 #       # embedVar2.add_field(name="Help Navigation", value="*First Page: :track_previous:|Prev Page: :rewind:|\nNext Page: :fast_forward:| Last Page: :track_next:*")
-#       embedVar2.set_footer(text=f"use /animevs for additional assistance")
+#       embedVar2.set_footer(text=f"use /help for additional assistance")
 
 #       embedVar3 = discord.Embed(title= f"PVP Mode", description="Face off against friend or foe!", colour=0x7289da)
 #       embedVar3.set_image(url=pvp)
 #       # embedVar3.add_field(name="Help Navigation", value="*First Page: :track_previous:|Prev Page: :rewind:|\nNext Page: :fast_forward:| Last Page: :track_next:*")
-#       embedVar3.set_footer(text=f"use /animevs for additional assistance")
+#       embedVar3.set_footer(text=f"use /help for additional assistance")
 
 #       embedVar4 = discord.Embed(title= f"TIPS", description="5 Primary Objectives of Anime VS+.", colour=0x7289da)
 #       embedVar4.set_image(url=objectives)
 #       # embedVar4.add_field(name="Help Navigation", value="*First Page: :track_previous:|Prev Page: :rewind:|\nNext Page: :fast_forward:| Last Page: :track_next:*")
-#       embedVar4.set_footer(text=f"use /animevs for additional assistance")
+#       embedVar4.set_footer(text=f"use /help for additional assistance")
 
 #       paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
 #       paginator.add_reaction('⏮️', "first")
