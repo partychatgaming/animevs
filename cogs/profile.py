@@ -3763,179 +3763,179 @@ class Profile(commands.Cog):
             }))
             await ctx.send("Preset Issue Seek support.", hidden=True)
 
-        @cog_ext.cog_slash(description="Save your current build as a preset", guild_ids=main.guild_ids)
-        async def savepreset(self, ctx):
-            try:
-                a_registered_player = await crown_utilities.player_check(ctx)
-                if not a_registered_player:
-                    return
+    @cog_ext.cog_slash(description="Save your current build as a preset", guild_ids=main.guild_ids)
+    async def savepreset(self, ctx):
+        try:
+            a_registered_player = await crown_utilities.player_check(ctx)
+            if not a_registered_player:
+                return
 
-                query = {'DID': str(ctx.author.id)}
-                d = db.queryUser(query)
-                vault_query = {'DID': d['DID']}
-                vault = db.queryVault(vault_query)
-                if vault:
-                    name = d['DISNAME'].split("#",1)[0]
-                    avatar = d['AVATAR']
-                    cards = vault['CARDS']
-                    titles = vault['TITLES']
-                    deck = vault['DECK']
+            query = {'DID': str(ctx.author.id)}
+            d = db.queryUser(query)
+            vault_query = {'DID': d['DID']}
+            vault = db.queryVault(vault_query)
+            if vault:
+                name = d['DISNAME'].split("#",1)[0]
+                avatar = d['AVATAR']
+                cards = vault['CARDS']
+                titles = vault['TITLES']
+                deck = vault['DECK']
 
 
-                    current_card = d['CARD']
-                    current_title = d['TITLE']
-                    current_arm= d['ARM']
-                    current_pet = d['PET']
-                    preset_update = d['U_PRESET']
+                current_card = d['CARD']
+                current_title = d['TITLE']
+                current_arm= d['ARM']
+                current_pet = d['PET']
+                preset_update = d['U_PRESET']
 
-                    
-                    preset1_card = list(deck[0].values())[0]
-                    preset1_title = list(deck[0].values())[1]
-                    preset1_arm = list(deck[0].values())[2]
-                    preset1_pet = list(deck[0].values())[3]
-
-                    preset2_card = list(deck[1].values())[0]
-                    preset2_title = list(deck[1].values())[1]
-                    preset2_arm = list(deck[1].values())[2]
-                    preset2_pet = list(deck[1].values())[3]
-
-                    preset3_card = list(deck[2].values())[0]
-                    preset3_title = list(deck[2].values())[1]
-                    preset3_arm = list(deck[2].values())[2]
-                    preset3_pet = list(deck[2].values())[3]    
-
-                    if preset_update:
-                        preset4_card = list(deck[3].values())[0]
-                        preset4_title = list(deck[3].values())[1]
-                        preset4_arm = list(deck[3].values())[2]
-                        preset4_pet = list(deck[3].values())[3]
-
-                        preset5_card = list(deck[4].values())[0]
-                        preset5_title = list(deck[4].values())[1]
-                        preset5_arm = list(deck[4].values())[2]
-                        preset5_pet = list(deck[4].values())[3]  
-                        
-                        listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                        f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                        f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
-                        f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
-                        f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
-                    else:
-                        listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                        f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                        f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
                 
-                    embedVar = discord.Embed(title=f"📝 | Save Current Build", description=textwrap.dedent(f"""
-                    {"".join(listed_options)}
-                    """))
-                    util_buttons = [
-                        manage_components.create_button(
-                            style=ButtonStyle.red,
-                            label="📝 1️⃣",
-                            custom_id = "1"
-                        ),
-                        manage_components.create_button(
-                            style=ButtonStyle.blue,
-                            label="📝 2️⃣",
-                            custom_id = "2"
-                        ),
+                preset1_card = list(deck[0].values())[0]
+                preset1_title = list(deck[0].values())[1]
+                preset1_arm = list(deck[0].values())[2]
+                preset1_pet = list(deck[0].values())[3]
+
+                preset2_card = list(deck[1].values())[0]
+                preset2_title = list(deck[1].values())[1]
+                preset2_arm = list(deck[1].values())[2]
+                preset2_pet = list(deck[1].values())[3]
+
+                preset3_card = list(deck[2].values())[0]
+                preset3_title = list(deck[2].values())[1]
+                preset3_arm = list(deck[2].values())[2]
+                preset3_pet = list(deck[2].values())[3]    
+
+                if preset_update:
+                    preset4_card = list(deck[3].values())[0]
+                    preset4_title = list(deck[3].values())[1]
+                    preset4_arm = list(deck[3].values())[2]
+                    preset4_pet = list(deck[3].values())[3]
+
+                    preset5_card = list(deck[4].values())[0]
+                    preset5_title = list(deck[4].values())[1]
+                    preset5_arm = list(deck[4].values())[2]
+                    preset5_pet = list(deck[4].values())[3]  
+                    
+                    listed_options = [f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
+                    f"📝4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
+                    f"📝5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
+                else:
+                    listed_options = [f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
+            
+                embedVar = discord.Embed(title=f"📝 | Save Current Build", description=textwrap.dedent(f"""
+                {"".join(listed_options)}
+                """))
+                util_buttons = [
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label="📝 1️⃣",
+                        custom_id = "1"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label="📝 2️⃣",
+                        custom_id = "2"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label="📝 3️⃣",
+                        custom_id = "3"
+                    )
+                ]
+                
+                if preset_update:
+                    util_buttons.append(
                         manage_components.create_button(
                             style=ButtonStyle.green,
-                            label="📝 3️⃣",
-                            custom_id = "3"
+                            label="📝4️⃣",
+                            custom_id="4"
                         )
-                    ]
-                    
-                    if preset_update:
-                        util_buttons.append(
-                            manage_components.create_button(
-                                style=ButtonStyle.blue,
-                                label="📝4️⃣",
-                                custom_id="4"
-                            )
+                    )
+                    util_buttons.append(
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="📝5️⃣",
+                            custom_id="5"
                         )
-                        util_buttons.append(
-                            manage_components.create_button(
-                                style=ButtonStyle.blue,
-                                label="📝5️⃣",
-                                custom_id="5"
-                            )
-                        )
-                    util_action_row = manage_components.create_actionrow(*util_buttons)
-                    components = [util_action_row]
-                    await ctx.send(embed=embedVar,components=[util_action_row])
+                    )
+                util_action_row = manage_components.create_actionrow(*util_buttons)
+                components = [util_action_row]
+                await ctx.send(embed=embedVar,components=[util_action_row])
 
-                    
-                    def check(button_ctx):
-                        return button_ctx.author == ctx.author
+                
+                def check(button_ctx):
+                    return button_ctx.author == ctx.author
 
-                    try:
-                        button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
+                try:
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
 
-                        if button_ctx.custom_id == "0":
-                            await button_ctx.send(f"{ctx.author.mention}, No change has been made")
+                    if button_ctx.custom_id == "0":
+                        await button_ctx.send(f"{ctx.author.mention}, No change has been made")
+                        return
+                    elif button_ctx.custom_id == "1":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.0.CARD' :str(current_card), 'DECK.0.TITLE': str(current_title),'DECK.0.ARM': str(current_arm), 'DECK.0.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 1️⃣| Preset Updated!")
                             return
-                        elif button_ctx.custom_id == "1":
-                            response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.0.CARD' :str(current_card), 'DECK.0.TITLE': str(current_title),'DECK.0.ARM': str(current_arm), 'DECK.0.PET': str(current_pet)}})
-                            if response:
-                                await button_ctx.send("📝 1️⃣| Preset Updated!")
-                                return
-                        elif button_ctx.custom_id == "2":
-                            response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.1.CARD' :str(current_card), 'DECK.1.TITLE': str(current_title),'DECK.1.ARM': str(current_arm), 'DECK.1.PET': str(current_pet)}})
-                            if response:
-                                await button_ctx.send("📝 2️⃣| Preset Updated!")
-                                return
-                        elif button_ctx.custom_id == "3":
-                            response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.2.CARD' :str(current_card), 'DECK.2.TITLE': str(current_title),'DECK.2.ARM': str(current_arm), 'DECK.2.PET': str(current_pet)}})
-                            if response:
-                                await button_ctx.send("📝 3️⃣| Preset Updated!")
-                                return
-                        elif button_ctx.custom_id == "4":
-                            response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.3.CARD' :str(current_card), 'DECK.3.TITLE': str(current_title),'DECK.3.ARM': str(current_arm), 'DECK.3.PET': str(current_pet)}})
-                            if response:
-                                await button_ctx.send("📝 4️⃣| Preset Updated!")
-                                return
-                        elif button_ctx.custom_id == "4":
-                            response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.4.CARD' :str(current_card), 'DECK.4.TITLE': str(current_title),'DECK.4.ARM': str(current_arm), 'DECK.4.PET': str(current_pet)}})
-                            if response:
-                                await button_ctx.send("📝 5️⃣| Preset Updated!")
-                                return
-                    except asyncio.TimeoutError:
-                        await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
-                    except Exception as ex:
-                        trace = []
-                        tb = ex.__traceback__
-                        while tb is not None:
-                            trace.append({
-                                "filename": tb.tb_frame.f_code.co_filename,
-                                "name": tb.tb_frame.f_code.co_name,
-                                "lineno": tb.tb_lineno
-                            })
-                            tb = tb.tb_next
-                        print(str({
-                            'type': type(ex).__name__,
-                            'message': str(ex),
-                            'trace': trace
-                        }))
-                        await ctx.send("Preset Issue Seek support.", hidden=True)
-                else:
-                    newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-                await ctx.send("Preset Issue Seek support.", hidden=True)
+                    elif button_ctx.custom_id == "2":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.1.CARD' :str(current_card), 'DECK.1.TITLE': str(current_title),'DECK.1.ARM': str(current_arm), 'DECK.1.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 2️⃣| Preset Updated!")
+                            return
+                    elif button_ctx.custom_id == "3":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.2.CARD' :str(current_card), 'DECK.2.TITLE': str(current_title),'DECK.2.ARM': str(current_arm), 'DECK.2.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 3️⃣| Preset Updated!")
+                            return
+                    elif button_ctx.custom_id == "4":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.3.CARD' :str(current_card), 'DECK.3.TITLE': str(current_title),'DECK.3.ARM': str(current_arm), 'DECK.3.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 4️⃣| Preset Updated!")
+                            return
+                    elif button_ctx.custom_id == "4":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.4.CARD' :str(current_card), 'DECK.4.TITLE': str(current_title),'DECK.4.ARM': str(current_arm), 'DECK.4.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 5️⃣| Preset Updated!")
+                            return
+                except asyncio.TimeoutError:
+                    await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+                except Exception as ex:
+                    trace = []
+                    tb = ex.__traceback__
+                    while tb is not None:
+                        trace.append({
+                            "filename": tb.tb_frame.f_code.co_filename,
+                            "name": tb.tb_frame.f_code.co_name,
+                            "lineno": tb.tb_lineno
+                        })
+                        tb = tb.tb_next
+                    print(str({
+                        'type': type(ex).__name__,
+                        'message': str(ex),
+                        'trace': trace
+                    }))
+                    await ctx.send("Preset Issue Seek support.", hidden=True)
+            else:
+                newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send("Preset Issue Seek support.", hidden=True)
 
     @cog_ext.cog_slash(description="Open the shop", guild_ids=main.guild_ids)
     async def shop(self, ctx):
