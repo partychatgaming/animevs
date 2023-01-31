@@ -2599,7 +2599,7 @@ class Profile(commands.Cog):
         
         🔖 **Preset Upgrade** *+ 2 Slots* :money_with_wings: **{preset_message}**
 
-        **Gabe's Purse** 👛 for :money_with_wings: **{gabes_message}**
+        👛 **Gabe's Purse**: :money_with_wings: **{gabes_message}**
         {gabes_explain}
 
         What would you like to buy?
@@ -2710,7 +2710,7 @@ class Profile(commands.Cog):
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :"**New Preset 5**", 'TITLE': "**New Preset 5**",'ARM': "**New Preset 5**", 'PET': "**New Preset 5**"}}})
                     #response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
                     update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
-                    await button_ctx.send("🔖 | Preset Upgraded", hidden=True)
+                    await button_ctx.send("🔖 | Preset Upgraded"e)
                     await msg.edit(components=[])
                     return
             
@@ -3109,7 +3109,8 @@ class Profile(commands.Cog):
                     custom_action_row,
                     custom_function,
                 ]).run()
-
+            except asyncio.TimeoutError:
+                await ctx.send("Summon List closed.", hidden=True)
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__
