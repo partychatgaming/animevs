@@ -330,8 +330,8 @@ class Profile(commands.Cog):
                     trebirth_message = f"+0*"
                     drebirth_message = f"+0"
                     if o_rebirth > 0:
-                        trebirth_message = f"⚔️*Tales: {trebirthBonus}xp*"
-                        drebirth_message = f"🔥*Dungeon: {drebirthBonus}xp*"
+                        trebirth_message = f"_⚔️Tales: {trebirthBonus}xp_"
+                        drebirth_message = f"_🔥Dungeon: {drebirthBonus}xp_"
                     traits = ut.traits
                     mytrait = {}
                     traitmessage = ''
