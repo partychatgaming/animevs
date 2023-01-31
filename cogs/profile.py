@@ -325,7 +325,13 @@ class Profile(commands.Cog):
                                 talisman_durability = t["DUR"]
                         talisman_message = f"{talisman_emoji} {talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
             
-                    rebirthBonus = o_rebirth * 10
+                    trebirthBonus = o_rebirth + 25
+                    drebirthBonus = o_rebirth * 100
+                    trebirth_message = f"+0*"
+                    drebirth_message = f"+0"
+                    if o_rebirth > 0:
+                        trebirth_message = f"⚔️*Tales: {trebirthBonus}xp*"
+                        drebirth_message = f"🔥*Dungeon: {drebirthBonus}xp*"
                     traits = ut.traits
                     mytrait = {}
                     traitmessage = ''
@@ -587,9 +593,9 @@ class Profile(commands.Cog):
                         embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
                         embedVar.set_image(url="attachment://image.png")
                         if card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {150 - card_exp}\nRebirth Buff: +{rebirthBonus}\n{warningmessage}")
+                            embedVar.set_footer(text=f"EXP Until Next Level: {'{:,}'.format(lvl_req - card_exp)}\nRebirth Buff: {trebirth_message} | {drebirth_message}\n{warningmessage}")
                         else:
-                            embedVar.set_footer(text=f"Max Level\nRebirth Buff: +{rebirthBonus}\n{warningmessage}")
+                            embedVar.set_footer(text=f"Max Level\nRebirth Buff: {trebirth_message} | {drebirth_message}\n{warningmessage}")
                         embedVar.set_author(name=f"{ctx.author}", icon_url=user_info['AVATAR'])
                         
                         await ctx.send(embed=embedVar)
@@ -612,7 +618,7 @@ class Profile(commands.Cog):
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
                         if card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {'{:,}'.format(lvl_req - card_exp)}\nRebirth Buff: +{rebirthBonus}\n♾️ {traitmessage}\n{warningmessage}")
+                            embedVar.set_footer(text=f"EXP Until Next Level: {'{:,}'.format(lvl_req - card_exp)}\nRebirth Buff: {trebirth_message} | {drebirth_message}\n♾️ {traitmessage}\n{warningmessage}")
                         else:
                             embedVar.set_footer(text=f"Max Level")
                         
