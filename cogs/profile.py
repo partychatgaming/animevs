@@ -2710,7 +2710,7 @@ class Profile(commands.Cog):
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :"**New Preset 5**", 'TITLE': "**New Preset 5**",'ARM': "**New Preset 5**", 'PET': "**New Preset 5**"}}})
                     #response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
                     update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
-                    await button_ctx.send("🔖 | Preset Upgraded")
+                    await button_ctx.send("🔖 | Preset Upgraded", hidden=True)
                     await msg.edit(components=[])
                     return
             
@@ -2761,7 +2761,7 @@ class Profile(commands.Cog):
                     return
                     
                 if storage_type == 10:
-                    await button_ctx.send("💼 | You already have max storage.")
+                    await button_ctx.send("💼 | You already have max storage.", hidden=True)
                     await msg.edit(components=[])
                     return
                     
@@ -2771,7 +2771,8 @@ class Profile(commands.Cog):
                     await button_ctx.send(f"💼 | Storage Tier {str(storage_type + 1)} has been purchased!")
                     await msg.edit(components=[])
                     return
-
+        except asyncio.TimeoutError:
+            await ctx.send("Trinket Shop closed.", hidden=True)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
