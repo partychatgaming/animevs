@@ -2437,6 +2437,8 @@ class Profile(commands.Cog):
         vault_query = {'DID' : str(ctx.author.id)}
         vault = db.altQueryVault(vault_query)
         current_card = user['CARD']
+        current_title = user['TITLE']
+        current_pet = user['PET']
         has_gabes_purse = user['TOURNAMENT_WINS']
         balance = vault['BALANCE']
         icon = ":coin:"
