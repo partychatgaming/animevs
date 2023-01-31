@@ -23,6 +23,7 @@ CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
 **🔥 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
 **👹 Boss Encounter** - Extreme Boss battles to earn Boss cards, boss accessories and more
 **:projector: Scenario Battle** - Battle through unique scenarios to earn Cards and Moves
+**:milky_way: Explore Mode** - As you chat Encounter Rare Cards and Battle for Gold or Glory!
 
 **Solo Player!**
 **/solo** - Play through all pve game modes solo to earn solo rewards
@@ -44,6 +45,8 @@ UNIVERSE_STUFF = textwrap.dedent(f"""\
 **View Universes!**
 **/universes** - View all available universe info including all available cards, accessories, and destinies
 
+**/view** - View all in Game Items
+
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
 
@@ -57,7 +60,8 @@ LEGEND = textwrap.dedent(f"""\
 🗡️ - **Attack (ATK)** Blue Crystal 🟦
 🛡️ - **Defense (DEF)** Red Crystal 🟥
 🏃 - **Speed**
-🩸 - Card Passive *Card Passive enhancers are applied each turn, passively.*
+🩸 - Card Passive *Card Passive enhancers are applied each turn or Focus, passively.*
+
 
 **Accessories & Summons**
 ⚠️ - Your title or arm does not match your universe
@@ -95,7 +99,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ☠️ Death - Deals 20% opponent max health as damage.
 
-❤️‍🔥 Life - Heal for 20% AP.
+❤️‍🔥 Life - Heal for 25% AP.
 
 🌕 Light - Regain 50% ST(Stamina) Cost, Increases ATK by 20% of DMG.
 
@@ -121,7 +125,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 BOT_COMMANDS = textwrap.dedent(f"""\
 **Guild Commands**
-**/guild** - Guild lookup, configurations, and apply for
+**/guild** - Guild Menu
 **/guildoperations** - Guild operations
 **/createguild** - Create guild 
 **/disbandguild** - Delete guild
@@ -158,7 +162,6 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 **/invest** - Invest coin into family Bank
 **/houses** - Show list of available houses
 **/viewhouse** - View House Information
-**/buyhouse** - Buy and move into a new family house
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
@@ -167,6 +170,7 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 CTAP_COMMANDS = textwrap.dedent(f"""\
 **Main Menu!⚒️**
 **/menu** - Access your current build, cards, titles, arms, quests, and destinies. You can also open the shop and visit the blacksmith here!
+
 
 **Reward Codes! ⌨️**
 **/code** - Enter in codes to earn in-game rewards!
