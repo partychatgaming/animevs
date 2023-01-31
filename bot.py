@@ -561,6 +561,8 @@ async def animevs(ctx):
    Save your favorite builds in your **Preset**
    **/menu** tselect **View Preset** option, select a preset with **1-3**
    *Select **Save Preset** to save a new Build!
+
+   You can upgrade your Presets at the **/blacksmith**
    
    **Preset Builds**
    You can bring your preset builds into Duo Battles!
