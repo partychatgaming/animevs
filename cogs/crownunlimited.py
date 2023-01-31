@@ -4937,7 +4937,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                 if button_ctx.custom_id == "scenario":
                     await button_ctx.defer(ignore=True)
                     universe = str(button_ctx.origin_message.embeds[0].title)
-                    await scenario(self, ctx, universe)
+                    await scenario(self, ctx, p, universe)
                     self.stop = True
                     return
                 elif button_ctx.custom_id == "start":                

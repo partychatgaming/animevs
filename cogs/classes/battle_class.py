@@ -1,6 +1,7 @@
 import db
 import crown_utilities
 import discord
+import textwrap
 
 class Battle:
     def __init__(self, mode, _player):
@@ -56,7 +57,7 @@ class Battle:
         self._ai_opponent_summon_ability_name = ""
         self._ai_opponent_summon_image = ""
 
-        self.difficulty = self.player.difficulty
+        self.difficulty = _player.difficulty
         self._is_easy = False
         self._is_hard = False
         self._is_normal = False
@@ -191,7 +192,6 @@ class Battle:
         if self.mode == crown_utilities.SCENARIO:
             self._is_scenario = True
             self.is_ai_opponent = True
-            self.starting_match_title = f"Scenario Battle Confirm Start!  ({self._currentopponent + 1}/{self._total_enemies})"
 
         if self.mode == crown_utilities.EXPLORE:
             self._is_explore = True
@@ -317,10 +317,8 @@ class Battle:
     
     def set_scenario_selection(self):
         try:
-            scenarios = db.queryAllScenariosByUniverse(universe)
-
+            scenarios = db.queryAllScenariosByUniverse(str(self._selected_universe))
             embed_list = []
-
             for scenario in scenarios:
                 if scenario['AVAILABLE']:
                     title = scenario['TITLE']
@@ -405,6 +403,8 @@ class Battle:
             self.scenario_easy_drops = scenario_data['EASY_DROPS']
             self.scenario_normal_drops = scenario_data['NORMAL_DROPS']
             self.scenario_hard_drops = scenario_data['HARD_DROPS']
+
+            self.starting_match_title = f"🎞️ Scenario Battle Confirm Start!  ({self._currentopponent + 1}/{self._total_enemies})"
         except:
             print("unable to set scenario config")
 
@@ -490,11 +490,11 @@ class Battle:
         # print(self._list_of_opponents)
         self._ai_opponent_card_data = db.queryCard({'NAME': self._list_of_opponents[self._currentopponent]})
         universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
-        if self.mode in crown_utilities.DUNGEON_M:
+        if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
             title = 'DTITLE'
             arm = 'DARM'
             summon = 'DPET'
-        if self.mode in crown_utilities.TALE_M:
+        if self.mode in crown_utilities.TALE_M or self._ai_opponent_card_lvl < 350:
             title = 'UTITLE'
             arm = 'UARM'
             summon = 'UPET'
