@@ -2434,7 +2434,8 @@ class Profile(commands.Cog):
             durability_message = "UNAVAILABLE"
         elif dungeon_arm:
             boss_message = "Dungeon eh?!"
-        vault = db.altQueryVault({'DID' : str(ctx.author.id)})
+        vault_query = {'DID' : str(ctx.author.id)}
+        vault = db.altQueryVault(vault_query)
         current_card = user['CARD']
         has_gabes_purse = user['TOURNAMENT_WINS']
         balance = vault['BALANCE']
@@ -2617,7 +2618,7 @@ class Profile(commands.Cog):
                 lvl = card_info['LVL']
                 max_lvl = 700
                 if lvl >= max_lvl:
-                    await button_ctx.send(f"**{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
+                    await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
                     await msg.edit(components=[])
                     return
 
@@ -2634,7 +2635,7 @@ class Profile(commands.Cog):
                 filter_query = [{'type.'+ "CARD": str(current_card)}]
                 response = db.updateVault(query, update_query, filter_query)
                 await crown_utilities.curse(price, str(ctx.author.id))
-                await button_ctx.send(f"**{str(current_card)}** gained {levels_gained} levels!")
+                await button_ctx.send(f"🔋🎴 | **{str(current_card)}** gained {levels_gained} levels!")
                 await msg.edit(components=[])
                 if button_ctx.custom_id == "cancel":
                     await button_ctx.send("Sell ended.", hidden=True)
@@ -2654,7 +2655,7 @@ class Profile(commands.Cog):
                 else:
                     update = db.updateUserNoFilterAlt(user_query, {'$set': {'TOURNAMENT_WINS': 1}})
                     await crown_utilities.curse(price, str(ctx.author.id))
-                    await button_ctx.send("Gabe's Purse has been purchased!")
+                    await button_ctx.send("👛 | Gabe's Purse has been purchased!")
                     await msg.edit(components=[])
                     return
                 
@@ -2671,7 +2672,9 @@ class Profile(commands.Cog):
                 else:
                     update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
                     await crown_utilities.curse(price, str(ctx.author.id))
-                    await button_ctx.send("Preset Upgraded")
+                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
+                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
+                    await button_ctx.send("🔖 | Preset Upgraded")
                     await msg.edit(components=[])
                     return
             
@@ -2685,7 +2688,7 @@ class Profile(commands.Cog):
                     await msg.edit(components=[])
                     return
                 if current_durability >= 100:
-                    await button_ctx.send(f"🦾 {current_arm} is already at Max Durability. ⚒️",hidden=True)
+                    await button_ctx.send(f"🦾 | {current_arm} is already at Max Durability. ⚒️",hidden=True)
                     await msg.edit(components=[])
                     return
                 else:
@@ -2702,9 +2705,9 @@ class Profile(commands.Cog):
 
                         await crown_utilities.curse(price, str(ctx.author.id))
                         if full_repair:
-                                await button_ctx.send(f"{current_arm}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
+                                await button_ctx.send(f"🦾 | {current_arm}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
                         else:
-                                await button_ctx.send(f"{current_arm}'s ⚒️ durability has increased by **{levels_gained}**!")
+                                await button_ctx.send(f"🦾 | {current_arm}'s ⚒️ durability has increased by **{levels_gained}**!")
                         await msg.edit(components=[])
                         return
                     except:
@@ -2717,19 +2720,19 @@ class Profile(commands.Cog):
                     return
                     
                 if not patron_flag and storage_type >= 2:
-                    await button_ctx.send("Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", hidden=True)
+                    await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", hidden=True)
                     await msg.edit(components=[])
                     return
                     
                 if storage_type == 10:
-                    await button_ctx.send("You already have max storage.")
+                    await button_ctx.send("💼 | You already have max storage.")
                     await msg.edit(components=[])
                     return
                     
                 else:
                     update = db.updateUserNoFilterAlt(user_query, {'$inc': {'STORAGE_TYPE': 1}})
                     await crown_utilities.curse(storage_pricing, str(ctx.author.id))
-                    await button_ctx.send(f"Storage Tier {str(storage_type + 1)} has been purchased!")
+                    await button_ctx.send(f"💼 | Storage Tier {str(storage_type + 1)} has been purchased!")
                     await msg.edit(components=[])
                     return
 
