@@ -2707,7 +2707,7 @@ class Profile(commands.Cog):
                 else:
                     await crown_utilities.curse(price, str(ctx.author.id))
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': "Preset Gear 4", 'PET': "Chick"}}})
-                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': "Preset Omega 5", 'PET': "Chick"}}})
+                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': "Preset Omega 5", 'PET': "Chick"}}})
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet' : {'TITLES' : "Preset Upgrade Ver 4.0"}})
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet' : {'TITLES' : "Preset Upgrade Ver 5.0"}})
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet' : {'ARMS' : {'ARM' : "Preset Gear 4", 'DUR' : 100}}})
@@ -3466,387 +3466,423 @@ class Profile(commands.Cog):
             
     @cog_ext.cog_slash(description="Load a saved preset", guild_ids=main.guild_ids)
     async def preset(self, ctx):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
+        try:
+            a_registered_player = await crown_utilities.player_check(ctx)
+            if not a_registered_player:
+                return
 
-        query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)
-        vault_query = {'DID': d['DID']}
-        vault = db.queryVault(vault_query)
-        if vault:
-            ownedcards = []
-            ownedtitles = []
-            ownedarms = []
-            ownedpets = []
-            for cards in vault['CARDS']:
-                ownedcards.append(cards)
-            for titles in vault['TITLES']:
-                ownedtitles.append(titles)
-            for arms in vault['ARMS']:
-                ownedarms.append(arms['ARM'])
-            for pets in vault['PETS']:
-                ownedpets.append(pets['NAME'])
+            query = {'DID': str(ctx.author.id)}
+            d = db.queryUser(query)
+            vault_query = {'DID': d['DID']}
+            vault = db.queryVault(vault_query)
+            if vault:
+                ownedcards = []
+                ownedtitles = []
+                ownedarms = []
+                ownedpets = []
+                for cards in vault['CARDS']:
+                    ownedcards.append(cards)
+                for titles in vault['TITLES']:
+                    ownedtitles.append(titles)
+                for arms in vault['ARMS']:
+                    ownedarms.append(arms['ARM'])
+                for pets in vault['PETS']:
+                    ownedpets.append(pets['NAME'])
 
-            name = d['DISNAME'].split("#",1)[0]
-            avatar = d['AVATAR']
-            cards = vault['CARDS']
-            titles = vault['TITLES']
-            deck = vault['DECK']
-            preset_length = len(deck)
-            preset_update = d['U_PRESET']
-            
-            
-            preset1_card = list(deck[0].values())[0]
-            preset1_title = list(deck[0].values())[1]
-            preset1_arm = list(deck[0].values())[2]
-            preset1_pet = list(deck[0].values())[3]
-
-            preset2_card = list(deck[1].values())[0]
-            preset2_title = list(deck[1].values())[1]
-            preset2_arm = list(deck[1].values())[2]
-            preset2_pet = list(deck[1].values())[3]
-
-            preset3_card = list(deck[2].values())[0]
-            preset3_title = list(deck[2].values())[1]
-            preset3_arm = list(deck[2].values())[2]
-            preset3_pet = list(deck[2].values())[3]    
-            
-            if preset_update:
-                preset4_card = list(deck[3].values())[0]
-                preset4_title = list(deck[3].values())[1]
-                preset4_arm = list(deck[3].values())[2]
-                preset4_pet = list(deck[3].values())[3]
-
-                preset5_card = list(deck[4].values())[0]
-                preset5_title = list(deck[4].values())[1]
-                preset5_arm = list(deck[4].values())[2]
-                preset5_pet = list(deck[4].values())[3]  
+                name = d['DISNAME'].split("#",1)[0]
+                avatar = d['AVATAR']
+                cards = vault['CARDS']
+                titles = vault['TITLES']
+                deck = vault['DECK']
+                preset_length = len(deck)
+                preset_update = d['U_PRESET']
                 
-                listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
-                f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
-                f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
-            else:
-                listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
-        
-            embedVar = discord.Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
-            {"".join(listed_options)}
-            """))
-            embedVar.set_thumbnail(url=avatar)
-            # embedVar.add_field(name=f"Preset 1:{preset1_title} {preset1_card} and {preset1_pet}", value=f"Card: {preset1_card}\nTitle: {preset1_title}\nArm: {preset1_arm}\nSummon: {preset1_pet}", inline=False)
-            # embedVar.add_field(name=f"Preset 2:{preset2_title} {preset2_card} and {preset2_pet}", value=f"Card: {preset2_card}\nTitle: {preset2_title}\nArm: {preset2_arm}\nSummon: {preset2_pet}", inline=False)
-            # embedVar.add_field(name=f"Preset 3:{preset3_title} {preset3_card} and {preset3_pet}", value=f"Card: {preset3_card}\nTitle: {preset3_title}\nArm: {preset3_arm}\nSummon: {preset3_pet}", inline=False)
-            util_buttons = [
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="1️⃣",
-                    custom_id = "1"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="2️⃣",
-                    custom_id = "2"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="3️⃣",
-                    custom_id = "3"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.grey,
-                    label="Quit",
-                    custom_id = "0"
-                ),
-            ]
+                
+                preset1_card = list(deck[0].values())[0]
+                preset1_title = list(deck[0].values())[1]
+                preset1_arm = list(deck[0].values())[2]
+                preset1_pet = list(deck[0].values())[3]
+
+                preset2_card = list(deck[1].values())[0]
+                preset2_title = list(deck[1].values())[1]
+                preset2_arm = list(deck[1].values())[2]
+                preset2_pet = list(deck[1].values())[3]
+
+                preset3_card = list(deck[2].values())[0]
+                preset3_title = list(deck[2].values())[1]
+                preset3_arm = list(deck[2].values())[2]
+                preset3_pet = list(deck[2].values())[3]    
+                
+                if preset_update:
+                    preset4_card = list(deck[3].values())[0]
+                    preset4_title = list(deck[3].values())[1]
+                    preset4_arm = list(deck[3].values())[2]
+                    preset4_pet = list(deck[3].values())[3]
+
+                    preset5_card = list(deck[4].values())[0]
+                    preset5_title = list(deck[4].values())[1]
+                    preset5_arm = list(deck[4].values())[2]
+                    preset5_pet = list(deck[4].values())[3]  
+                    
+                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
+                    f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
+                    f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
+                else:
+                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
             
-            if preset_update:
-                util_buttons.append(
+                embedVar = discord.Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
+                {"".join(listed_options)}
+                """))
+                embedVar.set_thumbnail(url=avatar)
+                # embedVar.add_field(name=f"Preset 1:{preset1_title} {preset1_card} and {preset1_pet}", value=f"Card: {preset1_card}\nTitle: {preset1_title}\nArm: {preset1_arm}\nSummon: {preset1_pet}", inline=False)
+                # embedVar.add_field(name=f"Preset 2:{preset2_title} {preset2_card} and {preset2_pet}", value=f"Card: {preset2_card}\nTitle: {preset2_title}\nArm: {preset2_arm}\nSummon: {preset2_pet}", inline=False)
+                # embedVar.add_field(name=f"Preset 3:{preset3_title} {preset3_card} and {preset3_pet}", value=f"Card: {preset3_card}\nTitle: {preset3_title}\nArm: {preset3_arm}\nSummon: {preset3_pet}", inline=False)
+                util_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.blue,
-                        label="4️⃣",
-                        custom_id="4"
+                        label="1️⃣",
+                        custom_id = "1"
                     ),
                     manage_components.create_button(
                         style=ButtonStyle.blue,
-                        label="5️⃣",
-                        custom_id="5"
-                    )
-
-                )
-            util_action_row = manage_components.create_actionrow(*util_buttons)
-            components = [util_action_row]
-            await ctx.send(embed=embedVar,components=[util_action_row])
-            
-            def check(button_ctx):
-                return button_ctx.author == ctx.author
-            try:
-                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
-
-                if  button_ctx.custom_id == "0":
-                    await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
-                    return
-                elif  button_ctx.custom_id == "1":
-                    for card in ownedcards :                     
-                        if preset1_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset1_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset1_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset1_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
-                            return
-                elif  button_ctx.custom_id == "2":
-                    for card in ownedcards :                     
-                        if preset2_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset2_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset2_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset2_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
-                            return
-                elif  button_ctx.custom_id == "3":
-                    for card in ownedcards :                     
-                        if preset3_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset3_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset3_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset3_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
-                            return  
-                elif  button_ctx.custom_id == "4":
-                    for card in ownedcards :                     
-                        if preset4_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset4_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset4_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset4_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm), 'PET': str(preset4_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'PET': str(preset4_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset4_title),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset4_card}")
-                            return  
-                elif  button_ctx.custom_id == "5":
-                    for card in ownedcards :                     
-                        if preset5_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset5_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset5_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset5_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'PET': str(preset5_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset5_card}")
-                            return  
+                        label="2️⃣",
+                        custom_id = "2"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="3️⃣",
+                        custom_id = "3"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.grey,
+                        label="Quit",
+                        custom_id = "0"
+                    ),
+                ]
                 
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-                await ctx.send("Preset Issue Seek support.", hidden=True)
-        else:
-            newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+                if preset_update:
+                    util_buttons.append(
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="4️⃣",
+                            custom_id="4"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="5️⃣",
+                            custom_id="5"
+                        )
 
-    @cog_ext.cog_slash(description="Save your current build as a preset", guild_ids=main.guild_ids)
-    async def savepreset(self, ctx):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
+                    )
+                util_action_row = manage_components.create_actionrow(*util_buttons)
+                components = [util_action_row]
+                await ctx.send(embed=embedVar,components=[util_action_row])
+                
+                def check(button_ctx):
+                    return button_ctx.author == ctx.author
+                try:
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
 
-        query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)
-        vault_query = {'DID': d['DID']}
-        vault = db.queryVault(vault_query)
-        if vault:
-            name = d['DISNAME'].split("#",1)[0]
-            avatar = d['AVATAR']
-            cards = vault['CARDS']
-            titles = vault['TITLES']
-            deck = vault['DECK']
+                    if  button_ctx.custom_id == "0":
+                        await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
+                        return
+                    elif  button_ctx.custom_id == "1":
+                        for card in ownedcards :                     
+                            if preset1_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset1_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset1_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset1_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
+                                return
+                    elif  button_ctx.custom_id == "2":
+                        for card in ownedcards :                     
+                            if preset2_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset2_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset2_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset2_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
+                                return
+                    elif  button_ctx.custom_id == "3":
+                        for card in ownedcards :                     
+                            if preset3_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset3_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset3_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset3_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
+                                return  
+                    elif  button_ctx.custom_id == "4":
+                        for card in ownedcards :                     
+                            if preset4_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset4_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset4_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset4_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm), 'PET': str(preset4_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_pet}")
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'PET': str(preset4_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset4_title),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset4_card}")
+                                return  
+                    elif  button_ctx.custom_id == "5":
+                        for card in ownedcards :                     
+                            if preset5_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset5_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset5_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset5_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_pet}")
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'PET': str(preset5_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset5_card}")
+                                return  
+                    
+                except Exception as ex:
+                    trace = []
+                    tb = ex.__traceback__
+                    while tb is not None:
+                        trace.append({
+                            "filename": tb.tb_frame.f_code.co_filename,
+                            "name": tb.tb_frame.f_code.co_name,
+                            "lineno": tb.tb_lineno
+                        })
+                        tb = tb.tb_next
+                    print(str({
+                        'type': type(ex).__name__,
+                        'message': str(ex),
+                        'trace': trace
+                    }))
+                    await ctx.send("Preset Issue Seek support.", hidden=True)
+            else:
+                newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send("Preset Issue Seek support.", hidden=True)
 
-
-            current_card = d['CARD']
-            current_title = d['TITLE']
-            current_arm= d['ARM']
-            current_pet = d['PET']
-
-            
-            preset1_card = list(deck[0].values())[0]
-            preset1_title = list(deck[0].values())[1]
-            preset1_arm = list(deck[0].values())[2]
-            preset1_pet = list(deck[0].values())[3]
-
-            preset2_card = list(deck[1].values())[0]
-            preset2_title = list(deck[1].values())[1]
-            preset2_arm = list(deck[1].values())[2]
-            preset2_pet = list(deck[1].values())[3]
-
-            preset3_card = list(deck[2].values())[0]
-            preset3_title = list(deck[2].values())[1]
-            preset3_arm = list(deck[2].values())[2]
-            preset3_pet = list(deck[2].values())[3]    
-
-            listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n\n",
-            f"1️⃣ | {preset1_title} {preset1_card} & {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-            f"2️⃣ | {preset2_title} {preset2_card} & {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-            f"3️⃣ | {preset3_title} {preset3_card} & {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
-        
-            embedVar = discord.Embed(title=f"Save Current Build", description=textwrap.dedent(f"""
-            {"".join(listed_options)}
-            """))
-            util_buttons = [
-                manage_components.create_button(
-                    style=ButtonStyle.red,
-                    label="📝 1️⃣",
-                    custom_id = "1"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="📝 2️⃣",
-                    custom_id = "2"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.green,
-                    label="📝 3️⃣",
-                    custom_id = "3"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.grey,
-                    label="Quit",
-                    custom_id = "0"
-                ),
-            ]
-            util_action_row = manage_components.create_actionrow(*util_buttons)
-            components = [util_action_row]
-            await ctx.send(embed=embedVar,components=[util_action_row])
-
-            
-            def check(button_ctx):
-                return button_ctx.author == ctx.author
-
+        @cog_ext.cog_slash(description="Save your current build as a preset", guild_ids=main.guild_ids)
+        async def savepreset(self, ctx):
             try:
-                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
-
-                if button_ctx.custom_id == "0":
-                    await button_ctx.send(f"{ctx.author.mention}, No change has been made")
+                a_registered_player = await crown_utilities.player_check(ctx)
+                if not a_registered_player:
                     return
-                elif button_ctx.custom_id == "1":
-                    response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.0.CARD' :str(current_card), 'DECK.0.TITLE': str(current_title),'DECK.0.ARM': str(current_arm), 'DECK.0.PET': str(current_pet)}})
-                    if response:
-                        await button_ctx.send("📝 1️⃣| Preset Updated!")
-                        return
-                elif button_ctx.custom_id == "2":
-                    response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.1.CARD' :str(current_card), 'DECK.1.TITLE': str(current_title),'DECK.1.ARM': str(current_arm), 'DECK.1.PET': str(current_pet)}})
-                    if response:
-                        await button_ctx.send("📝 2️⃣| Preset Updated!")
-                        return
-                elif button_ctx.custom_id == "3":
-                    response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.2.CARD' :str(current_card), 'DECK.2.TITLE': str(current_title),'DECK.2.ARM': str(current_arm), 'DECK.2.PET': str(current_pet)}})
-                    if response:
-                        await button_ctx.send("📝 3️⃣| Preset Updated!")
-                        return
+
+                query = {'DID': str(ctx.author.id)}
+                d = db.queryUser(query)
+                vault_query = {'DID': d['DID']}
+                vault = db.queryVault(vault_query)
+                if vault:
+                    name = d['DISNAME'].split("#",1)[0]
+                    avatar = d['AVATAR']
+                    cards = vault['CARDS']
+                    titles = vault['TITLES']
+                    deck = vault['DECK']
+
+
+                    current_card = d['CARD']
+                    current_title = d['TITLE']
+                    current_arm= d['ARM']
+                    current_pet = d['PET']
+
+                    
+                    preset1_card = list(deck[0].values())[0]
+                    preset1_title = list(deck[0].values())[1]
+                    preset1_arm = list(deck[0].values())[2]
+                    preset1_pet = list(deck[0].values())[3]
+
+                    preset2_card = list(deck[1].values())[0]
+                    preset2_title = list(deck[1].values())[1]
+                    preset2_arm = list(deck[1].values())[2]
+                    preset2_pet = list(deck[1].values())[3]
+
+                    preset3_card = list(deck[2].values())[0]
+                    preset3_title = list(deck[2].values())[1]
+                    preset3_arm = list(deck[2].values())[2]
+                    preset3_pet = list(deck[2].values())[3]    
+
+                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n\n",
+                    f"1️⃣ | {preset1_title} {preset1_card} & {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} & {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} & {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
+                
+                    embedVar = discord.Embed(title=f"Save Current Build", description=textwrap.dedent(f"""
+                    {"".join(listed_options)}
+                    """))
+                    util_buttons = [
+                        manage_components.create_button(
+                            style=ButtonStyle.red,
+                            label="📝 1️⃣",
+                            custom_id = "1"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="📝 2️⃣",
+                            custom_id = "2"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="📝 3️⃣",
+                            custom_id = "3"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.grey,
+                            label="Quit",
+                            custom_id = "0"
+                        ),
+                    ]
+                    util_action_row = manage_components.create_actionrow(*util_buttons)
+                    components = [util_action_row]
+                    await ctx.send(embed=embedVar,components=[util_action_row])
+
+                    
+                    def check(button_ctx):
+                        return button_ctx.author == ctx.author
+
+                    try:
+                        button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
+
+                        if button_ctx.custom_id == "0":
+                            await button_ctx.send(f"{ctx.author.mention}, No change has been made")
+                            return
+                        elif button_ctx.custom_id == "1":
+                            response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.0.CARD' :str(current_card), 'DECK.0.TITLE': str(current_title),'DECK.0.ARM': str(current_arm), 'DECK.0.PET': str(current_pet)}})
+                            if response:
+                                await button_ctx.send("📝 1️⃣| Preset Updated!")
+                                return
+                        elif button_ctx.custom_id == "2":
+                            response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.1.CARD' :str(current_card), 'DECK.1.TITLE': str(current_title),'DECK.1.ARM': str(current_arm), 'DECK.1.PET': str(current_pet)}})
+                            if response:
+                                await button_ctx.send("📝 2️⃣| Preset Updated!")
+                                return
+                        elif button_ctx.custom_id == "3":
+                            response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.2.CARD' :str(current_card), 'DECK.2.TITLE': str(current_title),'DECK.2.ARM': str(current_arm), 'DECK.2.PET': str(current_pet)}})
+                            if response:
+                                await button_ctx.send("📝 3️⃣| Preset Updated!")
+                                return
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                        await ctx.send("Preset Issue Seek support.", hidden=True)
+                else:
+                    newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__
@@ -3863,8 +3899,6 @@ class Profile(commands.Cog):
                     'trace': trace
                 }))
                 await ctx.send("Preset Issue Seek support.", hidden=True)
-        else:
-            newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
 
     @cog_ext.cog_slash(description="Open the shop", guild_ids=main.guild_ids)
     async def shop(self, ctx):
