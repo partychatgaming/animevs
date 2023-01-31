@@ -87,11 +87,11 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ❄️ Ice - After 2 attacks, opponent freezes and loses 1 turn.
 
-💧 Water - Increases all water attack dmg by 40 Flat.
+💧 Water - Increases all water move AP by 40 Flat.
 
 ⛰️ Earth - Cannot be Parried. Increases Def by 25% AP.
 
-⚡️ Electric- Add 15% to Shock damage, added to all attacks.
+⚡️ Electric- Add 15% to Shock damage, added to all Move AP.
 
 🌪️ Wind - Cannot Miss, boosts all wind damage by 15% of damage dealt.
 
