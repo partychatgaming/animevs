@@ -209,12 +209,12 @@ async def enhancers(ctx):
    try:
       embedVar1 = discord.Embed(title= f"Enhancer Type: Boosts",colour=0x7289da)
       embedVar1.set_thumbnail(url=avatar)
-      embedVar1.add_field(name="`BOOSTS`", value="**ATK**\n**Title, Arm, Card Passive Effect:** Increase Attack by Flat AP value.\n**Card Active Enhancer Effect:** Increase Attack By AP %.\n\n**DEF**\n**Title, Arm, Card Passive Effect:** Increase Defense by Flat AP value.\n**Card Active Enhancer Effect:** Increase Defense By AP %.\n\n**HLT**\n**Title, Arm, Card Passive Effect:** Increase Health by Flat AP value.\n**Card Active Enhancer Effect:** Increase Health By Flat AP + 16% of Current Health.\n\n**STAM** - Increase Stamina by Flat AP\n\n")
+      embedVar1.add_field(name="`BOOSTS`", value="**ATK**\n**Title, Card Passive Effect:** Increase Attack by Flat AP value.\n**Card Active Enhancer Effect:** Increase Attack By AP %.\n\n**DEF**\n**Title, Card Passive Effect:** Increase Defense by Flat AP value.\n**Card Active Enhancer Effect:** Increase Defense By AP %.\n\n**HLT**\n**Title, Card Passive Effect:** Increase Health by Flat AP value.\n**Card Active Enhancer Effect:** Increase Health By Flat AP + 16% of Current Health.\n\n**STAM** - Increase Stamina by Flat AP\n\n")
       embedVar1.set_footer(text=f"/help - Bot Help")
 
       embedVar2 = discord.Embed(title= f"Enhancer Type: Steals",colour=0x7289da)
       embedVar2.set_thumbnail(url=avatar)
-      embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\n**Title, Arm, Card Passive Effect:** Steal Opponent Health and Add it to your Max Health by AP %\n**Card Active Enhancer Effect:** Steal Opponent Health and Add it to your Current Health by Flat AP + 9% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
+      embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\n**Title, Card Passive Effect:** Steal Opponent Health and Add it to your Max Health by AP %\n**Card Active Enhancer Effect:** Steal Opponent Health and Add it to your Current Health by Flat AP + 10% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
       embedVar2.set_footer(text=f"/help - Bot Help")
 
       embedVar3 = discord.Embed(title= f"Enhancer Type: Sacrifice",colour=0x7289da)
@@ -229,12 +229,12 @@ async def enhancers(ctx):
 
       embedVar5 = discord.Embed(title= f"Enhancer Type: Time Manipulation",colour=0x7289da)
       embedVar5.set_thumbnail(url=avatar)
-      embedVar5.add_field(name="`TIME MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW** - Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n\n**HASTE** - Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n\n")
+      embedVar5.add_field(name="`TIME MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW**\n**Title, Card Passive Effect:** Decrease Turn Count by 1\n**Card Active Enhancer Effect:** Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n\n**HASTE**\n**Title, Card Passive Effect:** Increase Turn Count by 1\n**Card Active Enhancer Effect:** Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n\n")
       embedVar5.set_footer(text=f"/help - Bot Help")
 
       embedVar6 = discord.Embed(title= f"Enhancer Type: Control",colour=0x7289da)
       embedVar6.set_thumbnail(url=avatar)
-      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN** - You and Your Opponent's Stamina Equal Flat AP\n\n**GAMBLE** - You and Your Opponent's Health Equal Flat AP\n\n")
+      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN**\n**Title, Card Passive Effect:** On Focus : \n**Card Active Enhancer Effect:**  - You and Your Opponent's Stamina Equal Flat AP\n\n**GAMBLE**\n**Title, Card Passive Effect:** Limit Focus Health Regen to AP\n**Card Active Enhancer Effect:**  - You and Your Opponent's Health Equal Flat AP\n\n")
       embedVar6.set_footer(text=f"/help - Bot Help")
 
       embedVar7 = discord.Embed(title= f"Enhancer Type: Fortitude",colour=0x7289da)
@@ -244,12 +244,12 @@ async def enhancers(ctx):
 
       embedVar8 = discord.Embed(title= f"Enhancer Type: Damage",colour=0x7289da)
       embedVar8.set_thumbnail(url=avatar)
-      embedVar8.add_field(name="`DAMAGE`", value="**WAVE** - Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal 75% AP Damage.*\n\n**BLAST** - Deal Flat AP Damage to Opponent. AP Increases each turn.\n\n")
+      embedVar8.add_field(name="`DAMAGE`", value="**WAVE** - Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal AP Damage.*\n\n**BLAST** - Deal Flat AP Damage to Opponent. AP Increases each turn. Maximum (100 * Card Tier)\n\n")
       embedVar8.set_footer(text=f"/help - Bot Help")
 
       embedVar9 = discord.Embed(title= f"Enhancer Type: Divinity",colour=0x7289da)
       embedVar9.set_thumbnail(url=avatar)
-      embedVar9.add_field(name="`DIVINITY`", value="**CREATION** - Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for 75% AP.*\n\n**DESTRUCTION** - Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn.\n\n")
+      embedVar9.add_field(name="`DIVINITY`", value="**CREATION** - Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for AP.*\n\n**DESTRUCTION** - Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn. Maximum (100 * Card Tier)\n\n")
       embedVar9.set_footer(text=f"/help - Bot Help")
       
       embedVar10 = discord.Embed(title= f"Arm Enhancer Type: Offensive",colour=0x7289da)

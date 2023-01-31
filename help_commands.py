@@ -171,10 +171,6 @@ CTAP_COMMANDS = textwrap.dedent(f"""\
 **Main Menu!⚒️**
 **/menu** - Access your current build, cards, titles, arms, quests, and destinies. You can also open the shop and visit the blacksmith here!
 
-
-**Reward Codes! ⌨️**
-**/code** - Enter in codes to earn in-game rewards!
-
 **Trade! 🎴 🎗️ 🦾**
 **/trade** - Start a trade with a friend!
 **/tradecoins** - Add 🪙 to your trade!
@@ -186,13 +182,7 @@ CTAP_COMMANDS = textwrap.dedent(f"""\
 **/analysis** - View specific card statistics and optimal builds for that card
 
 **Do you already know the card or accessories name?**
-*If you already know what you want to equip / view, use the fast equip commands below to equip your item...*
-*/equipcard*
-*/equiparm*
-*/equiptitle*
-*/equipsummon*
-------------------
 */view*
-
+------------------
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
