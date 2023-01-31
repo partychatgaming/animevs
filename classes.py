@@ -41,6 +41,7 @@ class USER():
     LEVEL: int = field(default_factory=lambda: 0)
     PVP_WINS: int = field(default_factory=lambda: 0)
     PVP_LOSS: int = field(default_factory=lambda: 0)
+    U_PRESET: bool = field(default_factory=lambda: False)
     EXPLORE: bool = field(default_factory=lambda: True)
     SAVE_SPOT: list[str] = field(default_factory=lambda: [])
     PERFORMANCE: bool = field(default_factory=lambda: False)
