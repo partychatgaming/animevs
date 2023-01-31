@@ -91,7 +91,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ⛰️ Earth - Cannot be Parried. Increases Def by 25% AP.
 
-⚡️ Electric- Add 15% to Shock damage, added to all Move AP.
+⚡️ Electric- Add 15% DMG Dealt to Shock damage, added to all Move AP.
 
 🌪️ Wind - Cannot Miss, boosts all wind damage by 15% of damage dealt.
 
