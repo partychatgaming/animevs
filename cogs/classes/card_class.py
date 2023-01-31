@@ -71,7 +71,7 @@ class Card:
         self.water_buff = 0
         self.shock_buff = 0
         self.psychic_debuff = 0
-        self.bleed_counter = 0
+        self.bleed_damage_counter = 0
         self.bleed_hit = False
         self.basic_water_buff = 0
         self.special_water_buff = 0
@@ -643,6 +643,52 @@ class Card:
 
         if self.move3_element == "WATER":
             self.ultimate_water_buff = self.ultimate_water_buff + num
+
+
+    def bleed_hit(self, turn_total, opponent_card):
+        if opponent_card.bleed_hit:
+            opponent_card.bleed_hit = False
+            bleed_hit_local = 10 * turn_total
+            self.health = self.health - bleed_hit_local
+            if self.health < 0:
+                self.health = 0
+            return f"🩸 **{self.name}** shredded for **{round(bleed_hit_local)}** bleed dmg..."
+
+
+    def burn_hit(self, opponent_card):
+        if opponent_card.bleed_damage_counter > 3:
+            self.health = self.health - opponent_card.burn_dmg
+            if self.health < 0:
+                self.health = 0
+
+        if opponent_card.burn_dmg >= 2:
+            opponent_card.burn_dmg = round(opponent_card.burn_dmg / 2)
+
+        return f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
+
+
+    def frozen(self, battle, opponent_card):
+        turn = 0
+        if opponent_card.freeze_enh:
+            battle.turn_total = battle.turn_total + 1
+            turn = 1
+
+        return {"MESSAGE" : f"❄️ **{self.name}** has been frozen for a turn...", "TURN": 0}
+
+
+    def poison_hit(self, opponent_card):
+        if opponent_card.poison_dmg:
+            self.health = self.health - opponent_card.poison_dmg
+            if self.health <  0:
+                self.health = 0
+
+           return f"🧪 **{self.name}** poisoned for **{opponent_card.poison_dmg}** dmg..."
+
+
+    def gravity_hit(self):
+        if self.gravity_hit:
+            self.gravity_hit = False
+
 
     #  TRAIT METHODS
     def set_solo_leveling_config(self, opponent_shield_active, opponent_shield_value, opponent_barrier_active, opponent_barrier_value, opponent_parry_active, opponent_parry_value):
@@ -1648,7 +1694,33 @@ class Card:
                 _battle._is_turn = 1
             else:
                 _battle._is_turn = 0
+
+
+    def reset_stats_to_limiter(self, _opponent_card):
+        if self.card_lvl_ap_buff > 500:
+            self.card_lvl_ap_buff = 500
         
+        if _opponent_card.card_lvl_ap_buff > 500:
+            _opponent_card.card_lvl_ap_buff = 500
+        
+        if self.attack <= 25:
+            self.attack = 25
+        
+        if self.defense <= 30:
+            self.defense = 30
+        
+        if self.attack >= 9999:
+            self.attack = 9999
+        
+        if self.defense >= 9999:
+            self.defense = 9999
+        
+        if self.health >= self.max_health:
+            self.health = self.max_health
+
+    def yuyu_hakusho_attack_increase(self):
+        self.attack = self.attack + self.stamina
+
 
 def get_card(url, cardname, cardtype):
         try:

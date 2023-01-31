@@ -32,7 +32,6 @@ class Battle:
         self._max_turns_allowed = 250
         self.previous_moves = []
         self.previous_moves_len = 0
-        self.previous_moves_into_embed = "\n".join(self.previous_moves)
 
         self._selected_universe = ""
         self._selected_universe_data = ""
@@ -128,6 +127,10 @@ class Battle:
         self.tutorial_resolve = False
         self.tutorial_summon = False
         self.tutorial_message = ""
+
+        self.game_over = False
+        self.player_1_wins = False
+        self.player_2_wins = False
 
 
         if self.mode not in crown_utilities.PVP_M:
@@ -510,3 +513,28 @@ class Battle:
         self._ai_opponent_summon_power = list(summon_passive.values())[0]
         self._ai_opponent_summon_ability_name = list(summon_passive.keys())[0]
         self._ai_opponent_summon_type = summon_passive['TYPE']
+
+
+    def match_has_ended(self, player_1_card, player_2_card, player_3_card=None):
+        if player_1_card.health == 0:
+            self.match_has_ended = True
+            self.player_2_wins = True
+        
+        if player_2_card.health == 0:
+            self.match_has_ended = True
+            self.player_1_wins = True
+
+        if player_3_card.health:
+            if player_3_card.health == 0:
+                self.match_has_ended = True
+                self.player_2_wins = True
+
+        if self._is_auto_battle:
+            if self._turn_total >= 250:
+                self.previous_moves.append(f"⚙️**{player_1_card.name}** could not defeat {player_2_card.name} before the turn Limit...")
+                player_1_card.health = 0
+
+        return self.match_has_ended
+
+
+
