@@ -2706,7 +2706,7 @@ class Profile(commands.Cog):
                     return
                 else:
                     await crown_utilities.curse(price, str(ctx.author.id))
-                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD'  str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': "Preset Gear 4", 'PET': "Cat"}}})
+                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': "Preset Gear 4", 'PET': "Cat"}}})
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': "Preset Omega 5", 'PET': "Dog"}}})
                     response = db.updateVaultNoFilter(vault_query, {'addToSet' : {'TITLES' : "Preset Upgrade Ver 4.0"}})
                     response = db.updateVaultNoFilter(vault_query, {'addToSet' : {'TITLES' : "Preset Upgrade Ver 5.0"}})
