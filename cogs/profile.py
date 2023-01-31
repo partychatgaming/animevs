@@ -279,7 +279,11 @@ class Profile(commands.Cog):
                             card_lvl_attack_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
                             card_lvl_defense_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
                             card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
+                            
 
+                    x = 0.2
+                    y = 2
+                    lvl_req = (card_lvl/x)^y
                     pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
                     pokemon_arm=False
                     pokemon_title=False
@@ -608,7 +612,7 @@ class Profile(commands.Cog):
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
                         if card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {150 - card_exp}\nRebirth Buff: +{rebirthBonus}\n♾️ {traitmessage}\n{warningmessage}")
+                            embedVar.set_footer(text=f"EXP Until Next Level: {lvl_req - card_exp}\nRebirth Buff: +{rebirthBonus}\n♾️ {traitmessage}\n{warningmessage}")
                         else:
                             embedVar.set_footer(text=f"Max Level")
                         
@@ -2575,9 +2579,8 @@ class Profile(commands.Cog):
         
         🔖 **Preset Upgrade** *+ 2 Slots* :money_with_wings: **{preset_message}**
 
-        {gabes_explain}
-
         **Gabe's Purse** 👛 for :money_with_wings: **{gabes_message}**
+        {gabes_explain}
 
         What would you like to buy?
         """), colour=0xf1c40f)
