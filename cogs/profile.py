@@ -2710,7 +2710,7 @@ class Profile(commands.Cog):
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :"**New Preset 5**", 'TITLE': "**New Preset 5**",'ARM': "**New Preset 5**", 'PET': "**New Preset 5**"}}})
                     #response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
                     update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
-                    await button_ctx.send("🔖 | Preset Upgraded"e)
+                    await button_ctx.send("🔖 | Preset Upgraded")
                     await msg.edit(components=[])
                     return
             
