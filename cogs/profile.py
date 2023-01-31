@@ -281,7 +281,7 @@ class Profile(commands.Cog):
                             card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
                             
 
-                    x = 0.02
+                    x = 0.5
                     y = 2.0
                     lvl_req = round((float(card_lvl)/x)**y)
                     pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
