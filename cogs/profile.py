@@ -2482,6 +2482,7 @@ class Profile(commands.Cog):
                 card_info = level
 
         lvl = card_info['LVL']
+        print(lvl)
 
         
         hundred_levels = 650000
