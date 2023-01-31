@@ -281,9 +281,9 @@ class Profile(commands.Cog):
                             card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
                             
 
-                    x = 0.2
+                    x = 0.02
                     y = 2.0
-                    lvl_req = (float(card_lvl)/x)**y
+                    lvl_req = round((float(card_lvl)/x)**y)
                     pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
                     pokemon_arm=False
                     pokemon_title=False
@@ -612,7 +612,7 @@ class Profile(commands.Cog):
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
                         if card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {lvl_req - card_exp}\nRebirth Buff: +{rebirthBonus}\n♾️ {traitmessage}\n{warningmessage}")
+                            embedVar.set_footer(text=f"EXP Until Next Level: {'{:,}'.format(lvl_req - card_exp)}\nRebirth Buff: +{rebirthBonus}\n♾️ {traitmessage}\n{warningmessage}")
                         else:
                             embedVar.set_footer(text=f"Max Level")
                         
