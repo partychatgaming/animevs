@@ -111,7 +111,7 @@ class Card:
         self.destiny_card_details = ""
         self.turn = 1
         self.used_focus = False
-        self.used_resolved = False
+        self.used_resolve = False
         self.enhancer_used = False
         self.summon_used = False
         self.block_used = False
@@ -704,6 +704,42 @@ class Card:
             self.temp_opp_parry_value = opponent_parry_value
 
 
+    def activate_solo_leveling_trait(self, _battle, opponent_card):
+        if self.universe == "Solo Leveling" and not self.solo_leveling_trait_swapped:
+            if opponent_card.temp_opp_arm_shield_active and not opponent_card._shield_active:
+                if self._shield_active:
+                    self._shield_value = self._shield_value + opponent_card._shield_value
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    self.solo_leveling_trait_swapped = True
+                elif not self._shield_active:
+                    self._shield_active = True
+                    self._shield_value = opponent_card.temp_opp_shield_value
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    self.solo_leveling_trait_swapped = True
+            
+            elif temp_opp_arm_parry_active and not opponent_card._barrier_active:
+                if self._barrier_active:
+                    self._barrier_value = self._barrier_value + opponent_card.temp_opp_barrier_value
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    self.solo_leveling_trait_swapped = True
+                elif not self._barrier_active:
+                    self._barrier_active = True
+                    self._barrier_value = opponent_card.temp_opp_barrier_value
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    self.solo_leveling_trait_swapped = True
+            
+            elif opponent_card.temp_opp_arm_parry_active and not opponent_card._parry_value:
+                if self._parry_active:
+                    self._parry_value = self._parry_value + opponent_card.temp_opp_parry_value
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    self.solo_leveling_trait_swapped = True
+                elif not self._parry_active:
+                    self._parry_active = True
+                    self._parry_value = opponent_card.temp_opp_parry_value
+                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    self.solo_leveling_trait_swapped = True
+
+
     def set_deathnote_message(self, battle):
         if turn_total == 0:
             if self.universe == "Death Note":
@@ -711,7 +747,7 @@ class Card:
 
 
     def set_souls_trait(self):
-        if self.used_resolved and self.universe == "Souls":
+        if self.used_resolve and self.universe == "Souls":
             self.move2 = self.move3
             self.move2ap = self.move3ap
             self.move2_stamina = self.move3_stamina
@@ -727,7 +763,7 @@ class Card:
             return 0
 
 
-    def showcard(self, mode, arm, title, turn_total, opponenplayer2_card.defense):
+    def showcard(self, mode, arm, title, turn_total, opponent_card_defense):
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
         try:    
@@ -737,7 +773,7 @@ class Card:
                 im.save("text.png")
                 return discord.File("text.png")
             else:
-                if self.used_resolved:
+                if self.used_resolve:
                     im = get_card(self.rpath, self.rname, "resolve")
                 elif self.focused:
                     if self.fpath:
@@ -758,20 +794,20 @@ class Card:
                 ultimate_font_size = 30
                 enhancer_font_size = 30
                 title_size = (600, 65)
-                if len(list( self.name)) >= 15 and not self.used_resolved:
+                if len(list( self.name)) >= 15 and not self.used_resolve:
                     name_font_size = 45
-                if len(list( self.rname)) >= 15 and self.used_resolved:
+                if len(list( self.rname)) >= 15 and self.used_resolve:
                     name_font_size = 45
-                if len(list( self.name)) >= 18 and not self.used_resolved:
+                if len(list( self.name)) >= 18 and not self.used_resolve:
                     name_font_size = 40
                     title_size = (600, 80)
-                if len(list( self.rname)) >= 18 and self.used_resolved:
+                if len(list( self.rname)) >= 18 and self.used_resolve:
                     name_font_size = 40
                     title_size = (600, 80)
-                if len(list( self.name)) >= 25 and not self.used_resolved:
+                if len(list( self.name)) >= 25 and not self.used_resolve:
                     name_font_size = 35
                     title_size = (600, 80)
-                if len(list( self.rname)) >= 25 and self.used_resolved:
+                if len(list( self.rname)) >= 25 and self.used_resolve:
                     name_font_size = 35
                     title_size = (600, 80)
 
@@ -793,16 +829,16 @@ class Card:
                 ebasic = '💢'
                 especial = '💢'
                 eultimate = '🗯️'
-                if opponenplayer2_card.defense is None:
+                if opponent_card_defense is None:
                     ebasic = ' '
                     especial = ' '
                     eultimate = ' '
                 else:
-                    defensepower = opponenplayer2_card.defense - self.attack
+                    defensepower = opponent_card_defense - self.attack
                     if defensepower <=0:
                         defensepower = 1
                     
-                    basic_ability_power =  self.attack - opponenplayer2_card.defense + self.move1ap
+                    basic_ability_power =  self.attack - opponent_card_defense + self.move1ap
                     if basic_ability_power <= 0:
                         basic_ability_power = self.move1ap
                     
@@ -823,7 +859,7 @@ class Card:
                         engagement_basic = 1
                         ebasic = '💢'
                 
-                    special_ability_power =  self.attack - opponenplayer2_card.defense + self.move2ap
+                    special_ability_power =  self.attack - opponent_card_defense + self.move2ap
                     if special_ability_power <= 0:
                         special_ability_power = self.move2ap
                         
@@ -844,7 +880,7 @@ class Card:
                         engagement_special = 1
                         especial = '💢'
             
-                    ultimate_ability_power =  self.attack - opponenplayer2_card.defense + self.move3ap
+                    ultimate_ability_power =  self.attack - opponent_card_defense + self.move3ap
                     if ultimate_ability_power <= 0:
                         ultimate_ability_power = self.move3ap
                     ultimate = round(ultimate_ability_power / defensepower)
@@ -1085,7 +1121,7 @@ class Card:
             return
 
 
-    def damage_cal(self, selected_move, turn, _battle, _player, _opponent, _opponent_card):
+    def damage_cal(self, selected_move, _battle, _player, _opponent, _opponent_card):
         if _opponent_card.defense <= 0:
             _opponent_card.defense = 25
         if self.attack <= 0:
@@ -1246,47 +1282,47 @@ class Card:
             elif enh == 'GAMBLE':
                 enhancer_value = ap
             elif enh == 'WAVE':
-                if turn == 0:
+                if _battle._is_turn == 0:
                     enhancer_value = ap
                 else:
                     rand = round(random.randint(2, 50))
                     n = ap
-                    if turn % 10 == 0:
+                    if _battle._is_turn % 10 == 0:
                         n = ap
                     elif n <= 0:
                         n = 30
-                    elif turn == rand:
+                    elif _battle._is_turn == rand:
                         n = ap * 2
                     else:
-                        n = ap / turn
+                        n = ap / _battle._is_turn
                     enhancer_value = n
             elif enh == 'BLAST':
-                if turn == 0:
+                if _battle._is_turn == 0:
                     enhancer_value = ap
                 else:
-                    enhancer_value = round(ap * turn)
+                    enhancer_value = round(ap * _battle._is_turn)
                     if enhancer_value >= (100 * tier):
                         enhancer_value = (100 * tier)
             elif enh == 'CREATION':
-                if turn == 0:
+                if _battle._is_turn == 0:
                     enhancer_value = ap
                 else:
                     rand = round(random.randint(2, 50))
                     n = ap
-                    if turn % 10 == 0:
+                    if _battle._is_turn % 10 == 0:
                         n = ap
                     elif n <= 0:
                         n = 30
-                    elif turn == rand:
+                    elif _battle._is_turn == rand:
                         n = ap * 2
                     else:
-                        n = ap / turn
+                        n = ap / _battle._is_turn
                     enhancer_value = n
             elif enh == 'DESTRUCTION':
-                if turn == 0:
+                if _battle._is_turn == 0:
                     enhancer_value = ap
                 else:
-                    enhancer_value = round(ap * turn)
+                    enhancer_value = round(ap * _battle._is_turn)
                     if enhancer_value >= (100 * tier):
                         enhancer_value = (100 * tier)
                 if enhancer_value > _opponent_card.health:
@@ -1469,7 +1505,7 @@ class Card:
 
 
                 if self.universe == "YuYu Hakusho":
-                    additional_dmg = self.stamina + turn
+                    additional_dmg = self.stamina + _battle._is_turn
                     true_dmg = round(true_dmg + additional_dmg)
 
                 if is_physical_element:
@@ -1547,7 +1583,6 @@ class Card:
         elif self._siphon_active:
             self._arm_message = f"💉 {str(self._siphon_value)}"
         
-
 
     def focusing(self, _title, _opponent_title, _opponent_card, _battle, _co_op_card=None, _co_op_title=None ):
         if self.stamina < self.stamina_required_to_focus:
@@ -1628,7 +1663,7 @@ class Card:
                 else:
                     heal_message = f"**{_opponent_card.name}**'s blows don't appear to have any effect!"
                     message_number = 0
-            if not self.used_resolved:
+            if not self.used_resolve:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
             self.used_focus = True
@@ -1757,7 +1792,7 @@ class Card:
             self.health = self.max_health
 
 
-    def yuyu_hakushself.attack_increase(self):
+    def yuyu_hakusho_attack_increase(self):
         self.attack = self.attack + self.stamina
 
     def activate_card_passive(self, player2_card):

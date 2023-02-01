@@ -3272,235 +3272,13 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                         icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                     await battle_msg.edit(embed=embedVar, components=[])
 
-                                    if o_universe == "Solo Leveling" and not o_swapped:
-                                        if temp_tarm_shield_active and not tarm_shield_active:
-                                            if oarm_shield_active:
-                                                oshield_value = oshield_value + temp_tshield_value
-                                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                o_swapped = True
-                                            elif not oarm_shield_active:
-                                                oarm_shield_active = True
-                                                oshield_value = temp_tshield_value
-                                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                o_swapped = True
-                                        elif temp_tarm_barrier_active and not tarm_barrier_active:
-                                            if oarm_barrier_active:
-                                                obarrier_count = obarrier_count + temp_tbarrier_count
-                                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                o_swapped = True
-                                            elif not oarm_barrier_active:
-                                                oarm_barrier_active = True
-                                                obarrier_count = temp_tbarrier_count
-                                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                o_swapped = True
-                                        elif temp_tarm_parry_active and not tarm_parry_active:
-                                            if oarm_parry_active:
-                                                oparry_count = oparry_count + temp_tparry_count
-                                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                o_swapped = True
-                                            elif not oarm_parry_active:
-                                                oarm_parry_active = True
-                                                oparry_count = temp_tparry_count
-                                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                o_swapped = True
+                                    player1_card.activate_solo_leveling_trait(_battle, player2_card)
                                     
-                                    aiMove = 0
-                                    
-                                    if o_used_resolve and not o_pet_used and o_stamina >= 30:
-                                        aiMove = 6
-                                    elif t_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
-                                        if t_stamina >=20:
-                                            aiMove =4
-                                    elif oarm_barrier_active: #Ai Barrier Checks
-                                        if o_stamina >=20: #Stamina Check For Enhancer
-                                            aiMove = await ai_enhancer_moves(turn_total,o_used_focus,o_used_resolve,o_pet_used,o_stamina,
-                                                                        o_enhancer['TYPE'],o_health,o_max_health,o_attack,
-                                                                        o_defense,t_stamina,t_attack,t_defense, t_health)
-                                        else:
-                                            aiMove = 1
-                                    elif t_health <=350: #Killing Blow
-                                        if o_enhancer['TYPE'] == "BLAST":
-                                            if o_stamina >=20:
-                                                aiMove =4
-                                            else:
-                                                aiMove =1
-                                        elif o_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
-                                            if o_stamina >=20:
-                                                aiMove =4
-                                            else:
-                                                aiMove =1
-                                        else:
-                                            if o_stamina >= 90:
-                                                aiMove = 1
-                                            elif o_stamina >= 80:
-                                                aiMove =3
-                                            elif o_stamina >=30:
-                                                aiMove=2
-                                            else:
-                                                aiMove=1
-                                    elif t_stamina < 10:
-                                        if o_enhancer['TYPE'] in Gamble_Enhancer_Check:
-                                            if o_stamina >= 20:
-                                                aiMove = 4
-                                            else:
-                                                aiMove = 1
-                                        else:
-                                            aiMove = 1
-                                    elif o_health <= (.50 * o_max_health) and o_used_resolve == False and o_used_focus:
-                                        aiMove = 5
-                                    elif o_stamina >= 160 and (o_health >= t_health):
-                                        aiMove = 3
-                                    elif o_stamina >= 160:
-                                        aiMove = 3
-                                    elif o_stamina >= 150 and (o_health >= t_health):
-                                        aiMove = 1
-                                    elif o_stamina >= 150:
-                                        aiMove = 1
-                                    elif o_stamina >= 140 and (o_health >= t_health):
-                                        aiMove = 1
-                                    elif o_stamina >= 140:
-                                        aiMove = 3
-                                    elif o_stamina >= 130 and (o_health >= t_health):
-                                        aiMove = 1
-                                    elif o_stamina >= 130:
-                                        aiMove = 3
-                                    elif o_stamina >= 120 and (o_health >= t_health):
-                                        aiMove = 2
-                                    elif o_stamina >= 120:
-                                        aiMove = 3
-                                    elif o_stamina >= 110 and (o_health >= t_health):
-                                        aiMove = 1
-                                    elif o_stamina >= 110:
-                                        aiMove = 2
-                                    elif o_stamina >= 100 and (o_health >= t_health):
-                                        if o_enhancer['TYPE'] in Gamble_Enhancer_Check or o_enhancer['TYPE'] in Healer_Enhancer_Check:
-                                            aiMove = 3
-                                        elif o_enhancer['TYPE'] in Support_Enhancer_Check or o_enhancer['TYPE'] in Stamina_Enhancer_Check or o_enhancer['TYPE'] in Turn_Enhancer_Check:
-                                            aiMove = 4
-                                        else:
-                                            aiMove = 1
-                                    elif o_stamina >= 100:
-                                        aiMove = 1
-                                    elif o_stamina >= 90 and (o_health >= t_health):
-                                        aiMove = 3
-                                    elif o_stamina >= 90:
-                                        if o_enhancer['TYPE'] in Gamble_Enhancer_Check:
-                                            aiMove = 3
-                                        elif o_enhancer['TYPE'] in Support_Enhancer_Check or o_enhancer['TYPE'] in Stamina_Enhancer_Check or o_enhancer['TYPE'] in Sacrifice_Enhancer_Check:
-                                            aiMove = 4
-                                        else:
-                                            aiMove = 1
-                                    elif o_stamina >= 80 and (o_health >= t_health):
-                                        aiMove = 1
-                                    elif o_stamina >= 80:
-                                        aiMove = 3
-                                    elif o_stamina >= 70 and (o_health >= t_health):
-                                        if o_enhancer['TYPE'] in Gamble_Enhancer_Check:
-                                            aiMove = 1
-                                        else:
-                                            aiMove = await ai_enhancer_moves(turn_total,o_used_focus,o_used_resolve,o_pet_used,o_stamina,
-                                                                        o_enhancer['TYPE'],o_health,o_max_health,o_attack,
-                                                                        o_defense,t_stamina,t_attack,t_defense, t_health)
-                                    elif o_stamina >= 70:
-                                        aiMove = 1
-                                    elif o_stamina >= 60 and (o_health >= t_health):
-                                        if o_used_resolve == False and o_used_focus:
-                                            aiMove = 5
-                                        elif o_used_focus == False:
-                                            aiMove = 2
-                                        else:
-                                            aiMove = 1
-                                    elif o_stamina >= 60:
-                                        if o_used_resolve == False and o_used_focus:
-                                            aiMove = 5
-                                        elif o_used_focus == False:
-                                            aiMove = 2
-                                        else:
-                                            aiMove = 1
-                                    elif o_stamina >= 50 and (o_health >= t_health):
-                                        if o_used_resolve == False and o_used_focus:
-                                            aiMove = 5
-                                        elif o_used_focus == False:
-                                            aiMove = 2
-                                        else:
-                                            aiMove = 1
-                                    elif o_stamina >= 50:
-                                        if o_used_resolve == False and o_used_focus:
-                                            aiMove = 5
-                                        elif o_used_focus == False:
-                                            aiMove = 2
-                                        elif o_enhancer['TYPE'] in Support_Enhancer_Check or o_enhancer['TYPE'] in Stamina_Enhancer_Check:
-                                            aiMove = 4
-                                        else:
-                                            aiMove = 1
-                                    elif o_stamina >= 40 and (o_health >= t_health):
-                                        aiMove = 1
-                                    elif o_stamina >= 40:
-                                        aiMove = 2
-                                    elif o_stamina >= 30 and (o_health >= t_health):
-                                        if o_enhancer['TYPE'] in Gamble_Enhancer_Check:
-                                            aiMove = 1
-                                        elif o_enhancer['TYPE'] in Support_Enhancer_Check or o_enhancer['TYPE'] in Stamina_Enhancer_Check:
-                                            aiMove = 2
-                                        else:
-                                            aiMove = await ai_enhancer_moves(turn_total,o_used_focus,o_used_resolve,o_pet_used,o_stamina,
-                                                                        o_enhancer['TYPE'],o_health,o_max_health,o_attack,
-                                                                        o_defense,t_stamina,t_attack,t_defense, t_health)
-                                    elif o_stamina >= 30:
-                                        aiMove = 2
-                                    elif o_stamina >= 20 and (o_health >= t_health):
-                                        aiMove = 1
-                                    elif o_stamina >= 20:
-                                        if o_enhancer['TYPE'] in Gamble_Enhancer_Check:
-                                            aiMove = 1
-                                        elif o_enhancer['TYPE'] in Support_Enhancer_Check or o_enhancer['TYPE'] in Stamina_Enhancer_Check:
-                                            aiMove = 1
-                                        else:
-                                            aiMove = 4
-                                    elif o_stamina >= 10:
-                                        aiMove = 1
-                                    else:
-                                        aiMove = 0
+                                    selected_move = player1_card.ai_battle_command(player1_card, player2_card)
 
-                                    # Make sure user is responding with move
+                                    damage_calculation_resopnse = player1_card.damage_cal(selected_move, _battle, player1, player2, player2_card)
 
-                                    if aiMove == 1:
-                                        if o_universe == "Souls" and o_used_resolve:
-                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense, o_stamina,
-                                                            o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
-                                                            t_attack, o_special_move_description, turn_total,
-                                                            ocard_lvl_ap_buff, o_1)                                                
-                                        else:
-                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_1, o_attack, o_defense, t_defense, o_stamina,
-                                                            o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
-                                                            t_attack, o_special_move_description, turn_total,
-                                                            ocard_lvl_ap_buff, None)
-                                    elif aiMove == 2:
-                                        if o_universe == "Souls" and o_used_resolve:
-                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense, o_stamina,
-                                                            o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
-                                                            t_attack, o_special_move_description, turn_total,
-                                                            ocard_lvl_ap_buff, o_2)                                                
-                                        else:
-                                            dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap2, t_opponent_affinities, special_attack_name, omove2_element, o_universe, o_card, o_2, o_attack, o_defense, t_defense, o_stamina,
-                                                            o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
-                                                            t_attack, o_special_move_description, turn_total,
-                                                            ocard_lvl_ap_buff, None)
-                                    elif aiMove == 3:
-
-                                        dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap3, t_opponent_affinities, ultimate_attack_name, omove3_element, o_universe, o_card, o_3, o_attack, o_defense, t_defense, o_stamina,
-                                                        o_enhancer_used, o_health, t_health, t_stamina, o_max_health,
-                                                        t_attack, o_special_move_description, turn_total,
-                                                        ocard_lvl_ap_buff, None)
-                                    elif aiMove == 4:
-                                        o_enhancer_used = True
-
-                                        dmg = damage_cal(mode,o_card_tier, o_talisman_dict, ap1, t_opponent_affinities, basic_attack_name, omove1_element, o_universe, o_card, o_enhancer, o_attack, o_defense, t_defense,
-                                                        o_stamina, o_enhancer_used, o_health, t_health, t_stamina,
-                                                        o_max_health, t_attack, o_special_move_description, turn_total,
-                                                        ocard_lvl_ap_buff, None)
-                                        o_enhancer_used = False
-                                    elif aiMove == 5:
+                                    if aiMove == 5:
                                         # Resolve Check and Calculation
                                         if not o_used_resolve and o_used_focus:
                                             if o_universe == "My Hero Academia":  # My Hero Trait
@@ -19079,7 +18857,7 @@ async def bossdrops(self,player, universe):
         return f"You earned :coin: **5000**!"
 
 
-async def ai_enhancer_moves(turn_total,focus, resolve, summon, stamina, enhancer_type, health, maxhealth, attack, defense, oppstamina, oppattack, oppdefense, opphealth):
+     def ai_enhancer_moves(turn_total,focus, resolve, summon, stamina, enhancer_type, health, maxhealth, attack, defense, oppstamina, oppattack, oppdefense, opphealth):
     aiMove = 1
     focus_used = focus
     resolve_used = resolve
@@ -19287,6 +19065,10 @@ async def ai_enhancer_moves(turn_total,focus, resolve, summon, stamina, enhancer
             
         
     return aiMove
+
+
+
+
 enhancer_mapping = {'ATK': 'Increase Attack %',
 'DEF': 'Increase Defense %',
 'STAM': 'Increase Stamina',
