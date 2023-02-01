@@ -1504,7 +1504,7 @@ class Lookup(commands.Cog):
                                 :dna: : **{pet_name}**
                                 *Bond* **{summon_bond}**
                                 *Level* **{summon_lvl}**
-                                :small_blue_diamond: **{summon_type}** ~ **{power}**{enhancer_suffix_mapping[summon_type]]}
+                                :small_blue_diamond: **{summon_type}** ~ **{power}**{enhancer_suffix_mapping[summon_type]}
                                 🦠 : **{enhancer_mapping[summon_type]}**
                                 """), color=0xe74c3c)
                                 summon_screen.set_image(url=path)
