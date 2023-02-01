@@ -125,6 +125,7 @@ class Battle:
         self.tutorial_enhancer = False
         self.tutorial_block = False
         self.tutorial_resolve = False
+        self.tutorial_focus = False
         self.tutorial_summon = False
         self.tutorial_message = ""
 

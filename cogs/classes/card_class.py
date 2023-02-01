@@ -49,6 +49,7 @@ class Card:
 
         # Universe Traits
         self._final_stand = False
+        self._chainsawman_activated = False
         self._atk_chainsawman_buff = False
         self._def_chainsawman_buff = False
         self._demon_slayer_buff = 0
@@ -114,6 +115,7 @@ class Card:
         self.enhancer_used = False
         self.summon_used = False
         self.block_used = False
+        self.defend_used = False
         self.focus_count = 0
         self.enhance_turn_iterators = 0
         self.stamina_required_to_focus = 10
@@ -681,8 +683,7 @@ class Card:
             self.health = self.health - opponent_card.poison_dmg
             if self.health <  0:
                 self.health = 0
-
-           return f"🧪 **{self.name}** poisoned for **{opponent_card.poison_dmg}** dmg..."
+            return f"🧪 **{self.name}** poisoned for **{opponent_card.poison_dmg}** dmg..."
 
 
     def gravity_hit(self):
@@ -702,6 +703,12 @@ class Card:
             self.temp_opp_parry_value = opponent_parry_value
 
 
+    def set_deathnote_message(self, battle):
+        if turn_total == 0:
+            if self.universe == "Death Note":
+                battle.previous_moves.append(f"(**{battle._turn_total}**) **{self.name}** 🩸 Scheduled Death 📓")
+
+
     def set_souls_trait(self):
         if self.used_resolved and self.universe == "Souls":
             self.move2 = self.move3
@@ -719,7 +726,7 @@ class Card:
             return 0
 
 
-    def showcard(self, mode, arm, title, turn_total, opponent_defense):
+    def showcard(self, mode, arm, title, turn_total, opponenplayer2_card.defense):
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
         try:    
@@ -785,16 +792,16 @@ class Card:
                 ebasic = '💢'
                 especial = '💢'
                 eultimate = '🗯️'
-                if opponent_defense is None:
+                if opponenplayer2_card.defense is None:
                     ebasic = ' '
                     especial = ' '
                     eultimate = ' '
                 else:
-                    defensepower = opponent_defense - self.attack
+                    defensepower = opponenplayer2_card.defense - self.attack
                     if defensepower <=0:
                         defensepower = 1
                     
-                    basic_ability_power =  self.attack - opponent_defense + self.move1ap
+                    basic_ability_power =  self.attack - opponenplayer2_card.defense + self.move1ap
                     if basic_ability_power <= 0:
                         basic_ability_power = self.move1ap
                     
@@ -815,7 +822,7 @@ class Card:
                         engagement_basic = 1
                         ebasic = '💢'
                 
-                    special_ability_power =  self.attack - opponent_defense + self.move2ap
+                    special_ability_power =  self.attack - opponenplayer2_card.defense + self.move2ap
                     if special_ability_power <= 0:
                         special_ability_power = self.move2ap
                         
@@ -836,7 +843,7 @@ class Card:
                         engagement_special = 1
                         especial = '💢'
             
-                    ultimate_ability_power =  self.attack - opponent_defense + self.move3ap
+                    ultimate_ability_power =  self.attack - opponenplayer2_card.defense + self.move3ap
                     if ultimate_ability_power <= 0:
                         ultimate_ability_power = self.move3ap
                     ultimate = round(ultimate_ability_power / defensepower)
@@ -1514,8 +1521,9 @@ class Card:
 
     def focusing(self, _title, _opponent_title, _opponent_card, _battle, _co_op_card=None, _co_op_title=None ):
         if self.stamina < self.stamina_required_to_focus:
-            if _battle._is_tutorial and _opponent_card.used_focus is False:
+            if _battle._is_tutorial and _opponent_card.tutorial_focus is False:
                 _opponent_card.used_focus = True
+                _opponent_card.tutorial_focus = True
                 embedVar = discord.Embed(title=f"You've entered :cyclone:**Focus State**!",
                                         description=f"Entering :cyclone:**Focus State** sacrifices a turn to **Heal** and regain **ST (Stamina)**!",
                                         colour=0xe91e63)
@@ -1569,7 +1577,7 @@ class Card:
                 if _co_op_title.passive_type:
                     if _co_op_title.passive_type == "GAMBLE":
                         health_calculation = _co_op_title.passive_value
-            # check if user is at max health and sets messages and focus health value
+
             new_health_value = 0
             heal_message = ""
             message_number = 0
@@ -1650,7 +1658,7 @@ class Card:
                 _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + _battle._turn_total}** ❤️")
 
             elif self.universe == "Solo Leveling":
-                t_defense = round(t_defense - (30 + _battle._turn_total))
+                player2_card.defense = round(player2_card.defense - (30 + _battle._turn_total))
                 
                 _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + _battle._turn_total}** 🛡️ 🔻")
             
@@ -1668,7 +1676,7 @@ class Card:
 
             if _opponent_card.universe == "One Punch Man" and self.universe != "Death Note":
                 _opponent_card.health = round(_opponent_card.health + 100)
-                t_max_health = round(t_max_health + 100)
+                player2_card.max_health = round(player2_card.max_health + 100)
 
                 _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
 
@@ -1718,9 +1726,112 @@ class Card:
         if self.health >= self.max_health:
             self.health = self.max_health
 
-    def yuyu_hakusho_attack_increase(self):
+
+    def yuyu_hakushself.attack_increase(self):
         self.attack = self.attack + self.stamina
 
+    def activate_card_passive(self, player2_card):
+        if self.passive_type:
+            value_for_passive = self.tier * .5
+            flat_value_for_passive = 10 * (self.tier * .5)
+            stam_for_passive = 5 * (self.tier * .5)
+            if self.passive_type == "HLT":
+                if self.max_health > self.health:
+                    self.health = round(round(self.health + ((value_for_passive / 100) * self.health)))
+            if self.passive_type == "CREATION":
+                self.max_health = round(round(self.max_health + ((value_for_passive / 100) * self.max_health)))
+            if self.passive_type == "DESTRUCTION":
+                player2_card.max_health = round(round(player2_card.max_health - ((value_for_passive / 100) * player2_card.max_health)))
+            if self.passive_type == "LIFE":
+                if self.max_health > self.health:
+                    player2_card.health = round(player2_card.health - ((value_for_passive / 100) * player2_card.health))
+                    self.health = round(self.health + ((value_for_passive / 100) * player2_card.health))
+            if self.passive_type == "ATK":
+                self.attack = round(self.attack + ((value_for_passive / 100) * self.attack))
+            if self.passive_type == "DEF":
+                self.defense = round(self.defense + ((value_for_passive / 100) * self.defense))
+            if self.passive_type == "STAM":
+                if self.stamina > 15:
+                    self.stamina = self.stamina + stam_for_passive
+            if self.passive_type == "DRAIN":
+                if self.stamina > 15:
+                    player2_card.stamina = player2_card.stamina - stam_for_passive
+                    self.stamina = self.stamina + stam_for_passive
+            if self.passive_type == "FLOG":
+                player2_card.attack = round(player2_card.attack - ((value_for_passive / 100) * player2_card.attack))
+                self.attack = round(self.attack + ((value_for_passive / 100) * player2_card.attack))
+            if self.passive_type == "WITHER":
+                player2_card.defense = round(player2_card.defense - ((value_for_passive / 100) * player2_card.defense))
+                self.defense = round(self.defense + ((value_for_passive / 100) * player2_card.defense))
+            if self.passive_type == "RAGE":
+                self.defense = round(self.defense - ((value_for_passive / 100) * self.defense))
+                self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + ((value_for_passive / 100) * self.defense))
+            if self.passive_type == "BRACE":
+                self.card_lvl_ap_buff  = round(self.card_lvl_ap_buff + ((value_for_passive / 100) * self.attack))
+                self.attack = round(self.attack - ((value_for_passive / 100) * self.attack))
+            if self.passive_type == "BZRK":
+                self.health = round(self.health - ((value_for_passive / 100) * self.health))
+                self.attack = round(self.attack + ((value_for_passive / 100) * self.health))
+            if self.passive_type == "CRYSTAL":
+                self.health = round(self.health - ((value_for_passive / 100) * self.health))
+                self.defense = round(self.defense + ((value_for_passive / 100) * self.health))
+            if self.passive_type == "FEAR":
+                if self.universe != "Chainsawman":
+                    self.max_health = self.max_health - (self.max_health * .03)
+                player2_card.defense = player2_card.defense - flat_value_for_passive
+                player2_card.attack = player2_card.attack - flat_value_for_passive
+                player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - flat_value_for_passive
+            if self.passive_type == "GROWTH":
+                self.max_health = self.max_health - (self.max_health * .03)
+                self.defense = self.defense + flat_value_for_passive
+                self.attack = self.attack + flat_value_for_passive
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + flat_value_for_passive
+            if self.passive_type == "SLOW":
+                if turn_total != 0:
+                    turn_total = turn_total - 1
+            if self.passive_type == "HASTE":
+                turn_total = turn_total + 1
+            if self.passive_type == "STANCE":
+                tempattack = self.attack + flat_value_for_passive
+                self.attack = self.defense
+                self.defense = tempattack
+            if self.passive_type == "CONFUSE":
+                tempattack = player2_card.attack - flat_value_for_passive
+                player2_card.attack = player2_card.defense
+                player2_card.defense = tempattack
+            if self.passive_type == "BLINK":
+                self.stamina = self.stamina - stam_for_passive
+                if player2_card.stamina >=10:
+                    player2_card.stamina = player2_card.stamina + stam_for_passive
+            if self.passive_type == "BLAST":
+                player2_card.health = round(player2_card.health - value_for_passive)
+            if self.passive_type == "WAVE":
+                if turn_total % 10 == 0:
+                    player2_card.health = round(player2_card.health - 100)
+
+
+    def activate_chainsawman_trait(self, battle):
+        if self.universe == "Chainsawman":
+            if self.health <= (self.max_health * .25):
+                if self._chainsawman_activated == True:
+                    if self._atk_chainsawman_buff == False:
+                        self._atk_chainsawman_buff = True
+                        self._chainsawman_activated = False
+                        self.defense = self.defense * 2
+                        self.attack = self.attack * 2
+                        self.max_health = self.max_health * 2
+                        battle.previous_moves.append(f"(**{battle._turn_total}**) **{self.name}** 🩸's Devilization")
+
+            elif self.health <= (self.max_health * .50):
+                if self._chainsawman_activated == True:
+                    if self._atk_chainsawman_buff == False:
+                        self._atk_chainsawman_buff = True
+                        self._chainsawman_activated = False
+                        self.defense = self.defense * 2
+                        self.attack = self.attack * 2
+                        self.max_health = self.max_health * 2
+                        battle.previous_moves.append(f"(**{battle._turn_total}**) **{self.name}** 🩸's Devilization")
+                        
 
 def get_card(url, cardname, cardtype):
         try:

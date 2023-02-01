@@ -3181,7 +3181,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                     tmove_issue = False
                     omove_issue = False
 
-                    while (_battle.match_has_ended(player1_card, player2_card):
+                    while (_battle.match_has_ended(player1_card, player2_card)):
                         if _battle.previous_moves:
                             _battle.previous_moves_len = len(_battle.previous_moves)
                             if _battle.previous_moves_len >= player1.battle_history:
@@ -3194,6 +3194,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                             player1_card.reset_stats_to_limiter(player2_card)
 
                             player1_card.yuyu_hakusho_attack_increase()
+                            player1_card.activate_chainsawman_trait(_battle)
 
                             _battle.previous_moves.append(player1_card.bleed_hit(_battle._turn_total, player2_card))
 
@@ -3204,524 +3205,62 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                 _battle._is_turn = new_turn['MESSAGE']
                                 _battle.previous_moves.append(new_turn['TURN'])
                                 continue
-                            
+                            player1_card.freeze_enh = False
+                            if _battle._is_co_op:
+                                player3_card.freeze_enh = False
 
                             _battle.previous_moves.append(player1_card.poison_hit(player2_card))
                                 
                             player1_card.gravity_hit()
 
-                            player1_card.freeze_enh = False
 
+                            player1_title.activate_title_passive(_battle, player1_card, player2_card)
+                            player1_card.activate_card_passive(player2_card)
+
+                            if player1_card.block_used == True:
+                                player1_card.defense = int(player1_card.defense / 2)
+                                player1_card.block_used = False
+                            if player1_card.defend_used == True:
+                                player1_card.defense = int(player1_card.defense / 2)
+                                player1_card.defend_used = False
+
+                            player1_card.set_deathnote_message(_battle)
+                            player2_card.set_deathnote_message(_battle)
                             if _battle._is_co_op:
-                                player3_card.freeze_enh = False
-
-
-                            if o_title_passive_type:
-                                if o_title_passive_type == "HLT":
-                                    if o_max_health > o_health:
-                                        o_health = round(o_health + ((o_title_passive_value / 100) * o_health))
-                                if o_title_passive_type == "LIFE":
-                                    if o_max_health > o_health:
-                                        t_health = round(t_health - ((o_title_passive_value / 100) * t_health))
-                                        o_health = round(o_health + ((o_title_passive_value / 100) * t_health))
-                                if o_title_passive_type == "ATK":
-                                    o_attack = o_attack + o_title_passive_value
-                                if o_title_passive_type == "DEF":
-                                    o_defense = o_defense + o_title_passive_value
-                                if o_title_passive_type == "STAM":
-                                    if o_stamina > 15:
-                                        o_stamina = o_stamina + o_title_passive_value
-                                if o_title_passive_type == "DRAIN":
-                                    if o_stamina > 15:
-                                        t_stamina = t_stamina - o_title_passive_value
-                                        o_stamina = o_stamina + o_title_passive_value
-                                if o_title_passive_type == "FLOG":
-                                    t_attack = round(t_attack - ((o_title_passive_value / 100) * t_attack))
-                                    o_attack = round(o_attack + ((o_title_passive_value / 100) * t_attack))
-                                if o_title_passive_type == "WITHER":
-                                    t_defense = round(t_defense - ((o_title_passive_value / 100) * t_defense))
-                                    o_defense = round(o_defense + ((o_title_passive_value / 100) * t_defense))
-                                if o_title_passive_type == "RAGE":
-                                    o_defense = round(o_defense - ((o_title_passive_value / 100) * o_defense))
-                                    o_ap_buff = round(o_ap_buff + ((o_title_passive_value / 100) * o_defense))
-                                if o_title_passive_type == "BRACE":
-                                    o_ap_buff = round(o_ap_buff + ((o_title_passive_value / 100) * o_attack))
-                                    o_attack = round(o_attack - ((o_title_passive_value / 100) * o_attack))
-                                if o_title_passive_type == "BZRK":
-                                    o_health = round(o_health - ((o_title_passive_value / 100) * o_health))
-                                    o_attack = round(o_attack + ((o_title_passive_value / 100) * o_health))
-                                if o_title_passive_type == "CRYSTAL":
-                                    o_health = round(o_health - ((o_title_passive_value / 100) * o_health))
-                                    o_defense = round(o_defense + ((o_title_passive_value / 100) * o_health))
-                                if o_title_passive_type == "FEAR":
-                                    if o_universe != "Chainsawman":
-                                        o_max_health = o_max_health - (o_max_health * .03)
-                                    t_defense = t_defense - o_title_passive_value
-                                    t_attack = t_attack - o_title_passive_value
-                                    t_ap_buff = t_ap_buff - o_title_passive_value
-                                if o_title_passive_type == "GROWTH":
-                                    o_max_health = o_max_health - (o_max_health * .03)
-                                    o_defense = o_defense + o_title_passive_value
-                                    o_attack = o_attack + o_title_passive_value
-                                    o_ap_buff = o_ap_buff + o_title_passive_value
-                                if o_title_passive_type == "SLOW":
-                                    if turn_total != 0:
-                                        turn_total = turn_total - 1
-                                if o_title_passive_type == "HASTE":
-                                    turn_total = turn_total + 1
-                                if o_title_passive_type == "STANCE":
-                                    tempattack = o_attack + o_title_passive_value
-                                    o_attack = o_defense
-                                    o_defense = tempattack
-                                if o_title_passive_type == "CONFUSE":
-                                    tempattack = t_attack - o_title_passive_value
-                                    t_attack = t_defense
-                                    t_defense = tempattack
-                                if o_title_passive_type == "BLINK":
-                                    o_stamina = o_stamina - o_title_passive_value
-                                    if t_stamina >=10:
-                                        t_stamina = t_stamina + o_title_passive_value
-                                if o_title_passive_type == "CREATION":
-                                    o_max_health = round(round(o_max_health + ((o_title_passive_value / 100) * o_max_health)))
-                                if o_title_passive_type == "DESTRUCTION":
-                                    t_max_health = round(t_max_health - ((o_title_passive_value / 100) * t_max_health))
-                                if o_title_passive_type == "BLAST":
-                                    t_health = round(t_health - o_title_passive_value)
-                                if o_title_passive_type == "WAVE":
-                                    if turn_total % 10 == 0:
-                                        t_health = round(t_health - 100)
-
-
-                            if o_card_passive_type:
-                                o_value_for_passive = o_card_tier * .5
-                                o_flat_for_passive = 10 * (o_card_tier * .5)
-                                o_stam_for_passive = 5 * (o_card_tier * .5)
-                                if o_card_passive_type == "HLT":
-                                    if o_max_health > o_health:
-                                        o_health = round(round(o_health + ((o_value_for_passive / 100) * o_health)))
-                                if o_card_passive_type == "CREATION":
-                                    o_max_health = round(round(o_max_health + ((o_value_for_passive / 100) * o_max_health)))
-                                if o_card_passive_type == "DESTRUCTION":
-                                    t_max_health = round(round(t_max_health - ((o_value_for_passive / 100) * t_max_health)))
-                                if o_card_passive_type == "LIFE":
-                                    if o_max_health > o_health:
-                                        t_health = round(t_health - ((o_value_for_passive / 100) * t_health))
-                                        o_health = round(o_health + ((o_value_for_passive / 100) * t_health))
-                                if o_card_passive_type == "ATK":
-                                    o_attack = round(o_attack + ((o_value_for_passive / 100) * o_attack))
-                                if o_card_passive_type == "DEF":
-                                    o_defense = round(o_defense + ((o_value_for_passive / 100) * o_defense))
-                                if o_card_passive_type == "STAM":
-                                    if o_stamina > 15:
-                                        o_stamina = o_stamina + o_stam_for_passive
-                                if o_card_passive_type == "DRAIN":
-                                    if o_stamina > 15:
-                                        t_stamina = t_stamina - o_stam_for_passive
-                                        o_stamina = o_stamina + o_stam_for_passive
-                                if o_card_passive_type == "FLOG":
-                                    t_attack = round(t_attack - ((o_value_for_passive / 100) * t_attack))
-                                    o_attack = round(o_attack + ((o_value_for_passive / 100) * t_attack))
-                                if o_card_passive_type == "WITHER":
-                                    t_defense = round(t_defense - ((o_value_for_passive / 100) * t_defense))
-                                    o_defense = round(o_defense + ((o_value_for_passive / 100) * t_defense))
-                                if o_card_passive_type == "RAGE":
-                                    o_defense = round(o_defense - ((o_value_for_passive / 100) * o_defense))
-                                    o_ap_buff = round(o_ap_buff + ((o_value_for_passive / 100) * o_defense))
-                                if o_card_passive_type == "BRACE":
-                                    o_ap_buff  = round(o_ap_buff + ((o_value_for_passive / 100) * o_attack))
-                                    o_attack = round(o_attack - ((o_value_for_passive / 100) * o_attack))
-                                if o_card_passive_type == "BZRK":
-                                    o_health = round(o_health - ((o_value_for_passive / 100) * o_health))
-                                    o_attack = round(o_attack + ((o_value_for_passive / 100) * o_health))
-                                if o_card_passive_type == "CRYSTAL":
-                                    o_health = round(o_health - ((o_value_for_passive / 100) * o_health))
-                                    o_defense = round(o_defense + ((o_value_for_passive / 100) * o_health))
-                                if o_card_passive_type == "FEAR":
-                                    if o_universe != "Chainsawman":
-                                        o_max_health = o_max_health - (o_max_health * .03)
-                                    t_defense = t_defense - o_flat_for_passive
-                                    t_attack = t_attack - o_flat_for_passive
-                                    t_ap_buff = t_ap_buff - o_flat_for_passive
-                                if o_card_passive_type == "GROWTH":
-                                    o_max_health = o_max_health - (o_max_health * .03)
-                                    o_defense = o_defense + o_flat_for_passive
-                                    o_attack = o_attack + o_flat_for_passive
-                                    o_ap_buff = o_ap_buff + o_flat_for_passive
-                                if o_card_passive_type == "SLOW":
-                                    if turn_total != 0:
-                                        turn_total = turn_total - 1
-                                if o_card_passive_type == "HASTE":
-                                    turn_total = turn_total + 1
-                                if o_card_passive_type == "STANCE":
-                                    tempattack = o_attack + o_flat_for_passive
-                                    o_attack = o_defense
-                                    o_defense = tempattack
-                                if o_card_passive_type == "CONFUSE":
-                                    tempattack = t_attack - o_flat_for_passive
-                                    t_attack = t_defense
-                                    t_defense = tempattack
-                                if o_card_passive_type == "BLINK":
-                                    o_stamina = o_stamina - o_stam_for_passive
-                                    if t_stamina >=10:
-                                        t_stamina = t_stamina + o_stam_for_passive
-                                if o_card_passive_type == "BLAST":
-                                    t_health = round(t_health - o_value_for_passive)
-                                if o_card_passive_type == "WAVE":
-                                    if turn_total % 10 == 0:
-                                        t_health = round(t_health - 100)
-
-                            if o_block_used == True:
-                                o_defense = int(o_defense / 2)
-                                o_block_used = False
-                            if o_defend_used == True:
-                                o_defense = int(o_defense / 2)
-                                o_defend_used = False
-                            if o_universe == "Demon Slayer" and turn_total == 0:
-                                embedVar = discord.Embed(title=f"{o_card} Total Concentration Breathing",
-                                                        description=f"{o_card} gains **{t_health * .40}** Health",
-                                                        colour=0xe91e63)
-                                
-                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(t_base_health * .40)}**")
-                                o_health = round(o_health + (t_base_health * .40))
-                                o_max_health = round(o_max_health + (t_base_health *.40))
-                            if t_universe == "Demon Slayer" and turn_total == 0:
-                                embedVar = discord.Embed(title=f"{t_card} Total Concentration Breathing",
-                                                        description=f"{t_card} gains **{o_health * .40}** Health",
-                                                        colour=0xe91e63)
-                                
-                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(o_base_health * .40)}**")
-                                t_health = round(t_health + (o_base_health * .40))
-                                t_max_health = round(t_max_health + (o_base_health *.40))
-                            if o_universe == "Death Note" and turn_total == 0:
-                                embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{o_card} says**\nYou will die in 100 turns...",
-                                                        colour=0xe91e63)
-                                
-                                previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled Death 📓")
-                            
-                            if mode in B_modes:
-                                embedVar = discord.Embed(title=f"**{t_card}** Boss of `{t_universe}`",
-                                                        description=f"*{t_description}*", colour=0xe91e63)
-                                embedVar.add_field(name=f"{t_arena}", value=f"{t_arenades}")
-                                embedVar.add_field(name=f"Entering the {t_arena}", value=f"{t_entrance}", inline=False)
-                                embedVar.set_footer(text=f"{t_card} waits for you to strike....")
-                                
-                            if mode in co_op_modes:
-                                if c_universe == "Death Note" and turn_total == 0:
-                                    embedVar = discord.Embed(title=f"{c_card} Scheduled Death 📓",
-                                                            description=f"**{c_card} says**\nYou will die in 100 turns...",
-                                                            colour=0xe91e63)
-                                    
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 {c_card} Scheduled Death 📓")
-                                if c_universe == "Demon Slayer" and turn_total == 0:
-                                    embedVar = discord.Embed(title=f"{c_card} Total Concentration Breathing",
-                                                            description=f"{c_card} gains **{round(t_base_health * .40)}** Health",
-                                                            colour=0xe91e63)
-                                    
-                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Total Concentration Breathing: **Increased HP {round(t_base_health * .40)}**")
-                                    c_health = round(c_health + (t_base_health * .40))
-                                    c_max_health = round(c_max_health + (t_base_health *.40))
-                            if t_universe == 'Death Note' and turn_total == 0:
-                                embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
-                                                        description=f"**{t_card} says**\nYou will die in 60 turns...",
-                                                        colour=0xe91e63)
-                                
-                                previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled Death 📓")
-                            
+                                player3_card.set_deathnote_message(_battle)                            
 
                             # Tutorial Instructions
                             if turn_total == 0:
                                 # Tutorial Instructions
-                                if turn_total == 0:
-                                    if tutorial:
-                                        embedVar = discord.Embed(title=f"Welcome to **Anime VS+**!",
-                                                                description=f"Follow the instructions to learn how to play the Game!",
-                                                                colour=0xe91e63)
-                                        embedVar.add_field(name="**Moveset**",
-                                                            value=f"{o_basic_emoji} - **Basic Attack** *10 :zap:ST*\n{o_super_emoji} - **Special Attack** *30 :zap:ST*\n{o_ultimate_emoji} - **Ultimate Move** *80 :zap:ST*\n🦠 - **Enhancer** *20 :zap:ST*\n🛡️ - **Block** *20 :zap:ST*\n:zap: - **Resolve** : Heal and Activate Resolve\n:dna: - **Summon** : {opet_name}")
-                                        embedVar.set_footer(
-                                            text="Focus State : When card deplete to 0 stamina, they focus to Heal they also gain ATK and DEF ")
-                                        await private_channel.send(embed=embedVar)
-                                        await asyncio.sleep(2)
-                                if mode in B_modes:
-                                    embedVar = discord.Embed(title=f"**{t_card}** Boss of `{t_universe}`",
-                                                            description=f"*{t_description}*", colour=0xe91e63)
-                                    embedVar.add_field(name=f"{t_arena}", value=f"{t_arenades}")
-                                    embedVar.add_field(name=f"Entering the {t_arena}", value=f"{t_entrance}", inline=False)
-                                    embedVar.set_footer(text=f"{t_card} waits for you to strike....")
+                                if _battle._is_tutorial:
+                                    embedVar = discord.Embed(title=f"Welcome to **Anime VS+**!",
+                                                            description=f"Follow the instructions to learn how to play the Game!",
+                                                            colour=0xe91e63)
+                                    embedVar.add_field(name="**Moveset**",value=f"{player1_card.move1_emoji} - **Basic Attack** *10 :zap:ST*\n{player1_card.move2_emoji} - **Special Attack** *30 :zap:ST*\n{player1_card.move3_emoji} - **Ultimate Move** *80 :zap:ST*\n🦠 - **Enhancer** *20 :zap:ST*\n🛡️ - **Block** *20 :zap:ST*\n:zap: - **Resolve** : Heal and Activate Resolve\n:dna: - **Summon** : {player1.equipped_summon}")
+                                    embedVar.set_footer(text="Focus State : When card deplete to 0 stamina, they focus to Heal they also gain ATK and DEF ")
+                                    await private_channel.send(embed=embedVar)
+                                    await asyncio.sleep(2)
+                                if _battle._is_boss:
+                                    embedVar = discord.Embed(title=f"**{player2_card.name}** Boss of `{player2_card.universe}`",
+                                                            description=f"*{_battle._description_boss_description}*", colour=0xe91e63)
+                                    embedVar.add_field(name=f"{_battle._arena_boss_description}", value=f"{_battle._arenades_boss_description}")
+                                    embedVar.add_field(name=f"Entering the {_battle._arena_boss_description}", value=f"{_battle._entrance_boss_description}", inline=False)
+                                    embedVar.set_footer(text=f"{player1_card.name} waits for you to strike....")
                                     await ctx.send(embed=embedVar)
                                     await asyncio.sleep(2)
-                                elif mode in co_op_modes and mode not in B_modes:
-                                    embedVar = discord.Embed(
-                                        title=f"{ocard_lvl_message}**{o_card}** & {ccard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun! {lineup}\n{t_universe} {mode} Battle",
-                                        description=f"`{o_card} Says:`\n{o_greeting_description}", colour=0xe91e63)
-                                    title = f"{ocard_lvl_message}**{o_card}** & {ccard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun! {lineup}\n{t_universe} {mode} Battle"
-                                elif mode in AUTO_BATTLE_modes:
-                                    embedVar = discord.Embed(
-                                        title=f"{ocard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun!\n{t_universe} {mode} Battle\nThe Result of this Automated Battle will be reported soon.",
-                                        colour=0xe91e63)
-                                elif randomized_battle:
-                                    embedVar = discord.Embed(
-                                        title=f"{ocard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun!\n{t_universe} {mode} Battle",
-                                        description=f"`{o_card} Says:`\n{o_greeting_description}", colour=0xe91e63)
-                                    title = f"{ocard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun!\n{t_universe} {mode} Battle"
-                                else:
-                                    title = f"{ocard_lvl_message}**{o_card}** 🆚 {tcard_lvl_message}**{t_card}** has begun!"
-
                                 
 
-                            if o_health <= (o_max_health * .25):
-                                embed_color_o = 0xe74c3c
-                                if o_chainsaw == True:
-                                    if o_atk_chainsaw == False:
-                                        o_atk_chainsaw = True
-                                        o_chainsaw = False
-                                        o_defense = o_defense * 2
-                                        o_attack = o_attack * 2
-                                        o_max_health = o_max_health * 2
-                                        embedVar = discord.Embed(title=f"{o_card}'s Devilization",
-                                                                description=f"**{o_card}** Doubles ATK, DEF, and MAX HEALTH.",
-                                                                colour=0xe91e63)
-                                        previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸's Devilization")
-                                        
-
-                            elif o_health <= (o_max_health * .50):
-                                embed_color_o = 0xe67e22
-                                if o_chainsaw == True:
-                                    if o_atk_chainsaw == False:
-                                        o_atk_chainsaw = True
-                                        o_chainsaw = False
-                                        o_defense = o_defense * 2
-                                        o_attack = o_attack * 2
-                                        o_max_health = o_max_health * 2
-                                        embedVar = discord.Embed(title=f"{o_card}'s Devilization",
-                                                                description=f"**{o_card}** Doubles ATK, DEF, and MAX HEALTH.",
-                                                                colour=0xe91e63)
-                                        previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸's Devilization")
-                                        
-                            elif o_health <= (o_max_health * .75):
-                                embed_color_o = 0xf1c40f
-                            else:
-                                embed_color_o = 0x2ecc71
-
-                            if o_stamina < 10:
-                                if tutorial and tutorial_focus ==False:
-                                    tutorial_focus = True
-                                    embedVar = discord.Embed(title=f"You've entered :cyclone:**Focus State**!",
-                                                            description=f"Entering :cyclone:**Focus State** sacrifices a turn to **Heal** and regain **ST (Stamina)**!",
-                                                            colour=0xe91e63)
-                                    embedVar.add_field(name=":cyclone:**Focusing**",
-                                                    value="Increase **ATK** (🟦) and **DEF** (🟥)!")
-                                    embedVar.set_footer(
-                                        text="Pay attention to your oppononets ST(Stamina). If they are entering Focus State, you will have the ability to strike twice!")
-                                    await ctx.send(embed=embedVar)
+                            if player1_card.stamina < 10:
+                                player1_card.focusing(player1_title, player2_title, player2_card, _battle)
+                                
+                                if _battle._is_tutorial and tutorial_focus ==False:
+                                    await ctx.send(embed=_battle._tutorial_message)
                                     await asyncio.sleep(2)
-                                o_pet_used = False
-                                o_focus_count = o_focus_count + 1
-                                if mode in B_modes:
-                                    embedVar = discord.Embed(title=f"{t_punish}")
-                                    embedVar.add_field(name=f"{t_arena}", value=f"{t_world}", inline=False)
-                                    embedVar.set_footer(text=f"{t_assault}")
-                                    await ctx.send(embed=embedVar)
+
+                                if _battle._is_boss:
+                                    await ctx.send(embed=_boss_embed_message)
                                     
-                                    # await asyncio.sleep(2)
-                                # fortitude or luck is based on health
-                                fortitude = round(o_health * .1)
-                                if fortitude <= 50:
-                                    fortitude = 50
 
-                                o_stamina = o_focus
-                                o_healthcalc = round(fortitude)
-                                o_attackcalc = round(fortitude * (o_card_tier / 10))
-                                o_defensecalc = round(fortitude * (o_card_tier / 10))
-                                
-                                if o_universe == "One Piece" and (o_card_tier in mid_tier_cards or o_card_tier in high_tier_cards):
-                                    o_attackcalc = o_attackcalc + o_attackcalc
-                                    o_defensecalc = o_defensecalc + o_defensecalc
-
-                                if o_title_passive_type:
-                                    if o_title_passive_type == "GAMBLE":
-                                        o_healthcalc = o_title_passive_value
-                                    if o_title_passive_type == "SOULCHAIN":
-                                        o_stamina = o_title_passive_value
-                                        t_stamina = o_title_passive_value
-                                        if mode in co_op_modes:
-                                            c_stmina = o_title_passive_value
-                                    if o_title_passive_type == "BLAST":
-                                        t_health = t_health - (o_title_passive_value * turn_total)
-
-
-
-                                if t_title_passive_type:
-                                    if t_title_passive_type == "GAMBLE":
-                                        o_healthcalc = t_title_passive_value
-                                
-                                if mode in co_op_modes:
-                                    if c_title_passive_type:
-                                        if c_title_passive_type == "GAMBLE":
-                                            o_healthcalc = c_title_passive_value
-                                # check if user is at max health and sets messages and focus health value
-                                o_newhealth = 0
-                                healmessage = ""
-                                messagenumber = 0
-                                if o_universe == "Crown Rift Madness":
-                                    healmessage = "yet inner **Madness** drags on..."
-                                    messagenumber = 3
-                                else:
-                                    if o_health <= o_max_health:
-                                        o_newhealth = o_health + o_healthcalc
-                                        if o_newhealth > o_max_health:
-                                            healmessage = "the injuries dissapeared!"
-                                            messagenumber = 1
-                                            o_health = o_max_health
-                                        else:
-                                            healmessage = "regained some vitality."
-                                            messagenumber = 2
-                                            o_health = o_newhealth
-                                    else:
-                                        healmessage = f"**{t_card}**'s blows don't appear to have any effect!"
-                                        messagenumber = 0
-                                if not o_used_resolve:
-                                    o_attack = o_attack + o_attackcalc
-                                    o_defense = o_defense + o_defensecalc
-                                o_used_focus = True
-                                previous_moves.append(f"(**{turn_total}**) 🌀 **{o_card}** focused and {healmessage}")
-                                # embedVar = discord.Embed(title=f"{o_card} FOCUSED", description=f"**{o_card} says**\n{o_focus_description}", colour=0xe91e63)
-                                # embedVar.add_field(name=f"{o_card} focused and {healmessage}", value="All stats & stamina increased")
-                                
-
-                                # Resolve Check and Calculation
-                                if not o_used_resolve and o_used_focus and o_universe == "Digimon":  # Digimon Universal Trait
-                                    if tutorial and tutorial_resolve==False:
-                                        tutorial_resolve = True
-                                        embedVar = discord.Embed(title=f"⚡**Resolve Transformation**!",
-                                                                description=f"**Heal**, Boost **ATK**, and gain the ability to 🧬**Summon**!",
-                                                                colour=0xe91e63)
-                                        embedVar.add_field(name=f"Trade Offs!",
-                                                        value="Sacrifice **DEF** and **Focusing** will not increase **ATK** or **DEF**")
-                                        embedVar.add_field(name=f"🧬 Summons",
-                                                        value=f"🧬**Summons** will use their 🦠**Enhancers** to assist you in battle! You're summon: 🧬 **{opet_name}**")
-                                        embedVar.set_footer(
-                                            text=f"You can only enter ⚡Resolve once per match! Use the Heal Wisely!!!")
-                                        await button_ctx.send(embed=embedVar)
-                                        await asyncio.sleep(2)
-
-                                    embedVar = discord.Embed(title=f"{o_card} STRENGTHENED RESOLVE :zap:",
-                                                            description=f"**{o_card} says**\n{o_resolve_description}",
-                                                            colour=0xe91e63)
-                                    embedVar.add_field(name=f"Transformation: Digivolve", value="On Focus you Resolve.")
-                                    #previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Transformation: Digivolve")
-                                    
-                                    # fortitude or luck is based on health
-                                    fortitude = 0.0
-                                    low = o_health - (o_health * .75)
-                                    high = o_health - (o_health * .66)
-                                    fortitude = round(random.randint(int(low), int(high)))
-                                    # Resolve Scaling
-                                    o_resolve_health = round(fortitude + (.5 * o_resolve))
-                                    o_resolve_attack = round((.30 * o_defense) * (o_resolve / (.50 * o_defense)))
-                                    o_resolve_defense = round((.30 * o_defense) * (o_resolve / (.50 * o_defense)))
-
-                                    o_stamina = o_stamina + o_resolve
-                                    o_health = o_health + o_resolve_health
-                                    o_attack = round(o_attack + o_resolve_attack)
-                                    o_defense = round(o_defense - o_resolve_defense)
-                                    o_attack = round(o_attack * 1.5)
-                                    o_defense = round(o_defense * 1.5)
-                                    o_used_resolve = True
-                                    o_pet_used = False
-                                    if turn_total <=5:
-                                        o_attack = round(o_attack * 2)
-                                        o_defense = round(o_defense * 2 )
-                                        o_health = o_health + 500
-                                        o_max_health = o_max_health + 500
-                                        previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Transformation: Mega Digivolution!!!")
-                                    else:
-                                        previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Transformation: Digivolve")
-
-                                elif o_universe == "League Of Legends":
-                                    embedVar = discord.Embed(title=f"Turret Shot hits {t_card} for **{60 + turn_total}** Damage 💥",
-                                                            colour=0xe91e63)
-                                    
-                                    t_health = round(t_health - (60 + turn_total))
-                                    
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Turret Shot hits **{t_card}** for **{60 + turn_total}** Damage 💥")
-
-
-                                elif o_universe == "Dragon Ball Z":
-                                    o_health = o_health + t_stamina + turn_total
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Saiyan Spirit... You heal for **{t_stamina + turn_total}** ❤️")
-
-
-                                elif o_universe == "Solo Leveling":
-                                    embedVar = discord.Embed(
-                                        title=f"Ruler's Authority... Opponent loses **{30 + turn_total}** 🛡️ 🔻",
-                                        colour=0xe91e63)
-                                    
-                                    t_defense = round(t_defense - (30 + turn_total))
-                                    
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + turn_total}** 🛡️ 🔻")
-                                
-                                elif o_universe == "Black Clover":
-                                    embedVar = discord.Embed(title=f"Mana Zone! **{o_card}** Increased Stamina 🌀",
-                                                            colour=0xe91e63)
-                                    
-                                    o_stamina = 100
-                                    ocard_lvl_ap_buff = ocard_lvl_ap_buff + 30
-
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{o_card}** Increased AP & Stamina 🌀")
-                                
-                                elif o_universe == "Death Note":
-                                    if turn_total >= 100:
-                                        embedVar = discord.Embed(title=f"{t_card}'s' Scheduled Death 📓",
-                                                                description=f"**{o_card} says**\n**Delete**",
-                                                                colour=0xe91e63)
-                                        embedVar.add_field(name=f"{t_card} had a heart attack and died",
-                                                        value=f"Death....")
-                                        
-                                        previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 had a heart attack and died")
-                                        
-                                        t_health = 0
-
-                                if t_universe == "One Punch Man" and o_universe != "Death Note":
-                                    embedVar = discord.Embed(
-                                        title=f"Hero Reinforcements! **{o_card}**  Increased Health & Max Health ❤️",
-                                        colour=0xe91e63)
-                                    
-                                    t_health = round(t_health + 100)
-                                    t_max_health = round(t_max_health + 100)
-
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Hero Reinforcements! **{t_card}**  Increased Health & Max Health ❤️")
-
-                                elif t_universe == "7ds":
-                                    embedVar = discord.Embed(title=f"Power Of Friendship! 🧬 **{opet_name}** Rested, **{o_card}** Increased Stamina 🌀",
-                                                            colour=0xe91e63)
-                                    
-                                    t_stamina = t_stamina + 60
-                                    t_pet_used = False
-                                    
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased Stamina 🌀")
-                                
-                                elif t_universe == "Souls":
-                                    embedVar = discord.Embed(
-                                        title=f"Combo Recognition! **{t_card}** Increased Attack by **{60 + turn_total}** 🔺 ",
-                                        colour=0xe91e63)
-                                    
-                                    t_attack = round(t_attack + (60 + turn_total))
-
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Combo Recognition! **{t_card}** Increased Attack by **{60 + turn_total}** 🔺")
-                                
-                                else:
-                                    turn_total = turn_total + 1
-                                    if o_universe != "Crown Rift Madness":
-                                        turn = 1
-                                    else:
-                                        turn = 0
-                                turn_total = turn_total + 1
-                                if o_universe != "Crown Rift Madness":
-                                    turn = 1
-                                else:
-                                    turn = 0
                             else:
                                 if mode in AUTO_BATTLE_modes:
                                     # UNIVERSE CARD
@@ -18576,6 +18115,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
         else:
             await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed and your Abyss Floor was Reset.") #Findme
             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed and your Abyss Floor was Reset.")
+    
     except Exception as ex:
         trace = []
         tb = ex.__traceback__

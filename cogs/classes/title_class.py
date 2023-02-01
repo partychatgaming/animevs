@@ -168,6 +168,7 @@ class Title:
         except:
             print("error setting title message")
 
+
     def set_title_embed_message(self):
         if self.passive_type == "ATK" or self.passive_type == "DEF" or self.passive_type == "HLT" or self.passive_type == "STAM":
             self.message = f"On your turn, Increases **{self.type_message}** by **{self.passive_value}{self.set_title_suffix()}**"
@@ -189,3 +190,82 @@ class Title:
             self.message = f"During Focus, **{self.type_message}** equal **{self.passive_value}**"
         
         return self.message
+
+
+    def activate_title_passive(self, battle, player1_card, player2_card, player3_card=None):
+        if self.passive_type:
+            if self.passive_type == "HLT":
+                if player1_card.max_health > player1_card.health:
+                    player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player1_card.health))
+            if self.passive_type == "LIFE":
+                if player1_card.max_health > player1_card.health:
+                    player2_card.health = round(player2_card.health - ((self.passive_value / 100) * player2_card.health))
+                    player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player2_card.health))
+            if self.passive_type == "ATK":
+                player1_card.attack = player1_card.attack + self.passive_value
+            if self.passive_type == "DEF":
+                player1_card.defense = player1_card.defense + self.passive_value
+            if self.passive_type == "STAM":
+                if self.stamina > 15:
+                    self.stamina = self.stamina + self.passive_value
+            if self.passive_type == "DRAIN":
+                if self.stamina > 15:
+                    player2_card.stamina = player2_card.stamina - self.passive_value
+                    self.stamina = self.stamina + self.passive_value
+            if self.passive_type == "FLOG":
+                player2_card.attack = round(player2_card.attack - ((self.passive_value / 100) * player2_card.attack))
+                player1_card.attack = round(player1_card.attack + ((self.passive_value / 100) * player2_card.attack))
+            if self.passive_type == "WITHER":
+                player2_card.defense = round(player2_card.defense - ((self.passive_value / 100) * player2_card.defense))
+                player1_card.defense = round(player1_card.defense + ((self.passive_value / 100) * player2_card.defense))
+            if self.passive_type == "RAGE":
+                player1_card.defense = round(player1_card.defense - ((self.passive_value / 100) * player1_card.defense))
+                player1_card.card_lvl_ap_buff = round(player1_card.card_lvl_ap_buff + ((self.passive_value / 100) * player1_card.defense))
+            if self.passive_type == "BRACE":
+                player1_card.card_lvl_ap_buff = round(player1_card.card_lvl_ap_buff + ((self.passive_value / 100) * player1_card.attack))
+                player1_card.attack = round(player1_card.attack - ((self.passive_value / 100) * player1_card.attack))
+            if self.passive_type == "BZRK":
+                player1_card.health = round(player1_card.health - ((self.passive_value / 100) * player1_card.health))
+                player1_card.attack = round(player1_card.attack + ((self.passive_value / 100) * player1_card.health))
+            if self.passive_type == "CRYSTAL":
+                player1_card.health = round(player1_card.health - ((self.passive_value / 100) * player1_card.health))
+                player1_card.defense = round(player1_card.defense + ((self.passive_value / 100) * player1_card.health))
+            if self.passive_type == "FEAR":
+                if player1_card.universe != "Chainsawman":
+                    player1_card.max_health = player1_card.max_health - (player1_card.max_health * .03)
+                player2_card.defense = player2_card.defense - self.passive_value
+                player2_card.attack = player2_card.attack - self.passive_value
+                player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - self.passive_value
+            if self.passive_type == "GROWTH":
+                player1_card.max_health = player1_card.max_health - (player1_card.max_health * .03)
+                player1_card.defense = player1_card.defense + self.passive_value
+                player1_card.attack = player1_card.attack + self.passive_value
+                player1_card.card_lvl_ap_buff = player1_card.card_lvl_ap_buff + self.passive_value
+            if self.passive_type == "SLOW":
+                if battle._turn_total != 0:
+                    battle._turn_total = battle._turn_total - 1
+            if self.passive_type == "HASTE":
+                battle._turn_total = battle._turn_total + 1
+            if self.passive_type == "STANCE":
+                tempattack = player1_card.attack + self.passive_value
+                player1_card.attack = player1_card.defense
+                player1_card.defense = tempattack
+            if self.passive_type == "CONFUSE":
+                tempattack = player2_card.attack - self.passive_value
+                player2_card.attack = player2_card.defense
+                player2_card.defense = tempattack
+            if self.passive_type == "BLINK":
+                self.stamina = self.stamina - self.passive_value
+                if player2_card.stamina >=10:
+                    player2_card.stamina = player2_card.stamina + self.passive_value
+            if self.passive_type == "CREATION":
+                player1_card.max_health = round(round(player1_card.max_health + ((self.passive_value / 100) * player1_card.max_health)))
+            if self.passive_type == "DESTRUCTION":
+                player2_card.max_health = round(player2_card.max_health - ((self.passive_value / 100) * player2_card.max_health))
+            if self.passive_type == "BLAST":
+                player2_card.health = round(player2_card.health - self.passive_value)
+            if self.passive_type == "WAVE":
+                if battle._turn_total % 10 == 0:
+                    player2_card.health = round(player2_card.health - 100)
+
+
