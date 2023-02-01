@@ -90,7 +90,7 @@ class Card:
         self._barrier_value = 0
         self._parry_value = 0
         self._siphon_value = 0
-
+        self._arm_message = ""
 
         # Card level & level buffs
         self.card_lvl = 0
@@ -122,6 +122,7 @@ class Card:
         self.stamina_focus_recovery_amount = 90
         self._tutorial_message = ""
         self.resolve_value = 60
+        self.summon_resolve_message = ""
 
         # Passive Ability
         self.passive_name  = list(passive.keys())[0]
@@ -1517,6 +1518,35 @@ class Card:
                     'message': str(ex),
                     'trace': trace
                 }))
+
+
+    def set_battle_arm_messages(self, oppponent_card, player):
+        if self.used_resolve:
+            self.summon_resolve_message = f"🧬 {str(enhancer_mapping[player._equipped_summon_type])}"
+        if oppponent_card._barrier_active:
+            opponent_card._arm_message = f"💠 {str(oppponent_card._barrier_value)}"
+        
+        elif oppponent_card._shield_active:
+            opponent_card._arm_message = f"🌐 {str(oppponent_card._shield_value)}"
+        
+        elif oppponent_card._parry_active:
+            opponent_card._arm_message = f"🔄 {str(oppponent_card._parry_value)}"
+        
+        elif oppponent_card._siphon_active:
+            opponent_card._arm_message = f"💉 {str(oppponent_card._siphon_value)}"
+                
+        if self._barrier_active:
+            self._arm_message = f"💠 {str(self._barrier_value)}"
+
+        elif self._shield_active:
+            self._arm_message = f"🌐 {str(self._shield_value)}"
+                
+        elif self._parry_active:
+            self._arm_message = f"🔄 {str(self._parry_value)}"
+        
+        elif self._siphon_active:
+            self._arm_message = f"💉 {str(self._siphon_value)}"
+        
 
 
     def focusing(self, _title, _opponent_title, _opponent_card, _battle, _co_op_card=None, _co_op_title=None ):

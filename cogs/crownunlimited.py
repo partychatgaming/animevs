@@ -3186,9 +3186,6 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                             _battle.previous_moves_len = len(_battle.previous_moves)
                             if _battle.previous_moves_len >= player1.battle_history:
                                 _battle.previous_moves = previous_moves[-player1.battle_history:]
-                            
-                            previous_moves_into_embed = "\n\n".join(_battle.previous_moves)
-
                         
                         if _battle._is_turn == 0:
                             player1_card.reset_stats_to_limiter(player2_card)
@@ -3260,91 +3257,20 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                 if _battle._is_boss:
                                     await ctx.send(embed=_boss_embed_message)
                                     
-
                             else:
-                                if mode in AUTO_BATTLE_modes:
-                                    # UNIVERSE CARD
-                                    ap1 = list(o_1.values())[0] + ocard_lvl_ap_buff + o_shock_buff + o_basic_water_buff + o_ap_buff
-                                    ap2 = list(o_2.values())[0] + ocard_lvl_ap_buff + o_shock_buff + o_special_water_buff + o_ap_buff
-                                    ap3 = list(o_3.values())[0] + ocard_lvl_ap_buff + demon_slayer_buff + o_shock_buff + o_ultimate_water_buff + o_ap_buff
-                                    enh1 = list(o_enhancer.values())[0]
-                                    enh_name = list(o_enhancer.values())[2]
-                                    pet_enh_name = list(opet_move.values())[2]
-                                    pet_msg_on_resolve = ""
-
-                                    if ap1 < 150:
-                                        ap1 = 150
-                                    if ap2 < 150:
-                                        ap2 = 150            
-                                    if ap3 < 150:
-                                        ap3 = 150
-
-                                    # UNIVERSE CARD
-                                    if o_universe == "Souls" and o_used_resolve:
-                                        player_1_card = showcard("battle", o, oarm,o_max_health, o_health, o_max_stamina, o_stamina,
-                                                                o_used_resolve, otitle, o_used_focus, o_attack, o_defense,
-                                                                turn_total, ap2, ap3, ap3, enh1, enh_name, ocard_lvl, t_defense)
-                                    else:
-                                        player_1_card = showcard("battle", o, oarm,o_max_health, o_health, o_max_stamina, o_stamina,
-                                                                o_used_resolve, otitle, o_used_focus, o_attack, o_defense,
-                                                                turn_total, ap1, ap2, ap3, enh1, enh_name, ocard_lvl, t_defense)
-                                    
-                                    
-                                    if o_used_resolve:
-                                        pet_msg_on_resolve = f"🧬 {enhancer_mapping[pet_enh_name]}"
-                                    tarm_message = ""
-                                    if tarm_barrier_active:
-                                        tarm_message = f"💠{tbarrier_count}"
-                                    elif tarm_shield_active:
-                                        tarm_message = f"🌐{tshield_value}"
-                                    elif tarm_parry_active:
-                                        tarm_message = f"🔄{tparry_count}"
-                                    elif tarm_passive_type == "SIPHON":
-                                        tarm_message = f"💉{tarm_passive_value}"
-                                    oarm_message = ""
-                                    if oarm_passive_type == "BARRIER":
-                                        if oarm_barrier_active:
-                                            oarm_passive_value = f"{obarrier_count}"
-                                            oarm_message = f"💠{obarrier_count}"
-                                        else:
-                                            oarm_passive_value = 0
-                                            oarm_message = ""
-                                    elif oarm_passive_type == "SHIELD":
-                                        if oarm_shield_active:
-                                            oarm_passive_value = f"{oshield_value}"
-                                            oarm_message = f"🌐{oshield_value}"
-                                        else:
-                                            oarm_passive_value = 0
-                                            oarm_message = ""
+                                if mode in AUTO_BATTLE_modes:                                    
+                                    player1_card.set_battle_arm_messages(player2_card, player1)
                                             
-                                    elif oarm_passive_type == "PARRY":
-                                        if oarm_parry_active:
-                                            oarm_passive_value = f"{oparry_count}"
-                                            oarm_message = f"🔄{oparry_count}"
-                                        else:
-                                            oarm_passive_value = 0
-                                            oarm_message = ""
-                                    elif oarm_passive_type == "SIPHON":
-                                        oarm_message = f"💉{oarm_passive_value}"
-                                            
-                                    embedVar = discord.Embed(title=f"➡️ **Current Turn** {turn_total}", description=textwrap.dedent(f"""\
-                                    {previous_moves_into_embed}
+                                    embedVar = discord.Embed(title=f"➡️ **Current Turn** {_battle._turn_total}", description=textwrap.dedent(f"""\
+                                    {_battle.get_previous_moves_embed()}
                                     
                                     """), color=0xe74c3c)
-
-                                    # embedVar.set_author(name=f"🦾 {oarm_name} - {oarm_passive_type} {oarm_passive_value} {enhancer_suffix_mapping[oarm_passive_type]}\n{pet_msg_on_resolve}\n")
-                                    # embedVar.add_field(name=f"➡️ **Current Turn** {turn_total}", value=f"{ctx.author.mention} Select move below!")
                                     await asyncio.sleep(2)
-                                    # embedVar.set_image(url="attachment://image.png")
                                     embedVar.set_thumbnail(url=ctx.author.avatar_url)
                                     embedVar.set_footer(
-                                        text=f"{t_card}: ❤️{round(t_health)} 🌀{round(t_stamina)} 🗡️{round(t_attack)}/🛡️{round(t_defense)} {tarm_message}\n{o_card}: ❤️{round(o_health)} 🌀{round(o_stamina)} 🗡️{round(o_attack)}/🛡️{round(o_defense)} {oarm_message}",
+                                        text=f"{_battle.get_battle_window_title_text(player2_card, player1_card)}",
                                         icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                     await battle_msg.edit(embed=embedVar, components=[])
-                                    # await asyncio.sleep(2)
-                                    # battle_msg = await private_channel.send(embed=embedVar, components=components, file=player_1_card)
-
-
 
                                     if o_universe == "Solo Leveling" and not o_swapped:
                                         if temp_tarm_shield_active and not tarm_shield_active:
@@ -4572,16 +4498,6 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                     if ap3 < 150:
                                         ap3 = 150
 
-
-                                    # UNIVERSE CARD
-                                    if o_universe == "Souls" and o_used_resolve:
-                                        player_1_card = showcard("battle", o, oarm,o_max_health, o_health, o_max_stamina, o_stamina,
-                                                                o_used_resolve, otitle, o_used_focus, o_attack, o_defense,
-                                                                turn_total, ap2, ap3, ap3, enh1, enh_name, ocard_lvl, t_defense)
-                                    else:
-                                        player_1_card = showcard("battle", o, oarm,o_max_health, o_health, o_max_stamina, o_stamina,
-                                                                o_used_resolve, otitle, o_used_focus, o_attack, o_defense,
-                                                                turn_total, ap1, ap2, ap3, enh1, enh_name, ocard_lvl, t_defense)
 
                                     if o_universe == "Solo Leveling" and not o_swapped:
                                         if temp_tarm_shield_active and not tarm_shield_active:

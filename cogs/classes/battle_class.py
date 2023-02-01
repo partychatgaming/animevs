@@ -538,4 +538,9 @@ class Battle:
         return self.match_has_ended
 
 
+    def get_previous_moves_embed(self):
+        return "\n\n".join(self.previous_moves)
+    
+    def get_battle_window_title_text(self, opponent_card, your_card, partner_card=None):
+        return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: ❤️{round(your_card.health)} 🌀{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
 
