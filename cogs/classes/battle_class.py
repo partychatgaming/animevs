@@ -2,6 +2,10 @@ import db
 import crown_utilities
 import discord
 import textwrap
+from discord_slash.utils import manage_components
+from discord_slash.model import ButtonStyle
+from discord_slash.utils.manage_commands import create_option, create_choice
+
 
 class Battle:
     def __init__(self, mode, _player):
@@ -32,6 +36,11 @@ class Battle:
         self._max_turns_allowed = 250
         self.previous_moves = []
         self.previous_moves_len = 0
+        self.main_battle_options = ["1", "2", "3", "4"]
+        self.battle_options = ["1", "2", "3", "4"]
+        self.battle_buttons = []
+        self.co_op_buttons = []
+        self.utility_buttons = []
 
         self._selected_universe = ""
         self._selected_universe_data = ""
@@ -422,14 +431,6 @@ class Battle:
             self._is_turn = 0
 
 
-    def set_starting_turn(self, player_speed, opponent_speed):
-        if player_speed >= opponent_speed:
-            self._is_turn = 0
-        
-        if opponent_speed >= player_speed:
-            self._is_turn = 1
-
-
     def set_explore_config(self, universe_data, card_data):
         try:
             self._selected_universe_data = universe_data
@@ -516,6 +517,17 @@ class Battle:
         self._ai_opponent_summon_type = summon_passive['TYPE']
 
 
+    def get_ai_summon_ready(self, _card):
+        _card._summon_ability_name = self._ai_opponent_summon_ability_name
+        _card._summon_power = self._ai_opponent_summon_power
+        _card._summon_lvl = self._ai_opponent_summon_lvl
+        _card._summon_type = self._ai_opponent_summon_type
+        _card._summon_bond = self._ai_opponent_summon_bond
+        _card._summon_name = self._ai_opponent_summon_name
+        _card._summon_image = self._ai_opponent_summon_image
+        _card._summon_universe = self._ai_opponent_summon_universe
+
+
     def match_has_ended(self, player_1_card, player_2_card, player_3_card=None):
         if player_1_card.health == 0:
             self.match_has_ended = True
@@ -543,6 +555,13 @@ class Battle:
     
     def get_battle_window_title_text(self, opponent_card, your_card, partner_card=None):
         return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: ❤️{round(your_card.health)} 🌀{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
+
+
+    def get_battle_footer_text(self, opponent_card, your_card, partner_card=None):
+        if not self._is_co_op or not self._is_duo:
+            return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}"
+        else:
+            return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{partner_card.name}: ❤️{round(partner_card.health)} 🌀{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}"
 
 
     def ai_battle_command(self, your_card, opponent_card):
@@ -701,9 +720,239 @@ class Battle:
         return aiMove
 
 
+    def set_battle_options(self, your_card, opponent_card):
+        if your_card.used_focus and your_card.used_resolve:
+            if self._is_co_op:
+                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "6", "7", "8", "9", "s","b"]
+            else:
+                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "6", "s"]
+
+        elif your_card.used focus and not your_card.used_resolve:
+            if self._is_co_op:
+                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "5", "7", "8", "9", "s","b"]
+            else:
+                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "5", "s"]
+
+        else:
+            if self._is_co_op:
+                self.battle_options =  ["q", "Q", "0", "1", "2", "3", "4", "7", "8", "9", "s","b"]
+            else:
+                self.battle_options =  ["q", "Q", "0", "1", "2", "3", "4", "s"]
+        
+        if your_card.stamina >= 10:
+            if your_card.universe == "Souls" and your_card.used_resolve:
+                self.battle_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label=f"{your_card.move2_emoji} 10",
+                        custom_id="1"
+                    )
+                )
+            else:
+                self.battle_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label=f"{your_card.move1_emoji} 10",
+                        custom_id="1"
+                    )
+                )
+
+        if your_card.stamina >= 30:
+            if your_card.universe == "Souls" and your_card.used_resolve:
+                self.battle_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label=f"{your_card.move3_emoji} 30",
+                        custom_id="2"
+                    )
+                )
+            else:
+                self.battle_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label=f"{your_card.move2_emoji} 30",
+                        custom_id="2"
+                    )
+                )
+
+        if your_card.stamina >= 80:
+            self.battle_buttons.append(
+                manage_components.create_button(
+                    style=ButtonStyle.green,
+                    label=f"{your_card.move3_emoji} 80",
+                    custom_id="3"
+                )
+            )
+        
+        if your_card.stamina >= 20:
+            self.battle_buttons.append(
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label=f"🦠 20",
+                    custom_id="4"
+                )
+            )
+
+            if opponent_card.gravity_hit == False:
+                self.utility_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="🛡️ Block 20",
+                        custom_id="0"
+                    )
+                )
+                
+        if int(your_card.stamina) >= 20:
+            if self._is_co_op:
+                if your_card.stamina >= 20:
+                    self.co_op_buttons = [
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="🦠 Enhance Ally 20",
+                            custom_id="7"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="👥 Ally Assist 20",
+                            custom_id="8"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="🛡️ Ally Block 20",
+                            custom_id="9"
+                        ),
+                    ]
+                else:
+                    self.co_op_buttons = [           
+                            manage_components.create_button(
+                            style=ButtonStyle.red,
+                            label=f"Boost Companion",
+                            custom_id="b"
+                        )]
+        
+        elif self._is_co_op and self.mode not in crown_utilities.AI_CO_OP_M and your_card.stamina >= 20:
+            self.co_op_buttons = [
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="Assist Companion 20",
+                    custom_id="7"
+                )
+            ]
+
+        if your_card.used_focus and your_card.used_resolve and not your_card.used_summon:
+            self.utility_buttons.append(
+                manage_components.create_button(
+                    style=ButtonStyle.green,
+                    label="🧬",
+                    custom_id="6"
+                )
+            )
+
+        if your_card.used_focus and not your_card.used_resolve:
+            self.utility_buttons.append(
+                manage_components.create_button(
+                    style=ButtonStyle.green,
+                    label="⚡Resolve!",
+                    custom_id="5"
+                )
+            )
+                
+        self.utility_buttons.append(
+            manage_components.create_button(
+                style=ButtonStyle.grey,
+                label="Quit",
+                custom_id="q"
+            ),
+        )
+
+        if not self._is_explore and not self._is_easy and not self._is_abyss and not self._is_tutorial and not self._is_scenario:
+            self.utility_buttons.append(
+                manage_components.create_button(
+                style=ButtonStyle.red,
+                label=f"Save",
+                custom_id="s"
+            )
+            )
+
+
+    def error_end_match_message(self):
+        response = ""
+        if not self._is_abyss and not self._is_scenario:
+            if not self._is_tutorial:
+                if self._is_pvp_match: #pvp check 
+                    response = f"Your game timed out. Your channel has been closed"
+                else:
+                    response = f"Your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
+                    response = f"Your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
+            else:
+                response = f"Your game timed out. Your channel has been closed, restart the tutorial with **/solo**."
+                response = f"Your game timed out. Your channel has been closed , restart the tutorial with **/solo**."
+        else:
+            respone = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
+            response = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
+
+        return response
+        _battle.previous_moves.append(f"(**{self._turn_total}**) 💨 You fled...")
+        self.match_has_ended = True
+
+
+    def next_turn(self):
+        if self._is_co_op:
+            if self._is_turn == 1:
+                self._is_turn = 2
+            
+            if self._is_turn == 2:
+                self._is_turn = 3
+            
+            if self._is_turn == 3:
+                self._is_turn = 0
+
+        if self._is_turn == 0:
+            self._is_turn = 1
+        
+        if self._is_turn == 1:
+            self._is_turn = 0
+
+
+    def repeat_turn(self):
+        if self._is_co_op:
+            if self._is_turn == 1:
+                self._is_turn = 1
+            
+            if self._is_turn == 2:
+                self._is_turn = 2
+            
+            if self._is_turn == 3:
+                self._is_turn = 3
+
+        if self._is_turn == 0:
+            self._is_turn = 0
+        
+        if self._is_turn == 1:
+            self._is_turn = 1
+
+
+    def previous_turn(self):
+        if self._is_co_op:
+            if self._is_turn == 1:
+                self._is_turn = 0
+            
+            if self._is_turn == 2:
+                self._is_turn = 1
+            
+            if self._is_turn == 3:
+                self._is_turn = 2
+
+        if self._is_turn == 0:
+            self._is_turn = 1
+        
+        if self._is_turn == 1:
+            self._is_turn = 0
+
+
+
 def ai_enhancer_moves(your_card, opponent_card):
     aiMove = 1
-
     if your_card.move4enh in crown_utilities.Time_Enhancer_Check:
         if your_card.move4enh == "HASTE":
             if opponent_card.stamina <= your_card.stamina:
@@ -906,6 +1155,7 @@ def ai_enhancer_moves(your_card, opponent_card):
             
         
     return aiMove
+
 
 
 

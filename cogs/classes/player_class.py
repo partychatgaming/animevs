@@ -343,6 +343,20 @@ class Player:
         except:
             print("Failed to get battle ready")
 
+    def get_summon_ready(self, _card):
+        _card._summon_ability_name = self._equipped_summon_ability_name
+        _card._summon_power = self._equipped_summon_power
+        _card._summon_lvl = self._equipped_summon_lvl
+        _card._summon_type = self._equipped_summon_type
+        _card._summon_bond = self._equipped_summon_bond
+        _card._summon_name = self._equipped_summon_name
+        _card._summon_image = self._equipped_summon_image
+        _card._summon_universe = self._equipped_summon_universe
+
+    
+    def get_talisman_ready(self, _card):
+        _card._talisman = self.equipped_talisman
+
 
     def has_storage(self):
         if self._storage:
