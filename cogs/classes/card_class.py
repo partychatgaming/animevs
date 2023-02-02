@@ -753,10 +753,10 @@ class Card:
                     self.solo_leveling_trait_swapped = True
 
 
-    def set_deathnote_message(self, battle):
-        if turn_total == 0:
+    def set_deathnote_message(self, _battle):
+        if _battle._turn_total == 0:
             if self.universe == "Death Note":
-                battle.previous_moves.append(f"(**{battle._turn_total}**) **{self.name}** 🩸 Scheduled Death 📓")
+                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Scheduled Death 📓")
 
 
     def set_souls_trait(self):
@@ -2088,10 +2088,10 @@ class Card:
     def use_summon(self, _battle, opponent_card):
         if self.used_resolve and self.used_focus and not self.used_summon:
             self.enhancer_used = True
-            dmg = self.damage_cal(6, _battle, opponent_card)
+            damage_calculation_response = self.damage_cal(6, _battle, opponent_card)
             self.enhancer_used = False
             self.used_summon = True
-            if dmg['CAN_USE_MOVE']:
+            if damage_calculation_response['CAN_USE_MOVE']:
                 if self._summon_type == 'ATK':
                     self.attack = round(self.attack + damage_calculation_response['DMG'])
                 elif self._summon_type == 'DEF':
@@ -2187,6 +2187,7 @@ class Card:
                 else:
                     _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** Summoned 🧬 **{self._summon_name}**: {damage_calculation_response['MESSAGE']}")
                 _battle.repeat_turn()
+                return damage_calculation_response
             else:
                 _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🧬 **{self._summon_name}** needs a turn to rest...")
                 _battle.repeat_turn()
@@ -2665,11 +2666,11 @@ class Card:
 
 
     def reset_stats_to_limiter(self, _opponent_card):
-        if self.card_lvl_ap_buff > 500:
-            self.card_lvl_ap_buff = 500
+        if self.card_lvl_ap_buff > 700:
+            self.card_lvl_ap_buff = 700
         
-        if _opponent_card.card_lvl_ap_buff > 500:
-            _opponent_card.card_lvl_ap_buff = 500
+        if _opponent_card.card_lvl_ap_buff > 700:
+            _opponent_card.card_lvl_ap_buff = 700
         
         if self.attack <= 25:
             self.attack = 25
@@ -2689,6 +2690,15 @@ class Card:
 
     def yuyu_hakusho_attack_increase(self):
         self.attack = self.attack + self.stamina
+
+
+    def activate_demon_slayer_trait(self, _battle, opponent_card):
+        if self.universe == "Demon Slayer" and _battle._turn_total == 0:
+            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
+            self.health = round(self.health + (opponent_card.health * .40))
+            self.max_health = round(self.max_health + (opponent_card.health *.40))
+    
+
 
     def activate_card_passive(self, player2_card):
         if self.passive_type:
