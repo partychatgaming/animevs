@@ -2656,7 +2656,6 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                     
                     
                     while (_battle.game_over(player1_card, player2_card) is not True):
-                        print(f"Top of battle commands turn: {str(_battle._is_turn)}")
                         if _battle.previous_moves:
                             _battle.previous_moves_len = len(_battle.previous_moves)
                             if _battle.previous_moves_len >= player1.battle_history:
