@@ -5863,14 +5863,14 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
 
                                 async def custom_function(self, button_ctx):
                                     if button_ctx.author == player.author:
-                                        price = int(price)
+                                        print(price_)
                                         selected_destiny = str(button_ctx.origin_message.embeds[0].title)
                                         updated_vault = db.queryVault({'DID': str(button_ctx.author.id)})
                                         if button_ctx.custom_id == "craft_d_win":
                                             gems = 0
                                             has_gems_for = False
-                                            print(price)
-                                            negPriceAmount = 0 - abs(int(price))
+                                            
+                                            negPriceAmount = 0 - abs(int(price_))
                                             can_afford = False
 
                                             for uni in updated_vault['GEMS']:
@@ -5879,7 +5879,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                     universe_heart = uni['UNIVERSE_HEART']
                                                     universe_soul = uni['UNIVERSE_SOUL']
                                                     has_gems_for = True
-                                                    if gems >= price:
+                                                    if gems >= price_:
                                                         can_afford = True
                                             
                                             if can_afford:
@@ -5906,11 +5906,11 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                 self.stop = True
                                                 return
                                         if button_ctx.custom_id == "craft_d_win5":
-                                            price = int(price * 5)
-                                            print(negPriceAmount)
+                                            price_ = int(price_ * 5)
+                                            print(price_)
                                             gems = 0
                                             has_gems_for = False
-                                            negPriceAmount = 0 - abs(int(price))
+                                            negPriceAmount = 0 - abs(int(price_))
                                             can_afford = False
 
                                             for uni in updated_vault['GEMS']:
@@ -5919,7 +5919,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                     universe_heart = uni['UNIVERSE_HEART']
                                                     universe_soul = uni['UNIVERSE_SOUL']
                                                     has_gems_for = True
-                                                    if gems >= (price):
+                                                    if gems >= (price_):
                                                         can_afford = True
                                             
                                             if can_afford:
@@ -5946,7 +5946,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                 self.stop = True
                                                 return
                                         if button_ctx.custom_id == "craft_d_win10":
-                                            price = int(price * 10)
+                                            price_ = int(price_ * 10)
                                             gems = 0
                                             has_gems_for = False
                                             negPriceAmount = 0 - abs(int(price))
@@ -5958,7 +5958,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                     universe_heart = uni['UNIVERSE_HEART']
                                                     universe_soul = uni['UNIVERSE_SOUL']
                                                     has_gems_for = True
-                                                    if gems >= (price):
+                                                    if gems >= (price_):
                                                         can_afford = True
                                             
                                             if can_afford:
