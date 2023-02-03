@@ -5745,6 +5745,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
             'UNIVERSE_SOUL'
         ]
         gems = 0
+        price = price
         universe_heart = False
         universe_soul = False
         has_gems_for = False
