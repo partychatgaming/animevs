@@ -5746,7 +5746,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
         ]
         gems = 0
         price_ = int(price)
-        print(price_)
+        
         universe_heart = False
         universe_soul = False
         has_gems_for = False
@@ -5772,7 +5772,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
 
         if has_gems_for:
             if gems >= price:
-                print(price_)
+
                 if item == "Card":
                     if universe in completed_tales:
                         acceptable = [4,5,6,7]
@@ -5861,9 +5861,9 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                 ]
                                 custom_action_row = manage_components.create_actionrow(*buttons)
 
-                                async def custom_function(self, button_ctx, price_):
+                                async def custom_function(self, button_ctx):
                                     if button_ctx.author == player.author:
-                                        print(price_)
+                                        price_ = 1500000
                                         selected_destiny = str(button_ctx.origin_message.embeds[0].title)
                                         updated_vault = db.queryVault({'DID': str(button_ctx.author.id)})
                                         if button_ctx.custom_id == "craft_d_win":
