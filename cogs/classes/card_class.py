@@ -1,4 +1,3 @@
-from cogs.crownunlimited import damage_cal
 import unique_traits as ut
 import crown_utilities
 import discord
@@ -110,7 +109,6 @@ class Card:
         self.dungeon_card_details = ""
         self.tales_card_details = ""
         self.destiny_card_details = ""
-        self._battle.repeat_turn()
         self.used_focus = False
         self.used_resolve = False
         self.enhancer_used = False
@@ -662,7 +660,7 @@ class Card:
             self.ultimate_water_buff = self.ultimate_water_buff + num
 
 
-    def bleed_hit(self, turn_total, opponent_card):
+    def set_bleed_hit(self, turn_total, opponent_card):
         if opponent_card.bleed_hit:
             opponent_card.bleed_hit = False
             bleed_hit_local = 10 * turn_total
@@ -672,16 +670,16 @@ class Card:
             return f"🩸 **{self.name}** shredded for **{round(bleed_hit_local)}** bleed dmg..."
 
 
-    def burn_hit(self, opponent_card):
-        if opponent_card.bleed_damage_counter > 3:
+    def set_burn_hit(self, opponent_card):
+        if opponent_card.burn_dmg > 3:
             self.health = self.health - opponent_card.burn_dmg
+            return f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
             if self.health < 0:
                 self.health = 0
 
         if opponent_card.burn_dmg >= 2:
             opponent_card.burn_dmg = round(opponent_card.burn_dmg / 2)
 
-        return f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
 
 
     def frozen(self, battle, opponent_card):
@@ -692,7 +690,7 @@ class Card:
         return {"MESSAGE" : f"❄️ **{self.name}** has been frozen for a turn...", "TURN": _battle._is_turn}
 
 
-    def poison_hit(self, opponent_card):
+    def set_poison_hit(self, opponent_card):
         if opponent_card.poison_dmg:
             self.health = self.health - opponent_card.poison_dmg
             if self.health <  0:
@@ -700,12 +698,11 @@ class Card:
             return f"🧪 **{self.name}** poisoned for **{opponent_card.poison_dmg}** dmg..."
 
 
-    def gravity_hit(self):
+    def set_gravity_hit(self):
         if self.gravity_hit:
             self.gravity_hit = False
 
 
-    #  TRAIT METHODS
     def set_solo_leveling_config(self, opponent_shield_active, opponent_shield_value, opponent_barrier_active, opponent_barrier_value, opponent_parry_active, opponent_parry_value):
         if self.universe == "Solo Leveling":
             self.solo_leveling_trait_active = True 
@@ -722,41 +719,41 @@ class Card:
             if opponent_card.temp_opp_arm_shield_active and not opponent_card._shield_active:
                 if self._shield_active:
                     self._shield_value = self._shield_value + opponent_card._shield_value
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
                 elif not self._shield_active:
                     self._shield_active = True
                     self._shield_value = opponent_card.temp_opp_shield_value
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
             
             elif temp_opp_arm_parry_active and not opponent_card._barrier_active:
                 if self._barrier_active:
                     self._barrier_value = self._barrier_value + opponent_card.temp_opp_barrier_value
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
                 elif not self._barrier_active:
                     self._barrier_active = True
                     self._barrier_value = opponent_card.temp_opp_barrier_value
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
             
             elif opponent_card.temp_opp_arm_parry_active and not opponent_card._parry_value:
                 if self._parry_active:
                     self._parry_value = self._parry_value + opponent_card.temp_opp_parry_value
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
                 elif not self._parry_active:
                     self._parry_active = True
                     self._parry_value = opponent_card.temp_opp_parry_value
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
 
 
     def set_deathnote_message(self, _battle):
         if _battle._turn_total == 0:
             if self.universe == "Death Note":
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Scheduled Death 📓")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Scheduled Death 📓")
 
 
     def set_souls_trait(self):
@@ -780,7 +777,6 @@ class Card:
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
         try:    
-            print("BUILDING CARD")
             if self.health <= 0:
                 im = get_card(self.path, self.name, "base")
                 im.save("text.png")
@@ -1144,6 +1140,10 @@ class Card:
         if _opponent_card.attack <= 0:
             _opponent_card.attack = 25
 
+        enhancer = False
+        can_use_move_flag = True
+        move_element = ""
+
         ENHANCERS = [4]
         MOVES = [1,2,3]
 
@@ -1189,15 +1189,17 @@ class Card:
             enh = self.move4enh
             ap = self.move4ap
             move_stamina = self.move4_stamina
+            move = self.move4
 
         if selected_move == 6:
             enhancer = True
             enh = self._summon_type
             ap = self._summon_power
             move_stamina = 15
+            move = self._summon_ability_name
 
 
-        if not (move_stamina - self.stamina) >= 0:
+        if not (move_stamina - self.stamina) <= 0:
             can_use_move_flag = False
             response = {
             "DMG": 0, 
@@ -1253,7 +1255,7 @@ class Card:
                 else:
                     enhancer_value = round(hlt)
             elif enh == 'LIFE':
-                lifesteal = round(ap + (.09 * _opponent_card.self.health))
+                lifesteal = round(ap + (.09 * _opponent_card.health))
                 newhealth = lifesteal + self.health
                 if self.health >= self.max_health:
                     enhancer_value = 0
@@ -1409,7 +1411,7 @@ class Card:
             self.stamina = self.stamina - move_stamina
 
             response = {"DMG": enhancer_value, "MESSAGE": message,
-                        "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh, "ENHANCE": True}
+                        "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh, "ENHANCE": True, "STAMINA_USED": move_stamina}
             return response
 
         else:
@@ -1556,7 +1558,7 @@ class Card:
                 self.stamina = self.stamina - move_stamina
 
                 response = {"DMG": true_dmg, "MESSAGE": message,
-                            "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element}
+                            "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element, "STAMINA_USED": move_stamina}
                             
                 return response
 
@@ -1577,20 +1579,20 @@ class Card:
                 }))
 
 
-    def set_battle_arm_messages(self, oppponent_card):
+    def set_battle_arm_messages(self, opponent_card):
         if self.used_resolve:
             self.summon_resolve_message = f"🧬 {str(enhancer_mapping[self._summon_type])}"
-        if oppponent_card._barrier_active:
-            opponent_card._arm_message = f"💠 {str(oppponent_card._barrier_value)}"
+        if opponent_card._barrier_active:
+            opponent_card._arm_message = f"💠 {str(opponent_card._barrier_value)}"
         
-        elif oppponent_card._shield_active:
-            opponent_card._arm_message = f"🌐 {str(oppponent_card._shield_value)}"
+        elif opponent_card._shield_active:
+            opponent_card._arm_message = f"🌐 {str(opponent_card._shield_value)}"
         
-        elif oppponent_card._parry_active:
-            opponent_card._arm_message = f"🔄 {str(oppponent_card._parry_value)}"
+        elif opponent_card._parry_active:
+            opponent_card._arm_message = f"🔄 {str(opponent_card._parry_value)}"
         
-        elif oppponent_card._siphon_active:
-            opponent_card._arm_message = f"💉 {str(oppponent_card._siphon_value)}"
+        elif opponent_card._siphon_active:
+            opponent_card._arm_message = f"💉 {str(opponent_card._siphon_value)}"
                 
         if self._barrier_active:
             self._arm_message = f"💠 {str(self._barrier_value)} Barriers"
@@ -1688,7 +1690,7 @@ class Card:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
             self.used_focus = True
-            _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
             
 
             # Resolve Check and Calculation
@@ -1730,33 +1732,33 @@ class Card:
                     self.defense = round(self.defense * 2 )
                     self.health = self.health + 500
                     self.max_health = self.max_health + 500
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Transformation: Mega Digivolution!!!")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Transformation: Mega Digivolution!!!")
                 else:
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Transformation: Digivolve")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Transformation: Digivolve")
 
             elif self.universe == "League Of Legends":                
                 _opponent_card.health = round(_opponent_card.health - (60 + _battle._turn_total))
                 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{60 + _battle._turn_total}** Damage 💥")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{60 + _battle._turn_total}** Damage 💥")
 
             elif self.universe == "Dragon Ball Z":
                 self.health = self.health + _opponent_card.stamina + _battle._turn_total
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + _battle._turn_total}** ❤️")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + _battle._turn_total}** ❤️")
 
             elif self.universe == "Solo Leveling":
                 player2_card.defense = round(player2_card.defense - (30 + _battle._turn_total))
                 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + _battle._turn_total}** 🛡️ 🔻")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + _battle._turn_total}** 🛡️ 🔻")
             
             elif self.universe == "Black Clover":                
                 self.stamina = 100
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + (20 * self.tier)
 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
             
             elif self.universe == "Death Note":
                 if _battle._turn_total >= 100:
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{_opponent_card.name}** 🩸 had a heart attack and died")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{_opponent_card.name}** 🩸 had a heart attack and died")
                     
                     _opponent_card.health = 0
 
@@ -1764,18 +1766,18 @@ class Card:
                 _opponent_card.health = round(_opponent_card.health + 100)
                 player2_card.max_health = round(player2_card.max_health + 100)
 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
 
             elif _opponent_card.universe == "7ds":
                 _opponent_card.stamina = _opponent_card.stamina + 60
                 _opponent_card.used_summon = False
                 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina 🌀")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina 🌀")
             
             elif _opponent_card.universe == "Souls":
                 _opponent_card.attack = round(_opponent_card.attack + (60 + _battle._turn_total))
 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{60 + _battle._turn_total}** 🔺")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{60 + _battle._turn_total}** 🔺")
             
             else:
                 _battle._turn_total = _battle._turn_total + 1
@@ -1813,7 +1815,7 @@ class Card:
                 self.used_resolve = True
                 self.used_summon = False
                 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: PLUS ULTRA!")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: PLUS ULTRA!")
 
                 _battle._turn_total = _battle._turn_total + 1
                 _battle.repeat_turn()
@@ -1840,7 +1842,7 @@ class Card:
                 self.used_resolve = True
                 self.used_summon = False
 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Conquerors Haki!")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Conquerors Haki!")
 
                 _battle._turn_total = _battle._turn_total + 1
                 _battle._next_turn()
@@ -1871,7 +1873,7 @@ class Card:
                 self.used_resolve = True
                 self.used_summon = False
 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Total Concentration Breathing!")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Total Concentration Breathing!")
                 _battle._turn_total = _battle._turn_total + 1
                 _battle._next_turn()
 
@@ -1922,7 +1924,7 @@ class Card:
                 health_boost = 100 * self.focus_count
                 self.health = self.health + health_boost
 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
 
                 _battle._turn_total = _battle._turn_total + 1
                 _battle.next_turn()
@@ -1948,7 +1950,7 @@ class Card:
                 # # self.defense = 120
                 self.used_resolve = True
                 self.used_summon = False
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Bankai!")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Bankai!")
 
                 _battle._turn_total = _battle._turn_total + 1
                 _battle.next_turn()
@@ -1974,13 +1976,13 @@ class Card:
 
                 if self._gow_resolve:
                     self.health = self.max_health
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{opponent_card.name}** 🩸 Resolved: Ascension!")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** 🩸 Resolved: Ascension!")
                 elif not self._gow_resolve:
                     self.health = round(self.health + (self.max_health / 2))
                     self.used_resolve = False
                     self._gow_resolve = True
                     
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Crushed Blood Orb: Health Refill")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Crushed Blood Orb: Health Refill")
                                 
                 _battle._turn_total = _battle._turn_total + 1
                 _battle.next_turn()
@@ -2006,7 +2008,7 @@ class Card:
                 damage_calculation_response = self.damage_cal(3, _battle, opponent_card, )
                 opponent_card.health = opponent_card.health - damage_calculation_response['DMG']
 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Command Seal!")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Command Seal!")
 
                 # self.stamina = 0
                 self.used_resolve = True
@@ -2037,13 +2039,13 @@ class Card:
                 if turn_total >= 50:
                     self.max_health = self.max_health + 1000
                     self.health = self.health + 1000
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Gigantomax Evolution!!! Gained **1000** HP!!!")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Gigantomax Evolution!!! Gained **1000** HP!!!")
                 elif turn_total >= 30:
                     self.max_health = self.max_health + 500
                     self.health = self.health + 500
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained **500** HP!")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained **500** HP!")
                 else:
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Evolution!")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Evolution!")
 
                 _battle._turn_total = _battle._turn_total + 1
                 _battle.next_turn()
@@ -2069,11 +2071,11 @@ class Card:
                 if self.universe == "League Of Legends":
                     opponent_card.health = opponent_card.health - (60 * (self.focus_count + opponent_card.focus_count))
                 
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(60 * (self.focus_count + opponent_card.focus_count))} damage.")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(60 * (self.focus_count + opponent_card.focus_count))} damage.")
                 elif self.universe == "Souls":
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
                 else:
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) ⚡ **{self.name}** Resolved!")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) ⚡ **{self.name}** Resolved!")
 
                 _battle._turn_total = _battle._turn_total + 1
                 _battle.next_turn()
@@ -2182,17 +2184,17 @@ class Card:
                     petdmg = self.damage_cal(1, _battle, opponent_card)
                     opponent_card.health = opponent_card.health - petdmg['DMG']
 
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **Persona!** 🩸 : **{self._summon_name}** was summoned from **{self.name}'s** soul dealing **{petdmg['DMG']}** damage!\n**{opponent_card.name}** summon disabled!")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **Persona!** 🩸 : **{self._summon_name}** was summoned from **{self.name}'s** soul dealing **{petdmg['DMG']}** damage!\n**{opponent_card.name}** summon disabled!")
                     opponent_card.used_summon = True
                 else:
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** Summoned 🧬 **{self._summon_name}**: {damage_calculation_response['MESSAGE']}")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** Summoned 🧬 **{self._summon_name}**: {damage_calculation_response['MESSAGE']}")
                 _battle.repeat_turn()
                 return damage_calculation_response
             else:
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🧬 **{self._summon_name}** needs a turn to rest...")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🧬 **{self._summon_name}** needs a turn to rest...")
                 _battle.repeat_turn()
         else:
-            _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🧬 **{self._summon_name}** needs a turn to rest...")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🧬 **{self._summon_name}** needs a turn to rest...")
             _battle.repeat_turn()
 
 
@@ -2288,27 +2290,25 @@ class Card:
 
             if companion_card.move4enh in crown_utilities.Stamina_Enhancer_Check or companion_card.move4enh in crown_utilities.Time_Enhancer_Check:
                 opponent_card.stamina = opponent_card.stamina
-            else:
-                player1_card.stamina = player1_card.stamina - int(dmg['STAMINA_USED'])
 
-            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** used {player1_card.move4}:👥 Assisting **{companion_card.name}**")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** used {player1_card.move4}:👥 Assisting **{companion_card.name}**")
             _battle._turn_total = _battle_turn_total + 1
             _battle.next_turn()
         else:
-            previous_moves.append(f"(**{_battle._turn_total}**) {self.name} doesn't have enough Stamina to use this move")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) {self.name} doesn't have enough Stamina to use this move")
             _battle.repeat_turn()
 
 
     def use_block(self, _battle, opponent_card, co_op_card=None):
         if self.stamina >= 20:
             if self.universe == "Attack On Titan":
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **Rally** 🩸 ! **{self.name}** Increased Max Health ❤️")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **Rally** 🩸 ! **{self.name}** Increased Max Health ❤️")
                 self.max_health = round(self.max_health + 100)
                 self.health = self.health + 100
 
             if self.universe == "Bleach":
                 dmg = self.damage_cal(1, _battle, opponent_card)
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** Exerted their 🩸 Spiritual Pressure - {dmg['MESSAGE']}")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** Exerted their 🩸 Spiritual Pressure - {dmg['MESSAGE']}")
                 if self.universe == "One Piece" and (self.name_tier in crown_utilities.LOW_TIER_CARDS or self.name_tier in crown_utilities.MID_TIER_CARDS or self.name_tier in crown_utilities.HIGH_TIER_CARDS):
                     if self.focus_count == 0:
                         dmg['DMG'] = dmg['DMG'] * .6
@@ -2324,11 +2324,11 @@ class Card:
             self.stamina = self.stamina - 20
             self.defense = round(self.defense * 2)
 
-            _battle.previous_moves.append(f"(**{_battle._turn_total}**) {block_message}")
-            _battle._is_turn_total = _battle._is_turn_total + 1
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) {block_message}")
+            _battle._turn_total = _battle._turn_total + 1
             _battle.next_turn()
         else:
-            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** is too tired to block.")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** is too tired to block.")
             _battle.repeat_turn()
 
     
@@ -2428,22 +2428,19 @@ class Card:
 
                 if self.move4enh in crown_utilities.Stamina_Enhancer_Check or self.move4enh in crown_utilities.Time_Enhancer_Check or self.move4enh in crown_utilities.Control_Enhancer_Check:
                     self.stamina = self.stamina
-                else:
-                    self.stamina = self.stamina - int(dmg['STAMINA_USED'])
 
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**: 🦠 {dmg['MESSAGE']}")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: 🦠 {dmg['MESSAGE']}")
                 _battle._turn_total = _battle._turn_total + 1
                 _battle.next_turn()
                 # await button_ctx.defer(ignore=True)
             elif dmg['DMG'] == 0:
-                self.stamina = self.stamina - int(dmg['STAMINA_USED'])
-
                 if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                     self._barrier_active=False
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
-                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
                 _battle._turn_total = _battle._turn_total + 1
                 _battle.next_turn()
+                
             else:
                 if opponent_card.universe == "Naruto" and opponent_card.stamina < 10:
                     stored_damage = round(dmg['DMG'])
@@ -2452,11 +2449,12 @@ class Card:
 
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         self._barrier_active=False
-                        _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                        _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
 
-                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
                     if not opponent_card.used_resolve:
-                        _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card._naruto_heal_buff}** total stored.")
+                        _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card._naruto_heal_buff}** total stored.")
+                
                 elif opponent_card._shield_active and dmg['ELEMENT'] != "DARK":
                     if dmg['ELEMENT'] == "POISON": #Poison Update
                         if self.poison_dmg <= 600:
@@ -2465,101 +2463,106 @@ class Card:
                     if opponent_card._shield_value > 0:
                         opponent_card._shield_value = opponent_card._shield_value - dmg['DMG']
                         opponent_card.health = opponent_card.health 
-                        if opponent_card._shield_value <=0:
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🌐**{opponent_card.name}**: Shield Shattered!")
+                        if opponent_card._shield_value <= 0:
+                            residue_damage = opponent_card._shield_value
+                            opponent_card.health = opponent_card.health - residue_damage
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🌐**{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG!**")
                             if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                                 self._barrier_active=False
-                                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                             opponent_card._shield_active = False
                         else:
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** strikes **{opponent_card.name}**'s Shield 🌐\n**{opponent_card._shield_value} Shield** Left!")
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** strikes **{opponent_card.name}**'s Shield 🌐\n**{opponent_card._shield_value} Shield** Left!")
                             if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                                 self._barrier_active=False
-                                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
 
                 elif opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                     if opponent_card._barrier_value >1:
                         opponent_card.health = opponent_card.health 
-                        _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{opponent_card.name}** Activates Barrier 💠 {self.name}'s attack **Nullified**!\n **{opponent_card._barrier_value - 1} Barriers** remain!")
+                        _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** Activates Barrier 💠 {self.name}'s attack **Nullified**!\n **{opponent_card._barrier_value - 1} Barriers** remain!")
                         if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                             self._barrier_active=False
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                     elif opponent_card._barrier_value==1:
-                        _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{opponent_card.name}**'s Barrier Broken!")
+                        _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}**'s Barrier Broken!")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                         if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                             self._barrier_active=False
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         opponent_card._barrier_active = False
                 
-                elif opponent_card._parry_active and dmg['ELEMENT'] != "EARTH:
+                elif opponent_card._parry_active and dmg['ELEMENT'] != "EARTH":
                     if opponent_card._parry_value > 1:
                         opponent_card.health = opponent_card.health
                         parry_damage = round(dmg['DMG'])
                         opponent_card.health = round(opponent_card.health - (parry_damage * .75))
                         self.max_health = round(self.max_health - (parry_damage * .40))
                         opponent_card._parry_value = opponent_card._parry_value - 1
-                        _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{opponent_card.name}** Activates Parry 🔄 after **{round(parry_damage * .75)}** dmg dealt:  {self.name} takes {round(parry_damage * .40)}! DMG\n **{opponent_card._parry_value} Parries** to go!!")
+                        _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** Activates Parry 🔄 after **{round(parry_damage * .75)}** dmg dealt:  {self.name} takes {round(parry_damage * .40)}! DMG\n **{opponent_card._parry_value} Parries** to go!!")
                         if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                             self._barrier_active=False
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         
                     elif opponent_card._parry_value == 1:
                         opponent_card.health = opponent_card.health
                         parry_damage = round(dmg['DMG'])
                         opponent_card.health = round(opponent_card.health - (parry_damage * .75))
                         self.max_health = round(self.max_health - (parry_damage * .40))
-                        _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{opponent_card.name}** Parry Penetrated! **{self.name}** takes **{round(parry_damage * .40)}**! DMG and breaks the **Parry**")
+                        _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** Parry Penetrated! **{self.name}** takes **{round(parry_damage * .40)}**! DMG and breaks the **Parry**")
                         opponent_card._parry_value = opponent_card._parry_value - 1
                         if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                             self._barrier_active=False
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         opponent_card._parry_active = False
+                
                 else:
                     if self.universe == "One Piece" and (self.name_tier in crown_utilities.LOW_TIER_CARDS or self.name_tier in crown_utilities.MID_TIER_CARDS or self.name_tier in crown_utilities.HIGH_TIER_CARDS):
                         if self.focus_count == 0:
                             dmg['DMG'] = dmg['DMG'] * .6
-
-                    self.activate_element_check(_battle, dmg, opponent_card)
 
                     if self._siphon_active:
                         siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
                         self.max_health = round(self.max_health + siphon_damage)
                         if self.max_health >= self.max_health:
                             self.max_health = self.max_health
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**: 💉 Siphoned **Full Health!**")
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: 💉 Siphoned **Full Health!**")
                         else:
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
+                    
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         self._barrier_active=False
-                        _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                        _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+
+                    self.activate_element_check(_battle, dmg, opponent_card)
+
+                    _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}:** {dmg['MESSAGE']}")
                 
                 if opponent_card.health <= 0:
                     if opponent_card._final_stand==True:
                         if opponent_card.universe == "Dragon Ball Z":
                             if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                                 self._barrier_active=False
-                                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
-                            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
+                                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
                             opponent_card.health = int(.75 * (opponent_card.attack + opponent_card.defense))
                             
                             opponent_card.used_resolve = True
                             opponent_card.used_focus = True
                             opponent_card._final_stand = False
-                            self.stamina = self.stamina - dmg['STAMINA_USED']
                             _battle._turn_total = _battle._turn_total + 1
                             _battle.next_turn()
                     else:
                         opponent_card.health = 0
-                        self.stamina = self.stamina - dmg['STAMINA_USED']
                         _battle._turn_total = _battle._turn_total + 1
                 else:
-                    self.stamina = self.stamina - dmg['STAMINA_USED']
                     _battle._turn_total = _battle._turn_total + 1
                     _battle.next_turn()
+                    
         else:
-            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**: Not enough Stamina to use this ability.")
+            print(f"End of damage_done")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: Not enough Stamina to use this ability.")
             _battle.repeat_turn()
 
 
@@ -2585,7 +2588,7 @@ class Card:
                 self._barrier_value = 1
             self.used_block = True
             self.defense = round(self.defense * 2)
-            _battle.previous_moves.append(f"**{self.name}** Blocked 🛡️")
+            _battle.add_battle_history_messsage(f"**{self.name}** Blocked 🛡️")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "EARTH":
@@ -2662,7 +2665,7 @@ class Card:
         
         else:
             opponent_card.health = opponent_card.health - dmg['DMG']
-            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
 
 
     def reset_stats_to_limiter(self, _opponent_card):
@@ -2694,7 +2697,7 @@ class Card:
 
     def activate_demon_slayer_trait(self, _battle, opponent_card):
         if self.universe == "Demon Slayer" and _battle._turn_total == 0:
-            _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
     
@@ -2780,7 +2783,7 @@ class Card:
                     player2_card.health = round(player2_card.health - 100)
 
 
-    def activate_chainsawman_trait(self, battle):
+    def activate_chainsawman_trait(self, _battle):
         if self.universe == "Chainsawman":
             if self.health <= (self.max_health * .25):
                 if self._chainsawman_activated == True:
@@ -2790,7 +2793,7 @@ class Card:
                         self.defense = self.defense * 2
                         self.attack = self.attack * 2
                         self.max_health = self.max_health * 2
-                        battle.previous_moves.append(f"(**{battle._turn_total}**) **{self.name}** 🩸's Devilization")
+                        _battle.add_battle_history_messsage(f"(**{battle._turn_total}**) **{self.name}** 🩸's Devilization")
 
             elif self.health <= (self.max_health * .50):
                 if self._chainsawman_activated == True:
@@ -2800,7 +2803,7 @@ class Card:
                         self.defense = self.defense * 2
                         self.attack = self.attack * 2
                         self.max_health = self.max_health * 2
-                        battle.previous_moves.append(f"(**{battle._turn_total}**) **{self.name}** 🩸's Devilization")
+                        _battle.add_battle_history_messsage(f"(**{battle._turn_total}**) **{self.name}** 🩸's Devilization")
                         
 
 def get_card(url, cardname, cardtype):

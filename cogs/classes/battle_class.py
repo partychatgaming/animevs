@@ -26,6 +26,7 @@ class Battle:
         self._can_save_match = False
 
         self._is_auto_battle = False
+        self._can_auto_battle = False
 
         self._list_of_opponents = []
         self._total_enemies = 0
@@ -34,7 +35,7 @@ class Battle:
         self._is_turn = 0
         self._turn_total = 0
         self._max_turns_allowed = 250
-        self.previous_moves = []
+        self.previous_moves = ["Match has started!"]
         self.previous_moves_len = 0
         self.main_battle_options = ["1", "2", "3", "4"]
         self.battle_options = ["1", "2", "3", "4"]
@@ -92,6 +93,7 @@ class Battle:
         self._player_association = ""
         self._name_of_boss = ""
         self._ai_opponent_card_lvl = 0
+        self.match_has_ended = False
 
         # Messages
         self.abyss_message = ""
@@ -138,7 +140,6 @@ class Battle:
         self.tutorial_summon = False
         self.tutorial_message = ""
 
-        self.game_over = False
         self.player_1_wins = False
         self.player_2_wins = False
 
@@ -172,6 +173,7 @@ class Battle:
             self._ai_opponent_summon_lvl = 5
             self._ai_opponent_summon_bond = 1
             self._ai_opponent_card_lvl = 30
+            self._can_auto_battle = True
 
         
         if self.mode in crown_utilities.DUNGEON_M:
@@ -492,7 +494,6 @@ class Battle:
 
 
     def get_ai_battle_ready(self):
-        # print(self._list_of_opponents)
         self._ai_opponent_card_data = db.queryCard({'NAME': self._list_of_opponents[self._currentopponent]})
         universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
         if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
@@ -528,7 +529,7 @@ class Battle:
         _card._summon_universe = self._ai_opponent_summon_universe
 
 
-    def match_has_ended(self, player_1_card, player_2_card, player_3_card=None):
+    def game_over(self, player_1_card, player_2_card, player_3_card=None):
         if player_1_card.health == 0:
             self.match_has_ended = True
             self.player_2_wins = True
@@ -537,10 +538,11 @@ class Battle:
             self.match_has_ended = True
             self.player_1_wins = True
 
-        if player_3_card.health:
-            if player_3_card.health == 0:
-                self.match_has_ended = True
-                self.player_2_wins = True
+        if self._is_co_op or self._is_duo:
+            if player_3_card.health:
+                if player_3_card.health == 0:
+                    self.match_has_ended = True
+                    self.player_2_wins = True
 
         if self._is_auto_battle:
             if self._turn_total >= 250:
@@ -551,7 +553,8 @@ class Battle:
 
 
     def get_previous_moves_embed(self):
-        return "\n\n".join(self.previous_moves)
+        msg = "\n\n".join(self.previous_moves)
+        return msg
     
     def get_battle_window_title_text(self, opponent_card, your_card, partner_card=None):
         return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: ❤️{round(your_card.health)} 🌀{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
@@ -720,14 +723,23 @@ class Battle:
         return aiMove
 
 
+    def add_battle_history_messsage(self, msg):
+        if msg:
+            self.previous_moves.append(msg)
+
+
     def set_battle_options(self, your_card, opponent_card):
+        b_butts = []
+        u_butts = []
+        c_butts = []
+
         if your_card.used_focus and your_card.used_resolve:
             if self._is_co_op:
                 self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "6", "7", "8", "9", "s","b"]
             else:
                 self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "6", "s"]
 
-        elif your_card.used focus and not your_card.used_resolve:
+        elif your_card.used_focus and not your_card.used_resolve:
             if self._is_co_op:
                 self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "5", "7", "8", "9", "s","b"]
             else:
@@ -741,7 +753,7 @@ class Battle:
         
         if your_card.stamina >= 10:
             if your_card.universe == "Souls" and your_card.used_resolve:
-                self.battle_buttons.append(
+                b_butts.append(
                     manage_components.create_button(
                         style=ButtonStyle.green,
                         label=f"{your_card.move2_emoji} 10",
@@ -749,7 +761,7 @@ class Battle:
                     )
                 )
             else:
-                self.battle_buttons.append(
+                b_butts.append(
                     manage_components.create_button(
                         style=ButtonStyle.green,
                         label=f"{your_card.move1_emoji} 10",
@@ -759,7 +771,7 @@ class Battle:
 
         if your_card.stamina >= 30:
             if your_card.universe == "Souls" and your_card.used_resolve:
-                self.battle_buttons.append(
+                b_butts.append(
                     manage_components.create_button(
                         style=ButtonStyle.green,
                         label=f"{your_card.move3_emoji} 30",
@@ -767,7 +779,7 @@ class Battle:
                     )
                 )
             else:
-                self.battle_buttons.append(
+                b_butts.append(
                     manage_components.create_button(
                         style=ButtonStyle.green,
                         label=f"{your_card.move2_emoji} 30",
@@ -776,7 +788,7 @@ class Battle:
                 )
 
         if your_card.stamina >= 80:
-            self.battle_buttons.append(
+            b_butts.append(
                 manage_components.create_button(
                     style=ButtonStyle.green,
                     label=f"{your_card.move3_emoji} 80",
@@ -785,7 +797,7 @@ class Battle:
             )
         
         if your_card.stamina >= 20:
-            self.battle_buttons.append(
+            b_butts.append(
                 manage_components.create_button(
                     style=ButtonStyle.blue,
                     label=f"🦠 20",
@@ -794,7 +806,7 @@ class Battle:
             )
 
             if opponent_card.gravity_hit == False:
-                self.utility_buttons.append(
+                u_butts.append(
                     manage_components.create_button(
                         style=ButtonStyle.blue,
                         label="🛡️ Block 20",
@@ -802,36 +814,35 @@ class Battle:
                     )
                 )
                 
-        if int(your_card.stamina) >= 20:
-            if self._is_co_op:
-                if your_card.stamina >= 20:
-                    self.co_op_buttons = [
+        if your_card.stamina >= 20 and self._is_co_op:
+            if your_card.stamina >= 20:
+                c_butts = [
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="🦠 Enhance Ally 20",
+                        custom_id="7"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="👥 Ally Assist 20",
+                        custom_id="8"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="🛡️ Ally Block 20",
+                        custom_id="9"
+                    ),
+                ]
+            else:
+                c_butts = [           
                         manage_components.create_button(
-                            style=ButtonStyle.blue,
-                            label="🦠 Enhance Ally 20",
-                            custom_id="7"
-                        ),
-                        manage_components.create_button(
-                            style=ButtonStyle.blue,
-                            label="👥 Ally Assist 20",
-                            custom_id="8"
-                        ),
-                        manage_components.create_button(
-                            style=ButtonStyle.blue,
-                            label="🛡️ Ally Block 20",
-                            custom_id="9"
-                        ),
-                    ]
-                else:
-                    self.co_op_buttons = [           
-                            manage_components.create_button(
-                            style=ButtonStyle.red,
-                            label=f"Boost Companion",
-                            custom_id="b"
-                        )]
+                        style=ButtonStyle.red,
+                        label=f"Boost Companion",
+                        custom_id="b"
+                    )]
         
         elif self._is_co_op and self.mode not in crown_utilities.AI_CO_OP_M and your_card.stamina >= 20:
-            self.co_op_buttons = [
+            c_butts = [
                 manage_components.create_button(
                     style=ButtonStyle.blue,
                     label="Assist Companion 20",
@@ -840,7 +851,7 @@ class Battle:
             ]
 
         if your_card.used_focus and your_card.used_resolve and not your_card.used_summon:
-            self.utility_buttons.append(
+            u_butts.append(
                 manage_components.create_button(
                     style=ButtonStyle.green,
                     label="🧬",
@@ -849,7 +860,7 @@ class Battle:
             )
 
         if your_card.used_focus and not your_card.used_resolve:
-            self.utility_buttons.append(
+            u_butts.append(
                 manage_components.create_button(
                     style=ButtonStyle.green,
                     label="⚡Resolve!",
@@ -857,7 +868,7 @@ class Battle:
                 )
             )
                 
-        self.utility_buttons.append(
+        u_butts.append(
             manage_components.create_button(
                 style=ButtonStyle.grey,
                 label="Quit",
@@ -866,7 +877,7 @@ class Battle:
         )
 
         if not self._is_explore and not self._is_easy and not self._is_abyss and not self._is_tutorial and not self._is_scenario:
-            self.utility_buttons.append(
+            u_butts.append(
                 manage_components.create_button(
                 style=ButtonStyle.red,
                 label=f"Save",
@@ -875,11 +886,16 @@ class Battle:
             )
 
 
+        self.battle_buttons = b_butts
+        self.utility_buttons = u_butts
+        self.co_op_buttons = c_butts
+
+
     def error_end_match_message(self):
         response = ""
         if not self._is_abyss and not self._is_scenario:
             if not self._is_tutorial:
-                if self._is_pvp_match: #pvp check 
+                if self._is_pvp_match:
                     response = f"Your game timed out. Your channel has been closed"
                 else:
                     response = f"Your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
@@ -900,18 +916,23 @@ class Battle:
         if self._is_co_op:
             if self._is_turn == 1:
                 self._is_turn = 2
+                return
             
             if self._is_turn == 2:
                 self._is_turn = 3
+                return
             
             if self._is_turn == 3:
                 self._is_turn = 0
+                return
 
         if self._is_turn == 0:
             self._is_turn = 1
-        
+            return 
+
         if self._is_turn == 1:
             self._is_turn = 0
+            return
 
 
     def repeat_turn(self):
