@@ -5949,7 +5949,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                             price_ = int(price_ * 10)
                                             gems = 0
                                             has_gems_for = False
-                                            negPriceAmount = 0 - abs(int(price))
+                                            negPriceAmount = 0 - abs(int(price_))
                                             can_afford = False
 
                                             for uni in updated_vault['GEMS']:
