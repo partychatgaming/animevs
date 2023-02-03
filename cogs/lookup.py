@@ -220,7 +220,7 @@ class Lookup(commands.Cog):
                             
                     
                     
-                    if not most_universe_played:
+                    if not most_universe_played or len(most_universe_played) < 10:
                         most_played_universe_message = "_No Data For Analysis_"
                     if not most_played_card:
                         most_played_card_message = "_No Data For Analysis_"

@@ -1364,7 +1364,7 @@ class CrownUnlimited(commands.Cog):
             ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
             
             if private_channel:
-                await battle_commands(self, ctx, mode, hall_info, title_match_active, shield_test_active, oguild, shield_training_active, None, sowner, oteam, None, t_user,tteam, tguild, None, None, None, None, None, None)
+                await battle_commands(self, ctx, mode, hall_info, title_match_active, shield_test_active, oguild, shield_training_active, None, sowner, oteam, None, t_user,tteam, tguild, None, None, None, None, None, guild_info)
             else:
                 await ctx.send("Failed to start raid battle!")
         except Exception as ex:
@@ -7042,6 +7042,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 opponent = currentopponent
                 t = db.queryCard({'NAME': opponent['CARD']})
                 ttitle = db.queryTitle({'TITLE': opponent['TITLE']})
+                tguild_info = arena_type
                 tguild = cteam
                 tteam = cowner
                 hall = universe
@@ -22566,12 +22567,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 
                                 sownerctx = await self.bot.fetch_user(ouid)
                                 if mode == "RAID":
-                                    guild_query = {'FDID': oguild['FDID']}
+                                    guild_query = {'FDID': tguild_info['FDID']}
                                     guild_info = db.queryGuild(guild_query)
                                     fee = universe['FEE']
                                     guildwin = db.updateGuild(guild_query, {'$inc': {'BOUNTY': fee, 'STREAK': 1}})
-                                    bounty = oguild['BOUNTY']
-                                    bonus = oguild['STREAK']
+                                    bounty = guild_info['BOUNTY']
+                                    bonus = guild_info['STREAK']
                                     total_bounty = (bounty + ((bonus / 100) * bounty))
                                     wage = .50 * total_bounty
                                 # response = await score(sownerctx, tuser)
@@ -22631,7 +22632,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         await asyncio.sleep(2)
                                         battle_msg = await private_channel.send(content=f"{tuser.mention} ❌")
                                 if mode == "RAID":
-                                    embedVar = discord.Embed(title=f"🛡️ **{t_card}** defended the {oguild['GNAME']}\nMatch concluded in {turn_total} turns",
+                                    embedVar = discord.Embed(title=f"🛡️ **{t_card}** defended the {guild_info['GNAME']}\nMatch concluded in {turn_total} turns",
                                         description=textwrap.dedent(f"""
                                                                     {previous_moves_into_embed}
                                                                     """),
@@ -22750,6 +22751,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
                                 await battle_msg.delete(delay=2)
                                 await asyncio.sleep(2)
+                                await ctx.send(f"{ctx.author.mention}")
                                 #battle_msg = await private_channel.send(embed=embedVar)
                                 # await discord.TextChannel.delete(private_channel, reason=None)
 
@@ -22839,7 +22841,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             # else:
                             #     embedVar.set_footer(
                             #         text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+                            await ctx.send(f"{ctx.author.mention}")
                             msg = await private_channel.send(embed=embedVar, components=[play_again_buttons_action_row])
+                            
 
                             if mode not in co_op_modes and mode != "Abyss":
                                 play_again_selector = ctx.author
@@ -22902,27 +22906,28 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 ouid = sowner['DID']
                                 sownerctx = await self.bot.fetch_user(ouid)
                                 if mode == "RAID":
-                                    guild_query = {'FDID': oguild['FDID']}
-                                    bounty = oguild['BOUNTY']
-                                    bonus = oguild['STREAK']
+                                    guild_query = {'FDID': tguild_info['FDID']}
+                                    guild_info = db.queryGuild(guild_query)
+                                    bounty = guild_info['BOUNTY']
+                                    bonus = guild_info['STREAK']
                                     total_bounty = (bounty + ((bonus / 100) * bounty))
                                     winbonus = int(((bonus / 100) * bounty))
                                     if winbonus == 0:
                                         winbonus = bounty
                                     wage = int(total_bounty)
                                     endmessage = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(winbonus)}"
-                                    hall_info = db.queryHall({"HALL":oguild['HALL']})
+                                    hall_info = db.queryHall({"HALL":guild_info['HALL']})
                                     fee = hall_info['FEE']
                                     if title_match_active:
                                         if shield_test_active:
-                                            endmessage = f":flags: {oguild['GNAME']} DEFENSE TEST OVER!"
+                                            endmessage = f":flags: {guild_info['GNAME']} DEFENSE TEST OVER!"
                                         elif shield_training_active:
-                                            endmessage = f":flags: {oguild['GNAME']} TRAINING COMPLETE!"
+                                            endmessage = f":flags: {guild_info['GNAME']} TRAINING COMPLETE!"
                                         else:
                                             newshield = db.updateGuild(guild_query, {'$set': {'SHIELD': str(ctx.author)}})
                                             newshieldid = db.updateGuild(guild_query, {'$set': {'SDID': str(ctx.author.id)}})
                                             guildwin = db.updateGuild(guild_query, {'$set': {'BOUNTY': winbonus, 'STREAK': 1}})
-                                            endmessage = f":flags: {oguild['GNAME']} SHIELD CLAIMED!"
+                                            endmessage = f":flags: {guild_info['GNAME']} SHIELD CLAIMED!"
                                             prev_team_update = {'$set': {'SHIELDING': False}}
                                             remove_shield = db.updateTeam({'TEAM_NAME': str(tteam)}, prev_team_update)
                                             update_shielding = {'$set': {'SHIELDING': True}}

@@ -361,7 +361,7 @@ class Profile(commands.Cog):
                                 mytrait = trait
                                 
                     if mytrait:
-                        traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
+                        traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"#
 
                     pets = vault['PETS']
 
