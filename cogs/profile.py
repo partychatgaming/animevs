@@ -5896,7 +5896,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                     }
                                                     filter_query = [{'type.' + "UNIVERSE": universe}]
                                                     res = db.updateVault(query, update_query, filter_query)
-                                                    await button_ctx.send(f":sparkles: | Crafting Destiny Win....Success!")
+                                                    await button_ctx.send(f":sparkles: | Crafting 1 Destiny Win....Success!")
                                                     response = {"HAS_GEMS_FOR": True, "SUCCESS":  True, "MESSAGE": "Craft Success!"}
                                                     return response
                                                     self.stop = True
