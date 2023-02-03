@@ -13312,7 +13312,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = round(t_health - dmg['DMG'])
                                                             t_attack = round(t_attack + dmg['DMG'])
                                                         elif enh_type == 'CRYSTAL':
-                                                            t_health = round(t_health - dmg['DMG'])SOULCHAIN
+                                                            t_health = round(t_health - dmg['DMG'])
                                                             t_defense = round(t_defense + dmg['DMG'])
                                                         elif enh_type == 'GROWTH':
                                                             t_max_health = round(t_max_health - (t_max_health * .10))
