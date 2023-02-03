@@ -1952,7 +1952,7 @@ destiny = [
     {
         "NAME": "For Nezukuo",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 50,
         "DEFEAT": "Muzan Kibutsuji",
         "USE_CARDS": ["Tanjiro Kamado"],
         "EARN": "Muzan Kibutsuji",
@@ -3033,7 +3033,7 @@ destiny = [
     {
         "NAME": "Fate vs Destiny",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 100,
         "DEFEAT": "Nyx",
         "USE_CARDS": ["Minato Arisato"],
         "EARN": "Nyx", 
