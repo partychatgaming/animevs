@@ -5900,7 +5900,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                 self.stop = True
                                                 return
                                         if button_ctx.custom_id == "craft_d_win5":
-                                            price = price * 5
+                                            price = int(price * 5)
                                             gems = 0
                                             has_gems_for = False
                                             negPriceAmount = 0 - abs(int(price))
@@ -5939,7 +5939,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                 self.stop = True
                                                 return
                                         if button_ctx.custom_id == "craft_d_win10":
-                                            price = price * 10
+                                            price = int(price * 10)
                                             gems = 0
                                             has_gems_for = False
                                             negPriceAmount = 0 - abs(int(price))
