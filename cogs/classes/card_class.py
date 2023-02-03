@@ -2332,6 +2332,22 @@ class Card:
             _battle.repeat_turn()
 
     
+    def use_defend(self, _battle, companion_card):
+        if self.stamina >= 20:
+            self.used_defend = True
+            self.stamina = self.stamina - 20
+            self.defense = round(self.defense * 2)
+            
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: Defended 🛡️ **{companion_card.name}**")
+            _battle._turn_total = _battle._turn_total + 1
+            _battle.next_turn()
+        else:
+            #await private_channel.send(f"{c_card} is too tired to block...")
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** is too tired to block.")
+            _battle.repeat_turn()
+    
+
+
     def damage_done(self, _battle, dmg, opponent_card):
         if dmg['CAN_USE_MOVE']:
             if dmg['ENHANCE']:

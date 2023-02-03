@@ -751,6 +751,14 @@ class Battle:
             else:
                 self.battle_options =  ["q", "Q", "0", "1", "2", "3", "4", "s"]
         
+        if self._is_turn == 3:
+            if your_card.used_focus and your_card.used_resolve:
+                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "6", "7"]
+            elif c_used_focus and not c_used_resolve:
+                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "5", "7"]
+            else:
+                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "7"]
+
         if your_card.stamina >= 10:
             if your_card.universe == "Souls" and your_card.used_resolve:
                 b_butts.append(
