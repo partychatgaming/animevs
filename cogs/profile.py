@@ -4305,7 +4305,7 @@ class Profile(commands.Cog):
             all_universes = db.queryAllUniverse()
             user = db.queryUser({'DID': str(ctx.author.id)})
             guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
-            if guild_info
+            if guild_info:
                 guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
             completed_dungeons = user['DUNGEONS']
             completed_tales = user['CROWN_TALES']
