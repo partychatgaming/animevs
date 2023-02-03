@@ -83,11 +83,11 @@ ELEMENTS = textwrap.dedent(f"""\
 
 👊 Physical - If ST(stamina) greater than 80, Deals double Damage 
 
-🔥 Fire - Does 33% damage of previous attack over the next opponent turns, stacks.
+🔥 Fire - Does 40% damage of previous attack over the next opponent turns, stacks.
 
 ❄️ Ice - After 2 attacks, opponent freezes and loses 1 turn.
 
-💧 Water - Increases all water move AP by 40 Flat.
+💧 Water - Increases all water move AP by 50 Flat.
 
 ⛰️ Earth - Cannot be Parried. Increases Def by 25% AP.
 
@@ -97,7 +97,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP.
 
-☠️ Death - Deals 20% opponent max health as damage.
+☠️ Death - Deals 25% opponent max health as damage. Gain Attack equal to that amount.
 
 ❤️‍🔥 Life - Heal for 25% AP.
 

@@ -214,7 +214,7 @@ async def enhancers(ctx):
 
       embedVar2 = discord.Embed(title= f"Enhancer Type: Steals",colour=0x7289da)
       embedVar2.set_thumbnail(url=avatar)
-      embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\n**Title, Card Passive Effect:** Steal Opponent Health and Add it to your Max Health by AP %\n**Card Active Enhancer Effect:** Steal Opponent Health and Add it to your Current Health by Flat AP + 10% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
+      embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\n**Title, Card Passive Effect:** Steal Opponent Health and Add 50% to your Health by AP %\n**Card Active Enhancer Effect:** Steal Opponent Health and Add 50% to your Current Health by Flat AP + 10% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
       embedVar2.set_footer(text=f"/help - Bot Help")
 
       embedVar3 = discord.Embed(title= f"Enhancer Type: Sacrifice",colour=0x7289da)

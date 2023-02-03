@@ -2461,11 +2461,14 @@ class Profile(commands.Cog):
         boss_arm = False
         dungeon_arm = False
         boss_message = "Nice Arm!"
-        durability_message = "100,000"
+        arm_cost = '{:,}'.format(100000)
+        durability_message = f"{arm_cost}"
         if arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
             boss_arm = True
         elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
             dungeon_arm= True
+            arm_cost = '{:,}'.format(250000)
+            durability_message = f"{arm_cost}"
         if boss_arm:
             boss_message = "Cannot Repair"
             durability_message = "UNAVAILABLE"
@@ -2731,6 +2734,8 @@ class Profile(commands.Cog):
                     return
             
             if button_ctx.custom_id == "5":
+                if dungeon_arm:
+                    price = 250000
                 if boss_arm:
                     await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
                     await msg.edit(components=[])
@@ -8583,11 +8588,14 @@ async def menublacksmith(self, ctx):
         boss_arm = False
         dungeon_arm = False
         boss_message = "Nice Arm!"
-        durability_message = "100,000"
+        arm_cost = '{:,}'.format(100000)
+        durability_message = f"{arm_cost}"
         if arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
             boss_arm = True
         elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
             dungeon_arm= True
+            arm_cost = '{:,}'.format(250000)
+            durability_message = f"{arm_cost}"
         if boss_arm:
             boss_message = "Cannot Repair"
             durability_message = "UNAVAILABLE"
@@ -8815,6 +8823,8 @@ async def menublacksmith(self, ctx):
                     return
             
             if button_ctx.custom_id == "5":
+                if dungeon_arm:
+                    price = 250000
                 if boss_arm:
                     await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
                     await msg.edit(components=[])
