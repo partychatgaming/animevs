@@ -5987,7 +5987,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
 
                                 await Paginator(bot=self.bot, disableAfterTimeout=True,useQuitButton=True, ctx=player, pages=embed_list, timeout=60, customActionRow=[
                                 custom_action_row,
-                                custom_function,
+                                custom_function(price_),
                                 ]).run()
 
                             except Exception as ex:
