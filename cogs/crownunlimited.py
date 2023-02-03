@@ -1801,7 +1801,10 @@ async def quest(player, opponent, mode):
         return
 
 
-async def destiny(player, opponent, mode):
+async def destiny(player, opponent, mode, craft_amount):
+    num_of_wins = 1
+    if craft_amount != 0:
+        num_of_wins = craft_amount
     vault = db.queryVault({'DID': str(player.id)})
     user = db.queryUser({"DID": str(player.id)})
     vault_query = {'DID': str(player.id)}
@@ -1838,7 +1841,7 @@ async def destiny(player, opponent, mode):
                 if (user['CARD'] in destiny['USE_CARDS'] or skin_for in destiny['USE_CARDS']) and opponent == destiny['DEFEAT'] and mode == "Tales":
                     if destiny['WINS'] < destiny['REQUIRED']:
                         message = f"Secured a win toward **{destiny['NAME']}**. Keep it up!"
-                        completion = destiny['REQUIRED'] - (destiny['WINS'] + 1)
+                        completion = destiny['REQUIRED'] - (destiny['WINS'] + num_of_wins)
 
                     if completion == 0:
                         try:
@@ -1882,7 +1885,7 @@ async def destiny(player, opponent, mode):
             for destiny in vault['DESTINY']:
                 if user['CARD'] in destiny['USE_CARDS'] and opponent == destiny['DEFEAT'] and mode == "Dungeon":
                     message = f"Secured a win toward **{destiny['NAME']}**. Keep it up!"
-                    completion = destiny['REQUIRED'] - (destiny['WINS'] + 3)
+                    completion = destiny['REQUIRED'] - (destiny['WINS'] + (num_of_wins * 3))
 
                     if completion <= 0:
                         try:
@@ -2913,6 +2916,10 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 if card_passive_type == "CONFUSE":
                     passive_num = flat_for_passive
                 if card_passive_type == "BLINK":
+                    passive_num = stam_for_passive
+                if card_passive_type == "GAMBLE":
+                    passive_num = flat_for_passive
+                if card_passive_type == "SOULCHAIN":
                     passive_num = stam_for_passive
 
             card_message = f"{card_passive_type.title()} {passive_num}"
@@ -8407,23 +8414,29 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         dmg = o_title_passive_value * turn_total
                                         if dmg > 100 * o_card_tier:
                                             dmg = 100 * o_card_tier
-                                        t_health = t_health - (dmg)
+                                        t_health = t_health - dmg
                                     if o_title_passive_type == "DESTRUCTION":
                                         dmg = o_title_passive_value * turn_total
                                         if dmg > 100 * o_card_tier:
                                             dmg = 100 * o_card_tier
-                                        t_health = t_health - (dmg)
+                                        t_health = t_health - dmg
                                         
                                 if o_card_passive_type == "BLAST":
                                     dmg = o_value_for_passive * turn_total
                                     if dmg > 100 * o_card_tier:
                                         dmg = 100 * o_card_tier
-                                    t_health = t_health - (dmg)
+                                    t_health = t_health - dmg
                                 if o_card_passive_type == "DESTRUCTION":
                                     dmg = o_value_for_passive * turn_total
                                     if dmg > 100 * o_card_tier:
                                         dmg = 100 * o_card_tier
-                                    t_health = t_health - (dmg)
+                                    t_health = t_health - dmg
+                                if o_card_passive_type == "GAMBLE":
+                                    o_healthcalc = o_value_for_passive
+                                if o_card_passive_type == "SOULCHAIN":
+                                    o_resolve = o_value_for_passive 
+                                    t_resolve = o_value_for_passive
+
 
 
 
@@ -8545,7 +8558,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_stamina = 100
                                     ocard_lvl_ap_buff = ocard_lvl_ap_buff + 30
 
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{o_card}** Increased **30** AP & **100** Stamina 🌀")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{o_card}** Increased **{30 + turn_total}** AP & **100** Stamina 🌀")
                                 
                                 elif o_universe == "Death Note":
                                     if turn_total >= 100:
@@ -12079,30 +12092,37 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         dmg = t_title_passive_value * turn_total
                                         if dmg > 100 * t_card_tier:
                                             dmg = 100 * t_card_tier
-                                        o_health = o_health - (dmg)
+                                        o_health = o_health - dmg
                                         if mode in co_op_modes:
-                                            c_health = c_health - (dmg)
+                                            c_health = c_health - dmg
                                     if t_title_passive_type == "DESTRUCTION":
                                         dmg = t_title_passive_value * turn_total
                                         if dmg > 100 * t_card_tier:
                                             dmg = 100 * t_card_tier
-                                        o_health = o_health - (dmg)
+                                        o_health = o_health - dmg
                                         if mode in co_op_modes:
-                                            c_health = c_health - (dmg)
+                                            c_health = c_health - dmg
                                 if t_card_passive_type == "BLAST":
                                     dmg = t_value_for_passive * turn_total
                                     if dmg > 100 * t_card_tier:
                                         dmg = 100 * t_card_tier
-                                    o_health = o_health - (dmg)
+                                    o_health = o_health - dmg
                                     if mode in co_op_modes:
-                                        c_health = c_health - (dmg)
+                                        c_health = c_health - dmg
                                 if t_card_passive_type == "DESTRUCTION":
                                     dmg = t_value_for_passive * turn_total
                                     if dmg > 100 * t_card_tier:
                                         dmg = 100 * t_card_tier
-                                    o_health = o_health - (dmg)
+                                    o_health = o_health - dmg
                                     if mode in co_op_modes:
-                                        c_health = c_health - (dmg)
+                                        c_health = c_health - dmg
+                                if t_card_passive_type == "GAMBLE":
+                                        t_healthcalc = t_value_for_passive
+                                if t_card_passive_type == "SOULCHAIN":
+                                    o_resolve = t_value_for_passive 
+                                    t_resolve = t_value_for_passive
+                                    if mode in co_op_modes:
+                                        c_resolve = t_value_for_passive
 
 
                                 if o_title_passive_type:
@@ -12212,7 +12232,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 elif t_universe == "Black Clover":
                                     embedVar = discord.Embed(title=f"Mana Zone! **{t_card}** Increased **30** Stamina 🌀",
                                                             colour=0xe91e63)
-                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{t_card}** Increased **30** AP & **100** Stamina 🌀")
+                                    previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{t_card}** Increased **{30 + turn_total}** AP & **100** Stamina 🌀")
                                     t_stamina = 100
                                     tcard_lvl_ap_buff = tcard_lvl_ap_buff + 30
                                 elif t_universe == "Death Note":
@@ -13292,7 +13312,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = round(t_health - dmg['DMG'])
                                                             t_attack = round(t_attack + dmg['DMG'])
                                                         elif enh_type == 'CRYSTAL':
-                                                            t_health = round(t_health - dmg['DMG'])
+                                                            t_health = round(t_health - dmg['DMG'])SOULCHAIN
                                                             t_defense = round(t_defense + dmg['DMG'])
                                                         elif enh_type == 'GROWTH':
                                                             t_max_health = round(t_max_health - (t_max_health * .10))
@@ -17318,23 +17338,28 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             dmg = c_title_passive_value * turn_total
                                             if dmg > 100 * c_card_tier:
                                                 dmg = 100 * c_card_tier
-                                            t_health = t_health - (dmg)   
+                                            t_health = t_health - dmg 
                                         if c_title_passive_type == "DESTRUCTION":
                                             dmg = c_title_passive_value * turn_total
                                             if dmg > 100 * c_card_tier:
                                                 dmg = 100 * c_card_tier
-                                            t_health = t_health - (dmg)
+                                            t_health = t_health - dmg 
                                             
                                     if c_card_passive_type == "BLAST":
                                         dmg = c_value_for_passive * turn_total
                                         if dmg > 100 * c_card_tier:
                                             dmg = 100 * c_card_tier
-                                        t_health = t_health - (dmg)
+                                        t_health = t_health - dmg 
                                     if c_card_passive_type == "DESTRUCTION":
                                         dmg = o_value_for_passive * turn_total
                                         if dmg > 100 * c_card_tier:
                                             dmg = 100 * c_card_tier
-                                        t_health = t_health - (dmg)
+                                        t_health = t_health - dmg 
+                                    if c_card_passive_type == "GAMBLE":
+                                        c_healthcalc = c_value_for_passive
+                                    if c_card_passive_type == "SOULCHAIN":
+                                        o_resolve = c_value_for_passive 
+                                        t_resolve = c_value_for_passive
 
                                     if o_title_passive_type:
                                         if o_title_passive_type == "GAMBLE":
@@ -17433,7 +17458,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         embedVar = discord.Embed(title=f"Mana Zone! {c_card} Increased **30** Stamina 🌀",
                                                                 colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{c_card}** Increased **30** AP & **100** Stamina 🌀")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{c_card}** Increased **{30 + turn_total}** AP & **100** Stamina 🌀")
                                         c_stamina = 100
                                         ccard_lvl_ap_buff = ccard_lvl_ap_buff + 30
                                     elif c_universe == "Death Note":
@@ -20578,31 +20603,38 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             dmg = t_title_passive_value * turn_total
                                             if dmg > 100 * t_card_tier:
                                                 dmg = 100 * t_card_tier
-                                            o_health = o_health - (dmg)
+                                            o_health = o_health - dmg
                                             if mode in co_op_modes:
-                                                    c_health = c_health - (dmg)
+                                                c_health = c_health - dmg
                                         if t_title_passive_type == "DESTRUCTION":
                                             dmg = t_title_passive_value * turn_total
                                             if dmg > 100 * t_card_tier:
                                                 dmg = 100 * t_card_tier
-                                            o_health = o_health - (dmg)
+                                            o_health = o_health - dmg
                                             if mode in co_op_modes:
-                                                c_health = c_health - (dmg)
+                                                c_health = c_health - dmg
                                                     
                                     if t_card_passive_type == "BLAST":
                                         dmg = t_value_for_passive * turn_total
                                         if dmg > 100 * t_card_tier:
                                             dmg = 100 * t_card_tier
-                                        o_health = o_health - (dmg)
+                                        o_health = o_health - dmg
                                         if mode in co_op_modes:
-                                            c_health = c_health - (dmg)
+                                            c_health = c_health - dmg
                                     if t_card_passive_type == "DESTRUCTION":
                                         dmg = t_value_for_passive * turn_total
                                         if dmg > 100 * t_card_tier:
                                             dmg = 100 * t_card_tier
-                                        o_health = o_health - (dmg)
+                                        o_health = o_health - dmg
                                         if mode in co_op_modes:
-                                            c_health = c_health - (dmg)
+                                            c_health = c_health - dmg
+                                    if t_card_passive_type == "GAMBLE":
+                                        t_healthcalc = t_value_for_passive
+                                    if t_card_passive_type == "SOULCHAIN":
+                                        o_resolve = t_value_for_passive 
+                                        t_resolve = t_value_for_passive
+                                        if mode in co_op_modes:
+                                            c_resolve = t_value_for_passive
 
 
                                     if o_title_passive_type:
@@ -20705,7 +20737,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         embedVar = discord.Embed(title=f"Mana Zone! **{t_card}** Increased **30** Stamina 🌀",
                                                                 colour=0xe91e63)
                                         #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{t_card}** Increased **30** AP & **100** Stamina 🌀")
+                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{t_card}** Increased **{30 + turn_total}** AP & **100** Stamina 🌀")
                                         t_stamina = 100
                                         tcard_lvl_ap_buff = tcard_lvl_ap_buff + 30
 
@@ -23354,7 +23386,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                 if difficulty != "EASY":
                                     questlogger = await quest(ouser, t_card, tale_or_dungeon_only)
-                                    destinylogger = await destiny(ouser, t_card, tale_or_dungeon_only)
+                                    destinylogger = await destiny(ouser, t_card, tale_or_dungeon_only, 0)
                                     petlogger = await summonlevel(opet_name, ouser)
                                     cardlogger = await crown_utilities.cardlevel(o_card, ouser.id, tale_or_dungeon_only, selected_universe)
                                     # if questlogger:

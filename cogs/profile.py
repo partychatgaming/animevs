@@ -4426,7 +4426,7 @@ class Profile(commands.Cog):
                 *Grants double exp in this Universe*
 
                 ✨ **Destiny Line:** 💎 1,500,000 *{destiny_message}*
-                *Grants win for a Destiny Line*
+                *Grants wins for a Destiny Line*
                 
                 🃏 **Card Skins:** 💎 2,000,000 *{card_skin_message}*
                 *Grants Card Skin*
@@ -5846,7 +5846,9 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                             try:
 
                                 buttons = [
-                                    manage_components.create_button(style=3, label="Craft Win", custom_id="craft_d_win")
+                                    manage_components.create_button(style=3, label="Craft Win", custom_id="craft_d_win"),
+                                    manage_components.create_button(style=3, label="Craft +5 Wins", custom_id="craft_d_win5"),
+                                    manage_components.create_button(style=3, label="Craft +10 Wins", custom_id="craft_d_win10")
                                 ]
                                 custom_action_row = manage_components.create_actionrow(*buttons)
 
@@ -5870,7 +5872,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                         can_afford = True
                                             
                                             if can_afford:
-                                                r = await update_destiny_call(button_ctx.author, selected_destiny, "Tales")
+                                                r = await update_destiny_call(button_ctx.author, selected_destiny, "Tales", 1)
                                                 
                                                 if r == "Your storage is full. You are unable to completed the destiny until you have available storage for your new destiny card.":
                                                     await button_ctx.send(f"Your storage is full. You are unable to completed the destiny until you have available storage for your new destiny card.")
@@ -5883,7 +5885,85 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                     }
                                                     filter_query = [{'type.' + "UNIVERSE": universe}]
                                                     res = db.updateVault(query, update_query, filter_query)
-                                                    await button_ctx.send(f"Craft Success!")
+                                                    await button_ctx.send(f":sparkles: | Crafting Destiny Win....Success!")
+                                                    response = {"HAS_GEMS_FOR": True, "SUCCESS":  True, "MESSAGE": "Craft Success!"}
+                                                    return response
+                                                    self.stop = True
+                                                    return
+                                            else:
+                                                await button_ctx.send(f"Insufficent 💎!")
+                                                self.stop = True
+                                                return
+                                        if button_ctx.custom_id == "craft_d_win5":
+                                            price = price * 5
+                                            gems = 0
+                                            has_gems_for = False
+                                            negPriceAmount = 0 - abs(int(price))
+                                            can_afford = False
+
+                                            for uni in updated_vault['GEMS']:
+                                                if uni['UNIVERSE'] == universe:
+                                                    gems = uni['GEMS']
+                                                    universe_heart = uni['UNIVERSE_HEART']
+                                                    universe_soul = uni['UNIVERSE_SOUL']
+                                                    has_gems_for = True
+                                                    if gems >= (price):
+                                                        can_afford = True
+                                            
+                                            if can_afford:
+                                                r = await update_destiny_call(button_ctx.author, selected_destiny, "Tales", 5)
+                                                
+                                                if r == "Your storage is full. You are unable to completed the destiny until you have available storage for your new destiny card.":
+                                                    await button_ctx.send(f"Your storage is full. You are unable to completed the destiny until you have available storage for your new destiny card.")
+                                                    self.stop = True
+                                                    return
+                                                else:
+                                                    query = {'DID': str(player.author.id)}
+                                                    update_query = {
+                                                        '$inc': {'GEMS.$[type].' + "GEMS": int(negPriceAmount)}
+                                                    }
+                                                    filter_query = [{'type.' + "UNIVERSE": universe}]
+                                                    res = db.updateVault(query, update_query, filter_query)
+                                                    await button_ctx.send(f":sparkles: | Crafting 5 Destiny Wins....Success!")
+                                                    response = {"HAS_GEMS_FOR": True, "SUCCESS":  True, "MESSAGE": "Craft Success!"}
+                                                    return response
+                                                    self.stop = True
+                                                    return
+                                            else:
+                                                await button_ctx.send(f"Insufficent 💎!")
+                                                self.stop = True
+                                                return
+                                        if button_ctx.custom_id == "craft_d_win10":
+                                            price = price * 10
+                                            gems = 0
+                                            has_gems_for = False
+                                            negPriceAmount = 0 - abs(int(price))
+                                            can_afford = False
+
+                                            for uni in updated_vault['GEMS']:
+                                                if uni['UNIVERSE'] == universe:
+                                                    gems = uni['GEMS']
+                                                    universe_heart = uni['UNIVERSE_HEART']
+                                                    universe_soul = uni['UNIVERSE_SOUL']
+                                                    has_gems_for = True
+                                                    if gems >= (price):
+                                                        can_afford = True
+                                            
+                                            if can_afford:
+                                                r = await update_destiny_call(button_ctx.author, selected_destiny, "Tales", 10)
+                                                
+                                                if r == "Your storage is full. You are unable to completed the destiny until you have available storage for your new destiny card.":
+                                                    await button_ctx.send(f"Your storage is full. You are unable to completed the destiny until you have available storage for your new destiny card.")
+                                                    self.stop = True
+                                                    return
+                                                else:
+                                                    query = {'DID': str(player.author.id)}
+                                                    update_query = {
+                                                        '$inc': {'GEMS.$[type].' + "GEMS": int(negPriceAmount)}
+                                                    }
+                                                    filter_query = [{'type.' + "UNIVERSE": universe}]
+                                                    res = db.updateVault(query, update_query, filter_query)
+                                                    await button_ctx.send(f":sparkles: | Crafting 10 Destiny Wins....Success!")
                                                     response = {"HAS_GEMS_FOR": True, "SUCCESS":  True, "MESSAGE": "Craft Success!"}
                                                     return response
                                                     self.stop = True
@@ -10435,7 +10515,7 @@ async def menucraft(self, ctx):
             *Grants double exp in this Universe*
 
             ✨ **Destiny Line:** 💎 1,500,000 *{destiny_message}*
-            *Grants win for a Destiny Line*
+            *Grants wins for a Destiny Line*
             
             🃏 **Card Skins:** 💎 2,000,000 *{card_skin_message}*
             *Grants Card Skin*
