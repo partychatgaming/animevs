@@ -5861,7 +5861,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                 ]
                                 custom_action_row = manage_components.create_actionrow(*buttons)
 
-                                async def custom_function(self, button_ctx):
+                                async def custom_function(self, button_ctx, price_):
                                     if button_ctx.author == player.author:
                                         print(price_)
                                         selected_destiny = str(button_ctx.origin_message.embeds[0].title)
