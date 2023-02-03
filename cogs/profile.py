@@ -5772,6 +5772,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
 
         if has_gems_for:
             if gems >= price:
+                price = int(price)
                 if item == "Card":
                     if universe in completed_tales:
                         acceptable = [4,5,6,7]
@@ -5801,6 +5802,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
 
 
                 if item not in item_bools:
+                    price = int(price)
                     if not skin_list:
                         if price == 2000000: #check if price is for skins
                             response = {"HAS_GEMS_FOR": True, "SUCCESS":  False, "MESSAGE": f"Your **{item['NAME']}** does not have Skins in **{universe}**!"}
@@ -5836,6 +5838,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                     destiny_defeat = destiny['DEFEAT']
         
                         if card_has_destiny:
+                            price = int(price)
                             embed_list = []
                             for destiny in cards_destiny_list:
                                 embedVar = discord.Embed(title= f"{destiny['DEFEAT']}", description=textwrap.dedent(f"""
@@ -5861,12 +5864,13 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
 
                                 async def custom_function(self, button_ctx):
                                     if button_ctx.author == player.author:
+                                        price = int(price)
                                         selected_destiny = str(button_ctx.origin_message.embeds[0].title)
                                         updated_vault = db.queryVault({'DID': str(button_ctx.author.id)})
                                         if button_ctx.custom_id == "craft_d_win":
                                             gems = 0
                                             has_gems_for = False
-                                            print(negPriceAmount)
+                                            print(price)
                                             negPriceAmount = 0 - abs(int(price))
                                             can_afford = False
 
