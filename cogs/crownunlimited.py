@@ -22731,6 +22731,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                 await battle_msg.delete(delay=2)
                                 await asyncio.sleep(2)
+                                await ctx.send(f"🪦{ctx.author.mention}")
                                 battle_msg = await private_channel.send(embed=embedVar)
                                 # await discord.TextChannel.delete(private_channel, reason=None)
                                 return
@@ -22751,7 +22752,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
                                 await battle_msg.delete(delay=2)
                                 await asyncio.sleep(2)
-                                await ctx.send(f"{ctx.author.mention}")
+                                await ctx.send(f"🪦{ctx.author.mention}")
                                 #battle_msg = await private_channel.send(embed=embedVar)
                                 # await discord.TextChannel.delete(private_channel, reason=None)
 
@@ -22841,7 +22842,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             # else:
                             #     embedVar.set_footer(
                             #         text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-                            await ctx.send(f"{ctx.author.mention}")
+                            await ctx.send(f"🪦{ctx.author.mention}")
                             msg = await private_channel.send(embed=embedVar, components=[play_again_buttons_action_row])
                             
 
