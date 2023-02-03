@@ -3077,7 +3077,7 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
                                 continue
                             player2_card.freeze_enh = False
 
-                            _battle.add_battle_history_messsage(player1_card.set_poison_hit(player1_card))
+                            _battle.add_battle_history_messsage(player2_card.set_poison_hit(player1_card))
                                 
                             player2_card.set_gravity_hit()
 
@@ -3360,498 +3360,60 @@ async def battle_commands(self, ctx, _battle, _player, _player2=None):
 
 
                         elif _battle._is_co_op and turn != (0 or 1):
-                            if c_ap_buff > 500:
-                                c_ap_buff = 500
-
-                            # Companion Turn Start
                             if turn == 2:
-                                if c_universe == "YuYu Hakusho":
-                                    c_attack = c_attack + c_stamina
+                                player3_card.reset_stats_to_limiter(player2_card)
 
-                                if t_bleed_hit:
-                                    t_bleed_hit = False
-                                    bleed_dmg = 10 * turn_total
-                                    c_health = c_health - bleed_dmg
-                                    previous_moves.append(f"🩸 **{c_card}** shredded for **{round(bleed_dmg)}** bleed dmg...")
-                                    if c_health <= 0:
-                                        continue
+                                player3_card.yuyu_hakusho_attack_increase()
 
-                                if t_burn_dmg > 3:
-                                    c_health = c_health - t_burn_dmg
-                                    previous_moves.append(f"🔥 **{c_card}** burned for **{round(t_burn_dmg)}** dmg...")
-                                    if c_health <= 0:
-                                        continue
+                                player3_card.activate_chainsawman_trait(_battle)
 
-                                if t_freeze_enh:
-                                    previous_moves.append(f"❄️ **{c_card}** has been frozen for a turn...")
-                                    turn_total = turn_total + 1
-                                    turn = 3
+                                _battle.add_battle_history_messsage(player3_card.set_bleed_hit(_battle._turn_total, player2_card))
+
+                                _battle.add_battle_history_messsage(player3_card.set_burn_hit(player2_card))
+
+                                if player2_card.freeze_enh:
+                                    new_turn = player3_card.frozen(_battle, player2_card)
+                                    _battle._is_turn = new_turn['MESSAGE']
+                                    _battle.add_battle_history_messsage(new_turn['TURN'])
                                     continue
-                                if t_poison_dmg:
-                                    c_health = c_health - t_poison_dmg
-                                    previous_moves.append(f"🧪 **{c_card}** poisoned for **{t_poison_dmg}** dmg...")
-                                    if c_health <= 0:
-                                        continue
+                                player3_card.freeze_enh = False
+
+                                _battle.add_battle_history_messsage(player3_card.set_poison_hit(player2_card))
+                                    
+                                player3_card.set_gravity_hit()
 
 
-                                if c_gravity_hit:
-                                    c_gravity_hit = False
+                                player3_title.activate_title_passive(_battle, player3_card, player2_card)
                                 
-                                t_burn_dmg = round(t_burn_dmg / 2)
-                                c_freeze_enh = False
-                                o_freeze_enh = False
+                                player3_card.activate_card_passive(player1_card)
 
-                                if c_title_passive_type:
-                                    if c_title_passive_type == "HLT":
-                                        if c_max_health > c_health:
-                                            c_health = round(c_health + ((c_title_passive_value / 100) * c_health))
-                                    if c_title_passive_type == "LIFE":
-                                        if c_max_health > c_health:
-                                            t_health = round(t_health - ((c_title_passive_value / 100) * t_health))
-                                            c_health = round(c_health + ((c_title_passive_value / 100) * t_health))
-                                    if c_title_passive_type == "ATK":
-                                        c_attack = c_attack + c_title_passive_value
-                                    if c_title_passive_type == "DEF":
-                                        c_defense = c_defense + c_title_passive_value
-                                    if c_title_passive_type == "STAM":
-                                        if c_stamina > 15:
-                                            c_stamina = c_stamina + c_title_passive_value
-                                    if c_title_passive_type == "DRAIN":
-                                        if c_stamina > 15:
-                                            t_stamina = t_stamina - c_title_passive_value
-                                            c_stamina = c_stamina + c_title_passive_value
-                                    if c_title_passive_type == "FLOG":
-                                        t_attack = round(t_attack - ((c_title_passive_value / 100) * t_attack))
-                                        c_attack = round(c_attack + ((c_title_passive_value / 100) * t_attack))
-                                    if c_title_passive_type == "WITHER":
-                                        t_defense = round(t_defense - ((c_title_passive_value / 100) * t_defense))
-                                        c_defense = round(c_defense + ((c_title_passive_value / 100) * t_defense))
-                                    if c_title_passive_type == "RAGE":
-                                        c_defense = round(c_defense - ((c_title_passive_value / 100) * c_defense))
-                                        c_ap_buff = round(c_ap_buff + ((c_title_passive_value / 100) * c_defense))
-                                    if c_title_passive_type == "BRACE":
-                                        c_ap_buff = round(c_ap_buff + ((c_title_passive_value / 100) * c_attack))
-                                        c_attack = round(c_attack - ((c_title_passive_value / 100) * c_attack))
-                                    if c_title_passive_type == "BZRK":
-                                        c_health = round(c_health - ((c_title_passive_value / 100) * c_health))
-                                        c_attack = round(c_attack + ((c_title_passive_value / 100) * c_health))
-                                    if c_title_passive_type == "CRYSTAL":
-                                        c_health = c_health - c_title_passive_value
-                                        c_defense = c_defense + c_title_passive_value
-                                    if c_title_passive_type == "FEAR":
-                                        if c_universe != "Chainsawman":
-                                            c_max_health = c_max_health - (c_max_health * .03)
-                                        t_defense = t_defense - c_title_passive_value
-                                        t_attack = t_attack - c_title_passive_value
-                                        t_ap_buff = t_ap_buff - c_title_passive_value
-                                    if c_title_passive_type == "GROWTH":
-                                        c_max_health = c_max_health - (c_max_health * .03)
-                                        c_defense = c_defense + c_title_passive_value
-                                        c_attack = c_attack + c_title_passive_value
-                                        c_ap_buff = c_ap_buff + c_title_passive_value
-                                    if c_title_passive_type == "SLOW":
-                                        if turn_total != 0:
-                                            turn_total = turn_total - 1
-                                    if c_title_passive_type == "HASTE":
-                                        turn_total = turn_total + 1
-                                    if c_title_passive_type == "STANCE":
-                                        tempattack = c_attack + c_title_passive_value
-                                        c_attack = c_defense
-                                        c_defense = tempattack
-                                    if c_title_passive_type == "CONFUSE":
-                                        tempattack = c_attack - c_title_passive_value
-                                        t_attack = c_defense
-                                        t_defense = tempattack
-                                    if c_title_passive_type == "BLINK":
-                                        c_stamina = c_stamina + c_title_passive_value
-                                        if t_stamina >=10:
-                                            t_stamina = t_stamina - c_title_passive_value
-                                    if c_title_passive_type == "CREATION":
-                                        c_max_health = round(round(c_max_health + ((c_title_passive_value / 100) * c_max_health)))
-                                    if c_title_passive_type == "DESTRUCTION":
-                                        t_max_health = round(t_max_health - ((c_title_passive_value / 100) * t_max_health))
-                                    if c_title_passive_type == "BLAST":
-                                        t_health = round(t_health - c_title_passive_value)
-                                    if c_title_passive_type == "WAVE":
-                                        if turn_total % 10 == 0:
-                                            t_health = round(t_health - 100)
+                                player3_card.activate_demon_slayer_trait(_battle, player2_card)
 
+                                player2_card.activate_demon_slayer_trait(_battle, player3_card)
 
-                                if c_card_passive_type:
-                                    c_value_for_passive = c_card_tier * .5
-                                    c_flat_for_passive = 10 * (c_card_tier * .5)
-                                    c_stam_for_passive = 5 * (c_card_tier * .5)
-                                    if c_card_passive_type == "HLT":
-                                        if c_max_health > c_health:
-                                            c_health = round(round(c_health + ((c_value_for_passive / 100) * c_health)))
-                                    if c_card_passive_type == "CREATION":
-                                        c_max_health = round(round(c_max_health + ((c_value_for_passive / 100) * c_max_health)))
-                                    if c_card_passive_type == "DESTRUCTION":
-                                        t_max_health = round(round(t_max_health - ((c_value_for_passive / 100) * t_max_health)))
-                                    if c_card_passive_type == "LIFE":
-                                        if c_max_health > c_health:
-                                            t_health = round(t_health - ((c_value_for_passive / 100) * t_health))
-                                            c_health = round(c_health + ((c_value_for_passive / 100) * t_health))
-                                    if c_card_passive_type == "ATK":
-                                        c_attack = round(c_attack + ((c_value_for_passive / 100) * c_attack))
-                                    if c_card_passive_type == "DEF":
-                                        c_defense = round(c_defense + ((c_value_for_passive / 100) * c_defense))
-                                    if c_card_passive_type == "STAM":
-                                        if c_stamina > 15:
-                                            c_stamina = c_stamina + c_stam_for_passive
-                                    if c_card_passive_type == "DRAIN":
-                                        if c_stamina > 15:
-                                            t_stamina = t_stamina - c_stam_for_passive
-                                            c_stamina = c_stamina + c_stam_for_passive
-                                    if c_card_passive_type == "FLOG":
-                                        t_attack = round(t_attack - ((c_value_for_passive / 100) * t_attack))
-                                        c_attack = round(c_attack + ((c_value_for_passive / 100) * t_attack))
-                                    if c_card_passive_type == "WITHER":
-                                        t_defense = round(t_defense - ((c_value_for_passive / 100) * t_defense))
-                                        c_defense = round(c_defense + ((c_value_for_passive / 100) * t_defense))
-                                    if c_card_passive_type == "RAGE":
-                                        c_defense = round(c_defense - ((c_value_for_passive / 100) * c_defense))
-                                        t_ap_buff = round(t_ap_buff + ((c_value_for_passive / 100) * c_defense))
-                                    if c_card_passive_type == "BRACE":
-                                        t_ap_buff = round(t_ap_buff + ((c_value_for_passive / 100) * c_attack))
-                                        c_attack = round(c_attack - ((c_value_for_passive / 100) * c_attack))
-                                    if c_card_passive_type == "BZRK":
-                                        c_health = round(c_health - ((c_value_for_passive / 100) * c_health))
-                                        c_attack = round(c_attack + ((c_value_for_passive / 100) * c_health))
-                                    if c_card_passive_type == "CRYSTAL":
-                                        c_health = round(c_health - ((c_value_for_passive / 100) * c_health))
-                                        c_defense = round(c_defense + ((c_value_for_passive / 100) * c_health))
-                                    if c_card_passive_type == "FEAR":
-                                        if c_universe != "Chainsawman":
-                                            c_max_health = c_max_health - (c_max_health * .05)
-                                        t_defense = t_defense - c_flat_for_passive
-                                        t_attack = t_attack - c_flat_for_passive
-                                        t_ap_buff = t_ap_buff - c_flat_for_passive
-                                    if c_card_passive_type == "GROWTH":
-                                        c_max_health = c_max_health - (c_max_health * .05)
-                                        c_defense = c_defense + c_flat_for_passive
-                                        c_attack = c_attack + c_flat_for_passive
-                                        c_ap_buff = c_ap_buff + c_flat_for_passive
-                                    if c_card_passive_type == "SLOW":
-                                        if turn_total != 0:
-                                            turn_total = turn_total - 1
-                                    if c_card_passive_type == "HASTE":
-                                        turn_total = turn_total + 1
-                                    if c_card_passive_type == "STANCE":
-                                        tempattack = c_attack + c_flat_for_passive
-                                        c_attack = c_defense
-                                        c_defense = tempattack
-                                    if c_card_passive_type == "CONFUSE":
-                                        tempattack = t_attack - c_flat_for_passive
-                                        t_attack = t_defense
-                                        t_defense = tempattack
-                                    if c_card_passive_type == "BLINK":
-                                        c_stamina = c_stamina - c_stam_for_passive
-                                        if t_stamina >= 10:
-                                            t_stamina = t_stamina + c_stam_for_passive
-                                    if c_card_passive_type == "BLAST":
-                                        t_health = round(t_health - c_value_for_passive)
-                                    if c_card_passive_type == "WAVE":
-                                        if turn_total % 10 == 0:
-                                            t_health = round(t_health - 100)
-
-
-
-                                # await asyncio.sleep(2)
+                                if player3_card.used_block == True:
+                                    player3_card.defense = int(player3_card.defense / 2)
+                                    player3_card.used_block = False
                                 if player3_card.used_defend == True:
-                                    c_defense = int(c_defense / 2)
+                                    player3_card.defense = int(player3_card.defense / 2)
                                     player3_card.used_defend = False
-                                if c_attack <= 25:
-                                    c_attack = 25
-                                if c_defense <= 30:
-                                    c_defense = 30
-                                if c_attack > 9999:
-                                    c_attack = 9999
-                                if c_defense > 9999:
-                                    c_defense = 9999
-                                if c_health >= c_max_health:
-                                    c_health = c_max_health
-                                # Tutorial Instructions
-                                if _battle._turn_total == 0 and botActive:
-                                    embedVar = discord.Embed(title=f"MATCH START",
-                                                            description=f"`{c_card} Says:`\n{c_greeting_description}",
-                                                            colour=0xe91e63)
-                                    await private_channel.send(embed=embedVar)
 
-                                if c_health <= (c_max_health * .25):
-                                    embed_color_c = 0xe74c3c
-                                    if c_chainsaw == True:
-                                        if c_atk_chainsaw == False:
-                                            c_atk_chainsaw = True
-                                            c_chainsaw = False
-                                            c_defense = c_defense * 2
-                                            c_attack = c_attack * 2
-                                            c_max_health = c_max_health * 2
-                                            embedVar = discord.Embed(title=f"{c_card}'s Devilization",
-                                                                    description=f"**{c_card}** Doubles ATK, DEF, and MAX HEALTH",
-                                                                    colour=0xe91e63)
-                                            await private_channel.send(embed=embedVar)
+                                player2_card.set_deathnote_message(_battle)
+                                player3_card.set_deathnote_message(_battle)
 
-                                elif c_health <= (c_max_health * .50):
-                                    embed_color_c = 0xe67e22
-                                    if c_chainsaw == True:
-                                        if c_atk_chainsaw == False:
-                                            c_atk_chainsaw = True
-                                            c_chainsaw = False
-                                            c_defense = c_defense * 2
-                                            c_attack = c_attack * 2
-                                            c_max_health = c_max_health * 2
-                                            embedVar = discord.Embed(title=f"{c_card}'s Devilization",
-                                                                    description=f"**{c_card}** Doubles ATK, DEF, and MAX HEALTH",
-                                                                    colour=0xe91e63)
-                                            await private_channel.send(embed=embedVar)
-                                elif c_health <= (c_max_health * .75):
-                                    embed_color_c = 0xf1c40f
-
-                                else:
-                                    embed_color_c = 0x2ecc71
 
                                 if c_stamina < 10:
-                                    c_pet_used = False
-                                    c_focus_count = c_focus_count + 1
-                                    # fortitude or luck is based on health
-                                    fortitude = round(c_health * .1)
-                                    if fortitude <= 50:
-                                        fortitude = 50
-
-                                    c_stamina = c_focus
-                                    c_healthcalc = round(fortitude)
-                                    c_attackcalc = round(fortitude * (c_card_tier / 10))
-                                    c_defensecalc = round(fortitude * (c_card_tier / 10))
-                                    # check if user is at max health and sets messages and focus health value
-                                    c_newhealth = 0
-                                    healmessage = ""
-                                    messagenumber = 0
-
-                                    if c_universe == "One Piece" and (c_card_tier in low_tier_cards or c_card_tier in mid_tier_cards or c_card_tier in high_tier_cards):
-                                        c_attackcalc = c_attackcalc + c_attackcalc
-                                        c_defensecalc = c_defensecalc + c_defensecalc
-
-
-                                    if c_title_passive_type:
-                                        if c_title_passive_type == "GAMBLE":
-                                            c_healthcalc = c_title_passive_value
-                                        if c_title_passive_type == "SOULCHAIN":
-                                            c_stamina = c_title_passive_value
-                                            t_stamina = c_title_passive_value
-                                            player1_card.stamina = c_title_passive_value
-                                        if c_title_passive_type == "BLAST":
-                                            t_health = t_health - (c_title_passive_value * turn_total)
-
-                                    if o_title_passive_type:
-                                        if o_title_passive_type == "GAMBLE":
-                                            c_healthcalc = o_title_passive_value
-                                    
-                                    if t_title_passive_type:
-                                        if t_title_passive_type == "GAMBLE":
-                                            c_healthcalc = t_title_passive_value
-
-
-                                    if c_universe == "Crown Rift Madness":
-                                        healmessage = "yet inner **Madness** drags on..."
-                                        messagenumber = 3
-                                    else:
-                                        if c_health <= c_max_health:
-                                            c_newhealth = c_health + c_healthcalc
-                                            if c_newhealth > c_max_health:
-                                                healmessage = "the injuries dissapeared!"
-                                                messagenumber = 1
-                                                c_health = c_max_health
-                                            else:
-                                                healmessage = "regained some vitality."
-                                                messagenumber = 2
-                                                c_health = c_newhealth
-                                        else:
-                                            healmessage = f"**{t_card}**'s blows don't appear to have any effect!"
-                                            messagenumber = 0
-                                    if not c_used_resolve:
-                                        c_attack = c_attack + c_attackcalc
-                                        c_defense = c_defense + c_defensecalc
-                                    c_used_focus = True
-
-                                    embedVar = discord.Embed(title=f"{c_card} FOCUSED",
-                                                            description=f"**{c_card} says**\n{c_focus_description}",
-                                                            colour=0xe91e63)
-                                    embedVar.add_field(name=f"{c_card} focused and {healmessage}",
-                                                    value="All stats & stamina increased")
-                                    #await private_channel.send(embed=embedVar)
-                                    previous_moves.append(f"(**{turn_total}**) 🌀 **{c_card}** focused and {healmessage}")
-                                    if not c_used_resolve and c_used_focus and c_universe == "Digimon":  # Digimon Universal Trait
-                                        embedVar = discord.Embed(title=f"{c_card} STRENGTHENED RESOLVE :zap:",
-                                                                description=f"**{c_card} says**\n{c_resolve_description}",
-                                                                colour=0xe91e63)
-                                        embedVar.add_field(name=f"Transformation: Digivolve", value="On Focus you Resolve.")
-                                        #await private_channel.send(embed=embedVar)
-                                        # fortitude or luck is based on health
-                                        fortitude = 0.0
-                                        low = o_health - (o_health * .75)
-                                        high = o_health - (o_health * .66)
-                                        fortitude = round(random.randint(int(low), int(high)))
-                                        # Resolve Scaling
-                                        c_resolve_health = round(fortitude + (.5 * c_resolve))
-                                        c_resolve_attack = round((.30 * c_defense) * (c_resolve / (.50 * c_defense)))
-                                        c_resolve_defense = round((.30 * c_defense) * (c_resolve / (.50 * c_defense)))
-
-                                        c_stamina = c_stamina + c_resolve
-                                        c_health = c_health + c_resolve_health
-                                        c_attack = round(c_attack + c_resolve_attack)
-                                        c_defense = round(c_defense - c_resolve_defense)
-                                        c_used_resolve = True
-                                        c_pet_used = False
-                                        
-                                        c_attack = round(c_attack * 1.5)
-                                        c_defense = round(c_defense * 1.5)
-                                        if turn_total <=5:
-                                            c_attack = round(c_attack * 2)
-                                            c_defense = round(c_defense * 2 )
-                                            c_health = c_health + 500
-                                            c_max_health = c_max_health + 500
-                                            previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Transformation: Mega Digivolution!!!")
-                                        else:
-                                            previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Transformation: Digivolve")
-
-
-                                    elif c_universe == "League Of Legends":
-                                        embedVar = discord.Embed(title=f"Turret Shot hits {t_card} for **{60 + turn_total}** Damage 💥",
-                                                                colour=0xe91e63)
-                                        #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Turret Shot hits **{t_card}** for **{60 + turn_total}** Damage 💥")
-                                        t_health = round(t_health - (60 + turn_total))
-
-                                    elif c_universe == "Dragon Ball Z":
-                                        c_health = c_health + t_stamina + turn_total
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Saiyan Spirit... You heal for **{t_stamina + turn_total}** ❤️")
-
-
-                                    elif c_universe == "Solo Leveling":
-                                        embedVar = discord.Embed(
-                                            title=f"Ruler's Authority... {t_card} loses **{30 + turn_total}** 🛡️ 🔻",
-                                            colour=0xe91e63)
-                                        #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Ruler's Authority... {t_card} loses **{30 + turn_total}** 🛡️ 🔻")
-                                        t_defense = round(t_defense - (30 + turn_total))
-
-                                    elif c_universe == "Black Clover":
-                                        embedVar = discord.Embed(title=f"Mana Zone! {c_card} Increased Stamina 🌀",
-                                                                colour=0xe91e63)
-                                        #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Mana Zone! **{c_card}** Increased AP & Stamina 🌀")
-                                        c_stamina = 100
-                                        ccard_lvl_ap_buff = ccard_lvl_ap_buff + 30
-                                    elif c_universe == "Death Note":
-                                        if turn_total >= 100:
-                                            embedVar = discord.Embed(title=f"{t_card}'s' Scheduled Death 📓",
-                                                                    description=f"**{c_card} says**\n**Delete**",
-                                                                    colour=0xe91e63)
-                                            embedVar.add_field(name=f"{t_card} had a heart attack and died",
-                                                            value=f"Death....")
-                                            #await private_channel.send(embed=embedVar)
-                                            previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 had a heart attack and died")
-                                            t_health = 0
-
-                                    if t_universe == "One Punch Man" and c_universe != "Death Note":
-                                        embedVar = discord.Embed(
-                                            title=f"Hero Reinforcements! **{t_card}**  Increased Health & Max Health ❤️",
-                                            colour=0xe91e63)
-                                        #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) Hero Reinforcements! **{t_card}** Increased Health!  ❤️")
-                                        t_health = round(t_health + 100)
-                                        t_max_health = round(t_max_health + 100)
-
-                                    elif t_universe == "7ds":
-                                        embedVar = discord.Embed(
-                                            title=f"Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased Stamina 🌀", colour=0xe91e63)
-                                        #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Power Of Friendship! 🧬 **{tpet_name}** Rested, **{t_card}** Increased Stamina 🌀")
-                                        t_stamina = t_stamina + 60
-                                        t_pet_used = False
-
-                                    elif t_universe == "Souls":
-                                        embedVar = discord.Embed(
-                                            title=f"Combo Recognition! **{t_card}** Increased Attack by **{60 + turn_total}** 🔺 ",
-                                            colour=0xe91e63)
-                                        #await private_channel.send(embed=embedVar)
-                                        previous_moves.append(f"(**{turn_total}**) 🩸 Combo Recognition! **{o_card}** Increased Attack by **{60 + turn_total}** 🔺")
-                                        t_attack = round(t_attack + (60 + turn_total))
-
-                                    else:
-                                        turn_total = turn_total + 1
-                                        if c_universe != "Crown Rift Madness":
-                                            turn = 3
-                                        else:
-                                            turn = 2
-                                    turn_total = turn_total + 1
-                                    if c_universe != "Crown Rift Madness":
-                                        turn = 3
-                                    else:
-                                        turn = 2
+                                    player3_card.focusing(player3_title, player2_title, player2_card, _battle)
                                 else:
-                                    if mode in ai_co_op_modes:
-                                        # UNIVERSE CARD
-                                        cap1 = list(c_1.values())[0] + ccard_lvl_ap_buff + c_shock_buff + c_basic_water_buff + c_ap_buff
-                                        cap2 = list(c_2.values())[0] + ccard_lvl_ap_buff + c_shock_buff + c_special_water_buff + c_ap_buff
-                                        cap3 = list(c_3.values())[0] + ccard_lvl_ap_buff + cdemon_slayer_buff + c_shock_buff + c_ultimate_water_buff + c_ap_buff
-                                        cenh1 = list(c_enhancer.values())[0]
-                                        cenh_name = list(c_enhancer.values())[2]
-                                        cpet_enh_name = list(cpet_move.values())[2]
-                                        cpet_msg_on_resolve = ""
+                                    if _battle._is_auto_battle:
+                                        player3_card.set_battle_arm_messages(player2_card)
 
-                                        if cap1 < 150:
-                                            cap1 = 150
-                                        if cap2 < 150:
-                                            cap2 = 150            
-                                        if cap3 < 150:
-                                            cap3 = 150
+                                        player3_card.activate_solo_leveling_trait(_battle, player2_card)
 
-                                        if c_universe == "Souls" and c_used_resolve:
-                                            companion_card = showcard("battle", c, carm,c_max_health, c_health, c_max_stamina, c_stamina,
-                                                                c_used_resolve, ctitle, c_used_focus, c_attack, c_defense,
-                                                                turn_total, cap2, cap3, cap3, cenh1, cenh_name, ccard_lvl, t_defense)
-                                        else:
-                                            companion_card = showcard("battle", c, carm,c_max_health, c_health, c_max_stamina, c_stamina,
-                                                                    c_used_resolve, ctitle, c_used_focus, c_attack, c_defense,
-                                                                    turn_total, cap1, cap2, cap3, cenh1, cenh_name, ccard_lvl, t_defense)
-
-                                        if c_universe == "Solo Leveling" and not c_swapped:
-                                            if temp_tarm_shield_active and not tarm_shield_active:
-                                                if carm_shield_active:
-                                                    cshield_value = cshield_value + temp_tshield_value
-                                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                    c_swapped = True
-                                                elif not carm_shield_active:
-                                                    carm_shield_active = True
-                                                    cshield_value = temp_tshield_value
-                                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                    c_swapped = True
-                                            elif temp_tarm_barrier_active and not tarm_barrier_active:
-                                                if carm_barrier_active:
-                                                    cbarrier_count = cbarrier_count + temp_tbarrier_count
-                                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                    c_swapped = True
-                                                elif not carm_barrier_active:
-                                                    carm_barrier_active = True
-                                                    cbarrier_count = temp_tbarrier_count
-                                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                    c_swapped = True
-                                            elif temp_tarm_parry_active and not tarm_parry_active:
-                                                if carm_parry_active:
-                                                    cparry_count = cparry_count + temp_tparry_count
-                                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                    c_swapped = True
-                                                elif not carm_parry_active:
-                                                    carm_parry_active = True
-                                                    cparry_count = temp_tparry_count
-                                                    previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 **ARISE!** *{tarm_name}* is now yours")
-                                                    c_swapped = True
 
                                         #await private_channel.send(file=companion_card)
-                                        tembedVar = discord.Embed(title=f"_Turn_ {turn_total}", description=textwrap.dedent(f"""\
-                                        {previous_moves_into_embed}
+                                        tembedVar = discord.Embed(title=f"_Turn_ {_battle._turn_total}", description=textwrap.dedent(f"""\
+                                        {_battle.get_previous_moves_embed()}
                                         """), color=0xe74c3c)
                                         tembedVar.set_image(url="attachment://image.png")
                                         await battle_msg.delete(delay=None)

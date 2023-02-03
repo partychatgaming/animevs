@@ -404,6 +404,7 @@ async def route_to_storage(user, player, card_name, current_cards, card_owned, p
             'trace': trace
         }))
 
+
 async def updateRetry(player_id, mode, math_calc):
     player_info = db.queryUser({'DID' : str(player_id)})
     if player_info:
