@@ -1811,7 +1811,7 @@ class Profile(commands.Cog):
                     icon = "🦾"
                     if resp['UNIVERSE'] == "Unbound":
                         icon = ":crown:"
-                    if arm_available and arm_exclusive:
+                    elif arm_available and arm_exclusive:
                         icon = ":fire:"
                     elif arm_available == False and arm_exclusive ==False:
                         icon = ":japanese_ogre:"
@@ -8048,7 +8048,7 @@ async def menuarms(self, ctx):
                 icon = "🦾"
                 if resp['UNIVERSE'] == "Unbound":
                     icon = ":crown:"
-                if arm_available and arm_exclusive:
+                elif arm_available and arm_exclusive:
                     icon = ":fire:"
                 elif arm_available == False and arm_exclusive ==False:
                     icon = ":japanese_ogre:"

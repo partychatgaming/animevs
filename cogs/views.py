@@ -409,6 +409,7 @@ async def viewtitle(self, ctx, title: str):
 
             if title_show != 'Unbound':
                 title_img = db.queryUniverse({'TITLE': title_show})['PATH']
+            else:
                 abyssal = True
             title_passive = title['ABILITIES'][0]
                 # Title Passive
@@ -550,6 +551,7 @@ async def viewarm(self, ctx, arm: str):
 
             if arm_show != 'Unbound':
                 arm_show_img = db.queryUniverse({'TITLE': arm_show})['PATH']
+            else:
                 abyssal = True
             arm_passive = arm['ABILITIES'][0]
                 # Arm Passive
