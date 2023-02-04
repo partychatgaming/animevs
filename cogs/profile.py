@@ -8616,6 +8616,7 @@ async def menublacksmith(self, ctx):
         arm_info = db.queryArm({'ARM': str(current_arm)})
         boss_arm = False
         dungeon_arm = False
+        abyss_arm = False
         boss_message = "Nice Arm!"
         arm_cost = '{:,}'.format(100000)
         durability_message = f"{arm_cost}"
@@ -8625,11 +8626,17 @@ async def menublacksmith(self, ctx):
             dungeon_arm= True
             arm_cost = '{:,}'.format(250000)
             durability_message = f"{arm_cost}"
+        elif arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == True:
+            abyss_arm= True
+            arm_cost = '{:,}'.format(1000000)
+            durability_message = f"{arm_cost}"
         if boss_arm:
             boss_message = "Cannot Repair"
             durability_message = "UNAVAILABLE"
         elif dungeon_arm:
             boss_message = "Dungeon eh?!"
+        elif abyss_arm:
+            boss_message = "that's Abyssal!"
         vault = db.altQueryVault({'DID' : str(ctx.author.id)})
         current_card = user['CARD']
         if storage_type >=10:
@@ -8854,6 +8861,8 @@ async def menublacksmith(self, ctx):
             if button_ctx.custom_id == "5":
                 if dungeon_arm:
                     price = 250000
+                if abyss_arm:
+                    price = 1000000
                 if boss_arm:
                     await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
                     await msg.edit(components=[])

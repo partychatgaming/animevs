@@ -6437,6 +6437,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
     crestsearch = False
     autoBattle = False
     guild = ctx.guild
+    alevel = sowner['LEVEL']
     rift_on = False
     team_query = {'TEAM_NAME': oteam.lower()}
     guild_buff_update_query = {}
@@ -6550,9 +6551,9 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
 
                         embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Universe Title**: {uni['UTITLE']}
-                        🦾 **Universe Arm**: {uni['UARM']}
-                        🧬 **Universe Summon**: {uni['UPET']}
+                        🎗️ **Title**: {uni['UTITLE']}
+                        🦾 **Arm**: {uni['UARM']}
+                        🧬 **Summon**: {uni['UPET']}
 
                         **Saved Game**: :crossed_swords: *{save_spot_text}*
                         **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
@@ -6562,6 +6563,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                        embedVar.set_footer(text=f"⚔️ | Traverse {uni['TITLE']} Tale : /universes to view all Tales Drops.")
                         universe_embed_list.append(embedVar)
                     else:
                         save_spot_text = "No Save Data"
@@ -6591,6 +6593,10 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                        if alevel > 40:
+                            embedVar.set_footer(text=f"⚔️ | Conquer {uni['TITLE']} Tale to unlock Dungeon and a Major Reward!.")
+                        else:
+                            embedVar.set_footer(text=f"⚔️ | Conquer {uni['TITLE']} Tale for a Major Reward!")
                         universe_embed_list.append(embedVar)
         else:
             for uni in all_universes:
@@ -6626,6 +6632,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                        embedVar.set_footer(text=f"⚔️ | Traverse {uni['TITLE']} Tale : /universes to view all Tales Drops.")
+                        
                         universe_embed_list.append(embedVar)
                     else:
                         save_spot_text = "No Save Data"
@@ -6656,6 +6664,10 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         """))
                         embedVar.set_image(url=uni['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                        if alevel > 40:
+                            embedVar.set_footer(text=f"⚔️ | Conquer {uni['TITLE']} Tale to unlock Dungeon and a Major Reward!.")
+                        else:
+                            embedVar.set_footer(text=f"⚔️ | Conquer {uni['TITLE']} Tale for a Major Reward!")
                         universe_embed_list.append(embedVar)
 
         buttons = [
@@ -6765,6 +6777,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
         universe_menu = []
         selected_universe = ""
         universe_embed_list = []
+        can_fight_message = ""
         for uni in completed_crown_tales:
             if uni != "":
                 uni_option = db.queryUniverse({"TITLE": str(uni)})
@@ -6783,22 +6796,26 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
 
                 if uni in completed_dungeons:
                     completed = "🟢"
+                    can_fight_message = f"🔥 | Conquer {uni} Dungeon again for a Boss Key and Minor Reward."
                 else:
-                    completed = "🔴"
+                    completed = "🔴" 
+                    can_fight_message = f"🔥 | {uni} Dungeon : /universes to view all Dungeon Drops."
 
                 embedVar = discord.Embed(title= f"{uni}", description=textwrap.dedent(f"""
                 {crown_utilities.crest_dict[uni_option['TITLE']]} **Number of Fights**: :fire: **{len(uni_option['DUNGEONS'])}**
-                🎗️ **Dungeon Title**: {uni_option['DTITLE']}
-                🦾 **Dungeon Arm**: {uni_option['DARM']}
-                🧬 **Dungeon Summon**: {uni_option['DPET']}
+                🎗️ **Title**: {uni_option['DTITLE']}
+                🦾 **Arm**: {uni_option['DARM']}
+                🧬 **Summon**: {uni_option['DPET']}
 
                 **Saved Game**: :fire: *{save_spot_text}*
+                **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
                 **Completed**: {completed}
                 {corruption_message}
                 {owner_message}
                 """))
                 embedVar.set_image(url=uni_option['PATH'])
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                embedVar.set_footer(text=f"{can_fight_message}")
                 universe_embed_list.append(embedVar)
 
         if not universe_embed_list:
@@ -6877,11 +6894,19 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
     if mode in B_modes:
         completed_crown_tales = sowner['CROWN_TALES']
         completed_dungeons = sowner['DUNGEONS']
+        completed_bosses = sowner['BOSS_WINS']
+        can_fight_boss = False
+        can_fight_message = "🔥 | Conquer A Dungeon to Gain a Boss Key"
+        fought_boss = sowner['BOSS_FOUGHT']
+        if fought_boss == False:
+            can_fight_boss = True
+            can_fight_message = "📿| Boss Talismans ignore all Affinities. Be Prepared"
         all_universes = db.queryAllUniverse()
         available_universes = []
         selected_universe = ""
         universe_menu = []
         universe_embed_list = []
+        completed = ""
         for uni in completed_dungeons:
             if uni != "":
                 searchUni = db.queryUniverse({'TITLE': str(uni)})
@@ -6892,17 +6917,23 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 if searchUni['UNIVERSE_BOSS'] != "":
                     boss_info = db.queryBoss({"NAME": searchUni['UNIVERSE_BOSS']})
                     if boss_info:
+                        if boss_info['NAME'] in completed_bosses:
+                            completed = "🟢"
+                        else:
+                            completed = "🔴"
                         embedVar = discord.Embed(title= f"{uni}", description=textwrap.dedent(f"""
                         {crown_utilities.crest_dict[uni]} **Boss**: :japanese_ogre: **{boss_info['NAME']}**
-                        🎗️ **Boss Title**: {boss_info['TITLE']}
-                        🦾 **Boss Arm**: {boss_info['ARM']}
-                        🧬 **Boss Summon**: {boss_info['PET']}
+                        🎗️ **Title**: {boss_info['TITLE']}
+                        🦾 **Arm**: {boss_info['ARM']}
+                        🧬 **Summon**: {boss_info['PET']}
                         
+                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
+                        **Soul Aquired**: {completed}
                         {owner_message}
                         """))
                         embedVar.set_image(url=boss_info['PATH'])
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        embedVar.set_footer(text="📿| Boss Talismans ignore all Affinities. Be Prepared")
+                        embedVar.set_footer(text=f"{can_fight_message}")
                         universe_embed_list.append(embedVar)
         if not universe_embed_list:
             await ctx.send("No available Bosses for you at this time!")
@@ -24169,7 +24200,7 @@ async def scenario_drop(self, ctx, scenario, difficulty):
             response = await crown_utilities.store_drop_card(str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
             response = f"{response}\nYou earned :coin: **{'{:,}'.format(scenario_gold)}**!"
             if not response:
-                bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
+                bless_amount = scenario_gold
                 await crown_utilities.bless(bless_amount, str(ctx.author.id))
                 return f"You earned :coin: **{'{:,}'.format(scenario_gold)}**!"
             return response
@@ -24207,7 +24238,7 @@ async def drops(self,player, universe, matchcount):
     difficulty = player_info['DIFFICULTY']
 
     if difficulty == "EASY":
-        bless_amount = 100
+        bless_amount = 500
         await crown_utilities.bless(bless_amount, player.id)
         return f"You earned :coin: **{bless_amount}**!"
 
@@ -24321,34 +24352,17 @@ async def drops(self,player, universe, matchcount):
             return f"🆚  You have earned 1 Rematch and  :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > rematch_rate:
             if all_available_drop_titles:
-                # if len(vault['TITLES']) >= 25:
-                #     await crown_utilities.bless(300, player.id)
-                #     return f"You're maxed out on Titles! You earned :coin: 300 instead!"
-                # if str(titles[rand_title]) in owned_titles:
-                #     await crown_utilities.bless(150, player.id)
-                #     return f"You already own **{titles[rand_title]}**! You earn :coin: **150**."
-                # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
-                # return f"You earned _Title:_ **{titles[rand_title]}**!"
-                response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 150, 150, "mode", False, 0, "titles")
+                response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 1000, 1000, "mode", False, 0, "titles")
                 return response
             else:
-                await crown_utilities.bless(150, player.id)
-                return f"You earned :coin: **150**!"
+                await crown_utilities.bless(1000, player.id)
+                return f"You earned :coin: **1000**!"
         elif drop_rate <= arm_drop and drop_rate > title_drop:
             if all_available_drop_arms:
-                # if len(vault['ARMS']) >= 25:
-                #     await crown_utilities.bless(300, player.id)
-                #     return f"You're maxed out on Arms! You earned :coin: 300 instead!"
-                # if str(arms[rand_arm]) in owned_arms:
-                #     await crown_utilities.bless(150, player.id)
-                #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **150**."
-                # else:
-                #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-                #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
                 response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 2000, 2000, "mode", False, 0, "arms")
             else:
-                await crown_utilities.bless(150, player.id)
-                return f"You earned :coin: **150**!"
+                await crown_utilities.bless(2000, player.id)
+                return f"You earned :coin: **2000**!"
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if all_available_drop_pets:
                 if len(vault['PETS']) >= 25:
@@ -24362,8 +24376,8 @@ async def drops(self,player, universe, matchcount):
 
                 if pet_owned:
 
-                    await crown_utilities.bless(150, player.id)
-                    return f"You own _Summon:_ **{pets[rand_pet]}**! Received extra + :coin: 150!"
+                    await crown_utilities.bless(10000, player.id)
+                    return f"You own _Summon:_ **{pets[rand_pet]}**! Received extra + :coin: **10,000**!"
                 else:
 
                     selected_pet = db.queryPet({'PET': pets[rand_pet]})
@@ -24374,22 +24388,22 @@ async def drops(self,player, universe, matchcount):
                     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {
                         'PETS': {'NAME': selected_pet['PET'], 'LVL': 0, 'EXP': 0, pet_ability_name: int(pet_ability_power),
                                 'TYPE': pet_ability_type, 'BOND': 0, 'BONDEXP': 0, 'PATH': selected_pet['PATH']}}})
-                    await crown_utilities.bless(50, player.id)
-                    return f"You earned _Summon:_ **{pets[rand_pet]}** + :coin: 50!"
+                    await crown_utilities.bless(25000, player.id)
+                    return f"You earned _Summon:_ **{pets[rand_pet]}** + :coin: **25,000**!"
             else:
-                await crown_utilities.bless(150, player.id)
-                return f"You earned :coin: **150**!"
+                await crown_utilities.bless(10000, player.id)
+                return f"You earned :coin: **10,000**!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
             if all_available_drop_cards:
-                response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 3000, 1000, "mode", False, 0, "cards")
+                response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 50000, 50000, "mode", False, 0, "cards")
                 if not response:
                     bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
                     await crown_utilities.bless(bless_amount, player.id)
                     return f"You earned :coin: **{bless_amount}**!"
                 return response
             else:
-                await crown_utilities.bless(5000, player.id)
-                return f"You earned :coin: **5000**!"
+                await crown_utilities.bless(50000, player.id)
+                return f"You earned :coin: **50,000**!"
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -24411,7 +24425,7 @@ async def drops(self,player, universe, matchcount):
         channel = guild.get_channel(main.guild_channel)
         await channel.send(f"'PLAYER': **{str(player)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
-        return f"You earned :coin: **5000**!"
+        return f"You earned :coin: **5,000**!"
 
 
 async def specific_drops(self,player, card, universe):
@@ -24578,27 +24592,10 @@ async def dungeondrops(self, player, universe, matchcount):
             await crown_utilities.bless(bless_amount, player.id)
             return f"🆚  You have earned 3 Rematches and  :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > rematch_rate:
-            # if len(vault['TITLES']) >= 25:
-            #     await crown_utilities.bless(2500, player.id)
-            #     return f"You're maxed out on Titles! You earned :coin: 2500 instead!"
-            # if str(titles[rand_title]) in owned_titles:
-            #         await crown_utilities.bless(2000, player.id)
-            #         return f"You already own **{titles[rand_title]}**! You earn :coin: **2000**."
-            # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
-            # return f"You earned _Title:_ **{titles[rand_title]}**!"
             response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000,"mode", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
-            # if len(vault['ARMS']) >= 25:
-            #     await crown_utilities.bless(3000, player.id)
-            #     return f"You're maxed out on Arms! You earned :coin: 3000 instead!"
-            # if str(arms[rand_arm]) in owned_arms:
-            #     await crown_utilities.bless(2500, player.id)
-            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **2500**."
-            # else:
-            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-            #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
-            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 3000, 3000,"mode", False, 0, "arms")
+            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 50000, 50000,"mode", False, 0, "arms")
             return response
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if len(vault['PETS']) >= 25:
@@ -24610,8 +24607,8 @@ async def dungeondrops(self, player, universe, matchcount):
                     pet_owned = True
 
             if pet_owned:
-                await crown_utilities.bless(5000, player.id)
-                return f"You own _Summon:_ **{pets[rand_pet]}**! Received extra + :coin: 5000!"
+                await crown_utilities.bless(100000, player.id)
+                return f"You own _Summon:_ **{pets[rand_pet]}**! Received extra + :coin: 100,000!"
             else:
                 selected_pet = db.queryPet({'PET': pets[rand_pet]})
                 pet_ability_name = list(selected_pet['ABILITIES'][0].keys())[0]
@@ -24621,10 +24618,10 @@ async def dungeondrops(self, player, universe, matchcount):
                 response = db.updateVaultNoFilter(vault_query, {'$addToSet': {
                     'PETS': {'NAME': selected_pet['PET'], 'LVL': 0, 'EXP': 0, pet_ability_name: int(pet_ability_power),
                              'TYPE': pet_ability_type, 'BOND': 0, 'BONDEXP': 0, 'PATH': selected_pet['PATH']}}})
-                await crown_utilities.bless(10000, player.id)
+                await crown_utilities.bless(100000, player.id)
                 return f"You earned _Summon:_ **{pets[rand_pet]}** + :coin: 10000!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 5000, 2500,"mode", False, 0, "cards")
+            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 150000, 150000,"mode", False, 0, "cards")
             return response
     except Exception as ex:
         trace = []
@@ -24745,33 +24742,16 @@ async def bossdrops(self,player, universe):
             bless_amount = (1000000  * (1 + rebirth))
             await crown_utilities.bless(bless_amount, player.id)
             return f"🆚  You have earned 10 Rematches and  :coin: **{bless_amount}**!"
-        elif drop_rate <= title_drop and drop_rate > gold_drop:
-            # if len(vault['TITLES']) >= 25:
-            #     await crown_utilities.bless(500000, player.id)
-            #     return f"You're maxed out on Titles! You earned :coin: **500000** instead!"
-            # if str(titles[rand_title]) in owned_titles:
-            #         await crown_utilities.bless(30000, player.id)
-            #         return f"You already own **{titles[rand_title]}**! You earn :coin: **30000**."
-            # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
-            # return f"You earned {titles[rand_title]}!"
-            response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000, "Dungeon", False, 0, "titles")
+        elif drop_rate <= title_drop and drop_rate > rematch_drop:
+            response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 50000, 50000, "Dungeon", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
-            # if len(vault['ARMS']) >= 25:
-            #     await crown_utilities.bless(40000, player.id)
-            #     return f"You're maxed out on Arms! You earned :coin: **40000** instead!"
-            # if str(arms[rand_arm]) in owned_arms:
-            #     await crown_utilities.bless(40000, player.id)
-            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **40000**."
-            # else:
-            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-            #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
-            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 40000, 40000, "Dungeon", False, 0, "arms")
+            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 100000, 100000, "Dungeon", False, 0, "arms")
             return response
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if len(vault['PETS']) >= 25:
-                await crown_utilities.bless(8000, player.id)
-                return f"You're maxed out on Summons! You earned :coin: 8000 instead!"
+                await crown_utilities.bless(500000, player.id)
+                return f"You're maxed out on Summons! You earned :coin: 500,000 instead!"
             selected_pet = db.queryPet({'PET': pets[rand_pet]})
             pet_ability_name = list(selected_pet['ABILITIES'][0].keys())[0]
             pet_ability_power = list(selected_pet['ABILITIES'][0].values())[0]
@@ -24780,35 +24760,21 @@ async def bossdrops(self,player, universe):
             response = db.updateVaultNoFilter(vault_query, {'$addToSet': {
                 'PETS': {'NAME': selected_pet['PET'], 'LVL': 0, 'EXP': 0, pet_ability_name: int(pet_ability_power),
                          'TYPE': pet_ability_type, 'BOND': 0, 'BONDEXP': 0, 'PATH': selected_pet['PATH']}}})
-            await crown_utilities.bless(750000, player.id)
-            return f"You earned {pets[rand_pet]} + :coin: 750000!"
+            await crown_utilities.bless(500000, player.id)
+            return f"You earned {pets[rand_pet]} + :coin: 500,000!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 500000, 500000, "Dungeon", False, 0, "cards")
+            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 1000000, 1000000, "Dungeon", False, 0, "cards")
             return response
         elif drop_rate <= boss_title_drop and drop_rate > card_drop:
-            # if len(vault['TITLES']) >= 25:
-            #     await crown_utilities.bless(10000000, player.id)
-            #     return f"You're maxed out on Titles! You earned :coin: **10,000,000** instead!"
-            # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(boss_title)}})
-            # return f"You earned the Exclusive Boss Title: {boss_title}!"
-            response = await crown_utilities.store_drop_card(player.id, boss_title, universe, vault, owned_destinies, 50000, 50000, "Boss", False, 0, "titles")
+            response = await crown_utilities.store_drop_card(player.id, boss_title, universe, vault, owned_destinies, 5000000, 5000000, "Boss", False, 0, "titles")
             return response
         elif drop_rate <= boss_arm_drop and drop_rate > boss_title_drop:
-            # if len(vault['ARMS']) >= 25:
-            #     await crown_utilities.bless(10000000, player.id)
-            #     return f"You're maxed out on Arms! You earned :coin: **10,000,000** instead!"
-            # if str(boss_arm) in owned_arms:
-            #     await crown_utilities.bless(9000000, player.id)
-            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **9,000,000**."
-            # else:
-            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(boss_arm), 'DUR': durability}}})
-            #     return f"You earned the Exclusive Boss Arm: **{str(boss_arm)}** with ⚒️**{str(durability)}**!"
-            response = await crown_utilities.store_drop_card(player.id, boss_arm, universe, vault, durability, 9000000, 9000000, "Boss", False, 0, "arms")
+            response = await crown_utilities.store_drop_card(player.id, boss_arm, universe, vault, durability, 10000000, 10000000, "Boss", False, 0, "arms")
             return response
         elif drop_rate <= boss_pet_drop and drop_rate > boss_arm_drop:
             if len(vault['PETS']) >= 25:
-                await crown_utilities.bless(1500000, player.id)
-                return f"You're maxed out on Summons! You earned :coin: **15,000,000** instead!"
+                await crown_utilities.bless(25000000, player.id)
+                return f"You're maxed out on Summons! You earned :coin: **25,000,000** instead!"
             selected_pet = db.queryPet({'PET': boss['PET']})
             pet_ability_name = list(selected_pet['ABILITIES'][0].keys())[0]
             pet_ability_power = list(selected_pet['ABILITIES'][0].values())[0]
@@ -24817,10 +24783,10 @@ async def bossdrops(self,player, universe):
             response = db.updateVaultNoFilter(vault_query, {'$addToSet': {
                 'PETS': {'NAME': selected_pet['PET'], 'LVL': 0, 'EXP': 0, pet_ability_name: int(pet_ability_power),
                          'TYPE': pet_ability_type, 'BOND': 0, 'BONDEXP': 0, 'PATH': selected_pet['PATH']}}})
-            await crown_utilities.bless(10000000, player.id)
-            return f"You earned the Exclusive Boss Summon:  {boss['PET']} + :coin: **10,000,000**!"
+            await crown_utilities.bless(25000000, player.id)
+            return f"You earned the Exclusive Boss Summon:  {boss['PET']} + :coin: **25,000,000**!"
         elif drop_rate <= boss_card_drop and drop_rate > boss_pet_drop:
-            response = await crown_utilities.store_drop_card(player.id, boss_card, universe, vault, owned_destinies, 30000, 10000, "Boss", False, 0, "cards")
+            response = await crown_utilities.store_drop_card(player.id, boss_card, universe, vault, owned_destinies, 50000000, 50000000, "Boss", False, 0, "cards")
             return response
     except Exception as ex:
         trace = []

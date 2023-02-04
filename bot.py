@@ -295,11 +295,19 @@ async def animevs(ctx):
    embedVar1.set_thumbnail(url=avatar)
    embedVar1.add_field(name="**About The Game!**", value=textwrap.dedent(f"""\
       
-   **Anime VS+** is a Multiplatform Card Game exploring **Universes** from your favorite Video Game and Anime Series!
+   **Anime VS+** is a Multiplatform Card Game exploring **Universes** from your favorite Anime Series and Video Game!
 
-   Explore Tales, Dungeons, and Bosses! Play **Solo**, or with **Friends**!
+   Explore Tales, Dungeons, and unlock Bosses! Play **Solo**, or with **Friends**!
+   
+   Collect and Trade Cards with your peers and Battle **PVP** 
+   
+   Build up your Family and Form Guilds and Associations with Other Players!
+   
+   Play Strategic Battles with our Next Gen Battle Syterm or Auto Battle ang go AFK
    
    Customize your experince by setting your personal /difficulty!
+   
+   There are so many ways to play AnimeVs+ 
    """))
 
    embedVar2 = discord.Embed(title= f"Getting Started", description=textwrap.dedent(f"""\
@@ -330,7 +338,7 @@ async def animevs(ctx):
    ☄️ Special Attack _uses 30 stamina_
    🏵️ Ultimate Attack _uses 80 stamina_
    
-   🔅**Elemeental Damage**
+   🔅**Elemental Damage**
    Attacks have bonus effects based on the 🔅**Element** Type
    Use /help to find information on **Elements**
    
@@ -351,7 +359,7 @@ async def animevs(ctx):
    ✨ **Destiny Cards** - Earned via **Destinies**
    👹 **Boss Cards** - Exchange for **Boss Souls**
    
-   **Cards Have 7 Passive Elements** 
+   **What Makes a Card?** 
    Card Type
    Card Tier
    Affinities
@@ -372,7 +380,7 @@ async def animevs(ctx):
    Absorb - Absorbs damage as Health
    
    🩸 **Unique Passive**
-   Enhancers that take effect **at the beginning** of the battle.
+   Enhancers that take effect passively during Battle.
 
    ♾️ **Universe Traits**
    Universe specific abilities activated during battle. 
@@ -591,7 +599,7 @@ async def animevs(ctx):
    **Universe Trinkets**
    Craftable Boost that increase the limits of your cards levels!
    💟 **Universe Heart** - will allow you to level cards past 200!
-   🌹 **Universe Soul** - Grants 2x XP for all cards in Universe!
+   🌹 **Universe Soul** - Grants XP Boost for all cards in Universe!
    
    **Blacksmith**
    **/menu** to purchase Card Levels, Arm Durability and **Storage**!
@@ -599,12 +607,13 @@ async def animevs(ctx):
    **Storage**
    **/storage** to access Card, Title and Arm Storage, purchase additional storage in the Blacksmith
    
-    👛 **Gabe's Purse** - will allow you to keep all items after a **Rebirth**
+   👛 **Gabe's Purse** - will allow you to keep all items after a **Rebirth**
    
    **Currency**
    :coin: - Coins can be used to purchase Cards, Titles and Arms. You can use them to trade and sell items to other players!
    :gem: - When Arms break they turn into **Gems**, You can also dismantle items from your inventory into **Gems**! 
    **Gems** are universe specific items that can be crafted into Skins, Trinkets or **Destinies**
+   🪔 - Essence are used to craft Elemental Talismans. Earn Essence through Drops and Dismantling Cards ad Elemental Arms
    
    """) ,colour=0x7289da)
    embedVar10.set_thumbnail(url=avatar)
