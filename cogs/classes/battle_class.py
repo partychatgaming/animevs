@@ -212,10 +212,9 @@ class Battle:
             self._is_explore = True
             self.is_ai_opponent = True
             self._total_enemies = 1
-            self.starting_match_title = f"{self.explore_type.title()} Battle!"
+            self.starting_match_title = f"✅ Explore Battle is about to begin!"
 
         if self.difficulty == "EASY":
-            self._is_easy = True
             self._is_easy = True
             self.health_debuff = self.health_debuff + 500
             self.stat_debuff = self.stat_debuff + 100
@@ -266,7 +265,6 @@ class Battle:
                 self._player_association = "PCG"
 
             self.starting_match_title = f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
-
 
 
     def set_abyss_config(self):
@@ -436,10 +434,46 @@ class Battle:
     def set_explore_config(self, universe_data, card_data):
         try:
             self._selected_universe_data = universe_data
-            self.explore_card = card_data
+            self._ai_opponent_card_data = card_data
             self._selected_universe = universe_data['TITLE']
-        except:
-            print("Set explore config did not work")
+
+
+            if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
+                title = 'DTITLE'
+                arm = 'DARM'
+                summon = 'DPET'
+            if self.mode in crown_utilities.TALE_M or self._ai_opponent_card_lvl < 350:
+                title = 'UTITLE'
+                arm = 'UARM'
+                summon = 'UPET'
+
+            self._ai_opponent_title_data = db.queryTitle({'TITLE': self._selected_universe_data[title]})
+            self._ai_opponent_arm_data = db.queryArm({'ARM': self._selected_universe_data[arm]})
+            self._ai_opponent_summon_data = db.queryPet({'PET': self._selected_universe_data[summon]})
+            self._ai_opponent_summon_image = self._ai_opponent_summon_data['PATH']
+            self._ai_opponent_summon_name = self._ai_opponent_summon_data['PET']
+            self._ai_opponent_summon_universe = self._ai_opponent_summon_data['UNIVERSE']
+
+            summon_passive = self._ai_opponent_summon_data['ABILITIES'][0]
+            self._ai_opponent_summon_power = list(summon_passive.values())[0]
+            self._ai_opponent_summon_ability_name = list(summon_passive.keys())[0]
+            self._ai_opponent_summon_type = summon_passive['TYPE']
+
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
 
 
     def set_corruption_config(self):
@@ -473,7 +507,6 @@ class Battle:
             self._rebuke_boss_description = boss['DESCRIPTION'][12]
             self._concede_boss_description = boss['DESCRIPTION'][13]
             self._wins_boss_description = boss['DESCRIPTION'][14]
-            # boss_special_move_default_msg = t_special_move_description
 
 
     def set_who_starts_match(self, player1_speed, player2_speed):
@@ -556,6 +589,7 @@ class Battle:
         msg = "\n\n".join(self.previous_moves)
         return msg
     
+
     def get_battle_window_title_text(self, opponent_card, your_card, partner_card=None):
         return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: ❤️{round(your_card.health)} 🌀{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
 
@@ -635,7 +669,7 @@ class Battle:
         elif your_card.stamina >= 110:
             aiMove = 2
         elif your_card.stamina >= 100 and (your_card.health >= opponent_card.health):
-            if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check or your_card.move4enh in Healer_Enhancer_Check:
+            if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check or your_card.move4enh in crown_utilities.Healer_Enhancer_Check:
                 aiMove = 3
             elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check or your_card.move4enh in crown_utilities.Turn_Enhancer_Check:
                 aiMove = 4
@@ -648,7 +682,7 @@ class Battle:
         elif your_card.stamina >= 90:
             if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
                 aiMove = 3
-            elif your_card.move4enh in crown_utilities.crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check or your_card.move4enh in crown_utilities.Sacrifice_Enhancer_Check:
+            elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check or your_card.move4enh in crown_utilities.Sacrifice_Enhancer_Check:
                 aiMove = 4
             else:
                 aiMove = 1
@@ -899,6 +933,39 @@ class Battle:
         self.co_op_buttons = c_butts
 
 
+    def set_levels_message(self, your_card, opponent_card, companion_card=None):
+        p1_msg = f"🔰 *{your_card.card_lvl} {your_card.name}*"
+        if int(your_card.card_lvl) >= 200:
+            p1_msg = f"🔱 *{your_card.card_lvl} {your_card.name}*"
+        if int(your_card.card_lvl) >= 700:
+            p1_msg = f"⚜️ *{your_card.card_lvl} {your_card.name}*"
+        if int(your_card.card_lvl) >=999:
+            p1_msg = f"🏅 *{your_card.card_lvl} {your_card.name}*"
+
+        p2_msg = f"🔰 *{opponent_card.card_lvl} {opponent_card.name}*"
+        if int(opponent_card.card_lvl) >= 200:
+            p2_msg = f"🔱 *{opponent_card.card_lvl} {opponent_card.name}*"
+        if int(opponent_card.card_lvl) >= 700:
+            p2_msg = f"⚜️ *{opponent_card.card_lvl} {opponent_card.name}*"
+        if int(opponent_card.card_lvl) >=999:
+            p2_msg = f"🏅 *{opponent_card.card_lvl} {opponent_card.name}*"
+
+        message = f"{p1_msg}  🆚 {p2_msg}"
+
+        if self._is_co_op:
+            p3_msg = f"🔰 *{companion_card.card_lvl} {companion_card.name}*"
+            if int(companion_card.card_lvl) >= 200:
+                p3_msg = f"🔱 *{companion_card.card_lvl} {companion_card.name}*"
+            if int(companion_card.card_lvl) >= 700:
+                p3_msg = f"⚜️ *{companion_card.card_lvl} {companion_card.name}*"
+            if int(companion_card.card_lvl) >=999:
+                p3_msg = f"🏅 *{companion_card.card_lvl} {companion_card.name}*"
+
+            message = f"{p1_msg} & {p3_msg} 🆚 {p2_msg}"
+
+        return message
+
+
     def error_end_match_message(self):
         response = ""
         if not self._is_abyss and not self._is_scenario:
@@ -977,6 +1044,18 @@ class Battle:
         
         if self._is_turn == 1:
             self._is_turn = 0
+
+
+    async def set_pvp_win_loss(self, your_player_id, opponent_player_id):
+        await crown_utilities.bless(10000, your_player_id)
+
+        player1_query = {'DID': your_player_id}
+        win_value = {"$inc": {"PVP_WINS" : 1}}
+        win_update = db.updateUserNoFilter(player1_query, win_value)
+
+        loss_value = {"$inc": {"PVP_LOSS" : 1}}
+        player2_query = {'DID': opponent_player_id}
+        loss_update = db.updateUserNoFilter(player2_query, loss_value)
 
 
 

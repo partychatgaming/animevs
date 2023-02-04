@@ -77,7 +77,10 @@ class Card:
         self.basic_water_buff = 0
         self.special_water_buff = 0
         self.ultimate_water_buff = 0
-        self.gravity_hit =False
+        self.gravity_hit = False
+        self.darkness_meter = 250 * tier
+        self.darkness_consumption_sickness = 50 * tier
+        self.darkness_consumed = False
 
         # Card Defense From Arm
         # Arm Help
@@ -578,7 +581,7 @@ class Card:
 
 
     # Explore Methods    
-    def set_explore_bounty_and_difficulty(self):
+    def set_explore_bounty_and_difficulty(self, battle):
         if self.tier == 1:
             self.bounty = random.randint(5000, 10000)
         if self.tier == 2:
@@ -626,10 +629,12 @@ class Card:
             self.bounty = self.bounty * 150
 
 
-        self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
-        self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
-        self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
-        self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
+        if battle._is_hard:
+            self.attack = self.attack + 1250
+            self.defense = self.defense + 1250
+            self.max_health = self.max_health + 3000
+            self.health = self.health + 3000
+            self.bounty = self.bounty + 15000000
 
         if self.bounty >= 150000:
             bounty_icon = ":money_with_wings:"
@@ -637,6 +642,15 @@ class Card:
             bounty_icon = ":moneybag:"
         elif self.bounty >= 50000 or self.bounty <= 49999:
             bounty_icon = ":dollar:"
+
+
+
+        self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+        self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
+        self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
+        self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
+
+
 
         self.bounty_message = f"{bounty_icon} {'{:,}'.format(self.bounty)}"
         self.battle_message = "Glory: Defeat the card and earn the card and the bounty, but if you lose you lose gold! Gold: Earn gold only!"
@@ -1178,9 +1192,9 @@ class Card:
             
             if move_element == "WIND":
                 is_wind_element = True
-            if move_element == "RANGED" and stamina >= 30:
+            if move_element == "RANGED" and move_stamina >= 30:
                 ranged_attack = True
-            if move_element == "PHYSICAL" and stamina >= 80:
+            if move_element == "PHYSICAL" and move_stamina >= 80:
                 is_physical_element = True
             move_emoji = crown_utilities.set_emoji(move_element)
 
@@ -2451,7 +2465,7 @@ class Card:
                 # await button_ctx.defer(ignore=True)
             elif dmg['DMG'] == 0:
                 if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                    self._barrier_active=False
+                    self._barrier_active = False
                     _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
                 _battle._turn_total = _battle._turn_total + 1
@@ -2464,7 +2478,7 @@ class Card:
                     opponent_card.health = opponent_card.health 
 
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                        self._barrier_active=False
+                        self._barrier_active = False
                         _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
 
                     _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
@@ -2482,34 +2496,37 @@ class Card:
                         if opponent_card._shield_value <= 0:
                             residue_damage = opponent_card._shield_value
                             opponent_card.health = opponent_card.health - residue_damage
-                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🌐**{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG!**")
-                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                                self._barrier_active=False
+                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🌐**{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(abs(residue_damage))} DMG!**")
+                            if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                                opponent_card._barrier_active = False
+                                opponent_card._arm_message = ""
                                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                             opponent_card._shield_active = False
                         else:
                             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** strikes **{opponent_card.name}**'s Shield 🌐\n**{opponent_card._shield_value} Shield** Left!")
-                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                                self._barrier_active=False
+                            if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                                opponent_card._barrier_active = False
                                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
 
                 elif opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                     if opponent_card._barrier_value >1:
                         opponent_card.health = opponent_card.health 
                         _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** Activates Barrier 💠 {self.name}'s attack **Nullified**!\n **{opponent_card._barrier_value - 1} Barriers** remain!")
-                        if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                            self._barrier_active=False
+                        if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                            opponent_card._barrier_active = False
+                            opponent_card._arm_message = ""
                             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                     elif opponent_card._barrier_value==1:
                         _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}**'s Barrier Broken!")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
-                        if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                            self._barrier_active=False
+                        if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                            opponent_card._barrier_active = False
+                            opponent_card._arm_message = ""
                             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         opponent_card._barrier_active = False
                 
-                elif opponent_card._parry_active and dmg['ELEMENT'] != "EARTH":
+                elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC"]:                    
                     if opponent_card._parry_value > 1:
                         opponent_card.health = opponent_card.health
                         parry_damage = round(dmg['DMG'])
@@ -2517,8 +2534,9 @@ class Card:
                         self.max_health = round(self.max_health - (parry_damage * .40))
                         opponent_card._parry_value = opponent_card._parry_value - 1
                         _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** Activates Parry 🔄 after **{round(parry_damage * .75)}** dmg dealt:  {self.name} takes {round(parry_damage * .40)}! DMG\n **{opponent_card._parry_value} Parries** to go!!")
-                        if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                            self._barrier_active=False
+                        if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                            opponent_card._barrier_active = False
+                            opponent_card._arm_message = ""
                             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         
                     elif opponent_card._parry_value == 1:
@@ -2528,8 +2546,9 @@ class Card:
                         self.max_health = round(self.max_health - (parry_damage * .40))
                         _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** Parry Penetrated! **{self.name}** takes **{round(parry_damage * .40)}**! DMG and breaks the **Parry**")
                         opponent_card._parry_value = opponent_card._parry_value - 1
-                        if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                            self._barrier_active=False
+                        if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                            opponent_card._barrier_active = False
+                            opponent_card._arm_message = ""
                             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         opponent_card._parry_active = False
                 
@@ -2548,7 +2567,7 @@ class Card:
                             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
                     
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                        self._barrier_active=False
+                        self._barrier_active = False
                         _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
 
                     self.activate_element_check(_battle, dmg, opponent_card)
@@ -2559,7 +2578,7 @@ class Card:
                     if opponent_card._final_stand==True:
                         if opponent_card.universe == "Dragon Ball Z":
                             if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                                self._barrier_active=False
+                                self._barrier_active = False
                                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
                             opponent_card.health = int(.75 * (opponent_card.attack + opponent_card.defense))
@@ -2602,10 +2621,9 @@ class Card:
                 self.stamina = 0
                 self._barrier_active = True
                 self._barrier_value = 1
-            self.used_block = True
-            self.defense = round(self.defense * 2)
-            _battle.add_battle_history_messsage(f"**{self.name}** Blocked 🛡️")
-            opponent_card.health = opponent_card.health - dmg['DMG']
+            _battle._turn_total = _battle._turn_total + 3
+            _battle.add_battle_history_messsage(f"**{self.name}** Time has moved forward 3 turns!")
+            opponent_card.health = opponent_card.health - (dmg['DMG'] * (_battle._turn_total / 100))
 
         elif dmg['ELEMENT'] == "EARTH":
             self.defense = self.defense + (dmg['DMG'] * .50)
@@ -2625,6 +2643,26 @@ class Card:
 
         elif dmg['ELEMENT'] == "DARK":
             opponent_card.stamina = opponent_card.stamina - 20
+            if self.darkness_meter > 0 and not self.darkness_consumed:
+                self.darkness_meter = self.darkness_meter - dmg['DMG']
+                if self.darkness_meter < 0:
+                    self.darkness_consumed = True
+                    _battle.add_battle_history_messsage(f"**{self.name}** you inner darkness has consumed you...")
+                    self.attack = self.attack + 250 * self.tier
+                    self.defense = self.defense + 250 * self.tier
+                    self.health = self.health + 250 * self.tier
+                    self.arbitrary_ap_buff = self.arbitrary_ap_buff + 250
+
+            if self.darkness_meter <= 0:
+                self.health = self.health - self.darkness_consumption_sickness
+                self.attack = self.attack + 250 * self.tier
+                self.defense = self.defense + 250 * self.tier
+
+            opponent_card.health = opponent_card.health - dmg['DMG']
+            _battle.add_battle_history_messsage(f"...**{self.name}** The darknes is consuming you...")
+
+
+        elif dmg['ELEMENT'] == "PHYSICAL":
             self._parry_active = True
             self._parry_value = self._parry_value + 1
             opponent_card.health = opponent_card.health - dmg['DMG']
@@ -2642,8 +2680,10 @@ class Card:
 
 
         elif dmg['ELEMENT'] == "PSYCHIC":
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .25)
-            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .25)
+            if _battle._turn_total >= 5:
+                _battle._turn_total = _battle._turn_total - 3
+            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .30)
+            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .30)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "FIRE":
@@ -2652,7 +2692,7 @@ class Card:
 
 
         elif dmg['ELEMENT'] == "ELECTRIC":
-            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .25)
+            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .30)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "POISON":
@@ -2669,7 +2709,7 @@ class Card:
 
         elif dmg['ELEMENT'] == "BLEED":
             self.bleed_damage_counter = self.bleed_damage_counter + 1
-            if self.bleed_damage_counter == 3:
+            if self.bleed_damage_counter == 2:
                 self.bleed_hit = True
                 self.bleed_damage_counter = 0
             opponent_card.health = opponent_card.health - dmg['DMG']
@@ -2717,7 +2757,6 @@ class Card:
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
     
-
 
     def activate_card_passive(self, player2_card):
         if self.passive_type:
