@@ -1154,7 +1154,7 @@ class CrownUnlimited(commands.Cog):
                 bossname = universe_selection['BOSS_NAME']
                 oguild = universe_selection['OGUILD']
                 if sowner['BOSS_FOUGHT']:
-                    await ctx.send("You have already defeated a boss today! Check back tomorrow.")
+                    await ctx.send("You defeated a boss today! :fire: |  Conquer a Dungeon to Earn a :japanese_ogre: | **Boss Key** or Check back tomorrow for **/daily**.")
                     return
             else:
                 if mode in D_modes:
