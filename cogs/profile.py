@@ -506,7 +506,7 @@ class Profile(commands.Cog):
                         if passive_type == "GAMBLE":
                             passive_num = passive_num
                         if passive_type == "SOULCHAIN":
-                            passive_num = passive_num
+                            passive_num = passive_num + 90
                         if passive_type == "STANCE":
                             passive_num = flat_for_passive
                         if passive_type == "CONFUSE":
