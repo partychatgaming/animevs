@@ -229,7 +229,7 @@ async def enhancers(ctx):
 
       embedVar5 = discord.Embed(title= f"Enhancer Type: Time Manipulation",colour=0x7289da)
       embedVar5.set_thumbnail(url=avatar)
-      embedVar5.add_field(name="`TIME MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW**\n**Title, Card Passive Effect:** Decrease Turn Count by 1\n**Card Active Enhancer Effect:** Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n\n**HASTE**\n**Title, Card Passive Effect:** Increase Turn Count by 1\n**Card Active Enhancer Effect:** Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n\n")
+      embedVar5.add_field(name="`TIME MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW**\n**Title, Card Passive Effect:** Decrease Turn Count by AP\n**Card Active Enhancer Effect:** Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n\n**HASTE**\n**Title, Card Passive Effect:** Increase Turn Count by AP\n**Card Active Enhancer Effect:** Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n\n")
       embedVar5.set_footer(text=f"/help - Bot Help")
 
       embedVar6 = discord.Embed(title= f"Enhancer Type: Control",colour=0x7289da)

@@ -255,9 +255,13 @@ async def viewcard(self, ctx, card: str):
                 if passive_type == "DESTRUCTION":
                     passive_num = value_for_passive
                 if passive_type == "SLOW":
-                    passive_num = "1"
+                    passive_num = passive_num
                 if passive_type == "HASTE":
-                    passive_num = "1"
+                    passive_num = passive_num
+                if passive_type == "GAMBLE":
+                    passive_num = passive_num
+                if passive_type == "SOULCHAIN":
+                    passive_num = passive_num
                 if passive_type == "STANCE":
                     passive_num = flat_for_passive
                 if passive_type == "CONFUSE":
