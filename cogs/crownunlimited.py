@@ -23094,7 +23094,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if winbonus == 0:
                                         winbonus = bounty
                                     wage = int(total_bounty)
-                                    endmessage = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(winbonus)}"
+                                    bounty_drop = winbonus + total_bounty
+                                    endmessage = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(total_bounty)}"
                                     hall_info = db.queryHall({"HALL":guild_info['HALL']})
                                     fee = hall_info['FEE']
                                     if title_match_active:
