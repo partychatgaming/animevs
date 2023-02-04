@@ -2910,9 +2910,9 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 if card_passive_type == "DESTRUCTION":
                     passive_num = value_for_passive
                 if card_passive_type == "SLOW":
-                    passive_num = "1"
+                    passive_num = card_passive_value
                 if card_passive_type == "HASTE":
-                    passive_num = "1"
+                    passive_num = card_passive_value
                 if card_passive_type == "STANCE":
                     passive_num = flat_for_passive
                 if card_passive_type == "CONFUSE":
@@ -8044,6 +8044,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             o_ap_buff = 500
                         if t_ap_buff > 500:
                             t_ap_buff = 500
+                            
+                        if turn_total < 0:
+                            turn_total = 1
 
                         if turn == 0:
                             if o_universe == "YuYu Hakusho":
@@ -8146,9 +8149,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_ap_buff = o_ap_buff + o_flat_for_passive
                                 if o_card_passive_type == "SLOW":
                                     if turn_total != 0:
-                                        turn_total = turn_total - 1
+                                        turn_total = turn_total - o_card_passive
                                 if o_card_passive_type == "HASTE":
-                                    turn_total = turn_total + 1
+                                    turn_total = turn_total + o_card_passive
                                 if o_card_passive_type == "STANCE":
                                     tempattack = o_attack + o_flat_for_passive
                                     o_attack = o_defense
@@ -8159,7 +8162,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_defense = tempattack
                                 if o_card_passive_type == "BLINK":
                                     o_stamina = o_stamina - o_stam_for_passive
-                                    if t_stamina >=10:
+                                    if t_stamina >= 10:
                                         t_stamina = t_stamina + o_stam_for_passive
                                 if o_card_passive_type == "WAVE":
                                     if turn_total % 10 == 0:
@@ -8221,9 +8224,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_ap_buff = o_ap_buff + o_title_passive_value
                                 if o_title_passive_type == "SLOW":
                                     if turn_total != 0:
-                                        turn_total = turn_total - 1
+                                        turn_total = turn_total - o_title_passive_value
                                 if o_title_passive_type == "HASTE":
-                                    turn_total = turn_total + 1
+                                    turn_total = turn_total + o_title_passive_value
                                 if o_title_passive_type == "STANCE":
                                     tempattack = o_attack + o_title_passive_value
                                     o_attack = o_defense
@@ -8436,10 +8439,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if o_title_passive_type == "GAMBLE":
                                         o_healthcalc = o_title_passive_value
                                     if o_title_passive_type == "SOULCHAIN":
-                                        o_stamina = o_title_passive_value
-                                        t_stamina = o_title_passive_value
+                                        o_focus = o_focus + o_title_passive_value
+                                        t_focus = t_focus + o_title_passive_value
                                         if mode in co_op_modes:
-                                            c_stmina = o_title_passive_value
+                                            c_focus = c_focus + o_title_passive_value
                                     if o_title_passive_type == "BLAST":
                                         dmg = o_title_passive_value * turn_total
                                         if dmg > 100 * o_card_tier:
@@ -9581,7 +9584,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     t_health = t_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == poison_element:
-                                                    if o_poison_dmg <= (100 * o_card_tier):
+                                                    if o_poison_dmg <= (150 * o_card_tier):
                                                         o_poison_dmg = o_poison_dmg + 30
                                                     t_health = t_health - dmg['DMG']
 
@@ -9764,7 +9767,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 elif tarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                     
                                                     if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                        if o_poison_dmg <= (100 * o_card_tier):
+                                                        if o_poison_dmg <= (150 * o_card_tier):
                                                             o_poison_dmg = o_poison_dmg + 30
                                                         
 
@@ -9906,7 +9909,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == poison_element:
-                                                        if o_poison_dmg <= (100 * o_card_tier):
+                                                        if o_poison_dmg <= (150 * o_card_tier):
                                                             o_poison_dmg = o_poison_dmg + 30
                                                         t_health = t_health - dmg['DMG']
 
@@ -11369,7 +11372,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == poison_element:
-                                                        if o_poison_dmg <= (100 * o_card_tier):
+                                                        if o_poison_dmg <= (150 * o_card_tier):
                                                             o_poison_dmg = o_poison_dmg + 30
                                                         t_health = t_health - dmg['DMG']
 
@@ -11558,7 +11561,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     elif tarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if o_poison_dmg <= (100 * o_card_tier):
+                                                            if o_poison_dmg <= (150 * o_card_tier):
                                                                 o_poison_dmg = o_poison_dmg + 30
                                                            
 
@@ -11712,7 +11715,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if o_poison_dmg <= (100 * o_card_tier):
+                                                            if o_poison_dmg <= (150 * o_card_tier):
                                                                 o_poison_dmg = o_poison_dmg + 30
                                                             t_health = t_health - dmg['DMG']
 
@@ -11833,7 +11836,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         guild = self.bot.get_guild(main.guild_id)
                                         channel = guild.get_channel(main.guild_channel)
                                         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
-
+                        if turn_total <0:
+                            turn_total = 1
                         elif turn == 1:
                             if t_universe == "YuYu Hakusho":
                                 t_attack = t_attack + t_stamina
@@ -11929,9 +11933,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_ap_buff = t_ap_buff + t_value_for_passive
                                 if t_card_passive_type == "SLOW":
                                     if turn_total != 0:
-                                        turn_total = turn_total - 1
+                                        turn_total = turn_total - t_card_passive
                                 if t_card_passive_type == "HASTE":
-                                    turn_total = turn_total + 1
+                                    turn_total = turn_total + t_card_passive
                                 if t_card_passive_type == "STANCE":
                                     tempattack = t_attack + t_flat_for_passive
                                     t_attack = t_defense
@@ -12003,9 +12007,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_ap_buff = t_ap_buff + t_title_passive_value
                                 if t_title_passive_type == "SLOW":
                                     if turn_total != 0:
-                                        turn_total = turn_total - 1
+                                        turn_total = turn_total - o_title_passive_value
                                 if t_title_passive_type == "HASTE":
-                                    turn_total = turn_total + 1
+                                    turn_total = turn_total + o_title_passive_value
                                 if t_title_passive_type == "STANCE":
                                     tempattack = t_attack + t_title_passive_value
                                     t_attack = t_defense
@@ -12139,10 +12143,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if t_title_passive_type == "GAMBLE":
                                         t_healthcalc = t_title_passive_value
                                     if t_title_passive_type == "SOULCHAIN":
-                                        o_stamina = t_title_passive_value
-                                        t_stamina = t_title_passive_value
+                                        o_focus = o_focus + t_title_passive_value
+                                        t_focus = t_focus + t_title_passive_value
                                         if mode in co_op_modes:
-                                            c_stmina = t_title_passive_value
+                                            c_focus = c_focus + c_title_passive_value
                                     if t_title_passive_type == "BLAST":
                                         dmg = t_title_passive_value * turn_total
                                         if dmg > 100 * t_card_tier:
@@ -13290,7 +13294,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= (100 * o_card_tier):
+                                                            if t_poison_dmg <= (150 * o_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             o_health = o_health - dmg['DMG']
     
@@ -13466,7 +13470,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                         elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                             if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                                if t_poison_dmg <= (100 * t_card_tier):
+                                                                if t_poison_dmg <= (150 * t_card_tier):
                                                                     t_poison_dmg = t_poison_dmg + 30
                                                                 
                                                             if oshield_value > 0:
@@ -13614,7 +13618,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == poison_element:
-                                                                if t_poison_dmg <= (100 * t_card_tier):
+                                                                if t_poison_dmg <= (150 * t_card_tier):
                                                                     t_poison_dmg = t_poison_dmg + 30
                                                                 o_health = o_health - dmg['DMG']
         
@@ -14521,7 +14525,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         o_health = o_health - dmg['DMG']
 
                                                     elif dmg['ELEMENT'] == poison_element:
-                                                        if t_poison_dmg <= (100 * t_card_tier):
+                                                        if t_poison_dmg <= (150 * t_card_tier):
                                                             t_poison_dmg = t_poison_dmg + 30
                                                         o_health = o_health - dmg['DMG']
 
@@ -14686,7 +14690,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 💠 Barrier Disabled!")
                                                     elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if t_poison_dmg <= (100 * t_card_tier):
+                                                            if t_poison_dmg <= (150 * t_card_tier):
                                                                 t_poison_dmg = o_poison_dmg + 30
                                                             
                                                         if oshield_value > 0:
@@ -14825,7 +14829,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= (100 * t_card_tier):
+                                                            if t_poison_dmg <= (150 * t_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             o_health = o_health - dmg['DMG']
     
@@ -16099,7 +16103,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     o_health = o_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == poison_element:
-                                                    if t_poison_dmg <= (100 * t_card_tier):
+                                                    if t_poison_dmg <= (150 * t_card_tier):
                                                         t_poison_dmg = t_poison_dmg + 30
                                                     o_health = o_health - dmg['DMG']
 
@@ -16270,7 +16274,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 💠 Barrier Disabled!")
                                                         elif carm_shield_active and dmg['ELEMENT'] != dark_element:
                                                             if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                                if t_poison_dmg <= (100 * t_card_tier):
+                                                                if t_poison_dmg <= (150 * t_card_tier):
                                                                     t_poison_dmg = o_poison_dmg + 30
                                                                 
                                                             if cshield_value > 0:
@@ -16422,7 +16426,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 c_health = c_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == poison_element:
-                                                                if t_poison_dmg <= (100 * t_card_tier):
+                                                                if t_poison_dmg <= (150 * t_card_tier):
                                                                     t_poison_dmg = t_poison_dmg + 30
                                                                 c_health = c_health - dmg['DMG']
                                                                 
@@ -16606,7 +16610,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 💠 Barrier Disabled!")
                                                         elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                             if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                                if t_poison_dmg <= (100 * t_card_tier):
+                                                                if t_poison_dmg <= (150 * t_card_tier):
                                                                     t_poison_dmg = o_poison_dmg + 30
                                                               
                                                             if oshield_value > 0:
@@ -16743,7 +16747,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 o_health = o_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == poison_element:
-                                                                if t_poison_dmg <= (100 * t_card_tier):
+                                                                if t_poison_dmg <= (150 * t_card_tier):
                                                                     t_poison_dmg = t_poison_dmg + 30
                                                                 o_health = o_health - dmg['DMG']
         
@@ -16946,7 +16950,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 💠 Barrier Disabled!")
                                                     elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if t_poison_dmg <= (100 * t_card_tier):
+                                                            if t_poison_dmg <= (150 * t_card_tier):
                                                                 t_poison_dmg = o_poison_dmg + 30
                                                             
                                                         if oshield_value > 0:
@@ -17084,7 +17088,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= (100 * t_card_tier):
+                                                            if t_poison_dmg <= (150 * t_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             o_health = o_health - dmg['DMG']
     
@@ -17158,7 +17162,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}") 
                                                 turn = 1
 
-
+                        if turn_total <0:
+                            turn_total = 1
                         elif mode in co_op_modes and turn != (0 or 1):
                             if c_ap_buff > 500:
                                 c_ap_buff = 500
@@ -17256,9 +17261,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_ap_buff = c_ap_buff + c_flat_for_passive
                                     if c_card_passive_type == "SLOW":
                                         if turn_total != 0:
-                                            turn_total = turn_total - 1
+                                            turn_total = turn_total - c_card_passive
                                     if c_card_passive_type == "HASTE":
-                                        turn_total = turn_total + 1
+                                        turn_total = turn_total + c_card_passive
                                     if c_card_passive_type == "STANCE":
                                         tempattack = c_attack + c_flat_for_passive
                                         c_attack = c_defense
@@ -17330,9 +17335,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_ap_buff = c_ap_buff + c_title_passive_value
                                     if c_title_passive_type == "SLOW":
                                         if turn_total != 0:
-                                            turn_total = turn_total - 1
+                                            turn_total = turn_total - c_title_passive_value
                                     if c_title_passive_type == "HASTE":
-                                        turn_total = turn_total + 1
+                                        turn_total = turn_total + c_title_passive_value
                                     if c_title_passive_type == "STANCE":
                                         tempattack = c_attack + c_title_passive_value
                                         c_attack = c_defense
@@ -17436,9 +17441,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if c_title_passive_type == "GAMBLE":
                                             c_healthcalc = c_title_passive_value
                                         if c_title_passive_type == "SOULCHAIN":
-                                            c_stamina = c_title_passive_value
-                                            t_stamina = c_title_passive_value
-                                            o_stamina = c_title_passive_value
+                                            c_focus = c_focus + c_title_passive_value
+                                            t_focus = c_focus + c_title_passive_value
+                                            o_focus = c_focus + c_title_passive_value
                                         if c_title_passive_type == "BLAST":
                                             dmg = c_title_passive_value * turn_total
                                             if dmg > 100 * c_card_tier:
@@ -18724,7 +18729,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     elif tarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if c_poison_dmg <= (100 * t_card_tier):
+                                                            if c_poison_dmg <= (150 * t_card_tier):
                                                                 c_poison_dmg = c_poison_dmg + 30
                                                             
                                                         
@@ -18884,7 +18889,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if c_poison_dmg <= (100 * c_card_tier):
+                                                            if c_poison_dmg <= (150 * c_card_tier):
                                                                 c_poison_dmg = c_poison_dmg + 30
                                                             t_health = t_health - dmg['DMG']
                                                             
@@ -19976,7 +19981,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if c_poison_dmg <= (100 * c_card_tier):
+                                                            if c_poison_dmg <= (150 * c_card_tier):
                                                                 c_poison_dmg = c_poison_dmg + 30
                                                             t_health = t_health - dmg['DMG']
                                                             
@@ -20151,7 +20156,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             await button_ctx.defer(ignore=True)
                                                         elif tarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                             if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                                if c_poison_dmg <= (100 * c_card_tier):
+                                                                if c_poison_dmg <= (150 * c_card_tier):
                                                                     c_poison_dmg = o_poison_dmg + 30
                                                          
                                                             if tshield_value > 0:
@@ -20318,7 +20323,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 t_health = t_health - dmg['DMG']
 
                                                             elif dmg['ELEMENT'] == poison_element:
-                                                                if c_poison_dmg <= (100 * c_card_tier):
+                                                                if c_poison_dmg <= (150 * c_card_tier):
                                                                     c_poison_dmg = c_poison_dmg + 30
                                                                 t_health = t_health - dmg['DMG']
                                                                 
@@ -20417,7 +20422,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             guild = self.bot.get_guild(main.guild_id)
                                             channel = guild.get_channel(main.guild_channel)
                                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
-
+                            
+                            if turn_total <0:
+                                turn_total = 1
                             # Opponent Turn Start
                             elif turn == 3:
                                 if t_universe == "YuYu Hakusho":
@@ -20543,9 +20550,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_ap_buff = t_ap_buff + t_flat_for_passive
                                     if t_card_passive_type == "SLOW":
                                         if turn_total != 0:
-                                            turn_total = turn_total - 1
+                                            turn_total = turn_total - t_card_passive
                                     if t_card_passive_type == "HASTE":
-                                        turn_total = turn_total + 1
+                                        turn_total = turn_total + t_card_passive
                                     if t_card_passive_type == "STANCE":
                                         tempattack = t_attack + t_flat_for_passive
                                         t_attack = t_defense
@@ -20618,9 +20625,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_ap_buff = t_ap_buff + t_title_passive_value
                                     if t_title_passive_type == "SLOW":
                                         if turn_total != 0:
-                                            turn_total = turn_total - 1
+                                            turn_total = turn_total - t_title_passive_value
                                     if t_title_passive_type == "HASTE":
-                                        turn_total = turn_total + 1
+                                        turn_total = turn_total + t_title_passive_value
                                     if t_title_passive_type == "STANCE":
                                         tempattack = t_attack + t_title_passive_value
                                         t_attack = t_defense
@@ -20712,10 +20719,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         if t_title_passive_type == "GAMBLE":
                                             t_healthcalc = t_title_passive_value
                                         if t_title_passive_type == "SOULCHAIN":
-                                            o_stamina = t_title_passive_value
-                                            t_stamina = t_title_passive_value
+                                            o_focus = o_focus + t_title_passive_value
+                                            t_focus = t_focus + t_title_passive_value
                                             if mode in co_op_modes:
-                                                c_stmina = t_title_passive_value
+                                                c_focus = c_focus + t_title_passive_value
                                         if t_title_passive_type == "BLAST":
                                             dmg = t_title_passive_value * turn_total
                                             if dmg > 100 * t_card_tier:
@@ -21966,7 +21973,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     c_health = c_health - dmg['DMG']
 
                                                 elif dmg['ELEMENT'] == poison_element:
-                                                    if t_poison_dmg <= (100 * t_card_tier):
+                                                    if t_poison_dmg <= (150 * t_card_tier):
                                                         t_poison_dmg = t_poison_dmg + 30
                                                     c_health = c_health - dmg['DMG']
                                                     
@@ -22129,7 +22136,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         #await private_channel.send(embed=embedVar)
                                                     elif oarm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if t_poison_dmg <= (100 * t_card_tier):
+                                                            if t_poison_dmg <= (150 * t_card_tier):
                                                                 t_poison_dmg = o_poison_dmg + 30
                                                    
                                                         if oshield_value > 0:
@@ -22273,7 +22280,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= (100 * t_card_tier):
+                                                            if t_poison_dmg <= (150 * t_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             o_health = o_health - dmg['DMG']
     
@@ -22483,7 +22490,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         #await private_channel.send(embed=embedVar)
                                                     elif carm_shield_active and dmg['ELEMENT'] != dark_element:
                                                         if dmg['ELEMENT'] == poison_element: #Poison Update
-                                                            if t_poison_dmg <= (100 * t_card_tier):
+                                                            if t_poison_dmg <= (150 * t_card_tier):
                                                                 t_poison_dmg = o_poison_dmg + 30
                                                             c_health = c_health - dmg['DMG']
                                                         if cshield_value > 0:
@@ -22641,7 +22648,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             c_health = c_health - dmg['DMG']
 
                                                         elif dmg['ELEMENT'] == poison_element:
-                                                            if t_poison_dmg <= (100 * t_card_tier):
+                                                            if t_poison_dmg <= (150 * t_card_tier):
                                                                 t_poison_dmg = t_poison_dmg + 30
                                                             c_health = c_health - dmg['DMG']
                                                             

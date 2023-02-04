@@ -105,7 +105,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🌑 Dark- Penetrates shields & decreases opponent ST(Stamina) by 15.
 
-🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (100 * Card Tier).
+🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
 

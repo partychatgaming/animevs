@@ -500,9 +500,13 @@ class Profile(commands.Cog):
                         if passive_type == "DESTRUCTION":
                             passive_num = value_for_passive
                         if passive_type == "SLOW":
-                            passive_num = "1"
+                            passive_num = passive_num
                         if passive_type == "HASTE":
-                            passive_num = "1"
+                            passive_num = passive_num
+                        if passive_type == "GAMBLE":
+                            passive_num = passive_num
+                        if passive_type == "SOULCHAIN":
+                            passive_num = passive_num
                         if passive_type == "STANCE":
                             passive_num = flat_for_passive
                         if passive_type == "CONFUSE":
@@ -4680,9 +4684,13 @@ class Profile(commands.Cog):
                         if passive_type == "DESTRUCTION":
                             passive_num = value_for_passive
                         if passive_type == "SLOW":
-                            passive_num = "1"
+                            passive_num = passive_num
                         if passive_type == "HASTE":
-                            passive_num = "1"
+                            passive_num = passive_num
+                        if passive_type == "GAMBLE":
+                            passive_num = passive_num
+                        if passive_type == "SOULCHAIN":
+                            passive_num = passive_num
                         if passive_type == "STANCE":
                             passive_num = flat_for_passive
                         if passive_type == "CONFUSE":
@@ -6089,9 +6097,13 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                     if passive_type == "DESTRUCTION":
                                         passive_num = value_for_passive
                                     if passive_type == "SLOW":
-                                        passive_num = "1"
+                                        passive_num = passive_num
                                     if passive_type == "HASTE":
-                                        passive_num = "1"
+                                        passive_num = passive_num
+                                    if passive_type == "GAMBLE":
+                                        passive_num = passive_num
+                                    if passive_type == "SOULCHAIN":
+                                        passive_num = passive_num
                                     if passive_type == "STANCE":
                                         passive_num = flat_for_passive
                                     if passive_type == "CONFUSE":
@@ -6494,9 +6506,13 @@ async def menubuild(self, ctx):
                     if passive_type == "DESTRUCTION":
                         passive_num = value_for_passive
                     if passive_type == "SLOW":
-                        passive_num = "1"
+                        passive_num = passive_num
+                    if passive_type == "GAMBLE":
+                        passive_num = passive_num
+                    if passive_type == "SOULCHAIN":
+                        passive_num = passive_num
                     if passive_type == "HASTE":
-                        passive_num = "1"
+                        passive_num = passive_num
                     if passive_type == "STANCE":
                         passive_num = flat_for_passive
                     if passive_type == "CONFUSE":
@@ -6883,9 +6899,13 @@ async def menucards(self, ctx):
                     if passive_type == "DESTRUCTION":
                         passive_num = value_for_passive
                     if passive_type == "SLOW":
-                        passive_num = "1"
+                        passive_num = passive_num
                     if passive_type == "HASTE":
-                        passive_num = "1"
+                        passive_num = passive_num
+                    if passive_type == "GAMBLE":
+                        passive_num = passive_num
+                    if passive_type == "SOULCHAIN":
+                        passive_num = passive_num
                     if passive_type == "STANCE":
                         passive_num = flat_for_passive
                     if passive_type == "CONFUSE":
