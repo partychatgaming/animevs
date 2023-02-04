@@ -9816,7 +9816,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         t_health = t_health 
                                                         if tshield_value <=0:
                                                             embedVar = discord.Embed(title=f"{t_card}'s' **Shield** Shattered!", description=f"{o_card} breaks the **Shield**!", colour=0xe91e63)
-                                                            previous_moves.append(f"(**{turn_total}**) 🌐**{t_card}**: Shield Shattered!")
+                                          
+                                                            previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 🌐 Shield Shattered! Received **{abs(tshield_value)}** DMG")
+                                                            t_health = t_health - (abs(tshield_value))
                                                             if oarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                 oarm_barrier_active=False
                                                                 embedVar.add_field(name=f"{o_card}'s **Barrier** Disabled!", value =f"*Maximize **Barriers** with your Enhancer!*")
@@ -11610,7 +11612,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health 
                                                             if tshield_value <=0:
                                                                 embedVar = discord.Embed(title=f"{t_card}'s' **Shield** Shattered!", description=f"{o_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                previous_moves.append(f"(**{turn_total}**) 🌐**{t_card}**: Shield Shattered!")
+                                                        
+                                                                previous_moves.append(f"(**{turn_total}**) **{t_card}**'s 🌐 Shield Shattered! Received **{abs(tshield_value)}** DMG")
+                                                                t_health = t_health - (abs(tshield_value))
                                                                 if oarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                     oarm_barrier_active=False
                                                                     embedVar.add_field(name=f"{o_card}'s **Barrier** Disabled!", value =f"*Maximize **Barriers** with your Enhancer!*")
@@ -11879,6 +11883,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                         if turn_total <0:
                             turn_total = 1
                         if turn == 1:
+                            
+                            previous_moves_into_embed = "\n\n".join(previous_moves)
+                            
                             if t_universe == "YuYu Hakusho":
                                 t_attack = t_attack + t_stamina
 
@@ -13519,10 +13526,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 
                                                             if oshield_value > 0:
                                                                 oshield_value = oshield_value -dmg['DMG']
-                                                                o_health = o_health 
+                                                                o_health = o_health
                                                                 if oshield_value <=0:
+                                                                 
                                                                     embedVar = discord.Embed(title=f"{o_card}'s' **Shield** Shattered!", description=f"{t_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                    previous_moves.append(f"(**{turn_total}**) 🌐**{o_card}**: Shield Shattered!")
+                                                                    previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered! Received **{abs(oshield_value)}** DMG")
+                                                                    o_health = o_health - (abs(oshield_value))
                                                                     if tarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                         tarm_barrier_active=False
                                                                         
@@ -14741,8 +14750,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             oshield_value = oshield_value -dmg['DMG']
                                                             o_health = o_health 
                                                             if oshield_value <=0:
+                                                    
                                                                 embedVar = discord.Embed(title=f"{o_card}'s' **Shield** Shattered!", description=f"{t_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered!")
+                                                                previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered! Received **{abs(oshield_value)}** DMG")
+                                                                o_health = o_health - (abs(oshield_value))
                                                                 if tarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                     tarm_barrier_active=False
                                                                     
@@ -16326,7 +16337,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 c_health = c_health 
                                                                 if cshield_value <=0:
                                                                     embedVar = discord.Embed(title=f"{c_card}'s' **Shield** Shattered!", description=f"{t_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                    previous_moves.append(f"(**{turn_total}**) 🌐{c_card}'s Shield Shattered!")
+                                                                    previous_moves.append(f"(**{turn_total}**) {c_card}'s 🌐 Shield Shattered! Received **{abs(cshield_value)}** DMG")
+                                                                    c_health = c_health - (abs(cshield_value))
                                                                     if tarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                         tarm_barrier_active=False
                                                                         
@@ -16661,7 +16673,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 oshield_value = oshield_value -dmg['DMG']
                                                                 o_health = o_health 
                                                                 if oshield_value <=0:
-                                                                    previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered!")
+                                                                    previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered! Received **{abs(oshield_value)}** DMG")
+                                                                    o_health = o_health - (abs(oshield_value))
                                                                     if tarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                         tarm_barrier_active=False
                                                                         
@@ -17002,7 +17015,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health 
                                                             if oshield_value <=0:
                                                                 embedVar = discord.Embed(title=f"{o_card}'s' **Shield** Shattered!", description=f"{t_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered!")
+                                                                previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered! Received **{abs(oshield_value)}** DMG")
+                                                                o_health = o_health - (abs(oshield_value))
                                                                 if tarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                     tarm_barrier_active=False
                                                                     
@@ -17214,6 +17228,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                             # Companion Turn Start
                             if turn == 2:
+                                previous_moves_into_embed = "\n\n".join(previous_moves)
                                 if c_universe == "YuYu Hakusho":
                                     c_attack = c_attack + c_stamina
 
@@ -18782,7 +18797,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             t_health = t_health 
                                                             if tshield_value <=0:
                                                                 embedVar = discord.Embed(title=f"{t_card}'s' **Shield** Shattered!", description=f"{c_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                previous_moves.append(f"(**{turn_total}**) **{t_card}'s** 🌐 Shield Shattered!")
+                                                                previous_moves.append(f"(**{turn_total}**) **{t_card}'s** 🌐 Shield Shattered! Received **{abs(tshield_value)}** DMG")
+                                                                t_health = t_health - (abs(tshield_value))
                                                                 if carm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                     carm_barrier_active=False
                                                                     embedVar.add_field(name=f"{c_card}'s **Barrier** Disabled!", value =f"*Maximize **Barriers** with your Enhancer!*")
@@ -20208,7 +20224,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                 t_health = t_health 
                                                                 if tshield_value <=0:
                                                                     embedVar = discord.Embed(title=f"{t_card}'s' **Shield** Shattered!", description=f"{c_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                    previous_moves.append(f"(**{turn_total}**) **{t_card}'s** 🌐 Shield Shattered!")
+                                                                    previous_moves.append(f"(**{turn_total}**) **{t_card}'s** 🌐 Shield Shattered! Received **{abs(tshield_value)}** DMG")
+                                                                    t_health = t_health - (abs(tshield_value))
                                                                     if carm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                         carm_barrier_active=False
                                                                         embedVar.add_field(name=f"{c_card}'s **Barrier** Disabled!", value =f"*Maximize **Barriers** with your Enhancer!*")
@@ -20471,6 +20488,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 turn_total = 1
                             # Opponent Turn Start
                             if turn == 3:
+                                previous_moves_into_embed = "\n\n".join(previous_moves)
                                 if t_universe == "YuYu Hakusho":
                                     t_attack = t_attack + t_stamina
 
@@ -22190,7 +22208,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             o_health = o_health 
                                                             if oshield_value <=0:
                                                                 embedVar = discord.Embed(title=f"{o_card}'s' **Shield** Shattered!", description=f"{t_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered!")
+                                                                previous_moves.append(f"(**{turn_total}**) **{o_card}'s** 🌐 Shield Shattered! Received **{abs(oshield_value)}** DMG")
+                                                                o_health = o_health - (abs(oshield_value))
                                                                 if tarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                     tarm_barrier_active=False
                                                                     
@@ -22544,7 +22563,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                             c_health = c_health 
                                                             if cshield_value <=0:
                                                                 embedVar = discord.Embed(title=f"{c_card}'s' **Shield** Shattered!", description=f"{t_card} breaks the **Shield**!", colour=0xe91e63)
-                                                                previous_moves.append(f"(**{turn_total}**) **{c_card}'s** 🌐 Shield Shattered!")
+                                                                previous_moves.append(f"(**{turn_total}**) **{c_card}'s** 🌐 Shield Shattered! Received **{abs(cshield_value)}** DMG")
+                                                                c_health = c_health - (abs(cshield_value))
                                                                 if tarm_barrier_active and dmg['ELEMENT'] != psychic_element:
                                                                     tarm_barrier_active=False
                                                                     
