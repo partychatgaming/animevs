@@ -13807,7 +13807,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                         t_defense,o_stamina,o_attack,o_defense, o_health)
                                             else:
                                                 aiMove = 1
-                                        elif o_health <=350: #Killing Blow
+                                        elif o_health <=350 and sowner['DIFFICULTY'] != "EASY": #Killing Blow
                                             if t_enhancer['TYPE'] == "BLAST":
                                                 if t_stamina >=20:
                                                     aiMove =4
@@ -14996,7 +14996,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 aiMove = 7
                                             else:
                                                 aiMove = 1
-                                    elif o_health <=350: #Killing Blow
+                                    elif o_health <=350 and sowner['DIFFICULTY'] != "EASY": #Killing Blow
                                         if t_enhancer['TYPE'] == "BLAST":
                                             if t_stamina >=20:
                                                 aiMove =4
@@ -21017,7 +21017,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 aiMove = 7
                                             else:
                                                 aiMove = 1
-                                    elif c_health <=350: #Killing Blow
+                                    elif c_health <=350 and sowner['DIFFICULTY'] != "EASY": #Killing Blow
                                         if t_enhancer['TYPE'] == "BLAST":
                                             if t_stamina >=20:
                                                 aiMove =4
