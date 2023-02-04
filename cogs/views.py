@@ -399,15 +399,17 @@ async def viewtitle(self, ctx, title: str):
 
         title_name = title
         title = db.queryTitle({'TITLE': {"$regex": f"^{str(title)}$", "$options": "i"}})
-        print(title)
+        #print(title)
         if title:
             title_title = title['TITLE']
             title_show = title['UNIVERSE']
             title_price = title['PRICE']
             exclusive = title['EXCLUSIVE']
+            abyssal = False
 
             if title_show != 'Unbound':
                 title_img = db.queryUniverse({'TITLE': title_show})['PATH']
+                abyssal = True
             title_passive = title['ABILITIES'][0]
                 # Title Passive
             o_title_passive_type = list(title_passive.keys())[0]
@@ -416,7 +418,9 @@ async def viewtitle(self, ctx, title: str):
             message=""
 
             price_message ="" 
-            if exclusive:
+            if abyssal:
+                price_message = "_Abyssal_"
+            elif exclusive:
                 price_message = "_Priceless_"
             else:
                 price_message = f"_Shop & Drop_"
@@ -539,12 +543,14 @@ async def viewarm(self, ctx, arm: str):
             arm_price = arm['PRICE']
             exclusive = arm['EXCLUSIVE']
             element = arm['ELEMENT']
+            abyssal = False
             if element:
                 element_name = element.title()
                 element = crown_utilities.set_emoji(element)
 
             if arm_show != 'Unbound':
                 arm_show_img = db.queryUniverse({'TITLE': arm_show})['PATH']
+                abyssal = True
             arm_passive = arm['ABILITIES'][0]
                 # Arm Passive
             o_arm_passive_type = list(arm_passive.keys())[0]
@@ -553,7 +559,9 @@ async def viewarm(self, ctx, arm: str):
             message=""
             
             price_message ="" 
-            if exclusive:
+            if abyssal:
+                price_message = "_Abyssal_"
+            elif exclusive:
                 price_message = "_Priceless_"
             else:
                 price_message = f"_Shop & Drop_"

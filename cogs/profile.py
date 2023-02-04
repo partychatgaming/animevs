@@ -569,11 +569,11 @@ class Profile(commands.Cog):
                         warningmessage= f""
                     
                     if oarm_universe == "Unbound" or o_show == "Crown Rift Slayers":
-                        armicon = "💪"
+                        armicon = "👑"
                         if performance_mode:
-                            armmessage = f'💪 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
+                            armmessage = f'👑 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
                         else:
-                            armmessage = f'💪 {arm_name}'
+                            armmessage = f'👑 {arm_name}'
 
                     elif oarm_universe == o_show or (pokemon_universes==True and pokemon_arm==True):
                         armicon = "🦾"
@@ -1202,7 +1202,7 @@ class Profile(commands.Cog):
 
                     if arm_show == "Unbound":
                         unbound_arm_details.append(
-                            f"[{str(index)}] {universe_crest} :muscle: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** : *{arm_passive_value}*\n")
+                            f"[{str(index)}] {universe_crest} :crown: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** : *{arm_passive_value}*\n")
                     elif not exclusive and not available:
                         boss_arm_details.append(
                             f"[{str(index)}] {universe_crest} 👹 {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** :  *{arm_passive_value}*\n")
@@ -1809,6 +1809,8 @@ class Profile(commands.Cog):
                     arm_available = resp['AVAILABLE']
                     arm_exclusive = resp['EXCLUSIVE']
                     icon = "🦾"
+                    if resp['UNIVERSE'] == "Unbound":
+                        icon = ":crown:"
                     if arm_available and arm_exclusive:
                         icon = ":fire:"
                     elif arm_available == False and arm_exclusive ==False:
@@ -2465,19 +2467,28 @@ class Profile(commands.Cog):
         boss_arm = False
         dungeon_arm = False
         boss_message = "Nice Arm!"
+        abyss_arm = False
+        boss_message = "Nice Arm!"
         arm_cost = '{:,}'.format(100000)
         durability_message = f"{arm_cost}"
-        if arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
+        if arm_info['UNIVERSE'] == "Unbound":
+            abyss_arm= True
+            arm_cost = '{:,}'.format(1000000)
+            durability_message = f"{arm_cost}"
+        elif arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
             boss_arm = True
         elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
             dungeon_arm= True
             arm_cost = '{:,}'.format(250000)
             durability_message = f"{arm_cost}"
+
         if boss_arm:
             boss_message = "Cannot Repair"
             durability_message = "UNAVAILABLE"
         elif dungeon_arm:
             boss_message = "Dungeon eh?!"
+        elif abyss_arm:
+            boss_message = "That's Abyssal!!"
         vault_query = {'DID' : str(ctx.author.id)}
         vault = db.altQueryVault(vault_query)
         current_card = user['CARD']
@@ -2740,6 +2751,8 @@ class Profile(commands.Cog):
             if button_ctx.custom_id == "5":
                 if dungeon_arm:
                     price = 250000
+                if abyss_arm:
+                    price = 1000000
                 if boss_arm:
                     await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
                     await msg.edit(components=[])
@@ -6575,11 +6588,11 @@ async def menubuild(self, ctx):
                     warningmessage= f""
                 
                 if oarm_universe == "Unbound" or o_show == "Crown Rift Slayers":
-                    armicon = "💪"
+                    armicon = "👑"
                     if performance_mode:
-                        armmessage = f'💪 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
+                        armmessage = f'👑 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
                     else:
-                        armmessage = f'💪 {arm_name}'
+                        armmessage = f'👑 {arm_name}'
 
                 elif oarm_universe == o_show:
                     armicon = "🦾"
@@ -8033,6 +8046,8 @@ async def menuarms(self, ctx):
                 arm_available = resp['AVAILABLE']
                 arm_exclusive = resp['EXCLUSIVE']
                 icon = "🦾"
+                if resp['UNIVERSE'] == "Unbound":
+                    icon = ":crown:"
                 if arm_available and arm_exclusive:
                     icon = ":fire:"
                 elif arm_available == False and arm_exclusive ==False:
@@ -8620,15 +8635,15 @@ async def menublacksmith(self, ctx):
         boss_message = "Nice Arm!"
         arm_cost = '{:,}'.format(100000)
         durability_message = f"{arm_cost}"
-        if arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
+        if arm_info['UNIVERSE'] == "Unbound":
+            abyss_arm= True
+            arm_cost = '{:,}'.format(1000000)
+            durability_message = f"{arm_cost}"
+        elif arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
             boss_arm = True
         elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
             dungeon_arm= True
             arm_cost = '{:,}'.format(250000)
-            durability_message = f"{arm_cost}"
-        elif arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == True:
-            abyss_arm= True
-            arm_cost = '{:,}'.format(1000000)
             durability_message = f"{arm_cost}"
         if boss_arm:
             boss_message = "Cannot Repair"
@@ -8636,7 +8651,7 @@ async def menublacksmith(self, ctx):
         elif dungeon_arm:
             boss_message = "Dungeon eh?!"
         elif abyss_arm:
-            boss_message = "that's Abyssal!"
+            boss_message = "That's Abyssal!!"
         vault = db.altQueryVault({'DID' : str(ctx.author.id)})
         current_card = user['CARD']
         if storage_type >=10:
