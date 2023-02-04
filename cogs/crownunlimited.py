@@ -7803,6 +7803,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             o_ap_buff = 0
             t_ap_buff = 0
             c_ap_buff = 0
+            o_turn_total_trait = False
+            t_turn_total_trait = False
+            c_turn_total_trait = False
+            tutorial_start = False
 
             if mode == "RAID":
                 raidActive = True
@@ -8148,7 +8152,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_attack = o_attack + o_flat_for_passive
                                     o_ap_buff = o_ap_buff + o_flat_for_passive
                                 if o_card_passive_type == "SLOW":
-                                    if turn_total != 0:
+                                    if turn_total > 0:
                                         turn_total = turn_total - o_card_passive
                                 if o_card_passive_type == "HASTE":
                                     turn_total = turn_total + o_card_passive
@@ -8223,7 +8227,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     o_attack = o_attack + o_title_passive_value
                                     o_ap_buff = o_ap_buff + o_title_passive_value
                                 if o_title_passive_type == "SLOW":
-                                    if turn_total != 0:
+                                    if turn_total > 0:
                                         turn_total = turn_total - o_title_passive_value
                                 if o_title_passive_type == "HASTE":
                                     turn_total = turn_total + o_title_passive_value
@@ -8255,7 +8259,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             if o_defend_used == True:
                                 o_defense = int(o_defense / 2)
                                 o_defend_used = False
-                            if o_universe == "Demon Slayer" and turn_total == 0:
+                            if o_universe == "Demon Slayer" and turn_total == 0 and o_turn_total_trait == False:
                                 embedVar = discord.Embed(title=f"{o_card} Total Concentration Breathing",
                                                         description=f"{o_card} gains **{t_health * .40}** Health",
                                                         colour=0xe91e63)
@@ -8263,7 +8267,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(t_base_health * .40)}**")
                                 o_health = round(o_health + (t_base_health * .40))
                                 o_max_health = round(o_max_health + (t_base_health *.40))
-                            if t_universe == "Demon Slayer" and turn_total == 0:
+                                o_turn_total_trait = True
+                            if t_universe == "Demon Slayer" and turn_total == 0 and t_turn_total_trait == False:
                                 embedVar = discord.Embed(title=f"{t_card} Total Concentration Breathing",
                                                         description=f"{t_card} gains **{o_health * .40}** Health",
                                                         colour=0xe91e63)
@@ -8271,13 +8276,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(o_base_health * .40)}**")
                                 t_health = round(t_health + (o_base_health * .40))
                                 t_max_health = round(t_max_health + (o_base_health *.40))
-                            if o_universe == "Death Note" and turn_total == 0:
+                                t_turn_total_trait = True
+                            if o_universe == "Death Note" and turn_total == 0 and o_turn_total_trait == False:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{o_card} says**\nYou will die in 100 turns...",
                                                         colour=0xe91e63)
                                 
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled {t_card}'s Death 📓")
-                            
+                                o_turn_total_trait =True
                             if mode in B_modes:
                                 embedVar = discord.Embed(title=f"**{t_card}** Boss of `{t_universe}`",
                                                         description=f"*{t_description}*", colour=0xe91e63)
@@ -8286,13 +8292,13 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 embedVar.set_footer(text=f"{t_card} waits for you to strike....")
                                 
                             if mode in co_op_modes:
-                                if c_universe == "Death Note" and turn_total == 0:
+                                if c_universe == "Death Note" and turn_total == 0 and c_turn_total_trait == False:
                                     embedVar = discord.Embed(title=f"{c_card} Scheduled Death 📓",
                                                             description=f"**{c_card} says**\nYou will die in 100 turns...",
                                                             colour=0xe91e63)
                                     
                                     previous_moves.append(f"(**{turn_total}**) 🩸 {c_card} Scheduled {t_card}'s Death 📓")
-                                if c_universe == "Demon Slayer" and turn_total == 0:
+                                if c_universe == "Demon Slayer" and turn_total == 0 and c_turn_total_trait == False:
                                     embedVar = discord.Embed(title=f"{c_card} Total Concentration Breathing",
                                                             description=f"{c_card} gains **{round(t_base_health * .40)}** Health",
                                                             colour=0xe91e63)
@@ -8300,20 +8306,23 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     previous_moves.append(f"(**{turn_total}**) **{c_card}** 🩸 Total Concentration Breathing: **Increased HP {round(t_base_health * .40)}**")
                                     c_health = round(c_health + (t_base_health * .40))
                                     c_max_health = round(c_max_health + (t_base_health *.40))
+                                    c_turn_total_trait = True
                             if mode in co_op_modes:
-                                if t_universe == 'Death Note' and turn_total == 0:
+                                if t_universe == 'Death Note' and turn_total == 0 and t_turn_total_trait == False:
                                     embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                             description=f"**{t_card} says**\nYou will die in 100 turns...",
                                                             colour=0xe91e63)
                                     
                                     previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled {o_card}'s & {c_card}'s Death 📓")
+                                    t_turn_total_trait =True
                             else:
-                                if t_universe == 'Death Note' and turn_total == 0:
+                                if t_universe == 'Death Note' and turn_total == 0 and t_turn_total_trait == False:
                                     embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                             description=f"**{t_card} says**\nYou will die in 100 turns...",
                                                             colour=0xe91e63)
                                     
                                     previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled {o_card}'s Death 📓")
+                                    t_turn_total_trait = True
                             if o_attack <= 25:
                                 o_attack = 25
                             if o_defense <= 30:
@@ -8328,7 +8337,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             # Tutorial Instructions
                             if turn_total == 0:
                                 # Tutorial Instructions
-                                if turn_total == 0:
+                                if turn_total == 0 and tutorial_start == False:
                                     if tutorial:
                                         embedVar = discord.Embed(title=f"Welcome to **Anime VS+**!",
                                                                 description=f"Follow the instructions to learn how to play the Game!",
@@ -8339,6 +8348,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             text="Focus State : When card deplete to 0 stamina, they focus to Heal they also gain ATK and DEF ")
                                         await private_channel.send(embed=embedVar)
                                         await asyncio.sleep(2)
+                                        tutorial_start =True
                                 if mode in B_modes:
                                     embedVar = discord.Embed(title=f"**{t_card}** Boss of `{t_universe}`",
                                                             description=f"*{t_description}*", colour=0xe91e63)
@@ -8793,10 +8803,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                         o_defense,t_stamina,t_attack,t_defense, t_health)
                                         else:
                                             aiMove = 1
-                                    elif o_universe == "Attack On Titan":
-                                        if o_health <= int(o_max_health * .50):
-                                            if o_stamina >= 20:
-                                                aiMove = 0
+                                    elif o_universe == "Attack On Titan" and o_health <= int(o_max_health * .50):
+                                        if o_stamina >= 20:
+                                            aiMove = 0
                                     elif t_health <=350: #Killing Blow
                                         if o_enhancer['TYPE'] == "BLAST":
                                             if o_stamina >=20:
@@ -11838,7 +11847,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
                         if turn_total <0:
                             turn_total = 1
-                        elif turn == 1:
+                        if turn == 1:
                             if t_universe == "YuYu Hakusho":
                                 t_attack = t_attack + t_stamina
 
@@ -11932,7 +11941,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_attack = t_attack + t_value_for_passive
                                     t_ap_buff = t_ap_buff + t_value_for_passive
                                 if t_card_passive_type == "SLOW":
-                                    if turn_total != 0:
+                                    if turn_total > 0:
                                         turn_total = turn_total - t_card_passive
                                 if t_card_passive_type == "HASTE":
                                     turn_total = turn_total + t_card_passive
@@ -12006,7 +12015,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     t_attack = t_attack + t_title_passive_value
                                     t_ap_buff = t_ap_buff + t_title_passive_value
                                 if t_title_passive_type == "SLOW":
-                                    if turn_total != 0:
+                                    if turn_total > 0:
                                         turn_total = turn_total - o_title_passive_value
                                 if t_title_passive_type == "HASTE":
                                     turn_total = turn_total + o_title_passive_value
@@ -12037,7 +12046,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             #         previous_moves = previous_moves[4:]
                             #     previous_moves_into_embed = "\n\n".join(previous_moves)
                             
-                            if o_universe == "Demon Slayer" and turn_total == 0:
+                            if o_universe == "Demon Slayer" and turn_total == 0 and o_turn_total_trait == False:
                                 embedVar = discord.Embed(title=f"{o_card} Total Concentration Breathing",
                                                         description=f"{o_card} gains **{t_health * .40}** Health",
                                                         colour=0xe91e63)
@@ -12045,7 +12054,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(t_base_health * .40)}**")
                                 o_health = round(o_health + (t_base_health * .40))
                                 o_max_health = round(o_max_health + (t_base_health *.40))
-                            if t_universe == "Demon Slayer" and turn_total == 0:
+                                o_turn_total_trait = true
+                            if t_universe == "Demon Slayer" and turn_total == 0 and t_turn_total_trait == False:
                                 embedVar = discord.Embed(title=f"{t_card} Total Concentration Breathing",
                                                         description=f"{t_card} gains **{o_health * .40}** Health",
                                                         colour=0xe91e63)
@@ -12053,16 +12063,19 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(o_base_health * .40)}**")
                                 t_health = round(t_health + (o_base_health * .40))
                                 t_max_health = round(t_max_health + (o_base_health *.40))
-                            if o_universe == "Death Note" and turn_total == 0:
+                                t_turn_total_trait = False
+                            if o_universe == "Death Note" and turn_total == 0 and o_turn_total_trait == False:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{o_card} says**\nYou will die in 100  turns...",
                                                         colour=0xe91e63)
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Scheduled {t_card}'s Death 📓")
-                            if t_universe == 'Death Note' and turn_total == 0:
+                                o_turn_total_trait = True
+                            if t_universe == 'Death Note' and turn_total == 0 and t_turn_total_trait == False:
                                 embedVar = discord.Embed(title=f"{o_card} Scheduled Death 📓",
                                                         description=f"**{t_card} says**\nYou will die in 100  turns...",
                                                         colour=0xe91e63)
                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Scheduled {o_card}'s Death 📓")
+                                t_turn_total_trait = False
                             if turn_total == 1 and botActive and mode in B_modes:
                                 embedVar = discord.Embed(title=f"**{t_card}** Says : ", description=f"{t_welcome}",
                                                         colour=0xe91e63)
@@ -14990,12 +15003,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                         t_defense,o_stamina,o_attack,o_defense, o_health)
                                         else:
                                             aiMove = 1
-                                    elif t_universe == "Attack On Titan":
-                                        if t_health <= int(t_max_health * .20):
-                                            if t_stamina >= 20:
-                                                aiMove = 7
-                                            else:
-                                                aiMove = 1
+                                    elif (t_universe == "Attack On Titan" or t_universe == "Bleach") and t_health <= int(t_max_health * .20):
+                                        if t_stamina >= 20:
+                                            aiMove = 7
+                                        else:
+                                            aiMove = 1
                                     elif o_health <=350 and sowner['DIFFICULTY'] != "EASY": #Killing Blow
                                         if t_enhancer['TYPE'] == "BLAST":
                                             if t_stamina >=20:
@@ -15059,14 +15071,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         else:
                                             aiMove = 1
                                     elif t_stamina >= 100:
-                                        if t_universe == "Attack On Titan":
+                                        if t_universe == "Attack On Titan" or t_universe == "Bleach":
                                             aiMove = 7
                                         else:
                                             aiMove = 1
                                     elif t_stamina >= 90 and (t_health >= o_health):
                                         aiMove = 3
                                     elif t_stamina >= 90:
-                                        if t_universe == "Attack On Titan":
+                                        if t_universe == "Attack On Titan" or (t_universe == "Bleach" and (t_defense < o_attack)):
                                             aiMove = 7
                                         elif t_enhancer['TYPE'] in Gamble_Enhancer_Check:
                                             aiMove = 3
@@ -15148,7 +15160,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         aiMove = 1
                                     else:
                                         aiMove = 0
-                                    
+                                    # print(t_stamina)
+                                    # print(aiMove)
                                     
                                     # if tmove_issue == True:
                                     #     t_stamina = 0
@@ -17164,7 +17177,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                         if turn_total <0:
                             turn_total = 1
-                        elif mode in co_op_modes and turn != (0 or 1):
+                        if mode in co_op_modes and turn != (0 or 1):
                             if c_ap_buff > 500:
                                 c_ap_buff = 500
 
@@ -17260,7 +17273,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_attack = c_attack + c_flat_for_passive
                                         c_ap_buff = c_ap_buff + c_flat_for_passive
                                     if c_card_passive_type == "SLOW":
-                                        if turn_total != 0:
+                                        if turn_total > 0:
                                             turn_total = turn_total - c_card_passive
                                     if c_card_passive_type == "HASTE":
                                         turn_total = turn_total + c_card_passive
@@ -17334,7 +17347,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         c_attack = c_attack + c_title_passive_value
                                         c_ap_buff = c_ap_buff + c_title_passive_value
                                     if c_title_passive_type == "SLOW":
-                                        if turn_total != 0:
+                                        if turn_total > 0:
                                             turn_total = turn_total - c_title_passive_value
                                     if c_title_passive_type == "HASTE":
                                         turn_total = turn_total + c_title_passive_value
@@ -20426,7 +20439,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             if turn_total <0:
                                 turn_total = 1
                             # Opponent Turn Start
-                            elif turn == 3:
+                            if turn == 3:
                                 if t_universe == "YuYu Hakusho":
                                     t_attack = t_attack + t_stamina
 
@@ -20549,7 +20562,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_attack = t_attack + t_flat_for_passive
                                         t_ap_buff = t_ap_buff + t_flat_for_passive
                                     if t_card_passive_type == "SLOW":
-                                        if turn_total != 0:
+                                        if turn_total > 0:
                                             turn_total = turn_total - t_card_passive
                                     if t_card_passive_type == "HASTE":
                                         turn_total = turn_total + t_card_passive
@@ -20624,7 +20637,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         t_attack = t_attack + t_title_passive_value
                                         t_ap_buff = t_ap_buff + t_title_passive_value
                                     if t_title_passive_type == "SLOW":
-                                        if turn_total != 0:
+                                        if turn_total > 0:
                                             turn_total = turn_total - t_title_passive_value
                                     if t_title_passive_type == "HASTE":
                                         turn_total = turn_total + t_title_passive_value
@@ -21011,12 +21024,11 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                         t_defense,c_stamina,c_attack,c_defense, c_health)
                                         else:
                                             aiMove = 1
-                                    elif t_universe == "Attack On Titan":
-                                        if t_health <= int(t_max_health * .20):
-                                            if t_stamina >= 20:
-                                                aiMove = 7
-                                            else:
-                                                aiMove = 1
+                                    elif (t_universe == "Attack On Titan" or t_universe == "Bleach") and t_health <= int(t_max_health * .20):
+                                        if t_stamina >= 20:
+                                            aiMove = 7
+                                        else:
+                                            aiMove = 1
                                     elif c_health <=350 and sowner['DIFFICULTY'] != "EASY": #Killing Blow
                                         if t_enhancer['TYPE'] == "BLAST":
                                             if t_stamina >=20:
@@ -21071,11 +21083,14 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                                             t_enhancer['TYPE'],t_health,t_max_health,t_attack,
                                                                             t_defense,c_stamina,c_attack,c_defense, c_health)
                                     elif t_stamina >= 100:
-                                        aiMove = 1
+                                        if t_universe == "Bleach" and (t_defense <= o_attack):
+                                            aiMove = 7
+                                        else:
+                                            aiMove = 1
                                     elif t_stamina >= 90 and (t_health >= c_health):
                                         aiMove = 3
                                     elif t_stamina >= 90:
-                                        if t_universe == "Attack On Titan":
+                                        if t_universe == "Attack On Titan"  or (t_universe == "Bleach" and (t_defense < o_attack)):
                                             aiMove = 7
                                         else:
                                             aiMove = await ai_enhancer_moves(turn_total,t_used_focus,t_used_resolve,t_pet_used,t_stamina,
@@ -21978,7 +21993,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     c_health = c_health - dmg['DMG']
                                                     
                                                 elif dmg['ELEMENT'] == gravity_element:
-                                                    if turn_total > 0:
+                                                    if turn_total >= 5:
                                                         turn_total = turn_total - 1
                                                     t_gravity_hit = True
                                                     c_health = c_health - dmg['DMG']
