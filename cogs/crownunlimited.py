@@ -4705,7 +4705,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_attack = t['ATK'] + tcard_lvl_attack_buff
             t_defense = t['DEF'] + tcard_lvl_defense_buff
             if mode == 'RAID':
-                t_defense = round(t_defense + hall_def)
+                t_defense = round(t_defense * hall_def)
             t_type = t['TYPE']
 
             t_passive = t['PASS'][0]
