@@ -943,7 +943,7 @@ async def viewhall(self, ctx, hall: str):
         embedVar.add_field(name="Bounty Fee", value=f"**{'{:,}'.format(hall_fee)}** :yen: per **Raid**!", inline=False)
         embedVar.add_field(name="Multiplier", value=f"Association earns **{hall_multiplier}x** :coin: per match!", inline=False)
         embedVar.add_field(name="Split", value=f"**Guilds** earn **{hall_split}x** :coin: per match!", inline=False)
-        embedVar.add_field(name="Defenses", value=f"**Shield** :shield: Defense Boost: **{hall_def}x**", inline=False)
+        embedVar.add_field(name="Defenses", value=f"**Shield** Defense Boost: :shield:**{hall_def}x**", inline=False)
         embedVar.set_footer(text=f"/halls - Hall Menu")
 
         await ctx.send(embed=embedVar)
