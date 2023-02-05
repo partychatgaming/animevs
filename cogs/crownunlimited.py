@@ -8183,6 +8183,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if o_card_passive_type == "SLOW":
                                     if turn_total > 0:
                                         turn_total = turn_total - o_card_passive
+                                        if turn_total < 0:
+                                            turn_total = 0
                                 if o_card_passive_type == "HASTE":
                                     turn_total = turn_total + o_card_passive
                                 if o_card_passive_type == "STANCE":
@@ -8258,6 +8260,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if o_title_passive_type == "SLOW":
                                     if turn_total > 0:
                                         turn_total = turn_total - o_title_passive_value
+                                        if turn_total < 0:
+                                            turn_total = 0
                                 if o_title_passive_type == "HASTE":
                                     turn_total = turn_total + o_title_passive_value
                                 if o_title_passive_type == "STANCE":
@@ -11981,6 +11985,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if t_card_passive_type == "SLOW":
                                     if turn_total > 0:
                                         turn_total = turn_total - t_card_passive
+                                        if turn_total < 0:
+                                            turn_total = 0
                                 if t_card_passive_type == "HASTE":
                                     turn_total = turn_total + t_card_passive
                                 if t_card_passive_type == "STANCE":
@@ -12055,6 +12061,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 if t_title_passive_type == "SLOW":
                                     if turn_total > 0:
                                         turn_total = turn_total - o_title_passive_value
+                                        if turn_total < 0:
+                                            turn_total = 0
                                 if t_title_passive_type == "HASTE":
                                     turn_total = turn_total + t_title_passive_value
                                 if t_title_passive_type == "STANCE":
@@ -17325,6 +17333,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if c_card_passive_type == "SLOW":
                                         if turn_total > 0:
                                             turn_total = turn_total - c_card_passive
+                                            if turn_total < 0:
+                                                turn_total = 0
                                     if c_card_passive_type == "HASTE":
                                         turn_total = turn_total + c_card_passive
                                     if c_card_passive_type == "STANCE":
@@ -17399,6 +17409,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if c_title_passive_type == "SLOW":
                                         if turn_total > 0:
                                             turn_total = turn_total - c_title_passive_value
+                                            if turn_total < 0:
+                                                turn_total = 0
                                     if c_title_passive_type == "HASTE":
                                         turn_total = turn_total + c_title_passive_value
                                     if c_title_passive_type == "STANCE":
@@ -20619,6 +20631,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if t_card_passive_type == "SLOW":
                                         if turn_total > 0:
                                             turn_total = turn_total - t_card_passive
+                                            if turn_total < 0:
+                                                turn_total = 0
                                     if t_card_passive_type == "HASTE":
                                         turn_total = turn_total + t_card_passive
                                     if t_card_passive_type == "STANCE":
@@ -20694,6 +20708,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if t_title_passive_type == "SLOW":
                                         if turn_total > 0:
                                             turn_total = turn_total - t_title_passive_value
+                                            if turn_total < 0:
+                                                turn_total = 0
                                     if t_title_passive_type == "HASTE":
                                         turn_total = turn_total + t_title_passive_value
                                     if t_title_passive_type == "STANCE":
