@@ -1378,7 +1378,16 @@ class Profile(commands.Cog):
                         elif button_ctx.custom_id == "Resell":
                             title_data = db.queryTitle({'TITLE': selected_title})
                             title_name = title_data['TITLE']
-                            sell_price = sell_price + (title_data['PRICE'] * .10)
+                            title_available = title_data['AVAILABLE']
+                            title_exclusive = title_data['EXCLUSIVE']
+                            sell_price = 10000
+                            if title_data['UNIVERSE'] == "Unbound":
+                                sell_price = 250000
+                            elif title_available and title_exclusive:
+                                sell_price = 75000
+                            elif title_available == False and title_exclusive ==False:
+                                sell_price = 1000000
+                            #sell_price = sell_price + (title_data['PRICE'] * .10)
                             if title_name == current_title:
                                 await button_ctx.send("You cannot resell equipped titles.")
                             elif title_name in updated_vault['TITLES']:
@@ -1880,7 +1889,16 @@ class Profile(commands.Cog):
                         elif button_ctx.custom_id == "Resell":
                             arm_data = db.queryArm({'ARM': selected_arm})
                             arm_name = arm_data['ARM']
-                            sell_price = sell_price + (arm_data['PRICE'] * .07)
+                            arm_available = arm_data['AVAILABLE']
+                            arm_exclusive = arm_data['EXCLUSIVE']
+                            sell_price = 25000
+                            if arm_data['UNIVERSE'] == "Unbound":
+                                sell_price = 500000
+                            elif arm_available and arm_exclusive:
+                                sell_price = 100000
+                            elif arm_available == False and arm_exclusive ==False:
+                                sell_price = 1000000
+                            #sell_price = sell_price + (arm_data['PRICE'] * .07)
                             if arm_name == current_arm:
                                 await button_ctx.send("You cannot resell equipped arms.")
                             elif arm_name in updated_vault:
@@ -4792,7 +4810,7 @@ class Profile(commands.Cog):
                                     await button_ctx.defer(ignore=True)
                                     card_data = db.queryCard({'NAME': selected_card})
                                     card_name = card_data['NAME']
-                                    sell_price = sell_price + (card_data['PRICE'] * .15)
+                                    sell_price = (card_data['TIER'] * 250000)
                                     if card_name == current_card:
                                         await button_ctx.send("You cannot resell equipped cards.")
                                     elif card_name in updated_vault['CARDS']:
@@ -5571,7 +5589,7 @@ class Profile(commands.Cog):
                     card_data = storage_card
                     card_name = card_data['NAME']
                     sell_price = 0
-                    sell_price = sell_price + (card_data['PRICE'] * .15)
+                    sell_price = (card_data['TIER'] * 250000)
                     if card_name in vault['STORAGE']:
                         sell_buttons = [
                             manage_components.create_button(
@@ -5628,6 +5646,15 @@ class Profile(commands.Cog):
                     title_data = storage_title
                     title_name = title_data['TITLE']
                     sell_price = 1
+                    title_available = title_data['AVAILABLE']
+                    arm_exclusive = title_data['EXCLUSIVE']
+                    sell_price = 25000
+                    if title_data['UNIVERSE'] == "Unbound":
+                        sell_price = 500000
+                    elif title_available and title_exclusive:
+                        sell_price = 100000
+                    elif title_available == False and title_exclusive ==False:
+                        sell_price = 1000000
                     sell_price = sell_price + (title_data['PRICE'] * .10)
                     selected_universe = title_data['UNIVERSE']
                     if title_name in vault['TSTORAGE']:
@@ -5684,7 +5711,16 @@ class Profile(commands.Cog):
                     arm_data = storage_arm
                     arm_name = arm_data['ARM']
                     sell_price = 1
-                    sell_price = sell_price + (arm_data['PRICE'] * .07)
+                    arm_available = arm_data['AVAILABLE']
+                    arm_exclusive = arm_data['EXCLUSIVE']
+                    sell_price = 25000
+                    if arm_data['UNIVERSE'] == "Unbound":
+                        sell_price = 500000
+                    elif arm_available and arm_exclusive:
+                        sell_price = 100000
+                    elif arm_available == False and arm_exclusive ==False:
+                        sell_price = 1000000
+                    #sell_price = sell_price + (arm_data['PRICE'] * .07)
                     selected_universe = arm_data['UNIVERSE']
                     storage_arm_names = []
                     for names in vault['ASTORAGE']:
@@ -7011,7 +7047,7 @@ async def menucards(self, ctx):
                                 await button_ctx.defer(ignore=True)
                                 card_data = db.queryCard({'NAME': selected_card})
                                 card_name = card_data['NAME']
-                                sell_price = sell_price + (card_data['PRICE'] * .15)
+                                sell_price = (card_data['TIER'] * 250000)
                                 if card_name == current_card:
                                     await button_ctx.send("You cannot resell equipped cards.")
                                 elif card_name in updated_vault['CARDS']:
@@ -7620,7 +7656,16 @@ async def menutitles(self, ctx):
                     elif button_ctx.custom_id == "Resell":
                         title_data = db.queryTitle({'TITLE': selected_title})
                         title_name = title_data['TITLE']
-                        sell_price = sell_price + (title_data['PRICE'] * .10)
+                        title_available = title_data['AVAILABLE']
+                        title_exclusive = title_data['EXCLUSIVE']
+                        sell_price = 10000
+                        if title_data['UNIVERSE'] == "Unbound":
+                            sell_price = 250000
+                        elif title_available and title_exclusive:
+                            sell_price = 75000
+                        elif title_available == False and title_exclusive ==False:
+                            sell_price = 1000000
+                        #sell_price = sell_price + (title_data['PRICE'] * .10)
                         if title_name == current_title:
                             await button_ctx.send("You cannot resell equipped titles.")
                         elif title_name in updated_vault['TITLES']:
@@ -8121,7 +8166,15 @@ async def menuarms(self, ctx):
                     elif button_ctx.custom_id == "Resell":
                         arm_data = db.queryArm({'ARM': selected_arm})
                         arm_name = arm_data['ARM']
-                        sell_price = sell_price + (arm_data['PRICE'] * .07)
+                        arm_available = arm_data['AVAILABLE']
+                        arm_exclusive = arm_data['EXCLUSIVE']
+                        sell_price = 25000
+                        if arm_data['UNIVERSE'] == "Unbound":
+                            sell_price = 500000
+                        elif arm_available and arm_exclusive:
+                            sell_price = 100000
+                        elif arm_available == False and arm_exclusive ==False:
+                            sell_price = 1000000
                         if arm_name == current_arm:
                             await button_ctx.send("You cannot resell equipped arms.")
                         elif arm_name in updated_vault:
