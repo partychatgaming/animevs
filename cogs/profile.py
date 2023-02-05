@@ -5860,7 +5860,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                     destiny_defeat = destiny['DEFEAT']
         
                         if card_has_destiny:
-                            print(price_)
+                            #print(price_)
                             embed_list = []
                             for destiny in cards_destiny_list:
                                 embedVar = discord.Embed(title= f"{destiny['DEFEAT']}", description=textwrap.dedent(f"""
@@ -5930,7 +5930,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                 return
                                         if button_ctx.custom_id == "craft_d_win5":
                                             price_ = int(price_ * 5)
-                                            print(price_)
+                                            #print(price_)
                                             gems = 0
                                             has_gems_for = False
                                             negPriceAmount = 0 - abs(int(price_))

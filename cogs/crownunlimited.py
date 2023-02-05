@@ -2049,17 +2049,14 @@ def damage_cal(mode,card_tier, talisman_dict, move_ap, opponent_affinity, move_t
         ap = move_ap
         move_stamina = list(ability.values())[1]
         can_use_move_flag = True
-    elif mode in B_modes:
-        move = list(ability.keys())[0]
-        ap = move_ap
-        move_stamina = list(ability.values())[1]
-        can_use_move_flag = True
-        boss_active = True
     else:
         move = list(ability.keys())[0]
         ap = move_ap
         move_stamina = list(other.values())[1]
         can_use_move_flag = True
+    
+    if mode in B_modes:
+        boss_active = True
     #print(ap)
     enh = ""
     if enhancer:
