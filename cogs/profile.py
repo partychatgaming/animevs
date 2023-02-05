@@ -6234,8 +6234,12 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                     filter_query = [{'type.' + "UNIVERSE": universe}]
                     res = db.updateVault(query, update_query, filter_query)
 
-                    response = {"HAS_GEMS_FOR": True, "SUCCESS":  True, "MESSAGE": "Success!"}
-                    return response
+                    if item == "UNIVERSE_HEART":
+                        response = {"HAS_GEMS_FOR": True, "SUCCESS":  True, "MESSAGE": "💟 | Heart Crafting Success!"}
+                        return response
+                    elif item == "UNIVERSE_SOUL":
+                        response = {"HAS_GEMS_FOR": True, "SUCCESS":  True, "MESSAGE": "🌹 | Soul Crafting Success!"}
+                        return response
             else:
                     response = {"HAS_GEMS_FOR": True, "SUCCESS":  False, "MESSAGE": "Insufficent 💎!"}
                     return response
