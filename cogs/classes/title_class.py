@@ -206,12 +206,12 @@ class Title:
             if self.passive_type == "DEF":
                 player1_card.defense = player1_card.defense + self.passive_value
             if self.passive_type == "STAM":
-                if self.stamina > 15:
-                    self.stamina = self.stamina + self.passive_value
+                if player1_card.stamina > 15:
+                    player1_card.stamina = player1_card.stamina + self.passive_value
             if self.passive_type == "DRAIN":
-                if self.stamina > 15:
+                if player2_card.stamina > 15:
                     player2_card.stamina = player2_card.stamina - self.passive_value
-                    self.stamina = self.stamina + self.passive_value
+                    player1_card.stamina = player1_card.stamina + self.passive_value
             if self.passive_type == "FLOG":
                 player2_card.attack = round(player2_card.attack - ((self.passive_value / 100) * player2_card.attack))
                 player1_card.attack = round(player1_card.attack + ((self.passive_value / 100) * player2_card.attack))

@@ -24,6 +24,7 @@ class Battle:
         self._is_available = True
         self._is_corrupted = False
         self._can_save_match = False
+        self._is_free_battle = False
 
         self._is_auto_battle = False
         self._can_auto_battle = False
@@ -34,6 +35,7 @@ class Battle:
         self._match_lineup = ""
         self._is_turn = 0
         self._turn_total = 0
+        self._turn_zero_has_happened = False
         self._max_turns_allowed = 250
         self.previous_moves = ["Match has started!"]
         self.previous_moves_len = 0
@@ -108,7 +110,7 @@ class Battle:
         self.scenario_normal_drops = []
         self.scenario_hard_drops = []
         self.explore_type = ""
-        self.explore_card = ""
+        self.bounty = ""
 
         # Boss Important Descriptions
         self._arena_boss_description = ""
@@ -140,8 +142,8 @@ class Battle:
         self.tutorial_summon = False
         self.tutorial_message = ""
 
-        self.player_1_wins = False
-        self.player_2_wins = False
+        self.player1_wins = False
+        self.player2_wins = False
 
 
         if self.mode not in crown_utilities.PVP_M:
@@ -211,6 +213,7 @@ class Battle:
         if self.mode == crown_utilities.EXPLORE:
             self._is_explore = True
             self.is_ai_opponent = True
+            self._can_auto_battle = True
             self._total_enemies = 1
             self.starting_match_title = f"✅ Explore Battle is about to begin!"
 
@@ -562,25 +565,27 @@ class Battle:
         _card._summon_universe = self._ai_opponent_summon_universe
 
 
-    def game_over(self, player_1_card, player_2_card, player_3_card=None):
-        if player_1_card.health == 0:
+    def game_over(self, player1_card, player2_card, player3_card=None):
+        if player1_card.health <= 0:
             self.match_has_ended = True
-            self.player_2_wins = True
+            self.player2_wins = True
         
-        if player_2_card.health == 0:
+        if player2_card.health <= 0:
             self.match_has_ended = True
-            self.player_1_wins = True
+            self.player1_wins = True
 
         if self._is_co_op or self._is_duo:
-            if player_3_card.health:
-                if player_3_card.health == 0:
-                    self.match_has_ended = True
-                    self.player_2_wins = True
+            if player3_card.health <= 0:
+                self.match_has_ended = True
+                self.player2_wins = True
+            if player2_card.health <= 0:
+                self.match_has_ended = True
+                self.player1_wins = True
 
         if self._is_auto_battle:
             if self._turn_total >= 250:
-                self.previous_moves.append(f"⚙️**{player_1_card.name}** could not defeat {player_2_card.name} before the turn Limit...")
-                player_1_card.health = 0
+                self.previous_moves.append(f"⚙️**{player1_card.name}** could not defeat {player2_card.name} before the turn Limit...")
+                player1_card.health = 0
 
         return self.match_has_ended
 
@@ -950,7 +955,7 @@ class Battle:
         if int(opponent_card.card_lvl) >=999:
             p2_msg = f"🏅 *{opponent_card.card_lvl} {opponent_card.name}*"
 
-        message = f"{p1_msg}  🆚 {p2_msg}"
+        message = f"{p1_msg} 🆚\n{p2_msg}"
 
         if self._is_co_op:
             p3_msg = f"🔰 *{companion_card.card_lvl} {companion_card.name}*"
@@ -961,7 +966,7 @@ class Battle:
             if int(companion_card.card_lvl) >=999:
                 p3_msg = f"🏅 *{companion_card.card_lvl} {companion_card.name}*"
 
-            message = f"{p1_msg} & {p3_msg} 🆚 {p2_msg}"
+            message = f"{p1_msg} & {p3_msg} 🆚\n {p2_msg}"
 
         return message
 
@@ -981,11 +986,9 @@ class Battle:
         else:
             respone = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
             response = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
-
-        return response
         _battle.previous_moves.append(f"(**{self._turn_total}**) 💨 You fled...")
         self.match_has_ended = True
-
+        return response
 
     def next_turn(self):
         if self._is_co_op:
@@ -1057,6 +1060,91 @@ class Battle:
         player2_query = {'DID': opponent_player_id}
         loss_update = db.updateUserNoFilter(player2_query, loss_value)
 
+
+    async def pvp_victory_embed(self, winner, winner_card, winner_arm, winner_title, loser, loser_card):
+        talisman_response = crown_utilities.inc_talisman(winner.did, winner.equipped_talisman)
+        
+        _battle.set_pvp_win_loss(winner.did, loser.did)
+
+        if winner.association != "PCG":
+            await crown_utilities.blessguild(250, winner.association)
+
+        if winner.guild != "PCG":
+            await crown_utilities.bless(250, winner.did)
+            await crown_utilities.blessteam(250, winner.guild)
+            await crown_utilities.teamwin(winner.guild)
+
+        if loser.association != "PCG":
+            await crown_utilities.curseguild(100, loser.association)
+
+        if loser.guild != "PCG":
+            await crown_utilities.curse(25, loser.did)
+            await crown_utilities.curseteam(50, loser.guild)
+            await crown_utilities.teamloss(loser.guild)
+
+        match = await crown_utilities.savematch(winner.did, winner_card.name, winner_card.path, winner_title.name,
+                                winner_arm.name, "N/A", "PVP", False)
+        
+        victory_message = f":zap: {winner_card.name} WINS!"
+        victory_description = f"Match concluded in {self._turn_total} turns."
+        if self._is_tutorial:
+            victory_message = f":zap: TUTORIAL VICTORY"
+            victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nnMatch concluded in {self._turn_total} turns."
+        
+        embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
+        {self.get_previous_moves_embed()}
+        
+        """),colour=0xe91e63)
+        # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
+        if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
+            embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
+        elif int(gameClock[0]) == 0:
+            embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+        else:
+            embedVar.set_footer(
+                text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+        embedVar.add_field(name="🔢 Focus Count",
+                        value=f"**{winner_card.name}**: {winner_card.focus_count}\n**{loser_card.name}**: {loser_card.focus_count}")
+        if winner_card.focus_count >= loser_card.focus_count:
+            embedVar.add_field(name="🌀 Most Focused", value=f"**{winner_card.name}**")
+        else:
+            embedVar.add_field(name="🌀 Most Focused", value=f"**{loser_card.name}**")
+
+        return embedVar
+
+
+    async def explore_embed(self, ctx, winner, winner_card, player_arm, player_title):
+        talisman_response = crown_utilities.inc_talisman(winner.did, winner.equipped_talisman)
+        
+        if self.player1_wins:
+            if self.explore_type == "glory":
+                await crown_utilities.bless(bounty, winner.did)
+                drop_response = await crown_utilities.store_drop_card(ctx, winner, winner_card, self._selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
+            
+                message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self._turn_total} rounds.\n\n{drop_response}"
+            if self.explore_type == "gold":
+                await crown_utilities.bless(bounty, winner.did)
+                message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self._turn_total} rounds."
+            
+            if winner.association != "PCG":
+                await crown_utilities.blessguild(250, winner.association)
+
+            if winner.guild != "PCG":
+                await crown_utilities.bless(250, winner.did)
+                await crown_utilities.blessteam(250, winner.guild)
+                await crown_utilities.teamwin(winner.guild)
+
+        else:
+            if self.explore_type == "glory":
+                await crown_utilities.curse(1000, winner.did)
+            
+            message = f"YOU LOSE!\nThe game lasted {self._turn_total} rounds."
+
+        embedVar = discord.Embed(title=f"{message}",description=textwrap.dedent(f"""
+        {self.get_previous_moves_embed()}
+        
+        """),colour=0x1abc9c)
+        return embedVar
 
 
 def ai_enhancer_moves(your_card, opponent_card):

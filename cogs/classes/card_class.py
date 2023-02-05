@@ -78,9 +78,7 @@ class Card:
         self.special_water_buff = 0
         self.ultimate_water_buff = 0
         self.gravity_hit = False
-        self.darkness_meter = 250 * tier
-        self.darkness_consumption_sickness = 50 * tier
-        self.darkness_consumed = False
+        self.physical_meter = 0
 
         # Card Defense From Arm
         # Arm Help
@@ -765,7 +763,8 @@ class Card:
 
 
     def set_deathnote_message(self, _battle):
-        if _battle._turn_total == 0:
+        if _battle._turn_total == 0 and not _battle._turn_zero_has_happened:
+            _battle._turn_zero_has_happened = True
             if self.universe == "Death Note":
                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Scheduled Death 📓")
 
@@ -1145,6 +1144,7 @@ class Card:
 
 
     def damage_cal(self, selected_move, _battle, _opponent_card):
+        print(f"MOVE1AP During Attack = {self.move1ap}")
         if _opponent_card.defense <= 0:
             _opponent_card.defense = 25
         if self.attack <= 0:
@@ -1487,8 +1487,8 @@ class Card:
                 high_hit = 20  # Crit Hit
                 hit_roll = round(random.randint(0, 20))
                 # print(f"HIT ROLL: {str(hit_roll)}")
-                if move_element == "SPIRIT" and hit_roll > 3:
-                    hit_roll = hit_roll + 4
+                if move_element == "SPIRIT" and hit_roll >= 15:
+                    hit_roll = hit_roll + 5
                     
                 if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
                     hit_roll = hit_roll + 2
@@ -1766,7 +1766,7 @@ class Card:
             
             elif self.universe == "Black Clover":                
                 self.stamina = 100
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (20 * self.tier)
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50
 
                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
             
@@ -1778,7 +1778,7 @@ class Card:
 
             if _opponent_card.universe == "One Punch Man" and self.universe != "Death Note":
                 _opponent_card.health = round(_opponent_card.health + 100)
-                player2_card.max_health = round(player2_card.max_health + 100)
+                _opponent_card.max_health = round(_opponent_card.max_health + 100)
 
                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
 
@@ -2211,6 +2211,19 @@ class Card:
             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🧬 **{self._summon_name}** needs a turn to rest...")
             _battle.repeat_turn()
 
+    
+    def set_talisman(self, _battle):
+        # if normal, apply talisman for basic attack
+        # if hard, apply talisman for ultimate attack
+        if _battle._is_normal:
+            self._talisman = self.move1_element
+        
+        if _battle._is_hard:
+            self._talisman = self.move3_element 
+
+        if not self._talisman:
+            self._talisman = "None"
+
 
     def use_companion_enhancer(self, _battle, opponent_card, companion_card):
         self.enhancer_used = True
@@ -2319,6 +2332,12 @@ class Card:
                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **Rally** 🩸 ! **{self.name}** Increased Max Health ❤️")
                 self.max_health = round(self.max_health + 100)
                 self.health = self.health + 100
+
+            if self.universe == "Black Clover":                
+                self.stamina = self.stamina + 50
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 30
+                print(f"AP BUFF IS: {self.card_lvl_ap_buff}")
+                _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Charged their mana, increasing their mana & ap by 30")
 
             if self.universe == "Bleach":
                 dmg = self.damage_cal(1, _battle, opponent_card)
@@ -2619,9 +2638,10 @@ class Card:
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 80:
                 self.stamina = 0
-                self._barrier_active = True
-                self._barrier_value = 1
-            _battle._turn_total = _battle._turn_total + 3
+            self.used_block = True
+            self.defense = round(self.defense * 2)
+            _battle._turn_total = _battle._turn_total + 1
+            self.card_lvl_ap_buff = self.card_lvl_ap_buff + (dmg['DMG'] + (dmg['DMG'] / _battle._turn_total))
             _battle.add_battle_history_messsage(f"**{self.name}** Time has moved forward 3 turns!")
             opponent_card.health = opponent_card.health - (dmg['DMG'] * (_battle._turn_total / 100))
 
@@ -2643,28 +2663,14 @@ class Card:
 
         elif dmg['ELEMENT'] == "DARK":
             opponent_card.stamina = opponent_card.stamina - 20
-            if self.darkness_meter > 0 and not self.darkness_consumed:
-                self.darkness_meter = self.darkness_meter - dmg['DMG']
-                if self.darkness_meter < 0:
-                    self.darkness_consumed = True
-                    _battle.add_battle_history_messsage(f"**{self.name}** you inner darkness has consumed you...")
-                    self.attack = self.attack + 250 * self.tier
-                    self.defense = self.defense + 250 * self.tier
-                    self.health = self.health + 250 * self.tier
-                    self.arbitrary_ap_buff = self.arbitrary_ap_buff + 250
-
-            if self.darkness_meter <= 0:
-                self.health = self.health - self.darkness_consumption_sickness
-                self.attack = self.attack + 250 * self.tier
-                self.defense = self.defense + 250 * self.tier
-
             opponent_card.health = opponent_card.health - dmg['DMG']
-            _battle.add_battle_history_messsage(f"...**{self.name}** The darknes is consuming you...")
-
 
         elif dmg['ELEMENT'] == "PHYSICAL":
-            self._parry_active = True
-            self._parry_value = self._parry_value + 1
+            self.physical_meter = self.physical_meter + 1
+            if self.physical_meter == 2:
+                self._parry_active = True
+                self._parry_value = self._parry_value + 1
+                self.physical_meter = 0
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "LIFE":
@@ -2680,8 +2686,6 @@ class Card:
 
 
         elif dmg['ELEMENT'] == "PSYCHIC":
-            if _battle._turn_total >= 5:
-                _battle._turn_total = _battle._turn_total - 3
             opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .30)
             opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .30)
             opponent_card.health = opponent_card.health - dmg['DMG']
@@ -2715,6 +2719,9 @@ class Card:
             opponent_card.health = opponent_card.health - dmg['DMG']
             
         elif dmg['ELEMENT'] == "GRAVITY":
+            _battle._turn_total = _battle._turn_total - 2
+            if (_battle._turn_total - 3) < 0:
+                _battle.turn_total = 0
             self.gravity_hit = True
             opponent_card.health = opponent_card.health - dmg['DMG']
             opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .75)
@@ -2746,13 +2753,23 @@ class Card:
         if self.health >= self.max_health:
             self.health = self.max_health
 
+        self.move1ap = list(self.m1.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff
+        self.move2ap = list(self.m2.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff
+        self.move3ap = list(self.m3.values())[0]+ self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff
+        
+        # _opponent_card.move1ap = _opponent_card.list(self.m1.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
+        # _opponent_card.move2ap = _opponent_card.list(self.m2.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
+        # _opponent_card.move3ap = _opponent_card.list(self.m3.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
 
+    
+    
     def yuyu_hakusho_attack_increase(self):
         self.attack = self.attack + self.stamina
 
 
     def activate_demon_slayer_trait(self, _battle, opponent_card):
-        if self.universe == "Demon Slayer" and _battle._turn_total == 0:
+        if self.universe == "Demon Slayer" and _battle._turn_total == 0 and not _battle._turn_zero_has_happened:
+            _battle._turn_zero_has_happened = True
             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
@@ -2815,8 +2832,8 @@ class Card:
                 self.attack = self.attack + flat_value_for_passive
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + flat_value_for_passive
             if self.passive_type == "SLOW":
-                if turn_total != 0:
-                    turn_total = turn_total - 1
+                if _battle._turn_total != 0:
+                   _battle._turn_total = _battle._turn_total - 1
             if self.passive_type == "HASTE":
                 _battle._turn_total = _battle._turn_total + 1
             if self.passive_type == "STANCE":
@@ -2834,7 +2851,7 @@ class Card:
             if self.passive_type == "BLAST":
                 player2_card.health = round(player2_card.health - value_for_passive)
             if self.passive_type == "WAVE":
-                if turn_total % 10 == 0:
+                if _battle._turn_total % 10 == 0:
                     player2_card.health = round(player2_card.health - 100)
 
 

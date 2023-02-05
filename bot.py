@@ -2981,7 +2981,7 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       elif collection == 'guild':
          response = db.updateManyGuild({'$set': {new_field: field_type}})
       
-      await ctx.send("Update completed.")
+      await ctx.author.send("Update completed.")
    else:
       print(m.ADMIN_ONLY_COMMAND)
 

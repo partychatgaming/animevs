@@ -505,6 +505,8 @@ def set_emoji(element):
         emoji = "⌛"
     if element == "GRAVITY":
         emoji = "🪐"
+    if element == "None":
+        emoji = "📿"
         
 
     return emoji
@@ -1501,6 +1503,29 @@ def select_random_element(difficulty, mode):
 
     element = random.choice(elements)
     return {"ELEMENT": element, "ESSENCE": essence}
+
+async def teamwin(team):
+    query = {'TEAM_NAME': str(team.lower())}
+    team_data = db.queryTeam(query)
+    if team_data:
+        update_query = {"$inc": {'SCRIM_WINS': 1}}
+        db.updateTeam(query, update_query)
+    else:
+        print("Cannot find Guild")
+
+async def teamloss(team):
+    query = {'TEAM_NAME': str(team.lower())}
+    team_data = db.queryTeam(query)
+    if team_data:
+        update_query = {"$inc": {'SCRIM_LOSSES': 1}}
+        db.updateTeam(query, update_query)
+    else:
+        print("Cannot find Guild")
+
+async def savematch(player, card, path, title, arm, universe, universe_type, exclusive):
+    matchquery = {'PLAYER': player, 'CARD': card, 'PATH': path, 'TITLE': title, 'ARM': arm, 'UNIVERSE': universe,
+                  'UNIVERSE_TYPE': universe_type, 'EXCLUSIVE': exclusive}
+    save_match = db.createMatch(data.newMatch(matchquery))
 
 
 level_sync = {

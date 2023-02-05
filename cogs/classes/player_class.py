@@ -7,7 +7,7 @@ import textwrap
 
 
 class Player:
-    def __init__(self, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet):
+    def __init__(self, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location):
         self.disname = disname
         self.did = did
         self.avatar = avatar
@@ -43,6 +43,9 @@ class Player:
         self.family_pet = family_pet
         self._is_locked_feature = False
         self._locked_feature_message = ""
+        self.explore_location = explore_location
+
+        self.owned_destinies = []
 
         self.talisman_message = "No Talisman Equipped"
 
@@ -62,6 +65,7 @@ class Player:
         self.association_info = ""
         self.crestlist = ""
         self.crestsearch = False
+        
 
         # Vault Infoo
         self.vault = db.queryVault({'DID': str(self.did)})
@@ -81,6 +85,10 @@ class Player:
             self._essence = self.vault['ESSENCE']
             self._tstorage = self.vault['TSTORAGE']
             self._astorage = self.vault['ASTORAGE']
+            
+            if self._destiny:
+                for destiny in self._destiny:
+                    self.owned_destinies.append(destiny['NAME'])
 
             self.list_of_cards = ""
 
@@ -148,17 +156,19 @@ class Player:
             return "Error"
 
 
-    def set_explore(self):
+    def set_explore(self, universe):
         if self.level < 25 and self.prestige == 0:             
             return "🔓 Unlock the Explore Mode by completing Floor 25 of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss."
-        
-        if not self.explore:
+                
+        if universe == "all":
             db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True}})
-            return "Entering Explorer Mode :milky_way: "
-        
-        if self.explore:
-            db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': False}})
-            return "Exiting Explorer Mode :rotating_light: "
+            return f"You are now entering Explore Mode across all universes! :milky_way: "
+
+        universe_selected = db.queryUniverse({"TITLE": {"$regex": f"^{universe}$", "$options": "i"}})
+
+        if universe_selected:
+            db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True, 'EXPLORE_LOCATION': universe_selected['TITLE']}})
+            return f"You are now exploring {universe_selected['TITLE']} :milky_way: "
 
     
     def set_rift_on(self):
@@ -355,7 +365,10 @@ class Player:
 
     
     def get_talisman_ready(self, _card):
-        _card._talisman = self.equipped_talisman
+        if self.equipped_talisman:
+            _card._talisman = self.equipped_talisman
+        else:
+            _card.talisman = "None"
 
 
     def has_storage(self):
