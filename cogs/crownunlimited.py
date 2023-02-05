@@ -9256,7 +9256,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                 if o_gow_resolve:
                                                     o_health = o_max_health
-                                                    previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Resolved: Ascension!")
+                                                    previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: Ascension!")
                                                 elif not o_gow_resolve:
                                                     o_health = round(o_health + (o_max_health / 2))
                                                     o_used_resolve = False
@@ -10717,7 +10717,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
 
                                                     if o_gow_resolve:
                                                         o_health = o_max_health
-                                                        previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 Resolved: Ascension!")
+                                                        previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Resolved: Ascension!")
                                                     elif not o_gow_resolve:
                                                         o_health = round(o_health + (o_max_health / 2))
                                                         o_used_resolve = False
