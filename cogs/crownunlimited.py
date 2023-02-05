@@ -1843,7 +1843,7 @@ async def destiny(player, opponent, mode, craft_amount):
                         message = f"Secured a win toward **{destiny['NAME']}**. Keep it up!"
                         completion = destiny['REQUIRED'] - (destiny['WINS'] + num_of_wins)
 
-                    if completion == 0:
+                    if completion <= 0:
                         try:
                             if destiny['EARN'] not in owned_card_levels_list:
                                 # Add the CARD_LEVELS for Destiny Card
@@ -2485,6 +2485,9 @@ def damage_cal(mode,card_tier, talisman_dict, move_ap, opponent_affinity, move_t
 
             if ranged_attack:
                 true_dmg = round(true_dmg * 1.7)
+                
+            if move_element == "RECOIL" and hit_roll > miss_hit:
+                true_dmg = round(true_dmg * 1.3)
 
             if hit_roll < miss_hit:
                 if universe == 'Crown Rift Slayers':
@@ -2515,8 +2518,6 @@ def damage_cal(mode,card_tier, talisman_dict, move_ap, opponent_affinity, move_t
             else:
                 message = f"{move_emoji} {move} used! Dealt **{true_dmg}** dmg!"
 
-            if move_element == "RECOIL" and hit_roll > miss_hit:
-                true_dmg = round(true_dmg * 2.9)
 
             if is_wind_element and hit_roll > miss_hit:
                 wind_buff = round(wind_buff + round(true_dmg * .15))
@@ -8827,6 +8828,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     elif o_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
                                         if o_stamina >=20:
                                             aiMove =4
+                                        else:
+                                            aiMove = 1
                                     elif oarm_barrier_active: #Ai Barrier Checks
                                         if o_stamina >=20: #Stamina Check For Enhancer
                                             aiMove = await ai_enhancer_moves(turn_total,o_used_focus,o_used_resolve,o_pet_used,o_stamina,
@@ -12056,7 +12059,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     if turn_total > 0:
                                         turn_total = turn_total - o_title_passive_value
                                 if t_title_passive_type == "HASTE":
-                                    turn_total = turn_total + o_title_passive_value
+                                    turn_total = turn_total + t_title_passive_value
                                 if t_title_passive_type == "STANCE":
                                     tempattack = t_attack + t_title_passive_value
                                     t_attack = t_defense
@@ -13853,6 +13856,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         elif t_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
                                             if t_stamina >=20:
                                                 aiMove =4
+                                            else:
+                                                aiMove = 1
                                         elif tarm_barrier_active: #Ai Barrier Checks
                                             if t_stamina >=20: #Stamina Check For Enhancer
                                                 aiMove = await ai_enhancer_moves(turn_total,t_used_focus,t_used_resolve,t_pet_used,t_stamina,
@@ -15038,6 +15043,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     elif t_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
                                         if t_stamina >=20:
                                             aiMove =4
+                                        else:
+                                            aiMove = 1
                                     elif tarm_barrier_active: #Ai Barrier Checks
                                         if t_stamina >=20: #Stamina Check For Enhancer
                                             aiMove = await ai_enhancer_moves(turn_total,t_used_focus,t_used_resolve,t_pet_used,t_stamina,
@@ -17769,6 +17776,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         elif c_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
                                             if c_stamina >= 20:
                                                 aiMove = 4
+                                            else:
+                                                aiMove = 1
                                         elif carm_barrier_active: #Ai Barrier Checks
                                             if c_stamina >=20: #Stamina Check For Enhancer
                                                 aiMove = await ai_enhancer_moves(turn_total,c_used_focus,c_used_resolve,c_pet_used,c_stamina,
@@ -21066,6 +21075,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     elif t_enhancer['TYPE'] == "WAVE" and (turn_total % 10 == 0 or turn_total == 0 or turn_total == 1):
                                         if t_stamina >=20:
                                             aiMove =4
+                                        else:
+                                            aiMove = 1
                                     elif tarm_barrier_active: #Ai Barrier Checks
                                         if t_stamina >=20: #Stamina Check For Enhancer
                                             aiMove = await ai_enhancer_moves(turn_total,t_used_focus,t_used_resolve,t_pet_used,t_stamina,

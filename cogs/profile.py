@@ -4417,11 +4417,11 @@ class Profile(commands.Cog):
                 craft_card_message = "Cannot Afford"
                 if universe_heart:
                     heart_message = "Owned"
-                elif gems >= 1000000:
+                elif gems >= 5000000:
                     heart_message = "Craftable"
                 if universe_soul:
                     soul_message = "Owned"
-                elif gems >= 500000:
+                elif gems >= 20000000:
                     soul_message = "Craftable"
                 if gems >= 1500000 and universe_name == card_info['UNIVERSE'] and destiny_alert:
                     destiny_message = f"Destinies available"
@@ -4446,17 +4446,17 @@ class Profile(commands.Cog):
                 💟 **Universe Heart:** 💎 5,000,000 *{heart_message}*
                 *Grants ability to level past 200*
 
-                🌹 **Universe Soul:** 💎 5,000,000 *{soul_message}*
+                🌹 **Universe Soul:** 💎 20,000,000 *{soul_message}*
                 *Grants double exp in this Universe*
 
                 ✨ **Destiny Line:** 💎 1,500,000 *{destiny_message}*
                 *Grants wins for a Destiny Line*
                 
-                🃏 **Card Skins:** 💎 2,000,000 *{card_skin_message}*
+                🃏 **Card Skins:** 💎 12,000,000 *{card_skin_message}*
                 *Grants Card Skin*
 
-                ✨🎴 **Craft Card:** 💎 15,000,000 *{craft_card_message}*
-                *Craft a random dungeon card from this Universe*
+                ✨🎴 **Craft Card:** 💎 6,000,000 *{craft_card_message}*
+                *Craft a random Shop or Dungeon card from this Universe*
 
                 """), colour=0x7289da)
                 embedVar.set_image(url=universe_image)
@@ -4487,7 +4487,7 @@ class Profile(commands.Cog):
                             self.stop = True                           
 
                     if button_ctx.custom_id == "UNIVERSE_SOUL":
-                        price = 5000000
+                        price = 20000000
                         response = await craft_adjuster(self, ctx, vault, universe, price, button_ctx.custom_id, None, completed_tales)
                         if response['SUCCESS']:
                             await button_ctx.send(f"{response['MESSAGE']}")
@@ -4503,13 +4503,13 @@ class Profile(commands.Cog):
                         self.stop = True
                     if button_ctx.custom_id == "Skin":
                         await button_ctx.defer(ignore=True)
-                        price = 2000000
+                        price = 12000000
                         response = await craft_adjuster(self, ctx, vault, universe, price, card_info, new_skin_list, completed_tales)
                         await button_ctx.send(f"{response['MESSAGE']}")
                         self.stop = True
                     if button_ctx.custom_id == "Card":
                         await button_ctx.defer(ignore=True)
-                        price = 15000000
+                        price = 6000000
                         response = await craft_adjuster(self, ctx, vault, universe, price, "Card", new_skin_list, completed_tales)
                         await button_ctx.send(f"{response['MESSAGE']}")
                         self.stop = True                       
@@ -10545,11 +10545,11 @@ async def menucraft(self, ctx):
             craft_card_message = "Cannot Afford"
             if universe_heart:
                 heart_message = "Owned"
-            elif gems >= 1000000:
+            elif gems >= 10000000:
                 heart_message = "Craftable"
             if universe_soul:
                 soul_message = "Owned"
-            elif gems >= 500000:
+            elif gems >= 20000000:
                 soul_message = "Craftable"
             if gems >= 1500000 and universe_name == card_info['UNIVERSE'] and destiny_alert:
                 destiny_message = f"Destinies available"
@@ -10571,20 +10571,20 @@ async def menucraft(self, ctx):
             Equipped Card:  **{card_info['NAME']}** *{card_info['UNIVERSE']}*
             *{destiny_alert_message}*
             
-            💟 **Universe Heart:** 💎 5,000,000 *{heart_message}*
+            💟 **Universe Heart:** 💎 10,000,000 *{heart_message}*
             *Grants ability to level past 200*
 
-            🌹 **Universe Soul:** 💎 5,000,000 *{soul_message}*
+            🌹 **Universe Soul:** 💎 20,000,000 *{soul_message}*
             *Grants double exp in this Universe*
 
             ✨ **Destiny Line:** 💎 1,500,000 *{destiny_message}*
             *Grants wins for a Destiny Line*
             
-            🃏 **Card Skins:** 💎 2,000,000 *{card_skin_message}*
+            🃏 **Card Skins:** 💎 12,000,000 *{card_skin_message}*
             *Grants Card Skin*
 
-            ✨🎴 **Craft Card:** 💎 15,000,000 *{craft_card_message}*
-            *Craft a random dungeon card from this Universe*
+            ✨🎴 **Craft Card:** 💎 6,000,000 *{craft_card_message}*
+            *Craft a random Shop or Dungeon card from this Universe*
 
             """), colour=0x7289da)
             embedVar.set_image(url=universe_image)
@@ -10615,7 +10615,7 @@ async def menucraft(self, ctx):
                         self.stop = True                           
 
                 if button_ctx.custom_id == "UNIVERSE_SOUL":
-                    price = 5000000
+                    price = 20000000
                     response = await craft_adjuster(self, ctx, vault, universe, price, button_ctx.custom_id, None, completed_tales)
                     if response['SUCCESS']:
                         await button_ctx.send(f"{response['MESSAGE']}")
@@ -10631,13 +10631,13 @@ async def menucraft(self, ctx):
                     self.stop = True
                 if button_ctx.custom_id == "Skin":
                     await button_ctx.defer(ignore=True)
-                    price = 2000000
+                    price = 12000000
                     response = await craft_adjuster(self, ctx, vault, universe, price, card_info, new_skin_list, completed_tales)
                     await button_ctx.send(f"{response['MESSAGE']}")
                     self.stop = True
                 if button_ctx.custom_id == "Card":
                     await button_ctx.defer(ignore=True)
-                    price = 15000000
+                    price = 6000000
                     response = await craft_adjuster(self, ctx, vault, universe, price, "Card", new_skin_list, completed_tales)
                     await button_ctx.send(f"{response['MESSAGE']}")
                     self.stop = True                       
