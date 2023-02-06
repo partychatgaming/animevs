@@ -1686,7 +1686,7 @@ async def daily(ctx):
       user_completed_tales = user_data['CROWN_TALES']
       rebirth = int(user_data['REBIRTH'])
       dailyamount = 1000000
-      daily_bonus = int(dailyamount * rebirth)
+      daily_bonus = int(dailyamount * (rebirth + 1))
       await crown_utilities.bless(daily_bonus, ctx.author.id)
       
       
