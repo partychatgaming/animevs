@@ -79,6 +79,10 @@ class Battle:
         self.stat_debuff = 0
         self.ap_buff = 0
         self.ap_debuff = 0
+        self.co_op_stat_bonus = 0
+        self.co_op_health_bonus = 0
+        self.are_teammates = False
+        self.are_family_members = False
 
         # Universal Elemetal Buffs
         self._wind_buff = 0
@@ -97,9 +101,11 @@ class Battle:
         self._ai_opponent_card_lvl = 0
         self.match_has_ended = False
 
+        self.bank_amount = 0
+        self.fam_reward_amount = 0
+
         # Messages
         self.abyss_message = ""
-        self.starting_match_title = f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
 
         # Abyss / Scenario / Explore Config
         self.abyss_floor = ""
@@ -141,6 +147,7 @@ class Battle:
         self.tutorial_focus = False
         self.tutorial_summon = False
         self.tutorial_message = ""
+        self.tutorial_did = 0
 
         self.player1_wins = False
         self.player2_wins = False
@@ -176,6 +183,8 @@ class Battle:
             self._ai_opponent_summon_bond = 1
             self._ai_opponent_card_lvl = 30
             self._can_auto_battle = True
+            self.bank_amount = 5000
+            self.fam_reward_amount = 5000
 
         
         if self.mode in crown_utilities.DUNGEON_M:
@@ -187,6 +196,8 @@ class Battle:
             self.health_buff = self.health_buff + 2000
             self.stat_buff = self.stat_buff + 100
             self.ap_buff = self.ap_buff + 80
+            self.bank_amount = 20000
+            self.fam_reward_amount = 20000
 
 
         if self.mode in crown_utilities.BOSS_M:
@@ -200,6 +211,8 @@ class Battle:
             self.ap_buff = self.ap_buff + 250
             self._total_enemies = 1
             self.starting_match_title = "👿 BOSS BATTLE!"
+            self.bank_amount = 5000000
+            self.fam_reward_amount = 5000000
 
 
         if self.mode == crown_utilities.ABYSS:
@@ -219,19 +232,25 @@ class Battle:
 
         if self.difficulty == "EASY":
             self._is_easy = True
-            self.health_debuff = self.health_debuff + 500
+            self.health_debuff = self.health_debuff + -500
             self.stat_debuff = self.stat_debuff + 100
             self.ap_debuff = self.ap_debuff + 15
+            self.bank_amount = 500
+            self.fam_reward_amount = 100
 
         
         if self.difficulty == "NORMAL":
             self._is_normal = True
+            self.bank_amount = 2500
+            self.fam_reward_amount = 1500
         
         if self.difficulty == "HARD":
             self._is_hard = True
             self.health_buff = self.health_buff + 3000
             self.stat_buff = self.stat_buff + 200
             self.ap_buff = self.ap_buff + 150
+            self.bank_amount = self.bank_amount + 25000
+            self.fam_reward_amount = self.fam_reward_amount + 25000
 
         if self.is_ai_opponent:
             self._ai_can_use_summon = True
@@ -269,6 +288,10 @@ class Battle:
 
             self.starting_match_title = f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
 
+
+    def get_starting_match_title(self):
+        print(f"CURRENT OPPONENT {self._currentopponent}")
+        return   f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
 
     def set_abyss_config(self):
         if self._is_abyss:
@@ -420,17 +443,16 @@ class Battle:
             self.scenario_normal_drops = scenario_data['NORMAL_DROPS']
             self.scenario_hard_drops = scenario_data['HARD_DROPS']
 
-            self.starting_match_title = f"🎞️ Scenario Battle Confirm Start!  ({self._currentopponent + 1}/{self._total_enemies})"
+            self.starting_match_title = f"🎞️ Scenario Battle Confirm Start! ({self._currentopponent + 1}/{self._total_enemies})"
         except:
             print("unable to set scenario config")
 
 
     def set_tutorial(self, opponent_did):
         bot_dids = ['837538366509154407', '845672426113466395']
-
         if opponent_did in bot_dids:
             self._is_tutorial = True
-            self.is_ai_opponent = True
+            # self.is_ai_opponent = True
             self._is_turn = 0
 
 
@@ -748,7 +770,7 @@ class Battle:
         elif your_card.stamina >= 20 and (your_card.health >= opponent_card.health):
             aiMove = 1
         elif your_card.stamina >= 20:
-            if your_card.move4enh in Gamble_Enhancer_Check:
+            if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
                 aiMove = 1
             elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check:
                 aiMove = 1
@@ -1049,6 +1071,28 @@ class Battle:
             self._is_turn = 0
 
 
+    def get_co_op_bonuses(self, player1, player2):
+        if self._is_tales or self._is_dungeon:
+            if player1.guild == player2.guild and player1.guild != 'PCG':
+                self.are_teammates = True
+                self.co_op_stat_bonus = 50
+            if player1.family == player2.family and player1.family != 'PCG':
+                self.are_family_members=True
+                self.co_op_health_bonus=100
+            
+            if self.are_teammates:
+                bonus_message = f":checkered_flag:**{player1.guild}:** 🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
+                if self.are_family_members:
+                    bonus_message = f":family_mwgb:**{player1.family}:** ❤️**+{hlt_bonus}**\n:checkered_flag:**{player1.guild}:**🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
+            elif self.are_family_members:
+                    bonus_message = f":family_mwgb:**{player1.family}:** ❤️**+{hlt_bonus}**"
+            else:
+                bonus_message = f"Join a Guild or Create a Family for Coop Bonuses!"
+
+            return bonus_message
+
+
+
     async def set_pvp_win_loss(self, your_player_id, opponent_player_id):
         await crown_utilities.bless(10000, your_player_id)
 
@@ -1118,12 +1162,12 @@ class Battle:
         
         if self.player1_wins:
             if self.explore_type == "glory":
-                await crown_utilities.bless(bounty, winner.did)
+                await crown_utilities.bless(self.bounty, winner.did)
                 drop_response = await crown_utilities.store_drop_card(ctx, winner, winner_card, self._selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
             
                 message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self._turn_total} rounds.\n\n{drop_response}"
             if self.explore_type == "gold":
-                await crown_utilities.bless(bounty, winner.did)
+                await crown_utilities.bless(self.bounty, winner.did)
                 message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self._turn_total} rounds."
             
             if winner.association != "PCG":
@@ -1145,6 +1189,32 @@ class Battle:
         
         """),colour=0x1abc9c)
         return embedVar
+
+
+    async def get_win_rewards(self, player):
+        if player.rift == 1:
+            rift_response = db.updateUserNoFilter({'DID': str(player.did)}, {'$set': {'RIFT': 0}})
+
+        if player.family != "PCG":
+            family_bank = await crown_utilities.blessfamily(self.fam_reward_amount, player.family)
+        
+        if player.guild != "PCG":
+            team_bank = await crown_utilities.blessteam(self.bank_amount, player.guild)
+        
+        random_element = crown_utilities.select_random_element(self.difficulty, self.mode)
+        essence = crown_utilities.inc_essence(player.did, random_element["ELEMENT"], random_element["ESSENCE"])
+
+        return {"RANDOM_ELEMENT": random_element['ESSENCE'], "ESSENCE": essence}
+    
+
+    async def get_corruption_message(self, ctx):
+        if not self._is_easy and (self._is_tales or self._is_dungeon):
+            if self._is_corrupted:
+                corrupted_message = await crown_utilities.corrupted_universe_handler(ctx, self.selected_universe, self.difficulty)
+                if not corrupted_message:
+                    corrupted_message = "You must dismantle a card from this universe to enable crafting."
+                return corrupted_message
+            return ""
 
 
 def ai_enhancer_moves(your_card, opponent_card):

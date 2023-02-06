@@ -103,6 +103,8 @@ class Player:
         self._equipped_summon_data = ""
         self._equipped_summon_power = 0
         self._equipped_summon_bond = 0
+        self._equipped_summon_bondexp = 0
+        self._equipped_summon_exp = 0
         self._equipped_summon_lvl = 0
         self._equipped_summon_type = ""
         self._equipped_summon_name = ""
@@ -344,12 +346,13 @@ class Player:
             self._equipped_summon_ability_name = list(active_summon.keys())[3]
             self._equipped_summon_power = list(active_summon.values())[3]
             self._equipped_summon_bond = active_summon['BOND']
+            self._equipped_summon_bondexp = active_summon['BONDEXP']
             self._equipped_summon_lvl = active_summon['LVL']
             self._equipped_summon_type = active_summon['TYPE']
             self._equipped_summon_name = active_summon['NAME']
             self._equipped_summon_image = active_summon['PATH']
+            self._equipped_summon_exp = active_summon['EXP']
             self._equipped_summon_universe = db.queryPet({'PET': active_summon['NAME']})['UNIVERSE']
-
         except:
             print("Failed to get battle ready")
 
@@ -359,10 +362,11 @@ class Player:
         _card._summon_lvl = self._equipped_summon_lvl
         _card._summon_type = self._equipped_summon_type
         _card._summon_bond = self._equipped_summon_bond
+        _card._summon_bondexp = self._equipped_summon_bondexp
+        _card._summon_exp = self._equipped_summon_exp
         _card._summon_name = self._equipped_summon_name
         _card._summon_image = self._equipped_summon_image
         _card._summon_universe = self._equipped_summon_universe
-
     
     def get_talisman_ready(self, _card):
         if self.equipped_talisman:

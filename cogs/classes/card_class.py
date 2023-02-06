@@ -15,255 +15,260 @@ from io import BytesIO
 
 
 class Card:
-    def __init__(self, name, path, price, exclusive, available, is_skin, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, type, passive, speed, universe, has_collection, tier, collection, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath):
-        self.name = name
-        self.fpath= fpath
-        self.rpath = rpath
-        self.rname = rname
-        self.gif = gif
-        self.path = path
-        self.price = price
-        self.exclusive = exclusive
-        self.available = available
-        self.is_skin = is_skin
-        self.skin_for = skin_for
-        self.max_health = max_health
-        self.health = health
-        self.max_stamina = max_stamina
-        self.stamina = stamina
-        self.moveset = moveset
-        self.attack = attack
-        self.defense = defense
-        self.type = type
-        self.passive = passive
-        self.speed = speed
-        self.universe = universe
-        self.has_collection = has_collection
-        self.tier = tier
-        self.collection = collection
-        self.weaknesses = weaknesses
-        self.resistances = resistances
-        self.repels = repels
-        self.absorbs = absorbs
-        self.immunity = immunity
+    try:
+        def __init__(self, name, path, price, exclusive, available, is_skin, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, type, passive, speed, universe, has_collection, tier, collection, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath):
+            self.name = name
+            self.fpath= fpath
+            self.rpath = rpath
+            self.rname = rname
+            self.gif = gif
+            self.path = path
+            self.price = price
+            self.exclusive = exclusive
+            self.available = available
+            self.is_skin = is_skin
+            self.skin_for = skin_for
+            self.max_health = max_health
+            self.health = health
+            self.max_stamina = max_stamina
+            self.stamina = stamina
+            self.moveset = moveset
+            self.attack = attack
+            self.defense = defense
+            self.type = type
+            self.passive = passive
+            self.speed = speed
+            self.universe = universe
+            self.has_collection = has_collection
+            self.tier = tier
+            self.collection = collection
+            self.weaknesses = weaknesses
+            self.resistances = resistances
+            self.repels = repels
+            self.absorbs = absorbs
+            self.immunity = immunity
 
-        # Universe Traits
-        self._final_stand = False
-        self._chainsawman_activated = False
-        self._atk_chainsawman_buff = False
-        self._def_chainsawman_buff = False
-        self._demon_slayer_buff = 0
-        self._naruto_heal_buff = 0
-        self._gow_resolve = False
-        self.temp_opp_arm_shield_active = False
-        self.temp_opp_shield_value = 0
-        self.temp_opp_arm_barrier_active = False
-        self.temp_opp_barrier_value = 0
-        self.temp_opp_arm_parry_active = False
-        self.temp_opp_parry_value = 0
-        self.solo_leveling_trait_swapped = False
-        self.solo_leveling_trait_active = False
+            # Universe Traits
+            self._final_stand = False
+            self._chainsawman_activated = False
+            self._atk_chainsawman_buff = False
+            self._def_chainsawman_buff = False
+            self._demon_slayer_buff = 0
+            self._naruto_heal_buff = 0
+            self._gow_resolve = False
+            self.temp_opp_arm_shield_active = False
+            self.temp_opp_shield_value = 0
+            self.temp_opp_arm_barrier_active = False
+            self.temp_opp_barrier_value = 0
+            self.temp_opp_arm_parry_active = False
+            self.temp_opp_parry_value = 0
+            self.solo_leveling_trait_swapped = False
+            self.solo_leveling_trait_active = False
 
-        # Elemental Effect Meters
-        self.burn_dmg = 0
-        self.poison_dmg = 0
-        self.freeze_enh = False
-        self.ice_counter = 0
-        self.water_buff = 0
-        self.shock_buff = 0
-        self.psychic_debuff = 0
-        self.bleed_damage_counter = 0
-        self.bleed_hit = False
-        self.basic_water_buff = 0
-        self.special_water_buff = 0
-        self.ultimate_water_buff = 0
-        self.gravity_hit = False
-        self.physical_meter = 0
+            # Elemental Effect Meters
+            self.burn_dmg = 0
+            self.poison_dmg = 0
+            self.freeze_enh = False
+            self.ice_counter = 0
+            self.water_buff = 0
+            self.shock_buff = 0
+            self.psychic_debuff = 0
+            self.bleed_damage_counter = 0
+            self.bleed_hit = False
+            self.basic_water_buff = 0
+            self.special_water_buff = 0
+            self.ultimate_water_buff = 0
+            self.gravity_hit = False
+            self.physical_meter = 0
 
-        # Card Defense From Arm
-        # Arm Help
-        self._shield_active = False
-        self._barrier_active = False
-        self._parry_active = False
-        self._siphon_active = False
+            # Card Defense From Arm
+            # Arm Help
+            self._shield_active = False
+            self._barrier_active = False
+            self._parry_active = False
+            self._siphon_active = False
 
-        self._shield_value = 0
-        self._barrier_value = 0
-        self._parry_value = 0
-        self._siphon_value = 0
-        self._arm_message = ""
+            self._shield_value = 0
+            self._barrier_value = 0
+            self._parry_value = 0
+            self._siphon_value = 0
+            self._arm_message = ""
 
-        # Card level & level buffs
-        self.card_lvl = 0
-        self.card_tier = 0
-        self.card_exp = 0
-        self.card_lvl_attack_buff = 0
-        self.card_lvl_defense_buff = 0
-        self.card_lvl_hlt_buff = 0
-        self.card_lvl_ap_buff = 0
-        self.arbitrary_ap_buff = 0
+            # Card level & level buffs
+            self.card_lvl = 0
+            self.card_tier = 0
+            self.card_exp = 0
+            self.card_lvl_attack_buff = 0
+            self.card_lvl_defense_buff = 0
+            self.card_lvl_hlt_buff = 0
+            self.card_lvl_ap_buff = 0
+            self.arbitrary_ap_buff = 0
 
-        # Battle requirements
-        self.resolved = False
-        self.focused = False
-        self.dungeon = False
-        self.dungeon_card_details = ""
-        self.tales_card_details = ""
-        self.destiny_card_details = ""
-        self.used_focus = False
-        self.used_resolve = False
-        self.enhancer_used = False
-        self.used_summon = False
-        self.used_block = False
-        self.used_defend = False
-        self.focus_count = 0
-        self.enhance_turn_iterators = 0
-        self.stamina_required_to_focus = 10
-        self.stamina_focus_recovery_amount = 90
-        self._tutorial_message = ""
-        self.resolve_value = 60
-        self.summon_resolve_message = ""
+            # Battle requirements
+            self.resolved = False
+            self.focused = False
+            self.dungeon = False
+            self.dungeon_card_details = ""
+            self.tales_card_details = ""
+            self.destiny_card_details = ""
+            self.used_focus = False
+            self.used_resolve = False
+            self.enhancer_used = False
+            self.used_summon = False
+            self.used_block = False
+            self.used_defend = False
+            self.focus_count = 0
+            self.enhance_turn_iterators = 0
+            self.stamina_required_to_focus = 10
+            self.stamina_focus_recovery_amount = 90
+            self._tutorial_message = ""
+            self.resolve_value = 60
+            self.summon_resolve_message = ""
 
-        # Talisman Info
-        self._talisman = ""
+            # Talisman Info
+            self._talisman = ""
 
-        # Summon Info
-        self._summon_ability_name = ""
-        self._summon_power = 0
-        self._summon_lvl = 0
-        self._summon_type = ""
-        self._summon_bond = ""
-        self._summon_name = ""
-        self._summon_image = ""
-        self._summon_universe = ""
+            # Summon Info
+            self._summon_ability_name = ""
+            self._summon_power = 0
+            self._summon_lvl = 0
+            self._summon_type = ""
+            self._summon_bond = ""
+            self._summon_name = ""
+            self._summon_image = ""
+            self._summon_universe = ""
+            self._summon_bondexp = 0
+            self._summon_exp = 0
 
-        # Passive Ability
-        self.passive_name  = list(passive.keys())[0]
-        self.passive_num = list(passive.values())[0]
-        self.passive_type = list(passive.values())[1]
+            # Passive Ability
+            self.passive_name  = list(passive.keys())[0]
+            self.passive_num = list(passive.values())[0]
+            self.passive_type = list(passive.values())[1]
 
-        # Each move
-        self.m1 = moveset[0]
-        self.m2 = moveset[1]
-        self.m3 = moveset[2]
-        self.enhancer = moveset[3]
+            # Each move
+            self.m1 = moveset[0]
+            self.m2 = moveset[1]
+            self.m3 = moveset[2]
+            self.enhancer = moveset[3]
 
-        # Move 1
-        self.move1 = list(self.m1.keys())[0]
-        self.move1ap = list(self.m1.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff
-        self.move1_stamina = list(self.m1.values())[1]
-        self.move1_element = list(self.m1.values())[2]
-        self.move1_emoji = crown_utilities.set_emoji(self.move1_element)
+            # Move 1
+            self.move1 = list(self.m1.keys())[0]
+            self.move1ap = list(self.m1.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff
+            self.move1_stamina = list(self.m1.values())[1]
+            self.move1_element = list(self.m1.values())[2]
+            self.move1_emoji = crown_utilities.set_emoji(self.move1_element)
 
-        # Move 2
-        self.move2 = list(self.m2.keys())[0]
-        self.move2ap = list(self.m2.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff
-        self.move2_stamina = list(self.m2.values())[1]
-        self.move2_element = list(self.m2.values())[2]
-        self.move2_emoji = crown_utilities.set_emoji(self.move2_element)
+            # Move 2
+            self.move2 = list(self.m2.keys())[0]
+            self.move2ap = list(self.m2.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff
+            self.move2_stamina = list(self.m2.values())[1]
+            self.move2_element = list(self.m2.values())[2]
+            self.move2_emoji = crown_utilities.set_emoji(self.move2_element)
 
-        # Move 3
-        self.move3 = list(self.m3.keys())[0]
-        self.move3ap = list(self.m3.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff
-        self.move3_stamina = list(self.m3.values())[1]
-        self.move3_element = list(self.m3.values())[2]
-        self.move3_emoji = crown_utilities.set_emoji(self.move3_element)
+            # Move 3
+            self.move3 = list(self.m3.keys())[0]
+            self.move3ap = list(self.m3.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff
+            self.move3_stamina = list(self.m3.values())[1]
+            self.move3_element = list(self.m3.values())[2]
+            self.move3_emoji = crown_utilities.set_emoji(self.move3_element)
 
-        # Move Enhancer
-        self.move4 = list(self.enhancer.keys())[0]
-        self.move4ap = list(self.enhancer.values())[0]
-        self.move4_stamina = list(self.enhancer.values())[1]
-        self.move4enh = list(self.enhancer.values())[2]
+            # Move Enhancer
+            self.move4 = list(self.enhancer.keys())[0]
+            self.move4ap = list(self.enhancer.values())[0]
+            self.move4_stamina = list(self.enhancer.values())[1]
+            self.move4enh = list(self.enhancer.values())[2]
 
-        self.dungeon_card_details
-        
-        self.pokemon_universe = False
+            self.dungeon_card_details
+            
+            self.pokemon_universe = False
 
-        # Explore Config
-        self.bounty = 0
-        self.approach_message = " "
-        self.bounty_message = " "
-        self.battle_message = " "
-        self._explore_cardtitle = " "
+            # Explore Config
+            self.bounty = 0
+            self.approach_message = " "
+            self.bounty_message = " "
+            self.battle_message = " "
+            self._explore_cardtitle = " "
 
-        # Boss Descriptions
-        self._boss_arena_message = ""
-        self._boss_arenades_message = ""
-        self._boss_entrance_message = ""
-        self._boss_description_message = ""
-        self._boss_welcome_message = ""
-        self._boss_feeling_message = ""
-        self._boss_powerup_message = ""
-        self._boss_aura_message = ""
-        self._boss_assault_message = ""
-        self._boss_world_message = ""
-        self._boss_punish_message = ""
-        self._boss_rmessage_message = ""
-        self._boss_rebuke_message = ""
-        self._boss_concede_message = ""
-        self._boss_wins_message = ""
-        self._special_description = ""
+            # Boss Descriptions
+            self._boss_arena_message = ""
+            self._boss_arenades_message = ""
+            self._boss_entrance_message = ""
+            self._boss_description_message = ""
+            self._boss_welcome_message = ""
+            self._boss_feeling_message = ""
+            self._boss_powerup_message = ""
+            self._boss_aura_message = ""
+            self._boss_assault_message = ""
+            self._boss_world_message = ""
+            self._boss_punish_message = ""
+            self._boss_rmessage_message = ""
+            self._boss_rebuke_message = ""
+            self._boss_concede_message = ""
+            self._boss_wins_message = ""
+            self._special_description = ""
 
-        self.affinity_message = ""
-        self.price_message = ""
-        self.card_icon = ""
-        self.trait_message = ""
-        self.universe_buff_message = " "
+            self.affinity_message = ""
+            self.price_message = ""
+            self.card_icon = ""
+            self.trait_message = ""
+            self.universe_buff_message = " "
 
-        self.universe_image = ""
-        self.tip = ""
-        self.view_card_message = ""
-        self.universe_crest = crown_utilities.crest_dict[self.universe]
-        self.index = ""
+            self.universe_image = ""
+            self.tip = ""
+            self.view_card_message = ""
+            self.universe_crest = crown_utilities.crest_dict[self.universe]
+            self.index = ""
 
-        if self.passive_type:
-            value_for_passive = self.tier * .5
-            flat_for_passive = round(10 * (self.tier * .5))
-            stam_for_passive = 5 * (self.tier * .5)
-            if self.passive_type == "HLT":
-                self.passive_num = value_for_passive
-            if self.passive_type == "LIFE":
-                self.passive_num = value_for_passive
-            if self.passive_type == "ATK":
-                self.passive_num = flat_for_passive
-            if self.passive_type == "DEF":
-                self.passive_num = flat_for_passive
-            if self.passive_type == "STAM":
-                self.passive_num = stam_for_passive
-            if self.passive_type == "DRAIN":
-                self.passive_num = stam_for_passive
-            if self.passive_type == "FLOG":
-                self.passive_num = value_for_passive
-            if self.passive_type == "WITHER":
-                self.passive_num = value_for_passive
-            if self.passive_type == "RAGE":
-                self.passive_num = value_for_passive
-            if self.passive_type == "BRACE":
-                self.passive_num = value_for_passive
-            if self.passive_type == "BZRK":
-                self.passive_num = value_for_passive
-            if self.passive_type == "CRYSTAL":
-                self.passive_num = value_for_passive
-            if self.passive_type == "FEAR":
-                self.passive_num = flat_for_passive
-            if self.passive_type == "GROWTH":
-                self.passive_num = flat_for_passive
-            if self.passive_type == "CREATION":
-                self.passive_num = value_for_passive
-            if self.passive_type == "DESTRUCTION":
-                self.passive_num = value_for_passive
-            if self.passive_type == "SLOW":
-                self.passive_num = "1"
-            if self.passive_type == "HASTE":
-                self.passive_num = "1"
-            if self.passive_type == "STANCE":
-                self.passive_num = flat_for_passive
-            if self.passive_type == "CONFUSE":
-                self.passive_num = flat_for_passive
-            if self.passive_type == "BLINK":
-                self.passive_num = stam_for_passive
+            if self.passive_type:
+                value_for_passive = self.tier * .5
+                flat_for_passive = round(10 * (self.tier * .5))
+                stam_for_passive = 5 * (self.tier * .5)
+                if self.passive_type == "HLT":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "LIFE":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "ATK":
+                    self.passive_num = flat_for_passive
+                if self.passive_type == "DEF":
+                    self.passive_num = flat_for_passive
+                if self.passive_type == "STAM":
+                    self.passive_num = stam_for_passive
+                if self.passive_type == "DRAIN":
+                    self.passive_num = stam_for_passive
+                if self.passive_type == "FLOG":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "WITHER":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "RAGE":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "BRACE":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "BZRK":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "CRYSTAL":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "FEAR":
+                    self.passive_num = flat_for_passive
+                if self.passive_type == "GROWTH":
+                    self.passive_num = flat_for_passive
+                if self.passive_type == "CREATION":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "DESTRUCTION":
+                    self.passive_num = value_for_passive
+                if self.passive_type == "SLOW":
+                    self.passive_num = "1"
+                if self.passive_type == "HASTE":
+                    self.passive_num = "1"
+                if self.passive_type == "STANCE":
+                    self.passive_num = flat_for_passive
+                if self.passive_type == "CONFUSE":
+                    self.passive_num = flat_for_passive
+                if self.passive_type == "BLINK":
+                    self.passive_num = stam_for_passive
 
-        
+    except:
+        print("ERRRO")
+
     def is_universe_unbound(self):
         if(self.universe == "Unbound"):
             return True
@@ -797,7 +802,7 @@ class Card:
             else:
                 if self.used_resolve:
                     im = get_card(self.rpath, self.rname, "resolve")
-                elif self.focused:
+                elif self.used_focus:
                     if self.fpath:
                         im = get_card(self.fpath, self.name, "focus")
                     else:
@@ -1144,7 +1149,6 @@ class Card:
 
 
     def damage_cal(self, selected_move, _battle, _opponent_card):
-        print(f"MOVE1AP During Attack = {self.move1ap}")
         if _opponent_card.defense <= 0:
             _opponent_card.defense = 25
         if self.attack <= 0:
@@ -1623,9 +1627,9 @@ class Card:
 
     def focusing(self, _title, _opponent_title, _opponent_card, _battle, _co_op_card=None, _co_op_title=None ):
         if self.stamina < self.stamina_required_to_focus:
-            if _battle._is_tutorial and _opponent_card.tutorial_focus is False:
-                _opponent_card.used_focus = True
-                _opponent_card.tutorial_focus = True
+            self.used_focus = True
+            if _battle._is_tutorial and _battle.tutorial_focus is False:
+                # _opponent_card.used_focus = True
                 embedVar = discord.Embed(title=f"You've entered :cyclone:**Focus State**!",
                                         description=f"Entering :cyclone:**Focus State** sacrifices a turn to **Heal** and regain **ST (Stamina)**!",
                                         colour=0xe91e63)
@@ -1703,7 +1707,7 @@ class Card:
             if not self.used_resolve:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
-            self.used_focus = True
+            
             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
             
 
@@ -1760,7 +1764,7 @@ class Card:
                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + _battle._turn_total}** ❤️")
 
             elif self.universe == "Solo Leveling":
-                player2_card.defense = round(player2_card.defense - (30 + _battle._turn_total))
+                _opponent_card.defense = round(_opponent_card.defense - (30 + _battle._turn_total))
                 
                 _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + _battle._turn_total}** 🛡️ 🔻")
             

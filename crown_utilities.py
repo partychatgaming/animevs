@@ -405,6 +405,64 @@ async def route_to_storage(user, player, card_name, current_cards, card_owned, p
         }))
 
 
+async def summonlevel(player, player_card):    
+    if player.family != 'PCG':
+        family_info = db.queryFamily({'HEAD':str(player.family)})
+        family_summon = family_info['SUMMON']
+        if family_summon['NAME'] == str(player.equipped_summon):
+            return False
+    try:
+        lvl_req = player_card._summon_lvl * 10
+        bond_req = ((player_card._summon_power * 5) * (player_card._summon_bond + 1))
+
+        if player_card._summon_lvl < 10:
+            # Non Level Up Code
+            if player_card._summon_exp < (lvl_req - 1):
+                query = {'DID': str(player.did)}
+                update_query = {'$inc': {'PETS.$[type].' + "EXP": 1}}
+                filter_query = [{'type.' + "NAME": str(player_card._summon_name)}]
+                response = db.updateVault(query, update_query, filter_query)
+
+            # Level Up Code
+            if player_card._summon_exp >= (lvl_req - 1):
+                query = {'DID': str(player.did)}
+                update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
+                filter_query = [{'type.' + "NAME": str(player_card._summon_exp)}]
+                response = db.updateVault(query, update_query, filter_query)
+
+        if player_card._summon_bond < 3:
+            # Non Bond Level Up Code
+            if player_card._summon_bondexp < (bond_req - 1):
+                query = {'DID': str(player.did)}
+                update_query = {'$inc': {'PETS.$[type].' + "BONDEXP": 1}}
+                filter_query = [{'type.' + "NAME": str(player_card._summon_name)}]
+                response = db.updateVault(query, update_query, filter_query)
+
+            # Bond Level Up Code
+            if player_card._summon_bondexp >= (bond_req - 1):
+                query = {'DID': str(player.did)}
+                update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
+                filter_query = [{'type.' + "NAME": str(player_card._summon_name)}]
+                response = db.updateVault(query, update_query, filter_query)
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        return
+
+
+
 async def updateRetry(player_id, mode, math_calc):
     player_info = db.queryUser({'DID' : str(player_id)})
     if player_info:
@@ -506,7 +564,7 @@ def set_emoji(element):
     if element == "GRAVITY":
         emoji = "🪐"
     if element == "None":
-        emoji = "📿"
+        emoji = "📿 No"
         
 
     return emoji

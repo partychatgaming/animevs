@@ -46,7 +46,7 @@ import destiny as d
 class CrownUnlimited(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self._cd = commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
+        self._cd = commands.CooldownMapping.from_cooldown(1, 360, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
         self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)
     co_op_modes = ['CTales', 'DTales', 'CDungeon', 'DDungeon']
     ai_co_op_modes = ['DTales', 'DDungeon']
@@ -207,13 +207,13 @@ class CrownUnlimited(commands.Cog):
                 if button_ctx.custom_id == "glory":
                     await button_ctx.defer(ignore=True)
                     battle.explore_type = "glory"
-                    await battle_commands(self, button_ctx, battle, p, selected_card, _player2=None)
+                    await battle_commands(self, button_ctx, battle, p, selected_card, _player2=None, _player3=None)
                     await msg.edit(components=[])
 
                 if button_ctx.custom_id == "gold":
                     await button_ctx.defer(ignore=True)
                     battle.explore_type = "gold"
-                    await battle_commands(self, button_ctx, battle, p, selected_card, _player2=None)
+                    await battle_commands(self, button_ctx, battle, p, selected_card, _player2=None, _player3=None)
                     await msg.edit(components=[])
                 if button_ctx.custom_id == "ignore":
                     await button_ctx.defer(ignore=True)
@@ -447,10 +447,10 @@ class CrownUnlimited(commands.Cog):
                 return
             deckNumber = deck - 1
             sowner = db.queryUser({'DID': str(ctx.author.id)})
-            oteam = sowner['TEAM']
+            player1.guild = sowner['TEAM']
             ofam = sowner['FAMILY']
             cowner = sowner
-            cteam = oteam
+            cteam = player1.guild
             cfam = ofam
             # if sowner['DIFFICULTY'] != "EASY":
             #     if sowner['LEVEL'] < 8:
@@ -462,32 +462,32 @@ class CrownUnlimited(commands.Cog):
                 return
 
 
-            if mode in D_modes and sowner['LEVEL'] < 41 and int(sowner['PRESTIGE']) == 0:
+            if _battle._is_dungeon and sowner['LEVEL'] < 41 and int(sowner['PRESTIGE']) == 0:
                 await ctx.send("🔓 Unlock **Duo Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
                 return
 
 
 
-            universe_selection = await select_universe(self, ctx, sowner, oteam, ofam, mode, None)
+            universe_selection = await select_universe(self, ctx, sowner, player1.guild, ofam, mode, None)
             if not universe_selection:
                 return
             selected_universe = universe_selection['SELECTED_UNIVERSE']
             universe = universe_selection['UNIVERSE_DATA']
             crestlist = universe_selection['CREST_LIST']
-            crestsearch = universe_selection['CREST_SEARCH']
+            _battle.crestsearch = universe_selection['CREST_SEARCH']
             currentopponent =  universe_selection['CURRENTOPPONENT']
 
-            if mode in D_modes:
+            if _battle._is_dungeon:
                 completed_universes = universe_selection['COMPLETED_DUNGEONS']
             else:
                 completed_universes = universe_selection['COMPLETED_TALES']
-            if crestsearch:
+            if _battle.crestsearch:
                 oguild = universe_selection['OGUILD']
             else:
                 oguild = "PCG"
 
             await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild, crestlist,
-                                  crestsearch, sowner, oteam, ofam, currentopponent, cowner, cteam, cfam, deckNumber,
+                                  _battle.crestsearch, sowner, player1.guild, ofam, currentopponent, cowner, cteam, cfam, deckNumber,
                                   None, None, None, None, None)
         except Exception as ex:
             trace = []
@@ -544,17 +544,17 @@ class CrownUnlimited(commands.Cog):
 
         try:
             player = db.queryUser({'DID': str(ctx.author.id)})
-            player2 = db.queryUser({'DID': str(user.id)})
+            player3 = db.queryUser({'DID': str(user.id)})
             p1 = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
-            p2 = Player(player2['DISNAME'], player2['DID'], player2['AVATAR'], player2['GUILD'], player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])    
+            p3 = Player(player3['DISNAME'], player3['DID'], player3['AVATAR'], player3['GUILD'], player3['TEAM'], player3['FAMILY'], player3['TITLE'], player3['CARD'], player3['ARM'], player3['PET'], player3['TALISMAN'], player3['CROWN_TALES'], player3['DUNGEONS'], player3['BOSS_WINS'], player3['RIFT'], player3['REBIRTH'], player3['LEVEL'], player3['EXPLORE'], player3['SAVE_SPOT'], player3['PERFORMANCE'], player3['TRADING'], player3['BOSS_FOUGHT'], player3['DIFFICULTY'], player3['STORAGE_TYPE'], player3['USED_CODES'], player3['BATTLE_HISTORY'], player3['PVP_WINS'], player3['PVP_LOSS'], player3['RETRIES'], player3['PRESTIGE'], player3['PATRON'], player3['FAMILY_PET'], player3['EXPLORE_LOCATION'])    
             battle = Battle(mode, p1)
 
 
-            universe_selection = await select_universe(self, ctx, p1, mode, p2)
+            universe_selection = await select_universe(self, ctx, p1, mode, p3)
             if not universe_selection:
                 return
 
-            await battle_commands(self, ctx, battle, p1, None, p2)
+            await battle_commands(self, ctx, battle, p1, None, None, p3)
         
         except Exception as ex:
             trace = []
@@ -612,12 +612,19 @@ class CrownUnlimited(commands.Cog):
             return
         
         try:
-            # await ctx.defer()
-
             player = db.queryUser({'DID': str(ctx.author.id)})
-            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
-                         
+            if mode == "Abyss":
+                await abyss(self, ctx)
+                return
+
+            if mode == "Tutorial":
+                await tutorial(self, ctx, p, mode)
+                return
+
+
             if p.get_locked_feature(mode):
                 await ctx.send(p._locked_feature_message)
                 return
@@ -629,18 +636,9 @@ class CrownUnlimited(commands.Cog):
 
             battle = Battle(mode, p)
 
-
-            if battle.mode == "Abyss":
-                await abyss(self, ctx)
-                return
-
-            if battle.mode == "Tutorial":
-                await tutorial(self, ctx)
-                return
-
             battle.set_universe_selection_config(universe_selection)
                 
-            await battle_commands(self, ctx, battle, p, None, _player2=None)
+            await battle_commands(self, ctx, battle, p, None, _player2=None, _player3=None)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -695,7 +693,7 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send(p2._locked_feature_message)
                 return
 
-            await battle_commands(self, ctx, mode, battle, p1, None, p2)
+            await battle_commands(self, ctx, mode, battle, p1, None, p2, None)
 
         except Exception as ex:
             trace = []
@@ -742,13 +740,13 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send("Raiding is unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
                 return
 
-            oteam = sowner['TEAM']
-            oteam_info = db.queryTeam({'TEAM_NAME': oteam.lower()})
+            player1.guild = sowner['TEAM']
+            player1.guild_info = db.queryTeam({'TEAM_NAME': player1.guild.lower()})
             oguild_name = "PCG"
             shield_test_active = False
             shield_training_active = False
-            if oteam_info:
-                oguild_name = oteam_info['GUILD']
+            if player1.guild_info:
+                oguild_name = player1.guild_info['GUILD']
                 oguild = db.queryGuildAlt({'GNAME': oguild_name})
             player_guild = sowner['GUILD']
 
@@ -798,7 +796,7 @@ class CrownUnlimited(commands.Cog):
             ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
             
             if private_channel:
-                await battle_commands(self, ctx, mode, hall_info, title_match_active, shield_test_active, oguild, shield_training_active, None, sowner, oteam, None, t_user,tteam, tguild, None, None, None, None, None, None, None)
+                await battle_commands(self, ctx, mode, hall_info, title_match_active, shield_test_active, oguild, shield_training_active, None, sowner, player1.guild, None, t_user,tteam, tguild, None, None, None, None, None, None, None)
             else:
                 await ctx.send("Failed to start raid battle!")
         except Exception as ex:
@@ -1002,59 +1000,26 @@ class CrownUnlimited(commands.Cog):
         await paginator.run(embeds)
 
 
-async def tutorial(self, ctx: SlashContext):
+async def tutorial(self, ctx, player, mode):
     try:
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
 
+        print("Hello World")
+
         await ctx.send("🆚 Building Tutorial Match...", delete_after=10)
-        private_channel = ctx
-        starttime = time.asctime()
-        h_gametime = starttime[11:13]
-        m_gametime = starttime[14:16]
-        s_gametime = starttime[17:19]
 
-        # Tutorial Code
-        tutorialbot = '837538366509154407'
-        legendbot = '845672426113466395'
-        tutorial_user = await self.bot.fetch_user(tutorialbot)
-        opponent = db.queryUser({'DISNAME': str(tutorial_user)})
-        oppDID = opponent['DID']
-        tutorial = False
-        if oppDID == tutorialbot or oppDID == legendbot:
-            tutorial = True
-        mode = "PVP"
+        tutorial_did = '837538366509154407'
+        battle = Battle(mode, player)
+        battle.set_tutorial(tutorial_did)
+        battle.mode = "PVP"
+        opponent = db.queryUser({'DID': tutorial_did})
+        player2 = Player(opponent['DISNAME'], opponent['DID'], opponent['AVATAR'], opponent['GUILD'], opponent['TEAM'], opponent['FAMILY'], opponent['TITLE'], opponent['CARD'], opponent['ARM'],opponent['PET'], opponent['TALISMAN'], opponent['CROWN_TALES'], opponent['DUNGEONS'], opponent['BOSS_WINS'], opponent['RIFT'], opponent['REBIRTH'], opponent['LEVEL'], opponent['EXPLORE'], opponent['SAVE_SPOT'], opponent['PERFORMANCE'], opponent['TRADING'], opponent['BOSS_FOUGHT'], opponent['DIFFICULTY'], opponent['STORAGE_TYPE'], opponent['USED_CODES'], opponent['BATTLE_HISTORY'], opponent['PVP_WINS'], opponent['PVP_LOSS'], opponent['RETRIES'], opponent['PRESTIGE'], opponent['PATRON'], opponent['FAMILY_PET'], opponent['EXPLORE_LOCATION'])
+        
 
-        # Get Session Owner Disname for scoring
-        sowner = db.queryUser({'DID': str(ctx.author.id)})
-        opponent = db.queryUser({'DISNAME': str(tutorial_user)})
-        oteam = sowner['TEAM']
-        tteam = opponent['TEAM']
-        oteam_info = db.queryTeam({'TEAM_NAME':str(oteam)})
-        tteam_info = db.queryTeam({'TEAM_NAME':str(tteam)})
-        if oteam_info:
-            oguild = oteam_info['GUILD']
-        else:
-            oguild ="PCG"
-        if tteam_info:
-            tguild = tteam_info['GUILD']
-        else:
-            tguild ="PCG"
-
-        o = db.queryCard({'NAME': sowner['CARD']})
-        otitle = db.queryTitle({'TITLE': sowner['TITLE']})
-
-        t = db.queryCard({'NAME': opponent['CARD']})
-        ttitle = db.queryTitle({'TITLE': opponent['TITLE']})
-
-        # universe = "Naruto"
-        # selected_universe = {"TITLE": "Naruto"}
-        if private_channel:
-            await battle_commands(self, ctx, mode, None, None, None, oguild, None, None, sowner, oteam, None, opponent, tteam, tguild, None, None, None, None, None, "Tutorial", None)
-        else:
-            await ctx.send("Failed to start battle!")
+        await battle_commands(self, ctx, battle, player, None, player2, None)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -1121,12 +1086,6 @@ async def quest(player, opponent, mode):
                     await crown_utilities.bless(reward, player.id)
                     message = f"Quest Completed! :coin:{reward} has been added to your balance."
 
-                    # server_query = {'GNAME': str(player.guild)}
-                    # update_server_query = {
-                    #     '$inc': {'SERVER_BALANCE': 10000}
-                    # }
-                    # updated_server = db.updateServer(server_query, update_server_query)
-
                 query = {'DID': str(player.id)}
                 update_query = {'$inc': {'QUESTS.$[type].' + "WINS": 2}}
                 filter_query = [{'type.' + "OPPONENT": opponent}]
@@ -1138,11 +1097,6 @@ async def quest(player, opponent, mode):
                 if completion == 0:
                     await crown_utilities.bless(reward, player.id)
                     message = f"Quest Completed! :coin:{reward} has been added to your balance."
-                    # server_query = {'GNAME': str(player.guild)}
-                    # update_server_query = {
-                    #     '$inc': {'SERVER_BALANCE': 5000}
-                    # }
-                    # updated_server = db.updateServer(server_query, update_server_query)
 
                 query = {'DID': str(player.id)}
                 update_query = {'$inc': {'QUESTS.$[type].' + "WINS": 1}}
@@ -1771,10 +1725,10 @@ async def abyss(self, ctx: SlashContext, _player):
 
                 if abyss.abyss_player_card_tier_is_banned:
                     await ctx.send(
-                        f":x: We're sorry! The tier of your equipped card is banned on floor {floor}. Please, try again with another card.")
+                        f":x: We're sorry! The tier of your equipped card is banned on floor {abyss.abyss_floor}. Please, try again with another card.")
                     return
                 
-                await battle_commands(self, ctx, abyss, _player, None, _player2=None)
+                await battle_commands(self, ctx, abyss, _player, None, _player2=None, _player3=None)
 
             elif button_ctx.custom_id == "No":
                 await button_ctx.send("Leaving the Abyss...")
@@ -1852,7 +1806,7 @@ async def scenario(self, ctx: SlashContext, _player, universe: str):
                     await button_ctx.defer(ignore=True)
                     selected_scenario = db.queryScenario({'TITLE':selected_scenario})
                     scenario.set_scenario_config(selected_scenario)
-                    await battle_commands(self, ctx, scenario, _player, None, _player2=None)
+                    await battle_commands(self, ctx, scenario, _player, None, _player2=None, _player3=None)
                     self.stop = True
             else:
                 await ctx.send("This is not your prompt! Shoo! Go Away!")
@@ -2407,7 +2361,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                             await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | {crest_guild['GNAME']} Universe Toll Paid! :coin:{'{:,}'.format(entrance_fee)}")
             
             currentopponent = 0
-            if p.difficulty != "EASY":
+            if mode != "EASY":
                 currentopponent = update_save_spot(self, ctx, p.save_spot, selected_universe, crown_utilities.TALE_M)
                 if mode in crown_utilities.DUNGEON_M:
                     currentopponent = update_save_spot(self, ctx, p.save_spot, selected_universe, crown_utilities.DUNGEON_M)
@@ -2549,7 +2503,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             return
 
 
-async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _player2=None):
+async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _player2=None, _player3=None):
     
     private_channel = ctx.channel
 
@@ -2568,15 +2522,16 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
             # If player changes their equipment after a round the new class will pick it up
             player1 = _player
             player1.get_battle_ready()
+            
             player1_card = Card(player1._equipped_card_data['NAME'], player1._equipped_card_data['PATH'], player1._equipped_card_data['PRICE'], player1._equipped_card_data['EXCLUSIVE'], player1._equipped_card_data['AVAILABLE'], player1._equipped_card_data['IS_SKIN'], player1._equipped_card_data['SKIN_FOR'], player1._equipped_card_data['HLT'], player1._equipped_card_data['HLT'], player1._equipped_card_data['STAM'], player1._equipped_card_data['STAM'], player1._equipped_card_data['MOVESET'], player1._equipped_card_data['ATK'], player1._equipped_card_data['DEF'], player1._equipped_card_data['TYPE'], player1._equipped_card_data['PASS'][0], player1._equipped_card_data['SPD'], player1._equipped_card_data['UNIVERSE'], player1._equipped_card_data['HAS_COLLECTION'], player1._equipped_card_data['TIER'], player1._equipped_card_data['COLLECTION'], player1._equipped_card_data['WEAKNESS'], player1._equipped_card_data['RESISTANT'], player1._equipped_card_data['REPEL'], player1._equipped_card_data['ABSORB'], player1._equipped_card_data['IMMUNE'], player1._equipped_card_data['GIF'], player1._equipped_card_data['FPATH'], player1._equipped_card_data['RNAME'], player1._equipped_card_data['RPATH'])
             player1_title = Title(player1._equipped_title_data['TITLE'], player1._equipped_title_data['UNIVERSE'], player1._equipped_title_data['PRICE'], player1._equipped_title_data['EXCLUSIVE'], player1._equipped_title_data['AVAILABLE'], player1._equipped_title_data['ABILITIES'])            
             player1_arm = Arm(player1._equipped_arm_data['ARM'], player1._equipped_arm_data['UNIVERSE'], player1._equipped_arm_data['PRICE'], player1._equipped_arm_data['ABILITIES'], player1._equipped_arm_data['EXCLUSIVE'], player1._equipped_arm_data['AVAILABLE'], player1._equipped_arm_data['ELEMENT'])
-
+            
+            player1.get_summon_ready(player1_card)
             player1_arm.set_durability(player1.equipped_arm, player1._arms)
             player1_card.set_card_level_buffs(player1._card_levels)
             player1_card.set_arm_config(player1_arm.passive_type, player1_arm.name, player1_arm.passive_value, player1_arm.element)
             player1_card.set_affinity_message()
-            player1.get_summon_ready(player1_card)
             player1.get_talisman_ready(player1_card)
 
             if _battle.mode in crown_utilities.PVP_M:
@@ -2585,13 +2540,15 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                 player2_title = Title(_player2._equipped_title_data['TITLE'], _player2._equipped_title_data['UNIVERSE'], _player2._equipped_title_data['PRICE'], _player2._equipped_title_data['EXCLUSIVE'], _player2._equipped_title_data['AVAILABLE'], _player2._equipped_title_data['ABILITIES'])            
                 player2_arm = Arm(_player2._equipped_arm_data['ARM'], _player2._equipped_arm_data['UNIVERSE'], _player2._equipped_arm_data['PRICE'], _player2._equipped_arm_data['ABILITIES'], _player2._equipped_arm_data['EXCLUSIVE'], _player2._equipped_arm_data['AVAILABLE'], _player2._equipped_arm_data['ELEMENT'])
                 opponent_talisman_emoji = crown_utilities.set_emoji(_player2.equipped_talisman)
+
+                
+                _player2.get_summon_ready(player2_card)
                 player2_arm.set_durability(_player2.equipped_arm, _player2._arms)
-                player2_card.set_card_level_buffs(player2._card_levels)
+                player2_card.set_card_level_buffs(_player2._card_levels)
                 player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
                 player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player2_card.set_affinity_message()
-                player2.get_summon_ready(player2_card)
-                player2.get_talisman_ready(player2_card)
+                _player2.get_talisman_ready(player2_card)
 
             if _battle.mode in crown_utilities.CO_OP_M:
                 _player3.get_battle_ready()
@@ -2599,13 +2556,14 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                 player3_title = Title(_player3._equipped_title_data['TITLE'], _player3._equipped_title_data['UNIVERSE'], _player3._equipped_title_data['PRICE'], _player3._equipped_title_data['EXCLUSIVE'], _player3._equipped_title_data['AVAILABLE'], _player3._equipped_title_data['ABILITIES'])            
                 player3_arm = Arm(_player3._equipped_arm_data['ARM'], _player3._equipped_arm_data['UNIVERSE'], _player3._equipped_arm_data['PRICE'], _player3._equipped_arm_data['ABILITIES'], _player3._equipped_arm_data['EXCLUSIVE'], _player3._equipped_arm_data['AVAILABLE'], _player3._equipped_arm_data['ELEMENT'])
                 player3_talisman_emoji = crown_utilities.set_emoji(_player3.equipped_talisman)
+                
+                _player3.get_summon_ready(player3_card)
                 player3_arm.set_durability(_player3.equipped_arm, _player3._arms)
                 player3_card.set_card_level_buffs()
                 player3_card.set_arm_config(player3_arm.passive_type, player3_arm.name, player3_arm.passive_value, player3_arm.element)
                 player3_card.set_solo_leveling_config(player1._shield_active, player1._shield_value, player1._barrier_active, player1._barrier_value, player1._parry_active, player1._parry_value)
                 player3_card.set_affinity_message()
-                player3.get_summon_ready(player3_card)
-                player3.get_talisman_ready(player3_card)
+                _player3.get_talisman_ready(player3_card)
             
             if _battle.is_ai_opponent:
                 if _battle._is_explore:
@@ -2614,6 +2572,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                     _battle.get_ai_battle_ready()
                     player2_card = Card(_battle._ai_opponent_card_data['NAME'], _battle._ai_opponent_card_data['PATH'], _battle._ai_opponent_card_data['PRICE'], _battle._ai_opponent_card_data['EXCLUSIVE'], _battle._ai_opponent_card_data['AVAILABLE'], _battle._ai_opponent_card_data['IS_SKIN'], _battle._ai_opponent_card_data['SKIN_FOR'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['MOVESET'], _battle._ai_opponent_card_data['ATK'], _battle._ai_opponent_card_data['DEF'], _battle._ai_opponent_card_data['TYPE'], _battle._ai_opponent_card_data['PASS'][0], _battle._ai_opponent_card_data['SPD'], _battle._ai_opponent_card_data['UNIVERSE'], _battle._ai_opponent_card_data['HAS_COLLECTION'], _battle._ai_opponent_card_data['TIER'], _battle._ai_opponent_card_data['COLLECTION'], _battle._ai_opponent_card_data['WEAKNESS'], _battle._ai_opponent_card_data['RESISTANT'], _battle._ai_opponent_card_data['REPEL'], _battle._ai_opponent_card_data['ABSORB'], _battle._ai_opponent_card_data['IMMUNE'], _battle._ai_opponent_card_data['GIF'], _battle._ai_opponent_card_data['FPATH'], _battle._ai_opponent_card_data['RNAME'], _battle._ai_opponent_card_data['RPATH'])
                     player2_card.set_ai_card_buffs(_battle._ai_opponent_card_lvl, _battle.stat_buff, _battle.stat_debuff, _battle.health_buff, _battle.health_debuff, _battle.ap_buff, _battle.ap_debuff)
+                _battle.set_corruption_config()
                 player2_card.set_talisman(_battle)
                 player2_title = Title(_battle._ai_opponent_title_data['TITLE'], _battle._ai_opponent_title_data['UNIVERSE'], _battle._ai_opponent_title_data['PRICE'], _battle._ai_opponent_title_data['EXCLUSIVE'], _battle._ai_opponent_title_data['AVAILABLE'], _battle._ai_opponent_title_data['ABILITIES'])            
                 player2_arm = Arm(_battle._ai_opponent_arm_data['ARM'], _battle._ai_opponent_arm_data['UNIVERSE'], _battle._ai_opponent_arm_data['PRICE'], _battle._ai_opponent_arm_data['ABILITIES'], _battle._ai_opponent_arm_data['EXCLUSIVE'], _battle._ai_opponent_arm_data['AVAILABLE'], _battle._ai_opponent_arm_data['ELEMENT'])
@@ -2671,7 +2630,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                         )
                     )
 
-            start_tales_buttons_action_row = manage_components.create_actionrow(*start_tales_buttons)            
+            start_tales_buttons_action_row = manage_components.create_actionrow(*start_tales_buttons)          
             
             _battle.set_who_starts_match(player1_card.speed, player2_card.speed)
             user1 = await main.bot.fetch_user(player1.did)
@@ -2688,11 +2647,12 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                 title_lvl_msg = f"{_battle.set_levels_message(player1_card, player2_card, player3_card)}"
 
             await private_channel.send(content=f"{ctx.author.mention} 🆚...", )
-            embedVar = discord.Embed(title=f"{_battle.starting_match_title}\n{title_lvl_msg}")
-            embedVar.add_field(name=f"__Your Affinities: {crown_utilities.set_emoji(player1.equipped_talisman)}__", value=f"{player1_card.affinity_message}")
-            embedVar.add_field(name=f"__Opponent Affinities: {crown_utilities.set_emoji(player2_card._talisman)}__", value=f"{player2_card.affinity_message}")
+            embedVar = discord.Embed(title=f"{_battle.get_starting_match_title()}\n{title_lvl_msg}")
+            embedVar.add_field(name=f"__Your Affinities:__ {crown_utilities.set_emoji(player1.equipped_talisman)} ", value=f"{player1_card.affinity_message}")
+            embedVar.add_field(name=f"__Opponent Affinities:__ {crown_utilities.set_emoji(player2_card._talisman)}", value=f"{player2_card.affinity_message}")
             embedVar.set_image(url="attachment://image.png")
             embedVar.set_thumbnail(url=ctx.author.avatar_url)
+            embedVar.set_footer(text="🩸 card passives and 🎗️ titles are applied every turn.")
             battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player2_card.showcard(_battle.mode, player2_arm, player2_title, _battle._turn_total, player1_card.defense))                
 
             def check(button_ctx):
@@ -2712,11 +2672,10 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
 
                 if button_ctx.custom_id == "start_tales_no":
                     await battle_msg.delete()
-                    # await battle_ping_message.delete()
                     return
 
                 if button_ctx.custom_id == "save_tales_yes":
-                    await battle_msg.delete()
+                    await battle_msg.edit(components=[])
                     # await battle_ping_message.delete()
                     await save_spot(self, ctx, _battle._selected_universe, _battle.mode, _battle._currentopponent)
                     await button_ctx.send(f"Game has been saved.")
@@ -2731,7 +2690,6 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                         await battle_msg.delete(delay=2)
                         await asyncio.sleep(2)
                         battle_msg = await private_channel.send(embed=embedVar)
-                    # await button_ctx.defer(ignore=True)
                     tmove_issue = False
                     omove_issue = False
 
@@ -2804,18 +2762,19 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                     embedVar.add_field(name=f"{_battle._arena_boss_description}", value=f"{_battle._arenades_boss_description}")
                                     embedVar.add_field(name=f"Entering the {_battle._arena_boss_description}", value=f"{_battle._entrance_boss_description}", inline=False)
                                     embedVar.set_footer(text=f"{player1_card.name} waits for you to strike....")
-                                    await ctx.send(embed=embedVar)
+                                    await private_channel.send(embed=embedVar)
                                     await asyncio.sleep(2)
                                 
                             if player1_card.stamina < 10:
                                 player1_card.focusing(player1_title, player2_title, player2_card, _battle)
                                 
-                                if _battle._is_tutorial and tutorial_focus ==False:
-                                    await ctx.send(embed=_battle._tutorial_message)
+                                if _battle._is_tutorial and not _battle.tutorial_focus:
+                                    await private_channel.send(embed=_battle._tutorial_message)
+                                    _battle.tutorial_focus = True
                                     await asyncio.sleep(2)
 
                                 if _battle._is_boss:
-                                    await ctx.send(embed=_boss_embed_message)
+                                    await private_channel.send(embed=_battle._boss_embed_message)
                                     
                             else:
                                 if _battle._is_auto_battle:                                    
@@ -2937,13 +2896,13 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         if button_ctx.custom_id == "b":
                                             c_stamina = c_stamina + 10
                                             c_health = c_health + 50
-                                            boost_message = f"**{o_card}** Boosted **{c_card}** +10 🌀 +100 :heart:"
+                                            boost_message = f"**{o_card}** Boosted **{player3_card}** +10 🌀 +100 :heart:"
                                             o_block_used = True
                                             player1_card.stamina = player1_card.stamina - 20
                                             o_defense = round(o_defense * 2)
                                             embedVar = discord.Embed(title=f"{boost_message}", colour=0xe91e63)
 
-                                            previous_moves.append(f"(**{turn_total}**) {boost_message}")
+                                            previous_moves.append(f"(**{_battle._turn_total}**) {boost_message}")
                                             # await button_ctx.defer(ignore=True)
                                             turn_total = turn_total + 1
                                             turn = 1
@@ -2967,7 +2926,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                     value=f"**{player1_card.move1_element}** : *{element_mapping[player1_card.move1_element]}*")
                                                 embedVar.set_footer(
                                                     text=f"Basic Attacks are great when you are low on stamina. Enter Focus State to Replenish!")
-                                                await button_ctx.send(embed=embedVar, components=[])
+                                                await private_channel.send(embed=embedVar, components=[])
                                                 await asyncio.sleep(2)
 
                                             damage_calculation_response = player1_card.damage_cal(int(button_ctx.custom_id), _battle, player2_card)
@@ -2983,7 +2942,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                     value=f"**{player1_card.move2_element}** : *{element_mapping[player1_card.move2_element]}*")
                                                 embedVar.set_footer(
                                                     text=f"Special Attacks are great when you need to control the Focus game! Use Them to Maximize your Focus and build stronger Combos!")
-                                                await button_ctx.send(embed=embedVar)
+                                                await private_channel.send(embed=embedVar)
                                                 await asyncio.sleep(2)
                                             
                                             damage_calculation_response = player1_card.damage_cal(int(button_ctx.custom_id), _battle, player2_card)
@@ -3001,7 +2960,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                                 value="Using your ultimate move also comes with a bonus GIF to deliver that final blow!\n*Enter performance mode to disable GIFs\n/performace*")
                                                 embedVar.set_footer(
                                                     text=f"Ultimate moves will consume most of your ST(Stamina) for Incredible Damage! Use Them Wisely!")
-                                                await button_ctx.send(embed=embedVar)
+                                                await private_channel.send(embed=embedVar)
                                                 await asyncio.sleep(2)
                                            
                                             damage_calculation_response = player1_card.damage_cal(int(button_ctx.custom_id), _battle, player2_card)
@@ -3024,7 +2983,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                     value=f"**{player1_card.move4enh}** : *{enhancer_mapping[player1_card.move4enh]}*")
                                                 embedVar.set_footer(
                                                     text=f"Use /enhancers to view a full list of Enhancers! Look for the {player1_card.move4enh} Enhancer")
-                                                await button_ctx.send(embed=embedVar)
+                                                await private_channel.send(embed=embedVar)
                                                 await asyncio.sleep(2)
 
                                             damage_calculation_response = player1_card.damage_cal(int(button_ctx.custom_id), _battle, player2_card)
@@ -3043,7 +3002,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                                     value=f"**{player1_card._summon_name}**")
                                                     embedVar.set_footer(
                                                         text=f"You can only enter ⚡Resolve once per match! Use the Heal Wisely!!!")
-                                                    await button_ctx.send(embed=embedVar)
+                                                    await private_channel.send(embed=embedVar)
                                                     await asyncio.sleep(2)
 
                                                 player1_card.resolving(_battle, player2_card, player1)
@@ -3052,8 +3011,8 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             else:
                                                 emessage = m.CANNOT_USE_RESOLVE
                                                 embedVar = discord.Embed(title=emessage, colour=0xe91e63)
-                                                previous_moves.append(f"(**{_battle._turn_total}**) **{player1_card.name}** cannot resolve")
-                                                await button_ctx.defer(ignore=True)
+                                                _battle.previous_moves.append(f"(**{_battle._turn_total}**) **{player1_card.name}** cannot resolve")
+                                                await private_channel.defer(ignore=True)
                                                 _battle._is_turn = _battle._repeat_turn()
                                         
                                         elif button_ctx.custom_id == "6":
@@ -3068,7 +3027,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                                     value="🧬**Summons** need to rest after using their ability! **Focus** to Replenish your 🧬**Summon**")
                                                     embedVar.set_footer(
                                                         text=f"🧬Summons will Level Up and build Bond as you win battles! Train up your 🧬summons to perform better in the field!")
-                                                    await button_ctx.send(embed=embedVar)
+                                                    await private_channel.send(embed=embedVar)
                                                     await asyncio.sleep(2)
                                             summon_response = player1_card.use_summon(_battle, player2_card)
                                             
@@ -3104,7 +3063,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                                 value="💢: %33-%50 of AP\n❕: %50-%75 AP\n‼️: %75-%120 AP\n〽️x1.5: %120-%150 AP\n❌x2: $150-%200 AP")
                                                 embedVar.set_footer(
                                                     text=f"Use 🛡️Block strategically to defend against your opponents strongest abilities!")
-                                                await button_ctx.send(embed=embedVar)
+                                                await private_channel.send(embed=embedVar)
                                                 await asyncio.sleep(2)
                                             
                                             player1_card.use_block(_battle, player2_card)                                            
@@ -3193,7 +3152,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                     value=f"{_battle._aura_boss_description}")
                                     embedVar.set_footer(text=f"{player2_card.name} Says: 'Now, are you ready for a real fight?'")
                                     await ctx.send(embed=embedVar)
-                                    previous_moves.append(f"(**{_battle._turn_total}**) 🌀 **{player2_card.name}** focused")
+                                    _battle.previous_moves.append(f"(**{_battle._turn_total}**) 🌀 **{player2_card.name}** focused")
                                     # await asyncio.sleep(2)
                                     if player2_card.universe == "Digimon" and player2_card.used_resolve is False:
                                         embedVar = discord.Embed(title=f"(**{_battle._turn_total}**) :zap: **{player2_card.name}** Resolved!", description=f"{_battle._rmessage_boss_description}",
@@ -3281,7 +3240,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                 damage_calculation_response = player2_card.damage_cal(int(button_ctx.custom_id), _battle, player1_card)
                                             
                                             elif button_ctx.custom_id == "5":
-                                                player2_card.resolving(_battle, player1_card, player2)
+                                                player2_card.resolving(_battle, player1_card)
                                             
                                             elif button_ctx.custom_id == "6" and not _battle._is_raid:
                                                 player2_card.use_summon(_battle, player1_card)
@@ -3333,9 +3292,9 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         damage_calculation_response = player2_card.damage_cal(selected_move, _battle, player1_card)
 
                                         if selected_move == 5:
-                                            player2_card.resolving(_battle, player1_card, player2)
+                                            player2_card.resolving(_battle, player1_card, _player2)
                                             if _battle._is_boss:
-                                                await button_ctx.send(embed=_battle._boss_embed_message)
+                                                await private_channel.send(embed=_battle._boss_embed_message)
 
                                         elif selected_move == 6:
                                             # Resolve Check and Calculation
@@ -3531,7 +3490,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         coop_util_action_row = manage_components.create_actionrow(*coop_util_buttons)
 
                                         embedVar = discord.Embed(title=f"", description=textwrap.dedent(f"""\
-                                        {previous_moves_into_embed}
+                                        {_battle.get_previous_moves_embed()}
                                         
                                         """), color=0xe74c3c)
                                         embedVar.set_author(name=f"{player3_card._arm_message}\n{player3_card.summon_resolve_message}\n")
@@ -3793,18 +3752,18 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                         if _battle._is_pvp_match or _battle._is_raid:
                             try:
 
-                                # put _battle.pvp_victory_embed here
-                                if _battle.player1_wins:
-                                    pvp_response = await _battle.pvp_victory_embed(player1, player1_card, player1_arm, player1_title, player2, player2_card)
-                                else:
-                                    pvp_response = await _battle.pvp_victory_embed(player2, player2_card, player2_arm, player2_title, player1, player1_card)
+                                if _battle._is_pvp_match:
+                                    if _battle.player1_wins:
+                                        pvp_response = await _battle.pvp_victory_embed(player1, player1_card, player1_arm, player1_title, _player2, player2_card)
 
-                                await battle_msg.delete(delay=2)
-                                await asyncio.sleep(2)
-                                battle_msg = await private_channel.send(embed=pvp_response)
-                                continued = False
-                                return
+                                    else:
+                                        pvp_response = await _battle.pvp_victory_embed(_player2, player2_card, player2_arm, player2_title, player1, player1_card)
 
+                                    await battle_msg.delete(delay=2)
+                                    await asyncio.sleep(2)
+                                    battle_msg = await private_channel.send(embed=pvp_response)
+                                    continued = False
+                                    return
 
                                 if _battle._is_raid:
                                     guild_query = {'FDID': oguild['FDID']}
@@ -3831,14 +3790,14 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             prev_team_update = {'$set': {'SHIELDING': False}}
                                             remove_shield = db.updateTeam({'TEAM_NAME': str(tteam)}, prev_team_update)
                                             update_shielding = {'$set': {'SHIELDING': True}}
-                                            add_shield = db.updateTeam({'TEAM_NAME': str(oteam)}, update_shielding)
+                                            add_shield = db.updateTeam({'TEAM_NAME': str(player1.guild)}, update_shielding)
                                     else:
                                         guildloss = db.updateGuild(guild_query, {'$set': {'BOUNTY': fee, 'STREAK': 0}})
                                 
                                     embedVar = discord.Embed(
-                                        title=f"{endmessage}\n\n You have defeated the {tguild} SHIELD!\nMatch concluded in {turn_total} turns",
+                                        title=f"{endmessage}\n\n You have defeated the {tguild} SHIELD!\nMatch concluded in {_battle._turn_total} turns",
                                         description=textwrap.dedent(f"""
-                                                                    {previous_moves_into_embed}
+                                                                    {_battle.get_previous_moves_embed()}
                                                                     
                                                                     """), colour=0xe91e63)
                                     # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
@@ -3886,341 +3845,50 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                 battle_msg = await private_channel.send(embed=explore_response)
                                 return
 
+                            if _battle._is_tales or _battle._is_dungeon:
+                                if _battle._is_dungeon:
+                                    drop_response = await dungeondrops(self, user1, _battle._selected_universe, _battle._currentopponent)
+                                if _battle._is_tales:
+                                    drop_response = await drops(self, user1, _battle._selected_universe, _battle._currentopponent)
 
-                            
-                            talisman_response = crown_utilities.inc_talisman(str(o_user['DID']), o_talisman)
-                            corrupted_message = ""
-                            if mode != "ABYSS" and mode != "SCENARIO" and mode not in RAID_MODES and mode not in PVP_MODES and difficulty != "EASY":
-                                if universe['CORRUPTED']:
-                                    corrupted_message = await crown_utilities.corrupted_universe_handler(ctx, selected_universe, difficulty)
-                                    if not corrupted_message:
-                                        corrupted_message = "You must dismantle a card from this universe to enable crafting."
+                                p1_win_rewards = await _battle.get_win_rewards(player1)
+                                corruption_message = await _battle.get_corruption_message(ctx)
 
-                            tale_or_dungeon_only = ""
-                            if mode in U_modes:
-                                tale_or_dungeon_only = "Tales"
-                            if mode in D_modes:
-                                tale_or_dungeon_only = "Dungeon"
-                            
-                            if mode in B_modes:
-                                uid = o_DID
-                                ouser = await self.bot.fetch_user(uid)
-                                wintime = time.asctime()
-                                h_playtime = int(wintime[11:13])
-                                m_playtime = int(wintime[14:16])
-                                s_playtime = int(wintime[17:19])
-                                gameClock = getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
-                                                    s_playtime)
-                                drop_response = await bossdrops(self,ctx.author, t_universe)
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_FOUGHT': True}})
-                                match = await savematch(str(ouser), str(o_card), str(o_card_path), str(otitle['TITLE']),
-                                                        str(oarm['ARM']), "N/A", "Boss", o['EXCLUSIVE'])
-                                bank_amount = 100000
-                                fam_amount = 50000
-                                if difficulty == "HARD":
-                                    bank_amount = 1500000
-                                    fam_amount = 1000000
+                                if not _battle._is_easy:
+                                    questlogger = await quest(user1, player2_card, _battle.mode)
+                                    destinylogger = await destiny(user1, player2_card, _battle.mode)
+                                    petlogger = await crown_utilities.summonlevel(player1, player1_card)
+                                    cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, _battle.mode, _battle._selected_universe)
 
-
-                                if mode == "CBoss":
-                                    # cmatch = await savematch(str(user2), str(c_card), str(c_card_path), str(ctitle['TITLE']),
-                                    #                         str(carm['ARM']), "N/A", "Boss", c['EXCLUSIVE'])
-                                    cfambank = await crown_utilities.blessfamily(bank_amount, cfam)
-                                    cteambank = await crown_utilities.blessteam(bank_amount, cteam)
-                                    cpetlogger = await summonlevel(cpet_name, user2)
-                                    uc = await main.bot.fetch_user(user2.id)
-                                    ccardlogger = await crown_utilities.cardlevel(uc, c_card, user2.id, "Dungeon", selected_universe)
-                                    await crown_utilities.bless(50000, str(user2.id))
-                                    teammates = False
-                                    fam_members =False
-                                    stat_bonus = 0
-                                    hlt_bonus = 0 
-                                    if o_user['TEAM'] == c_user['TEAM'] and o_user['TEAM'] != 'PCG':
-                                        teammates=True
-                                        stat_bonus=50
-                                    if o_user['FAMILY'] == c_user['FAMILY'] and o_user['FAMILY'] != 'PCG':
-                                        fam_members=True
-                                        hlt_bonus=100
-                                    
-                                    if teammates==True:
-                                        bonus_message = f":checkered_flag:**{o_user['TEAM']}:** 🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
-                                        if fam_members==True:
-                                            bonus_message = f":family_mwgb:**{o_user['FAMILY']}:** ❤️**+{hlt_bonus}**\n:checkered_flag:**{o_user['TEAM']}:**🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
-                                    elif fam_members==True:
-                                            bonus_message = f":family_mwgb:**{o_user['FAMILY']}:** ❤️**+{hlt_bonus}**"
-                                    else:
-                                        bonus_message = f"Join a Guild or Create a Family for Coop Bonuses!"
-                                    embedVar = discord.Embed(title=f":zap: **{o_card}** and **{c_card}** defeated the {t_universe} Boss {t_card}!\nMatch concluded in {turn_total} turns!\n\n{drop_response} + :coin: 15,000!\n\n{c_user['NAME']} got :coin: 10,000!", description=textwrap.dedent(f"""
-                                    {previous_moves_into_embed}
-                                    
-                                    """),colour=0x1abc9c)
-                                    embedVar.set_author(name=f"**{t_card}** Says: {t_concede}")
-                                    embedVar.add_field(name="**Co-Op Bonus**",
-                                                value=f"{bonus_message}")
-                                else:
-                                    embedVar = discord.Embed(title=f":zap: **{o_card}** defeated the {t_universe} Boss {t_card}!\nMatch concluded in {turn_total} turns!\n\n{drop_response} + :coin: 25,000!\n{corrupted_message}",description=textwrap.dedent(f"""
-                                    {previous_moves_into_embed}
-                                    
-                                    """),colour=0x1abc9c)
-                                await crown_utilities.bless(25000, str(ctx.author.id))
-                                ofambank = await crown_utilities.blessfamily(fam_amount, ofam)
-                                oteambank = await crown_utilities.blessteam(bank_amount, oteam)
-                                petlogger = await summonlevel(opet_name, ouser)
-                                u = await main.bot.fetch_user(ouser.id)
-                                cardlogger = await crown_utilities.cardlevel(u, o_card, ouser.id, "Dungeon", selected_universe)
-
-                                if crestsearch:
-                                    await crown_utilities.blessguild(25000, oguild['GNAME'])
-                                    teambank = await crown_utilities.blessteam(5000, oteam)
-                                    await movecrest(selected_universe, oguild['GNAME'])
-                                    embedVar.add_field(name=f"**{selected_universe} Crest Claimed**!",
-                                                    value=f":flags:**{oguild['GNAME']}** earned the {selected_universe} **Crest**")
-                                embedVar.set_author(name=f"{t_card} lost",
-                                                    icon_url="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620236432/PCG%20LOGOS%20AND%20RESOURCES/PCGBot_1.png")
-                                if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
-                                    embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
-                                elif int(gameClock[0]) == 0:
-                                    embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-                                else:
-                                    embedVar.set_footer(
-                                        text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-                                # await ctx.send(embed=embedVar)
-                                await battle_msg.delete(delay=2)
-                                await asyncio.sleep(2)
-                                battle_msg = await private_channel.send(embed=embedVar)
-
-                                if t_card not in sowner['BOSS_WINS']:
-                                    if difficulty == "HARD":
-                                        await crown_utilities.bless(5000000, str(ctx.author.id))
-                                    else:
-                                        await crown_utilities.bless(15000000, str(ctx.author.id))
-                                    if mode == "CBoss":
-                                        if difficulty == "HARD":
-                                            await crown_utilities.bless(5000000, str(user2.id))
-                                        else:
-                                            await crown_utilities.bless(15000000, str(user2.id))
-
-                                    query = {'DISNAME': sowner['DISNAME']}
-                                    new_query = {'$addToSet': {'BOSS_WINS': t_card}}
-                                    resp = db.updateUserNoFilter(query, new_query)
-
-                                # await discord.TextChannel.delete(private_channel, reason=None)
-                                continued = False
-                            
-                            if mode == "ABYSS":
-                                if currentopponent != (total_legends):
-                                    embedVar = discord.Embed(title=f"VICTORY\nThe game lasted {turn_total} rounds.",description=textwrap.dedent(f"""
-                                    {previous_moves_into_embed}
-                                    
-                                    """),colour=0x1abc9c)
-
-                                    embedVar.set_author(name=f"{t_card} lost!")
-                                    
-
-                                    await battle_msg.delete(delay=2)
-                                    await asyncio.sleep(2)
-                                    battle_msg = await private_channel.send(embed=embedVar)
-                                    currentopponent = currentopponent + 1
-                                    continued = True
-                                if currentopponent == (total_legends):
-                                    uid = o_DID
-                                    ouser = await self.bot.fetch_user(uid)
-                                    floor = universe['FLOOR']
-                                    new_level = floor + 1
-                                    response = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'LEVEL': new_level}})
-                                    abyss_message = await abyss_level_up_message(str(ctx.author.id), floor, t_card, t_title, tarm_name)
-                                    cardlogger = await crown_utilities.cardlevel(ouser, o_card, ctx.author.id, "Purchase", "n/a")
-                                    abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
-                                    bless_amount = 100000 + (10000 * floor)
-                                    await crown_utilities.bless(bless_amount, ctx.author.id)
-                                    embedVar = discord.Embed(title=f"🌑 Floor **{floor}** Cleared\nThe game lasted {turn_total} rounds.",description=textwrap.dedent(f"""
-                                    Counquer the **Abyss** to unlock **Abyssal Rewards** and **New Game Modes.**
-                                    
-                                    🎊**Abyss Floor Unlocks**
-                                    **3** - *PvP and Guilds*
-                                    **10** - *Trading*
-                                    **15** - *Associations and Raids*
-                                    **20** - *Gifting*
-                                    **25** - *Explore Mode*
-                                    **30** - *Marriage*
-                                    **40** - *Dungeons*
-                                    **60** - *Bosses*
-                                    **100** - *Boss Soul Exchange*
-                                    """),colour=0xe91e63)
-
-                                    embedVar.set_author(name=f"{t_card} lost!")
-                                    embedVar.set_footer(text=f"Traverse the **Abyss** in /solo to unlock new game modes and features!")
-                                    floor_list = [0,2,3,6,7,8,9,10,20,25,40,60,100]
-                                    if floor in floor_list:
-                                        embedVar.add_field(
-                                        name=f"Abyssal Unlock",
-                                        value=f"{abyss_message['MESSAGE']}")
-                                    embedVar.add_field(
-                                    name=f"Abyssal Rewards",
-                                    value=f"{abyss_drop_message}")
- 
-                                    battle_msg = await private_channel.send(embed=embedVar)
-
-                                    continued = False
-
-                            if mode == "SCENARIO":
-                                if currentopponent != (total_legends):
-                                    uid = o_DID
-                                    ouser = await self.bot.fetch_user(uid)
-                                    cardlogger = await crown_utilities.cardlevel(ouser, o_card, ouser.id, "Tales", universe['UNIVERSE'])
-
-                                    embedVar = discord.Embed(title=f"VICTORY\nThe game lasted {turn_total} rounds.",description=textwrap.dedent(f"""
-                                    {previous_moves_into_embed}
-                                    
-                                    """),colour=0x1abc9c)
-
-                                    embedVar.set_author(name=f"{t_card} lost!")
-                                    
-
-                                    await battle_msg.delete(delay=2)
-                                    await asyncio.sleep(2)
-                                    battle_msg = await private_channel.send(embed=embedVar)
-                                    currentopponent = currentopponent + 1
-                                    continued = True
-                                if currentopponent == (total_legends):
-                                    uid = o_DID
-                                    ouser = await self.bot.fetch_user(uid)
-                                    response = await scenario_drop(self, ctx, universe, difficulty)
-                                    bless_amount = 50000
-                                    await crown_utilities.bless(bless_amount, ctx.author.id)
-                                    embedVar = discord.Embed(title=f"Scenario Battle Cleared!\nThe game lasted {turn_total} rounds.",description=textwrap.dedent(f"""
-                                    Good luck on your next adventure!
-                                    """),colour=0xe91e63)
-
-                                    embedVar.set_author(name=f"{t_card} lost!")
-                                    embedVar.add_field(
-                                    name=f"Scenario Reward",
-                                    value=f"{response}")
- 
-                                    battle_msg = await private_channel.send(embed=embedVar)
-
-                                    continued = False
-
-                            elif mode not in B_modes and mode != "ABYSS":
-                                uid = o_DID
-                                ouser = await self.bot.fetch_user(uid)
-                                wintime = time.asctime()
-                                h_playtime = int(wintime[11:13])
-                                m_playtime = int(wintime[14:16])
-                                s_playtime = int(wintime[17:19])
-                                gameClock = getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
-                                                    s_playtime)
-
-                                bank_amount = 5000
-                                fam_amount = 2000
-                                if mode in D_modes:
-                                    bank_amount = 20000
-                                    fam_amount = 5000
-
-                                if difficulty == "HARD":
-                                    bank_amount = 100000
-                                    fam_amount = 50000
-                                    
-
-                                if difficulty == "EASY":
-                                    bank_amount = 500
-                                    fam_amount = 100
-
-                                if mode in D_modes:
-                                    teambank = await crown_utilities.blessteam(bank_amount, oteam)
-                                else:
-                                    teambank = await crown_utilities.blessteam(bank_amount, oteam)
-                                if o_user['RIFT'] == 1:
-                                    response = db.updateUserNoFilter({'DISNAME': str(o_user['DISNAME'])}, {'$set': {'RIFT': 0}})
-
-                                if mode in D_modes:
-                                    drop_response = await dungeondrops(self, ouser, selected_universe, currentopponent)
-                                elif mode in U_modes:
-                                    drop_response = await drops(self, ouser, selected_universe, currentopponent)
-                                if mode in D_modes:
-                                    ofambank = await crown_utilities.blessfamily(fam_amount, ofam)
-                                else:
-                                    ofambank = await crown_utilities.blessfamily(fam_amount, ofam)
-                                match = await savematch(str(ouser), str(o_card), str(o_card_path), str(otitle['TITLE']),
-                                                        str(oarm['ARM']), str(selected_universe), tale_or_dungeon_only,
-                                                        o['EXCLUSIVE'])
-                                ran_element = crown_utilities.select_random_element(difficulty, mode)
-                                essence = crown_utilities.inc_essence(ouser.id, ran_element["ELEMENT"], ran_element["ESSENCE"])
-
-                                if difficulty != "EASY":
-                                    questlogger = await quest(ouser, t_card, tale_or_dungeon_only)
-                                    destinylogger = await destiny(ouser, t_card, tale_or_dungeon_only)
-                                    petlogger = await summonlevel(opet_name, ouser)
-                                    cardlogger = await crown_utilities.cardlevel(ouser, o_card, ouser.id, tale_or_dungeon_only, selected_universe)
-                                    # if questlogger:
-                                    #     await private_channel.send(questlogger)
-                                    # if destinylogger:
-                                    #     await private_channel.send(destinylogger)
                                 
-                                if _battle._is_co_op and mode not in ai_co_op_modes:
-                                    teammates = False
-                                    fam_members =False
-                                    stat_bonus = 0
-                                    hlt_bonus = 0 
-                                    if o_user['TEAM'] == c_user['TEAM'] and o_user['TEAM'] != 'PCG':
-                                        teammates=True
-                                        stat_bonus=50
-                                    if o_user['FAMILY'] == c_user['FAMILY'] and o_user['FAMILY'] != 'PCG':
-                                        fam_members=True
-                                        hlt_bonus=100
-                                    
-                                    if teammates==True:
-                                        bonus_message = f":checkered_flag:**{o_user['TEAM']}:** 🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
-                                        if fam_members==True:
-                                            bonus_message = f":family_mwgb:**{o_user['FAMILY']}:** ❤️**+{hlt_bonus}**\n:checkered_flag:**{o_user['TEAM']}:**🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
-                                    elif fam_members==True:
-                                            bonus_message = f":family_mwgb:**{o_user['FAMILY']}:** ❤️**+{hlt_bonus}**"
-                                    else:
-                                        bonus_message = f"Join a Guild or Create a Family for Coop Bonuses!"
-                                    cuid = c_DID
-                                    talisman_response = crown_utilities.inc_talisman(str(cuid), c_talisman)
-                                    cuser = await self.bot.fetch_user(cuid)
-                                    if mode in D_modes:
-                                        teambank = await crown_utilities.blessteam(bank_amount, oteam)
-                                        cteambank = await crown_utilities.blessteam(bank_amount, oteam)
-                                    else:
-                                        teambank = await crown_utilities.blessteam(bank_amount, oteam)
-                                        cteambank = await crown_utilities.blessteam(bank_amount, oteam)
-                                    if mode in D_modes:
-                                        cdrop_response = await dungeondrops(self,user2, selected_universe, currentopponent)
-                                    elif mode in U_modes:
-                                        cdrop_response = await drops(self,user2, selected_universe, currentopponent)
-                                    if mode in D_modes:
-                                        cfambank = await crown_utilities.blessfamily(fam_amount, cfam)
-                                        ofambank = await crown_utilities.blessfamily(fam_amount, ofam)
-                                    else:
-                                        cfambank = await crown_utilities.blessfamily(fam_amount, cfam)
-                                        ofambank = await crown_utilities.blessfamily(fam_amount, ofam)
-                                    # cmatch = await savematch(str(user2), str(c_card), str(c_card_path), str(ctitle['TITLE']),
-                                    #                         str(carm['ARM']), str(selected_universe), tale_or_dungeon_only, c['EXCLUSIVE'])
-                                    cfambank = await crown_utilities.blessfamily(fam_amount, cfam)
-                                    cteambank = await crown_utilities.blessteam(bank_amount, cteam)
-                                    cpetlogger = await summonlevel(cpet_name, user2)
-                                    ucc = await main.bot.fetch_user(user2.id)
-                                    ccardlogger = await crown_utilities.cardlevel(ucc, c_card, user2.id, tale_or_dungeon_only, selected_universe)
-                                    await crown_utilities.bless(5000, str(user2.id))
-                                    cessence = crown_utilities.inc_essence(cuser.id, ran_element["ELEMENT"], ran_element["ESSENCE"])
-                                if currentopponent != (total_legends):
-                                    if mode not in co_op_modes:
-                                        embedVar = discord.Embed(title=f"🎊 VICTORY\nThe game lasted {turn_total} rounds.\n\n{drop_response}\nEarned {essence} {ran_element['ESSENCE']} Essence\n{corrupted_message}",description=textwrap.dedent(f"""
-                                        {previous_moves_into_embed}
+                                if _battle._is_co_op and not _battle._is_duo:
+                                    if _battle._is_dungeon:
+                                        cdrop_response = await dungeondrops(self, user2, _battle._selected_universe, _battle._currentopponent)
+                                    elif _battle._is_tales:
+                                        cdrop_response = await drops(self, user2, _battle._selected_universe, _battle._currentopponent)
+
+                                    _battle.get_co_op_bonuses(player1, _player3)
+                                    p3_win_rewards = await _battle.get_win_rewards(_player3)
+                                    cpetlogger = await crown_utilities.summonlevel(_player3, player3_card)
+                                    ccardlogger = await crown_utilities.cardlevel(user2, player3_card.name, _player3.did, _battle.mode, _battle._selected_universe)
+                                
+                                if _battle._currentopponent != (_battle._total_enemies):
+                                    if not _battle._is_co_op:
+                                        embedVar = discord.Embed(title=f"🎊 VICTORY\nThe game lasted {_battle._turn_total} rounds.\n\n{drop_response}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence\n{corruption_message}",description=textwrap.dedent(f"""
+                                        {_battle.get_previous_moves_embed()}
                                         
                                         """),colour=0x1abc9c)
-                                        if difficulty != "EASY":
+                                        if not _battle._is_easy:
                                             if questlogger:
                                                 embedVar.add_field(name="**Quest Progress**",
                                                     value=f"{questlogger}")
                                             if destinylogger:
                                                 embedVar.add_field(name="**Destiny Progress**",
                                                     value=f"{destinylogger}")
-                                    elif _battle._is_co_op and mode not in ai_co_op_modes:
-                                        embedVar = discord.Embed(title=f"👥 CO-OP VICTORY\nThe game lasted {turn_total} rounds.\n\n👤**{o_user['NAME']}:** {drop_response}\nEarned {essence} {ran_element['ESSENCE']} Essence\n👥**{c_user['NAME']}:** {cdrop_response}\nEarned {cessence} {ran_element['ESSENCE']} Essence",description=textwrap.dedent(f"""
-                                        {previous_moves_into_embed}
+
+                                    elif _battle._is_co_op and not _battle._is_duo:
+                                        embedVar = discord.Embed(title=f"👥 CO-OP VICTORY\nThe game lasted {_battle._turn_total} rounds.\n\n👤**{player1.disname}:** {drop_response}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence\n👥**{_player3.disname}:** {cdrop_response}\nEarned {p3_win_rewards['ESSENCE']} {p3_win_rewards['RANDOM_ELEMENT']} Essence",description=textwrap.dedent(f"""
+                                        {_battle.get_previous_moves_embed()}
                                         
                                         """),colour=0x1abc9c)
                                         embedVar.add_field(name="**Co-Op Bonus**",
@@ -4231,37 +3899,38 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         if destinylogger:
                                             embedVar.add_field(name="**Destiny Progress**",
                                                 value=f"{destinylogger}")
-                                    elif mode in ai_co_op_modes:
-                                        embedVar = discord.Embed(title=f"🎊 DUO VICTORY\nThe game lasted {turn_total} rounds.\n\n{drop_response}\n{corrupted_message}",description=textwrap.dedent(f"""
-                                        {previous_moves_into_embed}
+                                    
+                                    elif _battle._is_duo:
+                                        embedVar = discord.Embed(title=f"🎊 DUO VICTORY\nThe game lasted {_battle._turn_total} rounds.\n\n{drop_response}\n{corrupted_message}",description=textwrap.dedent(f"""
+                                        {_battle.get_previous_moves_embed()}
                                         
                                         """),colour=0x1abc9c)
-                                    if mode in D_modes:
-                                        if crestsearch:
-                                            await crown_utilities.blessguild(10000, oguild['GNAME'])
-                                            embedVar.add_field(name=f"**{selected_universe} Crest Search!**",
-                                                            value=f":flags:**{oguild['GNAME']}** earned **100,000** :coin:")
-                                    embedVar.set_author(name=f"{t_card} lost!")
+
+                                    if _battle._is_dungeon:
+                                        if _battle.crestsearch:
+                                            await crown_utilities.blessguild(10000, player1.association)
+                                            embedVar.add_field(name=f"**{_battle.selected_universe} Crest Search!**",
+                                                            value=f":flags:**{player1.association}** earned **100,000** :coin:")
+                                    embedVar.set_author(name=f"{player2_card.name} lost!")
                                     
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     battle_msg = await private_channel.send(embed=embedVar)
 
-                                    currentopponent = currentopponent + 1
+                                    _battle._currentopponent = _battle._currentopponent + 1
                                     continued = True
 
-                                if currentopponent == (total_legends):
-                                    if mode in D_modes:
-                                        embedVar = discord.Embed(title=f":fire: DUNGEON CONQUERED",
-                                                                description=f"**{selected_universe} Dungeon** has been conquered\n\n{drop_response}\n{corrupted_message}",
+                                if _battle._currentopponent == (_battle._total_enemies):
+                                    if _battle._is_dungeon:
+                                        embedVar = discord.Embed(title=f":fire: DUNGEON CONQUERED",description=f"**{_battle.selected_universe} Dungeon** has been conquered\n\n{drop_response}\n{corrupted_message}",
                                                                 colour=0xe91e63)
-                                        embedVar.set_author(name=f"{selected_universe} Boss has been unlocked!")
-                                        if crestsearch:
-                                            await crown_utilities.blessguild(100000, oguild['GNAME'])
-                                            teambank = await crown_utilities.blessteam(100000, oteam)
-                                            await movecrest(selected_universe, oguild['GNAME'])
-                                            embedVar.add_field(name=f"**{selected_universe}** CREST CLAIMED!",
-                                                            value=f"**{oguild['GNAME']}** earned the {selected_universe} **Crest**")
+                                        embedVar.set_author(name=f"{_battle.selected_universe} Boss has been unlocked!")
+                                        if _battle.crestsearch:
+                                            await crown_utilities.blessguild(100000, player1.association)
+                                            teambank = await crown_utilities.blessteam(100000, player1.guild)
+                                            await movecrest(_battle.selected_universe, player1.association)
+                                            embedVar.add_field(name=f"**{_battle.selected_universe}** CREST CLAIMED!",
+                                                            value=f"**{player1.association}** earned the {_battle.selected_universe} **Crest**")
                                         if questlogger:
                                             embedVar.add_field(name="**Quest Progress**",
                                                 value=f"{questlogger}")
@@ -4269,46 +3938,37 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             embedVar.add_field(name="**Destiny Progress**",
                                                 value=f"{destinylogger}")
                                         embedVar.set_footer(text="Visit the /shop for a huge discount!")
-                                        if difficulty != "EASY":
+                                        if not _battle._is_easy:
                                             upload_query = {'DID': str(ctx.author.id)}
-                                            new_upload_query = {'$addToSet': {'DUNGEONS': selected_universe}}
+                                            new_upload_query = {'$addToSet': {'DUNGEONS': _battle.selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
-                                        if selected_universe in o_user['DUNGEONS']:
+                                        if _battle.selected_universe in player1.completed_dungeons:
                                             await crown_utilities.bless(300000, ctx.author.id)
-                                            teambank = await crown_utilities.blessteam(bank_amount, oteam)
-                                            # await crown_utilities.bless(125, user2)
-                                            # await ctx.send(embed=embedVar)
+                                            teambank = await crown_utilities.blessteam(bank_amount, player1.guild)
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Minor Reward",
-                                                        value=f"You were awarded :coin: 300,000 for completing the {selected_universe} Dungeon again!")
-                                            #battle_msg = await private_channel.send(embed=embedVar)
+                                                        value=f"You were awarded :coin: 300,000 for completing the {_battle.selected_universe} Dungeon again!")
                                         else:
                                             await crown_utilities.bless(6000000, ctx.author.id)
-                                            teambank = await crown_utilities.blessteam(1500000, oteam)
-                                            # await ctx.send(embed=embedVar)
+                                            teambank = await crown_utilities.blessteam(1500000, player1.guild)
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Dungeon Reward",
-                                                        value=f"You were awarded :coin: 6,000,000 for completing the {selected_universe} Dungeon!")
-                                            #battle_msg = await private_channel.send(embed=embedVar)
-                                        if _battle._is_co_op and mode not in ai_co_op_modes:
-                                            cuid = c_DID
-                                            cuser = await self.bot.fetch_user(cuid)
-                                            await crown_utilities.bless(500000, user2.id)
-                                            teambank = await crown_utilities.blessteam(200000, cteam)
-                                            # await crown_utilities.bless(125, user2)
-                                            # await ctx.send(embed=embedVar)
+                                                        value=f"You were awarded :coin: 6,000,000 for completing the {_battle.selected_universe} Dungeon!")
+                                        if _battle._is_co_op and not _battle._is_duo:
+                                            await crown_utilities.bless(500000, _player3.did)
+                                            teambank = await crown_utilities.blessteam(200000, _player3.guild)
                                             await asyncio.sleep(2)
                                             
                                             await ctx.send(
-                                                f"{user2.mention} You were awarded :coin: 500,000 for  assisting in the {selected_universe} Dungeon!")
+                                                f"{user2.mention} You were awarded :coin: 500,000 for  assisting in the {_battle.selected_universe} Dungeon!")
                                         battle_msg = await private_channel.send(embed=embedVar)
                                         continued = False
                                         # await discord.TextChannel.delete(private_channel, reason=None)
-                                    elif mode in U_modes:
+                                    elif _battle._is_tales:
                                         embedVar = discord.Embed(title=f"🎊 UNIVERSE CONQUERED",
-                                                                description=f"**{selected_universe}** has been conquered\n\n{drop_response}\n{corrupted_message}",
+                                                                description=f"**{_battle.selected_universe}** has been conquered\n\n{drop_response}\n{corrupted_message}",
                                                                 colour=0xe91e63)
                                         if questlogger:
                                             embedVar.add_field(name="**Quest Progress**",
@@ -4316,43 +3976,255 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         if destinylogger:
                                             embedVar.add_field(name="**Destiny Progress**",
                                                 value=f"{destinylogger}")
-                                        embedVar.set_footer(text=f"You can now /craft {selected_universe} cards")
-                                        if difficulty != "EASY":
-                                            embedVar.set_author(name=f"{selected_universe} Dungeon has been unlocked!")
+                                        embedVar.set_footer(text=f"You can now /craft {_battle.selected_universe} cards")
+                                        if not _battle._is_easy:
+                                            embedVar.set_author(name=f"{_battle.selected_universe} Dungeon has been unlocked!")
                                             upload_query = {'DID': str(ctx.author.id)}
-                                            new_upload_query = {'$addToSet': {'CROWN_TALES': selected_universe}}
+                                            new_upload_query = {'$addToSet': {'CROWN_TALES': _battle.selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
-                                        if selected_universe in o_user['CROWN_TALES']:
+                                        if _battle.selected_universe in player1.completed_tales:
                                             await crown_utilities.bless(100000, ctx.author.id)
-                                            teambank = await crown_utilities.blessteam(25000, oteam)
+                                            teambank = await crown_utilities.blessteam(25000, player1.guild)
                                             # await ctx.send(embed=embedVar)
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Minor Reward",
-                                                        value=f"You were awarded :coin: 100,000 for completing the {selected_universe} Tale again!")
+                                                        value=f"You were awarded :coin: 100,000 for completing the {_battle.selected_universe} Tale again!")
                                         else:
                                             await crown_utilities.bless(2000000, ctx.author.id)
-                                            teambank = await crown_utilities.blessteam(500000, oteam)
+                                            teambank = await crown_utilities.blessteam(500000, player1.guild)
                                             # await ctx.send(embed=embedVar)
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
                                             
                                             embedVar.add_field(name="Conquerors Reward",
-                                                        value=f"You were awarded :coin: 2,000,000 for completing the {selected_universe} Tale!")
+                                                        value=f"You were awarded :coin: 2,000,000 for completing the {_battle.selected_universe} Tale!")
                                             #battle_msg = await private_channel.send(embed=embedVar)
-                                        if _battle._is_co_op and mode not in ai_co_op_modes:
-                                            cuid = c_DID
-                                            cuser = await self.bot.fetch_user(cuid)
-                                            await crown_utilities.bless(250000, user2.id)
-                                            teambank = await crown_utilities.blessteam(80000, cteam)
+                                        if _battle._is_co_op and not _battle._is_duo:
+                            
+                                            await crown_utilities.bless(250000, _player3.did)
+                                            teambank = await crown_utilities.blessteam(80000, _player3.guild)
                                             # await crown_utilities.bless(125, user2)
                                             # await ctx.send(embed=embedVar)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Companion Reward",
-                                                        value=f"{user2.mention} You were awarded :coin: 250,000 for assisting in the {selected_universe} Tale!")
+                                                        value=f"{user2.mention} You were awarded :coin: 250,000 for assisting in the {_battle.selected_universe} Tale!")
                                             
                                         battle_msg = await private_channel.send(embed=embedVar)
                                         continued = False
+
+                            # if _battle._is_boss:
+
+                            # if _battle._is_abyss:
+
+                            # if _battle._is_scenario:
+
+                            
+                            # if mode != "ABYSS" and mode != "SCENARIO" and mode not in RAID_MODES and mode not in PVP_MODES and not _battle._is_easy:
+                            #     if universe['CORRUPTED']:
+                            #         corrupted_message = await crown_utilities.corrupted_universe_handler(ctx, selected_universe, difficulty)
+                            #         if not corrupted_message:
+                            #             corrupted_message = "You must dismantle a card from this universe to enable crafting."
+
+                            
+                            # if mode in B_modes:
+                            #     uid = o_DID
+                            #     ouser = await self.bot.fetch_user(uid)
+                            #     wintime = time.asctime()
+                            #     h_playtime = int(wintime[11:13])
+                            #     m_playtime = int(wintime[14:16])
+                            #     s_playtime = int(wintime[17:19])
+                            #     gameClock = getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
+                            #                         s_playtime)
+                            #     drop_response = await bossdrops(self,ctx.author, t_universe)
+                            #     db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_FOUGHT': True}})
+                            #     match = await savematch(str(ouser), str(o_card), str(o_card_path), str(otitle['TITLE']),
+                            #                             str(oarm['ARM']), "N/A", "Boss", o['EXCLUSIVE'])
+                            #     bank_amount = 100000
+                            #     fam_amount = 50000
+                            #     if difficulty == "HARD":
+                            #         bank_amount = 1500000
+                            #         fam_amount = 1000000
+
+
+                            #     if mode == "CBoss":
+                            #         # cmatch = await savematch(str(user2), str(player3_card), str(player3_card_path), str(ctitle['TITLE']),
+                            #         #                         str(carm['ARM']), "N/A", "Boss", c['EXCLUSIVE'])
+                            #         cfambank = await crown_utilities.blessfamily(bank_amount, cfam)
+                            #         cteambank = await crown_utilities.blessteam(bank_amount, cteam)
+                            #         cpetlogger = await crown_utilities.summonlevel(_player3, player3_card)
+                            #         uc = await main.bot.fetch_user(user2.id)
+                            #         ccardlogger = await crown_utilities.cardlevel(uc, player3_card.name, user2.id, "Dungeon", selected_universe)
+                            #         await crown_utilities.bless(50000, str(user2.id))
+                            #         teammates = False
+                            #         fam_members =False
+                            #         stat_bonus = 0
+                            #         hlt_bonus = 0 
+                            #         if o_user['TEAM'] == c_user['TEAM'] and o_user['TEAM'] != 'PCG':
+                            #             teammates=True
+                            #             stat_bonus=50
+                            #         if o_user['FAMILY'] == c_user['FAMILY'] and o_user['FAMILY'] != 'PCG':
+                            #             fam_members=True
+                            #             hlt_bonus=100
+                                    
+                            #         if teammates==True:
+                            #             bonus_message = f":checkered_flag:**{o_user['TEAM']}:** 🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
+                            #             if fam_members==True:
+                            #                 bonus_message = f":family_mwgb:**{o_user['FAMILY']}:** ❤️**+{hlt_bonus}**\n:checkered_flag:**{o_user['TEAM']}:**🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
+                            #         elif fam_members==True:
+                            #                 bonus_message = f":family_mwgb:**{o_user['FAMILY']}:** ❤️**+{hlt_bonus}**"
+                            #         else:
+                            #             bonus_message = f"Join a Guild or Create a Family for Coop Bonuses!"
+                            #         embedVar = discord.Embed(title=f":zap: **{o_card}** and **{player3_card}** defeated the {t_universe} Boss {t_card}!\nMatch concluded in {_battle._turn_total} turns!\n\n{drop_response} + :coin: 15,000!\n\n{c_user['NAME']} got :coin: 10,000!", description=textwrap.dedent(f"""
+                            #         {_battle.get_previous_moves_embed()}
+                                    
+                            #         """),colour=0x1abc9c)
+                            #         embedVar.set_author(name=f"**{t_card}** Says: {t_concede}")
+                            #         embedVar.add_field(name="**Co-Op Bonus**",
+                            #                     value=f"{bonus_message}")
+                            #     else:
+                            #         embedVar = discord.Embed(title=f":zap: **{o_card}** defeated the {t_universe} Boss {t_card}!\nMatch concluded in {_battle._turn_total} turns!\n\n{drop_response} + :coin: 25,000!\n{corrupted_message}",description=textwrap.dedent(f"""
+                            #         {_battle.get_previous_moves_embed()}
+                                    
+                            #         """),colour=0x1abc9c)
+                            #     await crown_utilities.bless(25000, str(ctx.author.id))
+                            #     ofambank = await crown_utilities.blessfamily(fam_amount, ofam)
+                            #     player1.guildbank = await crown_utilities.blessteam(bank_amount, player1.guild)
+                            #     petlogger = await crown_utilities.summonlevel(player1, player1_card)
+                            #     u = await main.bot.fetch_user(ouser.id)
+                            #     cardlogger = await crown_utilities.cardlevel(u, o_card, ouser.id, "Dungeon", selected_universe)
+
+                            #     if _battle.crestsearch:
+                            #         await crown_utilities.blessguild(25000, oguild['GNAME'])
+                            #         teambank = await crown_utilities.blessteam(5000, player1.guild)
+                            #         await movecrest(selected_universe, oguild['GNAME'])
+                            #         embedVar.add_field(name=f"**{_battle.selected_universe} Crest Claimed**!",
+                            #                         value=f":flags:**{oguild['GNAME']}** earned the {_battle.selected_universe} **Crest**")
+                            #     embedVar.set_author(name=f"{t_card} lost",
+                            #                         icon_url="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620236432/PCG%20LOGOS%20AND%20RESOURCES/PCGBot_1.png")
+                            #     if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
+                            #         embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
+                            #     elif int(gameClock[0]) == 0:
+                            #         embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+                            #     else:
+                            #         embedVar.set_footer(
+                            #             text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+                            #     # await ctx.send(embed=embedVar)
+                            #     await battle_msg.delete(delay=2)
+                            #     await asyncio.sleep(2)
+                            #     battle_msg = await private_channel.send(embed=embedVar)
+
+                            #     if t_card not in sowner['BOSS_WINS']:
+                            #         if difficulty == "HARD":
+                            #             await crown_utilities.bless(5000000, str(ctx.author.id))
+                            #         else:
+                            #             await crown_utilities.bless(15000000, str(ctx.author.id))
+                            #         if mode == "CBoss":
+                            #             if difficulty == "HARD":
+                            #                 await crown_utilities.bless(5000000, str(user2.id))
+                            #             else:
+                            #                 await crown_utilities.bless(15000000, str(user2.id))
+
+                            #         query = {'DISNAME': sowner['DISNAME']}
+                            #         new_query = {'$addToSet': {'BOSS_WINS': t_card}}
+                            #         resp = db.updateUserNoFilter(query, new_query)
+
+                            #     # await discord.TextChannel.delete(private_channel, reason=None)
+                            #     continued = False
+                            
+                            # if mode == "ABYSS":
+                            #     if _battle._currentopponent != (_battle._total_enemies):
+                            #         embedVar = discord.Embed(title=f"VICTORY\nThe game lasted {_battle._turn_total} rounds.",description=textwrap.dedent(f"""
+                            #         {_battle.get_previous_moves_embed()}
+                                    
+                            #         """),colour=0x1abc9c)
+
+                            #         embedVar.set_author(name=f"{t_card} lost!")
+                                    
+
+                            #         await battle_msg.delete(delay=2)
+                            #         await asyncio.sleep(2)
+                            #         battle_msg = await private_channel.send(embed=embedVar)
+                            #         currentopponent = currentopponent + 1
+                            #         continued = True
+                            #     if _battle._currentopponent == (_battle._total_enemies):
+                            #         uid = o_DID
+                            #         ouser = await self.bot.fetch_user(uid)
+                            #         floor = universe['FLOOR']
+                            #         new_level = floor + 1
+                            #         response = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'LEVEL': new_level}})
+                            #         abyss_message = await abyss_level_up_message(str(ctx.author.id), floor, t_card, t_title, tarm_name)
+                            #         cardlogger = await crown_utilities.cardlevel(ouser, o_card, ctx.author.id, "Purchase", "n/a")
+                            #         abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
+                            #         bless_amount = 100000 + (10000 * floor)
+                            #         await crown_utilities.bless(bless_amount, ctx.author.id)
+                            #         embedVar = discord.Embed(title=f"🌑 Floor **{floor}** Cleared\nThe game lasted {_battle._turn_total} rounds.",description=textwrap.dedent(f"""
+                            #         Counquer the **Abyss** to unlock **Abyssal Rewards** and **New Game Modes.**
+                                    
+                            #         🎊**Abyss Floor Unlocks**
+                            #         **3** - *PvP and Guilds*
+                            #         **10** - *Trading*
+                            #         **15** - *Associations and Raids*
+                            #         **20** - *Gifting*
+                            #         **25** - *Explore Mode*
+                            #         **30** - *Marriage*
+                            #         **40** - *Dungeons*
+                            #         **60** - *Bosses*
+                            #         **100** - *Boss Soul Exchange*
+                            #         """),colour=0xe91e63)
+
+                            #         embedVar.set_author(name=f"{t_card} lost!")
+                            #         embedVar.set_footer(text=f"Traverse the **Abyss** in /solo to unlock new game modes and features!")
+                            #         floor_list = [0,2,3,6,7,8,9,10,20,25,40,60,100]
+                            #         if floor in floor_list:
+                            #             embedVar.add_field(
+                            #             name=f"Abyssal Unlock",
+                            #             value=f"{abyss_message['MESSAGE']}")
+                            #         embedVar.add_field(
+                            #         name=f"Abyssal Rewards",
+                            #         value=f"{abyss_drop_message}")
+ 
+                            #         battle_msg = await private_channel.send(embed=embedVar)
+
+                            #         continued = False
+
+                            # if mode == "SCENARIO":
+                            #     if _battle._currentopponent != (_battle._total_enemies):
+                            #         uid = o_DID
+                            #         ouser = await self.bot.fetch_user(uid)
+                            #         cardlogger = await crown_utilities.cardlevel(ouser, o_card, ouser.id, "Tales", universe['UNIVERSE'])
+
+                            #         embedVar = discord.Embed(title=f"VICTORY\nThe game lasted {_battle._turn_total} rounds.",description=textwrap.dedent(f"""
+                            #         {_battle.get_previous_moves_embed()}
+                                    
+                            #         """),colour=0x1abc9c)
+
+                            #         embedVar.set_author(name=f"{t_card} lost!")
+                                    
+
+                            #         await battle_msg.delete(delay=2)
+                            #         await asyncio.sleep(2)
+                            #         battle_msg = await private_channel.send(embed=embedVar)
+                            #         currentopponent = currentopponent + 1
+                            #         continued = True
+                            #     if _battle._currentopponent == (_battle._total_enemies):
+                            #         uid = o_DID
+                            #         ouser = await self.bot.fetch_user(uid)
+                            #         response = await scenario_drop(self, ctx, universe, difficulty)
+                            #         bless_amount = 50000
+                            #         await crown_utilities.bless(bless_amount, ctx.author.id)
+                            #         embedVar = discord.Embed(title=f"Scenario Battle Cleared!\nThe game lasted {_battle._turn_total} rounds.",description=textwrap.dedent(f"""
+                            #         Good luck on your next adventure!
+                            #         """),colour=0xe91e63)
+
+                            #         embedVar.set_author(name=f"{t_card} lost!")
+                            #         embedVar.add_field(
+                            #         name=f"Scenario Reward",
+                            #         value=f"{response}")
+ 
+                            #         battle_msg = await private_channel.send(embed=embedVar)
+
+                            #         continued = False
 
             except asyncio.TimeoutError:
                 await battle_msg.edit(components=[])
@@ -4377,7 +4249,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                     'message': str(ex),
                     'trace': trace
                 }))
-                # if mode not in ai_co_op_modes:
+                # if not _battle._is_duo:
                 #     await battle_ping_message.delete()
                 await battle_msg.delete()
                 guild = self.bot.get_guild(main.guild_id)
