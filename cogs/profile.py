@@ -9533,11 +9533,13 @@ async def menuquests(self, ctx):
                 else:
                     completed = "🔴"
                 icon = ":coin:"
-                if balance >= 150000:
+                if quest['REWARD'] >= 3000000:
+                    icon = ":credit_card:"
+                if quest['REWARD'] >= 2000000:
                     icon = ":money_with_wings:"
-                elif balance >=100000:
+                elif quest['REWARD'] >=1000000:
                     icon = ":moneybag:"
-                elif balance >= 50000:
+                elif quest['REWARD'] >= 200000:
                     icon = ":dollar:"
 
 
