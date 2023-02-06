@@ -791,7 +791,7 @@ async def voted(ctx):
             Thank you for voting, {ctx.author.mention}!
             
             **Daily Voter Earnings** 
-            :coin: **{'{:,}'.format(500000)}**
+            :coin: **{'{:,}'.format(2000000)}**
             💎 **{'{:,}'.format(500000)}** *all craftable universes*
             {retry_message}
             
