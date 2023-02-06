@@ -782,10 +782,9 @@ async def voted(ctx):
 
             await crown_utilities.bless(int(500000), ctx.author.id)
             respond = db.updateUserNoFilter(query, {'$set': {'VOTED': True}})
-            retry_message = f":vs: Rematches : **{user['RETRIES']}**"
-            if user['RETRIES'] <= 20:  
-               db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
-               retry_message = f":vs: Rematches : {user['RETRIES']} **+ 3**!"
+            retry_message = f":vs: Rematches : **{user['RETRIES']}**"  
+            db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
+            retry_message = f":vs: Rematches : {user['RETRIES']} **+ 3**!"
 
 
             embedVar = discord.Embed(title=f"✅ Daily Voter Rewards!", description=textwrap.dedent(f"""\
