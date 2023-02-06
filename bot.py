@@ -780,7 +780,7 @@ async def voted(ctx):
                   filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
                   res = db.updateVault(query, update_query, filter_query)
 
-            await crown_utilities.bless(int(500000), ctx.author.id)
+            await crown_utilities.bless(int(2000000), ctx.author.id)
             respond = db.updateUserNoFilter(query, {'$set': {'VOTED': True}})
             retry_message = f":vs: Rematches : **{user['RETRIES']}**"  
             db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
@@ -809,7 +809,7 @@ async def voted(ctx):
             To earn your voter rewards, [Vote for Anime VS+!](https://top.gg/bot/955704903198711808/vote)
 
             **What are the Daily Voter Rewards?** 
-            :coin: **{'{:,}'.format(500000)}**
+            :coin: **{'{:,}'.format(2000000)}**
             💎 **{'{:,}'.format(500000)}**
             {retry_message}
             
