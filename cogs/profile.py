@@ -6409,7 +6409,9 @@ async def menubuild(self, ctx):
                             talisman_emoji = crown_utilities.set_emoji(talisman.upper())
                             talisman_durability = t["DUR"]
                     talisman_message = f"{talisman_emoji} {talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
-        
+                x = 0.0999
+                y = 1.25
+                lvl_req = round((float(card_lvl)/x)**y)
                 rebirthBonus = o_rebirth * 10
                 traits = ut.traits
                 mytrait = {}

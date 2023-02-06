@@ -11884,9 +11884,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         guild = self.bot.get_guild(main.guild_id)
                                         channel = guild.get_channel(main.guild_channel)
                                         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
-                        if turn_total <0:
-                            turn_total = 1
-                        if turn == 1:
+                        # if turn_total <0:
+                        #     turn_total = 1
+                        elif turn == 1:
                             
                             previous_moves_into_embed = "\n\n".join(previous_moves)
                             
@@ -17232,8 +17232,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 previous_moves.append(f"(**{turn_total}**) **{t_card}** not enough Stamina to use this move {aiMove}") 
                                                 turn = 1
 
-                        if turn_total <0:
-                            turn_total = 1
+                        # if turn_total <0:
+                        #     turn_total = 1
                         if mode in co_op_modes and turn != (0 or 1):
                             if c_ap_buff > 500:
                                 c_ap_buff = 500
@@ -20502,10 +20502,10 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             channel = guild.get_channel(main.guild_channel)
                                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
                             
-                            if turn_total <0:
-                                turn_total = 1
+                            # if turn_total <0:
+                            #     turn_total = 1
                             # Opponent Turn Start
-                            if turn == 3:
+                            elif turn == 3:
                                 previous_moves_into_embed = "\n\n".join(previous_moves)
                                 if t_universe == "YuYu Hakusho":
                                     t_attack = t_attack + t_stamina
