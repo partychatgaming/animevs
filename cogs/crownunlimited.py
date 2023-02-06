@@ -21685,7 +21685,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     if tpet_type == 'ATK':
                                                         t_attack = round(t_attack + dmg['DMG'])
                                                     elif tpet_type == 'DEF':
-                                                        t_defense = round(t_defense + dmg['DMG'])t_ap_buff
+                                                        t_defense = round(t_defense + dmg['DMG'])
                                                     elif tpet_type == 'STAM':
                                                         t_stamina = round(t_stamina + dmg['DMG'])
                                                     elif tpet_type == 'HLT':
