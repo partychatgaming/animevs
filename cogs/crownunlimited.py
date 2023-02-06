@@ -1963,6 +1963,8 @@ async def summonlevel(pet, player):
 
         lvl = petinfo['LVL']  # To Level Up -(lvl * 10 = xp required)
         lvl_req = lvl * 10
+        if lvl_req < 0:
+            lvl_req = 1
         exp = petinfo['EXP']
         petmove_text = list(petinfo.keys())[3]  # Name of the ability
         petmove_ap = list(petinfo.values())[3]  # Ability Power
