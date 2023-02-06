@@ -7009,7 +7009,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
             #await ctx.send(embed=embedVar)
             guild = self.bot.get_guild(main.guild_id)
             channel = guild.get_channel(main.guild_channel)
-            await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+            if not AttributeError:
+                await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
             return
 
 async def battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild, crestlist,
