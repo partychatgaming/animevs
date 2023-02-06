@@ -2129,12 +2129,12 @@ def damage_cal(mode,card_tier, talisman_dict, move_ap, opponent_affinity, move_t
             wither = round((ap / 100) * op_defense)
         elif enh == 'RAGE':
             enh_type = "RAGE"
-            if defense >= 3500:
+            if defense >= 3500 and not boss_active:
                 defense = 3500
             rage = round((ap / 100) * defense)
         elif enh == 'BRACE':
             enh_type = "BRACE"
-            if attack >= 3500:
+            if attack >= 3500 and not boss_active:
                 attack = 3500
             brace = round((ap / 100) * attack)
         elif enh == 'BZRK':
@@ -21685,7 +21685,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     if tpet_type == 'ATK':
                                                         t_attack = round(t_attack + dmg['DMG'])
                                                     elif tpet_type == 'DEF':
-                                                        t_defense = round(t_defense + dmg['DMG'])
+                                                        t_defense = round(t_defense + dmg['DMG'])t_ap_buff
                                                     elif tpet_type == 'STAM':
                                                         t_stamina = round(t_stamina + dmg['DMG'])
                                                     elif tpet_type == 'HLT':
