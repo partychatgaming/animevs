@@ -4,6 +4,7 @@
 import db
 import time
 import destiny as d
+import classes as data
 # Converters
 from PIL import Image, ImageFont, ImageDraw
 import textwrap
@@ -568,6 +569,27 @@ def set_emoji(element):
         
 
     return emoji
+
+
+def getTime(hgame, mgame, sgame, hnow, mnow, snow):
+    hoursPassed = hnow - hgame
+    minutesPassed = mnow - mgame
+    secondsPassed = snow - sgame
+    if hoursPassed > 0:
+        minutesPassed = mnow
+        if minutesPassed > 0:
+            secondsPassed = snow
+        else:
+            secondsPassed = snow - sgame
+    else:
+        minutesPassed = mnow - mgame
+        if minutesPassed > 0:
+            secondsPassed = snow
+        else:
+            secondsPassed = snow - sgame
+    gameTime = str(hoursPassed) + str(minutesPassed) + str(secondsPassed)
+    return gameTime
+
 
 
 def showsummon(url, summon, message, lvl, bond):

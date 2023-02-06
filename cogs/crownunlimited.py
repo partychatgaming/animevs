@@ -5,7 +5,7 @@ from re import T
 import discord
 from discord.ext import commands
 import db
-import dcf_file as data
+import dataclasses as data
 import destiny as d
 import messages as m
 import numpy as np
@@ -2637,7 +2637,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
 
             if _battle._is_pvp_match and not _battle._is_tutorial:
                 user2 = await main.bot.fetch_user(_player2.did)
-                battle_ping_message = await private_channel.send(f"{player_1_fetched_user.mention} 🆚 {player_2_fetched_user.mention} ")
+                battle_ping_message = await private_channel.send(f"{user1.mention} 🆚 {user2.mention} ")
             
             if _battle._is_co_op:
                 user2 = await main.bot.fetch_user(_player3.did)
@@ -2646,7 +2646,8 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
             if _battle._is_co_op:
                 title_lvl_msg = f"{_battle.set_levels_message(player1_card, player2_card, player3_card)}"
 
-            await private_channel.send(content=f"{ctx.author.mention} 🆚...", )
+            if not _battle._is_pvp_match:
+                await private_channel.send(content=f"{ctx.author.mention} 🆚...", )
             embedVar = discord.Embed(title=f"{_battle.get_starting_match_title()}\n{title_lvl_msg}")
             embedVar.add_field(name=f"__Your Affinities:__ {crown_utilities.set_emoji(player1.equipped_talisman)} ", value=f"{player1_card.affinity_message}")
             embedVar.add_field(name=f"__Opponent Affinities:__ {crown_utilities.set_emoji(player2_card._talisman)}", value=f"{player2_card.affinity_message}")
@@ -3175,8 +3176,8 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                     icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
 
 
-                                if _battle._is_pvp_match:
-                                    _battle.set_battle_options(player1_card, player2_card)
+                                if _battle._is_pvp_match and not _battle._is_tutorial:
+                                    _battle.set_battle_options(player2_card, player1_card)
                                     # Check If Playing Bot
                                     if not _battle.is_ai_opponent:
 
@@ -3306,7 +3307,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         if selected_move != 5 and selected_move != 6 and selected_move != 0:
                                             player2_card.damage_done(_battle, damage_calculation_response, player1_card)                                        
 
-                                if not _battle._is_pvp_match:
+                                if not _battle._is_pvp_match or _battle._is_tutorial:
                                     if _battle._is_auto_battle:
                                         await asyncio.sleep(2)
                                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -3909,7 +3910,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                     if _battle._is_dungeon:
                                         if _battle.crestsearch:
                                             await crown_utilities.blessguild(10000, player1.association)
-                                            embedVar.add_field(name=f"**{_battle.selected_universe} Crest Search!**",
+                                            embedVar.add_field(name=f"**{_battle._selected_universe} Crest Search!**",
                                                             value=f":flags:**{player1.association}** earned **100,000** :coin:")
                                     embedVar.set_author(name=f"{player2_card.name} lost!")
                                     
@@ -3922,15 +3923,15 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
 
                                 if _battle._currentopponent == (_battle._total_enemies):
                                     if _battle._is_dungeon:
-                                        embedVar = discord.Embed(title=f":fire: DUNGEON CONQUERED",description=f"**{_battle.selected_universe} Dungeon** has been conquered\n\n{drop_response}\n{corrupted_message}",
+                                        embedVar = discord.Embed(title=f":fire: DUNGEON CONQUERED",description=f"**{_battle._selected_universe} Dungeon** has been conquered\n\n{drop_response}\n{corrupted_message}",
                                                                 colour=0xe91e63)
-                                        embedVar.set_author(name=f"{_battle.selected_universe} Boss has been unlocked!")
+                                        embedVar.set_author(name=f"{_battle._selected_universe} Boss has been unlocked!")
                                         if _battle.crestsearch:
                                             await crown_utilities.blessguild(100000, player1.association)
                                             teambank = await crown_utilities.blessteam(100000, player1.guild)
-                                            await movecrest(_battle.selected_universe, player1.association)
-                                            embedVar.add_field(name=f"**{_battle.selected_universe}** CREST CLAIMED!",
-                                                            value=f"**{player1.association}** earned the {_battle.selected_universe} **Crest**")
+                                            await movecrest(_battle._selected_universe, player1.association)
+                                            embedVar.add_field(name=f"**{_battle._selected_universe}** CREST CLAIMED!",
+                                                            value=f"**{player1.association}** earned the {_battle._selected_universe} **Crest**")
                                         if questlogger:
                                             embedVar.add_field(name="**Quest Progress**",
                                                 value=f"{questlogger}")
@@ -3940,35 +3941,35 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         embedVar.set_footer(text="Visit the /shop for a huge discount!")
                                         if not _battle._is_easy:
                                             upload_query = {'DID': str(ctx.author.id)}
-                                            new_upload_query = {'$addToSet': {'DUNGEONS': _battle.selected_universe}}
+                                            new_upload_query = {'$addToSet': {'DUNGEONS': _battle._selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
-                                        if _battle.selected_universe in player1.completed_dungeons:
+                                        if _battle._selected_universe in player1.completed_dungeons:
                                             await crown_utilities.bless(300000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(bank_amount, player1.guild)
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Minor Reward",
-                                                        value=f"You were awarded :coin: 300,000 for completing the {_battle.selected_universe} Dungeon again!")
+                                                        value=f"You were awarded :coin: 300,000 for completing the {_battle._selected_universe} Dungeon again!")
                                         else:
                                             await crown_utilities.bless(6000000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(1500000, player1.guild)
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Dungeon Reward",
-                                                        value=f"You were awarded :coin: 6,000,000 for completing the {_battle.selected_universe} Dungeon!")
+                                                        value=f"You were awarded :coin: 6,000,000 for completing the {_battle._selected_universe} Dungeon!")
                                         if _battle._is_co_op and not _battle._is_duo:
                                             await crown_utilities.bless(500000, _player3.did)
                                             teambank = await crown_utilities.blessteam(200000, _player3.guild)
                                             await asyncio.sleep(2)
                                             
                                             await ctx.send(
-                                                f"{user2.mention} You were awarded :coin: 500,000 for  assisting in the {_battle.selected_universe} Dungeon!")
+                                                f"{user2.mention} You were awarded :coin: 500,000 for  assisting in the {_battle._selected_universe} Dungeon!")
                                         battle_msg = await private_channel.send(embed=embedVar)
                                         continued = False
                                         # await discord.TextChannel.delete(private_channel, reason=None)
                                     elif _battle._is_tales:
                                         embedVar = discord.Embed(title=f"🎊 UNIVERSE CONQUERED",
-                                                                description=f"**{_battle.selected_universe}** has been conquered\n\n{drop_response}\n{corrupted_message}",
+                                                                description=f"**{_battle._selected_universe}** has been conquered\n\n{drop_response}\n{corrupted_message}",
                                                                 colour=0xe91e63)
                                         if questlogger:
                                             embedVar.add_field(name="**Quest Progress**",
@@ -3976,20 +3977,20 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         if destinylogger:
                                             embedVar.add_field(name="**Destiny Progress**",
                                                 value=f"{destinylogger}")
-                                        embedVar.set_footer(text=f"You can now /craft {_battle.selected_universe} cards")
+                                        embedVar.set_footer(text=f"You can now /craft {_battle._selected_universe} cards")
                                         if not _battle._is_easy:
-                                            embedVar.set_author(name=f"{_battle.selected_universe} Dungeon has been unlocked!")
+                                            embedVar.set_author(name=f"{_battle._selected_universe} Dungeon has been unlocked!")
                                             upload_query = {'DID': str(ctx.author.id)}
-                                            new_upload_query = {'$addToSet': {'CROWN_TALES': _battle.selected_universe}}
+                                            new_upload_query = {'$addToSet': {'CROWN_TALES': _battle._selected_universe}}
                                             r = db.updateUserNoFilter(upload_query, new_upload_query)
-                                        if _battle.selected_universe in player1.completed_tales:
+                                        if _battle._selected_universe in player1.completed_tales:
                                             await crown_utilities.bless(100000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(25000, player1.guild)
                                             # await ctx.send(embed=embedVar)
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Minor Reward",
-                                                        value=f"You were awarded :coin: 100,000 for completing the {_battle.selected_universe} Tale again!")
+                                                        value=f"You were awarded :coin: 100,000 for completing the {_battle._selected_universe} Tale again!")
                                         else:
                                             await crown_utilities.bless(2000000, ctx.author.id)
                                             teambank = await crown_utilities.blessteam(500000, player1.guild)
@@ -3998,7 +3999,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             await asyncio.sleep(2)
                                             
                                             embedVar.add_field(name="Conquerors Reward",
-                                                        value=f"You were awarded :coin: 2,000,000 for completing the {_battle.selected_universe} Tale!")
+                                                        value=f"You were awarded :coin: 2,000,000 for completing the {_battle._selected_universe} Tale!")
                                             #battle_msg = await private_channel.send(embed=embedVar)
                                         if _battle._is_co_op and not _battle._is_duo:
                             
@@ -4008,7 +4009,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             # await ctx.send(embed=embedVar)
                                             await asyncio.sleep(2)
                                             embedVar.add_field(name="Companion Reward",
-                                                        value=f"{user2.mention} You were awarded :coin: 250,000 for assisting in the {_battle.selected_universe} Tale!")
+                                                        value=f"{user2.mention} You were awarded :coin: 250,000 for assisting in the {_battle._selected_universe} Tale!")
                                             
                                         battle_msg = await private_channel.send(embed=embedVar)
                                         continued = False
@@ -4098,8 +4099,8 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                             #         await crown_utilities.blessguild(25000, oguild['GNAME'])
                             #         teambank = await crown_utilities.blessteam(5000, player1.guild)
                             #         await movecrest(selected_universe, oguild['GNAME'])
-                            #         embedVar.add_field(name=f"**{_battle.selected_universe} Crest Claimed**!",
-                            #                         value=f":flags:**{oguild['GNAME']}** earned the {_battle.selected_universe} **Crest**")
+                            #         embedVar.add_field(name=f"**{_battle._selected_universe} Crest Claimed**!",
+                            #                         value=f":flags:**{oguild['GNAME']}** earned the {_battle._selected_universe} **Crest**")
                             #     embedVar.set_author(name=f"{t_card} lost",
                             #                         icon_url="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620236432/PCG%20LOGOS%20AND%20RESOURCES/PCGBot_1.png")
                             #     if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:

@@ -2,6 +2,8 @@ import db
 import crown_utilities
 import discord
 import textwrap
+import time
+now = time.asctime()
 from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
 from discord_slash.utils.manage_commands import create_option, create_choice
@@ -452,6 +454,7 @@ class Battle:
         bot_dids = ['837538366509154407', '845672426113466395']
         if opponent_did in bot_dids:
             self._is_tutorial = True
+            self._is_pvp_match = True
             # self.is_ai_opponent = True
             self._is_turn = 0
 
@@ -1106,9 +1109,21 @@ class Battle:
 
 
     async def pvp_victory_embed(self, winner, winner_card, winner_arm, winner_title, loser, loser_card):
+        wintime = time.asctime()
+        starttime = time.asctime()
+        h_gametime = starttime[11:13]
+        m_gametime = starttime[14:16]
+        s_gametime = starttime[17:19]
+        h_playtime = int(wintime[11:13])
+        m_playtime = int(wintime[14:16])
+        s_playtime = int(wintime[17:19])
+        gameClock = crown_utilities.getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
+                            s_playtime)
+
+        
         talisman_response = crown_utilities.inc_talisman(winner.did, winner.equipped_talisman)
         
-        _battle.set_pvp_win_loss(winner.did, loser.did)
+        self.set_pvp_win_loss(winner.did, loser.did)
 
         if winner.association != "PCG":
             await crown_utilities.blessguild(250, winner.association)
@@ -1133,7 +1148,7 @@ class Battle:
         victory_description = f"Match concluded in {self._turn_total} turns."
         if self._is_tutorial:
             victory_message = f":zap: TUTORIAL VICTORY"
-            victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nnMatch concluded in {self._turn_total} turns."
+            victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self._turn_total} turns."
         
         embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
         {self.get_previous_moves_embed()}

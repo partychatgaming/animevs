@@ -2748,12 +2748,18 @@ class Card:
         if self.defense <= 30:
             self.defense = 30
         
-        if self.attack >= 9999:
+        if self.attack > 9999:
             self.attack = 9999
         
-        if self.defense >= 9999:
+        if self.defense > 9999:
             self.defense = 9999
         
+        if _opponent_card.attack > 9999:
+            _opponent_card.attack = 9999
+        
+        if _opponent_card.defense > 9999:
+            _opponent_card.defense = 9999
+    
         if self.health >= self.max_health:
             self.health = self.max_health
 
