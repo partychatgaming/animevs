@@ -1973,7 +1973,7 @@ async def summonlevel(pet, player):
 
         if lvl < 10:
             # Non Level Up Code
-            if exp < (lvl_req - 1):
+            if exp <= (lvl_req - 1):
                 query = {'DID': str(player.id)}
                 update_query = {'$inc': {'PETS.$[type].' + "EXP": 1}}
                 filter_query = [{'type.' + "NAME": str(pet)}]
@@ -1988,7 +1988,7 @@ async def summonlevel(pet, player):
 
         if bond < 3:
             # Non Bond Level Up Code
-            if bondexp < (bond_req - 1):
+            if bondexp <= (bond_req - 1):
                 query = {'DID': str(player.id)}
                 update_query = {'$inc': {'PETS.$[type].' + "BONDEXP": 1}}
                 filter_query = [{'type.' + "NAME": str(pet)}]

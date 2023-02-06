@@ -2894,8 +2894,8 @@ class Profile(commands.Cog):
                     bond_req = ((petmove_ap * 5) * (pet_bond + 1))
                     lvl_req = int(pet_level) * 10
                     
-                    bond_message = f"*{pet_exp}/{lvl_req}*"
-                    lvl_message = f"*{bond_exp}/{bond_req}*"
+                    lvl_message = f"*{pet_exp}/{lvl_req}*"
+                    bond_message = f"*{bond_exp}/{bond_req}*"
                     
                     if pet['BOND'] == 3:
                         bond_message = ":star2:"

@@ -322,7 +322,7 @@ class Trade(commands.Cog):
                                             xp = l['EXP']
                                             pet_ability = list(l.keys())[3]
                                             pet_ability_power = list(l.values())[3]
-                                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': 0, 'BONDEXP': 0, 'PATH': l['PATH']}
+                                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': 0, 'BONDEXP': 10, 'PATH': l['PATH']}
                                     db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'PETS': {'NAME': str(s)}}})
                                     db.updateVaultNoFilter({'DID': str(buyer_info['DID'])},{'$addToSet':{'PETS': pet_info }})
                                 
@@ -364,7 +364,7 @@ class Trade(commands.Cog):
                                             xp = l['EXP']
                                             pet_ability = list(l.keys())[3]
                                             pet_ability_power = list(l.values())[3]
-                                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': 0, 'BONDEXP': 0, 'PATH': l['PATH']}
+                                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': 0, 'BONDEXP': 10, 'PATH': l['PATH']}
                                     db.updateVaultNoFilter({'DID': str(buyer_info['DID'])},{'$pull':{'PETS': {'NAME': str(s)}}})
                                     db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'PETS': pet_info }})
                                     
