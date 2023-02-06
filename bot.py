@@ -1683,6 +1683,8 @@ async def daily(ctx):
    try:
       query = {'DID': str(ctx.author.id)}
       user_data = db.queryUser(query)
+      prestige = int(user_data['PRESTIGE'])
+      aicon = get_prestige_icon(prestige)
       user_completed_tales = user_data['CROWN_TALES']
       rebirth = int(user_data['REBIRTH'])
       dailyamount = 1000000
@@ -1693,7 +1695,7 @@ async def daily(ctx):
       difference = daily_bonus - dailyamount
       bonus_message = ""
       if difference > 0:
-         bonus_message = f"**:heart_on_fire:Rebirth**: +:coin:{'{:,}'.format(difference)}*"
+         bonus_message = f"**:heart_on_fire:** | *+:coin:{'{:,}'.format(difference)}*"
       universes = db.queryAllUniverse()
       if ctx.author.guild:
          server_query = {'GNAME': str(ctx.author.guild)}
@@ -1731,47 +1733,64 @@ async def daily(ctx):
       q6_earn = round(random.randint(1400000, 2000000))
       q7_earn = round(random.randint(1900000, 2500000))
       q8_earn = round(random.randint(2300000, 2700000))
-      q9_earn = round(random.randint(2500000, 3000000))
+      q9_earn = round(random.randint(2500000, 3500000))
       q10_earn = round(random.randint(3000000, 5000000))
+      
+      q1_win = check_quest_wins(1, prestige)
+      q2_win = check_quest_wins(1, prestige)
+      q3_win = check_quest_wins(2, prestige)
+      q4_win = check_quest_wins(2, prestige)
+      q5_win = check_quest_wins(3, prestige)
+      q6_win = check_quest_wins(3, prestige)
+      q7_win = check_quest_wins(4, prestige)
+      q8_win = check_quest_wins(4, prestige) #casper
+      q9_win = check_quest_wins(5, prestige)
+      q10_win = check_quest_wins(10, prestige)
+      
+      prestige_message = ""
+      if prestige > 0:
+         prestige_message = f"**{aicon} Prestige {prestige} |** Quest Requirements Reduced!"
+         
 
-      quests = [{'OPPONENT': opponents[q1], 'TYPE': 'Tales', 'GOAL': 1, 'WINS': 0, 'REWARD': q1_earn },
-                {'OPPONENT': opponents[q2], 'TYPE': 'Tales', 'GOAL': 1, 'WINS': 0, 'REWARD': q2_earn },
-                {'OPPONENT': opponents[q3], 'TYPE': 'Tales', 'GOAL': 2, 'WINS': 0, 'REWARD': q3_earn },
-                {'OPPONENT': opponents[q4], 'TYPE': 'Tales', 'GOAL': 2, 'WINS': 0, 'REWARD': q4_earn },
-                {'OPPONENT': opponents[q5], 'TYPE': 'Tales', 'GOAL': 3, 'WINS': 0, 'REWARD': q5_earn },
-                {'OPPONENT': opponents[q6], 'TYPE': 'Tales', 'GOAL': 3, 'WINS': 0, 'REWARD': q6_earn },
-                {'OPPONENT': opponents[q7], 'TYPE': 'Tales', 'GOAL': 4, 'WINS': 0, 'REWARD': q7_earn },
-                {'OPPONENT': opponents[q8], 'TYPE': 'Tales', 'GOAL': 4, 'WINS': 0, 'REWARD': q8_earn },
-                {'OPPONENT': opponents[q9], 'TYPE': 'Tales', 'GOAL': 5, 'WINS': 0, 'REWARD': q9_earn },
-                {'OPPONENT': opponents[q10], 'TYPE': 'Tales', 'GOAL': 10, 'WINS': 0, 'REWARD': q10_earn }]
+      quests = [{'OPPONENT': opponents[q1], 'TYPE': 'Tales', 'GOAL': q1_win, 'WINS': 0, 'REWARD': q1_earn },
+                {'OPPONENT': opponents[q2], 'TYPE': 'Tales', 'GOAL': q2_win, 'WINS': 0, 'REWARD': q2_earn },
+                {'OPPONENT': opponents[q3], 'TYPE': 'Tales', 'GOAL': q3_win, 'WINS': 0, 'REWARD': q3_earn },
+                {'OPPONENT': opponents[q4], 'TYPE': 'Tales', 'GOAL': q4_win, 'WINS': 0, 'REWARD': q4_earn },
+                {'OPPONENT': opponents[q5], 'TYPE': 'Tales', 'GOAL': q5_win, 'WINS': 0, 'REWARD': q5_earn },
+                {'OPPONENT': opponents[q6], 'TYPE': 'Tales', 'GOAL': q6_win, 'WINS': 0, 'REWARD': q6_earn },
+                {'OPPONENT': opponents[q7], 'TYPE': 'Tales', 'GOAL': q7_win, 'WINS': 0, 'REWARD': q7_earn },
+                {'OPPONENT': opponents[q8], 'TYPE': 'Tales', 'GOAL': q8_win, 'WINS': 0, 'REWARD': q8_earn },
+                {'OPPONENT': opponents[q9], 'TYPE': 'Tales', 'GOAL': q9_win, 'WINS': 0, 'REWARD': q9_earn },
+                {'OPPONENT': opponents[q10], 'TYPE': 'Tales', 'GOAL': q10_win, 'WINS': 0, 'REWARD': q10_earn }]
       db.updateVaultNoFilter(query, {'$set': {'QUESTS': quests}})
       db.updateUserNoFilter(query, {'$set': {'BOSS_FOUGHT': False}})
       db.updateUserNoFilter(query, {'$set': {'VOTED': False}})
-      retry_message = f":vs: Rematches : **{user_data['RETRIES']}**"
+      retry_message = f":vs: | Rematches : **{user_data['RETRIES']}**"
       if user_data['RETRIES'] >= 25:  
          db.updateUserNoFilter(query, {'$set': {'RETRIES': 25}})
-         retry_message = f":vs: Rematches : **{user_data['RETRIES']}**!"
+         retry_message = f":vs: | Rematches : **{user_data['RETRIES']}**!"
       else:
          db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
-         retry_message = f":vs: Rematches : {user_data['RETRIES']} **+ 2**!"
+         retry_message = f":vs: | Rematches : {user_data['RETRIES']} **+ 2**!"
       embedVar = discord.Embed(title=f"☀️ Daily Rewards!", description=textwrap.dedent(f"""\
       Welcome back, {ctx.author.mention}!
       **Daily Earnings** 
-      :coin: {'{:,}'.format(dailyamount)} 
+      :coin: | {'{:,}'.format(dailyamount)} 
       {bonus_message}
       {retry_message}
       
+      {prestige_message}
       📜 **New Quests** */quest*
-      Defeat **{opponents[q1]}** to earn :coin: {'{:,}'.format(q1_earn)}
-      Defeat **{opponents[q2]}** to earn :coin: {'{:,}'.format(q2_earn)}
-      Defeat **{opponents[q3]}** to earn :coin: {'{:,}'.format(q3_earn)}
-      Defeat **{opponents[q4]}** to earn :coin: {'{:,}'.format(q4_earn)}
-      Defeat **{opponents[q5]}** to earn :coin: {'{:,}'.format(q5_earn)}
-      Defeat **{opponents[q6]}** to earn :coin: {'{:,}'.format(q6_earn)}
-      Defeat **{opponents[q7]}** to earn :coin: {'{:,}'.format(q7_earn)}
-      Defeat **{opponents[q8]}** to earn :coin: {'{:,}'.format(q8_earn)}
-      Defeat **{opponents[q9]}** to earn :coin: {'{:,}'.format(q9_earn)}
-      Defeat **{opponents[q10]}** to earn :coin: {'{:,}'.format(q10_earn)}
+      Defeat **{opponents[q1]}**: :coin: {'{:,}'.format(q1_earn)}
+      Defeat **{opponents[q2]}**: :coin: {'{:,}'.format(q2_earn)}
+      Defeat **{opponents[q3]}**: :coin: {'{:,}'.format(q3_earn)}
+      Defeat **{opponents[q4]}**: :coin: {'{:,}'.format(q4_earn)}
+      Defeat **{opponents[q5]}**: :coin: {'{:,}'.format(q5_earn)}
+      Defeat **{opponents[q6]}**: :coin: {'{:,}'.format(q6_earn)}
+      Defeat **{opponents[q7]}**: :coin: {'{:,}'.format(q7_earn)}
+      Defeat **{opponents[q8]}**: :coin: {'{:,}'.format(q8_earn)}
+      Defeat **{opponents[q9]}**: :coin: {'{:,}'.format(q9_earn)}
+      Defeat **{opponents[q10]}**: :coin: {'{:,}'.format(q10_earn)}
 
       **/voted** to receive Daily Voting Rewards!
       """), colour=0xf1c40f)
@@ -3037,7 +3056,37 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
    else:
       print(m.ADMIN_ONLY_COMMAND)
 
-
+def check_quest_wins(win_value, prestige_level):
+   check = win_value - prestige_level#casper
+   if check <= 0:
+      return 1
+   else:
+      return check
+   
+def get_prestige_icon(prestige_level):
+   prestige = prestige_level
+   aicon = ":new_moon:"
+   if prestige == 1:
+      aicon = ":waxing_crescent_moon:"
+   elif prestige == 2:
+      aicon = ":first_quarter_moon:"
+   elif prestige == 3:
+      aicon = ":waxing_gibbous_moon:"
+   elif prestige == 4:
+      aicon = ":full_moon:"
+   elif prestige == 5:
+      aicon = ":waning_gibbous_moon:"
+   elif prestige == 6:
+      aicon = ":last_quarter_moon:"
+   elif prestige == 7:
+      aicon = ":waning_crescent_moon:"
+   elif prestige == 8:
+      aicon = ":crescent_moon:"
+   elif prestige == 9:
+      aicon = ":crown:"
+   elif prestige >= 10:
+      aicon = ":japanese_ogre:"
+   return aicon
 
 # @slash.slash(description="Update Health of all characters by 1000", guild_ids=guild_ids)
 # @commands.check(validate_user)
