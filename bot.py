@@ -1763,14 +1763,14 @@ async def daily(ctx):
       📜 **New Quests** */quest*
       Defeat **{opponents[q1]}** to earn :coin: {'{:,}'.format(q1_earn)}
       Defeat **{opponents[q2]}** to earn :coin: {'{:,}'.format(q2_earn)}
-      Defeat **{opponents[q3]}** to earn :dollar: {'{:,}'.format(q3_earn)}
-      Defeat **{opponents[q4]}** to earn :dollar: {'{:,}'.format(q4_earn)}
-      Defeat **{opponents[q5]}** to earn :moneybag: {'{:,}'.format(q5_earn)}
-      Defeat **{opponents[q6]}** to earn :moneybag: {'{:,}'.format(q6_earn)}
-      Defeat **{opponents[q7]}** to earn :money_with_wings: {'{:,}'.format(q7_earn)}
-      Defeat **{opponents[q8]}** to earn :money_with_wings: {'{:,}'.format(q8_earn)}
-      Defeat **{opponents[q9]}** to earn :credit_card: {'{:,}'.format(q9_earn)}
-      Defeat **{opponents[q10]}** to earn :credit_card: {'{:,}'.format(q10_earn)}
+      Defeat **{opponents[q3]}** to earn :coin: {'{:,}'.format(q3_earn)}
+      Defeat **{opponents[q4]}** to earn :coin: {'{:,}'.format(q4_earn)}
+      Defeat **{opponents[q5]}** to earn :coin: {'{:,}'.format(q5_earn)}
+      Defeat **{opponents[q6]}** to earn :coin: {'{:,}'.format(q6_earn)}
+      Defeat **{opponents[q7]}** to earn :coin: {'{:,}'.format(q7_earn)}
+      Defeat **{opponents[q8]}** to earn :coin: {'{:,}'.format(q8_earn)}
+      Defeat **{opponents[q9]}** to earn :coin: {'{:,}'.format(q9_earn)}
+      Defeat **{opponents[q10]}** to earn :coin: {'{:,}'.format(q10_earn)}
 
       **/voted** to receive Daily Voting Rewards!
       """), colour=0xf1c40f)
