@@ -795,6 +795,9 @@ async def voted(ctx):
             :coin: **{'{:,}'.format(500000)}**
             💎 **{'{:,}'.format(500000)}** *all craftable universes*
             {retry_message}
+            
+            [Support our Patreon for Rewards!](https://www.patreon.com/partychatgaming?fan_landing=true)
+            [Add Anime VS+ to your server!](https://discord.com/api/oauth2/authorize?client_id=955704903198711808&permissions=139586955344&scope=applications.commands%20bot)
             """), colour=0xf1c40f)
             
             await ctx.send(embed=embedVar)
@@ -810,6 +813,8 @@ async def voted(ctx):
             :coin: **{'{:,}'.format(500000)}**
             💎 **{'{:,}'.format(500000)}**
             {retry_message}
+            
+            [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
             """), colour=0xf1c40f)
             
             await ctx.send(embed=embedVar)
@@ -1708,19 +1713,43 @@ async def daily(ctx):
       oppponent_len = len(opponents)
       q1 = random.randint(0, oppponent_len)
       q2 = random.randint(0, oppponent_len)
-      q3 = random.randint(0, oppponent_len)
+      q3 = random.randint(3, oppponent_len)
+      q4 = random.randint(3, oppponent_len)
+      q5 = random.randint(5, oppponent_len)
+      q6 = random.randint(5, oppponent_len)
+      q7 = random.randint(7, oppponent_len)
+      q8 = random.randint(7, oppponent_len)
+      q9 = random.randint(10, oppponent_len)
+      q10 = random.randint(10, oppponent_len)
+      
 
       q1_earn = round(random.randint(50000, 300000))
       q2_earn = round(random.randint(200000, 500000))
       q3_earn = round(random.randint(400000, 800000))
+      q4_earn = round(random.randint(700000, 1100000))
+      q5_earn = round(random.randint(1000000, 1500000))
+      q6_earn = round(random.randint(1400000, 2000000))
+      q7_earn = round(random.randint(1900000, 2500000))
+      q8_earn = round(random.randint(2300000, 2700000))
+      q9_earn = round(random.randint(2500000, 3000000))
+      q10_earn = round(random.randint(3000000, 5000000))
 
-      quests = [{'OPPONENT': opponents[q1], 'TYPE': 'Tales', 'GOAL': 1, 'WINS': 0, 'REWARD': q1_earn },{'OPPONENT': opponents[q2], 'TYPE': 'Tales', 'GOAL': 2, 'WINS': 0, 'REWARD': q2_earn }, {'OPPONENT': opponents[q3], 'TYPE': 'Tales', 'GOAL': 3, 'WINS': 0, 'REWARD': q3_earn }]
+      quests = [{'OPPONENT': opponents[q1], 'TYPE': 'Tales', 'GOAL': 1, 'WINS': 0, 'REWARD': q1_earn },
+                {'OPPONENT': opponents[q2], 'TYPE': 'Tales', 'GOAL': 1, 'WINS': 0, 'REWARD': q2_earn },
+                {'OPPONENT': opponents[q3], 'TYPE': 'Tales', 'GOAL': 2, 'WINS': 0, 'REWARD': q3_earn },
+                {'OPPONENT': opponents[q4], 'TYPE': 'Tales', 'GOAL': 2, 'WINS': 0, 'REWARD': q4_earn },
+                {'OPPONENT': opponents[q5], 'TYPE': 'Tales', 'GOAL': 3, 'WINS': 0, 'REWARD': q5_earn },
+                {'OPPONENT': opponents[q6], 'TYPE': 'Tales', 'GOAL': 3, 'WINS': 0, 'REWARD': q6_earn },
+                {'OPPONENT': opponents[q7], 'TYPE': 'Tales', 'GOAL': 4, 'WINS': 0, 'REWARD': q7_earn },
+                {'OPPONENT': opponents[q8], 'TYPE': 'Tales', 'GOAL': 4, 'WINS': 0, 'REWARD': q8_earn },
+                {'OPPONENT': opponents[q9], 'TYPE': 'Tales', 'GOAL': 5, 'WINS': 0, 'REWARD': q9_earn },
+                {'OPPONENT': opponents[q10], 'TYPE': 'Tales', 'GOAL': 10, 'WINS': 0, 'REWARD': q10_earn }]
       db.updateVaultNoFilter(query, {'$set': {'QUESTS': quests}})
       db.updateUserNoFilter(query, {'$set': {'BOSS_FOUGHT': False}})
       db.updateUserNoFilter(query, {'$set': {'VOTED': False}})
       retry_message = f":vs: Rematches : **{user_data['RETRIES']}**"
       if user_data['RETRIES'] >= 25:  
-         db.updateUserNoFilter(query, {'$set': {'RETRIES': 22}})
+         db.updateUserNoFilter(query, {'$set': {'RETRIES': 25}})
          retry_message = f":vs: Rematches : **{user_data['RETRIES']}**!"
       else:
          db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
@@ -1731,20 +1760,21 @@ async def daily(ctx):
       :coin: {'{:,}'.format(dailyamount)} {bonus_message}
       {retry_message}
       
-      📜 **New Quests**
+      📜 **New Quests** */quest*
       Defeat **{opponents[q1]}** to earn :coin: {'{:,}'.format(q1_earn)}
-      Defeat **{opponents[q2]}** to earn :coin: {'{:,}'.format(q2_earn)}
-      Defeat **{opponents[q3]}** to earn :coin: {'{:,}'.format(q3_earn)}
-      Use **/menu** command to open Quests and complete your quests!
+      Defeat **{opponents[q2]}** to earn :dollar: {'{:,}'.format(q2_earn)}
+      Defeat **{opponents[q3]}** to earn :dollar: {'{:,}'.format(q3_earn)}
+      Defeat **{opponents[q4]}** to earn :moneybag: {'{:,}'.format(q4_earn)}
+      Defeat **{opponents[q5]}** to earn :moneybag: {'{:,}'.format(q5_earn)}
+      Defeat **{opponents[q6]}** to earn :money_with_wings: {'{:,}'.format(q6_earn)}
+      Defeat **{opponents[q7]}** to earn :dollar: {'{:,}'.format(q7_earn)}
+      Defeat **{opponents[q8]}** to earn :moneybag: {'{:,}'.format(q8_earn)}
+      Defeat **{opponents[q9]}** to earn :moneybag: {'{:,}'.format(q9_earn)}
+      Defeat **{opponents[q10]}** to earn :money_with_wings: {'{:,}'.format(q10_earn)}
 
-      Use **/voted** command to receive Daily voting rewards!
-
-      [Support our Patreon for Rewards!](https://www.patreon.com/partychatgaming?fan_landing=true)
-      [Vote for Anime VS+!](https://top.gg/bot/955704903198711808/vote)
-      [Add Anime VS+ to your server!](https://discord.com/api/oauth2/authorize?client_id=955704903198711808&permissions=139586955344&scope=applications.commands%20bot)
-      [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+      **/voted** to receive Daily Voting Rewards!
       """), colour=0xf1c40f)
-      
+      embedVar.set_footer(text=f"☀️ | You can vote twice a Day with /daily!")
       await ctx.send(embed=embedVar)
    
    except Exception as ex:

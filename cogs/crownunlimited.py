@@ -2129,12 +2129,12 @@ def damage_cal(mode,card_tier, talisman_dict, move_ap, opponent_affinity, move_t
             wither = round((ap / 100) * op_defense)
         elif enh == 'RAGE':
             enh_type = "RAGE"
-            if defense >= 3500 and not boss_active:
+            if defense >= 3500:
                 defense = 3500
             rage = round((ap / 100) * defense)
         elif enh == 'BRACE':
             enh_type = "BRACE"
-            if attack >= 3500 and not boss_active:
+            if attack >= 3500:
                 attack = 3500
             brace = round((ap / 100) * attack)
         elif enh == 'BZRK':

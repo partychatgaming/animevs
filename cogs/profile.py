@@ -3355,13 +3355,15 @@ class Profile(commands.Cog):
                     else:
                         completed = "🔴"
                     icon = ":coin:"
-                    if balance >= 150000:
+                    if quest['REWARD'] >= 3000000:
+                        icon = ":credit_card:"
+                    if quest['REWARD'] >= 2000000:
                         icon = ":money_with_wings:"
-                    elif balance >=100000:
+                    elif quest['REWARD'] >=1000000:
                         icon = ":moneybag:"
-                    elif balance >= 50000:
+                    elif quest['REWARD'] >= 200000:
                         icon = ":dollar:"
-
+                    
 
                     embedVar = discord.Embed(title=f"{opponent_name}", description=textwrap.dedent(f"""\
                     **Quest**: Defeat {opponent_name} **{str(goal)}** times!
@@ -3442,7 +3444,7 @@ class Profile(commands.Cog):
                             
                             self.stop = True
                     else:
-                        await ctx.send("This is not your Title list.")
+                        await ctx.send("This is not your Quest list.")
 
                 await Paginator(bot=self.bot, disableAfterTimeout=True, useQuitButton=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
                     custom_action_row,
