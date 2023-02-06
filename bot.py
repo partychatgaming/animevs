@@ -1693,7 +1693,7 @@ async def daily(ctx):
       difference = daily_bonus - dailyamount
       bonus_message = ""
       if difference > 0:
-         bonus_message = f"*:heart_on_fire:+:coin:{'{:,}'.format(difference)}*"
+         bonus_message = f"**:heart_on_fire:Rebirth**: +:coin:{'{:,}'.format(difference)}*"
       universes = db.queryAllUniverse()
       if ctx.author.guild:
          server_query = {'GNAME': str(ctx.author.guild)}
@@ -1757,7 +1757,8 @@ async def daily(ctx):
       embedVar = discord.Embed(title=f"☀️ Daily Rewards!", description=textwrap.dedent(f"""\
       Welcome back, {ctx.author.mention}!
       **Daily Earnings** 
-      :coin: {'{:,}'.format(dailyamount)} {bonus_message}
+      :coin: {'{:,}'.format(dailyamount)} 
+      {bonus_message}
       {retry_message}
       
       📜 **New Quests** */quest*
