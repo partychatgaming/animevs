@@ -12109,7 +12109,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 previous_moves.append(f"(**{turn_total}**) **{o_card}** 🩸 Total Concentration Breathing: **Increased HP by {round(t_base_health * .40)}**")
                                 o_health = round(o_health + (t_base_health * .40))
                                 o_max_health = round(o_max_health + (t_base_health *.40))
-                                o_turn_total_trait = true
+                                o_turn_total_trait = True
                             if t_universe == "Demon Slayer" and turn_total == 0 and t_turn_total_trait == False:
                                 embedVar = discord.Embed(title=f"{t_card} Total Concentration Breathing",
                                                         description=f"{t_card} gains **{o_health * .40}** Health",
