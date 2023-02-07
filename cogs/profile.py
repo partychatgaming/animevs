@@ -6423,8 +6423,6 @@ async def menubuild(self, ctx):
                     if trait['NAME'] == o_show:
                         mytrait = trait
                     if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
-                        if pokemon_title:
-                            
                         if trait['NAME'] == 'Pokemon':
                             mytrait = trait
                 if mytrait:
