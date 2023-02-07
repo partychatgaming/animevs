@@ -254,6 +254,7 @@ class Profile(commands.Cog):
             vault = db.queryVault({'DID': d['DID']})
             has_universe_heart = False
             has_universe_soul = False
+            pokemon_uni =["Kanto Region","Johto Region","Hoenn Region","Sinnoh Region","Kalos Region","Unova Region","Alola Region","Galar Region"]
             
             if card:
                 try:
@@ -551,7 +552,7 @@ class Profile(commands.Cog):
                         else:
                             armmessage = f'⚠️ {arm_name}'
                     warningmessage = f"Use {o_show} or Unbound Titles on this card"
-                    if o_title_universe == "Unbound" or (pokemon_universes==True) or o_show == "Crown Rift Awakening":
+                    if o_title_universe == "Unbound" or o_show == "Crown Rift Awakening":
                         titled =True
                         titleicon = "👑"
                         if performance_mode:
@@ -6422,6 +6423,8 @@ async def menubuild(self, ctx):
                     if trait['NAME'] == o_show:
                         mytrait = trait
                     if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
+                        if pokemon_title:
+                            
                         if trait['NAME'] == 'Pokemon':
                             mytrait = trait
                 if mytrait:
