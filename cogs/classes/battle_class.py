@@ -295,65 +295,67 @@ class Battle:
         print(f"CURRENT OPPONENT {self._currentopponent}")
         return   f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
 
-    def set_abyss_config(self):
-        if self._is_abyss:
-            try:
-                if self._is_easy:
-                    self.abyss_message = "The Abyss is unavailable on Easy self.mode! Use /difficulty to change your difficulty setting."
-                    return
+    def set_abyss_config(self, player):
+        try:
+            if self._is_easy:
+                self.abyss_message = "The Abyss is unavailable on Easy self.mode! Use /difficulty to change your difficulty setting."
+                return
 
-                checks = db.queryCard({'NAME': self.player.equipped_card})
-                abyss = db.queryAbyss({'FLOOR': self.player.level})
+            checks = db.queryCard({'NAME': player.equipped_card})
+            abyss = db.queryAbyss({'FLOOR': player.level})
 
-                if not abyss:
-                    self.abyss_message = "You have climbed out of :new_moon: **The Abyss**! Use /exchange to **Prestige**!"
-                    return
+            if not abyss:
+                self.abyss_message = "You have climbed out of :new_moon: **The Abyss**! Use /exchange to **Prestige**!"
+                return
 
 
-                if abyss['FLOOR'] in crown_utilities.ABYSS_REWARD_FLOORS:
-                    unlockable_message = f"⭐ Drops on this Floor\nUnlockable Card: **{card_to_earn}**\nUnlockable Title: **{title}**\nUnlockable Arm: **{arm}**\n"
-                else:
-                    unlockable_message = ""
+            self._list_of_opponents = abyss['ENEMIES']
+            card_to_earn = self._list_of_opponents[-1] 
+            self._total_enemies = len(self._list_of_opponents)
+            self._ai_opponent_card_lvl = int(abyss['SPECIAL_BUFF'])
+            self.abyss_floor = abyss['FLOOR']
+            self.abyss_card_to_earn = self._list_of_opponents[-1] 
+            self._ai_title = abyss['TITLE']
+            self._ai_arm = abyss['ARM']
+            self.abyss_banned_card_tiers = abyss['BANNED_TIERS']
+            self.abyss_banned_tier_conversion_to_string = [str(tier) for tier in self.abyss_banned_card_tiers]
 
-                self._list_of_opponents = abyss['ENEMIES']
-                self._total_enemies = len(self._list_of_opponents)
-                self._ai_opponent_card_lvl = int(abyss['SPECIAL_BUFF'])
-                self.abyss_floor = abyss['FLOOR']
-                self.abyss_card_to_earn = self._total_enemies[-1] 
-                self._ai_title = abyss['TITLE']
-                self._ai_arm = abyss['ARM']
-                self.abyss_banned_card_tiers = abyss['BANNED_TIERS']
-                # Convert tiers into strings from ints
-                self.abyss_banned_tier_conversion_to_string = [str(tier) for tier in self.abyss_banned_card_tiers]
+            if self.abyss_floor in crown_utilities.ABYSS_REWARD_FLOORS:
+                unlockable_message = f"⭐ Drops on this Floor\nUnlockable Card: **{card_to_earn}**\nUnlockable Title: **{self._ai_title}**\nUnlockable Arm: **{self._ai_arm}**\n"
+            else:
+                unlockable_message = ""
 
-                if checks['TIER'] in self.abyss_banned_card_tiers:
-                    self.abyss_player_card_tier_is_banned = True
 
-                # Configure Embed
-                embedVar = discord.Embed(title=f":new_moon: Abyss Floor {self.abyss_floor}  ⚔️{len(self._list_of_opponents)}", description=textwrap.dedent(f"""
-                {unlockable_message}
-                """))
-                if self.abyss_banned_card_tiers:
-                    embedVar.add_field(name="🀄 Banned Card Tiers", value="\n".join(self.abyss_banned_tier_conversion_to_string),
-                                    inline=True)
-                embedVar.set_footer(text="Each floor must be completed all the way through to advance to the next floor.")
+            if str(checks['TIER']) in self.abyss_banned_card_tiers:
+                self.abyss_player_card_tier_is_banned = True
 
-                return embedVar
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
+
+
+            embedVar = discord.Embed(title=f":new_moon: Abyss Floor {str(self.abyss_floor)}  ⚔️{len(self._list_of_opponents)}", description=textwrap.dedent(f"""
+            {unlockable_message}
+            """))
+            if self.abyss_banned_card_tiers:
+                embedVar.add_field(name="🀄 Banned Card Tiers", value="\n".join(self.abyss_banned_tier_conversion_to_string),
+                                inline=True)
+            embedVar.set_footer(text="Each floor must be completed all the way through to advance to the next floor.")
+
+            return embedVar
+
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
 
     
     def set_scenario_selection(self):

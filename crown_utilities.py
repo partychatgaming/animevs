@@ -1747,6 +1747,43 @@ passive_enhancer_suffix_mapping = {'ATK': ' %',
 'SIPHON': ' Healing 💉'
 }
 
+enhancer_mapping = {'ATK': 'Increase Attack %',
+'DEF': 'Increase Defense %',
+'STAM': 'Increase Stamina',
+'HLT': 'Heal yourself or companion',
+'LIFE': 'Steal Health from Opponent',
+'DRAIN': 'Drain Stamina from Opponent',
+'FLOG': 'Steal Attack from Opponent',
+'WITHER': 'Steal Defense from Opponent',
+'RAGE': 'Lose Defense, Increase AP',
+'BRACE': 'Lose Attack, Increase AP',
+'BZRK': 'Lose Health, Increase Attack',
+'CRYSTAL': 'Lose Health, Increase Defense',
+'GROWTH': 'Lose 10% Max Health, Increase Attack, Defense and AP',
+'STANCE': 'Swap your Attack & Defense, Increase Defense',
+'CONFUSE': 'Swap Opponent Attack & Defense, Decrease Opponent Defense',
+'BLINK': 'Decrease your  Stamina, Increase Target Stamina',
+'SLOW': 'Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent',
+'HASTE': 'Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent',
+'FEAR': 'Lose 10% Max Health, Decrease Opponent Attack, Defense and AP',
+'SOULCHAIN': 'You and Your Opponent Stamina Link',
+'GAMBLE': 'You and Your Opponent Health Link',
+'WAVE': 'Deal Damage, Decreases over time',
+'CREATION': 'Heals you, Decreases over time',
+'BLAST': 'Deals Damage, Increases over time based on card tier',
+'DESTRUCTION': 'Decreases Your Opponent Max Health, Increases over time based on card tier',
+'BASIC': 'Increase Basic Attack AP',
+'SPECIAL': 'Increase Special Attack AP',
+'ULTIMATE': 'Increase Ultimate Attack AP',
+'ULTIMAX': 'Increase All AP Values',
+'MANA': 'Increase Enchancer AP',
+'SHIELD': 'Blocks Incoming DMG, until broken',
+'BARRIER': 'Nullifies Incoming Attacks, until broken',
+'PARRY': 'Returns 25% Damage, until broken',
+'SIPHON': 'Heal for 10% DMG inflicted + AP'
+}
+
+
 
 title_enhancer_mapping = {'ATK': 'Increase Attack',
 'DEF': 'Increase Defense',

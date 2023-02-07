@@ -1599,7 +1599,7 @@ class Card:
 
     def set_battle_arm_messages(self, opponent_card):
         if self.used_resolve:
-            self.summon_resolve_message = f"🧬 {str(enhancer_mapping[self._summon_type])}"
+            self.summon_resolve_message = f"🧬 {str(crown_utilities.enhancer_mapping[self._summon_type])}"
         if opponent_card._barrier_active:
             opponent_card._arm_message = f"💠 {str(opponent_card._barrier_value)}"
         

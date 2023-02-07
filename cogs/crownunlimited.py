@@ -617,7 +617,7 @@ class CrownUnlimited(commands.Cog):
             player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
             if mode == "Abyss":
-                await abyss(self, ctx)
+                await abyss(self, ctx, p)
                 return
 
             if mode == "Tutorial":
@@ -1689,10 +1689,13 @@ async def abyss(self, ctx: SlashContext, _player):
         return
 
     try:
-        # Use Battle Class Method "set_abyss_config" here which populates
         abyss = Battle(mode, _player)
 
         abyss_embed = abyss.set_abyss_config(_player)
+
+        if not abyss_embed:
+            await ctx.send(f"{abyss.abyss_message}")
+            return
 
         abyss_buttons = [
             manage_components.create_button(
@@ -2300,6 +2303,11 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
     if mode in crown_utilities.TALE_M or mode in crown_utilities.DUNGEON_M:
         available_universes = p.set_selectable_universes(ctx, mode)
 
+        if not available_universes:
+            if mode == "Dungeon":
+                await ctx.send("You currently have no available dungeons to play. To unlock a dungeon you must first complete it's Tale counterpart.")
+                return
+
         buttons = [
             manage_components.create_button(style=3, label="Start Battle!", custom_id="start"),
             manage_components.create_button(style=1, label="View Available Scenario Battles!", custom_id="scenario"),
@@ -2317,8 +2325,8 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                     return
                 elif button_ctx.custom_id == "start":                
                     await button_ctx.defer(ignore=True)
-                    selected_universe = custom_function
-                    custom_function.selected_universe = str(button_ctx.origin_message.embeds[0].title)
+                    _selected_universe = custom_function
+                    custom_function._selected_universe = str(button_ctx.origin_message.embeds[0].title)
                     self.stop = True
             else:
                 await ctx.send("This is not your button.", hidden=True)
@@ -2331,7 +2339,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 
         try:
             # print(custom_function.selected_universez
-            selected_universe = custom_function.selected_universe
+            selected_universe = custom_function._selected_universe
             if selected_universe == "":
                 return
 
@@ -2572,7 +2580,12 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                     _battle.get_ai_battle_ready()
                     player2_card = Card(_battle._ai_opponent_card_data['NAME'], _battle._ai_opponent_card_data['PATH'], _battle._ai_opponent_card_data['PRICE'], _battle._ai_opponent_card_data['EXCLUSIVE'], _battle._ai_opponent_card_data['AVAILABLE'], _battle._ai_opponent_card_data['IS_SKIN'], _battle._ai_opponent_card_data['SKIN_FOR'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['HLT'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['STAM'], _battle._ai_opponent_card_data['MOVESET'], _battle._ai_opponent_card_data['ATK'], _battle._ai_opponent_card_data['DEF'], _battle._ai_opponent_card_data['TYPE'], _battle._ai_opponent_card_data['PASS'][0], _battle._ai_opponent_card_data['SPD'], _battle._ai_opponent_card_data['UNIVERSE'], _battle._ai_opponent_card_data['HAS_COLLECTION'], _battle._ai_opponent_card_data['TIER'], _battle._ai_opponent_card_data['COLLECTION'], _battle._ai_opponent_card_data['WEAKNESS'], _battle._ai_opponent_card_data['RESISTANT'], _battle._ai_opponent_card_data['REPEL'], _battle._ai_opponent_card_data['ABSORB'], _battle._ai_opponent_card_data['IMMUNE'], _battle._ai_opponent_card_data['GIF'], _battle._ai_opponent_card_data['FPATH'], _battle._ai_opponent_card_data['RNAME'], _battle._ai_opponent_card_data['RPATH'])
                     player2_card.set_ai_card_buffs(_battle._ai_opponent_card_lvl, _battle.stat_buff, _battle.stat_debuff, _battle.health_buff, _battle.health_debuff, _battle.ap_buff, _battle.ap_debuff)
-                _battle.set_corruption_config()
+                
+                if _battle.abyss_player_card_tier_is_banned:
+                    await ctx.send(f"Tier {str(player1_card.tier)} cards are banned on Floor {str(_battle.abyss_floor)} of the abyss. Please try again with another card.")
+                    return
+                if not _battle._is_abyss:
+                    _battle.set_corruption_config()
                 player2_card.set_talisman(_battle)
                 player2_title = Title(_battle._ai_opponent_title_data['TITLE'], _battle._ai_opponent_title_data['UNIVERSE'], _battle._ai_opponent_title_data['PRICE'], _battle._ai_opponent_title_data['EXCLUSIVE'], _battle._ai_opponent_title_data['AVAILABLE'], _battle._ai_opponent_title_data['ABILITIES'])            
                 player2_arm = Arm(_battle._ai_opponent_arm_data['ARM'], _battle._ai_opponent_arm_data['UNIVERSE'], _battle._ai_opponent_arm_data['PRICE'], _battle._ai_opponent_arm_data['ABILITIES'], _battle._ai_opponent_arm_data['EXCLUSIVE'], _battle._ai_opponent_arm_data['AVAILABLE'], _battle._ai_opponent_arm_data['ELEMENT'])
@@ -2678,7 +2691,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                 if button_ctx.custom_id == "save_tales_yes":
                     await battle_msg.edit(components=[])
                     # await battle_ping_message.delete()
-                    await save_spot(self, ctx, _battle._selected_universe, _battle.mode, _battle._currentopponent)
+                    await save_spot(self, player1.did, _battle._selected_universe, _battle.mode, _battle._currentopponent)
                     await button_ctx.send(f"Game has been saved.")
                     return
                 
@@ -2870,7 +2883,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             try:
                                                 player1_card.health = 0
                                                 _battle.game_over = True
-                                                await save_spot(self, ctx, _battle._selected_universe, _battle.mode, _battle._currentopponent)
+                                                await save_spot(self, player1.did, _battle._selected_universe, _battle.mode, _battle._currentopponent)
                                                 await battle_msg.delete(delay=1)
                                                 await asyncio.sleep(1)
                                                 battle_msg = await private_channel.send(content="Your game has been saved.")
@@ -3075,7 +3088,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                     except asyncio.TimeoutError:
                                         await battle_msg.edit(components=[])
                                         if not _battle._is_abyss and not _battle._is_scenario and not _battle._is_explore and not _battle._is_pvp_match and not _battle._is_tutorial:
-                                            await save_spot(self, ctx, _battle._selected_universe, _battle.mode, _battle._currentopponent)
+                                            await save_spot(self, player1.did, _battle._selected_universe, _battle.mode, _battle._currentopponent)
                                         
                                         await ctx.send(f"{ctx.author.mention} {_battle.error_end_match_message()}")
                                         return
@@ -3569,7 +3582,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                         except asyncio.TimeoutError:
                                             await battle_msg.delete()
                                             #await battle_msg.edit(components=[])
-                                            await save_spot(self, ctx, _battle._selected_universe, _battle.mode, _battle._currentopponent)
+                                            await save_spot(self, player1.did, _battle._selected_universe, _battle.mode, _battle._currentopponent)
                                             await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             # await discord.TextChannel.delete(private_channel, reason=None)
@@ -4230,7 +4243,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
             except asyncio.TimeoutError:
                 await battle_msg.edit(components=[])
                 if not _battle._is_abyss and not _battle._is_scenario and not _battle._is_explore and not _battle._is_pvp_match and not _battle._is_tutorial:
-                    await save_spot(self, ctx, _battle._selected_universe, _battle.mode, _battle._currentopponent)
+                    await save_spot(self, player1.did, _battle._selected_universe, _battle.mode, _battle._currentopponent)
                 
                 await ctx.send(f"{ctx.author.mention} {_battle.error_end_match_message()}")
                 return
@@ -4261,7 +4274,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
     except asyncio.TimeoutError:
         await battle_msg.edit(components=[])
         if not _battle._is_abyss and not _battle._is_scenario and not _battle._is_explore and not _battle._is_pvp_match and not _battle._is_tutorial:
-            await save_spot(self, ctx, _battle._selected_universe, _battle.mode, _battle._currentopponent)
+            await save_spot(self, player1.did, _battle._selected_universe, _battle.mode, _battle._currentopponent)
         
         await ctx.send(f"{ctx.author.mention} {_battle.error_end_match_message()}")
         return
@@ -4287,10 +4300,10 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
         return
 
 
-async def save_spot(self, ctx, universe, mode, currentopponent):
+async def save_spot(self, player_id, universe, mode, currentopponent):
     try:
-        user = {"DID": str(ctx.author.id)}
-        query = {"$addToSet": {"SAVE_SPOT": {"UNIVERSE": str(universe['TITLE']), "MODE": str(mode), "CURRENTOPPONENT": currentopponent}}}
+        user = {"DID": str(player_id)}
+        query = {"$addToSet": {"SAVE_SPOT": {"UNIVERSE": universe, "MODE": str(mode), "CURRENTOPPONENT": currentopponent}}}
         response = db.updateUserNoFilter(user, query)
         return
     except Exception as ex:
@@ -5347,6 +5360,8 @@ enhancer_mapping = {'ATK': 'Increase Attack %',
 'PARRY': 'Returns 25% Damage, until broken',
 'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
+
+
 title_enhancer_mapping = {'ATK': 'Increase Attack',
 'DEF': 'Increase Defense',
 'STAM': 'Increase Stamina',

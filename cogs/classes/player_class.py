@@ -230,11 +230,22 @@ class Player:
                 mode_check = "HAS_DUNGEON"
                 completed_check = self.completed_dungeons
 
-
+            def get_dungeons(universes):
+                all_universes = []
+                for uni in universes:
+                    if uni['TITLE'] in self.completed_tales:
+                        all_universes.append(uni)
+                if not all_universes:
+                    return None
+                else:
+                    return all_universes
 
             if self.rift:
                 if mode in crown_utilities.DUNGEON_M:
-                    all_universes = db.queryDungeonAllUniverse()
+                    _all_universes = db.queryDungeonAllUniverse()
+                    all_universes = get_dungeons(_all_universes)
+                    if not all_universes:
+                        return None
                 if mode in crown_utilities.TALE_M:
                     all_universes = db.queryTaleAllUniverse()
                 
@@ -242,7 +253,10 @@ class Player:
 
             if not self.rift:
                 if mode in crown_utilities.DUNGEON_M:
-                    all_universes = db.queryDungeonUniversesNotRift()
+                    _all_universes = db.queryDungeonUniversesNotRift()
+                    all_universes = get_dungeons(_all_universes)
+                    if not all_universes:
+                        return None
                 if mode in crown_utilities.TALE_M:
                     all_universes = db.queryTaleUniversesNotRift()
             
@@ -250,7 +264,7 @@ class Player:
             universe_embed_list = []
             
             for uni in all_universes:
-                if uni[mode_check] == True and uni['TIER'] != 9:
+                if uni[mode_check] == True:
                     if uni['TITLE'] in completed_check:
                         completed_message = f"**Completed**: 🟢"
 
