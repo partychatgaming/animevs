@@ -5291,12 +5291,12 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         t_defend_used = False
 
         # Rebirth Scaling
-        o_attack = o_attack + (o_user['REBIRTH'] * 10)
-        o_defense = o_defense + (o_user['REBIRTH'] * 10)
+        o_attack = o_attack + (o_user['REBIRTH'] * 100)
+        o_defense = o_defense + (o_user['REBIRTH'] * 100)
 
         if companion and mode not in ai_co_op_modes:
-            c_attack = c_attack + (c_user['REBIRTH'] * 10)
-            c_defense = c_defense + (c_user['REBIRTH'] * 10)
+            c_attack = c_attack + (c_user['REBIRTH'] * 100)
+            c_defense = c_defense + (c_user['REBIRTH'] * 100)
 
         o_opponent_affinities = crown_utilities.check_affinities("t", o, tmove1_element, tmove2_element, tmove3_element)
 
@@ -24366,7 +24366,7 @@ async def drops(self,player, universe, matchcount):
         rand_pet = random.randint(0, p)
 
     gold_drop = 125  # 125
-    rift_rate = 150  # 150
+    rift_rate = 140  # 150
     rematch_rate = 175 #175
     title_drop = 190  # 190
     arm_drop = 195  # 195
@@ -24376,12 +24376,12 @@ async def drops(self,player, universe, matchcount):
     durability = random.randint(1, 45)
     if difficulty == "HARD":
         mode = "Purchase"
-        gold_drop = 30
-        rift_rate = 55
-        rematch_rate = 70
-        title_drop = 75  
-        arm_drop = 100  
-        pet_drop = 180  
+        gold_drop = 60
+        rift_rate = 80
+        rematch_rate = 100
+        title_drop = 150  
+        arm_drop = 170
+        pet_drop = 190  
         card_drop = 200 
         drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 200)
         durability = random.randint(35, 50)
@@ -24605,12 +24605,12 @@ async def dungeondrops(self, player, universe, matchcount):
         rand_pet = random.randint(0, p)
 
 
-    gold_drop = 250  #
-    rift_rate = 300  #
-    rematch_rate = 350
-    title_drop = 380  #
-    arm_drop = 390  #
-    pet_drop = 396  #
+    gold_drop = 125  #
+    rift_rate = 150  #
+    rematch_rate = 200
+    title_drop = 300  #
+    arm_drop = 350  #
+    pet_drop = 370  #
     card_drop = 400  #
     drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 400)
     durability = random.randint(10, 75)
@@ -24619,9 +24619,9 @@ async def dungeondrops(self, player, universe, matchcount):
         gold_drop = 30  
         rift_rate = 55
         rematch_rate = 70
-        title_drop = 75  
-        arm_drop = 100  
-        pet_drop = 250  
+        title_drop = 180  
+        arm_drop = 230  
+        pet_drop = 275  
         card_drop = 300 
         drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 300)
         durability = 100
@@ -24782,6 +24782,19 @@ async def bossdrops(self,player, universe):
 
     drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 500)
     durability = random.randint(100, 150)
+    if difficulty == "HARD":
+        gold_drop = 125  #
+        rematch_drop = 150 #330
+        title_drop = 200  #
+        arm_drop = 230  #
+        pet_drop = 270  #
+        card_drop = 300  #
+        boss_title_drop = 350  #
+        boss_arm_drop = 370  #
+        boss_pet_drop = 395  #
+        boss_card_drop = 400  #
+
+        drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 400)
 
     try:
         if drop_rate <= gold_drop:

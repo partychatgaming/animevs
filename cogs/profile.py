@@ -3290,6 +3290,8 @@ class Profile(commands.Cog):
         query = {'DID': str(ctx.author.id)}
         d = db.queryUser(query)
         vault = db.queryVault({'DID': d['DID']})
+        prestige = d['PRESTIGE']
+        exchange = int(100 - (prestige * 10))
         # server = db.queryServer({"GNAME": str(ctx.author.guild)})
         if not vault['QUESTS']:
             await ctx.send("You have no quests available at this time!", hidden=True)
@@ -3384,13 +3386,23 @@ class Profile(commands.Cog):
                     """))
 
                     embedVar.set_thumbnail(url=opponent_universe_image)
+                    if guild_buff:
+                        if guild_buff['Quest']:
+                            if int(goal) > 1:
+                                embedVar.set_footer(text=f"🌑 | Conquer Abyss **{exchange}** and Prestige to reduce Quest Requirements!")
+                            else:
+                                embedVar.set_footer(text=f"☀️ | You can use /daily every 12 Hours for More Quest!")
+                        else:
+                            embedVar.set_footer(text=f"🪖 | Purchase a Guild Quest Buff and skip to the Quest Fight!")
+                    else:
+                        embedVar.set_footer(text=f"🪖 | Create a Guild and purchase Quest Buff! Skip to the quest fight!")
                     # embedVar.set_footer(text="Use /tales to complete daily quest!", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
 
                     if quest['GOAL'] != quest['WINS']:
                         embed_list.append(embedVar)
 
                 if not embed_list:
-                    await ctx.send("All quests have been completed today! 👑")
+                    await ctx.send(" 👑 | All quests have been completed today!")
                     return
 
                 buttons = [manage_components.create_button(style=3, label="Start Quest Tales", custom_id="quests_tales"),]
@@ -9467,6 +9479,8 @@ async def menuquests(self, ctx):
 
     query = {'DID': str(ctx.author.id)}
     d = db.queryUser(query)
+    prestige = d['PRESTIGE']
+    exchange = int(100 - (prestige * 10))
     vault = db.queryVault({'DID': d['DID']})
     # server = db.queryServer({"GNAME": str(ctx.author.guild)})
     if not vault['QUESTS']:
@@ -9560,8 +9574,19 @@ async def menuquests(self, ctx):
                 
                 {virus_message}
                 """))
+                if guild_buff:
+                    if guild_buff['Quest']:
+                        if int(goal) > 1:
+                            embedVar.set_footer(text=f"🌑 | Conquer Abyss **{exchange}** and Prestige to reduce Quest Requirements!")
+                        else:
+                            embedVar.set_footer(text=f"☀️ | You can use /daily every 12 Hours for More Quest!")
+                    else:
+                        embedVar.set_footer(text=f"🪖 | Purchase a Guild Quest Buff and skip to the Quest Fight!")
+                else:
+                    embedVar.set_footer(text=f"🪖 | Create a Guild to purchase Guild Quest Buff!")
 
                 embedVar.set_thumbnail(url=opponent_universe_image)
+                
                 # embedVar.set_footer(text="Use /tales to complete daily quest!", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
 
                 if quest['GOAL'] != quest['WINS']:
