@@ -1879,7 +1879,7 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
 
 CO_OP_M = ['CTales', 'DTales', 'CDungeon', 'DDungeon', 'CBoss']
-AI_CO_OP_M = ['DTales', 'DDungeon']
+DUO_M = ['DTales', 'DDungeon']
 AUTO_BATTLE_M = ['ATales', 'ADungeon']
 TALE_M = ['ATales', 'Tales', 'CTales', 'DTales']
 DUNGEON_M = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon']

@@ -436,9 +436,6 @@ class CrownUnlimited(commands.Cog):
         if not a_registered_player:
             return
 
-        U_modes = ['ATales', 'Tales', 'CTales', 'DTales']
-        D_modes = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon']
-        B_MODES = ['Boss', 'CBoss']
         try:
             # await ctx.defer()
             deck = int(deck)
@@ -446,49 +443,29 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send("Not a valid Deck Option")
                 return
             deckNumber = deck - 1
-            sowner = db.queryUser({'DID': str(ctx.author.id)})
-            player1.guild = sowner['TEAM']
-            ofam = sowner['FAMILY']
-            cowner = sowner
-            cteam = player1.guild
-            cfam = ofam
-            # if sowner['DIFFICULTY'] != "EASY":
-            #     if sowner['LEVEL'] < 8:
-            #         await ctx.send(f"🔓 Unlock **Duo** by completing **Floor 7** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
-            #         return
-            
-            if sowner['DIFFICULTY'] == "EASY" and mode in D_modes or mode in B_MODES:
-                await ctx.send("Dungeons and Boss fights unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
+
+            player = db.queryUser({'DID': str(ctx.author.id)})
+
+            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
+
+            p3 = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
+
+            p3.set_deck_config(deck)
+
+            if p.get_locked_feature(mode):
+                await ctx.send(p._locked_feature_message)
                 return
 
+            universe_selection = await select_universe(self, ctx, p, mode, None)
 
-            if _battle._is_dungeon and sowner['LEVEL'] < 41 and int(sowner['PRESTIGE']) == 0:
-                await ctx.send("🔓 Unlock **Duo Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss.")
-                return
+            battle = Battle(mode, p)
 
-
-
-            universe_selection = await select_universe(self, ctx, sowner, player1.guild, ofam, mode, None)
-            if not universe_selection:
-                return
-            selected_universe = universe_selection['SELECTED_UNIVERSE']
-            universe = universe_selection['UNIVERSE_DATA']
-            crestlist = universe_selection['CREST_LIST']
-            _battle.crestsearch = universe_selection['CREST_SEARCH']
-            currentopponent =  universe_selection['CURRENTOPPONENT']
-
-            if _battle._is_dungeon:
-                completed_universes = universe_selection['COMPLETED_DUNGEONS']
-            else:
-                completed_universes = universe_selection['COMPLETED_TALES']
-            if _battle.crestsearch:
-                oguild = universe_selection['OGUILD']
-            else:
-                oguild = "PCG"
-
-            await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild, crestlist,
-                                  _battle.crestsearch, sowner, player1.guild, ofam, currentopponent, cowner, cteam, cfam, deckNumber,
-                                  None, None, None, None, None)
+            battle.set_universe_selection_config(universe_selection)
+            battle._is_duo = True
+                
+            await battle_commands(self, ctx, battle, p, None, _player2=None, _player3=p3)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -588,7 +565,7 @@ class CrownUnlimited(commands.Cog):
                                 ),
                                 create_choice(
                                     name="🌑 The Abyss!",
-                                    value="Abyss"
+                                    value="ABYSS"
                                 ),
                                 create_choice(
                                     name="⚔️ Tales & Scenario Battles!",
@@ -617,7 +594,7 @@ class CrownUnlimited(commands.Cog):
             player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
             if mode == "Abyss":
-                await abyss(self, ctx, p)
+                await abyss(self, ctx, p, mode)
                 return
 
             if mode == "Tutorial":
@@ -1677,13 +1654,12 @@ def setup(bot):
 
 
 
-async def abyss(self, ctx: SlashContext, _player):
+async def abyss(self, ctx: SlashContext, _player, mode):
     await ctx.defer()
     a_registered_player = await crown_utilities.player_check(ctx)
     if not a_registered_player:
         return
 
-    mode = "ABYSS"
     if isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.send(m.SERVER_FUNCTION_ONLY)
         return
@@ -2241,7 +2217,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
     p.set_rift_on()
     await p.set_guild_data()
 
-    if mode in crown_utilities.CO_OP_M:
+    if mode in crown_utilities.CO_OP_M and mode not in crown_utilities.DUO_M:
         await ctx.send(f"{p.name} needs your help! React in server to join their Coop Tale!!")
         coop_buttons = [
                     manage_components.create_button(
@@ -2405,36 +2381,10 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             }))
 
     if mode in crown_utilities.BOSS_M:
-        completed_crown_tales = p.completed_tales
-        all_universes = db.queryAllUniverse()
-        available_universes = []
-        selected_universe = ""
-        universe_menu = []
-        universe_embed_list = []
-        for uni in p.completed_dungeons:
-            if uni != "":
-                searchUni = db.queryUniverse({'TITLE': str(uni)})
-                if searchUni['GUILD'] != "PCG":
-                    owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} **Crest Owned**: {searchUni['GUILD']}"
-                else: 
-                    owner_message = f"{crown_utilities.crest_dict[searchUni['TITLE']]} *Crest Unclaimed*"
-                if searchUni['UNIVERSE_BOSS'] != "":
-                    boss_info = db.queryBoss({"NAME": searchUni['UNIVERSE_BOSS']})
-                    if boss_info:
-                        embedVar = discord.Embed(title= f"{uni}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni]} **Boss**: :japanese_ogre: **{boss_info['NAME']}**
-                        🎗️ **Boss Title**: {boss_info['TITLE']}
-                        🦾 **Boss Arm**: {boss_info['ARM']}
-                        🧬 **Boss Summon**: {boss_info['PET']}
-                        
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=boss_info['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        embedVar.set_footer(text="📿| Boss Talismans ignore all Affinities. Be Prepared")
-                        universe_embed_list.append(embedVar)
-        if not universe_embed_list:
-            await ctx.send("No available Bosses for you at this time!")
+        available_bosses = p.set_selectable_bosses(ctx, mode)
+
+        if type(available_bosses) is not list:
+            await ctx.send(embed=available_bosses)
             return
         
         custom_button = manage_components.create_button(style=3, label="Select")
@@ -2448,7 +2398,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             else:
                 await ctx.send("This is not your button.", hidden=True)
 
-        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=universe_embed_list, timeout=60,  customButton=[
+        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=available_bosses, timeout=60,  customButton=[
             custom_button,
             custom_function,
         ]).run()
@@ -2460,8 +2410,8 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             universe_owner = universe['GUILD']
             #Universe Cost
             entrance_fee = 10000
-            if selected_universe in crestlist:
-                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {guildname} {selected_universe} Crest Activated! No entrance fee!")
+            if selected_universe in p.crestlist:
+                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {p.association} {selected_universe} Crest Activated! No entrance fee!")
             else:
                 if p._balance <= entrance_fee:
                     await ctx.send(f"Tales require an :coin: {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
@@ -2558,7 +2508,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                 player2_card.set_affinity_message()
                 _player2.get_talisman_ready(player2_card)
 
-            if _battle.mode in crown_utilities.CO_OP_M:
+            if _battle.mode in crown_utilities.CO_OP_M or _battle._is_duo:
                 _player3.get_battle_ready()
                 player3_card = Card(_player3._equipped_card_data['NAME'], _player3._equipped_card_data['PATH'], _player3._equipped_card_data['PRICE'], _player3._equipped_card_data['EXCLUSIVE'], _player3._equipped_card_data['AVAILABLE'], _player3._equipped_card_data['IS_SKIN'], _player3._equipped_card_data['SKIN_FOR'], _player3._equipped_card_data['HLT'], _player3._equipped_card_data['HLT'], _player3._equipped_card_data['STAM'], _player3._equipped_card_data['STAM'], _player3._equipped_card_data['MOVESET'], _player3._equipped_card_data['ATK'], _player3._equipped_card_data['DEF'], _player3._equipped_card_data['TYPE'], _player3._equipped_card_data['PASS'][0], _player3._equipped_card_data['SPD'], _player3._equipped_card_data['UNIVERSE'], _player3._equipped_card_data['HAS_COLLECTION'], _player3._equipped_card_data['TIER'], _player3._equipped_card_data['COLLECTION'], _player3._equipped_card_data['WEAKNESS'], _player3._equipped_card_data['RESISTANT'], _player3._equipped_card_data['REPEL'], _player3._equipped_card_data['ABSORB'], _player3._equipped_card_data['IMMUNE'], _player3._equipped_card_data['GIF'], _player3._equipped_card_data['FPATH'], _player3._equipped_card_data['RNAME'], _player3._equipped_card_data['RPATH'])
                 player3_title = Title(_player3._equipped_title_data['TITLE'], _player3._equipped_title_data['UNIVERSE'], _player3._equipped_title_data['PRICE'], _player3._equipped_title_data['EXCLUSIVE'], _player3._equipped_title_data['AVAILABLE'], _player3._equipped_title_data['ABILITIES'])            
@@ -2569,7 +2519,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                 player3_arm.set_durability(_player3.equipped_arm, _player3._arms)
                 player3_card.set_card_level_buffs()
                 player3_card.set_arm_config(player3_arm.passive_type, player3_arm.name, player3_arm.passive_value, player3_arm.element)
-                player3_card.set_solo_leveling_config(player1._shield_active, player1._shield_value, player1._barrier_active, player1._barrier_value, player1._parry_active, player1._parry_value)
+                player3_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player3_card.set_affinity_message()
                 _player3.get_talisman_ready(player3_card)
             
@@ -2593,7 +2543,6 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                 player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
                 player2_card.set_affinity_message()
                 # Set potential boss descriptions
-                _battle.set_boss_descriptions(player2_card.name)
                 player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
                 _battle.get_ai_summon_ready(player1_card)
@@ -2655,9 +2604,12 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
             if _battle._is_co_op:
                 user2 = await main.bot.fetch_user(_player3.did)
 
-            title_lvl_msg = f"{_battle.set_levels_message(player1_card, player2_card)}"
-            if _battle._is_co_op:
+
+            if _battle._is_co_op or _battle._is_duo:
                 title_lvl_msg = f"{_battle.set_levels_message(player1_card, player2_card, player3_card)}"
+            else:
+                title_lvl_msg = f"{_battle.set_levels_message(player1_card, player2_card)}"
+
 
             if not _battle._is_pvp_match:
                 await private_channel.send(content=f"{ctx.author.mention} 🆚...", )
@@ -2908,18 +2860,17 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                                 await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
                                                 
                                         if button_ctx.custom_id == "b":
-                                            c_stamina = c_stamina + 10
-                                            c_health = c_health + 50
-                                            boost_message = f"**{o_card}** Boosted **{player3_card}** +10 🌀 +100 :heart:"
-                                            o_block_used = True
+                                            player3_card.stamina = player3_card.stamina + 10
+                                            player3_card.health = player3_card.health + 50
+                                            boost_message = f"**{player1_card.name}** Boosted **{player3_card.name}** +10 🌀 +100 :heart:"
+                                            player1_card.used_block = True
                                             player1_card.stamina = player1_card.stamina - 20
-                                            o_defense = round(o_defense * 2)
+                                            player1_card.defense = round(player1_card.defense * 2)
                                             embedVar = discord.Embed(title=f"{boost_message}", colour=0xe91e63)
 
-                                            previous_moves.append(f"(**{_battle._turn_total}**) {boost_message}")
-                                            # await button_ctx.defer(ignore=True)
+                                            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) {boost_message}")
                                             turn_total = turn_total + 1
-                                            turn = 1
+                                            _battle.next_turn()
                                         
                                         if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
                                             player1_card.health = 0
@@ -3409,8 +3360,8 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             player2_card.damage_done(_battle, damage_calculation_response, player1_card)
 
 
-                        elif _battle._is_co_op and turn != (0 or 1):
-                            if turn == 2:
+                        elif _battle._is_co_op and _battle._is_turn != (0 or 1):
+                            if _battle._is_turn == 2:
                                 player3_card.reset_stats_to_limiter(player2_card)
 
                                 player3_card.yuyu_hakusho_attack_increase()
@@ -3452,10 +3403,10 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                 player3_card.set_deathnote_message(_battle)
 
 
-                                if c_stamina < 10:
+                                if player3_card.stamina < 10:
                                     player3_card.focusing(player3_title, player2_title, player2_card, _battle)
                                 else:
-                                    if _battle._is_auto_battle:
+                                    if _battle._is_auto_battle or _battle._is_duo:
                                         player3_card.set_battle_arm_messages(player2_card)
 
                                         player3_card.activate_solo_leveling_trait(_battle, player2_card)
@@ -3497,11 +3448,10 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
 
                                         battle_action_row = manage_components.create_actionrow(*_battle.battle_buttons)
                                         util_action_row = manage_components.create_actionrow(*_battle.utility_buttons)
+                                        coop_util_action_row = manage_components.create_actionrow(*co_op_buttons)
 
 
-                                        battle_action_row = manage_components.create_actionrow(*battle_buttons)
-                                        util_action_row = manage_components.create_actionrow(*util_buttons)
-                                        coop_util_action_row = manage_components.create_actionrow(*coop_util_buttons)
+
 
                                         embedVar = discord.Embed(title=f"", description=textwrap.dedent(f"""\
                                         {_battle.get_previous_moves_embed()}
@@ -3587,7 +3537,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             # await discord.TextChannel.delete(private_channel, reason=None)
                                             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) 💨 **{player3_card.name}** Fled...")
-                                            # c_health = 0
+                                            # player3_card.health = 0
                                             # o_health = 0
                                         except Exception as ex:
                                             trace = []
@@ -3609,7 +3559,7 @@ async def battle_commands(self, ctx, _battle, _player, _custom_explore_card, _pl
                                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
                             # Opponent Turn Start
-                            elif turn == 3:
+                            elif _battle._is_turn == 3:
                                 player2_card.reset_stats_to_limiter(player3_card)
 
                                 player2_card.yuyu_hakusho_attack_increase()

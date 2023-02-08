@@ -2248,7 +2248,7 @@ class Card:
                 self.health = round(self.health - dmg['DMG'])
             elif companion_card.move4enh == 'DRAIN':
                 companion_card.stamina = round(companion_card.stamina + dmg['DMG'])
-                player1_card.stamina = round(player1_card.stamina - dmg['DMG'])
+                companion_card.stamina = round(companion_card.stamina - dmg['DMG'])
             elif companion_card.move4enh == 'FLOG':
                 companion_card.attack = round(companion_card.attack + dmg['DMG'])
                 opponent_card.attack = round(self.attack - dmg['DMG'])
@@ -2282,20 +2282,20 @@ class Card:
                 self.defense = tempattack
             elif companion_card.move4enh == 'BLINK':
                 companion_card.stamina = round(companion_card.stamina - dmg['DMG'])
-                player1_card.stamina = round(player1_card.stamina + dmg['DMG'])
+                companion_card.stamina = round(companion_card.stamina + dmg['DMG'])
             elif companion_card.move4enh == 'SLOW':
-                tempstam = round(player1_card.stamina + dmg['DMG'])
+                tempstam = round(companion_card.stamina + dmg['DMG'])
                 companion_card.stamina = round(companion_card.stamina - dmg['DMG'])
-                player1_card.stamina = companion_card.stamina
+                companion_card.stamina = companion_card.stamina
                 companion_card.stamina = tempstam
             elif companion_card.move4enh == 'HASTE':
-                tempstam = round(player1_card.stamina - dmg['DMG'])
+                tempstam = round(companion_card.stamina - dmg['DMG'])
                 companion_card.stamina = round(companion_card.stamina + dmg['DMG'])
-                player1_card.stamina = companion_card.stamina
+                companion_card.stamina = companion_card.stamina
                 companion_card.stamina = tempstam
             elif companion_card.move4enh == 'SOULCHAIN':
                 companion_card.stamina = round(dmg['DMG'])
-                player1_card.stamina = companion_card.stamina
+                companion_card.stamina = companion_card.stamina
             elif companion_card.move4enh == 'GAMBLE':
                 companion_card.health = round(dmg['DMG'])
                 self.health = companion_card.health
@@ -2322,8 +2322,8 @@ class Card:
             if companion_card.move4enh in crown_utilities.Stamina_Enhancer_Check or companion_card.move4enh in crown_utilities.Time_Enhancer_Check:
                 opponent_card.stamina = opponent_card.stamina
 
-            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** used {player1_card.move4}:👥 Assisting **{companion_card.name}**")
-            _battle._turn_total = _battle_turn_total + 1
+            _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) **{self.name}** used {companion_card.move4}:👥 Assisting **{companion_card.name}**")
+            _battle._turn_total = _battle._turn_total + 1
             _battle.next_turn()
         else:
             _battle.add_battle_history_messsage(f"(**{_battle._turn_total}**) {self.name} doesn't have enough Stamina to use this move")

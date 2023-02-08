@@ -55,8 +55,6 @@ class Battle:
         self.is_ai_opponent = False
         self._ai_title = ""
         self._ai_arm = ""
-        self._ai_summon = ""
-
         self._ai_opponent_card_data = ""
         self._ai_opponent_title_data = ""
         self._ai_opponent_arm_data = ""
@@ -69,6 +67,7 @@ class Battle:
         self._ai_opponent_summon_universe = ""
         self._ai_opponent_summon_ability_name = ""
         self._ai_opponent_summon_image = ""
+        self._deck_selection = 0
 
         self.difficulty = _player.difficulty
         self._is_easy = False
@@ -93,8 +92,8 @@ class Battle:
         self._ai_opponent_summon_bond = 0
         self._ai_can_use_summon = False
 
-        self.scaling_stat = 0
         self._boss_fought_already = False
+        self._boss_data = ""
 
         self._completed_tales = self.player.completed_tales
         self._completed_dungeons = self.player.completed_dungeons
@@ -138,6 +137,11 @@ class Battle:
         self._wins_boss_description = ""
         self._boss_embed_message = ""
 
+        # Boss Specific Moves
+        self._turns_to_skip = 0
+        self._damage_check_count = 0
+        self._has_resurrect = False
+
         # AI Tutorial Config
         self.raidActive = False
         self.tutorial_basic = False
@@ -163,7 +167,7 @@ class Battle:
             self._is_auto_battle = True
             self.is_ai_opponent = True
 
-        if self.mode in crown_utilities.AI_CO_OP_M:
+        if self.mode in crown_utilities.DUO_M:
             self._is_duo = True
             self.is_ai_opponent = True
             self.starting_match_title = f"Duo Battle! ({self._currentopponent + 1}/{self._total_enemies})"
@@ -221,10 +225,12 @@ class Battle:
             self._is_abyss = True
             self.is_ai_opponent = True
 
+        
         if self.mode == crown_utilities.SCENARIO:
             self._is_scenario = True
             self.is_ai_opponent = True
 
+        
         if self.mode == crown_utilities.EXPLORE:
             self._is_explore = True
             self.is_ai_opponent = True
@@ -518,27 +524,6 @@ class Battle:
                 self.health_buff = 1300
 
 
-    def set_boss_descriptions(self, name_of_boss):
-        if self._is_boss:
-            boss = db.queryBoss({'NAME': name_of_boss})
-
-            self._arena_boss_description = boss['DESCRIPTION'][0]
-            self._arenades_boss_description = boss['DESCRIPTION'][1]
-            self._entrance_boss_description = boss['DESCRIPTION'][2]
-            self._description_boss_description = boss['DESCRIPTION'][3]
-            self._welcome_boss_description = boss['DESCRIPTION'][4]
-            self._feeling_boss_description = boss['DESCRIPTION'][5]
-            self._powerup_boss_description = boss['DESCRIPTION'][6]
-            self._aura_boss_description = boss['DESCRIPTION'][7]
-            self._assault_boss_description = boss['DESCRIPTION'][8]
-            self._world_boss_description = boss['DESCRIPTION'][9]
-            self._punish_boss_description = boss['DESCRIPTION'][10]
-            self._rmessage_boss_description = boss['DESCRIPTION'][11]
-            self._rebuke_boss_description = boss['DESCRIPTION'][12]
-            self._concede_boss_description = boss['DESCRIPTION'][13]
-            self._wins_boss_description = boss['DESCRIPTION'][14]
-
-
     def set_who_starts_match(self, player1_speed, player2_speed):
         if player1_speed >= player2_speed:
             self._is_turn = 0
@@ -557,28 +542,60 @@ class Battle:
 
 
     def get_ai_battle_ready(self):
-        self._ai_opponent_card_data = db.queryCard({'NAME': self._list_of_opponents[self._currentopponent]})
-        universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
-        if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
-            title = 'DTITLE'
-            arm = 'DARM'
-            summon = 'DPET'
-        if self.mode in crown_utilities.TALE_M or self._ai_opponent_card_lvl < 350:
-            title = 'UTITLE'
-            arm = 'UARM'
-            summon = 'UPET'
+        print(self.selected_universe)
+        if not self._is_boss:
+            self._ai_opponent_card_data = db.queryCard({'NAME': self._list_of_opponents[self._currentopponent]})
+            universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
+            if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
+                title = 'DTITLE'
+                arm = 'DARM'
+                summon = 'DPET'
+            if self.mode in crown_utilities.TALE_M or self._ai_opponent_card_lvl < 350:
+                title = 'UTITLE'
+                arm = 'UARM'
+                summon = 'UPET'
 
-        self._ai_opponent_title_data = db.queryTitle({'TITLE': universe_data[title]})
-        self._ai_opponent_arm_data = db.queryArm({'ARM': universe_data[arm]})
-        self._ai_opponent_summon_data = db.queryPet({'PET': universe_data[summon]})
-        self._ai_opponent_summon_image = self._ai_opponent_summon_data['PATH']
-        self._ai_opponent_summon_name = self._ai_opponent_summon_data['PET']
-        self._ai_opponent_summon_universe = self._ai_opponent_summon_data['UNIVERSE']
+            self._ai_opponent_title_data = db.queryTitle({'TITLE': universe_data[title]})
+            self._ai_opponent_arm_data = db.queryArm({'ARM': universe_data[arm]})
+            self._ai_opponent_summon_data = db.queryPet({'PET': universe_data[summon]})
+            self._ai_opponent_summon_image = self._ai_opponent_summon_data['PATH']
+            self._ai_opponent_summon_name = self._ai_opponent_summon_data['PET']
+            self._ai_opponent_summon_universe = self._ai_opponent_summon_data['UNIVERSE']
 
-        summon_passive = self._ai_opponent_summon_data['ABILITIES'][0]
-        self._ai_opponent_summon_power = list(summon_passive.values())[0]
-        self._ai_opponent_summon_ability_name = list(summon_passive.keys())[0]
-        self._ai_opponent_summon_type = summon_passive['TYPE']
+            summon_passive = self._ai_opponent_summon_data['ABILITIES'][0]
+            self._ai_opponent_summon_power = list(summon_passive.values())[0]
+            self._ai_opponent_summon_ability_name = list(summon_passive.keys())[0]
+            self._ai_opponent_summon_type = summon_passive['TYPE']
+        else:
+            self._boss_data = db.queryBoss({"UNIVERSE": self.selected_universe, "AVAILABLE": True})
+            self._ai_opponent_card_data = db.queryCard({'NAME': self._boss_data['CARD']})
+            self._ai_opponent_title_data = db.queryTitle({'TITLE': self._boss_data['TITLE']})
+            self._ai_opponent_arm_data = db.queryArm({'ARM': self._boss_data['ARM']})
+            self._ai_opponent_summon_data = db.queryPet({'PET': self._boss_data['PET']})
+            self._ai_opponent_summon_image = self._ai_opponent_summon_data['PATH']
+            self._ai_opponent_summon_name = self._ai_opponent_summon_data['PET']
+            self._ai_opponent_summon_universe = self._ai_opponent_summon_data['UNIVERSE']
+
+            summon_passive = self._ai_opponent_summon_data['ABILITIES'][0]
+            self._ai_opponent_summon_power = list(summon_passive.values())[0]
+            self._ai_opponent_summon_ability_name = list(summon_passive.keys())[0]
+            self._ai_opponent_summon_type = summon_passive['TYPE']
+            
+            self._arena_boss_description = self._boss_data['DESCRIPTION'][0]
+            self._arenades_boss_description = self._boss_data['DESCRIPTION'][1]
+            self._entrance_boss_description = self._boss_data['DESCRIPTION'][2]
+            self._description_boss_description = self._boss_data['DESCRIPTION'][3]
+            self._welcome_boss_description = self._boss_data['DESCRIPTION'][4]
+            self._feeling_boss_description = self._boss_data['DESCRIPTION'][5]
+            self._powerup_boss_description = self._boss_data['DESCRIPTION'][6]
+            self._aura_boss_description = self._boss_data['DESCRIPTION'][7]
+            self._assault_boss_description = self._boss_data['DESCRIPTION'][8]
+            self._world_boss_description = self._boss_data['DESCRIPTION'][9]
+            self._punish_boss_description = self._boss_data['DESCRIPTION'][10]
+            self._rmessage_boss_description = self._boss_data['DESCRIPTION'][11]
+            self._rebuke_boss_description = self._boss_data['DESCRIPTION'][12]
+            self._concede_boss_description = self._boss_data['DESCRIPTION'][13]
+            self._wins_boss_description = self._boss_data['DESCRIPTION'][14]
 
 
     def get_ai_summon_ready(self, _card):
@@ -915,7 +932,7 @@ class Battle:
                         custom_id="b"
                     )]
         
-        elif self._is_co_op and self.mode not in crown_utilities.AI_CO_OP_M and your_card.stamina >= 20:
+        elif self._is_co_op and self.mode not in crown_utilities.DUO_M and your_card.stamina >= 20:
             c_butts = [
                 manage_components.create_button(
                     style=ButtonStyle.blue,

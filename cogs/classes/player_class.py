@@ -186,8 +186,8 @@ class Player:
             if self.guild_buff:
                 if self.guild_buff['Rift']:
                     self.rift_on = True
-                    self.guild_buff_update_query = guild_buff['UPDATE_QUERY']
-                    self.filter_query = guild_buff['FILTER_QUERY']
+                    self.guild_buff_update_query = self.guild_buff['UPDATE_QUERY']
+                    self.filter_query = self.guild_buff['FILTER_QUERY']
 
             if self.association != "PCG":
                 self.association_info = db.queryGuildAlt({'GNAME': self.association})
@@ -200,6 +200,58 @@ class Player:
         if self.patron != True and mode in crown_utilities.AUTO_BATTLE_M:
             self.auto_battle = True
         return self.auto_battle
+
+    def set_selectable_bosses(self, ctx, mode):
+        all_universes = db.queryAllUniverse()
+        available_universes = []
+        selected_universe = ""
+        universe_menu = []
+        universe_embed_list = []
+        available_dungeons_list = "Sadly, you have no available dungeons at this time!\n🌍 To unlock a Universe Dungeon you must first complete the Universe Tale!"
+        if self.completed_tales:
+            l = []
+            for uni in self.completed_tales:
+                if uni != "":
+                    l.append(uni)
+            available_dungeons_list = "\n".join(l)
+        
+        for uni in all_universes:
+            if uni['TITLE'] in self.completed_dungeons:
+                if uni != "":
+                    if uni['GUILD'] != "PCG":
+                        owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
+                    else: 
+                        owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
+                    if uni['UNIVERSE_BOSS'] != "":
+                        boss_info = db.queryBoss({"NAME": uni['UNIVERSE_BOSS']})
+                        if boss_info:
+                            embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
+                            {crown_utilities.crest_dict[uni['TITLE']]} **Boss**: :japanese_ogre: **{boss_info['NAME']}**
+                            🎗️ **Boss Title**: {boss_info['TITLE']}
+                            🦾 **Boss Arm**: {boss_info['ARM']}
+                            🧬 **Boss Summon**: {boss_info['PET']}
+                            
+                            {owner_message}
+                            """))
+                            embedVar.set_image(url=boss_info['PATH'])
+                            embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                            embedVar.set_footer(text="📿| Boss Talismans ignore all Affinities. Be Prepared")
+                            universe_embed_list.append(embedVar)
+
+        if not universe_embed_list:
+            universe_embed_list = discord.Embed(title= f"👹 There are no available bosses at this time.", description=textwrap.dedent(f"""
+            __👹 How to unlock bosses?__
+            You unlock Bosses by completing the Dungeon for a universe. Once a universe dungeon has been completed the boss for that universe will be unlocked for you to fight!
+            
+            __🌍 Available Universe Dungeons__
+            {available_dungeons_list}
+            """))
+            # embedVar.set_image(url=boss_info['PATH'])
+            universe_embed_list.set_thumbnail(url=ctx.author.avatar_url)
+            # embedVar.set_footer(text="Use /tutorial")
+
+
+        return universe_embed_list
 
 
     def set_selectable_universes(self, ctx, mode):
@@ -328,31 +380,42 @@ class Player:
         if self.difficulty == "EASY" and mode in crown_utilities.EASY_BLOCKED:
             self._locked_feature_message = "Dungeons, Boss, PVP, Expplore, and Abyss fights are unavailable on Easy Mode! Use /difficulty to change your difficulty setting."
             self._is_locked_feature = True
+            return
         
         if self.level < 26 and mode == "EXPLORE":
             self._locked_feature_message = "Explore fights are blocked until level 26"
             self._is_locked_feature = True
+            return
 
         if mode in crown_utilities.DUNGEON_M and self.level < 41 and int(self.prestige) == 0:
             self._locked_feature_message = "🔓 Unlock **Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss."
             self._is_locked_feature = True
+            return
 
         if mode in crown_utilities.BOSS_M and self.level < 61 and int(self.prestige) == 0:
             self._locked_feature_message = "🔓 Unlock **Boss Fights** by completing **Floor 60** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss."
             self._is_locked_feature = True
+            return
 
         if self.level < 4:
             self._locked_feature_message = f"🔓 Unlock **PVP** by completing **Floor 3** of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss."
             self._is_locked_feature = True
+            return
             
         return self._is_locked_feature
 
 
     def get_battle_ready(self):
         try:
-            self._equipped_card_data = db.queryCard({'NAME': self.equipped_card})
-            self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
-            self._equipped_arm_data = db.queryArm({'ARM': self.equipped_arm})
+            if self._deck_card:
+                self._equipped_card_data = self._deck_card
+                self._equipped_title_data = self._deck_title
+                self._equipped_arm_data = self._deck_arm
+                self.equipped_summon = self._deck_summon['PET']
+            else:
+                self._equipped_card_data = db.queryCard({'NAME': self.equipped_card})
+                self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
+                self._equipped_arm_data = db.queryArm({'ARM': self.equipped_arm})
 
             for summon in self._summons:
                 if summon['NAME'] == self.equipped_summon:
@@ -404,10 +467,27 @@ class Player:
 
     def set_deck_config(self, selected_deck):
         try:
-            active_deck = self.deck[selected_deck]
+            active_deck = self._deck[selected_deck]
             self._deck_card = db.queryCard({'NAME': str(active_deck['CARD'])})
             self._deck_title = db.queryTitle({'TITLE': str(active_deck['TITLE'])})
             self._deck_arm = db.queryArm({'ARM': str(active_deck['ARM'])})
             self._deck_summon = db.queryPet({'PET': str(active_deck['PET'])})
-        except:
-            print("Error setting deck config")
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+
+
+
+
