@@ -14,29 +14,29 @@ class Battle:
         self.player = _player
 
         self.mode = mode
-        self._is_tales = False
-        self._is_dungeon = False
-        self._is_explore = False
-        self._is_abyss = False
-        self._is_boss = False
-        self._is_tutorial = False
-        self._is_raid = False
-        self._is_scenario = False
-        self._is_pvp_match = False
-        self._is_available = True
-        self._is_corrupted = False
-        self._can_save_match = False
-        self._is_free_battle = False
+        self.is_tales_game_mode = False
+        self.is_dungeon_game_mode = False
+        self.is_explore_game_mode = False
+        self.is_abyss_game_mode = False
+        self.is_boss_game_mode = False
+        self.is_tutorial_game_mode = False
+        self.is_raid_game_mode = False
+        self.is_scenario_game_mode = False
+        self.is_pvp_game_mode = False
+        self.is_available = True
+        self.is_corrupted = False
+        self.match_can_be_saved = False
+        self.is_free_battle_game_mode = False
 
-        self._is_auto_battle = False
-        self._can_auto_battle = False
+        self.is_auto_battle_game_mode = False
+        self.can_auto_battle = False
 
-        self._list_of_opponents = []
-        self._total_enemies = 0
-        self._currentopponent = 0
+        self.list_of_opponents_by_name = []
+        self.total_number_of_opponents = 0
+        self.current_opponent_number = 0
         self._match_lineup = ""
-        self._is_turn = 0
-        self._turn_total = 0
+        self.is_turn = 0
+        self.turn_total = 0
         self._turn_zero_has_happened = False
         self._max_turns_allowed = 250
         self.previous_moves = ["Match has started!"]
@@ -58,21 +58,21 @@ class Battle:
         self._ai_opponent_card_data = ""
         self._ai_opponent_title_data = ""
         self._ai_opponent_arm_data = ""
-        self._ai_opponent_summon_data = ""
-        self._ai_opponent_summon_power = 0
-        self._ai_opponent_summon_bond = 0
-        self._ai_opponent_summon_lvl = 0
-        self._ai_opponent_summon_type = ""
-        self._ai_opponent_summon_name = ""
-        self._ai_opponent_summon_universe = ""
-        self._ai_opponent_summon_ability_name = ""
-        self._ai_opponent_summon_image = ""
+        self._ai_opponentsummon_data = ""
+        self._ai_opponentsummon_power = 0
+        self._ai_opponentsummon_bond = 0
+        self._ai_opponentsummon_lvl = 0
+        self._ai_opponentsummon_type = ""
+        self._ai_opponentsummon_name = ""
+        self._ai_opponentsummon_universe = ""
+        self._ai_opponentsummon_ability_name = ""
+        self._ai_opponentsummon_image = ""
         self._deck_selection = 0
 
         self.difficulty = _player.difficulty
-        self._is_easy = False
-        self._is_hard = False
-        self._is_normal = False
+        self.is_easy_difficulty = False
+        self.is_hard_difficulty = False
+        self.is_normal_difficulty = False
 
         self.health_buff = 0
         self.health_debuff = 0
@@ -89,16 +89,16 @@ class Battle:
         self._wind_buff = 0
 
         self._ai_opponent_card_lvl = 0
-        self._ai_opponent_summon_bond = 0
-        self._ai_can_use_summon = False
+        self._ai_opponentsummon_bond = 0
+        self._ai_can_usesummon = False
 
         self._boss_fought_already = False
         self._boss_data = ""
 
-        self._completed_tales = self.player.completed_tales
-        self._completed_dungeons = self.player.completed_dungeons
+        self.completed_tales = self.player.completed_tales
+        self.completed_dungeons = self.player.completed_dungeons
         self._player_association = ""
-        self._name_of_boss = ""
+        self.name_of_boss = ""
         self._ai_opponent_card_lvl = 0
         self.match_has_ended = False
 
@@ -151,7 +151,7 @@ class Battle:
         self.tutorial_block = False
         self.tutorial_resolve = False
         self.tutorial_focus = False
-        self.tutorial_summon = False
+        self.tutorialsummon = False
         self.tutorial_message = ""
         self.tutorial_did = 0
 
@@ -160,44 +160,44 @@ class Battle:
 
 
         if self.mode not in crown_utilities.PVP_M:
-            self._is_tales = True
-            self._total_enemies = 1
+            self.is_tales_game_mode = True
+            self.total_number_of_opponents = 1
 
         if self.mode in crown_utilities.AUTO_BATTLE_M:
-            self._is_auto_battle = True
+            self.is_auto_battle_game_mode = True
             self.is_ai_opponent = True
 
         if self.mode in crown_utilities.DUO_M:
             self._is_duo = True
             self.is_ai_opponent = True
-            self.starting_match_title = f"Duo Battle! ({self._currentopponent + 1}/{self._total_enemies})"
+            self.starting_match_title = f"Duo Battle! ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
 
         if self.mode in crown_utilities.CO_OP_M:
             self._is_co_op = True
             self.is_ai_opponent = True
-            self.starting_match_title = f"Co-op Battle! ({self._currentopponent + 1}/{self._total_enemies})"
+            self.starting_match_title = f"Co-op Battle! ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
 
         if self.mode in crown_utilities.RAID_M:
-            self._is_raid = True
+            self.is_raid_game_mode = True
             self.is_ai_opponent = True
             self.starting_match_title = f"Raid Battle!"
 
         if self.mode in crown_utilities.TALE_M:
-            self._is_tales = True
+            self.is_tales_game_mode = True
             self.is_ai_opponent = True
-            self._ai_opponent_summon_lvl = 5
-            self._ai_opponent_summon_bond = 1
+            self._ai_opponentsummon_lvl = 5
+            self._ai_opponentsummon_bond = 1
             self._ai_opponent_card_lvl = 30
-            self._can_auto_battle = True
+            self.can_auto_battle = True
             self.bank_amount = 5000
             self.fam_reward_amount = 5000
 
         
         if self.mode in crown_utilities.DUNGEON_M:
-            self._is_dungeon = True
+            self.is_dungeon_game_mode = True
             self.is_ai_opponent = True
-            self._ai_opponent_summon_lvl = 10
-            self._ai_opponent_summon_bond = 3
+            self._ai_opponentsummon_lvl = 10
+            self._ai_opponentsummon_bond = 3
             self._ai_opponent_card_lvl = 400
             self.health_buff = self.health_buff + 2000
             self.stat_buff = self.stat_buff + 100
@@ -207,39 +207,39 @@ class Battle:
 
 
         if self.mode in crown_utilities.BOSS_M:
-            self._is_boss = True
+            self.is_boss_game_mode = True
             self.is_ai_opponent = True
-            self._ai_opponent_summon_lvl = 15
-            self._ai_opponent_summon_bond = 4
+            self._ai_opponentsummon_lvl = 15
+            self._ai_opponentsummon_bond = 4
             self._ai_opponent_card_lvl = 1000
             self.health_buff = self.health_buff + 5000
             self.stat_buff = self.stat_buff + 250
             self.ap_buff = self.ap_buff + 250
-            self._total_enemies = 1
+            self.total_number_of_opponents = 1
             self.starting_match_title = "👿 BOSS BATTLE!"
             self.bank_amount = 5000000
             self.fam_reward_amount = 5000000
 
 
         if self.mode == crown_utilities.ABYSS:
-            self._is_abyss = True
+            self.is_abyss_game_mode = True
             self.is_ai_opponent = True
 
         
         if self.mode == crown_utilities.SCENARIO:
-            self._is_scenario = True
+            self.is_scenario_game_mode = True
             self.is_ai_opponent = True
 
         
         if self.mode == crown_utilities.EXPLORE:
-            self._is_explore = True
+            self.is_explore_game_mode = True
             self.is_ai_opponent = True
-            self._can_auto_battle = True
-            self._total_enemies = 1
+            self.can_auto_battle = True
+            self.total_number_of_opponents = 1
             self.starting_match_title = f"✅ Explore Battle is about to begin!"
 
         if self.difficulty == "EASY":
-            self._is_easy = True
+            self.is_easy_difficulty = True
             self.health_debuff = self.health_debuff + -500
             self.stat_debuff = self.stat_debuff + 100
             self.ap_debuff = self.ap_debuff + 15
@@ -248,12 +248,12 @@ class Battle:
 
         
         if self.difficulty == "NORMAL":
-            self._is_normal = True
+            self.is_normal_difficulty = True
             self.bank_amount = 2500
             self.fam_reward_amount = 1500
         
         if self.difficulty == "HARD":
-            self._is_hard = True
+            self.is_hard_difficulty = True
             self.health_buff = self.health_buff + 3000
             self.stat_buff = self.stat_buff + 200
             self.ap_buff = self.ap_buff + 150
@@ -261,9 +261,9 @@ class Battle:
             self.fam_reward_amount = self.fam_reward_amount + 25000
 
         if self.is_ai_opponent:
-            self._ai_can_use_summon = True
+            self._ai_can_usesummon = True
 
-        if self._is_tutorial:
+        if self.is_tutorial_game_mode:
             self.starting_match_title = "Click Start Match to Begin the Tutorial!"
         
 
@@ -274,17 +274,17 @@ class Battle:
             self._selected_universe_data = universe_selection['UNIVERSE_DATA']
             self.crestlist = universe_selection['CREST_LIST']
             self.crestsearch = universe_selection['CREST_SEARCH']
-            self._currentopponent =  universe_selection['CURRENTOPPONENT']
+            self.current_opponent_number =  universe_selection['CURRENTOPPONENT']
 
             if self.mode in crown_utilities.DUNGEON_M:
-                self._list_of_opponents = self._selected_universe_data['DUNGEONS']
-                self._total_enemies = len(self._list_of_opponents)
+                self.list_of_opponents_by_name = self._selected_universe_data['DUNGEONS']
+                self.total_number_of_opponents = len(self.list_of_opponents_by_name)
             if self.mode in crown_utilities.TALE_M:
-                self._list_of_opponents = self._selected_universe_data['CROWN_TALES']
-                self._total_enemies = len(self._list_of_opponents)
+                self.list_of_opponents_by_name = self._selected_universe_data['CROWN_TALES']
+                self.total_number_of_opponents = len(self.list_of_opponents_by_name)
 
             if self.mode in crown_utilities.BOSS_M:
-                self._name_of_boss = universe_selection['BOSS_NAME']
+                self.name_of_boss = universe_selection['BOSS_NAME']
                 self._player_association = universe_selection['OGUILD']
                 if self.player.boss_fought:
                     self._boss_fought_already = True
@@ -294,16 +294,16 @@ class Battle:
             else:
                 self._player_association = "PCG"
 
-            self.starting_match_title = f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
+            self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
 
 
     def get_starting_match_title(self):
-        print(f"CURRENT OPPONENT {self._currentopponent}")
-        return   f"✅ Start Battle!  ({self._currentopponent + 1}/{self._total_enemies})"
+        print(f"CURRENT OPPONENT {self.current_opponent_number}")
+        return   f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
 
     def set_abyss_config(self, player):
         try:
-            if self._is_easy:
+            if self.is_easy_difficulty:
                 self.abyss_message = "The Abyss is unavailable on Easy self.mode! Use /difficulty to change your difficulty setting."
                 return
 
@@ -315,12 +315,12 @@ class Battle:
                 return
 
 
-            self._list_of_opponents = abyss['ENEMIES']
-            card_to_earn = self._list_of_opponents[-1] 
-            self._total_enemies = len(self._list_of_opponents)
+            self.list_of_opponents_by_name = abyss['ENEMIES']
+            card_to_earn = self.list_of_opponents_by_name[-1] 
+            self.total_number_of_opponents = len(self.list_of_opponents_by_name)
             self._ai_opponent_card_lvl = int(abyss['SPECIAL_BUFF'])
             self.abyss_floor = abyss['FLOOR']
-            self.abyss_card_to_earn = self._list_of_opponents[-1] 
+            self.abyss_card_to_earn = self.list_of_opponents_by_name[-1] 
             self._ai_title = abyss['TITLE']
             self._ai_arm = abyss['ARM']
             self.abyss_banned_card_tiers = abyss['BANNED_TIERS']
@@ -337,7 +337,7 @@ class Battle:
 
 
 
-            embedVar = discord.Embed(title=f":new_moon: Abyss Floor {str(self.abyss_floor)}  ⚔️{len(self._list_of_opponents)}", description=textwrap.dedent(f"""
+            embedVar = discord.Embed(title=f":new_moon: Abyss Floor {str(self.abyss_floor)}  ⚔️{len(self.list_of_opponents_by_name)}", description=textwrap.dedent(f"""
             {unlockable_message}
             """))
             if self.abyss_banned_card_tiers:
@@ -378,12 +378,12 @@ class Battle:
                     universe = scenario['UNIVERSE']
                     scenario_image = scenario['IMAGE']
                     reward_list = []
-                    if self._is_easy:
+                    if self.is_easy_difficulty:
                         rewards = scenario['EASY_DROPS']
                         scenario_gold = round(scenario_gold / 3)
-                    if self._is_normal:
+                    if self.is_normal_difficulty:
                         rewards = scenario['NORMAL_DROPS']
-                    if self._is_hard:
+                    if self.is_hard_difficulty:
                         rewards = scenario['HARD_DROPS']
                         scenario_gold = round(scenario_gold * 3)
 
@@ -444,16 +444,16 @@ class Battle:
 
     def set_scenario_config(self, scenario_data):
         try:
-            self._list_of_opponents = scenario_data['ENEMIES']
-            self._total_enemies = len(self._list_of_opponents)
+            self.list_of_opponents_by_name = scenario_data['ENEMIES']
+            self.total_number_of_opponents = len(self.list_of_opponents_by_name)
             self._ai_opponent_card_lvl = int(scenario_data['ENEMY_LEVEL'])
             self._selected_universe = scenario_data['UNIVERSE']
-            self._is_available = scenario_data['AVAILABLE']
+            self.is_available = scenario_data['AVAILABLE']
             self.scenario_easy_drops = scenario_data['EASY_DROPS']
             self.scenario_normal_drops = scenario_data['NORMAL_DROPS']
             self.scenario_hard_drops = scenario_data['HARD_DROPS']
 
-            self.starting_match_title = f"🎞️ Scenario Battle Confirm Start! ({self._currentopponent + 1}/{self._total_enemies})"
+            self.starting_match_title = f"🎞️ Scenario Battle Confirm Start! ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
         except:
             print("unable to set scenario config")
 
@@ -461,10 +461,10 @@ class Battle:
     def set_tutorial(self, opponent_did):
         bot_dids = ['837538366509154407', '845672426113466395']
         if opponent_did in bot_dids:
-            self._is_tutorial = True
-            self._is_pvp_match = True
+            self.is_tutorial_game_mode = True
+            self.is_pvp_game_mode = True
             # self.is_ai_opponent = True
-            self._is_turn = 0
+            self.is_turn = 0
 
 
     def set_explore_config(self, universe_data, card_data):
@@ -485,15 +485,15 @@ class Battle:
 
             self._ai_opponent_title_data = db.queryTitle({'TITLE': self._selected_universe_data[title]})
             self._ai_opponent_arm_data = db.queryArm({'ARM': self._selected_universe_data[arm]})
-            self._ai_opponent_summon_data = db.queryPet({'PET': self._selected_universe_data[summon]})
-            self._ai_opponent_summon_image = self._ai_opponent_summon_data['PATH']
-            self._ai_opponent_summon_name = self._ai_opponent_summon_data['PET']
-            self._ai_opponent_summon_universe = self._ai_opponent_summon_data['UNIVERSE']
+            self._ai_opponentsummon_data = db.queryPet({'PET': self._selected_universe_data[summon]})
+            self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
+            self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
+            self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
 
-            summon_passive = self._ai_opponent_summon_data['ABILITIES'][0]
-            self._ai_opponent_summon_power = list(summon_passive.values())[0]
-            self._ai_opponent_summon_ability_name = list(summon_passive.keys())[0]
-            self._ai_opponent_summon_type = summon_passive['TYPE']
+            summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
+            self._ai_opponentsummon_power = list(summon_passive.values())[0]
+            self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
+            self._ai_opponentsummon_type = summon_passive['TYPE']
 
         except Exception as ex:
             trace = []
@@ -514,7 +514,7 @@ class Battle:
 
     def set_corruption_config(self):
         if self._selected_universe_data['CORRUPTED']:
-            self._is_corrupted = True
+            self.is_corrupted = True
             self.ap_buff = 30
             self.stat_buff = 50
             self.health_buff = 300
@@ -526,25 +526,25 @@ class Battle:
 
     def set_who_starts_match(self, player1_speed, player2_speed):
         if player1_speed >= player2_speed:
-            self._is_turn = 0
+            self.is_turn = 0
         if player2_speed > player1_speed:
-            self._is_turn = 1
+            self.is_turn = 1
 
 
     def get_lineup(self):
-        self._match_lineup = f"{str(self._currentopponent + 1)}/{str(self._total_enemies)}"
+        self._match_lineup = f"{str(self.current_opponent_number + 1)}/{str(self.total_number_of_opponents)}"
 
 
-    def get_can_save_match(self):
+    def getmatch_can_be_saved(self):
         if self.mode not in crown_utilities.NOT_SAVE_MODES and self.difficulty != "EASY":
-            self._can_save_match = True
-        return self._can_save_match
+            self.match_can_be_saved = True
+        return self.match_can_be_saved
 
 
     def get_ai_battle_ready(self):
         print(self.selected_universe)
-        if not self._is_boss:
-            self._ai_opponent_card_data = db.queryCard({'NAME': self._list_of_opponents[self._currentopponent]})
+        if not self.is_boss_game_mode:
+            self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
             universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
             if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
                 title = 'DTITLE'
@@ -557,29 +557,29 @@ class Battle:
 
             self._ai_opponent_title_data = db.queryTitle({'TITLE': universe_data[title]})
             self._ai_opponent_arm_data = db.queryArm({'ARM': universe_data[arm]})
-            self._ai_opponent_summon_data = db.queryPet({'PET': universe_data[summon]})
-            self._ai_opponent_summon_image = self._ai_opponent_summon_data['PATH']
-            self._ai_opponent_summon_name = self._ai_opponent_summon_data['PET']
-            self._ai_opponent_summon_universe = self._ai_opponent_summon_data['UNIVERSE']
+            self._ai_opponentsummon_data = db.queryPet({'PET': universe_data[summon]})
+            self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
+            self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
+            self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
 
-            summon_passive = self._ai_opponent_summon_data['ABILITIES'][0]
-            self._ai_opponent_summon_power = list(summon_passive.values())[0]
-            self._ai_opponent_summon_ability_name = list(summon_passive.keys())[0]
-            self._ai_opponent_summon_type = summon_passive['TYPE']
+            summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
+            self._ai_opponentsummon_power = list(summon_passive.values())[0]
+            self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
+            self._ai_opponentsummon_type = summon_passive['TYPE']
         else:
             self._boss_data = db.queryBoss({"UNIVERSE": self.selected_universe, "AVAILABLE": True})
             self._ai_opponent_card_data = db.queryCard({'NAME': self._boss_data['CARD']})
             self._ai_opponent_title_data = db.queryTitle({'TITLE': self._boss_data['TITLE']})
             self._ai_opponent_arm_data = db.queryArm({'ARM': self._boss_data['ARM']})
-            self._ai_opponent_summon_data = db.queryPet({'PET': self._boss_data['PET']})
-            self._ai_opponent_summon_image = self._ai_opponent_summon_data['PATH']
-            self._ai_opponent_summon_name = self._ai_opponent_summon_data['PET']
-            self._ai_opponent_summon_universe = self._ai_opponent_summon_data['UNIVERSE']
+            self._ai_opponentsummon_data = db.queryPet({'PET': self._boss_data['PET']})
+            self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
+            self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
+            self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
 
-            summon_passive = self._ai_opponent_summon_data['ABILITIES'][0]
-            self._ai_opponent_summon_power = list(summon_passive.values())[0]
-            self._ai_opponent_summon_ability_name = list(summon_passive.keys())[0]
-            self._ai_opponent_summon_type = summon_passive['TYPE']
+            summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
+            self._ai_opponentsummon_power = list(summon_passive.values())[0]
+            self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
+            self._ai_opponentsummon_type = summon_passive['TYPE']
             
             self._arena_boss_description = self._boss_data['DESCRIPTION'][0]
             self._arenades_boss_description = self._boss_data['DESCRIPTION'][1]
@@ -598,15 +598,15 @@ class Battle:
             self._wins_boss_description = self._boss_data['DESCRIPTION'][14]
 
 
-    def get_ai_summon_ready(self, _card):
-        _card._summon_ability_name = self._ai_opponent_summon_ability_name
-        _card._summon_power = self._ai_opponent_summon_power
-        _card._summon_lvl = self._ai_opponent_summon_lvl
-        _card._summon_type = self._ai_opponent_summon_type
-        _card._summon_bond = self._ai_opponent_summon_bond
-        _card._summon_name = self._ai_opponent_summon_name
-        _card._summon_image = self._ai_opponent_summon_image
-        _card._summon_universe = self._ai_opponent_summon_universe
+    def get_aisummon_ready(self, _card):
+        _card.summon_ability_name = self._ai_opponentsummon_ability_name
+        _card.summon_power = self._ai_opponentsummon_power
+        _card.summon_lvl = self._ai_opponentsummon_lvl
+        _card.summon_type = self._ai_opponentsummon_type
+        _card.summon_bond = self._ai_opponentsummon_bond
+        _card.summon_name = self._ai_opponentsummon_name
+        _card.summon_image = self._ai_opponentsummon_image
+        _card.summon_universe = self._ai_opponentsummon_universe
 
 
     def game_over(self, player1_card, player2_card, player3_card=None):
@@ -626,8 +626,8 @@ class Battle:
                 self.match_has_ended = True
                 self.player1_wins = True
 
-        if self._is_auto_battle:
-            if self._turn_total >= 250:
+        if self.is_auto_battle_game_mode:
+            if self.turn_total >= 250:
                 self.previous_moves.append(f"⚙️**{player1_card.name}** could not defeat {player2_card.name} before the turn Limit...")
                 player1_card.health = 0
 
@@ -653,9 +653,9 @@ class Battle:
     def ai_battle_command(self, your_card, opponent_card):
         aiMove = 0
         
-        if your_card.used_resolve and not your_card.summon_used and your_card.stamina >= 30:
+        if your_card.used_resolve and not your_card.usedsummon and your_card.stamina >= 30:
             aiMove = 6
-        elif opponent_card.move4enh == "WAVE" and (self._turn_total % 10 == 0 or self._turn_total == 0 or self._turn_total == 1):
+        elif opponent_card.move4enh == "WAVE" and (self.turn_total % 10 == 0 or self.turn_total == 0 or self.turn_total == 1):
             if opponent_card.stamina >=20:
                 aiMove =4
         elif your_card._barrier_active: #Ai Barrier Checks
@@ -669,7 +669,7 @@ class Battle:
                     aiMove =4
                 else:
                     aiMove =1
-            elif your_card.move4enh == "WAVE" and (self._turn_total % 10 == 0 or self._turn_total == 0 or self._turn_total == 1):
+            elif your_card.move4enh == "WAVE" and (self.turn_total % 10 == 0 or self.turn_total == 0 or self.turn_total == 1):
                 if your_card.stamina >=20:
                     aiMove =4
                 else:
@@ -811,36 +811,30 @@ class Battle:
             self.previous_moves.append(msg)
 
 
-    def set_battle_options(self, your_card, opponent_card):
+    def set_battle_options(self, your_card, opponent_card, companion_card=None):
         b_butts = []
         u_butts = []
         c_butts = []
-
-        if your_card.used_focus and your_card.used_resolve:
-            if self._is_co_op:
-                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "6", "7", "8", "9", "s","b"]
-            else:
-                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "6", "s"]
-
-        elif your_card.used_focus and not your_card.used_resolve:
-            if self._is_co_op:
-                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "5", "7", "8", "9", "s","b"]
-            else:
-                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "5", "s"]
-
+        if self.is_turn == 3:
+            options = ["q", "Q", "0", "1", "2", "3", "4", "7"]
+            if your_card.used_focus:
+                if your_card.used_resolve:
+                    options += [6]
+                else:
+                    options += [5]
+            self.battle_options = options
         else:
+            options = ["q", "Q", "0", "1", "2", "3", "4"]
             if self._is_co_op:
-                self.battle_options =  ["q", "Q", "0", "1", "2", "3", "4", "7", "8", "9", "s","b"]
+                options += ["7", "8", "9", "s", "b"]
             else:
-                self.battle_options =  ["q", "Q", "0", "1", "2", "3", "4", "s"]
-        
-        if self._is_turn == 3:
-            if your_card.used_focus and your_card.used_resolve:
-                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "6", "7"]
-            elif c_used_focus and not c_used_resolve:
-                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "5", "7"]
-            else:
-                self.battle_options = ["q", "Q", "0", "1", "2", "3", "4", "7"]
+                options += ["s"]
+            if your_card.used_focus:
+                if your_card.used_resolve:
+                    options += ['6']
+                else:
+                    options += ['5']
+            self.battle_options = options
 
         if your_card.stamina >= 10:
             if your_card.universe == "Souls" and your_card.used_resolve:
@@ -941,7 +935,7 @@ class Battle:
                 )
             ]
 
-        if your_card.used_focus and your_card.used_resolve and not your_card.used_summon:
+        if your_card.used_focus and your_card.used_resolve and not your_card.usedsummon:
             u_butts.append(
                 manage_components.create_button(
                     style=ButtonStyle.green,
@@ -967,7 +961,7 @@ class Battle:
             ),
         )
 
-        if not self._is_explore and not self._is_easy and not self._is_abyss and not self._is_tutorial and not self._is_scenario:
+        if not self.is_explore_game_mode and not self.is_easy_difficulty and not self.is_abyss_game_mode and not self.is_tutorial_game_mode and not self.is_scenario_game_mode:
             u_butts.append(
                 manage_components.create_button(
                 style=ButtonStyle.red,
@@ -983,43 +977,34 @@ class Battle:
 
 
     def set_levels_message(self, your_card, opponent_card, companion_card=None):
-        p1_msg = f"🔰 *{your_card.card_lvl} {your_card.name}*"
-        if int(your_card.card_lvl) >= 200:
-            p1_msg = f"🔱 *{your_card.card_lvl} {your_card.name}*"
-        if int(your_card.card_lvl) >= 700:
-            p1_msg = f"⚜️ *{your_card.card_lvl} {your_card.name}*"
-        if int(your_card.card_lvl) >=999:
-            p1_msg = f"🏅 *{your_card.card_lvl} {your_card.name}*"
+        level_to_emoji = {
+            0: "🔰",
+            200: "🔱",
+            700: "⚜️",
+            999: "🏅"
+        }
 
-        p2_msg = f"🔰 *{opponent_card.card_lvl} {opponent_card.name}*"
-        if int(opponent_card.card_lvl) >= 200:
-            p2_msg = f"🔱 *{opponent_card.card_lvl} {opponent_card.name}*"
-        if int(opponent_card.card_lvl) >= 700:
-            p2_msg = f"⚜️ *{opponent_card.card_lvl} {opponent_card.name}*"
-        if int(opponent_card.card_lvl) >=999:
-            p2_msg = f"🏅 *{opponent_card.card_lvl} {opponent_card.name}*"
+        def get_player_message(card):
+            lvl = int(card.card_lvl)
+            emoji = level_to_emoji.get(lvl, level_to_emoji[0])
+            return f"{emoji} *{lvl} {card.name}*"
 
+        p1_msg = get_player_message(your_card)
+        p2_msg = get_player_message(opponent_card)
         message = f"{p1_msg} 🆚\n{p2_msg}"
 
         if self._is_co_op:
-            p3_msg = f"🔰 *{companion_card.card_lvl} {companion_card.name}*"
-            if int(companion_card.card_lvl) >= 200:
-                p3_msg = f"🔱 *{companion_card.card_lvl} {companion_card.name}*"
-            if int(companion_card.card_lvl) >= 700:
-                p3_msg = f"⚜️ *{companion_card.card_lvl} {companion_card.name}*"
-            if int(companion_card.card_lvl) >=999:
-                p3_msg = f"🏅 *{companion_card.card_lvl} {companion_card.name}*"
-
-            message = f"{p1_msg} & {p3_msg} 🆚\n {p2_msg}"
+            p3_msg = get_player_message(companion_card)
+            message = f"{p1_msg} & {p3_msg} 🆚\n{p2_msg}"
 
         return message
 
 
     def error_end_match_message(self):
         response = ""
-        if not self._is_abyss and not self._is_scenario:
-            if not self._is_tutorial:
-                if self._is_pvp_match:
+        if not self.is_abyss_game_mode and not self.is_scenario_game_mode:
+            if not self.is_tutorial_game_mode:
+                if self.is_pvp_game_mode:
                     response = f"Your game timed out. Your channel has been closed"
                 else:
                     response = f"Your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
@@ -1030,71 +1015,37 @@ class Battle:
         else:
             respone = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
             response = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
-        _battle.previous_moves.append(f"(**{self._turn_total}**) 💨 You fled...")
+        # battle_config.previous_moves.append(f"(**{self.turn_total}**) 💨 You fled...")
         self.match_has_ended = True
         return response
 
+
     def next_turn(self):
         if self._is_co_op:
-            if self._is_turn == 1:
-                self._is_turn = 2
-                return
-            
-            if self._is_turn == 2:
-                self._is_turn = 3
-                return
-            
-            if self._is_turn == 3:
-                self._is_turn = 0
-                return
-
-        if self._is_turn == 0:
-            self._is_turn = 1
-            return 
-
-        if self._is_turn == 1:
-            self._is_turn = 0
-            return
-
+            if self.is_turn == 3:
+                self.is_turn = 0
+            else:
+                self.is_turn += 1
+        else:
+            self.is_turn = (self.is_turn + 1) % 2
 
     def repeat_turn(self):
-        if self._is_co_op:
-            if self._is_turn == 1:
-                self._is_turn = 1
-            
-            if self._is_turn == 2:
-                self._is_turn = 2
-            
-            if self._is_turn == 3:
-                self._is_turn = 3
-
-        if self._is_turn == 0:
-            self._is_turn = 0
-        
-        if self._is_turn == 1:
-            self._is_turn = 1
+        self.is_turn = self.is_turn
 
 
     def previous_turn(self):
         if self._is_co_op:
-            if self._is_turn == 1:
-                self._is_turn = 0
-            
-            if self._is_turn == 2:
-                self._is_turn = 1
-            
-            if self._is_turn == 3:
-                self._is_turn = 2
-
-        if self._is_turn == 0:
-            self._is_turn = 1
-        
-        if self._is_turn == 1:
-            self._is_turn = 0
-
+            if self.is_turn == 3:
+                self.is_turn = 2
+            elif self.is_turn == 2:
+                self.is_turn = 1
+            elif self.is_turn == 1:
+                self.is_turn = 0
+        else:
+            self.is_turn = int(not self.is_turn)
 
     def get_co_op_bonuses(self, player1, player2):
-        if self._is_tales or self._is_dungeon:
+        if self.is_tales_game_mode or self.is_dungeon_game_mode:
             if player1.guild == player2.guild and player1.guild != 'PCG':
                 self.are_teammates = True
                 self.co_op_stat_bonus = 50
@@ -1103,11 +1054,11 @@ class Battle:
                 self.co_op_health_bonus=100
             
             if self.are_teammates:
-                bonus_message = f":checkered_flag:**{player1.guild}:** 🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
+                bonus_message = f":checkered_flag:**{player1.guild}:** 🗡️**+{co_op_stat_bonus}** 🛡️**+{co_op_stat_bonus}**"
                 if self.are_family_members:
-                    bonus_message = f":family_mwgb:**{player1.family}:** ❤️**+{hlt_bonus}**\n:checkered_flag:**{player1.guild}:**🗡️**+{stat_bonus}** 🛡️**+{stat_bonus}**"
+                    bonus_message = f":family_mwgb:**{player1.family}:** ❤️**+{co_op_health_bonus}**\n:checkered_flag:**{player1.guild}:**🗡️**+{co_op_stat_bonus}** 🛡️**+{co_op_stat_bonus}**"
             elif self.are_family_members:
-                    bonus_message = f":family_mwgb:**{player1.family}:** ❤️**+{hlt_bonus}**"
+                    bonus_message = f":family_mwgb:**{player1.family}:** ❤️**+{co_op_health_bonus}**"
             else:
                 bonus_message = f"Join a Guild or Create a Family for Coop Bonuses!"
 
@@ -1164,10 +1115,10 @@ class Battle:
                                 winner_arm.name, "N/A", "PVP", False)
         
         victory_message = f":zap: {winner_card.name} WINS!"
-        victory_description = f"Match concluded in {self._turn_total} turns."
-        if self._is_tutorial:
+        victory_description = f"Match concluded in {self.turn_total} turns."
+        if self.is_tutorial_game_mode:
             victory_message = f":zap: TUTORIAL VICTORY"
-            victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self._turn_total} turns."
+            victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self.turn_total} turns."
         
         embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
         {self.get_previous_moves_embed()}
@@ -1199,10 +1150,10 @@ class Battle:
                 await crown_utilities.bless(self.bounty, winner.did)
                 drop_response = await crown_utilities.store_drop_card(ctx, winner, winner_card, self._selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
             
-                message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self._turn_total} rounds.\n\n{drop_response}"
+                message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
             if self.explore_type == "gold":
                 await crown_utilities.bless(self.bounty, winner.did)
-                message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self._turn_total} rounds."
+                message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self.turn_total} rounds."
             
             if winner.association != "PCG":
                 await crown_utilities.blessguild(250, winner.association)
@@ -1216,7 +1167,7 @@ class Battle:
             if self.explore_type == "glory":
                 await crown_utilities.curse(1000, winner.did)
             
-            message = f"YOU LOSE!\nThe game lasted {self._turn_total} rounds."
+            message = f"YOU LOSE!\nThe game lasted {self.turn_total} rounds."
 
         embedVar = discord.Embed(title=f"{message}",description=textwrap.dedent(f"""
         {self.get_previous_moves_embed()}
@@ -1226,29 +1177,39 @@ class Battle:
 
 
     async def get_win_rewards(self, player):
+        reward_data = {}
+
         if player.rift == 1:
             rift_response = db.updateUserNoFilter({'DID': str(player.did)}, {'$set': {'RIFT': 0}})
 
         if player.family != "PCG":
             family_bank = await crown_utilities.blessfamily(self.fam_reward_amount, player.family)
-        
+            reward_data['FAMILY_BANK'] = family_bank
+            
         if player.guild != "PCG":
             team_bank = await crown_utilities.blessteam(self.bank_amount, player.guild)
-        
+            reward_data['TEAM_BANK'] = team_bank
+            
         random_element = crown_utilities.select_random_element(self.difficulty, self.mode)
         essence = crown_utilities.inc_essence(player.did, random_element["ELEMENT"], random_element["ESSENCE"])
+        reward_data['RANDOM_ELEMENT'] = random_element['ESSENCE']
+        reward_data['ESSENCE'] = essence
 
-        return {"RANDOM_ELEMENT": random_element['ESSENCE'], "ESSENCE": essence}
+        return reward_data
     
 
     async def get_corruption_message(self, ctx):
-        if not self._is_easy and (self._is_tales or self._is_dungeon):
-            if self._is_corrupted:
-                corrupted_message = await crown_utilities.corrupted_universe_handler(ctx, self.selected_universe, self.difficulty)
-                if not corrupted_message:
-                    corrupted_message = "You must dismantle a card from this universe to enable crafting."
-                return corrupted_message
-            return ""
+        corruption_message = ""
+
+        if self.is_easy_difficulty or (not self.is_tales_game_mode and not self.is_dungeon_game_mode):
+            return corruption_message
+
+        if self.is_corrupted:
+            corruption_message = await crown_utilities.corrupted_universe_handler(ctx, self.selected_universe, self.difficulty)
+            if not corruption_message:
+                corruption_message = "You must dismantle a card from this universe to enable crafting."
+
+        return corruption_message
 
 
 def ai_enhancer_moves(your_card, opponent_card):

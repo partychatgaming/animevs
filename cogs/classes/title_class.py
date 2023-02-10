@@ -242,10 +242,10 @@ class Title:
                 player1_card.attack = player1_card.attack + self.passive_value
                 player1_card.card_lvl_ap_buff = player1_card.card_lvl_ap_buff + self.passive_value
             if self.passive_type == "SLOW":
-                if battle._turn_total != 0:
-                    battle._turn_total = battle._turn_total - 1
+                if battle.turn_total != 0:
+                    battle.turn_total = battle.turn_total - 1
             if self.passive_type == "HASTE":
-                battle._turn_total = battle._turn_total + 1
+                battle.turn_total = battle.turn_total + 1
             if self.passive_type == "STANCE":
                 tempattack = player1_card.attack + self.passive_value
                 player1_card.attack = player1_card.defense
@@ -265,7 +265,7 @@ class Title:
             if self.passive_type == "BLAST":
                 player2_card.health = round(player2_card.health - self.passive_value)
             if self.passive_type == "WAVE":
-                if battle._turn_total % 10 == 0:
+                if battle.turn_total % 10 == 0:
                     player2_card.health = round(player2_card.health - 100)
 
 

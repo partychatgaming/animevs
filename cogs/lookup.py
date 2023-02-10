@@ -115,11 +115,11 @@ class Lookup(commands.Cog):
                 
                 family_info = db.queryFamily({"HEAD": str(family)})
                 if family_info:
-                    family_summon = family_info['SUMMON']
-                    family_summon_name = family_summon['NAME']
+                    familysummon = family_info['SUMMON']
+                    familysummon_name = familysummon['NAME']
                 fs_message = ""
                 if d['FAMILY_PET']:
-                    fs_message = f":family_mwgb: **Family Summon** *{family_summon_name}*"
+                    fs_message = f":family_mwgb: **Family Summon** *{familysummon_name}*"
                 titles = d['TITLE']
                 arm = d['ARM']
                 battle_history = d['BATTLE_HISTORY']
@@ -940,8 +940,8 @@ class Lookup(commands.Cog):
                 summon = list(summon_object.values())[0]
                 head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
                 if head_vault:
-                    vault_summons = head_vault['PETS']
-                    for l in vault_summons:
+                    vaultsummons = head_vault['PETS']
+                    for l in vaultsummons:
                         if summon == l['NAME']:
                             level = l['LVL']
                             xp = l['EXP']
@@ -954,8 +954,8 @@ class Lookup(commands.Cog):
                 else:
                     partnervault =  db.queryVault({'OWNER' : partner_data['DISNAME']})
                     if partnervault:
-                        vault_summons = partnervault['PETS']
-                        for l in vault_summons:
+                        vaultsummons = partnervault['PETS']
+                        for l in vaultsummons:
                             if summon == l['NAME']:
                                 level = l['LVL']
                                 xp = l['EXP']
@@ -1342,8 +1342,8 @@ class Lookup(commands.Cog):
                                 summon = summon_object['NAME']
                                 head_vault = db.queryVault({'OWNER' : head_data['DISNAME']})
                                 if head_vault:
-                                    vault_summons = head_vault['PETS']
-                                    for l in vault_summons:
+                                    vaultsummons = head_vault['PETS']
+                                    for l in vaultsummons:
                                         if summon == l['NAME']:
                                             level = l['LVL']
                                             xp = l['EXP']
@@ -1356,8 +1356,8 @@ class Lookup(commands.Cog):
                                 else:
                                     partnervault =  db.queryVault({'OWNER' : partner_data['DISNAME']})
                                     if partnervault:
-                                        vault_summons = partnervault['PETS']
-                                        for l in vault_summons:
+                                        vaultsummons = partnervault['PETS']
+                                        for l in vaultsummons:
                                             if summon == l['NAME']:
                 
                                                 level = l['LVL']
@@ -1424,7 +1424,7 @@ class Lookup(commands.Cog):
                                             name = d['DISNAME'].split("#",1)[0]
                                             avatar = d['AVATAR']
                                             balance = vault['BALANCE']
-                                            current_summon = d['PET']
+                                            currentsummon = d['PET']
                                             pets_list = vault['PETS']
                                             
                                             total_pets = len(pets_list)
@@ -1476,13 +1476,13 @@ class Lookup(commands.Cog):
                                                 if button_ctx.author == ctx.author:
                                                     updated_vault = db.queryVault({'DID': d['DID']})
                                                     sell_price = 0
-                                                    selected_summon = str(button_ctx.origin_message.embeds[0].title)
+                                                    selectedsummon = str(button_ctx.origin_message.embeds[0].title)
                                                     user_query = {'DID': str(ctx.author.id)}
                                                     user_vault = db.queryVault(user_query)
 
-                                                    vault_summons = user_vault['PETS']
-                                                    for l in vault_summons:
-                                                        if selected_summon == l['NAME']:
+                                                    vaultsummons = user_vault['PETS']
+                                                    for l in vaultsummons:
+                                                        if selectedsummon == l['NAME']:
                                                             level = l['LVL']
                                                             xp = l['EXP']
                                                             pet_ability = list(l.keys())[3]

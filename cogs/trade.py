@@ -235,12 +235,12 @@ class Trade(commands.Cog):
                                 m_cards = trade_check['MCARDS']
                                 m_titles = trade_check['MTITLES']
                                 m_arms = trade_check['MARMS']
-                                m_summons = trade_check['MSUMMONS']
+                                msummons = trade_check['MSUMMONS']
                                 m_coins = trade_check['MCOIN']
                                 b_cards = trade_check['BCARDS']
                                 b_titles = trade_check['BTITLES']
                                 b_arms = trade_check['BARMS']
-                                b_summons = trade_check['BSUMMONS']
+                                bsummons = trade_check['BSUMMONS']
                                 b_coins = trade_check['BCOIN']
                                 tax = trade_check['TAX']
                                 tax_split = tax/2
@@ -267,12 +267,12 @@ class Trade(commands.Cog):
                                 m_cardlist = "\n".join(m_cards)
                                 m_titlelist = "\n".join(m_titles)
                                 m_armlist = "\n".join(m_arms)
-                                m_summonlist = "\n".join(m_summons)
+                                msummonlist = "\n".join(msummons)
                                 
                                 b_cardlist = "\n".join(b_cards)
                                 b_titlelist = "\n".join(b_titles)
                                 b_armlist = "\n".join(b_arms)
-                                b_summonlist = "\n".join(b_summons)
+                                bsummonlist = "\n".join(bsummons)
                                 
                                 
                                 m_coin_diff = int(bvault['BALANCE']) - (int(bvault['BALANCE']) - b_fees + m_coins)
@@ -314,7 +314,7 @@ class Trade(commands.Cog):
                                     db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'ARMS': {'ARM': str(a)}}})
                                     db.updateVaultNoFilter({'DID': str(buyer_info['DID'])},{'$addToSet':{'ARMS': {'ARM': str(a), 'DUR': durability}}})
                                     
-                                for s in m_summons:
+                                for s in msummons:
                                     summons = mvault['PETS']
                                     for l in summons:
                                         if s == l['NAME']:
@@ -356,7 +356,7 @@ class Trade(commands.Cog):
                                     db.updateVaultNoFilter({'DID': str(buyer_info['DID'])},{'$pull':{'ARMS': {'ARM': str(a)}}})
                                     db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'ARMS': {'ARM': str(a), 'DUR': durability}}})
                                     
-                                for s in b_summons:
+                                for s in bsummons:
                                     summons = bvault['PETS']
                                     for l in summons:
                                         if s == l['NAME']:
@@ -398,8 +398,8 @@ class Trade(commands.Cog):
                                 """), colour=0x7289da)
                                 embedVar.set_footer(text=f"Trade Tax: {'{:,}'.format(trade_check['TAX'])}\n{trade_check['TIMESTAMP']}")
                                 await ctx.author.send(embed=embedVar)
-                                # await ctx.author.send(f"*Party Chat Accounting*\n**💸 {trade_check['MERCHANT']} SOLD**\n\n**🎴 CARDS SOLD**\n{m_cardlist}\n**🎗️ TITLES SOLD**\n{m_titlelist}!\n**🦾 ARMS SOLD**\n{m_armlist}!\n**🧬 SUMMONS SOLD**\n{m_summonlist}!\n :coin: **TAX**\n {'{:,}'.format(tax_split)}!\n**COIN DIFF**\n{micon} {m_coin_diff}!\n\n")
-                                # await ctx.author.send(f"\n\n**{trade_check['BUYER']} TRADED**\n\n🎴 **CARDS**\n{b_cardlist}\n🎗️ **TITLES**\n{b_titlelist}!\n🦾 **ARMS**\n {b_armlist}!\n🧬 **SUMMONS**\n {b_summonlist}!\n**COIN DIFF**\n{bicon} {b_coin_diff}!\n\n{trade_check['TIMESTAMP']}")
+                                # await ctx.author.send(f"*Party Chat Accounting*\n**💸 {trade_check['MERCHANT']} SOLD**\n\n**🎴 CARDS SOLD**\n{m_cardlist}\n**🎗️ TITLES SOLD**\n{m_titlelist}!\n**🦾 ARMS SOLD**\n{m_armlist}!\n**🧬 SUMMONS SOLD**\n{msummonlist}!\n :coin: **TAX**\n {'{:,}'.format(tax_split)}!\n**COIN DIFF**\n{micon} {m_coin_diff}!\n\n")
+                                # await ctx.author.send(f"\n\n**{trade_check['BUYER']} TRADED**\n\n🎴 **CARDS**\n{b_cardlist}\n🎗️ **TITLES**\n{b_titlelist}!\n🦾 **ARMS**\n {b_armlist}!\n🧬 **SUMMONS**\n {bsummonlist}!\n**COIN DIFF**\n{bicon} {b_coin_diff}!\n\n{trade_check['TIMESTAMP']}")
                                 await ctx.send(f"Trade Finished, {ctx.author.mention} Check your DMS for Receipt")
                                                                
                                 

@@ -27,7 +27,7 @@
 #         self._deck_card = ""
 #         self._deck_title = ""
 #         self._deck_arm = ""
-#         self._deck_summon = ""
+#         self._decksummon = ""
 
 
 #     def has_storage(self):
@@ -49,7 +49,7 @@
 #             self._deck_card = db.queryCard({'NAME': str(active_deck['CARD'])})
 #             self._deck_title = db.queryTitle({'TITLE': str(active_deck['TITLE'])})
 #             self._deck_arm = db.queryArm({'ARM': str(active_deck['ARM'])})
-#             self._deck_summon = db.queryPet({'PET': str(active_deck['PET'])})
+#             self._decksummon = db.queryPet({'PET': str(active_deck['PET'])})
 #         except:
 #             print("Error setting deck config")
 

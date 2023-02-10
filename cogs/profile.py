@@ -6,9 +6,8 @@ from pymongo import response
 # from soupsieve import select
 import bot as main
 import crown_utilities
-# from .crownunlimited import battle_commands, destiny as update_destiny_call
 import db
-import dataclasses as data #
+import classes as data #
 import messages as m
 import numpy as np
 import help_commands as h
@@ -28,6 +27,7 @@ from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.player_class import Player
+from .crownunlimited import enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping, battle_commands, destiny as update_destiny_call
 import random
 import textwrap
 from discord_slash import cog_ext, SlashContext
@@ -259,23 +259,30 @@ class Profile(commands.Cog):
             vault = db.queryVault({'DID': d['DID']})
             if card:
                 try:
-                    c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'])
+                    c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'])
                     t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                     a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
-                    player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'])                 
+                    v = Vault(vault['OWNER'], vault['DID'], vault['BALANCE'], vault['CARDS'], vault['TITLES'], vault['ARMS'], vault['PETS'], vault['DECK'], vault['CARD_LEVELS'], vault['QUESTS'], vault['DESTINY'], vault['GEMS'], vault['STORAGE'], vault['TALISMANS'], vault['ESSENCE'], vault['TSTORAGE'], vault['ASTORAGE'])
+                    player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'])                 
                     
-                    durability = a.set_durability(player.equipped_arm, player._arms)
+                    durability = a.set_durability(player.equipped_arm, v.arms)
                     
-                    c.set_card_level_buffs(player._card_levels)
+                    c.set_card_level_buffs(v.card_levels)
                     c.set_affinity_message()
-                    c.set_arm_config(a.passive_type, a.name, a.passive_value, a.element)
+                    c.set_arm_attack_swap(a.passive_type, a.name, a.passive_value, a.element)
+                    c.set_passive_values()
+                    
+                    a.set_pokemon_arm()
+                    t.set_pokemon_title()
+
+  
+                    player.set_talisman_message(v.talismans)
+                    player.setsummon_messages(v.summons)
 
                     a.set_arm_message(player.performance, c.universe)
                     t.set_title_message(player.performance, c.universe)
 
-                    player.set_talisman_message()
-                    player.set_summon_messages()
-                    
+
                     if player.performance:
                         embedVar = discord.Embed(title=f"{c.set_card_level_icon()}{c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                         :mahjong: **{c.tier}**
@@ -291,12 +298,12 @@ class Profile(commands.Cog):
                         {player.summon_power_message}
                         {player.summon_lvl_message}
 
-                        🩸 **{c.passive_name}:** {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}                
+                        🩸 **{c.passive_name}:** {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
                         
                         {c.move1_emoji} **{c.move1}:** {c.move1ap}
                         {c.move2_emoji} **{c.move2}:** {c.move2ap}
                         {c.move3_emoji} **{c.move3}:** {c.move3ap}
-                        🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{crown_utilities.enhancer_suffix_mapping[c.move4enh]}
+                        🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
 
                         ♾️ {c.set_trait_message()}
                         """),colour=000000)
@@ -311,6 +318,8 @@ class Profile(commands.Cog):
                         await ctx.send(embed=embedVar)
                     
                     else:
+                        card_file = showcard("non-battle", card, arm, c.max_health, c.health, c.max_stamina, c.stamina, c.resolved, title, c.focused, c.attack, c.defense, c.turn, c.move1ap, c.move2ap, c.move3ap, c.move4ap, c.move4enh, c.card_lvl, None)
+
                         embedVar = discord.Embed(title=f"".format(self), colour=000000)
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                         embedVar.set_image(url="attachment://image.png")
@@ -330,7 +339,7 @@ class Profile(commands.Cog):
                         else:
                             embedVar.set_footer(text=f"Max Level")
                         
-                        await ctx.send(file=c.showcard("non-battle", a, t, 0, 0), embed=embedVar)
+                        await ctx.send(file=card_file, embed=embedVar)
                 except Exception as ex:
                     trace = []
                     tb = ex.__traceback__
@@ -1031,7 +1040,7 @@ class Profile(commands.Cog):
                     :earth_africa: **Universe:** {resp['UNIVERSE']}"""), 
                     colour=0x7289da)
                     embedVar.set_thumbnail(url=avatar)
-                    embedVar.set_footer(text=f"{title_passive_type}: {crown_utilities.title_enhancer_mapping[title_passive_type]}")
+                    embedVar.set_footer(text=f"{title_passive_type}: {title_enhancer_mapping[title_passive_type]}")
                     embed_list.append(embedVar)
                 
                 buttons = [
@@ -1508,7 +1517,7 @@ class Profile(commands.Cog):
                     else:
                         arm_type = f"**Unique Passive**"
                         arm_message = f"🦠 **{arm_passive_type.title()}:** {arm_passive_value}"
-                        footer = f"{arm_passive_type}: {crown_utilities.enhancer_mapping[arm_passive_type]}"
+                        footer = f"{arm_passive_type}: {enhancer_mapping[arm_passive_type]}"
 
 
 
@@ -2456,7 +2465,7 @@ class Profile(commands.Cog):
                 name = d['DISNAME'].split("#",1)[0]
                 avatar = d['AVATAR']
                 balance = vault['BALANCE']
-                current_summon = d['PET']
+                currentsummon = d['PET']
                 pets_list = vault['PETS']
 
                 total_pets = len(pets_list)
@@ -2521,7 +2530,7 @@ class Profile(commands.Cog):
                     🦠 **Type:** {pet['TYPE']}"""), 
                     colour=0x7289da)
                     embedVar.set_thumbnail(url=avatar)
-                    embedVar.set_footer(text=f"{pet['TYPE']}: {crown_utilities.enhancer_mapping[pet['TYPE']]}")
+                    embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
                     embed_list.append(embedVar)
                 
                 buttons = [
@@ -2536,7 +2545,7 @@ class Profile(commands.Cog):
                     if button_ctx.author == ctx.author:
                         updated_vault = db.queryVault({'DID': d['DID']})
                         sell_price = 0
-                        selected_summon = str(button_ctx.origin_message.embeds[0].title)
+                        selectedsummon = str(button_ctx.origin_message.embeds[0].title)
                         user_query = {'DID': str(ctx.author.id)}
                         
                         if button_ctx.custom_id == "Equip":
@@ -2545,9 +2554,9 @@ class Profile(commands.Cog):
                             self.stop = True
                         
                         elif button_ctx.custom_id =="Trade":
-                            summon_data = db.queryPet({'PET' : selected_summon})
+                            summon_data = db.queryPet({'PET' : selectedsummon})
                             summon_name = summon_data['PET']
-                            if summon_name == current_summon:
+                            if summon_name == currentsummon:
                                 await button_ctx.send("You cannot trade equipped summons.")
                                 return
                             sell_price = 5000
@@ -2556,14 +2565,14 @@ class Profile(commands.Cog):
                             bvalidation=False
                             item_already_in_trade=False
                             if mtrade:
-                                if selected_summon in mtrade['MSUMMONS']:
+                                if selectedsummon in mtrade['MSUMMONS']:
                                     await ctx.send(f"{ctx.author.mention} summon already in **Trade**")
                                     item_already_in_trade=True
                                 mvalidation=True
                             else:
                                 btrade = db.queryTrade({'BDID' : str(ctx.author.id), 'OPEN' : True})
                                 if btrade:
-                                    if selected_summon in btrade['BSUMMONS']:
+                                    if selectedsummon in btrade['BSUMMONS']:
                                         await ctx.send(f"{ctx.author.mention} summon already in **Trade**")
                                         item_already_in_trade=True
                                     bvalidation=True
@@ -2584,7 +2593,7 @@ class Profile(commands.Cog):
                                     )
                                 ]
                                 trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
-                                await button_ctx.send(f"Woudl you like to remove **{selected_summon}** from the **Trade**?", components=[trade_buttons_action_row])
+                                await button_ctx.send(f"Woudl you like to remove **{selectedsummon}** from the **Trade**?", components=[trade_buttons_action_row])
                                 
                                 def check(button_ctx):
                                     return button_ctx.author == ctx.author
@@ -2598,13 +2607,13 @@ class Profile(commands.Cog):
                                         neg_sell_price = 0 - abs(int(sell_price))
                                         if mvalidation:
                                             trade_query = {'MDID' : str(button_ctx.author.id), 'BDID' : str(mtrade['BDID']), 'OPEN' : True}
-                                            update_query = {"$pull" : {'MSUMMONS': selected_summon}, "$inc" : {'TAX' : int(neg_sell_price)}}
+                                            update_query = {"$pull" : {'MSUMMONS': selectedsummon}, "$inc" : {'TAX' : int(neg_sell_price)}}
                                             resp = db.updateTrade(trade_query, update_query)
                                             await button_ctx.send("Returned.")
                                             self.stop = True
                                         elif bvalidation:
                                             trade_query = {'MDID' : str(btrade['MDID']),'BDID' : str(button_ctx.author.id), 'OPEN' : True}
-                                            update_query = {"$pull" : {'BSUMMONS': selected_summon}, "$inc" : {'TAX' : int(neg_sell_price)}}
+                                            update_query = {"$pull" : {'BSUMMONS': selectedsummon}, "$inc" : {'TAX' : int(neg_sell_price)}}
                                             resp = db.updateTrade(trade_query, update_query)
                                             await button_ctx.send("Returned.")
                                             self.stop = True
@@ -2641,7 +2650,7 @@ class Profile(commands.Cog):
                                     )
                                 ]
                                 trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
-                                await button_ctx.send(f"Are you sure you want to trade **{selected_summon}**", components=[trade_buttons_action_row])
+                                await button_ctx.send(f"Are you sure you want to trade **{selectedsummon}**", components=[trade_buttons_action_row])
                                 try:
                                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120)
                                     if button_ctx.custom_id == "no":
@@ -2650,13 +2659,13 @@ class Profile(commands.Cog):
                                     if button_ctx.custom_id == "yes":
                                         if mvalidation:
                                             trade_query = {'MDID' : str(ctx.author.id), 'BDID' : str(mtrade['BDID']), 'OPEN' : True}
-                                            update_query = {"$push" : {'MSUMMONS': selected_summon}, "$inc" : {'TAX' : int(sell_price)}}
+                                            update_query = {"$push" : {'MSUMMONS': selectedsummon}, "$inc" : {'TAX' : int(sell_price)}}
                                             resp = db.updateTrade(trade_query, update_query)
                                             await button_ctx.send("Traded.")
                                             self.stop = True
                                         elif bvalidation:
                                             trade_query = {'MDID' : str(btrade['MDID']),'BDID' : str(ctx.author.id), 'OPEN' : True}
-                                            update_query = {"$push" : {'BSUMMONS': selected_summon}, "$inc" : {'TAX' : int(sell_price)}}
+                                            update_query = {"$push" : {'BSUMMONS': selectedsummon}, "$inc" : {'TAX' : int(sell_price)}}
                                             resp = db.updateTrade(trade_query, update_query)
                                             await button_ctx.send("Traded.")
                                             self.stop = True
@@ -2680,9 +2689,9 @@ class Profile(commands.Cog):
                                     return   
                         
                         elif button_ctx.custom_id == "Dismantle":
-                            summon_data = db.queryPet({'PET' : selected_summon})
+                            summon_data = db.queryPet({'PET' : selectedsummon})
                             summon_name = summon_data['PET']
-                            if summon_name == current_summon:
+                            if summon_name == currentsummon:
                                 await button_ctx.send("You cannot dismanetle equipped summonss.")
                                 return
                             dismantle_price = 10000   
@@ -3030,9 +3039,9 @@ class Profile(commands.Cog):
                                             currentopponent = universe['CROWN_TALES'].index(opp)
                                             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
                                         
-                            # await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild,
-                            #         crestlist, crestsearch, sowner, oteam, ofam, currentopponent, None, None, None,
-                            #         None, None, None, None, None)
+                            await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild,
+                                    crestlist, crestsearch, sowner, oteam, ofam, currentopponent, None, None, None,
+                                    None, None, None, None, None)
                             
                             self.stop = True
                     else:
@@ -3591,8 +3600,8 @@ class Profile(commands.Cog):
                                 bless_amount = round((bless_amount - bless_reduction)/2)
                             else: 
                                 bless_amount = round(bless_amount /2) #Send bless amount for price in utilities
-                        u = await main.bot.fetch_user(str(ctx.author.id))      
-                        response = await crown_utilities.store_drop_card(u, str(ctx.author.id), title['TITLE'], universe_name, updated_vault, "Titles_NoDestinies", bless_amount, bless_amount, "Purchase", True, int(price), "titles")
+                                
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), title['TITLE'], universe_name, updated_vault, "Titles_NoDestinies", bless_amount, bless_amount, "Purchase", True, int(price), "titles")
                         await button_ctx.send(response)
                             # await button_ctx.send(f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!") 
                         #     #await crown_utilities.curse(bless_amount, str(ctx.author.id)) 
@@ -3629,8 +3638,7 @@ class Profile(commands.Cog):
                         else:
                             selection = random.randint(0,selection_length)
                             arm = list_of_arms[selection]['ARM']
-                        u = await main.bot.fetch_user(str(ctx.author.id))
-                        response = await crown_utilities.store_drop_card(u, str(ctx.author.id), arm, universe_name, updated_vault, 25, price, price, "Purchase", True, int(price), "arms")
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), arm, universe_name, updated_vault, 25, price, price, "Purchase", True, int(price), "arms")
                         await button_ctx.send(response)
                         
                         # if arm not in current_arms:
@@ -3666,8 +3674,8 @@ class Profile(commands.Cog):
                             card = list_of_cards[selection]
                         card_name = card['NAME']
                         tier = 0
-                        u = await main.bot.fetch_user(str(ctx.author.id))
-                        response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
+
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                         await button_ctx.send(response)
 
 
@@ -3694,8 +3702,8 @@ class Profile(commands.Cog):
                             card = list_of_cards[selection]
                         card_name = card['NAME']
                         tier = 0
-                        u = await main.bot.fetch_user(str(ctx.author.id))
-                        response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
+                        
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                         await button_ctx.send(response)
 
 
@@ -3731,8 +3739,8 @@ class Profile(commands.Cog):
                             card = list_of_cards[selection]
                         card_name = card['NAME']
                         tier = 0
-                        u = await main.bot.fetch_user(str(ctx.author.id))
-                        response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
+
+                        response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                         await button_ctx.send(response)
 
                 else:
@@ -4175,9 +4183,9 @@ class Profile(commands.Cog):
                     {move1_emoji} **{move1}:** {move1ap}
                     {move2_emoji} **{move2}:** {move2ap}
                     {move3_emoji} **{move3}:** {move3ap}
-                    🦠 **{move4}:** {move4enh} {move4ap}{crown_utilities.enhancer_suffix_mapping[move4enh]}
+                    🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
 
-                    🩸 **{passive_name}:** {passive_type.title()} {passive_num}{crown_utilities.passive_enhancer_suffix_mapping[passive_type]}
+                    🩸 **{passive_name}:** {passive_type.title()} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
                     ♾️ {traitmessage}
                     """), colour=0x7289da)
                     embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
@@ -5247,8 +5255,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                             selection = random.randint(0,selection_length)
                             card = list_of_cards[selection]
                         card_name = card['NAME']
-                        u = await main.bot.fetch_user(str(player.author.id))
-                        response = await crown_utilities.store_drop_card(u, str(player.author.id), card_name, universe, vault, owned_destinies, 0, 100000, "Purchase", False, 0, "cards")
+                        response = await crown_utilities.store_drop_card(str(player.author.id), card_name, universe, vault, owned_destinies, 0, 100000, "Purchase", False, 0, "cards")
                         if response:
                             query = {'DID': str(player.author.id)}
                             update_query = {
@@ -5342,7 +5349,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                                         can_afford = True
                                             
                                             if can_afford:
-                                                # r = await update_destiny_call(button_ctx.author, selected_destiny, "Tales")
+                                                r = await update_destiny_call(button_ctx.author, selected_destiny, "Tales")
                                                 
                                                 if r == "Your storage is full. You are unable to completed the destiny until you have available storage for your new destiny card.":
                                                     await button_ctx.send(f"Your storage is full. You are unable to completed the destiny until you have available storage for your new destiny card.")
@@ -5499,9 +5506,9 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                 {basic_attack_emoji} **{move1name}:** {move1ap}
                                 {super_attack_emoji} **{move2name}:** {move2ap}
                                 {ultimate_attack_emoji} **{move3name}:** {move3ap}
-                                🦠 **{enhmove}:** {enh} {enhap}{crown_utilities.enhancer_suffix_mapping[enh]}
+                                🦠 **{enhmove}:** {enh} {enhap}{enhancer_suffix_mapping[enh]}
 
-                                🩸 **{passive_name}:** {passive_type} {passive_num}{crown_utilities.passive_enhancer_suffix_mapping[passive_type]}
+                                🩸 **{passive_name}:** {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
                                 ♾️ {traitmessage}
                                 **Universe** - *{skins['UNIVERSE']}*
                                 """), colour=0x7289da)
@@ -5923,7 +5930,7 @@ async def menubuild(self, ctx):
                     titled =True
                     titleicon = "👑"
                     if performance_mode:
-                        titlemessage = f"👑 {title_name}: {title_passive_type} {title_passive_value}{crown_utilities.title_enhancer_suffix_mapping[title_passive_type]}"
+                        titlemessage = f"👑 {title_name}: {title_passive_type} {title_passive_value}{title_enhancer_suffix_mapping[title_passive_type]}"
                     else:
                         titlemessage = f"👑 {title_name}" 
                     warningmessage= f""
@@ -5931,7 +5938,7 @@ async def menubuild(self, ctx):
                     titled =True
                     titleicon = "🎗️"
                     if performance_mode:
-                        titlemessage = f"🎗️ {title_name}: {title_passive_type} {title_passive_value}{crown_utilities.title_enhancer_suffix_mapping[title_passive_type]}"
+                        titlemessage = f"🎗️ {title_name}: {title_passive_type} {title_passive_value}{title_enhancer_suffix_mapping[title_passive_type]}"
                     else:
                         titlemessage = f"🎗️ {title_name}"
                     warningmessage= f""
@@ -5939,14 +5946,14 @@ async def menubuild(self, ctx):
                 if oarm_universe == "Unbound" or o_show == "Crown Rift Slayers":
                     armicon = "💪"
                     if performance_mode:
-                        armmessage = f'💪 {arm_name}: {arm_passive_type} {arm_passive_value}{crown_utilities.enhancer_suffix_mapping[arm_passive_type]} {durability}'
+                        armmessage = f'💪 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
                     else:
                         armmessage = f'💪 {arm_name}'
 
                 elif oarm_universe == o_show:
                     armicon = "🦾"
                     if performance_mode:
-                        armmessage = f'🦾 {arm_name}: {arm_passive_type} {arm_passive_value}{crown_utilities.enhancer_suffix_mapping[arm_passive_type]} {durability}'
+                        armmessage = f'🦾 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
                     else:
                         armmessage = f'🦾 {arm_name}: {durability}'
                     
@@ -5967,15 +5974,15 @@ async def menubuild(self, ctx):
 
                     **{titlemessage}**
                     **{armmessage}**
-                    🧬 **{active_pet['NAME']}:** {active_pet['TYPE']}: {pet_ability_power}{crown_utilities.enhancer_suffix_mapping[active_pet['TYPE']]}
+                    🧬 **{active_pet['NAME']}:** {active_pet['TYPE']}: {pet_ability_power}{enhancer_suffix_mapping[active_pet['TYPE']]}
                     🧬 Bond {bond} {bond_message} & Level {lvl} {lvl_message}
 
-                    🩸 **{passive_name}:** {passive_type} {passive_num}{crown_utilities.passive_enhancer_suffix_mapping[passive_type]}                
+                    🩸 **{passive_name}:** {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}                
                     
                     {move1_emoji} **{move1}:** {move1ap}
                     {move2_emoji} **{move2}:** {move2ap}
                     {move3_emoji} **{move3}:** {move3ap}
-                    🦠 **{move4}:** {move4enh} {move4ap}{crown_utilities.enhancer_suffix_mapping[move4enh]}
+                    🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
 
                     ♾️ {traitmessage}
                     """),colour=000000)
@@ -5996,7 +6003,7 @@ async def menubuild(self, ctx):
                     embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
                     embedVar.set_image(url="attachment://image.png")
                     embedVar.set_author(name=textwrap.dedent(f"""\
-                    🧬 {active_pet['NAME']}: {active_pet['TYPE'].title()}: {pet_ability_power}{crown_utilities.enhancer_suffix_mapping[active_pet['TYPE']]} 
+                    🧬 {active_pet['NAME']}: {active_pet['TYPE'].title()}: {pet_ability_power}{enhancer_suffix_mapping[active_pet['TYPE']]} 
                     🧬 Bond {bond} {bond_message} & Level {lvl} {lvl_message}
                     {titlemessage}
                     {armmessage}
@@ -6292,9 +6299,9 @@ async def menucards(self, ctx):
                 {move1_emoji} **{move1}:** {move1ap}
                 {move2_emoji} **{move2}:** {move2ap}
                 {move3_emoji} **{move3}:** {move3ap}
-                🦠 **{move4}:** {move4enh} {move4ap}{crown_utilities.enhancer_suffix_mapping[move4enh]}
+                🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
 
-                🩸 **{passive_name}:** {passive_type.title()} {passive_num}{crown_utilities.passive_enhancer_suffix_mapping[passive_type]}
+                🩸 **{passive_name}:** {passive_type.title()} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
                 ♾️ {traitmessage}
                 """), colour=0x7289da)
                 embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
@@ -6930,7 +6937,7 @@ async def menutitles(self, ctx):
                 :earth_africa: **Universe:** {resp['UNIVERSE']}"""), 
                 colour=0x7289da)
                 embedVar.set_thumbnail(url=avatar)
-                embedVar.set_footer(text=f"{title_passive_type}: {crown_utilities.title_enhancer_mapping[title_passive_type]}")
+                embedVar.set_footer(text=f"{title_passive_type}: {title_enhancer_mapping[title_passive_type]}")
                 embed_list.append(embedVar)
             
             buttons = [
@@ -7406,7 +7413,7 @@ async def menuarms(self, ctx):
                 else:
                     arm_type = f"**Unique Passive**"
                     arm_message = f"🦠 **{arm_passive_type.title()}:** {arm_passive_value}"
-                    footer = f"{arm_passive_type}: {crown_utilities.enhancer_mapping[arm_passive_type]}"
+                    footer = f"{arm_passive_type}: {enhancer_mapping[arm_passive_type]}"
 
 
 
@@ -8311,7 +8318,7 @@ async def menusummons(self, ctx):
             name = d['DISNAME'].split("#",1)[0]
             avatar = d['AVATAR']
             balance = vault['BALANCE']
-            current_summon = d['PET']
+            currentsummon = d['PET']
             pets_list = vault['PETS']
 
             total_pets = len(pets_list)
@@ -8374,7 +8381,7 @@ async def menusummons(self, ctx):
                 🦠 **Type:** {pet['TYPE']}"""), 
                 colour=0x7289da)
                 embedVar.set_thumbnail(url=avatar)
-                embedVar.set_footer(text=f"{pet['TYPE']}: {crown_utilities.enhancer_mapping[pet['TYPE']]}")
+                embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
                 embed_list.append(embedVar)
             
             buttons = [
@@ -8389,7 +8396,7 @@ async def menusummons(self, ctx):
                 if button_ctx.author == ctx.author:
                     updated_vault = db.queryVault({'DID': d['DID']})
                     sell_price = 0
-                    selected_summon = str(button_ctx.origin_message.embeds[0].title)
+                    selectedsummon = str(button_ctx.origin_message.embeds[0].title)
                     user_query = {'DID': str(ctx.author.id)}
                     
                     if button_ctx.custom_id == "Equip":
@@ -8398,9 +8405,9 @@ async def menusummons(self, ctx):
                         self.stop = True
                     
                     elif button_ctx.custom_id =="Trade":
-                        summon_data = db.queryPet({'PET' : selected_summon})
+                        summon_data = db.queryPet({'PET' : selectedsummon})
                         summon_name = summon_data['PET']
-                        if summon_name == current_summon:
+                        if summon_name == currentsummon:
                             await button_ctx.send("You cannot trade equipped summons.")
                             return
                         sell_price = 5000
@@ -8409,14 +8416,14 @@ async def menusummons(self, ctx):
                         bvalidation=False
                         item_already_in_trade=False
                         if mtrade:
-                            if selected_summon in mtrade['MSUMMONS']:
+                            if selectedsummon in mtrade['MSUMMONS']:
                                 await ctx.send(f"{ctx.author.mention} summon already in **Trade**")
                                 item_already_in_trade=True
                             mvalidation=True
                         else:
                             btrade = db.queryTrade({'BDID' : str(ctx.author.id), 'OPEN' : True})
                             if btrade:
-                                if selected_summon in btrade['BSUMMONS']:
+                                if selectedsummon in btrade['BSUMMONS']:
                                     await ctx.send(f"{ctx.author.mention} summon already in **Trade**")
                                     item_already_in_trade=True
                                 bvalidation=True
@@ -8437,7 +8444,7 @@ async def menusummons(self, ctx):
                                 )
                             ]
                             trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
-                            await button_ctx.send(f"Woudl you like to remove **{selected_summon}** from the **Trade**?", components=[trade_buttons_action_row])
+                            await button_ctx.send(f"Woudl you like to remove **{selectedsummon}** from the **Trade**?", components=[trade_buttons_action_row])
                             
                             def check(button_ctx):
                                 return button_ctx.author == ctx.author
@@ -8451,13 +8458,13 @@ async def menusummons(self, ctx):
                                     neg_sell_price = 0 - abs(int(sell_price))
                                     if mvalidation:
                                         trade_query = {'MDID' : str(button_ctx.author.id), 'BDID' : str(mtrade['BDID']), 'OPEN' : True}
-                                        update_query = {"$pull" : {'MSUMMONS': selected_summon}, "$inc" : {'TAX' : int(neg_sell_price)}}
+                                        update_query = {"$pull" : {'MSUMMONS': selectedsummon}, "$inc" : {'TAX' : int(neg_sell_price)}}
                                         resp = db.updateTrade(trade_query, update_query)
                                         await button_ctx.send("Returned.")
                                         self.stop = True
                                     elif bvalidation:
                                         trade_query = {'MDID' : str(btrade['MDID']),'BDID' : str(button_ctx.author.id), 'OPEN' : True}
-                                        update_query = {"$pull" : {'BSUMMONS': selected_summon}, "$inc" : {'TAX' : int(neg_sell_price)}}
+                                        update_query = {"$pull" : {'BSUMMONS': selectedsummon}, "$inc" : {'TAX' : int(neg_sell_price)}}
                                         resp = db.updateTrade(trade_query, update_query)
                                         await button_ctx.send("Returned.")
                                         self.stop = True
@@ -8494,7 +8501,7 @@ async def menusummons(self, ctx):
                                 )
                             ]
                             trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
-                            await button_ctx.send(f"Are you sure you want to trade **{selected_summon}**", components=[trade_buttons_action_row])
+                            await button_ctx.send(f"Are you sure you want to trade **{selectedsummon}**", components=[trade_buttons_action_row])
                             try:
                                 button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120)
                                 if button_ctx.custom_id == "no":
@@ -8503,13 +8510,13 @@ async def menusummons(self, ctx):
                                 if button_ctx.custom_id == "yes":
                                     if mvalidation:
                                         trade_query = {'MDID' : str(ctx.author.id), 'BDID' : str(mtrade['BDID']), 'OPEN' : True}
-                                        update_query = {"$push" : {'MSUMMONS': selected_summon}, "$inc" : {'TAX' : int(sell_price)}}
+                                        update_query = {"$push" : {'MSUMMONS': selectedsummon}, "$inc" : {'TAX' : int(sell_price)}}
                                         resp = db.updateTrade(trade_query, update_query)
                                         await button_ctx.send("Traded.")
                                         self.stop = True
                                     elif bvalidation:
                                         trade_query = {'MDID' : str(btrade['MDID']),'BDID' : str(ctx.author.id), 'OPEN' : True}
-                                        update_query = {"$push" : {'BSUMMONS': selected_summon}, "$inc" : {'TAX' : int(sell_price)}}
+                                        update_query = {"$push" : {'BSUMMONS': selectedsummon}, "$inc" : {'TAX' : int(sell_price)}}
                                         resp = db.updateTrade(trade_query, update_query)
                                         await button_ctx.send("Traded.")
                                         self.stop = True
@@ -8533,9 +8540,9 @@ async def menusummons(self, ctx):
                                 return   
                     
                     elif button_ctx.custom_id == "Dismantle":
-                        summon_data = db.queryPet({'PET' : selected_summon})
+                        summon_data = db.queryPet({'PET' : selectedsummon})
                         summon_name = summon_data['PET']
-                        if summon_name == current_summon:
+                        if summon_name == currentsummon:
                             await button_ctx.send("You cannot dismanetle equipped summonss.")
                             return
                         dismantle_price = 5000   
@@ -8882,9 +8889,9 @@ async def menuquests(self, ctx):
                                         currentopponent = universe['CROWN_TALES'].index(opp)
                                         update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
                                     
-                        # await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild,
-                        #         crestlist, crestsearch, sowner, oteam, ofam, currentopponent, None, None, None,
-                        #         None, None, None, None, None)
+                        await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild,
+                                crestlist, crestsearch, sowner, oteam, ofam, currentopponent, None, None, None,
+                                None, None, None, None, None)
                         
                         self.stop = True
                 else:
@@ -9322,8 +9329,8 @@ async def menushop(self, ctx):
                             bless_amount = round((bless_amount - bless_reduction)/2)
                         else: 
                             bless_amount = round(bless_amount /2)
-                    u = await main.bot.fetch_user(str(ctx.author.id))
-                    response = await crown_utilities.store_drop_card(u, str(ctx.author.id), title['TITLE'], universe_name, updated_vault, "Titles_NoDestinies", bless_amount, bless_amount, "Purchase", True, int(price), "titles")
+                            
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), title['TITLE'], universe_name, updated_vault, "Titles_NoDestinies", bless_amount, bless_amount, "Purchase", True, int(price), "titles")
                     await button_ctx.send(response)
                     #     await button_ctx.send(f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!") 
                     #     await crown_utilities.curse(bless_amount, str(ctx.author.id))
@@ -9360,8 +9367,7 @@ async def menushop(self, ctx):
                     else:
                         selection = random.randint(0,selection_length)
                         arm = list_of_arms[selection]['ARM']
-                    u = await main.bot.fetch_user(str(ctx.author.id))
-                    response = await crown_utilities.store_drop_card(u, str(ctx.author.id), arm, universe_name, updated_vault, 25, price, price, "Purchase", True, int(price), "arms")
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), arm, universe_name, updated_vault, 25, price, price, "Purchase", True, int(price), "arms")
                     await button_ctx.send(response)
                     
                     # if arm not in current_arms:
@@ -9397,8 +9403,8 @@ async def menushop(self, ctx):
                         card = list_of_cards[selection]
                     card_name = card['NAME']
                     tier = 0
-                    u = await main.bot.fetch_user(str(ctx.author.id))
-                    response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
+
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                     await button_ctx.send(response)
 
 
@@ -9425,8 +9431,8 @@ async def menushop(self, ctx):
                         card = list_of_cards[selection]
                     card_name = card['NAME']
                     tier = 0
-                    u = await main.bot.fetch_user(str(ctx.author.id))
-                    response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
+                    
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                     await button_ctx.send(response)
 
 
@@ -9462,8 +9468,8 @@ async def menushop(self, ctx):
                         card = list_of_cards[selection]
                     card_name = card['NAME']
                     tier = 0
-                    u = await main.bot.fetch_user(str(ctx.author.id))
-                    response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
+
+                    response = await crown_utilities.store_drop_card(str(ctx.author.id), card_name, universe, updated_vault, owned_destinies, 0, 0, "Purchase", True, int(price), "cards")
                     await button_ctx.send(response)
 
             else:

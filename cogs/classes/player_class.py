@@ -7,7 +7,7 @@ import textwrap
 
 
 class Player:
-    def __init__(self, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location):
+    def __init__(self, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equippedsummon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location):
         self.disname = disname
         self.did = did
         self.avatar = avatar
@@ -17,7 +17,7 @@ class Player:
         self.equipped_title = equipped_title
         self.equipped_card = equipped_card
         self.equipped_arm = equipped_arm
-        self.equipped_summon = equipped_summon
+        self.equippedsummon = equippedsummon
         self.equipped_talisman = equipped_talisman
         self.completed_tales = completed_tales
         self.completed_dungeons = completed_dungeons
@@ -74,7 +74,7 @@ class Player:
             self._cards = self.vault['CARDS']
             self._titles = self.vault['TITLES']
             self._arms = self.vault['ARMS']
-            self._summons = self.vault['PETS']
+            self.summons = self.vault['PETS']
             self._deck = self.vault['DECK']
             self._card_levels = self.vault['CARD_LEVELS']
             self._quests = self.vault['QUESTS']
@@ -95,22 +95,22 @@ class Player:
         self._deck_card = ""
         self._deck_title = ""
         self._deck_arm = ""
-        self._deck_summon = ""
+        self._decksummon = ""
 
         self._equipped_card_data = ""
         self._equipped_title_data = ""
         self._equipped_arm_data = ""
-        self._equipped_summon_data = ""
-        self._equipped_summon_power = 0
-        self._equipped_summon_bond = 0
-        self._equipped_summon_bondexp = 0
-        self._equipped_summon_exp = 0
-        self._equipped_summon_lvl = 0
-        self._equipped_summon_type = ""
-        self._equipped_summon_name = ""
-        self._equipped_summon_ability_name = ""
-        self._equipped_summon_image = ""
-        self._equipped_summon_universe = ""
+        self._equippedsummon_data = ""
+        self._equippedsummon_power = 0
+        self._equippedsummon_bond = 0
+        self._equippedsummon_bondexp = 0
+        self._equippedsummon_exp = 0
+        self._equippedsummon_lvl = 0
+        self._equippedsummon_type = ""
+        self._equippedsummon_name = ""
+        self._equippedsummon_ability_name = ""
+        self._equippedsummon_image = ""
+        self._equippedsummon_universe = ""
 
 
     def set_talisman_message(self):
@@ -126,16 +126,16 @@ class Player:
             return self.talisman_message
         
 
-    def set_summon_messages(self):
+    def setsummon_messages(self):
         try:
-            for summon in self._summons:
-                if summon['NAME'] == self.equipped_summon:
-                    active_summon = summon
+            for summon in self.summons:
+                if summon['NAME'] == self.equippedsummon:
+                    activesummon = summon
 
-            power = list(active_summon.values())[3]
-            bond = active_summon['BOND']
-            lvl = active_summon['LVL']
-            s_type = active_summon['TYPE']
+            power = list(activesummon.values())[3]
+            bond = activesummon['BOND']
+            lvl = activesummon['LVL']
+            s_type = activesummon['TYPE']
             if bond == 3:
                 bond_message = "🌟"
             else:
@@ -148,7 +148,7 @@ class Player:
 
             summon_ability_power = (bond * lvl) + power
 
-            self.summon_power_message = f"🧬 {self.equipped_summon}: {s_type.title()}: {summon_ability_power}{crown_utilities.enhancer_suffix_mapping[s_type]}"
+            self.summon_power_message = f"🧬 {self.equippedsummon}: {s_type.title()}: {summon_ability_power}{crown_utilities.enhancer_suffix_mapping[s_type]}"
 
 
             self.summon_lvl_message = f"🧬 Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"
@@ -411,39 +411,39 @@ class Player:
                 self._equipped_card_data = self._deck_card
                 self._equipped_title_data = self._deck_title
                 self._equipped_arm_data = self._deck_arm
-                self.equipped_summon = self._deck_summon['PET']
+                self.equippedsummon = self._decksummon['PET']
             else:
                 self._equipped_card_data = db.queryCard({'NAME': self.equipped_card})
                 self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
                 self._equipped_arm_data = db.queryArm({'ARM': self.equipped_arm})
 
-            for summon in self._summons:
-                if summon['NAME'] == self.equipped_summon:
-                    active_summon = summon
-            self._equipped_summon_ability_name = list(active_summon.keys())[3]
-            self._equipped_summon_power = list(active_summon.values())[3]
-            self._equipped_summon_bond = active_summon['BOND']
-            self._equipped_summon_bondexp = active_summon['BONDEXP']
-            self._equipped_summon_lvl = active_summon['LVL']
-            self._equipped_summon_type = active_summon['TYPE']
-            self._equipped_summon_name = active_summon['NAME']
-            self._equipped_summon_image = active_summon['PATH']
-            self._equipped_summon_exp = active_summon['EXP']
-            self._equipped_summon_universe = db.queryPet({'PET': active_summon['NAME']})['UNIVERSE']
+            for summon in self.summons:
+                if summon['NAME'] == self.equippedsummon:
+                    activesummon = summon
+            self._equippedsummon_ability_name = list(activesummon.keys())[3]
+            self._equippedsummon_power = list(activesummon.values())[3]
+            self._equippedsummon_bond = activesummon['BOND']
+            self._equippedsummon_bondexp = activesummon['BONDEXP']
+            self._equippedsummon_lvl = activesummon['LVL']
+            self._equippedsummon_type = activesummon['TYPE']
+            self._equippedsummon_name = activesummon['NAME']
+            self._equippedsummon_image = activesummon['PATH']
+            self._equippedsummon_exp = activesummon['EXP']
+            self._equippedsummon_universe = db.queryPet({'PET': activesummon['NAME']})['UNIVERSE']
         except:
             print("Failed to get battle ready")
 
-    def get_summon_ready(self, _card):
-        _card._summon_ability_name = self._equipped_summon_ability_name
-        _card._summon_power = self._equipped_summon_power
-        _card._summon_lvl = self._equipped_summon_lvl
-        _card._summon_type = self._equipped_summon_type
-        _card._summon_bond = self._equipped_summon_bond
-        _card._summon_bondexp = self._equipped_summon_bondexp
-        _card._summon_exp = self._equipped_summon_exp
-        _card._summon_name = self._equipped_summon_name
-        _card._summon_image = self._equipped_summon_image
-        _card._summon_universe = self._equipped_summon_universe
+    def getsummon_ready(self, _card):
+        _card.summon_ability_name = self._equippedsummon_ability_name
+        _card.summon_power = self._equippedsummon_power
+        _card.summon_lvl = self._equippedsummon_lvl
+        _card.summon_type = self._equippedsummon_type
+        _card.summon_bond = self._equippedsummon_bond
+        _card.summon_bondexp = self._equippedsummon_bondexp
+        _card.summon_exp = self._equippedsummon_exp
+        _card.summon_name = self._equippedsummon_name
+        _card.summon_image = self._equippedsummon_image
+        _card.summon_universe = self._equippedsummon_universe
     
     def get_talisman_ready(self, _card):
         if self.equipped_talisman:
@@ -471,7 +471,7 @@ class Player:
             self._deck_card = db.queryCard({'NAME': str(active_deck['CARD'])})
             self._deck_title = db.queryTitle({'TITLE': str(active_deck['TITLE'])})
             self._deck_arm = db.queryArm({'ARM': str(active_deck['ARM'])})
-            self._deck_summon = db.queryPet({'PET': str(active_deck['PET'])})
+            self._decksummon = db.queryPet({'PET': str(active_deck['PET'])})
         except Exception as ex:
             trace = []
             tb = ex.__traceback__

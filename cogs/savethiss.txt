@@ -1938,8 +1938,8 @@ async def summonlevel(pet, player):
     
     if family_name != 'PCG':
         family_info = db.queryFamily({'HEAD':str(family_name)})
-        family_summon = family_info['SUMMON']
-        if family_summon['NAME'] == str(pet):
+        familysummon = family_info['SUMMON']
+        if familysummon['NAME'] == str(pet):
             return False
     petinfo = {}
     try:
@@ -7763,7 +7763,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             tutorial_enhancer = False
             tutorial_block = False
             tutorial_resolve = False
-            tutorial_summon = False
+            tutorialsummon = False
             tutorial_focus= False
             o_ap_buff = 0
             t_ap_buff = 0
@@ -10728,8 +10728,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                         elif button_ctx.custom_id == "6":
                                             # Resolve Check and Calculation
                                             if o_used_resolve and o_used_focus and not o_pet_used:
-                                                if tutorial and tutorial_summon == False:
-                                                    tutorial_summon = True
+                                                if tutorial and tutorialsummon == False:
+                                                    tutorialsummon = True
                                                     embedVar = discord.Embed(title=f"{o_card} Summoned 🧬 **{opet_name}**",colour=0xe91e63)
                                                     embedVar.add_field(name=f"🧬**Summon Enhancers**!",
                                                                     value="You can use 🧬**Summons** once per Focus without losing a turn!")

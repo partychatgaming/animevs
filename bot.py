@@ -831,7 +831,7 @@ async def register(ctx):
       name = disname.split("#",1)[0]
       summon_info = {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0, 'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}
       family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': summon_info}), str(disname))
-      update_summon = db.updateFamily({'HEAD': str(disname)}, {'$set' : {'SUMMON': summon_info}})
+      updatesummon = db.updateFamily({'HEAD': str(disname)}, {'$set' : {'SUMMON': summon_info}})
       user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
       r_response = db.createUsers(data.newUser(user))
 
@@ -1657,7 +1657,7 @@ async def daily(ctx):
    try:
       query = {'DID': str(ctx.author.id)}
       user_data = db.queryUser(query)
-      user_completed_tales = user_data['CROWN_TALES']
+      usercompleted_tales = user_data['CROWN_TALES']
       rebirth = int(user_data['REBIRTH'])
       dailyamount = 1000000
       daily_bonus = int(dailyamount * rebirth)
