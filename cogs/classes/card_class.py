@@ -1525,7 +1525,7 @@ class Card:
                 if _title.passive_type == "SOULCHAIN":
                     self.stamina = _title.passive_value
                     _opponent_card.stamina = _title.passive_value
-                    if battle_config._is_co_op:
+                    if battle_config.is_co_op_mode:
                         _co_op_card.stamina = _title.passive_value
                 if _title.passive_type == "BLAST":
                     _opponent_card.health = _opponent_card.health - (_title.passive_value * battle_config.turn_total)
@@ -1534,7 +1534,7 @@ class Card:
                 if _opponent_title.passive_type == "GAMBLE":
                     health_calculation = _opponent_title.passive_value
             
-            if battle_config._is_co_op:
+            if battle_config.is_co_op_mode:
                 if _co_op_title.passive_type:
                     if _co_op_title.passive_type == "GAMBLE":
                         health_calculation = _co_op_title.passive_value
@@ -2207,7 +2207,7 @@ class Card:
                 
                 self.activate_element_check(battle_config, dmg, opponent_card)
 
-            if battle_config._is_co_op:
+            if battle_config.is_co_op_mode:
                 block_message = f"**{self.name}**: Defended 🛡️ **{co_op_card.name}**"
                 self.used_defend = True
             else:

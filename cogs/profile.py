@@ -255,19 +255,20 @@ class Profile(commands.Cog):
             card = db.queryCard({'NAME':str(d['CARD'])})
             title = db.queryTitle({'TITLE': str(d['TITLE'])})
             arm = db.queryArm({'ARM': str(d['ARM'])})
-            user_info = db.queryUser(query)
-            vault = db.queryVault({'DID': d['DID']})
+            if not all([card, title, arm, d]):
+                # Handle error if one of the database calls fails
+                return "Error: One or more of the required data is not available."
+
             if card:
                 try:
                     c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'])
                     t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                     a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
-                    v = Vault(vault['OWNER'], vault['DID'], vault['BALANCE'], vault['CARDS'], vault['TITLES'], vault['ARMS'], vault['PETS'], vault['DECK'], vault['CARD_LEVELS'], vault['QUESTS'], vault['DESTINY'], vault['GEMS'], vault['STORAGE'], vault['TALISMANS'], vault['ESSENCE'], vault['TSTORAGE'], vault['ASTORAGE'])
                     player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'])                 
                     
-                    durability = a.set_durability(player.equipped_arm, v.arms)
+                    durability = a.set_durability(player.equipped_arm, player._arms)
                     
-                    c.set_card_level_buffs(v.card_levels)
+                    c.set_card_level_buffs(player._card_levels)
                     c.set_affinity_message()
                     c.set_arm_attack_swap(a.passive_type, a.name, a.passive_value, a.element)
                     c.set_passive_values()
@@ -276,8 +277,8 @@ class Profile(commands.Cog):
                     t.set_pokemon_title()
 
   
-                    player.set_talisman_message(v.talismans)
-                    player.setsummon_messages(v.summons)
+                    player.set_talisman_message()
+                    player.setsummon_messages()
 
                     a.set_arm_message(player.performance, c.universe)
                     t.set_title_message(player.performance, c.universe)
