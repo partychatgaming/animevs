@@ -1078,6 +1078,7 @@ class Lookup(commands.Cog):
                         await button_ctx.defer(ignore=True)
                         if button_ctx.author == ctx.author:
                             if button_ctx.custom_id == "hello":
+                                guild_query = {"GNAME": guild['GNAME']}
                                 await button_ctx.defer(ignore=True)
                                 update_query = {
                                         '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
