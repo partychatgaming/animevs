@@ -131,6 +131,7 @@ class GUILD():
 @dataclass(frozen=True, order=True)
 class TEAMS():
     OWNER: str
+    DID: str
     MEMBERS: list
     TEAM_NAME: str
     TEAM_DISPLAY_NAME:  str = field(default_factory=lambda: '')

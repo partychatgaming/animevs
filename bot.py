@@ -1881,6 +1881,7 @@ async def before():
 called_once_a_day.start()
 
 
+
 @slash.slash(name="Daily", description="Receive your daily reward and quests", guild_ids=guild_ids)
 @commands.check(validate_user)
 @commands.cooldown(1, 60*60*12, commands.BucketType.user)
@@ -3186,6 +3187,43 @@ async def code(ctx, code_input: str):
 
 @slash.slash(description="admin only", guild_ids=guild_ids)
 @commands.check(validate_user)
+async def zguilddid(ctx, password, key):
+   if password != 'casper':  
+      return await ctx.send("Admin Only")
+   
+   if key != '513':
+      return await ctx.send("Admin Only")
+   try:
+      guilds = db.queryAllDbTeams()
+      for g in guilds:
+         print(g)
+         leader = g['ONWER']
+         leader_info = db.queryUser({'DISNAME': str(leader)})
+         if leader_info:
+            l_DID = leader_info['DID']
+            update = {'$set' : {'DID' : str(l_DID)}}
+            new_guild = db.updateTeam({'OWNER' : g['OWNER']}, update)
+            print(f"{g['TEAM_NAME']} updated")
+   except Exception as ex:
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+         trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+         })
+         tb = tb.tb_next
+      print(str({
+         'player': str(player),
+         'type': type(ex).__name__,
+         'message': str(ex),
+         'trace': trace
+      }))
+
+
+@slash.slash(description="admin only", guild_ids=guild_ids)
+@commands.check(validate_user)
 async def addfield(ctx, collection, new_field, field_type, password, key):
    if ctx.author.guild_permissions.administrator == True:
       
@@ -3254,8 +3292,10 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
          response = db.updateManyHalls({'$set': {new_field: field_type}})
       elif collection == 'family':
          response = db.updateManyFamily({'$set': {new_field: field_type}})
-      elif collection == 'guild':
+      elif collection == 'association':
          response = db.updateManyGuild({'$set': {new_field: field_type}})
+      elif collection == 'guild':
+         response = db.updateManyTeams({'$set': {new_field: field_type}})
       
       await ctx.send("Update completed.")
    else:

@@ -1668,6 +1668,10 @@ def queryAllTeams(team):
     data = teams_col.find()
     return data
 
+def queryAllDbTeams():
+    data = teams_col.find()
+    return data
+
 def createTeam(team, user):
     try:
         find_user = queryUser({'DID': user})

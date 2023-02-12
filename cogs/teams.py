@@ -55,7 +55,8 @@ class Teams(commands.Cog):
 
 
         team_query = {
-            'OWNER': str(ctx.author), 
+            'OWNER': str(ctx.author),
+            'DID' : str(ctx.author.id),
             'TEAM_NAME': team_name, 
             'TEAM_DISPLAY_NAME': team_display_name, 
             'MEMBERS': [str(ctx.author)],

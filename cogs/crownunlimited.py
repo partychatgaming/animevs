@@ -23281,7 +23281,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                             # else:
                             #     embedVar.set_footer(
                             #         text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-                            await ctx.send(f"🪦{ctx.author.mention}")
+                            await private_channel.send(f"🪦{ctx.author.mention}")
                             msg = await private_channel.send(embed=embedVar, components=[play_again_buttons_action_row])
                             
 
