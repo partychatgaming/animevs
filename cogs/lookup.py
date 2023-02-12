@@ -178,6 +178,16 @@ class Lookup(commands.Cog):
                     icon = ':heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire:'
                 elif rebirth == 5:
                     icon = ':heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire:'
+                elif rebirth == 6:
+                    icon = '👼'
+                elif rebirth == 7:
+                    icon = '👼👼'
+                elif rebirth == 8:
+                    icon = '👼👼👼'
+                elif rebirth == 9:
+                    icon = '👼👼👼👼'
+                elif rebirth == 10:
+                    icon = '👼👼👼👼👼'
 
                 talisman = d['TALISMAN']
                 talisman_message = "No Talisman Equipped"
@@ -239,12 +249,12 @@ class Lookup(commands.Cog):
                 crown_list = []
                 for crown in crown_tales:
                     if crown != "":
-                        crown_list.append(f"{crest_dict[crown]} | {crown}")
+                        crown_list.append(f"**{crest_dict[crown]} |** {crown}")
                 
                 dungeon_list = []
                 for dungeon in dungeons:
                     if dungeon != "":
-                        dungeon_list.append(f"{crest_dict[dungeon]} | {dungeon}")
+                        dungeon_list.append(f"**{crest_dict[dungeon]} |** {dungeon}")
 
                 boss_list =[]
                 uni = "Unbound"
@@ -252,7 +262,7 @@ class Lookup(commands.Cog):
                     if boss != "":
                         boss_info = db.queryBoss({'NAME': str(boss)})
                         uni = boss_info['UNIVERSE']
-                        boss_list.append(f"{crest_dict[uni]} | {boss}")
+                        boss_list.append(f"**{crest_dict[uni]} |** {boss}")
 
                 matches_to_string = dict(ChainMap(*matches))
                 ign_to_string = dict(ChainMap(*ign))
@@ -315,19 +325,20 @@ class Lookup(commands.Cog):
                 if crown_list:
                     embed4 = discord.Embed(title= f"{icon} | " + f"{name} Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=000000)
                     embed4.set_thumbnail(url=avatar)
-                    embed4.add_field(name="Completed Tales" + " :medal:", value="\n".join(crown_list))
+                    embed4.add_field(name=":medal: | " + "Completed Tales" , value="\n".join(crown_list))
                     if dungeon_list:
-                        embed4.add_field(name="Completed Dungeons" + " :fire: ", value="\n".join(dungeon_list))
+                        embed4.add_field(name=":fire: | " + "Completed Dungeons", value="\n".join(dungeon_list))
                         if boss_list:
-                            embed4.add_field(name="Boss Souls" + ":japanese_ogre:",value="\n".join(boss_list))
+                            embed4.add_field(name=":japanese_ogre: | " + "Boss Souls",value="\n".join(boss_list))
                         else:
-                            embed4.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
+                            embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                     else:
-                        embed4.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")
+                        embed4.add_field(name=":fire: | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
+                        embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                 else:
                     embed4 = discord.Embed(title= f"{icon} " + f"{name}".format(self), description=":bank: Party Chat Gaming Database™️", colour=000000)
                     embed4.set_thumbnail(url=avatar)
-                    embed4.add_field(name="Completed Tales" + " :medal:", value="No completed Tales, yet!")
+                    embed4.add_field(name="Completed Tales" + " :medal:", value="No Completed Tales, yet!")
                     embed4.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")
                     embed4.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
 

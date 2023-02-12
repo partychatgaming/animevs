@@ -2543,7 +2543,7 @@ def damage_cal(mode,card_tier, talisman_dict, move_ap, opponent_affinity, move_t
                 true_dmg = round(true_dmg * 1.6)
                 message = f"Opponent is weak to **{move_emoji} {move_element.lower()}**! Strong hit for **{true_dmg}**!"
 
-            if not talisman_dict[move_element] and not boss_active:
+            if not talisman_dict[move_element]:
                 if opponent_affinity[move_type] == "RESISTANT" and not (hit_roll <= miss_hit) :
                     true_dmg = round(true_dmg * .45)
                     message = f"Opponent is resistant to **{move_emoji} {move_element.lower()}**.. Weak hit for **{true_dmg}**!"
@@ -3211,6 +3211,8 @@ def showcard(mode, d, arm, max_health, health, max_stamina, stamina, resolved, t
                 lvl_sizing = (75, 70)
             if int(lvl) > 99:
                 lvl_sizing = (55, 70)
+            if int(lvl) > 999:
+                lvl_sizing = (45, 70)
             draw.text(lvl_sizing, f"{lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
                       align="center")
 
@@ -3742,7 +3744,37 @@ async def scenario(self, ctx: SlashContext, universe: str):
         easy = 'EASY'
         normal = 'NORMAL'
         hard = 'HARD'
+        
+        prestige = sowner['PRESTIGE']
+        aicon = ":new_moon:"
+        if prestige == 1:
+            aicon = ":waxing_crescent_moon:"
+        elif prestige == 2:
+            aicon = ":first_quarter_moon:"
+        elif prestige == 3:
+            aicon = ":waxing_gibbous_moon:"
+        elif prestige == 4:
+            aicon = ":full_moon:"
+        elif prestige == 5:
+            aicon = ":waning_gibbous_moon:"
+        elif prestige == 6:
+            aicon = ":last_quarter_moon:"
+        elif prestige == 7:
+            aicon = ":waning_crescent_moon:"
+        elif prestige == 8:
+            aicon = ":crescent_moon:"
+        elif prestige == 9:
+            aicon = ":crown:"
+        elif prestige >= 10:
+            aicon = ":japanese_ogre:"
 
+        rebirth = sowner['REBIRTH']
+        prestige_slider = 0
+        p_message = ""
+        if rebirth > 0 or prestige > 0:
+            prestige_slider = (((sowner['PRESTIGE'] + (5 + sowner['REBIRTH'])) /100))
+            p_percent = (prestige_slider * 100)
+            p_message = f"*{aicon} x{round(p_percent)}%*"
         embed_list = []
 
         for scenario in scenarios:
@@ -3804,7 +3836,7 @@ async def scenario(self, ctx: SlashContext, universe: str):
                 🔱 **Enemy Level:** {enemy_level}
                 :coin: **Reward** {'{:,}'.format(scenario_gold)}
 
-                ⚙️ **Difficulty:** {difficulty.title()}
+                ⚙️ **Difficulty:** {difficulty.title()} {p_message}
 
                 :crossed_swords: {str(number_of_fights)}
                 """), 
@@ -4279,6 +4311,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
     stat_buff_from_difficulty = 0
     ap_buff_from_difficulty = 0
     difficulty = sowner['DIFFICULTY']
+    
 
     if difficulty == "EASY":
         health_debuff_from_difficulty = 500
@@ -4370,6 +4403,14 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         oarm_name = oarm['ARM']
         oarm_price = oarm['PRICE']
         oarm_element = oarm['ELEMENT']
+        rebirth = o_user['REBIRTH']
+        prestige = o_user['PRESTIGE']
+        orebirth_boost = (((1 + o_user['REBIRTH'] ) / 100) * 2)
+        if rebirth > 0 or prestige > 0: 
+            p_difficulty = ((((o_user['PRESTIGE'] + 1) * (10 + o_user['REBIRTH'])) /100))
+            
+        else:
+            p_difficulty = 0
 
         vault = db.queryVault({'DID': str(o_user['DID'])})
         
@@ -4427,10 +4468,10 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             guild_buff = await crown_utilities.guild_buff_update_function(oteam.lower())
             if guild_buff:
                 if guild_buff['Stat']:
-                    ocard_lvl_attack_buff = 50
-                    ocard_lvl_defense_buff = 50
-                    ocard_lvl_ap_buff = 30
-                    ocard_lvl_hlt_buff = 100
+                    ocard_lvl_attack_buff = 100
+                    ocard_lvl_defense_buff = 100
+                    ocard_lvl_ap_buff = 100
+                    ocard_lvl_hlt_buff = 500
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
                 if guild_buff['Auto Battle']:
                     auto_battle = True
@@ -4441,10 +4482,16 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 ocard_lvl = x['LVL']
                 ocard_tier = x['TIER']
                 ocard_exp = x['EXP']
-                ocard_lvl_ap_buff = crown_utilities.level_sync_stats(ocard_lvl, "AP")
-                ocard_lvl_attack_buff = crown_utilities.level_sync_stats(ocard_lvl, "ATK_DEF")
-                ocard_lvl_defense_buff = crown_utilities.level_sync_stats(ocard_lvl, "ATK_DEF")
-                ocard_lvl_hlt_buff = crown_utilities.level_sync_stats(ocard_lvl, "HLT")
+                ocard_lvl_ap_buff = ocard_lvl_ap_buff + crown_utilities.level_sync_stats(ocard_lvl, "AP")
+                ocard_lvl_attack_buff = ocard_lvl_attack_buff +  crown_utilities.level_sync_stats(ocard_lvl, "ATK_DEF")
+                ocard_lvl_defense_buff = ocard_lvl_defense_buff + crown_utilities.level_sync_stats(ocard_lvl, "ATK_DEF")
+                ocard_lvl_hlt_buff = ocard_lvl_hlt_buff + crown_utilities.level_sync_stats(ocard_lvl, "HLT")
+                
+        #Boost up to 20% after 10 rebirths, 10% at 5 rebirths
+        ocard_lvl_ap_buff = ocard_lvl_ap_buff + (ocard_lvl_ap_buff * orebirth_boost)
+        ocard_lvl_attack_buff = ocard_lvl_attack_buff +  (ocard_lvl_attack_buff * orebirth_boost)
+        ocard_lvl_defense_buff = ocard_lvl_defense_buff + (ocard_lvl_defense_buff * orebirth_boost)
+        ocard_lvl_hlt_buff = ocard_lvl_hlt_buff + (ocard_lvl_hlt_buff * orebirth_boost)
 
         o_gif = o['GIF']
         o_destiny = o['HAS_COLLECTION']
@@ -4489,6 +4536,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
         if companion:
             ### Companion Data
             c_user = companion
+            
             if mode in ai_co_op_modes:
                 cperformance = o_user['PERFORMANCE']
                 cvault = vault
@@ -4514,6 +4562,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                 cperformance = c_user['PERFORMANCE']
                 c_talisman = c_user['TALISMAN']
                 cvault = db.queryVault({'DID': c_user['DID']})
+                crebirth_boost = (((1 + c_user['REBIRTH'] ) / 100) * 2)
                 cpet = {}
                 cpet_info = c_user['PET']
                 if c_user['FAMILY_PET']:
@@ -4569,10 +4618,10 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             guild_buff = await crown_utilities.guild_buff_update_function(cteam.lower())
             if guild_buff:
                 if guild_buff['Stat']:
-                    ccard_lvl_attack_buff = 50
-                    ccard_lvl_defense_buff = 50
-                    ccard_lvl_ap_buff = 30
-                    ccard_lvl_hlt_buff = 100
+                    ccard_lvl_attack_buff = 100
+                    ccard_lvl_defense_buff = 100
+                    ccard_lvl_ap_buff = 100
+                    ccard_lvl_hlt_buff = 500
                     if oteam != cteam:
                         update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
 
@@ -4582,10 +4631,16 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                     ccard_lvl = x['LVL']
                     ccard_tier = x['TIER']
                     ccard_exp = x['EXP']
-                    ccard_lvl_ap_buff = crown_utilities.level_sync_stats(ccard_lvl, "AP")
-                    ccard_lvl_attack_buff = crown_utilities.level_sync_stats(ccard_lvl, "ATK_DEF")
-                    ccard_lvl_defense_buff = crown_utilities.level_sync_stats(ccard_lvl, "ATK_DEF")
-                    ccard_lvl_hlt_buff = crown_utilities.level_sync_stats(ccard_lvl, "HLT")
+                    ccard_lvl_ap_buff = ccard_lvl_ap_buff + crown_utilities.level_sync_stats(ccard_lvl, "AP")
+                    ccard_lvl_attack_buff = ccard_lvl_attack_buff + crown_utilities.level_sync_stats(ccard_lvl, "ATK_DEF")
+                    ccard_lvl_defense_buff = ccard_lvl_defense_buff + crown_utilities.level_sync_stats(ccard_lvl, "ATK_DEF")
+                    ccard_lvl_hlt_buff = ccard_lvl_hlt_buff + crown_utilities.level_sync_stats(ccard_lvl, "HLT")
+                    
+            #Boost up to 20% after 10 rebirths, 10% at 5 rebirths
+            ccard_lvl_ap_buff = ccard_lvl_ap_buff + (ccard_lvl_ap_buff * crebirth_boost)
+            ccard_lvl_attack_buff = ccard_lvl_attack_buff +  (ccard_lvl_attack_buff * crebirth_boost)
+            ccard_lvl_defense_buff = ccard_lvl_defense_buff + (ccard_lvl_defense_buff * crebirth_boost)
+            ccard_lvl_hlt_buff = ccard_lvl_hlt_buff + (ccard_lvl_hlt_buff * crebirth_boost)
 
             c_gif = c['GIF']
             c_destiny = c['HAS_COLLECTION']
@@ -4638,6 +4693,7 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             tarm_name = tarm['ARM']
             tarm_price = tarm['PRICE']
             tarm_element = tarm['ELEMENT']
+            trebirth_boost = (((1 + t_user['REBIRTH'] ) / 100) * 2)
 
             tvault = db.queryVault({'DID': str(t_user['DID'])})
             if mode in pvp_modes and tutorial ==False:
@@ -4696,6 +4752,11 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                     tcard_lvl_attack_buff = crown_utilities.level_sync_stats(tcard_lvl, "ATK_DEF")
                     tcard_lvl_defense_buff = crown_utilities.level_sync_stats(tcard_lvl, "ATK_DEF")
                     tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(tcard_lvl, "HLT")
+                    
+            tcard_lvl_ap_buff = tcard_lvl_ap_buff + (tcard_lvl_ap_buff * trebirth_boost)
+            tcard_lvl_attack_buff = tcard_lvl_attack_buff + (tcard_lvl_attack_buff * trebirth_boost)
+            tcard_lvl_defense_buff = tcard_lvl_defense_buff + (tcard_lvl_defense_buff * trebirth_boost)
+            tcard_lvl_hlt_buff = tcard_lvl_hlt_buff + (tcard_lvl_hlt_buff * trebirth_boost)
 
             t_gif = t['GIF']
             t_destiny = t['HAS_COLLECTION']
@@ -4771,20 +4832,35 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             tpet_passive = tpet['ABILITIES'][0]
             tpet_name = tpet['PET']
             tpet_image = tpet['PATH']
+            #p_difficulty
             if mode in D_modes:
-                tpet_lvl = 10
-                tpet_bond = 3
-                tcard_lvl = 350
-                tcard_lvl_ap_buff = crown_utilities.level_sync_stats(350, "AP") + ap_buff_from_difficulty
-                tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(350, "ATK_DEF")
-                tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(350, "HLT")
+                if ocard_lvl >= 500:
+                    tpet_lvl = 10
+                    tpet_bond = 3
+                    tcard_lvl = 500
+                    tcard_lvl_ap_buff = crown_utilities.level_sync_stats(500, "AP") + ap_buff_from_difficulty
+                    tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(500, "ATK_DEF")
+                    tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(500, "HLT")
+                else:   
+                    tpet_lvl = 10
+                    tpet_bond = 3
+                    if ocard_lvl <= 350:
+                        tcard_lvl = 350
+                    elif ocard_lvl >=350 and ocard_lvl <= 470:
+                        tcard_lvl = ocard_lvl + 30
+                    else:
+                        tcard_lvl = (ocard_lvl)
+                    #tcard_lvl = ocard_lvl
+                    tcard_lvl_ap_buff = crown_utilities.level_sync_stats(tcard_lvl, "AP") + ap_buff_from_difficulty
+                    tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(tcard_lvl, "ATK_DEF")
+                    tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(tcard_lvl, "HLT")
             elif mode in B_modes:
                 tpet_lvl = 10
                 tpet_bond = 3
-                tcard_lvl = 999
-                tcard_lvl_ap_buff = crown_utilities.level_sync_stats(999, "AP") + ap_buff_from_difficulty
-                tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(999, "ATK_DEF")
-                tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(999, "HLT")
+                tcard_lvl = 1000
+                tcard_lvl_ap_buff = crown_utilities.level_sync_stats(1000, "AP") + ap_buff_from_difficulty
+                tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(1000, "ATK_DEF")
+                tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(1000, "HLT")
             else:
                 if mode in co_op_modes and mode in U_modes:
                     tpet_lvl = 6
@@ -4808,13 +4884,25 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                     tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(abyss_scaling, "ATK_DEF")
                     tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(abyss_scaling, "HLT")
                 else:
-                    if ocard_lvl >= 150:
+                    if ocard_lvl >= 210:
                         tpet_lvl = 3
-                        tpet_bond = 1
-                        tcard_lvl = 150
-                        tcard_lvl_ap_buff = crown_utilities.level_sync_stats(150, "AP") + ap_buff_from_difficulty
-                        tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(150, "ATK_DEF")
-                        tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(150, "HLT")
+                        tpet_bond = 3
+                        tcard_lvl = 200
+                        tcard_lvl_ap_buff = crown_utilities.level_sync_stats(200, "AP") + ap_buff_from_difficulty
+                        tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(200, "ATK_DEF")
+                        tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(200, "HLT")
+                    elif ocard_lvl >=10:
+                        tpet_lvl = 3
+                        tpet_bond = 2
+                        if ocard_lvl <= 20 and ocard_lvl >=10:
+                            tcard_lvl = 10
+                        elif ocard_lvl >= 0 and ocard_lvl <=10:
+                            tcard_lvl =  o_card_lvl
+                        else:
+                            tcard_lvl = (ocard_lvl - 10)
+                        tcard_lvl_ap_buff = crown_utilities.level_sync_stats(tcard_lvl, "AP") + ap_buff_from_difficulty
+                        tcard_lvl_attack_defense_buff = crown_utilities.level_sync_stats(tcard_lvl, "ATK_DEF")
+                        tcard_lvl_hlt_buff = crown_utilities.level_sync_stats(tcard_lvl, "HLT")
                     else:
                         tpet_lvl = 3
                         tpet_bond = 2
@@ -4823,6 +4911,10 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
                         tcard_lvl_attack_defense_buff = ocard_lvl_attack_buff
                         tcard_lvl_hlt_buff = ocard_lvl_hlt_buff
 
+            tcard_lvl_ap_buff = ((tcard_lvl_ap_buff + ap_buff_from_difficulty) + ((tcard_lvl_ap_buff + ap_buff_from_difficulty) * p_difficulty))
+            tcard_lvl_attack_defense_buff = (tcard_lvl_attack_defense_buff  + (tcard_lvl_attack_defense_buff * p_difficulty))
+            tcard_lvl_hlt_buff = tcard_lvl_hlt_buff + (tcard_lvl_hlt_buff * p_difficulty)
+
             tarm_passive = tarm['ABILITIES'][0]
             tarm_name = tarm['ARM']
             tarm_element = tarm['ELEMENT']
@@ -4830,14 +4922,14 @@ async def build_player_stats(self, randomized_battle, ctx, sowner: str, o: dict,
             t_gif = t['GIF']
             t_card_path = t['PATH']
             t_rcard_path = t['RPATH']
-            t_health = t['HLT'] + (15 * currentopponent) + opponent_health_scaling + tcard_lvl_hlt_buff  + health_buff_from_difficulty - health_debuff_from_difficulty
+            t_health = t['HLT'] + (15 * currentopponent) + opponent_health_scaling + tcard_lvl_hlt_buff  + health_buff_from_difficulty #- health_debuff_from_difficulty
             t_max_health = t_health
             t_base_health = t_health
             t_stamina = t['STAM']
             t_max_stamina = t['STAM']
             t_moveset = t['MOVESET']
-            t_attack = t['ATK'] + (10 * currentopponent) + opponent_scaling + tcard_lvl_attack_defense_buff  + stat_buff_from_difficulty - stat_debuff_from_difficulty
-            t_defense = t['DEF'] + (20 * currentopponent) + opponent_scaling + tcard_lvl_attack_defense_buff  + stat_buff_from_difficulty - stat_debuff_from_difficulty
+            t_attack = t['ATK'] + (10 * currentopponent) + opponent_scaling + tcard_lvl_attack_defense_buff  + stat_buff_from_difficulty #- stat_debuff_from_difficulty
+            t_defense = t['DEF'] + (20 * currentopponent) + opponent_scaling + tcard_lvl_attack_defense_buff  + stat_buff_from_difficulty #- stat_debuff_from_difficulty
             t_type = t['TYPE']
 
             t_passive = t['PASS'][0]
@@ -6449,7 +6541,36 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
     guild_buff_update_query = {}
     filter_query = {}
     # overwrites = { guild.default_role: discord.PermissionOverwrite(read_messages=False), guild.me: discord.PermissionOverwrite(read_messages=True), ctx.author: discord.PermissionOverwrite(read_messages=True),}    
+    prestige = sowner['PRESTIGE']
+    aicon = ":new_moon:"
+    if prestige == 1:
+        aicon = ":waxing_crescent_moon:"
+    elif prestige == 2:
+        aicon = ":first_quarter_moon:"
+    elif prestige == 3:
+        aicon = ":waxing_gibbous_moon:"
+    elif prestige == 4:
+        aicon = ":full_moon:"
+    elif prestige == 5:
+        aicon = ":waning_gibbous_moon:"
+    elif prestige == 6:
+        aicon = ":last_quarter_moon:"
+    elif prestige == 7:
+        aicon = ":waning_crescent_moon:"
+    elif prestige == 8:
+        aicon = ":crescent_moon:"
+    elif prestige == 9:
+        aicon = ":crown:"
+    elif prestige >= 10:
+        aicon = ":japanese_ogre:"
 
+    rebirth = sowner['REBIRTH']
+    prestige_slider = 0
+    p_message = ""
+    if rebirth > 0 or prestige > 0:
+        prestige_slider = ((((sowner['PRESTIGE'] + 1) * (10 + sowner['REBIRTH'])) /100))
+        p_percent = (prestige_slider * 100)
+        p_message = f"*{aicon} x{round(p_percent)}%*"
     if sowner['RIFT'] == 1:
         rift_on = True
 
@@ -6562,7 +6683,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         🧬 **Summon**: {uni['UPET']}
 
                         **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
+                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
                         **Completed**: 🟢
                         {corruption_message}
                         {owner_message}
@@ -6592,7 +6713,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         🧬 **Universe Summon**: {uni['UPET']}
 
                         **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
+                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
                         **Completed**: 🔴
                         {corruption_message}
                         {owner_message}
@@ -6631,7 +6752,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         🧬 **Universe Summon**: {uni['UPET']}
 
                         **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
+                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
                         **Completed**: 🟢
                         {corruption_message}
                         {owner_message}
@@ -6663,7 +6784,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         🧬 **Universe Summon**: {uni['UPET']}
 
                         **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
+                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
                         **Completed**: 🔴
                         {corruption_message}
                         {owner_message}
@@ -6814,7 +6935,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 🧬 **Summon**: {uni_option['DPET']}
 
                 **Saved Game**: :fire: *{save_spot_text}*
-                **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
+                **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
                 **Completed**: {completed}
                 {corruption_message}
                 {owner_message}
@@ -6933,7 +7054,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                         🦾 **Arm**: {boss_info['ARM']}
                         🧬 **Summon**: {boss_info['PET']}
                         
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()}
+                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
                         **Soul Aquired**: {completed}
                         {owner_message}
                         """))
@@ -7221,6 +7342,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             battle_history_message_amount = sowner['BATTLE_HISTORY']
             o_full_card_info = stats['o_full_card_info']
             o_affinity_message = crown_utilities.set_affinities(o_full_card_info)
+            if mode in B_modes:
+                o_affinity_message = crown_utilities.set_affinities(o_full_card_info, True)
             o_title_passive_type = stats['o_title_passive_type']
             o_title_passive_value = stats['o_title_passive_value']
             o_opponent_affinities = stats['o_opponent_affinities']
@@ -7352,6 +7475,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 tpet_bond = stats['tpet_bond']
                 t_card = stats['t_card']
                 t_full_card_info = stats['t_full_card_info']
+                
                 t_affinity_message = crown_utilities.set_affinities(t_full_card_info)
                 tcard_lvl = stats['tcard_lvl']
                 tcard_lvl_message = f"🔰*{tcard_lvl}*"
@@ -7584,7 +7708,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 c_card_passive = stats['c_card_passive']
                 c_full_card_info = stats['c_full_card_info']
                 c_affinity_message = crown_utilities.set_affinities(c_full_card_info)
-                
+                if mode in B_modes:
+                    c_affinity_message = crown_utilities.set_affinities(c_full_card_info, True)
                 c_basic_emoji = crown_utilities.set_emoji(cmove1_element)
                 c_super_emoji = crown_utilities.set_emoji(cmove2_element)
                 c_ultimate_emoji = crown_utilities.set_emoji(cmove3_element)
@@ -7956,74 +8081,74 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
             else:
                 battle_ping_message = await private_channel.send(f"{ctx.author.mention} 🆚...")
             if mode not in PVP_MODES and mode not in B_modes and mode != "ABYSS" and mode not in RAID_MODES and mode not in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Start! ({currentopponent + 1}/{total_legends})", description=f"{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
+                embedVar = discord.Embed(title=f"✅ Confirm Start! ({currentopponent + 1}/{total_legends})", description=f"{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n🆚 | \n{t_talisman_emoji} | {tcard_lvl_message} **{t_card}**")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities__", value=f"{t_affinity_message}")
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
             if mode == "ABYSS":
-                embedVar = discord.Embed(title=f"🌑 Abyss Floor {universe['FLOOR']}\n✨ Confirm Start!  ({currentopponent + 1}/{total_legends})", description=f"{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
+                embedVar = discord.Embed(title=f"🌑 Abyss Floor {universe['FLOOR']}\n✨ Confirm Start!  ({currentopponent + 1}/{total_legends})", description=f"{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n🆚 | \n{t_talisman_emoji} | {tcard_lvl_message} **{t_card}**")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities__", value=f"{t_affinity_message}")
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
             
             if mode in PVP_MODES and tutorial:
-                embedVar = discord.Embed(title=f"✅ Click Start Match to Begin the Tutorial!", description=f"You: {ocard_lvl_message} **{o_card}** 🆚\nThem: {tcard_lvl_message} **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Click Start Match to Begin the Tutorial!", description=f"You:{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n🆚 | \nThem:{t_talisman_emoji} | {tcard_lvl_message}**{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
                 
             elif mode in PVP_MODES and tutorial == False:
-                embedVar = discord.Embed(title=f"✅ Confirm PVP Battle!", description=f"{user2.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Confirm PVP Battle!", description=f"{user2.mention}\n{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n🆚 | \n{t_talisman_emoji} | {tcard_lvl_message} **{t_card}**")
                 embedVar.set_thumbnail(url=user2.avatar_url)
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities__", value=f"{t_affinity_message}")
                 # embedVar.set_author(name=f"AnimeVS+ PvP", icon_url=o_user['AVATAR'])
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row])      
                 
             elif mode in RAID_MODES:
-                embedVar = discord.Embed(title=f"✅ Confirm Raid Battle!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Confirm Raid Battle!", description=f"{ctx.author.mention}\n{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n🆚 | \n{t_talisman_emoji} | {tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
                 embedVar.add_field(name=f"{t_talisman_emoji}__Opponent Affinities__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
             
             if mode in co_op_modes and mode not in ai_co_op_modes and mode not in B_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Co-Op Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** &\n{ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Confirm Co-Op Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n{c_talisman_emoji} | {ccard_lvl_message} **{c_card}**\n🆚 | \n{t_talisman_emoji} | {tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Companion Affinities__", value=f"{c_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
                 
             if mode in ai_co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Confirm Duo Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** &\n{ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Confirm Duo Battle! ({currentopponent + 1}/{total_legends})", description=f"{ctx.author.mention}\n{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n{c_talisman_emoji} | {ccard_lvl_message} **{c_card}**\n🆚 | \n{t_talisman_emoji} | {tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Companion Affinities__", value=f"{c_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card) 
                 
             if mode in B_modes and mode not in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n🆚 | \n🔅 | {tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
-                embedVar.add_field(name=f"__Opponent Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Opponent Affinities__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
                 
             if mode in B_modes and mode in co_op_modes:
-                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n{ocard_lvl_message} **{o_card}** & {ccard_lvl_message} **{c_card}** 🆚\n{tcard_lvl_message} **{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Boss Fight!", description=f"{ctx.author.mention}\n{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n{c_talisman_emoji} | {ccard_lvl_message} **{c_card}**\n🆚 | \n🔅 | {tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.add_field(name=f"__Your Affinities: {o_talisman_emoji}__", value=f"{o_affinity_message}")
+                embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
                 embedVar.add_field(name=f"__Companion Affinities: {c_talisman_emoji}__", value=f"{c_affinity_message}")
                 embedVar.add_field(name=f"__Boss Affinities: {t_talisman_emoji}__", value=f"{t_affinity_message}")
                 embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -15040,11 +15165,48 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     tparry_count = temp_oparry_count
                                                     previous_moves.append(f"(**{turn_total}**) **{t_card}** 🩸 **ARISE!** *{oarm_name}* is now yours")
                                                     t_swapped = True
+                                        tarm_message = ""
+                                        if tarm_barrier_active:
+                                            tarm_message = f"💠{tbarrier_count}"
+                                        elif tarm_shield_active:
+                                            tarm_message = f"🌐{tshield_value}"
+                                        elif tarm_parry_active:
+                                            tarm_message = f"🔄{tparry_count}"
+                                        elif tarm_passive_type == "SIPHON":
+                                            tarm_message = f"💉{tarm_passive_value}"
+                                        oarm_message = ""
+                                        if oarm_passive_type == "BARRIER":
+                                            if oarm_barrier_active:
+                                                oarm_passive_value = f"{obarrier_count}"
+                                                oarm_message = f"💠{obarrier_count}"
+                                            else:
+                                                oarm_passive_value = 0
+                                                oarm_message = ""
+                                        elif oarm_passive_type == "SHIELD":
+                                            if oarm_shield_active:
+                                                oarm_passive_value = f"{oshield_value}"
+                                                oarm_message = f"🌐{oshield_value}"
+                                            else:
+                                                oarm_passive_value = 0
+                                                oarm_message = ""
+                                                
+                                        elif oarm_passive_type == "PARRY":
+                                            if oarm_parry_active:
+                                                oarm_passive_value = f"{oparry_count}"
+                                                oarm_message = f"🔄{oparry_count}"
+                                            else:
+                                                oarm_passive_value = 0
+                                                oarm_message = ""
+                                        elif oarm_passive_type == "SIPHON":
+                                            oarm_message = f"💉{oarm_passive_value}"
                                         
-                                        tembedVar = discord.Embed(title=f"_Turn_ {turn_total}", description=textwrap.dedent(f"""\
+                                        tembedVar = discord.Embed(title=f"_ Enemy Turn_ {turn_total}", description=textwrap.dedent(f"""\
                                         {previous_moves_into_embed}
                                         """), color=0xe74c3c)
                                         tembedVar.set_image(url="attachment://image.png")
+                                        tembedVar.set_footer(
+                                            text=f"{o_card}: ❤️{round(o_health)} 🌀{round(o_stamina)} 🗡️{round(o_attack)}/🛡️{round(o_defense)} {oarm_message}",
+                                            icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=None)
                                         # await asyncio.sleep(2)
                                         battle_msg = await private_channel.send(embed=tembedVar, file=player_2_card)
@@ -23111,7 +23273,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 
                                 """),colour=0x1abc9c)
                                 embedVar.add_field(name="**Duo Tips**",
-                                                value=f"Create Duos that compliment each others Weaknesses")
+                                                value=f"Create Duos that compliment each others Weakness")
                             # if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
                             #     embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
                             # elif int(gameClock[0]) == 0:
@@ -23958,7 +24120,8 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
             arm_universe = card['UNIVERSE']
             
         if arm_universe in pokemon_universes:
-            arm_universe = card['UNIVERSE']
+            if card['UNIVERSE'] in pokemon_universes:
+                arm_universe = card['UNIVERSE']
 
         decrease_value = -1
         break_value = 1
@@ -23973,7 +24136,7 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
                     selected_arm = arm['ARM']
                     arm_name = arm['ARM']
                     selected_universe = arm_universe
-                    dismantle_amount = 5000
+                    dismantle_amount = 10000
                     current_gems = []
                     for gems in vault['GEMS']:
                         current_gems.append(gems['UNIVERSE'])

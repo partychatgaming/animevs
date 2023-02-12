@@ -678,7 +678,7 @@ def check_affinities(player, card, basic_element, super_element, ultimate_elemen
     return affinities
 
 
-def set_affinities(card):
+def set_affinities(card, boss = None):
     try:
         weaknesses = card['WEAKNESS']
         resistances = card['RESISTANT']
@@ -752,6 +752,9 @@ def set_affinities(card):
         
         if  not message_list:
             message_to = "No Affinities"
+            
+        if boss:
+            message_to = ":japanese_ogre: Boss Domain"
 
         affinity_message = textwrap.dedent(f"""\
         {message_to}
@@ -774,6 +777,29 @@ def set_affinities(card):
             'trace': trace
         }))
 
+async def prestige_icon(prestige):
+    aicon = ":new_moon:"
+    if prestige == 1:
+        aicon = ":waxing_crescent_moon:"
+    elif prestige == 2:
+        aicon = ":first_quarter_moon:"
+    elif prestige == 3:
+        aicon = ":waxing_gibbous_moon:"
+    elif prestige == 4:
+        aicon = ":full_moon:"
+    elif prestige == 5:
+        aicon = ":waning_gibbous_moon:"
+    elif prestige == 6:
+        aicon = ":last_quarter_moon:"
+    elif prestige == 7:
+        aicon = ":waning_crescent_moon:"
+    elif prestige == 8:
+        aicon = ":crescent_moon:"
+    elif prestige == 9:
+        aicon = ":crown:"
+    elif prestige >= 10:
+        aicon = ":japanese_ogre:"
+    return str(aicon)
 
 async def corrupted_universe_handler(ctx, universe, difficulty):
     try:
@@ -908,18 +934,18 @@ async def cardlevel(card: str, player, mode: str, universe: str):
         if lvl < 500 and lvl >= 200 and has_universe_heart:
             if guild_buff:
                 if guild_buff['Level']:
-                    exp_gain = round(lvl_req/2)
+                    exp_gain = round(lvl_req)
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
         if lvl < 700 and lvl >= 500 and has_universe_heart:
             if guild_buff:
                 if guild_buff['Level']:
-                    exp_gain = round(lvl_req/3)
+                    exp_gain = round(lvl_req/2)
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
                     
         if lvl < 999 and lvl >= 700 and has_universe_heart:
             if guild_buff:
                 if guild_buff['Level']:
-                    exp_gain = round(lvl_req/5)
+                    exp_gain = round(lvl_req/3)
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
             # Experience Code
             if exp < (lvl_req - 1):
