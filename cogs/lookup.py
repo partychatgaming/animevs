@@ -913,8 +913,8 @@ class Lookup(commands.Cog):
                 # embed1.add_field(name="Founder :dolls:", value= founder_name.split("#",1)[0], inline=True)
                 # embed1.add_field(name="Sworn :dolls:", value= sworn_name.split("#",1)[0], inline=True)
                 main_page = discord.Embed(title= f"{guild_name}".format(self), description=textwrap.dedent(f"""\
-                :flags: | **Association: {guild_name}**
-                {icon} | **Bank: {'{:,}'.format(balance)}**
+                :flags: | **Association:** {guild_name}
+                {icon} | **Bank:** {icon}{'{:,}'.format(balance)}
                 :nesting_dolls: | **Founder: ~** {founder_name.split("#",1)[0]}
                 :dolls: | **Sworn: ~** {sworn_name.split("#",1)[0]}
                 :japanese_goblin: | **Shield: ~**{shield_name.split("#",1)[0].format(self)}
