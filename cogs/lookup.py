@@ -1082,7 +1082,7 @@ class Lookup(commands.Cog):
                                 update_query = {
                                         '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
                                     }
-                                response = db.updateGuild(guild_query, update_query)
+                                response = db.updateGuildAlt(guild_query, update_query)
                                 await ctx.send(f"**{button_ctx.author.mention}** Said Hello! to {guild['GNAME']}!")
                                 self.stop = True
                                 return
