@@ -913,10 +913,10 @@ class Lookup(commands.Cog):
                 # embed1.add_field(name="Founder :dolls:", value= founder_name.split("#",1)[0], inline=True)
                 # embed1.add_field(name="Sworn :dolls:", value= sworn_name.split("#",1)[0], inline=True)
                 main_page = discord.Embed(title= f"{guild_name}".format(self), description=textwrap.dedent(f"""\
-                :flags: | {guild_name}
-                {icon} |  {'{:,}'.format(balance)}
-                :nesting_dolls: | **Founder ~** {founder_name.split("#",1)[0]}
-                :dolls: | **Sworn ~** {sworn_name.split("#",1)[0]}
+                :flags: | **Association: {guild_name}**
+                {icon} | **Bank: {'{:,}'.format(balance)}**
+                :nesting_dolls: | **Founder: ~** {founder_name.split("#",1)[0]}
+                :dolls: | **Sworn: ~** {sworn_name.split("#",1)[0]}
                 :japanese_goblin: | **Shield: ~**{shield_name.split("#",1)[0].format(self)}
                 :ninja: | **Guilds: **{sword_count}
                 :secret: | **Universe Crest: **{len(crest_list)} 
@@ -927,7 +927,7 @@ class Lookup(commands.Cog):
                 main_page.set_footer(text=f"/ally to join the {guild_name} Association")
                 
                 arena_page = discord.Embed(title= f"Hall Information".format(self), description=textwrap.dedent(f"""\
-                :flags: | {guild_name} Raid Arena
+                :flags: | **{guild_name} Raid Arena**
                 :coin: | **Raid Fee: **{'{:,}'.format(hall_fee)}
                 :yen: | **Bounty: **{'{:,}'.format(bounty)}
                 :moneybag: | **Victory Bonus: **{'{:,}'.format(bonus)}
@@ -1084,7 +1084,7 @@ class Lookup(commands.Cog):
                                         '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
                                     }
                                 response = db.updateGuildAlt(guild_query, update_query)
-                                await ctx.send(f"**{button_ctx.author.mention}** Said Hello! to {guild['GNAME']}!")
+                                await ctx.send(f"**{button_ctx.author.mention}** Said Hello to **{guild['GNAME']}**!")
                                 self.stop = True
                                 return
                             elif button_ctx.custom_id == "property":
