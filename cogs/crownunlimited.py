@@ -3771,8 +3771,8 @@ async def scenario(self, ctx: SlashContext, universe: str):
         rebirth = sowner['REBIRTH']
         prestige_slider = 0
         p_message = ""
-        if rebirth > 0 or prestige > 0:
-            prestige_slider = (((sowner['PRESTIGE'] + (5 + sowner['REBIRTH'])) /100))
+        if prestige > 0:
+            prestige_slider = (((sowner['PRESTIGE'] + (10 + sowner['REBIRTH'])) /100))
             p_percent = (prestige_slider * 100)
             p_message = f"*{aicon} x{round(p_percent)}%*"
         embed_list = []
@@ -6567,7 +6567,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
     rebirth = sowner['REBIRTH']
     prestige_slider = 0
     p_message = ""
-    if rebirth > 0 or prestige > 0:
+    if prestige > 0:
         prestige_slider = ((((sowner['PRESTIGE'] + 1) * (10 + sowner['REBIRTH'])) /100))
         p_percent = (prestige_slider * 100)
         p_message = f"*{aicon} x{round(p_percent)}%*"
