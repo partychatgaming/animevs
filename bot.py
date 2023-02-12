@@ -3196,42 +3196,42 @@ async def code(ctx, code_input: str):
       await channel.send(f"'PLAYER': **{str(ctx.author)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
       return
 
-@slash.slash(description="admin only", guild_ids=guild_ids)
-@commands.check(validate_user)
-async def zguilddid(ctx, password, key):
-   if password != 'casper':  
-      return await ctx.send("Admin Only")
+# @slash.slash(description="admin only", guild_ids=guild_ids)
+# @commands.check(validate_user)
+# async def zguilddid(ctx, password, key):
+#    if password != 'casper':  
+#       return await ctx.send("Admin Only")
    
-   if key != '513':
-      return await ctx.send("Admin Only")
-   try:
-      guilds = db.queryAllDbTeams()
-      for g in guilds:
-         print(g)
-         leader = g['OWNER']
-         leader_info = db.queryUser({'DISNAME': str(leader)})
-         print(leader_info)
-         if leader_info:
-            l_DID = leader_info['DID']
-            update = {'$set' : {'DID' : str(l_DID)}}
-            new_guild = db.updateTeam({'OWNER' : g['OWNER']}, update)
-            print(f"{g['TEAM_NAME']} updated")
-   except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'player': str(ctx.author),
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
+#    if key != '513':
+#       return await ctx.send("Admin Only")
+#    try:
+#       guilds = db.queryAllDbTeams()
+#       for g in guilds:
+#          print(g)
+#          leader = g['OWNER']
+#          leader_info = db.queryUser({'DISNAME': str(leader)})
+#          print(leader_info)
+#          if leader_info:
+#             l_DID = leader_info['DID']
+#             update = {'$set' : {'DID' : str(l_DID)}}
+#             new_guild = db.updateTeam({'OWNER' : g['OWNER']}, update)
+#             print(f"{g['TEAM_NAME']} updated")
+#    except Exception as ex:
+#       trace = []
+#       tb = ex.__traceback__
+#       while tb is not None:
+#          trace.append({
+#                "filename": tb.tb_frame.f_code.co_filename,
+#                "name": tb.tb_frame.f_code.co_name,
+#                "lineno": tb.tb_lineno
+#          })
+#          tb = tb.tb_next
+#       print(str({
+#          'player': str(ctx.author),
+#          'type': type(ex).__name__,
+#          'message': str(ex),
+#          'trace': trace
+#       }))
 
 
 @slash.slash(description="admin only", guild_ids=guild_ids)
