@@ -23014,6 +23014,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     bonus = guild_info['STREAK']
                                     total_bounty = (bounty + ((bonus / 100) * bounty))
                                     wage = .50 * total_bounty
+                                    transaction_message = f"{guild_info['SHIELD']} succesful Defense!"
+                                    update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                                    response = db.updateGuildAlt(guild_query, update_query)
                                 # response = await score(sownerctx, tuser)
                                 await crown_utilities.curse(30, str(ctx.author.id))
                                 await crown_utilities.bless(80, tuser.id)
@@ -23359,6 +23362,9 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                     endmessage = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(total_bounty)}"
                                     hall_info = db.queryHall({"HALL":guild_info['HALL']})
                                     fee = hall_info['FEE']
+                                    transaction_message = f":shield: {guild_info['SHIELD']} loss to {ctx.author}!"
+                                    update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                                    response = db.updateGuildAlt(guild_query, update_query)
                                     if title_match_active:
                                         if shield_test_active:
                                             endmessage = f":flags: {guild_info['GNAME']} DEFENSE TEST OVER!"

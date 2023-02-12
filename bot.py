@@ -704,6 +704,11 @@ async def animevs(ctx):
    - Associations can **/raid**
    - Associations can earn passive income owning **Universe Crest**
    - Associations can purchase **Halls**
+   - Association Mmbers can access the **Armory**
+   
+   **Armory**
+   - The armory serves as an Association Storage for Cards (Card Levels), Titles and Arms
+   - Use the Armory to store Cards and Card Levels and allow members to take ownership
    
    **Halls**
    - The **Association Bank** can be used to purchase **Halls**
@@ -2952,7 +2957,9 @@ async def sponsor(ctx, guild: str, amount):
       return
 
    team_bank = team_data['BANK']
-
+   transaction_message = f"{guild_name} sponsored {team_name} :coin:{amount}"
+   update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+   response = db.updateGuildAlt(guild_query, update_query)
    await crown_utilities.blessteam(int(amount), team_name)
    await crown_utilities.curseguild(int(amount), guild['GNAME'])
    await ctx.send(f"{guild_name} sponsored {team_name} :coin:{amount}!!!")
@@ -3032,6 +3039,10 @@ async def fund(ctx, amount):
       else:
          await crown_utilities.curseteam(int(amount), team['TEAM_NAME'])
          await blessguild_Alt(int(amount), str(team_guild))
+         guild_query = {"GNAME": {str(team_guild)}}
+         transaction_message = f"{team['TEAM_DISPLAY_NAME']} funded :coin:{amount}"
+         update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+         response = db.updateGuildAlt(guild_query, update_query)
          await ctx.send(f"{team_guild} has been funded :coin: {amount}.")
          return
    except Exception as ex:
@@ -3197,8 +3208,9 @@ async def zguilddid(ctx, password, key):
       guilds = db.queryAllDbTeams()
       for g in guilds:
          print(g)
-         leader = g['ONWER']
+         leader = g['OWNER']
          leader_info = db.queryUser({'DISNAME': str(leader)})
+         print(leader_info)
          if leader_info:
             l_DID = leader_info['DID']
             update = {'$set' : {'DID' : str(l_DID)}}
@@ -3215,7 +3227,7 @@ async def zguilddid(ctx, password, key):
          })
          tb = tb.tb_next
       print(str({
-         'player': str(player),
+         'player': str(ctx.author),
          'type': type(ex).__name__,
          'message': str(ex),
          'trace': trace

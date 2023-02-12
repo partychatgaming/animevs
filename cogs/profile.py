@@ -5809,6 +5809,622 @@ class Profile(commands.Cog):
             await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
             return
 
+    @cog_ext.cog_slash(description="Draw Items from Association Armory",
+                    options=[
+                        create_option(
+                            name="mode",
+                            description="Draw: Draw card, Dismantle:  Dismantle storage card, Resll: Resell storage card",
+                            option_type=3,
+                            required=True,
+                            choices=[
+                                create_choice(
+                                    name="🕋 🎴 Draw Armory Card",
+                                    value="cdraw"
+                                ),create_choice(
+                                    name="🕋 🎗️ Draw Armory Title",
+                                    value="tdraw"
+                                ),create_choice(
+                                    name="🕋 🦾 Draw Armory Arm",
+                                    value="adraw"
+                                ),
+                            ]
+                        ),create_option(
+                            name="item",
+                            description="Storage Item Name",
+                            option_type=3,
+                            required=True,
+                        )
+                    ]
+        , guild_ids=main.guild_ids)
+    async def armory(self, ctx: SlashContext, mode : str, item : str ):
+        await ctx.defer()
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
+        query = {'DID': str(ctx.author.id)}
+        d = db.queryUser(query)#Storage Update
+        team = db.queryTeam({'TEAM_NAME': d['TEAM'].lower()})
+        guild = db.queryGuildAlt({'GNAME': team['GUILD']})
+        guild_name = ""
+        if guild:
+            guild_name = guild['GNAME']
+            #in_guild = True
+            guild_query = {"GNAME": guild['GNAME']}
+        else:
+            await ctx.send("Your Guild is not Associated.")
+            return
+        storage_type = d['STORAGE_TYPE']
+        vault = db.queryVault({'DID': d['DID']})
+        card_name = item
+        title_name = item
+        arm_name = item
+        current_gems = []
+        try: 
+            if vault:
+                for gems in vault['GEMS']:
+                    current_gems.append(gems['UNIVERSE'])
+                cards_list = vault['CARDS']
+                card_levels = vault['CARD_LEVELS']
+                title_list = vault['TITLES']
+                arm_list = vault['ARMS']
+                arm_list_names = []
+                for names in arm_list:
+                    arm_list_names.append(names['ARM'])
+                total_cards = len(cards_list)
+                total_titles = len(title_list)
+                total_arms = len(arm_list)
+                cstorage = guild['CSTORAGE']
+                cstorage_levels = guild['S_CARD_LEVELS']
+                tstorage = guild['TSTORAGE']
+                astorage = guild['ASTORAGE']
+                storage_arm_names = []
+                item_owned = False
+                levels_owned = False
+                for snames in astorage:
+                    storage_arm_names.append(snames['ARM'])
+                
+                storage_card = db.queryCard({'NAME': {"$regex": f"^{str(item)}$", "$options": "i"}})
+                storage_title = db.queryTitle({'TITLE':{"$regex": f"^{str(item)}$", "$options": "i"} })
+                storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"}})
+                lvl = 0
+                tier = 0
+                exp = 0
+                ap_buff = 0
+                atk_buff = 0
+                def_buff = 0
+                hlt_buff = 0
+                if mode == 'cdraw':
+                    if total_cards > 24:
+                        await ctx.send("You already have 25 cards.")
+                        return
+                    if storage_card:                  
+                        if storage_card['NAME'] in cstorage:
+                            if storage_card['NAME'] in cards_list:
+                                item_owned = True
+                            if not item_owned:
+                                for levels in cstorage_levels:
+                                    if levels['CARD'] == storage_card['NAME']:
+                                        lvl = levels['LVL']
+                                        tier = levels['TIER']
+                                        exp = levels['EXP']
+                                        ap_buff = levels['AP']
+                                        atk_buff = levels['ATK']
+                                        def_buff = levels['DEF']
+                                        hlt_buff = levels['HLT']
+                                for c in card_levels:
+                                    if c['CARD'] == storage_card['NAME']:
+                                        levels_owned = True
+                                                         
+                            
+                            if not item_owned:
+                                query = {'DID': str(ctx.author.id)}
+                                update_gstorage_query = {
+                                    '$pull': {'CSTORAGE': storage_card['NAME'], 'S_CARD_LEVELS' : {'CARD' :  storage_card['NAME']}},
+                                }
+                                response = db.updateGuildAlt(guild_query, update_gstorage_query)
+                                update_storage_query = {
+                                    '$addToSet': {'CARDS': storage_card['NAME']},
+                                }
+                                response = db.updateVaultNoFilter(query, update_storage_query)
+                                if not levels_owned:
+                                    update_glevel_query = {
+                                    '$addToSet' : {
+                                            'CARD_LEVELS': {'CARD': str(storage_card['NAME']), 'LVL': lvl, 'TIER': tier, 'EXP': exp,
+                                                            'HLT': hlt_buff, 'ATK': atk_buff, 'DEF': def_buff, 'AP': ap_buff}}
+                                    }
+                                    response = db.updateVaultNoFilter(query, update_glevel_query)
+                            else:
+                                await ctx.send(f"🎴**{storage_card['NAME']}** already owned**")
+                                return
+                            await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
+                            return
+                        else:
+                            await ctx.send(f"🎴:{storage_card['NAME']} does not exist in storage.")
+                            return
+                    else:
+                        await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
+                        return
+                if mode == 'tdraw':
+                    if total_titles > 24:
+                        await ctx.send("You already have 25 titles.")
+                        return
+                    if storage_title:                  
+                        if storage_title['TITLE'] in tstorage: #title storage update
+                            if storage_title['TITLE'] in title_list:
+                                item_owned = True
+                            if not item_owned:
+                                query = {'DID': str(ctx.author.id)}
+                                update_storage_query = {
+                                    '$addToSet': {'TITLES': storage_title['TITLE']},
+                                }
+                                response = db.updateVaultNoFilter(query, update_storage_query)
+                                update_gstorage_query = {
+                                        '$pull': {'TSTORAGE': storage_title['TITLE']},
+                                    }
+                                response = db.updateGuildAlt(guild_query, update_gstorage_query)
+                            else:
+                                await ctx.send(f"🎗️ **{storage_title['TITLE']}** already owned**")
+                                return
+                            await ctx.send(f"🎗️ **{storage_title['TITLE']}** has been added to **/titles**")
+                            return
+                        else:
+                            await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist in storage.")
+                            return
+                    else:
+                        await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist.")
+                        return
+                if mode == 'adraw':
+                    if total_arms > 24:
+                        await ctx.send("You already have 25 arms.")
+                        return
+                    if storage_arm:                  
+                        if storage_arm['ARM'] in storage_arm_names: #title storage update
+                            if storage_arm['ARM'] in arm_list_names:
+                                item_owned = True
+                            durability = 0
+                            for arms in astorage:
+                                if storage_arm['ARM'] == arms['ARM']:
+                                    durability = arms['DUR']
+                                    print(durability)
+                            if not item_owned:
+                                query = {'DID': str(ctx.author.id)}
+                                update_storage_query = {
+                                    '$addToSet': {'ARMS': {'ARM' : str(storage_arm['ARM']) , 'DUR': int(durability)}},
+                                }
+                                response = db.updateVaultNoFilter(query, update_storage_query)
+                                update_gstorage_query = {
+                                    '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
+                                }
+                                response = db.updateGuildAlt(guild_query, update_gstorage_query)
+                            else:
+                                await ctx.send(f"🦾 **{storage_arm['ARM']}** already owned**")
+                                return
+                            await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/arms**")
+                            return
+                        else:
+                            await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist in storage.")
+                            return
+                    else:
+                        await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist.")
+                if mode == 'cdismantle':
+                    card_data = storage_card
+                    card_tier =  card_data['TIER']
+                    card_health = card_data['HLT']
+                    card_name = card_data['NAME']
+                    selected_universe = card_data['UNIVERSE']
+                    o_moveset = card_data['MOVESET']
+                    o_3 = o_moveset[2]
+                    element = list(o_3.values())[2]
+                    essence_amount = (200 * card_tier)
+                    o_enhancer = o_moveset[3]
+
+                    dismantle_amount = (10000 * card_tier) + card_health
+                    if card_name in vault['STORAGE']:
+                        dismantle_buttons = [
+                            manage_components.create_button(
+                                style=ButtonStyle.green,
+                                label="Yes",
+                                custom_id="yes"
+                            ),
+                            manage_components.create_button(
+                                style=ButtonStyle.blue,
+                                label="No",
+                                custom_id="no"
+                            )
+                        ]
+                        dismantle_buttons_action_row = manage_components.create_actionrow(*dismantle_buttons)
+                        msg = await ctx.send(f"Are you sure you want to dismantle **{card_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
+                        
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+
+                        
+                        try:
+                            button_ctx: ComponentContextDismantle = await manage_components.wait_for_component(self.bot, components=[dismantle_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "no":
+                                await button_ctx.send("Dismantle cancelled. ")
+                            if button_ctx.custom_id == "yes":
+                                if selected_universe in current_gems:
+                                    query = {'DID': str(ctx.author.id)}
+                                    update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
+                                    filter_query = [{'type.' + "UNIVERSE": selected_universe}]
+                                    response = db.updateVault(query, update_query, filter_query)
+                                else:
+                                    response = db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
+
+                                em = crown_utilities.inc_essence(str(ctx.author.id), element, essence_amount)
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'STORAGE': card_name}})
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'CARD_LEVELS': {'CARD': card_name}}})
+                                #await crown_utilities.bless(sell_price, ctx.author.id)
+                                await msg.delete()
+                                await button_ctx.send(f"**{card_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}. Acquired **{'{:,}'.format(essence_amount)}** {em} {element.title()} Essence.")
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            return
+                    else:
+                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                        return
+                if mode == 'tdismantle':
+                    title_data = storage_title
+                    title_name = title_data['TITLE']
+                    dismantle_amount = 1000
+                    selected_universe = title_data['UNIVERSE']
+                    if title_name in vault['TSTORAGE']:
+                        dismantle_buttons = [
+                            manage_components.create_button(
+                                style=ButtonStyle.green,
+                                label="Yes",
+                                custom_id="yes"
+                            ),
+                            manage_components.create_button(
+                                style=ButtonStyle.blue,
+                                label="No",
+                                custom_id="no"
+                            )
+                        ]
+                        dismantle_buttons_action_row = manage_components.create_actionrow(*dismantle_buttons)
+                        msg = await ctx.send(f"Are you sure you want to dismantle **{title_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
+                        
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+
+                        
+                        try:
+                            button_ctx: ComponentContextDismantle = await manage_components.wait_for_component(self.bot, components=[dismantle_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "no":
+                                await button_ctx.send("Dismantle cancelled. ")
+                            if button_ctx.custom_id == "yes":
+                                if selected_universe in current_gems:
+                                    query = {'DID': str(ctx.author.id)}
+                                    update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
+                                    filter_query = [{'type.' + "UNIVERSE": selected_universe}]
+                                    response = db.updateVault(query, update_query, filter_query)
+                                else:
+                                    response = db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
+
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'TSTORAGE': title_name}})
+                                await msg.delete()
+                                await button_ctx.send(f"**{title_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}.")
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            return
+                    else:
+                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                        return
+                if mode == 'adismantle':
+                    arm_data = storage_arm
+                    arm_name = arm_data['ARM']
+                    element = arm_data['ELEMENT']
+                    essence_amount = 100
+                    arm_passive = arm_data['ABILITIES'][0]
+                    arm_passive_type = list(arm_passive.keys())[0]
+                    arm_passive_value = list(arm_passive.values())[0]
+                    move_types = ["BASIC", "SPECIAL", "ULTIMATE"]
+                    if arm_data["EXCLUSIVE"]:
+                        essence_amount = 250
+                    selected_universe = arm_data['UNIVERSE']
+                    dismantle_amount = 10000
+                    storage_arm_names = []
+                    for names in vault['ASTORAGE']:
+                        if arm_name == names['ARM']:
+                            storage_arm_names = names['ARM']
+                    if arm_name == storage_arm_names:
+                        dismantle_buttons = [
+                            manage_components.create_button(
+                                style=ButtonStyle.green,
+                                label="Yes",
+                                custom_id="yes"
+                            ),
+                            manage_components.create_button(
+                                style=ButtonStyle.blue,
+                                label="No",
+                                custom_id="no"
+                            )
+                        ]
+                        dismantle_buttons_action_row = manage_components.create_actionrow(*dismantle_buttons)
+                        msg = await ctx.send(f"Are you sure you want to dismantle **{arm_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
+                        
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+
+                        
+                        try:
+                            button_ctx: ComponentContextDismantle = await manage_components.wait_for_component(self.bot, components=[dismantle_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "no":
+                                await button_ctx.send("Dismantle cancelled. ")
+                            if button_ctx.custom_id == "yes":
+                                if selected_universe in current_gems:
+                                    query = {'DID': str(ctx.author.id)}
+                                    update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
+                                    filter_query = [{'type.' + "UNIVERSE": selected_universe}]
+                                    response = db.updateVault(query, update_query, filter_query)
+                                else:
+                                    response = db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
+
+                                em = crown_utilities.inc_essence(str(ctx.author.id), element, essence_amount)
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'ASTORAGE': {'ARM' : str(arm_name)}}})
+                                #await crown_utilities.bless(sell_price, ctx.author.id)
+                                await msg.delete()
+                                await button_ctx.send(f"**{arm_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}. Acquired **{'{:,}'.format(essence_amount)}** {em} {element.title()} Essence.")
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            return
+                    else:
+                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                        return
+                if mode == 'cresell':
+                    card_data = storage_card
+                    card_name = card_data['NAME']
+                    sell_price = 0
+                    sell_price = (card_data['TIER'] * 250000)
+                    if card_name in vault['STORAGE']:
+                        sell_buttons = [
+                            manage_components.create_button(
+                                style=ButtonStyle.green,
+                                label="Yes",
+                                custom_id="yes"
+                            ),
+                            manage_components.create_button(
+                                style=ButtonStyle.blue,
+                                label="No",
+                                custom_id="no"
+                            )
+                        ]
+                        sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+                        msg = await ctx.send(f"Are you sure you want to sell **{card_name}** for :coin:{round(sell_price)}?", components=[sell_buttons_action_row])
+                        
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+
+                        
+                        try:
+                            button_ctx: ComponentContextSell = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "no":
+                                await button_ctx.send("Sell cancelled. ")
+                            if button_ctx.custom_id == "yes":
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'STORAGE': card_name}})
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'CARD_LEVELS': {'CARD': card_name}}})
+                                await crown_utilities.bless(sell_price, ctx.author.id)
+                                await msg.delete()
+                                await button_ctx.send(f"**{card_name}** has been sold.")
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'PLAYER': str(ctx.author),
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send("There's an issue with selling one or all of your items.")
+                            return
+                    else:
+                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                        return
+                if mode == 'tresell':
+                    title_data = storage_title
+                    title_name = title_data['TITLE']
+                    sell_price = 1
+                    title_available = title_data['AVAILABLE']
+                    arm_exclusive = title_data['EXCLUSIVE']
+                    sell_price = 25000
+                    if title_data['UNIVERSE'] == "Unbound":
+                        sell_price = 500000
+                    elif title_available and title_exclusive:
+                        sell_price = 100000
+                    elif title_available == False and title_exclusive ==False:
+                        sell_price = 1000000
+                    sell_price = sell_price + (title_data['PRICE'] * .10)
+                    selected_universe = title_data['UNIVERSE']
+                    if title_name in vault['TSTORAGE']:
+                        sell_buttons = [
+                            manage_components.create_button(
+                                style=ButtonStyle.green,
+                                label="Yes",
+                                custom_id="yes"
+                            ),
+                            manage_components.create_button(
+                                style=ButtonStyle.blue,
+                                label="No",
+                                custom_id="no"
+                            )
+                        ]
+                        sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+                        msg = await ctx.send(f"Are you sure you want to sell **{title_name}** for :coin: {round(sell_price)}?", components=[sell_buttons_action_row])
+                        
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+
+                        
+                        try:
+                            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "no":
+                                await button_ctx.send("Sell cancelled. ")
+                            if button_ctx.custom_id == "yes":
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'TSTORAGE': title_name}})
+                                await crown_utilities.bless(sell_price, ctx.author.id)
+                                await msg.delete()
+                                await button_ctx.send(f"**{title_name}** has been sold.")
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            return
+                    else:
+                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                        return
+                if mode == 'aresell':
+                    arm_data = storage_arm
+                    arm_name = arm_data['ARM']
+                    sell_price = 1
+                    arm_available = arm_data['AVAILABLE']
+                    arm_exclusive = arm_data['EXCLUSIVE']
+                    sell_price = 25000
+                    if arm_data['UNIVERSE'] == "Unbound":
+                        sell_price = 500000
+                    elif arm_available and arm_exclusive:
+                        sell_price = 100000
+                    elif arm_available == False and arm_exclusive ==False:
+                        sell_price = 1000000
+                    #sell_price = sell_price + (arm_data['PRICE'] * .07)
+                    selected_universe = arm_data['UNIVERSE']
+                    storage_arm_names = []
+                    for names in vault['ASTORAGE']:
+                        if arm_name == names['ARM']:
+                            storage_arm_names = names['ARM']
+                    if arm_name in storage_arm_names:
+                        sell_buttons = [
+                            manage_components.create_button(
+                                style=ButtonStyle.green,
+                                label="Yes",
+                                custom_id="yes"
+                            ),
+                            manage_components.create_button(
+                                style=ButtonStyle.blue,
+                                label="No",
+                                custom_id="no"
+                            )
+                        ]
+                        sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+                        msg = await ctx.send(f"Are you sure you want to sell **{arm_name}** for :coin: {round(sell_price)}?", components=[sell_buttons_action_row])
+                        
+                        def check(button_ctx):
+                            return button_ctx.author == ctx.author
+
+                        
+                        try:
+                            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row], timeout=120, check=check)
+
+                            if button_ctx.custom_id == "no":
+                                await button_ctx.send("Sell cancelled. ")
+                            if button_ctx.custom_id == "yes":
+                                db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'ASTORAGE': {'ARM' :str(arm_name)}}})
+                                await crown_utilities.bless(sell_price, ctx.author.id)
+                                await msg.delete()
+                                await button_ctx.send(f"**{arm_name}** has been sold.")
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            return
+                    else:
+                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                        return
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            return
 
 
 async def craft_adjuster(self, player, vault, universe, price, item, skin_list, completed_tales):

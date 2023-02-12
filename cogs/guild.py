@@ -218,6 +218,10 @@ class Guild(commands.Cog):
                                                 embed1.set_image(url=hall_img)
                                                 embed1.set_footer(text=f"/raid {guild_name} - Test Raid Defenses!")
                                                 await ctx.send(embed =embed1)
+                                                
+                                                transaction_message = f"{founder_profile['DISNAME']} & {sworn_profile['DISNAME']} founded {guild_name}"
+                                                update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                                                response = db.updateGuildAlt(guild_query, update_query)
                                                            
                                             except Exception as ex:
                                                 trace = []
@@ -400,6 +404,10 @@ class Guild(commands.Cog):
                                             embed1.set_image(url=hall_img)
                                             embed1.set_footer(text=f"/raid {guild_name} - Test Raid Defenses!")
                                             await ctx.send(embed =embed1)
+                                            
+                                            transaction_message = f"{founder_profile['DISNAME']} & {sworn_profile['DISNAME']} founded {guild_name}"
+                                            update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                                            response = db.updateGuildAlt(guild_query, update_query)
                                                         
                                         except Exception as ex:
                                             trace = []
@@ -520,7 +528,10 @@ class Guild(commands.Cog):
                             await ctx.send(response2)
                             new_value_query = {'$set': {'SWORN': 'BETRAYED', 'SHIELD' : str(founder), 'WDID' : str("BETRAYED"), 'SDID' : str(founder.id)}}
                             response = db.deleteGuildSwornAlt(guild_query, new_value_query, ctx.author)
-                            await ctx.send(response)                  
+                            await ctx.send(response)  
+                            transaction_message = f"{ctx.author} betrayed {guild_profile['GNAME']}"
+                            update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                            response = db.updateGuildAlt(guild_query, update_query)                
                         
                     except Exception as ex:
                         trace = []
@@ -644,6 +655,9 @@ class Guild(commands.Cog):
                                 newvalue = {'$push': {'SWORDS': str(team_name)}}
                                 response = db.addGuildSword(new_query, newvalue, ctx.author, str(team_name))
                                 await ctx.send(response)
+                                transaction_message = f"{team_name} allied with {guild_name}"
+                                update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                                response = db.updateGuildAlt(guild_query, update_query)     
                         
                         except:
                             await ctx.send(m.RESPONSE_NOT_DETECTED, delete_after=3)
@@ -703,7 +717,8 @@ class Guild(commands.Cog):
                 new_query = {'FDID' : guild['FDID']}
                 f_profile = guild['FDID']
                 s_profile = guild['WDID']
-                if founder_profile['DID'] != f_profile and founder_profile['DID'] != s_profile:
+                current_shield = guild['SDID']
+                if founder_profile['DID'] != f_profile and founder_profile['DID'] != s_profile and founder_profile['DID'] != current_shield:
                     await ctx.send(m.KNIGHT_GUILD_FOUNDER, delete_after=3)
                     return
                 trade_buttons = [
@@ -768,6 +783,9 @@ class Guild(commands.Cog):
                                     newvalue = {'$set': {'SHIELD': str(blade), 'STREAK' : 0, 'SDID' : str(blade.id)}}
                                     response = db.addGuildShield(new_query, newvalue, ctx.author, blade)
                                     await ctx.send(response)
+                                    transaction_message = f"{ctx.author} knighted {blade}"
+                                    update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                                    response = db.updateGuildAlt(guild_query, update_query) 
                                     
                             except Exception as ex:
                                 trace = []
@@ -876,6 +894,9 @@ class Guild(commands.Cog):
                             new_value_query = {'$pull': {'SWORDS': str(exiled_profile['TEAM'])}, '$set': {'SHIELD': guild_profile['SWORN'], 'SDID': guild_profile['WDID']}}
                             response2 = db.deleteGuildSword(new_query, new_value_query, ctx.author, str(exiled_profile['TEAM']))
                             await ctx.send(response2)
+                            transaction_message = f"{ctx.author} exiled {exiled_team['TEAM_DISPLAY_NAME']}"
+                            update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                            response = db.updateGuildAlt(guild_query, update_query) 
                     except:
                         print("No Exile")
                 else:
@@ -900,6 +921,7 @@ class Guild(commands.Cog):
             await ctx.send(
                 "There's an issue with your commnads. Alert support.")
             return
+    
     @cog_ext.cog_slash(description="Abandon Association (Guild Owner)", guild_ids=main.guild_ids)
     async def renounce(self, ctx):
         try:
@@ -947,6 +969,9 @@ class Guild(commands.Cog):
                             new_value_query = {'$pull': {'SWORDS': str(team_name)}, '$set': {'SHIELD': guild_profile['SWORN'], 'SDID': guild_profile['WDID']}}
                             response = db.deleteGuildSwordAlt(guild_query, new_value_query, str(team_name))
                             await ctx.send(response)
+                            transaction_message = f"{team_profile['TEAM_DISPLAY_NAME']} renounced thier oath!"
+                            update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                            response = db.updateGuildAlt(guild_query, update_query) 
                         except:
                             print("Association not created. ")
                 except:

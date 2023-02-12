@@ -125,6 +125,7 @@ class GUILD():
     WAR_FLAG: bool = field(default_factory=lambda:False)
     WAR_OPPONENT: str = field(default_factory=lambda: '')
     WAR_WINS: list[str] = field(default_factory=lambda: [])
+    TRANSACTIONS: list[str] = field(default_factory=lambda: [])
     TIMESTAMP: str = now
 
 
