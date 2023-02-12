@@ -1104,11 +1104,11 @@ class Battle:
         db.updateUserNoFilter({'DID': player1.did}, {'$set': {'BOSS_FOUGHT': True}})
 
 
-    async def save_abyss_win(user, player, player1_card):
+    async def save_abyss_win(self, user, player, player1_card):
         bless_amount = 100000 + (10000 * int(self.abyss_floor))
         await crown_utilities.bless(bless_amount, player.did)
         new_level = inf(self.abyss_floor) + 1
-        response = db.updateUserNoFilter({'DID': player1.did}, {'$set': {'LEVEL': new_level}})
+        response = db.updateUserNoFilter({'DID': player.did}, {'$set': {'LEVEL': new_level}})
         cardlogger = await crown_utilities.cardlevel(user, player1_card.name, player.did, "Purchase", "n/a")
 
 
@@ -1174,6 +1174,41 @@ class Battle:
             embedVar.add_field(name="🌀 Most Focused", value=f"**{loser_card.name}**")
 
         return embedVar
+
+
+    def you_lose_embed(self, player_card, opponent_card):
+        wintime = time.asctime()
+        starttime = time.asctime()
+        h_gametime = starttime[11:13]
+        m_gametime = starttime[14:16]
+        s_gametime = starttime[17:19]
+        h_playtime = int(wintime[11:13])
+        m_playtime = int(wintime[14:16])
+        s_playtime = int(wintime[17:19])
+        gameClock = crown_utilities.getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
+                            s_playtime)
+
+        embedVar = discord.Embed(title=f"YOU LOSE!", description=textwrap.dedent(f"""
+        {self.get_previous_moves_embed()}
+        
+        """),colour=0xe91e63)
+        # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
+        if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
+            embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
+        elif int(gameClock[0]) == 0:
+            embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+        else:
+            embedVar.set_footer(
+                text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+        embedVar.add_field(name="🔢 Focus Count",
+                        value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}")
+        if opponent_card.focus_count >= player_card.focus_count:
+            embedVar.add_field(name="🌀 Most Focused", value=f"**{opponent_card.name}**")
+        else:
+            embedVar.add_field(name="🌀 Most Focused", value=f"**{player_card.name}**")
+
+        return embedVar
+
 
 
     async def explore_embed(self, ctx, winner, winner_card, player_arm, player_title):

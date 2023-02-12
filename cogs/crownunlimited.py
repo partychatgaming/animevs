@@ -3565,6 +3565,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     continued = False
                                     return
 
+                                
                                 if battle_config.is_raid_game_mode:
                                     guild_query = {'FDID': oguild['FDID']}
                                     bounty = oguild['BOUNTY']
@@ -3615,6 +3616,15 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     else:
                                         embedVar.add_field(name="🌀 Most Focused", value=f"**{player2_card.name}**")
                                     battle_msg = await private_channel.send(embed=embedVar)
+                                    continued = False
+                                    return
+
+                                # If you lose non pvp it sends message from here. Everything else is winning stuff.
+                                if battle_config.player2_wins:
+                                    loss_response = battle_config.you_lose_embed(player1_card, player2_card)
+                                    await battle_msg.delete(delay=2)
+                                    await asyncio.sleep(2)
+                                    battle_msg = await private_channel.send(embed=loss_response)
                                     continued = False
                                     return
 
