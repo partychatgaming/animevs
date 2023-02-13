@@ -9804,6 +9804,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             turn = 1
                                         else:
                                             previous_moves.append(f"(**{turn_total}**) **{o_card}** is too tired to block.")
+                                            o_stamina = 0
                                             turn = 0
                                     
                                     if aiMove != 5 and aiMove != 6 and aiMove != 0:
@@ -18818,6 +18819,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             else:
                                                 #await private_channel.send(m.NOT_ENOUGH_STAMINA)
                                                 previous_moves.append(f"(**{turn_total}**) **{c_card}** not enough Stamina to use this move {aiMove}") 
+                                                c_stamina = 0
                                                 turn = 2
                                         elif aiMove == 7:
                                             if c_stamina >= 20:
@@ -18834,6 +18836,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                             else:
                                                 #await private_channel.send(f"{c_card} is too tired to block...")
                                                 previous_moves.append(f"(**{turn_total}**) **{c_card}** is too tired to block.")
+                                                c_stamina = 0
                                                 turn = 2
 
                                         if aiMove != 5 and aiMove != 6 and aiMove != 7 and aiMove != 8:
