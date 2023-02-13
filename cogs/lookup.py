@@ -834,15 +834,25 @@ class Lookup(commands.Cog):
                     blade_count = 0
                     sword_count = sword_count + 1
                     sword_team = db.queryTeam({'TEAM_NAME': swords})
+                    swords_name = sword_team['TEAM_DISPLAY_NAME']
                     dubs = sword_team['WINS']
                     els = sword_team['LOSSES']
                     owner = sword_team['OWNER']
                     owner_DID = sword_team['DID']
+                    
                     officers = sword_team['OFFICERS']
                     captains = sword_team['CAPTAINS']
                     members = sword_team['MEMBERS']
                     owner_list.append(f"{owner_DID}")
-                    owner_name_list.append(f"👑 | [{str(index)}] **{owner}** *{sword_team['TEAM_DISPLAY_NAME']}*")
+                    
+                    if owner_DID == f_DID:
+                        owner_name_list.append(f"🪆 | [{str(index)}] **{owner}** *{sword_team['TEAM_DISPLAY_NAME']}*")
+                    elif owner_DID == w_DID:
+                        owner_name_list.append(f"🎎 | [{str(index)}] **{owner}** *{sword_team['TEAM_DISPLAY_NAME']}*")
+                    elif owner_DID == s_DID:
+                        owner_name_list.append(f"👺 | [{str(index)}] **{owner}** *{sword_team['TEAM_DISPLAY_NAME']}*")
+                    else:
+                        owner_name_list.append(f"👑 | [{str(index)}] **{owner}** *{sword_team['TEAM_DISPLAY_NAME']}*")
                     for blades in sword_team['MEMBERS']:
                         bindex = sword_team['MEMBERS'].index(blades)
                         blade_count = blade_count + 1
@@ -862,7 +872,7 @@ class Lookup(commands.Cog):
                             sword_member_list.append(formatted_name)
                         #sword_member_list.append(f":knife: [{str(index)}{str(bindex)}] **{blades}**")
                     sword_bank = sword_team['BANK']
-                    sword_list.append(f"~ {swords} ~ W**{dubs}** / L**{els}**\n:man_detective: | **Owner: **{owner}\n:coin: | **Bank: **{'{:,}'.format(sword_bank)}\n:knife: | **Members: **{blade_count}\n_______________________")
+                    sword_list.append(f"~ {swords_name} ~ W**{dubs}** / L**{els}**\n:coin: | **Bank: **{'{:,}'.format(sword_bank)}\n:knife: | **Members: **{blade_count}\n_______________________")
                     
                 guild_owner_list_joined = "\n".join(owner_name_list)
                 members_list_joined =  " | ".join(sword_member_list)
@@ -944,13 +954,13 @@ class Lookup(commands.Cog):
                 arena_page.set_image(url=hall_img)
                 arena_page.set_footer(text=f"/raid {guild_name} - Raid Association")
                 
-                guilds_page = discord.Embed(title=f"Guild Information".format(self), description=":bank: |  Party Chat Gaming Database", colour=000000)
-                guilds_page.add_field(name=f":flags: |  {guild_name} **Guild** List\n:military_helmet: Guilds | **:ninja: ~ {sword_count}/:knife: {total_blade_count}**\n:dollar: Split | **{hall_split}x**:coin:", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
+                guilds_page = discord.Embed(title=f"Guild Information".format(self), description=f":flags: |  {guild_name} **Guild** List\n⛩️ | Guilds Earn **{hall_split}x**:coin:\n:bank: |  Party Chat Gaming Database", colour=000000)
+                guilds_page.add_field(name=f":military_helmet: Guilds | **:ninja: ~ {sword_count}/:knife: {total_blade_count}**", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
                 guilds_page.set_footer(text=f"/guild - View Association Guild")
                 
-                crest_page = discord.Embed(title=f"Universe Crest".format(self), description=":bank: |  Party Chat Gaming Database", colour=000000)
-                crest_page.add_field(name=f":flags: |  {guild_name} **OWNED CREST**\n:secret: | **CREST**", value="\n".join(f'**{c}**'.format(self) for c in crest_list), inline=False)
-                crest_page.set_footer(text=f"Earn Universe Crest in Dungeons!")
+                crest_page = discord.Embed(title=f"Universe Crest".format(self), description=f":flags: |  {guild_name} **Universe Crest**\n:bank: |  Party Chat Gaming Database", colour=000000)
+                crest_page.add_field(name=f":secret: | **OWNED**", value="\n".join(f'**{c}**'.format(self) for c in crest_list), inline=False)
+                crest_page.set_footer(text=f"Earn Universe Crest in Dungeons and Boss Fights!")
                 
                 activity_page = discord.Embed(title="Recent Association Activity", description=textwrap.dedent(f"""
                 {transactions_embed}
@@ -975,7 +985,7 @@ class Lookup(commands.Cog):
                 blades_page.set_footer(text=f"/player - Lookup Guild Members")
                 
                 estates_page = discord.Embed(title=f"Halls", description=textwrap.dedent(f"""
-                🌇 | **Halls**
+                ⛩️ | **Halls**
                 {estates_list_joined}
                
                 """), colour=0x7289da)
@@ -1088,7 +1098,7 @@ class Lookup(commands.Cog):
                                 self.stop = True
                                 return
                             elif button_ctx.custom_id == "property":
-                                await button_ctx.defer(ignore=True)
+                                #await button_ctx.defer(ignore=True)
                                 real_estate_message = " "
                                 property_buttons = []
                                 balance_message = '{:,}'.format(guild['BANK'])
@@ -1226,6 +1236,7 @@ class Lookup(commands.Cog):
                                         equip_action_row = manage_components.create_actionrow(*equip_buttons)
                                         async def equip_function(self, button_ctx):
                                             hall_name = str(button_ctx.origin_message.embeds[0].title)
+                                            guild_query = {'GNAME': guild['GNAME']}
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "equip":
