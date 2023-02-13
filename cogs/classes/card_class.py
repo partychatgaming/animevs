@@ -10,10 +10,6 @@ from pilmoji import Pilmoji
 from io import BytesIO
 
 
-
-
-
-
 class Card:
     try:
         def __init__(self, name, path, price, exclusive, available, is_skin, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, type, passive, speed, universe, has_collection, tier, collection, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath):
@@ -267,7 +263,7 @@ class Card:
                     self.passive_num = stam_for_passive
 
     except:
-        print("ERRRO")
+        print("ERROR")
 
     def is_universe_unbound(self):
         if(self.universe == "Unbound"):
@@ -628,7 +624,7 @@ class Card:
             self.bounty = self.bounty * 150
 
 
-        if battle.is_hard_difficulty:
+        if battle_config.is_hard_difficulty:
             self.attack = self.attack + 1250
             self.defense = self.defense + 1250
             self.max_health = self.max_health + 3000
@@ -694,14 +690,25 @@ class Card:
             opponent_card.burn_dmg = round(opponent_card.burn_dmg / 2)
 
 
-
-    def frozen(self, battle, opponent_card):
+    def frozen(self, battle_config, opponent_card):
         if opponent_card.freeze_enh:
-            battle.turn_total = battle.turn_total + 1
+            battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
 
         return {"MESSAGE" : f"❄️ **{self.name}** has been frozen for a turn...", "TURN": battle_config.is_turn}
 
+
+    def yuyu_hakusho_attack_increase(self):
+        self.attack = self.attack + self.stamina
+
+
+    def activate_demon_slayer_trait(self, battle_config, opponent_card):
+        if self.universe == "Demon Slayer" and battle_config.turn_total == 0 and not battle_config._turn_zero_has_happened:
+            battle_config._turn_zero_has_happened = True
+            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
+            self.health = round(self.health + (opponent_card.health * .40))
+            self.max_health = round(self.max_health + (opponent_card.health *.40))
+    
 
     def set_poison_hit(self, opponent_card):
         if opponent_card.poison_dmg:
@@ -740,7 +747,7 @@ class Card:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
             
-            elif temp_opp_arm_parry_active and not opponent_card._barrier_active:
+            elif opponent_card.temp_opp_arm_parry_active and not opponent_card._barrier_active:
                 if self._barrier_active:
                     self._barrier_value = self._barrier_value + opponent_card.temp_opp_barrier_value
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
@@ -2239,7 +2246,6 @@ class Card:
             battle_config.repeat_turn()
     
 
-
     def damage_done(self, battle_config, dmg, opponent_card):
         if dmg['CAN_USE_MOVE']:
             if dmg['ENHANCE']:
@@ -2373,8 +2379,8 @@ class Card:
                         opponent_card.health = opponent_card.health 
                         if opponent_card._shield_value <= 0:
                             residue_damage = opponent_card._shield_value
-                            opponent_card.health = opponent_card.health - residue_damage
                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌐**{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(abs(residue_damage))} DMG!**")
+                            opponent_card.health = opponent_card.health - residue_damage
                             if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                                 opponent_card._barrier_active = False
                                 opponent_card._arm_message = ""
@@ -2387,15 +2393,15 @@ class Card:
                                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
 
                 elif opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                    if opponent_card._barrier_value >1:
+                    if opponent_card._barrier_value > 1:
                         opponent_card.health = opponent_card.health 
                         battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Activates Barrier 💠 {self.name}'s attack **Nullified**!\n **{opponent_card._barrier_value - 1} Barriers** remain!")
-                        if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                        if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False
                             opponent_card._arm_message = ""
                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
-                    elif opponent_card._barrier_value==1:
+                    elif opponent_card._barrier_value == 1:
                         battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}**'s Barrier Broken!")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                         if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
@@ -2507,12 +2513,12 @@ class Card:
         elif dmg['ELEMENT'] == "EARTH":
             self.defense = self.defense + (dmg['DMG'] * .50)
             self._shield_active = True
-            self._shield_value = self._shield_value * round(dmg['DMG'] * .50)
+            self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "DEATH":
-            opponent_card.max_health = opponent_card.max_health - (dmg['DMG'] * .45)
             self.attack = self.attack + (dmg['DMG'] * .45)
+            opponent_card.max_health = opponent_card.max_health - (dmg['DMG'] * .45)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "LIGHT":
@@ -2628,18 +2634,6 @@ class Card:
 
     
     
-    def yuyu_hakusho_attack_increase(self):
-        self.attack = self.attack + self.stamina
-
-
-    def activate_demon_slayer_trait(self, battle_config, opponent_card):
-        if self.universe == "Demon Slayer" and battle_config.turn_total == 0 and not battle_config._turn_zero_has_happened:
-            battle_config._turn_zero_has_happened = True
-            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
-            self.health = round(self.health + (opponent_card.health * .40))
-            self.max_health = round(self.max_health + (opponent_card.health *.40))
-    
-
     def activate_card_passive(self, player2_card):
         if self.passive_type:
             value_for_passive = self.tier * .5
@@ -2730,7 +2724,7 @@ class Card:
                         self.defense = self.defense * 2
                         self.attack = self.attack * 2
                         self.max_health = self.max_health * 2
-                        battle_config.add_battle_history_messsage(f"(**{battle.turn_total}**) **{self.name}** 🩸's Devilization")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
 
             elif self.health <= (self.max_health * .50):
                 if self._chainsawman_activated == True:
@@ -2740,7 +2734,7 @@ class Card:
                         self.defense = self.defense * 2
                         self.attack = self.attack * 2
                         self.max_health = self.max_health * 2
-                        battle_config.add_battle_history_messsage(f"(**{battle.turn_total}**) **{self.name}** 🩸's Devilization")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
                         
 
 def get_card(url, cardname, cardtype):

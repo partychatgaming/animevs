@@ -50,6 +50,8 @@ class Battle:
         self.co_op_buttons = []
         self.utility_buttons = []
 
+        self.continue_fighting = True
+
         self.selected_universe = ""
         self.selected_universe_full_data = ""
 
@@ -535,7 +537,7 @@ class Battle:
         self._match_lineup = f"{str(self.current_opponent_number + 1)}/{str(self.total_number_of_opponents)}"
 
 
-    def match_can_be_saved(self):
+    def save_match_turned_on(self):
         if self.mode not in crown_utilities.NOT_SAVE_MODES and self.difficulty != "EASY":
             self.match_can_be_saved = True
         return self.match_can_be_saved
@@ -636,7 +638,10 @@ class Battle:
 
     def get_previous_moves_embed(self):
         msg = "\n\n".join(self.previous_moves)
-        return msg
+        if msg:
+            return msg
+        else:
+            return ""
     
 
     def get_battle_window_title_text(self, opponent_card, your_card, partner_card=None):
