@@ -13406,7 +13406,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                         boost = 100 * t_card_tier
                                                         t_max_health = round(t_max_health + (boost))
                                                         t_health = t_health + (boost)
-                                                        previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost} Max Health ❤️")
+                                                        previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost}** Max Health ❤️")
 
                                                     if t_universe == "Bleach":
                                                         dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
@@ -14642,7 +14642,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                     boost = 100 * t_card_tier
                                                     t_max_health = round(t_max_health + (boost))
                                                     t_health = t_health + (boost)
-                                                    previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost} Max Health ❤️")
+                                                    previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost}** Max Health ❤️")
 
                                                 if t_universe == "Bleach":
                                                     dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
@@ -16260,7 +16260,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 boost = 100 * t_card_tier
                                                 t_max_health = round(t_max_health + (boost))
                                                 t_health = t_health + (boost)
-                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost} Max Health ❤️")
+                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost}** Max Health ❤️")
 
                                             if t_universe == "Bleach":
                                                 dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
@@ -22140,7 +22140,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                                 boost = 100 * t_card_tier
                                                 t_max_health = round(t_max_health + (boost))
                                                 t_health = t_health + (boost)
-                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost} Max Health ❤️")
+                                                previous_moves.append(f"(**{turn_total}**) **Rally** 🩸 ! **{t_card}** Increased **{boost}** Max Health ❤️")
 
                                             if t_universe == "Bleach":
                                                 dmg = damage_cal(mode,t_card_tier, t_talisman_dict, tap1, o_opponent_affinities, basic_attack_name, tmove1_element, t_universe, t_card, t_1, t_attack, t_defense, o_defense,
