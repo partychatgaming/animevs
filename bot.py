@@ -1154,7 +1154,7 @@ async def rebirth(ctx):
    if user_is_validated:
       rLevel = user_is_validated['REBIRTH']
       gabes_purse = user_is_validated['TOURNAMENT_WINS']
-      if rLevel < 5:
+      if rLevel < 10:
          pursemessage = "You will lose all of your equipped and vaulted items."
          if gabes_purse == 1:
             pursemessage = ":purse: | Gabe's Purse Activated! All Items Will Be Retained! *You will not be able to select a new starting universe!*"
