@@ -2097,6 +2097,7 @@ class Lookup(commands.Cog):
                                                                         card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
                                                                 if button_ctx.custom_id == "Donate":
                                                                     #print("donate")
+                                                                    guild_query = {"GNAME": guild["GNAME"]}
                                                                     if selected_card == d['CARD']:
                                                                         await ctx.send(f"🕋 | **{selected_card}** cannot donate Equipped Card")
                                                                         return
@@ -2145,6 +2146,7 @@ class Lookup(commands.Cog):
                                                     }))       
                                             if button_ctx.custom_id == "titles":
                                                 query = {'DID': str(ctx.author.id)}
+                                                guild_query = {"GNAME": guild["GNAME"]}
                                                 d = db.queryUser(query)
                                                 vault = db.queryVault({'DID': d['DID']})
                                                 storage_type = d['STORAGE_TYPE']
@@ -2249,6 +2251,7 @@ class Lookup(commands.Cog):
                                                             'trace': trace
                                                         }))  
                                             if button_ctx.custom_id == "arms":
+                                                guild_query = {"GNAME": guild["GNAME"]}
                                                 query = {'DID': str(ctx.author.id)}
                                                 d = db.queryUser(query)
                                                 vault = db.queryVault({'DID': d['DID']})
