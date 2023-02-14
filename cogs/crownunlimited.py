@@ -24544,7 +24544,7 @@ async def drops(self,player, universe, matchcount):
     arm_drop = 195  # 195
     pet_drop = 198  # 198
     card_drop = 200  # 200
-    drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 200)
+    drop_rate = random.randint((0 + (rebirth * 10) ), 200)
     durability = random.randint(1, 45)
     if difficulty == "HARD":
         mode = "Purchase"
@@ -24555,7 +24555,7 @@ async def drops(self,player, universe, matchcount):
         arm_drop = 170
         pet_drop = 190  
         card_drop = 200 
-        drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 200)
+        drop_rate = random.randint(0 + (rebirth * 15), 200)
         durability = random.randint(35, 50)
         
     try:
@@ -24779,23 +24779,23 @@ async def dungeondrops(self, player, universe, matchcount):
 
     gold_drop = 125  #
     rift_rate = 150  #
-    rematch_rate = 200
+    rematch_rate = 250
     title_drop = 300  #
     arm_drop = 350  #
-    pet_drop = 370  #
+    pet_drop = 380  #
     card_drop = 400  #
-    drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 400)
+    drop_rate = random.randint((0 + (rebirth * 20) ), 400)
     durability = random.randint(10, 75)
     mode="Dungeon"
     if difficulty == "HARD":
         gold_drop = 30  
         rift_rate = 55
-        rematch_rate = 70
-        title_drop = 180  
-        arm_drop = 230  
-        pet_drop = 275  
+        rematch_rate = 180
+        title_drop = 210  
+        arm_drop = 240  
+        pet_drop = 270  
         card_drop = 300 
-        drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 300)
+        drop_rate = random.randint((0 + (rebirth * 15)), 300)
         durability = 100
         mode="Purchase"
 
@@ -24952,7 +24952,7 @@ async def bossdrops(self,player, universe):
     boss_pet_drop = 495  #
     boss_card_drop = 500  #
 
-    drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 500)
+    drop_rate = random.randint((0 + (rebirth * 25)), 500)
     durability = random.randint(100, 150)
     if difficulty == "HARD":
         gold_drop = 125  #
@@ -24960,13 +24960,13 @@ async def bossdrops(self,player, universe):
         title_drop = 200  #
         arm_drop = 230  #
         pet_drop = 270  #
-        card_drop = 300  #
+        card_drop = 310  #
         boss_title_drop = 350  #
         boss_arm_drop = 370  #
         boss_pet_drop = 395  #
         boss_card_drop = 400  #
 
-        drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 400)
+        drop_rate = random.randint((0 + (rebirth * 25)), 400)
 
     try:
         if drop_rate <= gold_drop:
