@@ -126,6 +126,11 @@ class GUILD():
     WAR_OPPONENT: str = field(default_factory=lambda: '')
     WAR_WINS: list[str] = field(default_factory=lambda: [])
     TRANSACTIONS: list[str] = field(default_factory=lambda: [])
+    CSTORAGE: list[str] = field(default_factory=lambda: [])
+    ASTORAGE: list[str] = field(default_factory=lambda: [])
+    TSTORAGE: list[str] = field(default_factory=lambda: [])
+    S_CARD_LEVELS: list[str] = field(default_factory=lambda: []) 
+    ESTATES: list[str] = field(default_factory=lambda: [])
     TIMESTAMP: str = now
 
 
