@@ -2595,7 +2595,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             opponent_card = player2_card
             opponent_arm = player2_arm
             opponent_title = player2_title
-
+            print(battle_config.is_pvp_game_mode)
             if battle_config.is_pvp_game_mode:
                 user2 = await main.bot.fetch_user(player2.did)
                 opponent_ping = user2.mention
