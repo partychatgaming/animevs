@@ -2521,7 +2521,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 if battle_config.is_explore_game_mode:
                     player2_card = _custom_explore_card
                 else:
-                    battle_config.get_ai_battle_ready()
+                    battle_config.get_ai_battle_ready(player1_card.card_lvl)
                     player2_card = Card(battle_config._ai_opponent_card_data['NAME'], battle_config._ai_opponent_card_data['PATH'], battle_config._ai_opponent_card_data['PRICE'], battle_config._ai_opponent_card_data['EXCLUSIVE'], battle_config._ai_opponent_card_data['AVAILABLE'], battle_config._ai_opponent_card_data['IS_SKIN'], battle_config._ai_opponent_card_data['SKIN_FOR'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['MOVESET'], battle_config._ai_opponent_card_data['ATK'], battle_config._ai_opponent_card_data['DEF'], battle_config._ai_opponent_card_data['TYPE'], battle_config._ai_opponent_card_data['PASS'][0], battle_config._ai_opponent_card_data['SPD'], battle_config._ai_opponent_card_data['UNIVERSE'], battle_config._ai_opponent_card_data['HAS_COLLECTION'], battle_config._ai_opponent_card_data['TIER'], battle_config._ai_opponent_card_data['COLLECTION'], battle_config._ai_opponent_card_data['WEAKNESS'], battle_config._ai_opponent_card_data['RESISTANT'], battle_config._ai_opponent_card_data['REPEL'], battle_config._ai_opponent_card_data['ABSORB'], battle_config._ai_opponent_card_data['IMMUNE'], battle_config._ai_opponent_card_data['GIF'], battle_config._ai_opponent_card_data['FPATH'], battle_config._ai_opponent_card_data['RNAME'], battle_config._ai_opponent_card_data['RPATH'])
                     player2_card.set_ai_card_buffs(battle_config._ai_opponent_card_lvl, battle_config.stat_buff, battle_config.stat_debuff, battle_config.health_buff, battle_config.health_debuff, battle_config.ap_buff, battle_config.ap_debuff)
                 
@@ -3708,7 +3708,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     battle_msg = await private_channel.send(embed=embedVar)
-
+                                    battle_config.reset_game()
                                     battle_config.current_opponent_number = battle_config.current_opponent_number + 1
                                     battle_config.continue_fighting = True
 
@@ -3866,6 +3866,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     battle_msg = await private_channel.send(embed=embedVar)
+                                    battle_config.reset_game()
                                     battle_config.current_opponent_number = battle_config.current_opponent_number + 1
                                     battle_config.continue_fighting = True
                                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
@@ -3904,6 +3905,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                             
                             if battle_config.is_scenario_game_mode:
+                                print(f"Scenario Current Opponent: {str(battle_config.current_opponent_number)}")
+                                print(f"Total number of opponents: {str(battle_config.total_number_of_opponents)}")
                                 if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
                                     cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, "Tales", battle_config.selected_universe)
 
@@ -3918,7 +3921,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     battle_msg = await private_channel.send(embed=embedVar)
+                                    battle_config.reset_game()
                                     battle_config.current_opponent_number = battle_config.current_opponent_number + 1
+                                    print(f"Scenario Current Opponent: {str(battle_config.current_opponent_number)}")
                                     battle_config.continue_fighting = True
                                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                                     response = await scenario_drop(self, ctx, battle_config.selected_universe, battle_config.difficulty)
@@ -4390,14 +4395,14 @@ async def scenario_drop(self, ctx, scenario, difficulty):
         }))
 
 
-async def drops(self,player, universe, matchcount):
-    all_drop_cards = db.queryDropCards(universe)
-    all_drop_titles = db.queryDropTitles(universe)
-    all_drop_arms = db.queryDropArms(universe)
-    all_drop_pets = db.queryDropPets(universe)
+async def drops(self, player, universe, matchcount):
+    all_available_drop_cards = db.queryDropCards(universe)
+    all_available_drop_titles = db.queryDropTitles(universe)
+    all_available_drop_arms = db.queryDropArms(universe)
+    all_available_drop_pets = db.queryDropPets(universe)
     vault_query = {'DID': str(player.id)}
     vault = db.queryVault(vault_query)
-    player_info = db.queryUser({'DID': str(player.id)})
+    player_info = db.queryUser({'DID': str(vault['DID'])})
 
     difficulty = player_info['DIFFICULTY']
 
@@ -4406,44 +4411,97 @@ async def drops(self,player, universe, matchcount):
         await crown_utilities.bless(bless_amount, player.id)
         return f"You earned :coin: **{bless_amount}**!"
 
-    owned_arms = [arm['ARM'] for arm in vault['ARMS']]
+    owned_arms = []
+    for arm in vault['ARMS']:
+        owned_arms.append(arm['ARM'])
+        
+    owned_titles = []
     owned_titles = vault['TITLES']
-    user = db.queryUser({'DID': str(player.id)})
+
+    user_query = {'DID': str(player.id)}
+    user = db.queryUser(user_query)
     rebirth = user['REBIRTH']
-    owned_destinies = [destiny['NAME'] for destiny in vault['DESTINY']]
+    owned_destinies = []
+    for destiny in vault['DESTINY']:
+        owned_destinies.append(destiny['NAME'])
 
-    cards = [card['NAME'] for card in all_drop_cards]
-    titles = [title['TITLE'] for title in all_drop_titles]
-    arms = [arm['ARM'] for arm in all_drop_arms]
-    pets = [pet['PET'] for pet in all_drop_pets]
+    cards = []
+    titles = []
+    arms = []
+    pets = []
 
-    rand_card = random.randint(0, len(cards) - 1) if cards else 0
-    rand_title = random.randint(0, len(titles) - 1) if titles else 0
-    rand_arm = random.randint(0, len(arms) - 1) if arms else 0
-    rand_pet = random.randint(0, len(pets) - 1) if pets else 0
+    # if matchcount <= 2:
+    #     bless_amount = (500 + (1000 * matchcount)) * (1 + rebirth)
+    #     if difficulty == "HARD":
+    #         bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
+    #     await crown_utilities.bless(bless_amount, player.id)
+    #     return f"You earned :coin: **{bless_amount}**!"
 
-    gold_drop = 125
-    rift_rate = 150
-    rematch_rate = 175
-    title_drop = 190
-    arm_drop = 195
-    pet_drop = 198
-    card_drop = 200
+
+
+    if all_available_drop_cards:
+        for card in all_available_drop_cards:
+            cards.append(card['NAME'])
+
+    if all_available_drop_titles:
+        for title in all_available_drop_titles:
+            titles.append(title['TITLE'])
+
+    if all_available_drop_arms:
+        for arm in all_available_drop_arms:
+            arms.append(arm['ARM'])
+        
+    if all_available_drop_pets:
+        for pet in all_available_drop_pets:
+            pets.append(pet['PET'])
+         
+    
+    if len(cards)==0:
+        rand_card = 0
+    else:
+        c = len(cards) - 1
+        rand_card = random.randint(0, c)
+
+    if len(titles)==0:
+        rand_title= 0
+    else:
+        t = len(titles) - 1
+        rand_title = random.randint(0, t)
+
+    if len(arms)==0:
+        rand_arm = 0
+    else:
+        a = len(arms) - 1
+        rand_arm = random.randint(0, a)
+
+    
+    if len(pets)==0:
+        rand_pet = 0
+    else:
+        p = len(pets) - 1
+        rand_pet = random.randint(0, p)
+
+    gold_drop = 125  # 125
+    rift_rate = 150  # 150
+    rematch_rate = 175 #175
+    title_drop = 190  # 190
+    arm_drop = 195  # 195
+    pet_drop = 198  # 198
+    card_drop = 200  # 200
     drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 200)
     durability = random.randint(1, 45)
-
     if difficulty == "HARD":
         mode = "Purchase"
         gold_drop = 30
         rift_rate = 55
         rematch_rate = 70
-        title_drop = 75
-        arm_drop = 100
-        pet_drop = 180
-        card_drop = 200
+        title_drop = 75  
+        arm_drop = 100  
+        pet_drop = 180  
+        card_drop = 200 
         drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 200)
         durability = random.randint(35, 50)
-
+        
     try:
         if drop_rate <= gold_drop:
             bless_amount = (10000 + (1000 * matchcount)) * (1 + rebirth)
@@ -4463,17 +4521,31 @@ async def drops(self,player, universe, matchcount):
             return f"🆚  You have earned 1 Rematch and  :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > rematch_rate:
             if all_available_drop_titles:
-
-                u = await main.bot.fetch_user(player.id)
-                response = await crown_utilities.store_drop_card(u, player.id, titles[rand_title], universe, vault, owned_destinies, 150, 150, "mode", False, 0, "titles")
+                # if len(vault['TITLES']) >= 25:
+                #     await crown_utilities.bless(300, player.id)
+                #     return f"You're maxed out on Titles! You earned :coin: 300 instead!"
+                # if str(titles[rand_title]) in owned_titles:
+                #     await crown_utilities.bless(150, player.id)
+                #     return f"You already own **{titles[rand_title]}**! You earn :coin: **150**."
+                # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
+                # return f"You earned _Title:_ **{titles[rand_title]}**!"
+                response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 150, 150, "mode", False, 0, "titles")
                 return response
             else:
                 await crown_utilities.bless(150, player.id)
                 return f"You earned :coin: **150**!"
         elif drop_rate <= arm_drop and drop_rate > title_drop:
             if all_available_drop_arms:
-                u = await main.bot.fetch_user(player.id)
-                response = await crown_utilities.store_drop_card(u, player.id, arms[rand_arm], universe, vault, durability, 2000, 2000, "mode", False, 0, "arms")
+                # if len(vault['ARMS']) >= 25:
+                #     await crown_utilities.bless(300, player.id)
+                #     return f"You're maxed out on Arms! You earned :coin: 300 instead!"
+                # if str(arms[rand_arm]) in owned_arms:
+                #     await crown_utilities.bless(150, player.id)
+                #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **150**."
+                # else:
+                #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
+                #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
+                response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 2000, 2000, "mode", False, 0, "arms")
             else:
                 await crown_utilities.bless(150, player.id)
                 return f"You earned :coin: **150**!"
@@ -4509,8 +4581,7 @@ async def drops(self,player, universe, matchcount):
                 return f"You earned :coin: **150**!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
             if all_available_drop_cards:
-                u = await main.bot.fetch_user(player.id)
-                response = await crown_utilities.store_drop_card(u, player.id, cards[rand_card], universe, vault, owned_destinies, 3000, 1000, "mode", False, 0, "cards")
+                response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 3000, 1000, "mode", False, 0, "cards")
                 if not response:
                     bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
                     await crown_utilities.bless(bless_amount, player.id)
@@ -4519,7 +4590,6 @@ async def drops(self,player, universe, matchcount):
             else:
                 await crown_utilities.bless(5000, player.id)
                 return f"You earned :coin: **5000**!"
-    
     except Exception as ex:
         trace = []
         tb = ex.__traceback__

@@ -57,6 +57,7 @@ class Battle:
 
         self._ai_title = ""
         self._ai_arm = ""
+        self._ai_summon = ""
         self._ai_opponent_card_data = ""
         self._ai_opponent_title_data = ""
         self._ai_opponent_arm_data = ""
@@ -325,6 +326,7 @@ class Battle:
             self.abyss_card_to_earn = self.list_of_opponents_by_name[-1] 
             self._ai_title = abyss['TITLE']
             self._ai_arm = abyss['ARM']
+            self._ai_summon = abyss['PET']
             self.abyss_banned_card_tiers = abyss['BANNED_TIERS']
             self.abyss_banned_tier_conversion_to_string = [str(tier) for tier in self.abyss_banned_card_tiers]
 
@@ -543,23 +545,38 @@ class Battle:
         return self.match_can_be_saved
 
 
-    def get_ai_battle_ready(self):
-        print(self.selected_universe)
+    def get_ai_battle_ready(self, player1_card_level):
         if not self.is_boss_game_mode:
-            self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
-            universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
-            if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
-                title = 'DTITLE'
-                arm = 'DARM'
-                summon = 'DPET'
-            if self.mode in crown_utilities.TALE_M or self._ai_opponent_card_lvl < 350:
-                title = 'UTITLE'
-                arm = 'UARM'
-                summon = 'UPET'
-
-            self._ai_opponent_title_data = db.queryTitle({'TITLE': universe_data[title]})
-            self._ai_opponent_arm_data = db.queryArm({'ARM': universe_data[arm]})
-            self._ai_opponentsummon_data = db.queryPet({'PET': universe_data[summon]})
+            if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self. is_explore_game_mode, self.is_scenario_game_mode)):
+                self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
+                universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
+                
+                if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
+                    self._ai_title = universe_data['DTITLE']
+                    self._ai_arm = universe_data['DARM']
+                    self._ai_summon = universe_data['DPET']
+                    if player1_card_level <= 400 and not self.is_scenario_game_mode:
+                        self._ai_opponent_card_lvl = player1_card_level
+                    elif not player1_card_level <= 400 and not self.is_scenario_game_mode:
+                        self._ai_opponent_card_lvl = 400
+                    else:
+                        self._ai_opponent_card_lvl = self._ai_opponent_card_lvl
+                
+                if self.mode in crown_utilities.TALE_M or (self._ai_opponent_card_lvl < 350):
+                    self._ai_title = universe_data['UTITLE']
+                    self._ai_arm = universe_data['UARM']
+                    self._ai_summon = universe_data['UPET']
+                    if player1_card_level <= 150 and not self.is_scenario_game_mode:
+                        self._ai_opponent_card_lvl = player1_card_level
+                    elif not player1_card_level <=150 and not self.is_scenario_game_mode:
+                        self._ai_opponent_card_lvl = 150
+                    else:
+                        self._ai_opponent_card_lvl = self._ai_opponent_card_lvl
+            
+            print(self._ai_summon)
+            self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
+            self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
+            self._ai_opponentsummon_data = db.queryPet({'PET': self._ai_summon})
             self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
             self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
             self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
@@ -634,6 +651,15 @@ class Battle:
                 player1_card.health = 0
 
         return self.match_has_ended
+
+
+    def reset_game(self):
+        self.match_has_ended = False
+        self.player1_wins = False
+        self.player2_wins = False
+        self.turn_total = 0
+        self.previous_moves = []
+        self.is_auto_battle_game_mode = False
 
 
     def get_previous_moves_embed(self):

@@ -270,21 +270,21 @@ class Card:
             return True
 
     # AI ONLY BUFFS
-    def set_ai_card_buffs(self, _ai_lvl_buff, _ai_stat_buff, _ai_stat_debuff, _ai_health_buff, _ai_health_debuff, _ai_ap_buff, _ai_ap_debuff):
-        self.card_lvl = _ai_lvl_buff
+    def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff):
+        self.card_lvl = ai_lvl_buff
 
         self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
         self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
         self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
         self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
 
-        self.max_health = self.max_health + self.card_lvl_hlt_buff + _ai_health_buff + _ai_health_debuff
-        self.health = self.health + self.card_lvl_hlt_buff + _ai_health_buff + _ai_health_debuff
-        self.attack = self.attack + self.card_lvl_attack_buff + _ai_stat_buff + _ai_stat_debuff
-        self.defense = self.defense + self.card_lvl_defense_buff + _ai_stat_buff + _ai_stat_debuff
-        self.move1ap = self.move1ap + self.card_lvl_ap_buff + _ai_ap_buff + _ai_ap_debuff
-        self.move2ap = self.move2ap + self.card_lvl_ap_buff + _ai_ap_buff + _ai_ap_debuff
-        self.move3ap = self.move3ap + self.card_lvl_ap_buff + _ai_ap_buff + _ai_ap_debuff
+        self.max_health = self.max_health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff
+        self.health = self.health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff
+        self.attack = self.attack + self.card_lvl_attack_buff + ai_stat_buff + ai_stat_debuff
+        self.defense = self.defense + self.card_lvl_defense_buff + ai_stat_buff + ai_stat_debuff
+        self.move1ap = self.move1ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff
+        self.move2ap = self.move2ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff
+        self.move3ap = self.move3ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff
 
 
     # This method will set the level buffs & apply them
@@ -576,7 +576,7 @@ class Card:
 
 
     # Explore Methods    
-    def set_explore_bounty_and_difficulty(self, battle):
+    def set_explore_bounty_and_difficulty(self, battle_config):
         if self.tier == 1:
             self.bounty = random.randint(5000, 10000)
         if self.tier == 2:
@@ -2373,19 +2373,19 @@ class Card:
                     if dmg['ELEMENT'] == "POISON": #Poison Update
                         if self.poison_dmg <= 600:
                             self.poison_dmg = self.poison_dmg + 30
-                        
                     if opponent_card._shield_value > 0:
                         opponent_card._shield_value = opponent_card._shield_value - dmg['DMG']
-                        opponent_card.health = opponent_card.health 
+                        # opponent_card.health = opponent_card.health 
                         if opponent_card._shield_value <= 0:
-                            residue_damage = opponent_card._shield_value
-                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌐**{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(abs(residue_damage))} DMG!**")
+                            opponent_card._shield_active = False
+                            opponent_card._arm_message = ""
+                            residue_damage = abs(opponent_card._shield_value)
+                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌐**{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG!**")
                             opponent_card.health = opponent_card.health - residue_damage
-                            if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                            if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                                 opponent_card._barrier_active = False
                                 opponent_card._arm_message = ""
                                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
-                            opponent_card._shield_active = False
                         else:
                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** strikes **{opponent_card.name}**'s Shield 🌐\n**{opponent_card._shield_value} Shield** Left!")
                             if opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
