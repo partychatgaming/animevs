@@ -116,6 +116,7 @@ class Battle:
         self.abyss_card_to_earn = ""
         self.abyss_banned_card_tiers = ""
         self.abyss_player_card_tier_is_banned = False
+        self.scenario_data = ""
         self.scenario_easy_drops = []
         self.scenario_normal_drops = []
         self.scenario_hard_drops = []
@@ -163,7 +164,7 @@ class Battle:
 
 
         if self.mode not in crown_utilities.PVP_M:
-            self.is_tales_game_mode = True
+            self.is_pvp_game_mode = True
             self.total_number_of_opponents = 1
 
         if self.mode in crown_utilities.AUTO_BATTLE_M:
@@ -448,6 +449,8 @@ class Battle:
 
     def set_scenario_config(self, scenario_data):
         try:
+            self.scenario_data = scenario_data
+            self.is_scenario_game_mode = True
             self.list_of_opponents_by_name = scenario_data['ENEMIES']
             self.total_number_of_opponents = len(self.list_of_opponents_by_name)
             self._ai_opponent_card_lvl = int(scenario_data['ENEMY_LEVEL'])
@@ -550,30 +553,19 @@ class Battle:
             if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self. is_explore_game_mode, self.is_scenario_game_mode)):
                 self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
                 universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
-                
+
                 if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
                     self._ai_title = universe_data['DTITLE']
                     self._ai_arm = universe_data['DARM']
                     self._ai_summon = universe_data['DPET']
-                    if player1_card_level <= 400 and not self.is_scenario_game_mode:
-                        self._ai_opponent_card_lvl = player1_card_level
-                    elif not player1_card_level <= 400 and not self.is_scenario_game_mode:
-                        self._ai_opponent_card_lvl = 400
-                    else:
-                        self._ai_opponent_card_lvl = self._ai_opponent_card_lvl
+                    self._ai_opponent_card_lvl = min(400, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl
                 
                 if self.mode in crown_utilities.TALE_M or (self._ai_opponent_card_lvl < 350):
                     self._ai_title = universe_data['UTITLE']
                     self._ai_arm = universe_data['UARM']
                     self._ai_summon = universe_data['UPET']
-                    if player1_card_level <= 150 and not self.is_scenario_game_mode:
-                        self._ai_opponent_card_lvl = player1_card_level
-                    elif not player1_card_level <=150 and not self.is_scenario_game_mode:
-                        self._ai_opponent_card_lvl = 150
-                    else:
-                        self._ai_opponent_card_lvl = self._ai_opponent_card_lvl
-            
-            print(self._ai_summon)
+                    self._ai_opponent_card_lvl = min(150, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
+           
             self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
             self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
             self._ai_opponentsummon_data = db.queryPet({'PET': self._ai_summon})

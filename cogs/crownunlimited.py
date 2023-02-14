@@ -2518,6 +2518,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player3.get_talisman_ready(player3_card)
             
             if battle_config.is_ai_opponent:
+                if battle_config.is_scenario_game_mode:
+                    battle_config.is_tales_game_mode = False
+                    battle_config.is_pvp_game_mode = False
+                
                 if battle_config.is_explore_game_mode:
                     player2_card = _custom_explore_card
                 else:
@@ -3626,7 +3630,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                             if any((battle_config.is_tales_game_mode, battle_config.is_dungeon_game_mode, battle_config.is_boss_game_mode)):
-                                print("ANY IS HERE")
                                 if battle_config.is_dungeon_game_mode:
                                     drop_response = await dungeondrops(self, user1, battle_config.selected_universe, battle_config.current_opponent_number)
                                 if battle_config.is_tales_game_mode:
@@ -3905,8 +3908,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                             
                             if battle_config.is_scenario_game_mode:
-                                print(f"Scenario Current Opponent: {str(battle_config.current_opponent_number)}")
-                                print(f"Total number of opponents: {str(battle_config.total_number_of_opponents)}")
                                 if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
                                     cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, "Tales", battle_config.selected_universe)
 
@@ -3921,12 +3922,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     battle_msg = await private_channel.send(embed=embedVar)
-                                    battle_config.reset_game()
                                     battle_config.current_opponent_number = battle_config.current_opponent_number + 1
-                                    print(f"Scenario Current Opponent: {str(battle_config.current_opponent_number)}")
+                                    battle_config.reset_game()
                                     battle_config.continue_fighting = True
                                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
-                                    response = await scenario_drop(self, ctx, battle_config.selected_universe, battle_config.difficulty)
+                                    response = await scenario_drop(self, ctx, battle_config.scenario_data, battle_config.difficulty)
                                     bless_amount = 50000
                                     await crown_utilities.bless(bless_amount, player1.did)
                                     embedVar = discord.Embed(title=f"Scenario Battle Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
@@ -3938,7 +3938,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     name=f"Scenario Reward",
                                     value=f"{response}")
 
-                                    battle_msg = await private_channel.send(embed=embedVar)
+                                    await private_channel.send(embed=embedVar)
 
                                     battle_config.continue_fighting = False
 
