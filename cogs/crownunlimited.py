@@ -565,7 +565,7 @@ class CrownUnlimited(commands.Cog):
                                 ),
                                 create_choice(
                                     name="🌑 The Abyss!",
-                                    value="ABYSS"
+                                    value="Abyss"
                                 ),
                                 create_choice(
                                     name="⚔️ Tales & Scenario Battles!",
@@ -2520,8 +2520,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             if battle_config.is_ai_opponent:
                 if battle_config.is_scenario_game_mode:
                     battle_config.is_tales_game_mode = False
-                    battle_config.is_pvp_game_mode = False
-                
                 if battle_config.is_explore_game_mode:
                     player2_card = _custom_explore_card
                 else:
@@ -2540,7 +2538,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 opponent_talisman_emoji = ""
                 player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
                 player2_card.set_affinity_message()
-                # Set potential boss descriptions
                 player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
                 battle_config.get_aisummon_ready(player2_card)
@@ -2595,7 +2592,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             opponent_card = player2_card
             opponent_arm = player2_arm
             opponent_title = player2_title
-            print(battle_config.is_pvp_game_mode)
             if battle_config.is_pvp_game_mode:
                 user2 = await main.bot.fetch_user(player2.did)
                 opponent_ping = user2.mention
@@ -3873,7 +3869,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     battle_config.current_opponent_number = battle_config.current_opponent_number + 1
                                     battle_config.continue_fighting = True
                                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
-                                    await battle_confg.save_abyss_win(user1, player1, player1_card)
+                                    await battle_config.save_abyss_win(user1, player1, player1_card)
                                     abyss_message = await abyss_level_up_message(player1.did, battle_config.abyss_floor, player2_card.name, player2_title.name, player2_arm.name)
                                     abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
                                     embedVar = discord.Embed(title=f"🌑 Floor **{battle_config.abyss_floor}** Cleared\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
@@ -3903,7 +3899,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     value=f"{abyss_drop_message}")
 
                                     battle_msg = await private_channel.send(embed=embedVar)
-
                                     battle_config.continue_fighting = False
 
                             
@@ -4050,7 +4045,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
     player_card.set_gravity_hit()
     player_title.activate_title_passive(battle_config, player_card, opponent_card)
-    player_card.activate_card_passive(opponent_card)
+    player_card.activate_card_passive(opponent_card, battle_config)
     player_card.activate_demon_slayer_trait(battle_config, opponent_card)
     opponent_card.activate_demon_slayer_trait(battle_config, player_card)
     if player_card.used_block == True:

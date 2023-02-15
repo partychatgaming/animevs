@@ -270,9 +270,8 @@ class Card:
             return True
 
     # AI ONLY BUFFS
-    def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff):
+    def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff):   
         self.card_lvl = ai_lvl_buff
-
         self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
         self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
         self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
@@ -1725,7 +1724,7 @@ class Card:
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Conquerors Haki!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
-                battle_config._next_turn()
+                battle_config.next_turn()()
 
 
             elif self.universe == "Demon Slayer": 
@@ -1755,7 +1754,7 @@ class Card:
 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Total Concentration Breathing!")
                 battle_config.turn_total = battle_config.turn_total + 1
-                battle_config._next_turn()
+                battle_config.next_turn()()
 
             elif self.universe == "Naruto": 
                 # fortitude or luck is based on health
@@ -2634,7 +2633,7 @@ class Card:
 
     
     
-    def activate_card_passive(self, player2_card):
+    def activate_card_passive(self, player2_card, battle_config):
         if self.passive_type:
             value_for_passive = self.tier * .5
             flat_value_for_passive = 10 * (self.tier * .5)

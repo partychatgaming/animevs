@@ -163,7 +163,7 @@ class Battle:
         self.player2_wins = False
 
 
-        if self.mode not in crown_utilities.PVP_M:
+        if self.mode in crown_utilities.PVP_M:
             self.is_pvp_game_mode = True
             self.total_number_of_opponents = 1
 
@@ -302,7 +302,6 @@ class Battle:
 
 
     def get_starting_match_title(self):
-        print(f"CURRENT OPPONENT {self.current_opponent_number}")
         return   f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
 
     def set_abyss_config(self, player):
@@ -318,7 +317,8 @@ class Battle:
                 self.abyss_message = "You have climbed out of :new_moon: **The Abyss**! Use /exchange to **Prestige**!"
                 return
 
-
+            self.is_ai_opponent = True
+            self.is_abyss_game_mode = True
             self.list_of_opponents_by_name = abyss['ENEMIES']
             card_to_earn = self.list_of_opponents_by_name[-1] 
             self.total_number_of_opponents = len(self.list_of_opponents_by_name)
@@ -336,11 +336,8 @@ class Battle:
             else:
                 unlockable_message = ""
 
-
             if str(checks['TIER']) in self.abyss_banned_card_tiers:
                 self.abyss_player_card_tier_is_banned = True
-
-
 
             embedVar = discord.Embed(title=f":new_moon: Abyss Floor {str(self.abyss_floor)}  ⚔️{len(self.list_of_opponents_by_name)}", description=textwrap.dedent(f"""
             {unlockable_message}
@@ -549,64 +546,80 @@ class Battle:
 
 
     def get_ai_battle_ready(self, player1_card_level):
-        if not self.is_boss_game_mode:
-            if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self. is_explore_game_mode, self.is_scenario_game_mode)):
-                self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
-                universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
+        try:
+            if not self.is_boss_game_mode:
+                if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self. is_explore_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode)):
+                    self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
+                    universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
 
-                if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
-                    self._ai_title = universe_data['DTITLE']
-                    self._ai_arm = universe_data['DARM']
-                    self._ai_summon = universe_data['DPET']
-                    self._ai_opponent_card_lvl = min(400, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl
-                
-                if self.mode in crown_utilities.TALE_M or (self._ai_opponent_card_lvl < 350):
-                    self._ai_title = universe_data['UTITLE']
-                    self._ai_arm = universe_data['UARM']
-                    self._ai_summon = universe_data['UPET']
-                    self._ai_opponent_card_lvl = min(150, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
-           
-            self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
-            self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
-            self._ai_opponentsummon_data = db.queryPet({'PET': self._ai_summon})
-            self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
-            self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
-            self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
-
-            summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
-            self._ai_opponentsummon_power = list(summon_passive.values())[0]
-            self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
-            self._ai_opponentsummon_type = summon_passive['TYPE']
-        else:
-            self._boss_data = db.queryBoss({"UNIVERSE": self.selected_universe, "AVAILABLE": True})
-            self._ai_opponent_card_data = db.queryCard({'NAME': self._boss_data['CARD']})
-            self._ai_opponent_title_data = db.queryTitle({'TITLE': self._boss_data['TITLE']})
-            self._ai_opponent_arm_data = db.queryArm({'ARM': self._boss_data['ARM']})
-            self._ai_opponentsummon_data = db.queryPet({'PET': self._boss_data['PET']})
-            self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
-            self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
-            self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
-
-            summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
-            self._ai_opponentsummon_power = list(summon_passive.values())[0]
-            self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
-            self._ai_opponentsummon_type = summon_passive['TYPE']
+                    if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
+                        self._ai_title = universe_data['DTITLE']
+                        self._ai_arm = universe_data['DARM']
+                        self._ai_summon = universe_data['DPET']
+                        self._ai_opponent_card_lvl = min(400, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl
+                    
+                    if self.mode in crown_utilities.TALE_M or (self._ai_opponent_card_lvl < 350):
+                        self._ai_title = universe_data['UTITLE']
+                        self._ai_arm = universe_data['UARM']
+                        self._ai_summon = universe_data['UPET']
+                        self._ai_opponent_card_lvl = min(150, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
             
-            self._arena_boss_description = self._boss_data['DESCRIPTION'][0]
-            self._arenades_boss_description = self._boss_data['DESCRIPTION'][1]
-            self._entrance_boss_description = self._boss_data['DESCRIPTION'][2]
-            self._description_boss_description = self._boss_data['DESCRIPTION'][3]
-            self._welcome_boss_description = self._boss_data['DESCRIPTION'][4]
-            self._feeling_boss_description = self._boss_data['DESCRIPTION'][5]
-            self._powerup_boss_description = self._boss_data['DESCRIPTION'][6]
-            self._aura_boss_description = self._boss_data['DESCRIPTION'][7]
-            self._assault_boss_description = self._boss_data['DESCRIPTION'][8]
-            self._world_boss_description = self._boss_data['DESCRIPTION'][9]
-            self._punish_boss_description = self._boss_data['DESCRIPTION'][10]
-            self._rmessage_boss_description = self._boss_data['DESCRIPTION'][11]
-            self._rebuke_boss_description = self._boss_data['DESCRIPTION'][12]
-            self._concede_boss_description = self._boss_data['DESCRIPTION'][13]
-            self._wins_boss_description = self._boss_data['DESCRIPTION'][14]
+                self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
+                self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
+                self._ai_opponentsummon_data = db.queryPet({'PET': self._ai_summon})
+                self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
+                self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
+                self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
+
+                summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
+                self._ai_opponentsummon_power = list(summon_passive.values())[0]
+                self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
+                self._ai_opponentsummon_type = summon_passive['TYPE']
+            else:
+                self._boss_data = db.queryBoss({"UNIVERSE": self.selected_universe, "AVAILABLE": True})
+                self._ai_opponent_card_data = db.queryCard({'NAME': self._boss_data['CARD']})
+                self._ai_opponent_title_data = db.queryTitle({'TITLE': self._boss_data['TITLE']})
+                self._ai_opponent_arm_data = db.queryArm({'ARM': self._boss_data['ARM']})
+                self._ai_opponentsummon_data = db.queryPet({'PET': self._boss_data['PET']})
+                self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
+                self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
+                self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
+
+                summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
+                self._ai_opponentsummon_power = list(summon_passive.values())[0]
+                self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
+                self._ai_opponentsummon_type = summon_passive['TYPE']
+                
+                self._arena_boss_description = self._boss_data['DESCRIPTION'][0]
+                self._arenades_boss_description = self._boss_data['DESCRIPTION'][1]
+                self._entrance_boss_description = self._boss_data['DESCRIPTION'][2]
+                self._description_boss_description = self._boss_data['DESCRIPTION'][3]
+                self._welcome_boss_description = self._boss_data['DESCRIPTION'][4]
+                self._feeling_boss_description = self._boss_data['DESCRIPTION'][5]
+                self._powerup_boss_description = self._boss_data['DESCRIPTION'][6]
+                self._aura_boss_description = self._boss_data['DESCRIPTION'][7]
+                self._assault_boss_description = self._boss_data['DESCRIPTION'][8]
+                self._world_boss_description = self._boss_data['DESCRIPTION'][9]
+                self._punish_boss_description = self._boss_data['DESCRIPTION'][10]
+                self._rmessage_boss_description = self._boss_data['DESCRIPTION'][11]
+                self._rebuke_boss_description = self._boss_data['DESCRIPTION'][12]
+                self._concede_boss_description = self._boss_data['DESCRIPTION'][13]
+                self._wins_boss_description = self._boss_data['DESCRIPTION'][14]
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
 
 
     def get_aisummon_ready(self, _card):
@@ -1130,7 +1143,7 @@ class Battle:
     async def save_abyss_win(self, user, player, player1_card):
         bless_amount = 100000 + (10000 * int(self.abyss_floor))
         await crown_utilities.bless(bless_amount, player.did)
-        new_level = inf(self.abyss_floor) + 1
+        new_level = int(self.abyss_floor) + 1
         response = db.updateUserNoFilter({'DID': player.did}, {'$set': {'LEVEL': new_level}})
         cardlogger = await crown_utilities.cardlevel(user, player1_card.name, player.did, "Purchase", "n/a")
 

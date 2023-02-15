@@ -1888,11 +1888,11 @@ PVP_M = ['PVP']
 SOLO_M = ['ATales', 'Tales', 'Dungeon', 'Boss']
 OPPONENT_SUMMON_M = ['Dungeon', 'DDungeon', 'CDungeon']
 RAID_M = ['RAID']
-ABYSS = "ABYSS"
+ABYSS = "Abyss"
 SCENARIO = "SCENARIO"
 EXPLORE = "EXPLORE"
 
-EASY_BLOCKED = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon', 'Boss', 'CBoss', 'ABYSS', 'PVP', 'EXPLORE']
+EASY_BLOCKED = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon', 'Boss', 'CBoss', 'Abyss', 'PVP', 'EXPLORE']
 
 BASIC_ATTACK = "BASIC"
 SPECIAL_ATTACK = "SUPER"
@@ -1903,7 +1903,7 @@ LOW_TIER_CARDS = [1, 2, 3]
 MID_TIER_CARDS = [4, 5]
 HIGH_TIER_CARDS = [6, 7]
 
-NOT_SAVE_MODES = ['Boss', 'CBoss', 'PVP', 'ABYSS', 'SCENARIO', 'EXPLORE', 'RAID']
+NOT_SAVE_MODES = ['Boss', 'CBoss', 'PVP', 'Abyss', 'SCENARIO', 'EXPLORE', 'RAID']
 BATTLE_OPTIONS = [1, 2, 3, 4, 5, 0]
 
 Healer_Enhancer_Check = ['HLT', 'LIFE']
