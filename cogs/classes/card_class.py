@@ -76,6 +76,7 @@ class Card:
             self.ultimate_water_buff = 0
             self.gravity_hit = False
             self.physical_meter = 0
+            self.barrier_meter = 0
 
             # Card Defense From Arm
             # Arm Help
@@ -1461,29 +1462,34 @@ class Card:
     def set_battle_arm_messages(self, opponent_card):
         if self.used_resolve:
             self.summon_resolve_message = f"🧬 {str(crown_utilities.enhancer_mapping[self.summon_type])}"
-        if opponent_card._barrier_active:
-            opponent_card._arm_message = f"💠 {str(opponent_card._barrier_value)}"
         
-        elif opponent_card._shield_active:
-            opponent_card._arm_message = f"🌐 {str(opponent_card._shield_value)}"
-        
-        elif opponent_card._parry_active:
-            opponent_card._arm_message = f"🔄 {str(opponent_card._parry_value)}"
-        
-        elif opponent_card._siphon_active:
-            opponent_card._arm_message = f"💉 {str(opponent_card._siphon_value)}"
-                
-        if self._barrier_active:
-            self._arm_message = f"💠 {str(self._barrier_value)} Barriers"
+        weapon_emojis = {
+            "barrier": "💠",
+            "shield": "🌐",
+            "parry": "🔄",
+            "siphon": "💉"
+        }
 
-        elif self._shield_active:
-            self._arm_message = f"🌐 {str(self._shield_value)} Shield"
-                
-        elif self._parry_active:
-            self._arm_message = f"🔄 {str(self._parry_value)} Parries"
-        
-        elif self._siphon_active:
-            self._arm_message = f"💉 {str(self._siphon_value)} Siphon"
+        for weapon, emoji, active, value in [
+            ("barrier", "💠", opponent_card._barrier_active, opponent_card._barrier_value),
+            ("shield", "🌐", opponent_card._shield_active, opponent_card._shield_value),
+            ("parry", "🔄", opponent_card._parry_active, opponent_card._parry_value),
+            ("siphon", "💉", opponent_card._siphon_active, opponent_card._siphon_value)
+        ]:
+            if active:
+                opponent_card._arm_message = f"{emoji} {value} {weapon.capitalize()}"
+                break
+
+
+        for weapon, emoji, active, value in [
+            ("barrier", "💠", self._barrier_active, self._barrier_value),
+            ("shield", "🌐", self._shield_active, self._shield_value),
+            ("parry", "🔄", self._parry_active, self._parry_value),
+            ("siphon", "💉", self._siphon_active, self._siphon_value)
+        ]:
+            if active:
+                self._arm_message = f"{emoji} {value} {weapon.capitalize()}"
+                break
         
 
     def focusing(self, _title, _opponent_title, _opponent_card, battle_config, _co_op_card=None, _co_op_title=None ):
@@ -2368,7 +2374,7 @@ class Card:
                     if not opponent_card.used_resolve:
                         battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card.naruto_heal_buff}** total stored.")
                 
-                elif opponent_card._shield_active and dmg['ELEMENT'] != "DARK":
+                elif opponent_card._shield_active and dmg['ELEMENT'] not in  ["DARK"]:
                     if dmg['ELEMENT'] == "POISON": #Poison Update
                         if self.poison_dmg <= 600:
                             self.poison_dmg = self.poison_dmg + 30
@@ -2391,7 +2397,7 @@ class Card:
                                 opponent_card._barrier_active = False
                                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**'s 💠 Barrier Disabled!")
 
-                elif opponent_card._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK"]:
                     if opponent_card._barrier_value > 1:
                         opponent_card.health = opponent_card.health 
                         battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Activates Barrier 💠 {self.name}'s attack **Nullified**!\n **{opponent_card._barrier_value - 1} Barriers** remain!")
@@ -2492,11 +2498,11 @@ class Card:
 
         if dmg['ELEMENT'] == "WATER":
             if self.move1_element == "WATER":
-                self.basic_water_buff = self.basic_water_buff + 50
+                self.basic_water_buff = self.basic_water_buff + 75
             if self.move2_element == "WATER":
-                self.special_water_buff = self.special_water_buff + 50
+                self.special_water_buff = self.special_water_buff + 75
             if self.move3_element == "WATER":
-                self.ultimate_water_buff = self.ultimate_water_buff + 50
+                self.ultimate_water_buff = self.ultimate_water_buff + 75
             opponent_card.health = opponent_card.health - dmg['DMG']
         
         elif dmg['ELEMENT'] == "TIME":
@@ -2510,23 +2516,22 @@ class Card:
             opponent_card.health = opponent_card.health - (dmg['DMG'] * (battle_config.turn_total / 100))
 
         elif dmg['ELEMENT'] == "EARTH":
-            self.defense = self.defense + (dmg['DMG'] * .50)
             self._shield_active = True
             self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "DEATH":
-            self.attack = self.attack + (dmg['DMG'] * .45)
+            self.attack = self.attack + (dmg['DMG'] * .50)
             opponent_card.max_health = opponent_card.max_health - (dmg['DMG'] * .45)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "LIGHT":
-            self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
-            self.attack = self.attack + (dmg['DMG'] * .45)
+            # self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
+            self.attack = self.attack + (dmg['DMG'] * .80)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "DARK":
-            opponent_card.stamina = opponent_card.stamina - 20
+            opponent_card.stamina = opponent_card.stamina - 15
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "PHYSICAL":
@@ -2537,6 +2542,7 @@ class Card:
                 self.physical_meter = 0
             opponent_card.health = opponent_card.health - dmg['DMG']
 
+        
         elif dmg['ELEMENT'] == "LIFE":
             self.max_health = self.max_health + (dmg['DMG'] * .35)
             self.health = self.health + (dmg['DMG'] * .40)
@@ -2550,17 +2556,23 @@ class Card:
 
 
         elif dmg['ELEMENT'] == "PSYCHIC":
+            self.barrier_meter = self.barrier_meter + 1
+            if self.barrier_meter == 3:
+                self._barrier_active = True
+                self._barrier_active = self._barrier_active + 1
+                self.barrier_meter = 0
+
             opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .30)
             opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .30)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "FIRE":
-            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .40)
+            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .45)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
 
         elif dmg['ELEMENT'] == "ELECTRIC":
-            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .30)
+            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .35)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "POISON":

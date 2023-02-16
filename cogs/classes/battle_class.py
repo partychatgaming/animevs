@@ -1049,9 +1049,7 @@ class Battle:
                 response = f"Your game timed out. Your channel has been closed, restart the tutorial with **/solo**."
                 response = f"Your game timed out. Your channel has been closed , restart the tutorial with **/solo**."
         else:
-            respone = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
             response = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
-        # battle_config.previous_moves.append(f"(**{self.turn_total}**) 💨 You fled...")
         self.match_has_ended = True
         return response
 

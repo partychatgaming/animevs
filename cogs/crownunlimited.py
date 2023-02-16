@@ -238,39 +238,59 @@ class CrownUnlimited(commands.Cog):
 
 
 
-    @cog_ext.cog_slash(description="Toggle Explore Mode On/Off",
-                        options=[
-                           create_option(
-                               name="toggle",
-                               description="Turn explore off or keep on",
-                               option_type=3,
-                               required=True,
-                               choices=[
-                                   create_choice(
-                                       name="Turn Explore Mode Off",
-                                       value="1"
-                                   ),
-                                   create_choice(
-                                       name="Turn Explore Mode On",
-                                       value="2"
-                                   ),
-                               ]
-                           )], guild_ids=main.guild_ids)
+    @cog_ext.cog_slash(description="Toggle Explore Mode On/Off or explore a universe", options=[
+        create_option(
+            name="toggle",
+            description="Turn explore off or keep on",
+            option_type=3,
+            required=False,
+            choices=[
+                create_choice(
+                    name="Turn Explore Mode Off",
+                    value="off"
+                ),
+                create_choice(
+                    name="Turn Explore Mode On",
+                    value="on"
+                ),
+            ]
+        ),
+        create_option(
+            name="universe",
+            description="Type universe you want to explore, or type 'all' to explore all universes",
+            option_type=3,
+            required=False
+        )
+    ], guild_ids=main.guild_ids)
     @commands.cooldown(1, 15, commands.BucketType.user)
-    async def toggleexplore(self, ctx: SlashContext, toggle):
+    async def explore(self, ctx: SlashContext, toggle=None, universe=None):
         try:
             player = db.queryUser({"DID": str(ctx.author.id)})
-            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
-            
-            if not p.explore:
-                db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': True}})
-                message = f"You are now entering Explore Mode :milky_way: "
-            
-            if p.explore:
-                db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': False, 'EXPLORE_LOCATION': "NULL"}})
-                message = "Exiting Exploration Mode :rotating_light:"
-            
-            await ctx.send(f"{message}")
+            p = Player(
+                player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'],
+                player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'],
+                player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'],
+                player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'],
+                player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'],
+                player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'],
+                player['EXPLORE_LOCATION']
+            )
+            message = None
+
+            if toggle is not None:
+                if toggle.lower() == "on":
+                    db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': True}})
+                    message = f"You are now entering Explore Mode :milky_way: "
+                elif toggle.lower() == "off":
+                    db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': False, 'EXPLORE_LOCATION': "NULL"}})
+                    message = "Exiting Exploration Mode :rotating_light:"
+
+            if universe is not None:
+                message = p.set_explore(universe)
+
+            if message is not None:
+                await ctx.send(f"{message}")
+
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -286,30 +306,6 @@ class CrownUnlimited(commands.Cog):
                 'message': str(ex),
                 'trace': trace
             }))
-
-    @cog_ext.cog_slash(description="Type universe you want to explore, or type all to explore all universes", guild_ids=main.guild_ids)
-    @commands.cooldown(1, 15, commands.BucketType.user)
-    async def exploreuniverse(self, ctx: SlashContext, universe: str):
-        try:
-            player = db.queryUser({"DID": str(ctx.author.id)})
-            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
-            await ctx.send(f"{p.set_explore(universe)}")
-        except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-
 
     @cog_ext.cog_slash(description="Set Explore Channel", guild_ids=main.guild_ids)
     async def setexplorechannel(self, ctx: SlashContext):
