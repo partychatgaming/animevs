@@ -6657,7 +6657,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
         completed_crown_tales = sowner['CROWN_TALES']
         all_universes = db.queryAllUniverse()
         available_universes = [uni for uni in all_universes if uni['HAS_CROWN_TALES']]
-        tales_universes = [t for t in available_universes if uni['TIER'] != 9]
+        tales_universes = [t for t in available_universes if t['TIER'] != 9]
         universe_menu = []
         selected_universes = []
 
