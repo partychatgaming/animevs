@@ -4050,7 +4050,7 @@ class Profile(commands.Cog):
                 for uni in all_universes:
                     if uni['TIER'] != 9 and uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
                         available_universes.append(uni)
-            
+            universe_subset = random.sample(available_universes, k=min(len(available_universes), 25))
             vault_query = {'DID' : str(ctx.author.id)}
             vault = db.altQueryVault(vault_query)
             storage_amount = len(vault['STORAGE'])
@@ -4100,7 +4100,7 @@ class Profile(commands.Cog):
 
 
             embed_list = []
-            for universe in available_universes:
+            for universe in universe_subset:
                 universe_name = universe['TITLE']
                 universe_image = universe['PATH']
                 adjusted_prices = price_adjuster(15000, universe_name, completed_tales, completed_dungeons)
@@ -4385,7 +4385,7 @@ class Profile(commands.Cog):
                 for uni in all_universes:
                     if uni['TIER'] != 9 and uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
                         available_universes.append(uni)
-            
+            universe_subset = random.sample(available_universes, k=min(len(available_universes), 25))
             vault_query = {'DID' : str(ctx.author.id)}
             vault = db.altQueryVault(vault_query)
             current_cards = vault['CARDS']
@@ -4433,7 +4433,7 @@ class Profile(commands.Cog):
             
                     
             embed_list = []
-            for universe in available_universes:
+            for universe in universe_subset:
                 universe_name = universe['TITLE']
                 universe_image = universe['PATH']
                 universe_heart = False
@@ -10857,10 +10857,7 @@ async def menushop(self, ctx):
             universes = [uni for uni in all_universes if uni['TIER'] != 9 and uni['HAS_CROWN_TALES']]
             available_universes = random.sample(universes, min(len(universes), 25))
 
-        # Shuffle the list of available universes
-        random.shuffle(available_universes)
-
-                
+        universe_subset = random.sample(available_universes, k=min(len(available_universes), 25))
         vault_query = {'DID' : str(ctx.author.id)}
         vault = db.altQueryVault(vault_query)
         storage_amount = len(vault['STORAGE'])
@@ -10910,7 +10907,7 @@ async def menushop(self, ctx):
 
 
         embed_list = []
-        for universe in available_universes:
+        for universe in universe_subset:
             universe_name = universe['TITLE']
             universe_image = universe['PATH']
             adjusted_prices = price_adjuster(15000, universe_name, completed_tales, completed_dungeons)
@@ -11193,7 +11190,7 @@ async def menucraft(self, ctx):
             for uni in all_universes:
                 if uni['TIER'] != 9 and uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
                     available_universes.append(uni)
-        
+        universe_subset = random.sample(available_universes, k=min(len(available_universes), 25))
         vault_query = {'DID' : str(ctx.author.id)}
         vault = db.altQueryVault(vault_query)
         current_cards = vault['CARDS']
@@ -11241,7 +11238,7 @@ async def menucraft(self, ctx):
         
                 
         embed_list = []
-        for universe in available_universes:
+        for universe in universe_subset:
             universe_name = universe['TITLE']
             universe_image = universe['PATH']
             universe_heart = False
