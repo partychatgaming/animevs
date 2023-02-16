@@ -4105,6 +4105,7 @@ class Profile(commands.Cog):
                 universe_image = universe['PATH']
                 adjusted_prices = price_adjuster(15000, universe_name, completed_tales, completed_dungeons)
                 embedVar = discord.Embed(title= f"{universe_name}", description=textwrap.dedent(f"""
+                {shopName}
                 *Welcome {ctx.author.mention}! {adjusted_prices['MESSAGE']}
                 You have {icon}{'{:,}'.format(balance)} coins!*
                 {card_message} | {title_message} | {arm_message}
@@ -10912,6 +10913,7 @@ async def menushop(self, ctx):
             universe_image = universe['PATH']
             adjusted_prices = price_adjuster(15000, universe_name, completed_tales, completed_dungeons)
             embedVar = discord.Embed(title= f"{universe_name}", description=textwrap.dedent(f"""
+            {shopName}
             *Welcome {ctx.author.mention}! {adjusted_prices['MESSAGE']}
             You have {icon}{'{:,}'.format(balance)} coins!*
             {card_message} | {title_message} | {arm_message}
