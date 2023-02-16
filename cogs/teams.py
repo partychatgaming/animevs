@@ -3,7 +3,7 @@ from discord.ext import commands
 import bot as main
 import crown_utilities
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
@@ -55,8 +55,7 @@ class Teams(commands.Cog):
 
 
         team_query = {
-            'OWNER': str(ctx.author),
-            'DID' : str(ctx.author.id),
+            'OWNER': str(ctx.author), 
             'TEAM_NAME': team_name, 
             'TEAM_DISPLAY_NAME': team_display_name, 
             'MEMBERS': [str(ctx.author)],

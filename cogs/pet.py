@@ -4,7 +4,7 @@ from discord.ext import commands
 import bot as main
 import crown_utilities
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
@@ -14,7 +14,6 @@ from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
 from discord_slash import cog_ext, SlashContext
-from .crownunlimited import showsummon
 
 class Pet(commands.Cog):
     def __init__(self, bot):
@@ -31,26 +30,21 @@ class Pet(commands.Cog):
 
     @cog_ext.cog_slash(description="Equip Summon", guild_ids=main.guild_ids)
     async def equipsummon(self, ctx, summon: str):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        user = await crown_utilities.player_check(ctx)
+        if not user:
             return
 
-        pet_name = summon
+        pet_name = summon.upper()
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
 
-        vault_query = {'OWNER' : str(ctx.author)}
+        vault_query = {'OWNER': str(ctx.author)}
         vault = db.altQueryVault(vault_query)
 
-        selected_pet = ""
+        selected_pet = next((pet for pet in vault['PETS'] if pet_name == pet['NAME'].upper()), None)
 
-        for pet in vault['PETS']:
-            if pet_name.upper() == pet['NAME'].upper():
-                selected_pet = pet
-
-        # Do not Check Tourney wins
         if selected_pet:
-            response = db.updateUserNoFilter(user_query, {'$set': {'PET': str(selected_pet['NAME'])}})
+            response = db.updateUserNoFilter(user_query, {'$set': {'PET': selected_pet['NAME']}})
             await ctx.send(f"{selected_pet['NAME']} is ready for battle!", hidden=True)
         else:
             await ctx.send(m.USER_DOESNT_HAVE_THE_PET, hidden=True)

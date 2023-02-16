@@ -136,28 +136,28 @@ async def help(ctx: SlashContext, selection):
    if selection == "menu":
       embedVar = discord.Embed(title= f"Your stuff, your way!", description=h.CTAP_COMMANDS, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "legend":
       embedVar = discord.Embed(title= f"What do these emoji's mean?", description=h.LEGEND, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "elements":
       embedVar = discord.Embed(title= f"What does each element do?", description=h.ELEMENTS, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "play":
       embedVar = discord.Embed(title= f"Start playing now!", description=h.CROWN_UNLIMITED_GAMES, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
@@ -165,14 +165,14 @@ async def help(ctx: SlashContext, selection):
    if selection == "universe":
       embedVar = discord.Embed(title= f"🌍 Universe Info!", description=h.UNIVERSE_STUFF, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "teams":
       embedVar = discord.Embed(title= f"Gang up and play!", description=h.BOT_COMMANDS, colour=0x7289da)
       embedVar.set_thumbnail(url=avatar)
-      embedVar.set_footer(text=f"/help - Anime VS+ Manual")
+      embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
@@ -209,12 +209,12 @@ async def enhancers(ctx):
    try:
       embedVar1 = discord.Embed(title= f"Enhancer Type: Boosts",colour=0x7289da)
       embedVar1.set_thumbnail(url=avatar)
-      embedVar1.add_field(name="`BOOSTS`", value="**ATK**\n**Title, Card Passive Effect:** Increase Attack by Flat AP value.\n**Card Active Enhancer Effect:** Increase Attack By AP %.\n\n**DEF**\n**Title, Card Passive Effect:** Increase Defense by Flat AP value.\n**Card Active Enhancer Effect:** Increase Defense By AP %.\n\n**HLT**\n**Title, Card Passive Effect:** Increase Health by Flat AP value.\n**Card Active Enhancer Effect:** Increase Health By Flat AP + 16% of Current Health.\n\n**STAM** - Increase Stamina by Flat AP\n\n")
+      embedVar1.add_field(name="`BOOSTS`", value="**ATK**\n**Title, Arm, Card Passive Effect:** Increase Attack by Flat AP value.\n**Card Active Enhancer Effect:** Increase Attack By AP %.\n\n**DEF**\n**Title, Arm, Card Passive Effect:** Increase Defense by Flat AP value.\n**Card Active Enhancer Effect:** Increase Defense By AP %.\n\n**HLT**\n**Title, Arm, Card Passive Effect:** Increase Health by Flat AP value.\n**Card Active Enhancer Effect:** Increase Health By Flat AP + 16% of Current Health.\n\n**STAM** - Increase Stamina by Flat AP\n\n")
       embedVar1.set_footer(text=f"/help - Bot Help")
 
       embedVar2 = discord.Embed(title= f"Enhancer Type: Steals",colour=0x7289da)
       embedVar2.set_thumbnail(url=avatar)
-      embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\n**Title, Card Passive Effect:** Steal Opponent Health and Add 50% to your Health by AP %\n**Card Active Enhancer Effect:** Steal Opponent Health and Add 50% to your Current Health by Flat AP + 10% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
+      embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\n**Title, Arm, Card Passive Effect:** Steal Opponent Health and Add it to your Max Health by AP %\n**Card Active Enhancer Effect:** Steal Opponent Health and Add it to your Current Health by Flat AP + 9% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
       embedVar2.set_footer(text=f"/help - Bot Help")
 
       embedVar3 = discord.Embed(title= f"Enhancer Type: Sacrifice",colour=0x7289da)
@@ -229,12 +229,12 @@ async def enhancers(ctx):
 
       embedVar5 = discord.Embed(title= f"Enhancer Type: Time Manipulation",colour=0x7289da)
       embedVar5.set_thumbnail(url=avatar)
-      embedVar5.add_field(name="`TIME MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW**\n**Title, Card Passive Effect:** Decrease Turn Count by AP\n**Card Active Enhancer Effect:** Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n\n**HASTE**\n**Title, Card Passive Effect:** Increase Turn Count by AP\n**Card Active Enhancer Effect:** Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n\n")
+      embedVar5.add_field(name="`TIME MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW** - Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n\n**HASTE** - Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n\n")
       embedVar5.set_footer(text=f"/help - Bot Help")
 
       embedVar6 = discord.Embed(title= f"Enhancer Type: Control",colour=0x7289da)
       embedVar6.set_thumbnail(url=avatar)
-      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN**\n**Title, Card Passive Effect:** On Focus : \n**Card Active Enhancer Effect:**  - You and Your Opponent's Stamina Equal Flat AP\n\n**GAMBLE**\n**Title, Card Passive Effect:** Limit Focus Health Regen to AP\n**Card Active Enhancer Effect:**  - You and Your Opponent's Health Equal Flat AP\n\n")
+      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN** - You and Your Opponent's Stamina Equal Flat AP\n\n**GAMBLE** - You and Your Opponent's Health Equal Flat AP\n\n")
       embedVar6.set_footer(text=f"/help - Bot Help")
 
       embedVar7 = discord.Embed(title= f"Enhancer Type: Fortitude",colour=0x7289da)
@@ -244,12 +244,12 @@ async def enhancers(ctx):
 
       embedVar8 = discord.Embed(title= f"Enhancer Type: Damage",colour=0x7289da)
       embedVar8.set_thumbnail(url=avatar)
-      embedVar8.add_field(name="`DAMAGE`", value="**WAVE** - Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal AP Damage.*\n\n**BLAST** - Deal Flat AP Damage to Opponent. AP Increases each turn. Maximum (100 * Card Tier)\n\n")
+      embedVar8.add_field(name="`DAMAGE`", value="**WAVE** - Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal 75% AP Damage.*\n\n**BLAST** - Deal Flat AP Damage to Opponent. AP Increases each turn.\n\n")
       embedVar8.set_footer(text=f"/help - Bot Help")
 
       embedVar9 = discord.Embed(title= f"Enhancer Type: Divinity",colour=0x7289da)
       embedVar9.set_thumbnail(url=avatar)
-      embedVar9.add_field(name="`DIVINITY`", value="**CREATION** - Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for AP.*\n\n**DESTRUCTION** - Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn. Maximum (100 * Card Tier)\n\n")
+      embedVar9.add_field(name="`DIVINITY`", value="**CREATION** - Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for 75% AP.*\n\n**DESTRUCTION** - Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn.\n\n")
       embedVar9.set_footer(text=f"/help - Bot Help")
       
       embedVar10 = discord.Embed(title= f"Arm Enhancer Type: Offensive",colour=0x7289da)
@@ -295,19 +295,11 @@ async def animevs(ctx):
    embedVar1.set_thumbnail(url=avatar)
    embedVar1.add_field(name="**About The Game!**", value=textwrap.dedent(f"""\
       
-   **Anime VS+** is a Multiplatform Card Game exploring **Universes** from your favorite Anime Series and Video Game!
+   **Anime VS+** is a Multiplatform Card Game exploring **Universes** from your favorite Video Game and Anime Series!
 
-   Explore Tales, Dungeons, and unlock Bosses! Play **Solo**, or with **Friends**!
-   
-   Collect and Trade Cards with your peers and Battle **PVP** 
-   
-   Build up your Family and Form Guilds and Associations with Other Players!
-   
-   Play Strategic Battles with our Next Gen Battle Syterm or Auto Battle ang go AFK
+   Explore Tales, Dungeons, and Bosses! Play **Solo**, or with **Friends**!
    
    Customize your experince by setting your personal /difficulty!
-   
-   There are so many ways to play AnimeVs+ 
    """))
 
    embedVar2 = discord.Embed(title= f"Getting Started", description=textwrap.dedent(f"""\
@@ -338,7 +330,7 @@ async def animevs(ctx):
    ☄️ Special Attack _uses 30 stamina_
    🏵️ Ultimate Attack _uses 80 stamina_
    
-   🔅**Elemental Damage**
+   🔅**Elemeental Damage**
    Attacks have bonus effects based on the 🔅**Element** Type
    Use /help to find information on **Elements**
    
@@ -359,7 +351,7 @@ async def animevs(ctx):
    ✨ **Destiny Cards** - Earned via **Destinies**
    👹 **Boss Cards** - Exchange for **Boss Souls**
    
-   **What Makes a Card?** 
+   **Cards Have 7 Passive Elements** 
    Card Type
    Card Tier
    Affinities
@@ -380,7 +372,7 @@ async def animevs(ctx):
    Absorb - Absorbs damage as Health
    
    🩸 **Unique Passive**
-   Enhancers that take effect passively during Battle.
+   Enhancers that take effect **at the beginning** of the battle.
 
    ♾️ **Universe Traits**
    Universe specific abilities activated during battle. 
@@ -569,8 +561,6 @@ async def animevs(ctx):
    Save your favorite builds in your **Preset**
    **/menu** tselect **View Preset** option, select a preset with **1-3**
    *Select **Save Preset** to save a new Build!
-
-   You can upgrade your Presets at the **/blacksmith**
    
    **Preset Builds**
    You can bring your preset builds into Duo Battles!
@@ -599,7 +589,7 @@ async def animevs(ctx):
    **Universe Trinkets**
    Craftable Boost that increase the limits of your cards levels!
    💟 **Universe Heart** - will allow you to level cards past 200!
-   🌹 **Universe Soul** - Grants XP Boost for all cards in Universe!
+   🌹 **Universe Soul** - Grants 2x XP for all cards in Universe!
    
    **Blacksmith**
    **/menu** to purchase Card Levels, Arm Durability and **Storage**!
@@ -607,13 +597,12 @@ async def animevs(ctx):
    **Storage**
    **/storage** to access Card, Title and Arm Storage, purchase additional storage in the Blacksmith
    
-   👛 **Gabe's Purse** - will allow you to keep all items after a **Rebirth**
+    👛 **Gabe's Purse** - will allow you to keep all items after a **Rebirth**
    
    **Currency**
    :coin: - Coins can be used to purchase Cards, Titles and Arms. You can use them to trade and sell items to other players!
    :gem: - When Arms break they turn into **Gems**, You can also dismantle items from your inventory into **Gems**! 
    **Gems** are universe specific items that can be crafted into Skins, Trinkets or **Destinies**
-   🪔 - Essence are used to craft Elemental Talismans. Earn Essence through Drops and Dismantling Cards ad Elemental Arms
    
    """) ,colour=0x7289da)
    embedVar10.set_thumbnail(url=avatar)
@@ -704,11 +693,6 @@ async def animevs(ctx):
    - Associations can **/raid**
    - Associations can earn passive income owning **Universe Crest**
    - Associations can purchase **Halls**
-   - Association Mmbers can access the **Armory**
-   
-   **Armory**
-   - The armory serves as an Association Storage for Cards (Card Levels), Titles and Arms
-   - Use the Armory to store Cards and Card Levels and allow members to take ownership
    
    **Halls**
    - The **Association Bank** can be used to purchase **Halls**
@@ -785,23 +769,21 @@ async def voted(ctx):
                   filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
                   res = db.updateVault(query, update_query, filter_query)
 
-            await crown_utilities.bless(int(2000000), ctx.author.id)
+            await crown_utilities.bless(int(500000), ctx.author.id)
             respond = db.updateUserNoFilter(query, {'$set': {'VOTED': True}})
-            retry_message = f":vs: Rematches : **{user['RETRIES']}**"  
-            db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
-            retry_message = f":vs: Rematches : {user['RETRIES']} **+ 3**!"
+            retry_message = f":vs: Rematches : **{user['RETRIES']}**"
+            if user['RETRIES'] <= 20:  
+               db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
+               retry_message = f":vs: Rematches : {user['RETRIES']} **+ 3**!"
 
 
             embedVar = discord.Embed(title=f"✅ Daily Voter Rewards!", description=textwrap.dedent(f"""\
             Thank you for voting, {ctx.author.mention}!
             
             **Daily Voter Earnings** 
-            :coin: **{'{:,}'.format(2000000)}**
+            :coin: **{'{:,}'.format(500000)}**
             💎 **{'{:,}'.format(500000)}** *all craftable universes*
             {retry_message}
-            
-            [Support our Patreon for Rewards!](https://www.patreon.com/partychatgaming?fan_landing=true)
-            [Add Anime VS+ to your server!](https://discord.com/api/oauth2/authorize?client_id=955704903198711808&permissions=139586955344&scope=applications.commands%20bot)
             """), colour=0xf1c40f)
             
             await ctx.send(embed=embedVar)
@@ -814,11 +796,9 @@ async def voted(ctx):
             To earn your voter rewards, [Vote for Anime VS+!](https://top.gg/bot/955704903198711808/vote)
 
             **What are the Daily Voter Rewards?** 
-            :coin: **{'{:,}'.format(2000000)}**
+            :coin: **{'{:,}'.format(500000)}**
             💎 **{'{:,}'.format(500000)}**
             {retry_message}
-            
-            [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
             """), colour=0xf1c40f)
             
             await ctx.send(embed=embedVar)
@@ -870,10 +850,10 @@ async def register(ctx):
 
    if r_response:
       try:
-         await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a **Starting Universe**.")
+         await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
          vault = db.createVault(data.newVault({'OWNER': str(ctx.author), 'DID' : str(ctx.author.id)}))
          await asyncio.sleep(2)
-         await ctx.send(f"{ctx.author.mention}, your **Starting Universe** will give you 🎴 **Cards** and 🎗️ 🦾 **Accessories** to get you started!")
+         await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
          await asyncio.sleep(2)
       except Exception as ex:
          trace = []
@@ -900,7 +880,6 @@ async def register(ctx):
                traits = ut.traits
                mytrait = {}
                traitmessage = ''
-               traittitle = ''
                o_show = uni['TITLE']
                universe = o_show
                for trait in traits:
@@ -910,20 +889,17 @@ async def register(ctx):
                         if trait['NAME'] == 'Pokemon':
                            mytrait = trait
                if mytrait:
-                  traittitle = f"**{mytrait['EFFECT']}**"
-                  traitmessage = f"{mytrait['TRAIT']}"
+                  traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
                available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
                
                tales_list = ", ".join(uni['CROWN_TALES'])
 
                embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
                **Select A Starting Universe, {ctx.author.mention}!**
-               *You begin with 3 Starter Builds in your* **/preset**
-               
-               Selecting a **Starter Universe** will give you up to *3* addtional 🎴 Cards, :reminder_ribbon: Titles, and :mechanical_arm: Arms to begin!
+
+               Selecting a Starter Universe will give you *3* 🎴 Cards, :reminder_ribbon: Titles, and :mechanical_arm: Arms to begin!
                
                :infinity: - Unique Universe Trait
-               {traittitle}
                {traitmessage}
                """))
                embedVar.set_image(url=uni['PATH'])
@@ -1154,11 +1130,11 @@ async def rebirth(ctx):
    if user_is_validated:
       rLevel = user_is_validated['REBIRTH']
       gabes_purse = user_is_validated['TOURNAMENT_WINS']
-      if rLevel < 10:
+      if rLevel < 5:
          pursemessage = "You will lose all of your equipped and vaulted items."
          if gabes_purse == 1:
             pursemessage = ":purse: | Gabe's Purse Activated! All Items Will Be Retained! *You will not be able to select a new starting universe!*"
-         rebirthCost = round(100000000 * (1 + (1.5 * (rLevel))))
+         rebirthCost = round(10000000 * (1 + (rLevel)))
 
          util_buttons = [
                 manage_components.create_button(
@@ -1181,9 +1157,8 @@ async def rebirth(ctx):
          **Rebirth Effects**
          New Starting Deck
          Starting Summon Bond
-         Increase Base ATK + 100 (Max 1000)
-         Increase Base DEF + 100 (Max 1000)
-         Increase Move AP by +2% (Max 20%)
+         Increase Base ATK + 10
+         Increase Base DEF + 10
          Increased :coin: drops + %10
          Increased Item Drop Rates + 50%
          Keep All Card Levels
@@ -1242,7 +1217,6 @@ async def rebirth(ctx):
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                               db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                               await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")                              
                         elif rLevel == 1:
@@ -1283,7 +1257,6 @@ async def rebirth(ctx):
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                               nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                               await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                         elif rLevel == 2:
@@ -1324,7 +1297,6 @@ async def rebirth(ctx):
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                               nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                               await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                         elif rLevel == 3:
@@ -1365,7 +1337,6 @@ async def rebirth(ctx):
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                               nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                               await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                         elif rLevel == 4:
@@ -1406,212 +1377,6 @@ async def rebirth(ctx):
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
                               db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
-                              nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                        elif rLevel == 5:
-                           if gabes_purse == 1:
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              db.updateVaultNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                              db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
-                              return
-                           card_level_list = vault['CARD_LEVELS']
-                           owned_cards = []
-                           for card in card_level_list:
-                              owned_cards.append(card['CARD'])
-                           if 'Meliodas' not in owned_cards:
-                              card_level_list.append({'CARD': 'Meliodas', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Tusk Shadow' not in owned_cards:
-                              card_level_list.append({'CARD': 'Tusk Shadow', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Kratos And Atreus' not in owned_cards:
-                              card_level_list.append({'CARD': 'Kratos And Atreus', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           delete = db.deleteVault({'DID': user_is_validated['DID']})
-                           vault = db.createVault(data.newVault({'OWNER' : user_is_validated['DISNAME'],'DID': str(user_is_validated['DID']), 'GEMS': [], 'CARDS': ['Meliodas','Tusk Shadow','Kratos And Atreus'], 'TITLES': ['Reborn Legend'], 'ARMS': [{'ARM': 'Legendary Weapon', 'DUR': 999999}], 'DECK': [{'CARD': 'Meliodas', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Tusk Shadow', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Kratos And Atreus', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}], 'PETS' : [{'NAME': 'Chick', 'LVL': 6, 'EXP': 0, 'Heal': 10, 'TYPE': 'HLT', 'BOND': 3, 'BONDEXP': 0, 'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1622307902/Pets/chick.jpg"}], 'CARD_LEVELS': card_level_list}))
-                           if vault:
-                              cardList = ['Meliodas', 'Tusk Shadow', 'Kratos And Atreus']
-                              for card in cardList:
-                                 for destiny in d.destiny:
-                                    if card in destiny["USE_CARDS"]:
-                                       db.updateVaultNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                       message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
-                                       await button_ctx.send(message)
-                              nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Kratos And Atreus', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
-                              nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                        elif rLevel == 6:
-                           if gabes_purse == 1:
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              db.updateVaultNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                              db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
-                              return
-                           card_level_list = vault['CARD_LEVELS']
-                           owned_cards = []
-                           for card in card_level_list:
-                              owned_cards.append(card['CARD'])
-                           if 'Asta' not in owned_cards:
-                              card_level_list.append({'CARD': 'Asta', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Maka' not in owned_cards:
-                              card_level_list.append({'CARD': 'Maka', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Asuna' not in owned_cards:
-                              card_level_list.append({'CARD': 'Asuna', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           delete = db.deleteVault({'DID': user_is_validated['DID']})
-                           vault = db.createVault(data.newVault({'OWNER' : user_is_validated['DISNAME'],'DID': str(user_is_validated['DID']), 'GEMS': [], 'CARDS': ['Asta','Maka','Asuna'], 'TITLES': ['Reborn Legend'], 'ARMS': [{'ARM': 'Legendary Weapon', 'DUR': 999999}], 'DECK': [{'CARD': 'Asta', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Maka', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Asuna', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}], 'PETS' : [{'NAME': 'Chick', 'LVL': 6, 'EXP': 0, 'Heal': 10, 'TYPE': 'HLT', 'BOND': 3, 'BONDEXP': 0, 'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1622307902/Pets/chick.jpg"}], 'CARD_LEVELS': card_level_list}))
-                           if vault:
-                              cardList = ['Asta', 'Maka', 'Asuna']
-                              for card in cardList:
-                                 for destiny in d.destiny:
-                                    if card in destiny["USE_CARDS"]:
-                                       db.updateVaultNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                       message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
-                                       await button_ctx.send(message)
-                              nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Asuna', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
-                              nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                        elif rLevel == 7:
-                           if gabes_purse == 1:
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              db.updateVaultNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                              db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
-                              return
-                           card_level_list = vault['CARD_LEVELS']
-                           owned_cards = []
-                           for card in card_level_list:
-                              owned_cards.append(card['CARD'])
-                           if 'Tepellin' not in owned_cards:
-                              card_level_list.append({'CARD': 'Tepellin', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Kyogre' not in owned_cards:
-                              card_level_list.append({'CARD': 'Kyogre', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Omnimon' not in owned_cards:
-                              card_level_list.append({'CARD': 'Omnimon', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           delete = db.deleteVault({'DID': user_is_validated['DID']})
-                           vault = db.createVault(data.newVault({'OWNER' : user_is_validated['DISNAME'],'DID': str(user_is_validated['DID']), 'GEMS': [], 'CARDS': ['Tepellin','Kyogre','Omnimon'], 'TITLES': ['Reborn Legend'], 'ARMS': [{'ARM': 'Legendary Weapon', 'DUR': 999999}], 'DECK': [{'CARD': 'Tepellin', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Kyogre', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Omnimon', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}], 'PETS' : [{'NAME': 'Chick', 'LVL': 6, 'EXP': 0, 'Heal': 10, 'TYPE': 'HLT', 'BOND': 3, 'BONDEXP': 0, 'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1622307902/Pets/chick.jpg"}], 'CARD_LEVELS': card_level_list}))
-                           if vault:
-                              cardList = ['Tepellin', 'Kyogre', 'Omnimon']
-                              for card in cardList:
-                                 for destiny in d.destiny:
-                                    if card in destiny["USE_CARDS"]:
-                                       db.updateVaultNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                       message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
-                                       await button_ctx.send(message)
-                              nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Omnimon', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
-                              nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                        elif rLevel == 8:
-                           if gabes_purse == 1:
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              db.updateVaultNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                              db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
-                              return
-                           card_level_list = vault['CARD_LEVELS']
-                           owned_cards = []
-                           for card in card_level_list:
-                              owned_cards.append(card['CARD'])
-                           if 'Gon' not in owned_cards:
-                              card_level_list.append({'CARD': 'Gon', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Obito' not in owned_cards:
-                              card_level_list.append({'CARD': 'Obito', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Kurama' not in owned_cards:
-                              card_level_list.append({'CARD': 'Kurama', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           delete = db.deleteVault({'DID': user_is_validated['DID']})
-                           vault = db.createVault(data.newVault({'OWNER' : user_is_validated['DISNAME'],'DID': str(user_is_validated['DID']), 'GEMS': [], 'CARDS': ['Gon','Kurama','Obito'], 'TITLES': ['Reborn Legend'], 'ARMS': [{'ARM': 'Legendary Weapon', 'DUR': 999999}], 'DECK': [{'CARD': 'Gon', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Obito', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Kurama', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}], 'PETS' : [{'NAME': 'Chick', 'LVL': 6, 'EXP': 0, 'Heal': 10, 'TYPE': 'HLT', 'BOND': 3, 'BONDEXP': 0, 'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1622307902/Pets/chick.jpg"}], 'CARD_LEVELS': card_level_list}))
-                           if vault:
-                              cardList = ['Gon', 'Obito', 'Kurama']
-                              for card in cardList:
-                                 for destiny in d.destiny:
-                                    if card in destiny["USE_CARDS"]:
-                                       db.updateVaultNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                       message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
-                                       await button_ctx.send(message)
-                              nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Kurama', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
-                              nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                        elif rLevel == 9:
-                           if gabes_purse == 1:
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                              db.updateVaultNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                              await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
-                              db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
-                              return
-                           card_level_list = vault['CARD_LEVELS']
-                           owned_cards = []
-                           for card in card_level_list:
-                              owned_cards.append(card['CARD'])
-                           if 'Meister Maka' not in owned_cards:
-                              card_level_list.append({'CARD': 'Meister Maka', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Byakuran' not in owned_cards:
-                              card_level_list.append({'CARD': 'Byakuran', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           if 'Cthulhu' not in owned_cards:
-                              card_level_list.append({'CARD': 'Cthulhu', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0})
-
-                           delete = db.deleteVault({'DID': user_is_validated['DID']})
-                           vault = db.createVault(data.newVault({'OWNER' : user_is_validated['DISNAME'],'DID': str(user_is_validated['DID']), 'GEMS': [], 'CARDS': ['Meister Maka','Byakuran','Cthulhu'], 'TITLES': ['Reborn Legend'], 'ARMS': [{'ARM': 'Legendary Weapon', 'DUR': 999999}], 'DECK': [{'CARD': 'Meister Maka', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Byakuran', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}, {'CARD': 'Cthulhu', 'TITLE': 'Reborn Legend', 'ARM': 'Legendary Weapon', 'PET': 'Chick'}], 'PETS' : [{'NAME': 'Chick', 'LVL': 6, 'EXP': 0, 'Heal': 10, 'TYPE': 'HLT', 'BOND': 3, 'BONDEXP': 0, 'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1622307902/Pets/chick.jpg"}], 'CARD_LEVELS': card_level_list}))
-                           if vault:
-                              cardList = ['Meister Maka', 'Byakuran', 'Cthulhu']
-                              for card in cardList:
-                                 for destiny in d.destiny:
-                                    if card in destiny["USE_CARDS"]:
-                                       db.updateVaultNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                       message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
-                                       await button_ctx.send(message)
-                              nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Cthulhu', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'DUNGEONS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
-                              db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                               nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                               await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                         #Starting Selection
@@ -1886,7 +1651,6 @@ async def before():
 called_once_a_day.start()
 
 
-
 @slash.slash(name="Daily", description="Receive your daily reward and quests", guild_ids=guild_ids)
 @commands.check(validate_user)
 @commands.cooldown(1, 60*60*12, commands.BucketType.user)
@@ -1894,19 +1658,17 @@ async def daily(ctx):
    try:
       query = {'DID': str(ctx.author.id)}
       user_data = db.queryUser(query)
-      prestige = int(user_data['PRESTIGE'])
-      aicon = get_prestige_icon(prestige)
       user_completed_tales = user_data['CROWN_TALES']
       rebirth = int(user_data['REBIRTH'])
       dailyamount = 1000000
-      daily_bonus = int(dailyamount * (rebirth + 1))
+      daily_bonus = int(dailyamount * rebirth)
       await crown_utilities.bless(daily_bonus, ctx.author.id)
       
       
       difference = daily_bonus - dailyamount
       bonus_message = ""
       if difference > 0:
-         bonus_message = f"**:heart_on_fire:** | *+:coin:{'{:,}'.format(difference)}*"
+         bonus_message = f"*:heart_on_fire:+:coin:{'{:,}'.format(difference)}*"
       universes = db.queryAllUniverse()
       if ctx.author.guild:
          server_query = {'GNAME': str(ctx.author.guild)}
@@ -1926,86 +1688,43 @@ async def daily(ctx):
       oppponent_len = len(opponents)
       q1 = random.randint(0, oppponent_len)
       q2 = random.randint(0, oppponent_len)
-      q3 = random.randint(3, oppponent_len)
-      q4 = random.randint(3, oppponent_len)
-      q5 = random.randint(5, oppponent_len)
-      q6 = random.randint(5, oppponent_len)
-      q7 = random.randint(7, oppponent_len)
-      q8 = random.randint(7, oppponent_len)
-      q9 = random.randint(10, oppponent_len)
-      q10 = random.randint(10, oppponent_len)
-      
+      q3 = random.randint(0, oppponent_len)
 
       q1_earn = round(random.randint(50000, 300000))
       q2_earn = round(random.randint(200000, 500000))
       q3_earn = round(random.randint(400000, 800000))
-      q4_earn = round(random.randint(700000, 1100000))
-      q5_earn = round(random.randint(1000000, 1500000))
-      q6_earn = round(random.randint(1400000, 2000000))
-      q7_earn = round(random.randint(1900000, 2500000))
-      q8_earn = round(random.randint(2300000, 2700000))
-      q9_earn = round(random.randint(2500000, 3500000))
-      q10_earn = round(random.randint(3000000, 5000000))
-      
-      q1_win = check_quest_wins(1, prestige)
-      q2_win = check_quest_wins(1, prestige)
-      q3_win = check_quest_wins(2, prestige)
-      q4_win = check_quest_wins(2, prestige)
-      q5_win = check_quest_wins(3, prestige)
-      q6_win = check_quest_wins(3, prestige)
-      q7_win = check_quest_wins(4, prestige)
-      q8_win = check_quest_wins(4, prestige) #casper
-      q9_win = check_quest_wins(5, prestige)
-      q10_win = check_quest_wins(10, prestige)
-      
-      prestige_message = ""
-      if prestige > 0:
-         prestige_message = f"**{aicon} Prestige {prestige} |** Quest Requirements Reduced!"
-         
 
-      quests = [{'OPPONENT': opponents[q1], 'TYPE': 'Tales', 'GOAL': q1_win, 'WINS': 0, 'REWARD': q1_earn },
-                {'OPPONENT': opponents[q2], 'TYPE': 'Tales', 'GOAL': q2_win, 'WINS': 0, 'REWARD': q2_earn },
-                {'OPPONENT': opponents[q3], 'TYPE': 'Tales', 'GOAL': q3_win, 'WINS': 0, 'REWARD': q3_earn },
-                {'OPPONENT': opponents[q4], 'TYPE': 'Tales', 'GOAL': q4_win, 'WINS': 0, 'REWARD': q4_earn },
-                {'OPPONENT': opponents[q5], 'TYPE': 'Tales', 'GOAL': q5_win, 'WINS': 0, 'REWARD': q5_earn },
-                {'OPPONENT': opponents[q6], 'TYPE': 'Tales', 'GOAL': q6_win, 'WINS': 0, 'REWARD': q6_earn },
-                {'OPPONENT': opponents[q7], 'TYPE': 'Tales', 'GOAL': q7_win, 'WINS': 0, 'REWARD': q7_earn },
-                {'OPPONENT': opponents[q8], 'TYPE': 'Tales', 'GOAL': q8_win, 'WINS': 0, 'REWARD': q8_earn },
-                {'OPPONENT': opponents[q9], 'TYPE': 'Tales', 'GOAL': q9_win, 'WINS': 0, 'REWARD': q9_earn },
-                {'OPPONENT': opponents[q10], 'TYPE': 'Tales', 'GOAL': q10_win, 'WINS': 0, 'REWARD': q10_earn }]
+      quests = [{'OPPONENT': opponents[q1], 'TYPE': 'Tales', 'GOAL': 1, 'WINS': 0, 'REWARD': q1_earn },{'OPPONENT': opponents[q2], 'TYPE': 'Tales', 'GOAL': 2, 'WINS': 0, 'REWARD': q2_earn }, {'OPPONENT': opponents[q3], 'TYPE': 'Tales', 'GOAL': 3, 'WINS': 0, 'REWARD': q3_earn }]
       db.updateVaultNoFilter(query, {'$set': {'QUESTS': quests}})
       db.updateUserNoFilter(query, {'$set': {'BOSS_FOUGHT': False}})
       db.updateUserNoFilter(query, {'$set': {'VOTED': False}})
-      retry_message = f":vs: | Rematches : **{user_data['RETRIES']}**"
+      retry_message = f":vs: Rematches : **{user_data['RETRIES']}**"
       if user_data['RETRIES'] >= 25:  
-         db.updateUserNoFilter(query, {'$set': {'RETRIES': 25}})
-         retry_message = f":vs: | Rematches : **{user_data['RETRIES']}**!"
+         db.updateUserNoFilter(query, {'$set': {'RETRIES': 22}})
+         retry_message = f":vs: Rematches : **{user_data['RETRIES']}**!"
       else:
          db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
-         retry_message = f":vs: | Rematches : {user_data['RETRIES']} **+ 2**!"
+         retry_message = f":vs: Rematches : {user_data['RETRIES']} **+ 2**!"
       embedVar = discord.Embed(title=f"☀️ Daily Rewards!", description=textwrap.dedent(f"""\
       Welcome back, {ctx.author.mention}!
       **Daily Earnings** 
-      :coin: | {'{:,}'.format(dailyamount)} 
-      {bonus_message}
+      :coin: {'{:,}'.format(dailyamount)} {bonus_message}
       {retry_message}
       
-      {prestige_message}
-      📜 **New Quests** */quest*
-      Defeat **{opponents[q1]}**: :coin: {'{:,}'.format(q1_earn)}
-      Defeat **{opponents[q2]}**: :coin: {'{:,}'.format(q2_earn)}
-      Defeat **{opponents[q3]}**: :coin: {'{:,}'.format(q3_earn)}
-      Defeat **{opponents[q4]}**: :coin: {'{:,}'.format(q4_earn)}
-      Defeat **{opponents[q5]}**: :coin: {'{:,}'.format(q5_earn)}
-      Defeat **{opponents[q6]}**: :coin: {'{:,}'.format(q6_earn)}
-      Defeat **{opponents[q7]}**: :coin: {'{:,}'.format(q7_earn)}
-      Defeat **{opponents[q8]}**: :coin: {'{:,}'.format(q8_earn)}
-      Defeat **{opponents[q9]}**: :coin: {'{:,}'.format(q9_earn)}
-      Defeat **{opponents[q10]}**: :coin: {'{:,}'.format(q10_earn)}
+      📜 **New Quests**
+      Defeat **{opponents[q1]}** to earn :coin: {'{:,}'.format(q1_earn)}
+      Defeat **{opponents[q2]}** to earn :coin: {'{:,}'.format(q2_earn)}
+      Defeat **{opponents[q3]}** to earn :coin: {'{:,}'.format(q3_earn)}
+      Use **/menu** command to open Quests and complete your quests!
 
-      **/voted** to receive Daily Voting Rewards!
+      Use **/voted** command to receive Daily voting rewards!
+
+      [Support our Patreon for Rewards!](https://www.patreon.com/partychatgaming?fan_landing=true)
+      [Vote for Anime VS+!](https://top.gg/bot/955704903198711808/vote)
+      [Add Anime VS+ to your server!](https://discord.com/api/oauth2/authorize?client_id=955704903198711808&permissions=139586955344&scope=applications.commands%20bot)
+      [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
       """), colour=0xf1c40f)
-      embedVar.set_footer(text=f"☀️ | You can vote twice a Day with /daily!")
+      
       await ctx.send(embed=embedVar)
    
    except Exception as ex:
@@ -2609,8 +2328,8 @@ async def buffshop(ctx, player, team):
 
    if guild_buff_available:
       guild_buff_length = len(team['GUILD_BUFFS'])
-      if guild_buff_length >= 5:
-         await ctx.send("Guilds may only have up to 5 Guild Buffs at one time, max.")
+      if guild_buff_length == 3:
+         await ctx.send("Guilds may only have up to 3 Guild Buffs at one time, max.")
          return
    war_tax = 0
    war_message = ""
@@ -2957,9 +2676,7 @@ async def sponsor(ctx, guild: str, amount):
       return
 
    team_bank = team_data['BANK']
-   transaction_message = f"{guild_name} sponsored {team_name} :coin:{amount}"
-   update_query = {'$push': {'TRANSACTIONS': transaction_message}}
-   response = db.updateGuildAlt(guild_query, update_query)
+
    await crown_utilities.blessteam(int(amount), team_name)
    await crown_utilities.curseguild(int(amount), guild['GNAME'])
    await ctx.send(f"{guild_name} sponsored {team_name} :coin:{amount}!!!")
@@ -3039,10 +2756,6 @@ async def fund(ctx, amount):
       else:
          await crown_utilities.curseteam(int(amount), team['TEAM_NAME'])
          await blessguild_Alt(int(amount), str(team_guild))
-         guild_query = {"GNAME": {str(team_guild)}}
-         transaction_message = f"{team['TEAM_DISPLAY_NAME']} funded :coin:{amount}"
-         update_query = {'$push': {'TRANSACTIONS': transaction_message}}
-         response = db.updateGuildAlt(guild_query, update_query)
          await ctx.send(f"{team_guild} has been funded :coin: {amount}.")
          return
    except Exception as ex:
@@ -3196,44 +2909,6 @@ async def code(ctx, code_input: str):
       await channel.send(f"'PLAYER': **{str(ctx.author)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
       return
 
-# @slash.slash(description="admin only", guild_ids=guild_ids)
-# @commands.check(validate_user)
-# async def zguilddid(ctx, password, key):
-#    if password != 'casper':  
-#       return await ctx.send("Admin Only")
-   
-#    if key != '513':
-#       return await ctx.send("Admin Only")
-#    try:
-#       guilds = db.queryAllDbTeams()
-#       for g in guilds:
-#          print(g)
-#          leader = g['OWNER']
-#          leader_info = db.queryUser({'DISNAME': str(leader)})
-#          print(leader_info)
-#          if leader_info:
-#             l_DID = leader_info['DID']
-#             update = {'$set' : {'DID' : str(l_DID)}}
-#             new_guild = db.updateTeam({'OWNER' : g['OWNER']}, update)
-#             print(f"{g['TEAM_NAME']} updated")
-#    except Exception as ex:
-#       trace = []
-#       tb = ex.__traceback__
-#       while tb is not None:
-#          trace.append({
-#                "filename": tb.tb_frame.f_code.co_filename,
-#                "name": tb.tb_frame.f_code.co_name,
-#                "lineno": tb.tb_lineno
-#          })
-#          tb = tb.tb_next
-#       print(str({
-#          'player': str(ctx.author),
-#          'type': type(ex).__name__,
-#          'message': str(ex),
-#          'trace': trace
-#       }))
-
-
 @slash.slash(description="admin only", guild_ids=guild_ids)
 @commands.check(validate_user)
 async def addfield(ctx, collection, new_field, field_type, password, key):
@@ -3304,46 +2979,14 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
          response = db.updateManyHalls({'$set': {new_field: field_type}})
       elif collection == 'family':
          response = db.updateManyFamily({'$set': {new_field: field_type}})
-      elif collection == 'association':
-         response = db.updateManyGuild({'$set': {new_field: field_type}})
       elif collection == 'guild':
-         response = db.updateManyTeams({'$set': {new_field: field_type}})
+         response = db.updateManyGuild({'$set': {new_field: field_type}})
       
       await ctx.send("Update completed.")
    else:
       print(m.ADMIN_ONLY_COMMAND)
 
-def check_quest_wins(win_value, prestige_level):
-   check = win_value - prestige_level#casper
-   if check <= 0:
-      return 1
-   else:
-      return check
-   
-def get_prestige_icon(prestige_level):
-   prestige = prestige_level
-   aicon = ":new_moon:"
-   if prestige == 1:
-      aicon = ":waxing_crescent_moon:"
-   elif prestige == 2:
-      aicon = ":first_quarter_moon:"
-   elif prestige == 3:
-      aicon = ":waxing_gibbous_moon:"
-   elif prestige == 4:
-      aicon = ":full_moon:"
-   elif prestige == 5:
-      aicon = ":waning_gibbous_moon:"
-   elif prestige == 6:
-      aicon = ":last_quarter_moon:"
-   elif prestige == 7:
-      aicon = ":waning_crescent_moon:"
-   elif prestige == 8:
-      aicon = ":crescent_moon:"
-   elif prestige == 9:
-      aicon = ":crown:"
-   elif prestige >= 10:
-      aicon = ":japanese_ogre:"
-   return aicon
+
 
 # @slash.slash(description="Update Health of all characters by 1000", guild_ids=guild_ids)
 # @commands.check(validate_user)
@@ -3928,22 +3571,22 @@ def get_prestige_icon(prestige_level):
 
 #       embedVar1 = discord.Embed(title= f"Story Mode", description="Journey through Universes to defeat powerful foes to unlock vast new worlds, tough boss fights, and new possibilities! Click arrow below to go to the next page!", colour=0x7289da)
 #       embedVar1.set_image(url=story)
-#       embedVar1.set_footer(text=f"use /help for additional assistance")
+#       embedVar1.set_footer(text=f"use /animevs for additional assistance")
 
 #       embedVar2 = discord.Embed(title= f"Profile Menu", description="View and Edit your Cards, Titles, Arms, and Summons to craft new Builds and strategies.", colour=0x7289da)
 #       embedVar2.set_image(url=profile)
 #       # embedVar2.add_field(name="Help Navigation", value="*First Page: :track_previous:|Prev Page: :rewind:|\nNext Page: :fast_forward:| Last Page: :track_next:*")
-#       embedVar2.set_footer(text=f"use /help for additional assistance")
+#       embedVar2.set_footer(text=f"use /animevs for additional assistance")
 
 #       embedVar3 = discord.Embed(title= f"PVP Mode", description="Face off against friend or foe!", colour=0x7289da)
 #       embedVar3.set_image(url=pvp)
 #       # embedVar3.add_field(name="Help Navigation", value="*First Page: :track_previous:|Prev Page: :rewind:|\nNext Page: :fast_forward:| Last Page: :track_next:*")
-#       embedVar3.set_footer(text=f"use /help for additional assistance")
+#       embedVar3.set_footer(text=f"use /animevs for additional assistance")
 
 #       embedVar4 = discord.Embed(title= f"TIPS", description="5 Primary Objectives of Anime VS+.", colour=0x7289da)
 #       embedVar4.set_image(url=objectives)
 #       # embedVar4.add_field(name="Help Navigation", value="*First Page: :track_previous:|Prev Page: :rewind:|\nNext Page: :fast_forward:| Last Page: :track_next:*")
-#       embedVar4.set_footer(text=f"use /help for additional assistance")
+#       embedVar4.set_footer(text=f"use /animevs for additional assistance")
 
 #       paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
 #       paginator.add_reaction('⏮️', "first")

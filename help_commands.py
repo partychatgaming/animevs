@@ -23,7 +23,6 @@ CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
 **🔥 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
 **👹 Boss Encounter** - Extreme Boss battles to earn Boss cards, boss accessories and more
 **:projector: Scenario Battle** - Battle through unique scenarios to earn Cards and Moves
-**:milky_way: Explore Mode** - As you chat Encounter Rare Cards and Battle for Gold or Glory!
 
 **Solo Player!**
 **/solo** - Play through all pve game modes solo to earn solo rewards
@@ -45,8 +44,6 @@ UNIVERSE_STUFF = textwrap.dedent(f"""\
 **View Universes!**
 **/universes** - View all available universe info including all available cards, accessories, and destinies
 
-**/view** - View all in Game Items
-
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
 
@@ -60,8 +57,7 @@ LEGEND = textwrap.dedent(f"""\
 🗡️ - **Attack (ATK)** Blue Crystal 🟦
 🛡️ - **Defense (DEF)** Red Crystal 🟥
 🏃 - **Speed**
-🩸 - Card Passive *Card Passive enhancers are applied each turn or Focus, passively.*
-
+🩸 - Card Passive *Card Passive enhancers are applied each turn, passively.*
 
 **Accessories & Summons**
 ⚠️ - Your title or arm does not match your universe
@@ -83,41 +79,41 @@ ELEMENTS = textwrap.dedent(f"""\
 
 👊 Physical - If ST(stamina) greater than 80, Deals double Damage 
 
-🔥 Fire - Does 40% damage of previous attack over the next opponent turns, stacks.
+🔥 Fire - Does 25% damage of previous attack over the next opponent turns, stacks.
 
-❄️ Ice - After 2 attacks, opponent freezes and loses 1 turn.
+❄️ Ice - After 2 uses opponent freezes and loses 1 turn.
 
-💧 Water - Increases all water move AP by 50 Flat.
+💧 Water - Increases all water attack dmg by 40 Flat.
 
 ⛰️ Earth - Cannot be Parried. Increases Def by 25% AP.
 
-⚡️ Electric- Add 15% DMG Dealt to Shock damage, added to all Move AP.
+⚡️ Electric- Add 15% to Shock damage, added to all attacks.
 
 🌪️ Wind - Cannot Miss, boosts all wind damage by 15% of damage dealt.
 
 🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP.
 
-☠️ Death - Deals 25% opponent max health as damage. Gain Attack equal to that amount.
+☠️ Death - Deals 20% opponent max health as damage.
 
-❤️‍🔥 Life - Heal for 25% AP.
+❤️‍🔥 Life - Heal for 20% AP.
 
-🌕 Light - Regain 50% ST(Stamina) Cost, Increases ATK by 20% of DMG.
+🌕 Light - Regain 50% Stamina Cost, Increases ATK by 20% of DMG.
 
-🌑 Dark- Penetrates shields & decreases opponent ST(Stamina) by 15.
+♠️ Dark- Penetrates shields & decreases opponent stamina by 15.
 
-🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).
+🧪 Poison - Penetrades shields, Poison 30 damage stacking up to 600.
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
 
 🧿 Spirit - Has higher chance of Crit.
 
-♻️ Recoil - Deals Incredible Bonus Damage, take 60% as recoil. If Recoil would kill you reduce HP to 1
+♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent. If Recoild would kill you reduce HP to 1
 
-⌛ Time - Block and Increase Turn Count by 1, If ST(Stamina) is < 80, Focus for 1 Turn. 
+⌛ Time - If ST is less than 80, You Block and Focus for 1 Turn. 
 
 🅱️ Bleed - After 3 Attacks deal 10x turn count damage to opponent.
 
-🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 25% AP, Decrease Turn Count By 1.
+🪐 Gravity - Disables Opponent Block and Reduce opponent DEF by 25% AP.
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
@@ -125,7 +121,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 BOT_COMMANDS = textwrap.dedent(f"""\
 **Guild Commands**
-**/guild** - Guild Menu
+**/guild** - Guild lookup, configurations, and apply for
 **/guildoperations** - Guild operations
 **/createguild** - Create guild 
 **/disbandguild** - Delete guild
@@ -162,6 +158,7 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 **/invest** - Invest coin into family Bank
 **/houses** - Show list of available houses
 **/viewhouse** - View House Information
+**/buyhouse** - Buy and move into a new family house
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
@@ -170,6 +167,9 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 CTAP_COMMANDS = textwrap.dedent(f"""\
 **Main Menu!⚒️**
 **/menu** - Access your current build, cards, titles, arms, quests, and destinies. You can also open the shop and visit the blacksmith here!
+
+**Reward Codes! ⌨️**
+**/code** - Enter in codes to earn in-game rewards!
 
 **Trade! 🎴 🎗️ 🦾**
 **/trade** - Start a trade with a friend!
@@ -182,7 +182,13 @@ CTAP_COMMANDS = textwrap.dedent(f"""\
 **/analysis** - View specific card statistics and optimal builds for that card
 
 **Do you already know the card or accessories name?**
-*/view*
+*If you already know what you want to equip / view, use the fast equip commands below to equip your item...*
+*/equipcard*
+*/equiparm*
+*/equiptitle*
+*/equipsummon*
 ------------------
+*/view*
+
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)

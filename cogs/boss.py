@@ -4,7 +4,7 @@ from discord.ext import commands
 import bot as main
 import db
 import crown_utilities
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
@@ -72,7 +72,8 @@ class Boss(commands.Cog):
                             # if card_info['HAS_COLLECTION']:
                             #     await ctx.send(f"You can not use exchange on Destiny cards.")
                             #     return
-                            response = await crown_utilities.store_drop_card(str(ctx.author.id), card_info['NAME'], card_show, vault, owned_destinies, 100000000, 100000000, "Ex", False, 0, "cards")
+                            u = await main.bot.fetch_user(str(ctx.author.id))
+                            response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card_info['NAME'], card_show, vault, owned_destinies, 100000000, 100000000, "Ex", False, 0, "cards")
                             db.updateUserNoFilter({'DID' : str(ctx.author.id)}, {'$set' : {'LEVEL' : 0,}})
                             db.updateUserNoFilter({'DID' : str(ctx.author.id)}, {'$inc' : {'PRESTIGE' : 1}})
                             db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'BOSS_WINS': str(bossname)}})

@@ -41,14 +41,13 @@ class USER():
     LEVEL: int = field(default_factory=lambda: 0)
     PVP_WINS: int = field(default_factory=lambda: 0)
     PVP_LOSS: int = field(default_factory=lambda: 0)
-    U_PRESET: bool = field(default_factory=lambda: False)
     EXPLORE: bool = field(default_factory=lambda: True)
     SAVE_SPOT: list[str] = field(default_factory=lambda: [])
     PERFORMANCE: bool = field(default_factory=lambda: False)
     TRADING: bool = field(default_factory=lambda: False)
     BOSS_FOUGHT: bool = field(default_factory=lambda: False)
     SERVER: str = field(default_factory=lambda: "N/A")
-    DIFFICULTY: str = field(default_factory=lambda: "EASY")
+    DIFFICULTY: str = field(default_factory=lambda: "NORMAL")
     STORAGE_TYPE: int = field(default_factory=lambda: 1)
     CREATOR: bool = field(default_factory=lambda: False)
     VOTED: bool = field(default_factory=lambda: False)
@@ -125,19 +124,12 @@ class GUILD():
     WAR_FLAG: bool = field(default_factory=lambda:False)
     WAR_OPPONENT: str = field(default_factory=lambda: '')
     WAR_WINS: list[str] = field(default_factory=lambda: [])
-    TRANSACTIONS: list[str] = field(default_factory=lambda: [])
-    CSTORAGE: list[str] = field(default_factory=lambda: [])
-    ASTORAGE: list[str] = field(default_factory=lambda: [])
-    TSTORAGE: list[str] = field(default_factory=lambda: [])
-    S_CARD_LEVELS: list[str] = field(default_factory=lambda: []) 
-    ESTATES: list[str] = field(default_factory=lambda: [])
     TIMESTAMP: str = now
 
 
 @dataclass(frozen=True, order=True)
 class TEAMS():
     OWNER: str
-    DID: str
     MEMBERS: list
     TEAM_NAME: str
     TEAM_DISPLAY_NAME:  str = field(default_factory=lambda: '')

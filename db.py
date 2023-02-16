@@ -987,7 +987,7 @@ def querySpecificArms(args):
    
 
 def querySpecificDropCards(args):
-    data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, 'HAS_COLLECTION': False, 'VUL': False, 'IS_SKIN': False, 'TIER': {'$in': acceptable}})
+    data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, 'HAS_COLLECTION': False, 'VUL': False})
     return data 
 
 def queryExclusiveDropCards(args):
@@ -1467,6 +1467,27 @@ def queryAllUniverse():
     data = universe_col.find({"HAS_CROWN_TALES": True})
     return data
 
+
+def queryTaleAllUniverse():
+    data = universe_col.find({"HAS_CROWN_TALES": True, 'TIER': {'$nin': [9]}})
+    return data
+
+
+def queryTaleUniversesNotRift():
+    data = universe_col.find({"HAS_CROWN_TALES": True})
+    return data
+
+
+def queryDungeonAllUniverse():
+    data = universe_col.find({"HAS_DUNGEON": True, 'TIER': {'$nin': [9]}})
+    return data
+
+
+def queryDungeonUniversesNotRift():
+    data = universe_col.find({"HAS_DUNGEON": True})
+    return data
+
+
 def queryAvailableUniverse():
     data = universe_col.find({"AVAILABLE": True})
     return data
@@ -1665,10 +1686,6 @@ def updateTeamWithFilter(query, new_value, arrayFilter):
         print("Find Guild failed.")
 
 def queryAllTeams(team):
-    data = teams_col.find()
-    return data
-
-def queryAllDbTeams():
     data = teams_col.find()
     return data
 

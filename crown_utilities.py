@@ -1,32 +1,17 @@
 # from operator import is_
 # from urllib import response
+# from re import A
 import db
 import time
-import classes as data
-import bot as main
-import messages as m
-from discord.ext import commands
-import numpy as np
-import help_commands as h
 import destiny as d
+import classes as data
 # Converters
-from discord import User
-from discord_slash import SlashCommand
-from discord_slash.utils import manage_components
 from PIL import Image, ImageFont, ImageDraw
-from discord_slash.model import ButtonStyle
 import textwrap
-from discord_slash import cog_ext, SlashContext
-from dinteractions_Paginator import Paginator
-from discord_slash.utils.manage_commands import create_option, create_choice
 from io import BytesIO
-import io
 import os
-import typing
 from pilmoji import Pilmoji
-import logging
 import textwrap
-import unique_traits as ut
 import discord
 now = time.asctime()
 import random
@@ -60,9 +45,8 @@ def storage_limit_hit(player_info, vault, type):
     return limit_hit
 
 
-async def store_drop_card(player, card_name, card_universe, vault, owned_destinies, bless_amount_if_max_cards, bless_amount_if_card_owned, mode, is_shop, price, item_override):
+async def store_drop_card(user, player, card_name, card_universe, vault, owned_destinies, bless_amount_if_max_cards, bless_amount_if_card_owned, mode, is_shop, price, item_override):
     try:
-        user = await main.bot.fetch_user(player)
         player_info = db.queryUser({"DID": str(player)})
         if item_override == "cards":
             storage_limit_has_been_hit = storage_limit_hit(player_info, vault, "cards")
@@ -90,10 +74,10 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
 
             if card_owned:
                 if is_shop:
-                    await cardlevel(card_name, player, mode, card_universe)
+                    await cardlevel(user, card_name, player, mode, card_universe)
                     await curse(int(price), str(player))
                     return f"You earned experience points for 🎴: **{card_name}**"
-                await cardlevel(card_name, player, mode, card_universe)
+                await cardlevel(user, card_name, player, mode, card_universe)
                 await bless(int(bless_amount_if_card_owned), player)
                 return f"You earned experience points for 🎴: **{card_name}** & :coin: **{'{:,}'.format(bless_amount_if_card_owned)}**"
             else:
@@ -126,7 +110,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                 
                 if hand_length >= 25 and not storage_limit_has_been_hit:
                     if is_shop:
-                        response = await route_to_storage(player, card_name, current_cards, card_owned, price, card_universe, owned_destinies, "Purchase", "cards")
+                        response = await route_to_storage(user, player, card_name, current_cards, card_owned, price, card_universe, owned_destinies, "Purchase", "cards")
                         return response
                     else:
                         update_query = {'$addToSet': {
@@ -204,7 +188,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                 if hand_length >= 25 and not storage_limit_has_been_hit:
 
                     if is_shop:
-                        response = await route_to_storage(player, title_name, current_titles, title_owned, price, title_universe, owned_destinies, "Purchase", "titles")
+                        response = await route_to_storage(user, player, title_name, current_titles, title_owned, price, title_universe, owned_destinies, "Purchase", "titles")
                         return response
                     else:
                         response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TSTORAGE': title_name}})
@@ -278,7 +262,7 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
                 if hand_length >= 25 and not storage_limit_has_been_hit:
 
                     if is_shop:
-                        response = await route_to_storage(player, arm_name, current_arms, arm_owned, price, arm_universe, durability, "Purchase", "arms")
+                        response = await route_to_storage(user, player, arm_name, current_arms, arm_owned, price, arm_universe, durability, "Purchase", "arms")
                         return response
                     else:
                         response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ASTORAGE': {'ARM': str(arm_name), 'DUR': durability}}})
@@ -318,16 +302,11 @@ async def store_drop_card(player, card_name, card_universe, vault, owned_destini
             'message': str(ex),
             'trace': trace
         }))
-        # guild = main.bot.get_guild(543442011156643871)
-        # channel = guild.get_channel(957061470192033812)
-        # await channel.send(f"'PLAYER': **{str(player)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
 
-async def route_to_storage(player, card_name, current_cards, card_owned, price, universe, owned_destinies, mode, storage_type):
+async def route_to_storage(user, player, card_name, current_cards, card_owned, price, universe, owned_destinies, mode, storage_type):
     try:
-        user = await main.bot.fetch_user(player)
         msg = ""
-
         user_query = {"DID": str(player)}
         vault_query = {"DID": str(player)}
         if storage_type == "cards":
@@ -338,7 +317,7 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
             
 
             if card_owned:
-                await cardlevel(card_name, str(player), mode, universe)
+                await cardlevel(user, card_name, str(player), mode, universe)
                 msg = f"You received a level up for 🎴: **{card_name}**!"
                 await curse(int(price), str(player))
                 return msg
@@ -425,9 +404,65 @@ async def route_to_storage(player, card_name, current_cards, card_owned, price, 
             'message': str(ex),
             'trace': trace
         }))
-        # guild = main.bot.get_guild(543442011156643871)
-        # channel = guild.get_channel(957061470192033812)
-        # await channel.send(f"'PLAYER': **{str(player)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+
+
+async def summonlevel(player, player_card):    
+    if player.family != 'PCG':
+        family_info = db.queryFamily({'HEAD':str(player.family)})
+        familysummon = family_info['SUMMON']
+        if familysummon['NAME'] == str(player.equippedsummon):
+            return False
+    try:
+        lvl_req = player_card.summon_lvl * 10
+        bond_req = ((player_card.summon_power * 5) * (player_card.summon_bond + 1))
+
+        if player_card.summon_lvl < 10:
+            # Non Level Up Code
+            if player_card.summon_exp < (lvl_req - 1):
+                query = {'DID': str(player.did)}
+                update_query = {'$inc': {'PETS.$[type].' + "EXP": 1}}
+                filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
+                response = db.updateVault(query, update_query, filter_query)
+
+            # Level Up Code
+            if player_card.summon_exp >= (lvl_req - 1):
+                query = {'DID': str(player.did)}
+                update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
+                filter_query = [{'type.' + "NAME": str(player_card.summon_exp)}]
+                response = db.updateVault(query, update_query, filter_query)
+
+        if player_card.summon_bond < 3:
+            # Non Bond Level Up Code
+            if player_card.summon_bondexp < (bond_req - 1):
+                query = {'DID': str(player.did)}
+                update_query = {'$inc': {'PETS.$[type].' + "BONDEXP": 1}}
+                filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
+                response = db.updateVault(query, update_query, filter_query)
+
+            # Bond Level Up Code
+            if player_card.summon_bondexp >= (bond_req - 1):
+                query = {'DID': str(player.did)}
+                update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
+                filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
+                response = db.updateVault(query, update_query, filter_query)
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        return
+
+
 
 async def updateRetry(player_id, mode, math_calc):
     player_info = db.queryUser({'DID' : str(player_id)})
@@ -488,6 +523,7 @@ async def updateRetry(player_id, mode, math_calc):
         print("Could not find player info")
         return False
 
+
 def set_emoji(element):
     emoji = ""
     if element == "PHYSICAL":
@@ -528,15 +564,33 @@ def set_emoji(element):
         emoji = "⌛"
     if element == "GRAVITY":
         emoji = "🪐"
+    if element == "None":
+        emoji = "📿 No"
         
 
     return emoji
 
-        
-        
 
-    
-    
+def getTime(hgame, mgame, sgame, hnow, mnow, snow):
+    hoursPassed = hnow - hgame
+    minutesPassed = mnow - mgame
+    secondsPassed = snow - sgame
+    if hoursPassed > 0:
+        minutesPassed = mnow
+        if minutesPassed > 0:
+            secondsPassed = snow
+        else:
+            secondsPassed = snow - sgame
+    else:
+        minutesPassed = mnow - mgame
+        if minutesPassed > 0:
+            secondsPassed = snow
+        else:
+            secondsPassed = snow - sgame
+    gameTime = str(hoursPassed) + str(minutesPassed) + str(secondsPassed)
+    return gameTime
+
+
 
 def showsummon(url, summon, message, lvl, bond):
     # Card Name can be 16 Characters before going off Card
@@ -617,6 +671,7 @@ def showsummon(url, summon, message, lvl, bond):
         }))
         return
 
+
 def check_affinities(player, card, basic_element, super_element, ultimate_element):
     # card = card you want to check
     weaknesses = card['WEAKNESS']
@@ -678,7 +733,7 @@ def check_affinities(player, card, basic_element, super_element, ultimate_elemen
     return affinities
 
 
-def set_affinities(card, boss = None):
+def set_affinities(card):
     try:
         weaknesses = card['WEAKNESS']
         resistances = card['RESISTANT']
@@ -752,9 +807,6 @@ def set_affinities(card, boss = None):
         
         if  not message_list:
             message_to = "No Affinities"
-            
-        if boss:
-            message_to = ":japanese_ogre: Boss Domain"
 
         affinity_message = textwrap.dedent(f"""\
         {message_to}
@@ -777,29 +829,6 @@ def set_affinities(card, boss = None):
             'trace': trace
         }))
 
-async def prestige_icon(prestige):
-    aicon = ":new_moon:"
-    if prestige == 1:
-        aicon = ":waxing_crescent_moon:"
-    elif prestige == 2:
-        aicon = ":first_quarter_moon:"
-    elif prestige == 3:
-        aicon = ":waxing_gibbous_moon:"
-    elif prestige == 4:
-        aicon = ":full_moon:"
-    elif prestige == 5:
-        aicon = ":waning_gibbous_moon:"
-    elif prestige == 6:
-        aicon = ":last_quarter_moon:"
-    elif prestige == 7:
-        aicon = ":waning_crescent_moon:"
-    elif prestige == 8:
-        aicon = ":crescent_moon:"
-    elif prestige == 9:
-        aicon = ":crown:"
-    elif prestige >= 10:
-        aicon = ":japanese_ogre:"
-    return str(aicon)
 
 async def corrupted_universe_handler(ctx, universe, difficulty):
     try:
@@ -836,7 +865,6 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
             })
             tb = tb.tb_next
         print(str({
-            'player': str(player),
             'type': type(ex).__name__,
             'message': str(ex),
             'trace': trace
@@ -844,18 +872,16 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
 
     
 
-async def cardlevel(card: str, player, mode: str, universe: str):
+async def cardlevel(user, card: str, player, mode: str, universe: str):
     try:
         vault = db.queryVault({'DID': str(player)})
         player_info = db.queryUser({'DID': str(player)})
-        rebirth_buff = player_info['REBIRTH']
         guild_buff = await guild_buff_update_function(player_info['TEAM'].lower())
         if player_info['DIFFICULTY'] == "EASY":
             return
 
 
         card_uni = db.queryCard({'NAME': card})['UNIVERSE']
-        user = await main.bot.fetch_user(str(player))
 
         cardinfo = {}
         for x in vault['CARD_LEVELS']:
@@ -874,27 +900,23 @@ async def cardlevel(card: str, player, mode: str, universe: str):
 
         lvl = cardinfo['LVL']
         new_lvl = lvl + 1
-        x = 0.099
-        y = 1.25
-        lvl_req = round((float(lvl)/x)**y)
+        lvl_req = 150
         exp = cardinfo['EXP']
         exp_gain = 0
-        t_exp_gain = 25 + (rebirth_buff)
-        d_exp_gain = (100 * (1 + rebirth_buff))
         if has_universe_soul:
             if mode == "Dungeon":
-                exp_gain = d_exp_gain * 4
+                exp_gain = 65
             if mode == "Tales":
-                exp_gain = t_exp_gain * 4
+                exp_gain = 35
             if mode == "Purchase":
-                exp_gain = lvl_req
+                exp_gain = 150
         else:
             if mode == "Dungeon":
-                exp_gain = d_exp_gain
+                exp_gain = 30
             if mode == "Tales":
-                exp_gain = t_exp_gain
+                exp_gain = 15
             if mode == "Purchase":
-                exp_gain = lvl_req
+                exp_gain = 150
 
 
         hlt_buff = 0
@@ -904,7 +926,7 @@ async def cardlevel(card: str, player, mode: str, universe: str):
         if lvl < 200:
             if guild_buff:
                 if guild_buff['Level']:
-                    exp_gain = lvl_req
+                    exp_gain = 150
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
 
             # Experience Code
@@ -931,22 +953,12 @@ async def cardlevel(card: str, player, mode: str, universe: str):
                 response = db.updateVault(query, update_query, filter_query)
                 await user.send(f"**{card}** leveled up!")
 
-        if lvl < 500 and lvl >= 200 and has_universe_heart:
+        if lvl < 999 and lvl >= 200 and has_universe_heart:
             if guild_buff:
                 if guild_buff['Level']:
-                    exp_gain = round(lvl_req)
+                    exp_gain = 150
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-        if lvl < 700 and lvl >= 500 and has_universe_heart:
-            if guild_buff:
-                if guild_buff['Level']:
-                    exp_gain = round(lvl_req/2)
-                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-                    
-        if lvl < 999 and lvl >= 700 and has_universe_heart:
-            if guild_buff:
-                if guild_buff['Level']:
-                    exp_gain = round(lvl_req/3)
-                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+
             # Experience Code
             if exp < (lvl_req - 1):
                 query = {'DID': str(player)}
@@ -986,9 +998,6 @@ async def cardlevel(card: str, player, mode: str, universe: str):
             'message': str(ex),
             'trace': trace
         }))
-        # guild = main.bot.get_guild(543442011156643871)
-        # channel = guild.get_channel(957061470192033812)
-        # await channel.send(f"'PLAYER': **{str(player)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
 
 async def guild_buff_update_function(team):
@@ -1105,9 +1114,6 @@ async def guild_buff_update_function(team):
             'message': str(ex),
             'trace': trace
         }))
-        # guild = main.bot.get_guild(543442011156643871)
-        # channel = guild.get_channel(957061470192033812)
-        # await channel.send(f"'TEAM': **{str(team)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
 
 async def bless(amount, user):
@@ -1386,7 +1392,7 @@ async def player_check(ctx):
 def scenario_gold_drop(scenario_lvl):
     gold = scenario_lvl * 2000
     if scenario_lvl > 900:
-        gold = gold + 10000000
+        gold = gold + 100000000
     elif scenario_lvl > 500:
         gold = gold + 1000000
     
@@ -1578,6 +1584,29 @@ def select_random_element(difficulty, mode):
     element = random.choice(elements)
     return {"ELEMENT": element, "ESSENCE": essence}
 
+async def teamwin(team):
+    query = {'TEAM_NAME': str(team.lower())}
+    team_data = db.queryTeam(query)
+    if team_data:
+        update_query = {"$inc": {'SCRIM_WINS': 1}}
+        db.updateTeam(query, update_query)
+    else:
+        print("Cannot find Guild")
+
+async def teamloss(team):
+    query = {'TEAM_NAME': str(team.lower())}
+    team_data = db.queryTeam(query)
+    if team_data:
+        update_query = {"$inc": {'SCRIM_LOSSES': 1}}
+        db.updateTeam(query, update_query)
+    else:
+        print("Cannot find Guild")
+
+async def savematch(player, card, path, title, arm, universe, universe_type, exclusive):
+    matchquery = {'PLAYER': player, 'CARD': card, 'PATH': path, 'TITLE': title, 'ARM': arm, 'UNIVERSE': universe,
+                  'UNIVERSE_TYPE': universe_type, 'EXCLUSIVE': exclusive}
+    save_match = db.createMatch(data.newMatch(matchquery))
+
 
 level_sync = {
     "HLT": 10,
@@ -1607,7 +1636,217 @@ elements = [
     "GRAVITY"
 ]
 
-crest_dict = {'Unbound': ':ideograph_advantage:',
+
+enhancer_suffix_mapping = {'ATK': '%',
+    'DEF': '%',
+    'STAM': ' Flat',
+    'HLT': '%',
+    'LIFE': '%',
+    'DRAIN': ' Flat',
+    'FLOG': '%',
+    'WITHER': '%',
+    'RAGE': '%',
+    'BRACE': '%',
+    'BZRK': '%',
+    'CRYSTAL': '%',
+    'GROWTH': ' Flat',
+    'STANCE': ' Flat',
+    'CONFUSE': ' Flat',
+    'BLINK': ' Flat',
+    'SLOW': ' Flat',
+    'HASTE': ' Flat',
+    'FEAR': ' Flat',
+    'SOULCHAIN': ' Flat',
+    'GAMBLE': ' Flat',
+    'WAVE': ' Flat',
+    'CREATION': ' Flat',
+    'BLAST': ' Flat',
+    'DESTRUCTION': ' Flat',
+    'BASIC': ' Flat',
+    'SPECIAL': ' Flat',
+    'ULTIMATE': ' Flat',
+    'ULTIMAX': ' Flat',
+    'MANA': ' %',
+    'SHIELD': ' DMG 🌐',
+    'BARRIER': ' Blocks 💠',
+    'PARRY': ' Counters 🔄',
+    'SIPHON': ' Healing 💉'
+}
+
+
+title_enhancer_suffix_mapping = {'ATK': ' Flat',
+    'DEF': ' Flat',
+    'STAM': ' Flat',
+    'HLT': ' %',
+    'LIFE': '%',
+    'DRAIN': ' Flat',
+    'FLOG': '%',
+    'WITHER': '%',
+    'RAGE': '%',
+    'BRACE': '%',
+    'BZRK': '%',
+    'CRYSTAL': '%',
+    'GROWTH': ' Flat',
+    'STANCE': ' Flat',
+    'CONFUSE': ' Flat',
+    'BLINK': ' Flat',
+    'SLOW': ' Turn',
+    'HASTE': ' Turn',
+    'FEAR': ' Flat',
+    'SOULCHAIN': ' Flat',
+    'GAMBLE': ' Flat',
+    'WAVE': ' Flat',
+    'CREATION': '%',
+    'BLAST': ' Flat',
+    'DESTRUCTION': '%',
+    'BASIC': ' Flat',
+    'SPECIAL': ' Flat',
+    'ULTIMATE': ' Flat',
+    'ULTIMAX': ' Flat',
+    'MANA': ' %',
+    'SHIELD': ' DMG 🌐',
+    'BARRIER': ' Blocks 💠',
+    'PARRY': ' Counters 🔄',
+    'SIPHON': ' Healing 💉'
+}
+
+
+passive_enhancer_suffix_mapping = {'ATK': ' %',
+'DEF': ' %',
+'STAM': ' Flat',
+'HLT': ' %',
+'LIFE': '%',
+'DRAIN': ' Flat',
+'FLOG': '%',
+'WITHER': '%',
+'RAGE': '%',
+'BRACE': '%',
+'BZRK': '%',
+'CRYSTAL': '%',
+'GROWTH': ' Flat',
+'STANCE': ' Flat',
+'CONFUSE': ' Flat',
+'BLINK': ' Flat',
+'SLOW': ' Flat',
+'HASTE': ' Flat',
+'FEAR': ' Flat',
+'SOULCHAIN': ' Flat',
+'GAMBLE': ' Flat',
+'WAVE': ' Flat',
+'CREATION': '%',
+'BLAST': ' Flat',
+'DESTRUCTION': '%',
+'BASIC': ' Flat',
+'SPECIAL': ' Flat',
+'ULTIMATE': ' Flat',
+'ULTIMAX': ' Flat',
+'MANA': ' %',
+'SHIELD': ' DMG 🌐',
+'BARRIER': ' Blocks 💠',
+'PARRY': ' Counters 🔄',
+'SIPHON': ' Healing 💉'
+}
+
+enhancer_mapping = {'ATK': 'Increase Attack %',
+'DEF': 'Increase Defense %',
+'STAM': 'Increase Stamina',
+'HLT': 'Heal yourself or companion',
+'LIFE': 'Steal Health from Opponent',
+'DRAIN': 'Drain Stamina from Opponent',
+'FLOG': 'Steal Attack from Opponent',
+'WITHER': 'Steal Defense from Opponent',
+'RAGE': 'Lose Defense, Increase AP',
+'BRACE': 'Lose Attack, Increase AP',
+'BZRK': 'Lose Health, Increase Attack',
+'CRYSTAL': 'Lose Health, Increase Defense',
+'GROWTH': 'Lose 10% Max Health, Increase Attack, Defense and AP',
+'STANCE': 'Swap your Attack & Defense, Increase Defense',
+'CONFUSE': 'Swap Opponent Attack & Defense, Decrease Opponent Defense',
+'BLINK': 'Decrease your  Stamina, Increase Target Stamina',
+'SLOW': 'Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent',
+'HASTE': 'Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent',
+'FEAR': 'Lose 10% Max Health, Decrease Opponent Attack, Defense and AP',
+'SOULCHAIN': 'You and Your Opponent Stamina Link',
+'GAMBLE': 'You and Your Opponent Health Link',
+'WAVE': 'Deal Damage, Decreases over time',
+'CREATION': 'Heals you, Decreases over time',
+'BLAST': 'Deals Damage, Increases over time based on card tier',
+'DESTRUCTION': 'Decreases Your Opponent Max Health, Increases over time based on card tier',
+'BASIC': 'Increase Basic Attack AP',
+'SPECIAL': 'Increase Special Attack AP',
+'ULTIMATE': 'Increase Ultimate Attack AP',
+'ULTIMAX': 'Increase All AP Values',
+'MANA': 'Increase Enchancer AP',
+'SHIELD': 'Blocks Incoming DMG, until broken',
+'BARRIER': 'Nullifies Incoming Attacks, until broken',
+'PARRY': 'Returns 25% Damage, until broken',
+'SIPHON': 'Heal for 10% DMG inflicted + AP'
+}
+
+
+
+title_enhancer_mapping = {'ATK': 'Increase Attack',
+'DEF': 'Increase Defense',
+'STAM': 'Increase Stamina',
+'HLT': 'Heal for AP',
+'LIFE': 'Steal AP Health',
+'DRAIN': 'Drain Stamina from Opponent',
+'FLOG': 'Steal Attack from Opponent',
+'WITHER': 'Steal Defense from Opponent',
+'RAGE': 'Lose Defense, Increase AP',
+'BRACE': 'Lose Attack, Increase AP',
+'BZRK': 'Lose Health, Increase Attack',
+'CRYSTAL': 'Lose Health, Increase Defense',
+'GROWTH': 'Lose 5% Max Health, Increase Attack, Defense and AP',
+'STANCE': 'Swap your Attack & Defense, Increase Defense',
+'CONFUSE': 'Swap Opponent Attack & Defense, Decrease Opponent Defense',
+'BLINK': 'Decrease your Stamina, Increase Target Stamina',
+'SLOW': 'Decrease Turn Count by 1',
+'HASTE': 'Increase Turn Count By 1',
+'FEAR': 'Lose 5% MAx Health, Decrease Opponent Attack, Defense and AP',
+'SOULCHAIN': 'Both players stamina regen equals AP',
+'GAMBLE': 'Focusing players health regen equals to AP',
+'WAVE': 'Deal Damage, Decreases over time',
+'CREATION': 'Heals you, Decreases over time',
+'BLAST': 'Deals Damage on your turn based on card tier',
+'DESTRUCTION': 'Decreases Your Opponent Max Health, Increases over time based on card tier',
+'BASIC': 'Increase Basic Attack AP',
+'SPECIAL': 'Increase Special Attack AP',
+'ULTIMATE': 'Increase Ultimate Attack AP',
+'ULTIMAX': 'Increase All AP Values',
+'MANA': 'Increase Enchancer AP',
+'SHIELD': 'Blocks Incoming DMG, until broken',
+'BARRIER': 'Nullifies Incoming Attacks, until broken',
+'PARRY': 'Returns 25% Damage, until broken',
+'SIPHON': 'Heal for 10% DMG inflicted + AP'
+}
+
+element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Damage',
+'FIRE': 'Does 25% damage of previous attack over the next opponent turns, stacks',
+'ICE': 'After 2 uses opponent freezes and loses 1 turn',
+'WATER': 'Increases all water attack dmg by 40 Flat',
+'EARTH': 'Cannot be Parried. Increases Def by 25% AP',
+'ELECTRIC': 'Add 15% to Shock damage, added to each attack',
+'WIND': 'Cannot Miss, boost all wind damage by 15% DMG',
+'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP',
+'DEATH': 'Adds 20% opponent max health as damage',
+'LIFE': 'Heal for 20% AP',
+'LIGHT': 'Regain 50% Stamina Cost, Increase ATK by 20% DMG',
+'DARK': 'Penetrates shields & decrease opponent stamina by 15',
+'POISON': 'Penetrates shields, Opponent takes additional 30 damage each turn stacking up to 600',
+'RANGED': 'If ST(Stamina) > 30 deals 1.7x Damage',
+'SPIRIT': 'Has higher chance of Crit',
+'RECOIL': 'Deals 60% damage back to you, if damage would kill you reduce health to 1',
+'TIME': 'IF ST(Stamina) < 80 you Focus after attacking, You Block during your Focus',
+'BLEED': 'After 3 Attacks deal 10x turn count damage to opponent',
+'GRAVITY': 'Disables Opponent Block and Reduce opponent DEF by 25% AP'
+}
+
+
+pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
+
+
+crest_dict = { 'Unbound': ':ideograph_advantage:',
               'My Hero Academia': ':sparkle:',
               'League Of Legends': ':u6307:',
               'Kanto Region': ':chart:',
@@ -1635,4 +1874,50 @@ crest_dict = {'Unbound': ':ideograph_advantage:',
               'Persona': ':o:',
               'YuYu Hakusho': ':wheel_of_dharma:',
               'One Piece': ':sailboat:'
-              }
+}
+
+ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
+
+CO_OP_M = ['CTales', 'DTales', 'CDungeon', 'DDungeon', 'CBoss']
+DUO_M = ['DTales', 'DDungeon']
+AUTO_BATTLE_M = ['ATales', 'ADungeon']
+TALE_M = ['ATales', 'Tales', 'CTales', 'DTales']
+DUNGEON_M = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon']
+BOSS_M = ['Boss', 'CBoss']
+PVP_M = ['PVP']
+SOLO_M = ['ATales', 'Tales', 'Dungeon', 'Boss']
+OPPONENT_SUMMON_M = ['Dungeon', 'DDungeon', 'CDungeon']
+RAID_M = ['RAID']
+ABYSS = "Abyss"
+SCENARIO = "SCENARIO"
+EXPLORE = "EXPLORE"
+
+EASY_BLOCKED = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon', 'Boss', 'CBoss', 'Abyss', 'PVP', 'EXPLORE']
+
+BASIC_ATTACK = "BASIC"
+SPECIAL_ATTACK = "SUPER"
+ULTIMATE_ATTACK = "ULTIMATE"
+ABILITY_ARMS = ['BASIC', 'SUPER', 'ULTIMATE', 'SPECIAL']
+
+LOW_TIER_CARDS = [1, 2, 3]
+MID_TIER_CARDS = [4, 5]
+HIGH_TIER_CARDS = [6, 7]
+
+NOT_SAVE_MODES = ['Boss', 'CBoss', 'PVP', 'Abyss', 'SCENARIO', 'EXPLORE', 'RAID']
+BATTLE_OPTIONS = [1, 2, 3, 4, 5, 0]
+
+Healer_Enhancer_Check = ['HLT', 'LIFE']
+DPS_Enhancer_Check = ['FLOG', 'WITHER']
+INC_Enhancer_Check = ['ATK', 'DEF']
+TRADE_Enhancer_Check = ['RAGE', 'BRACE']
+Gamble_Enhancer_Check = ['GAMBLE', 'SOULCHAIN']
+SWITCH_Enhancer_Check = ['STANCE', 'CONFUSE']
+Time_Enhancer_Check = ['HASTE', 'SLOW','BLINK']
+Support_Enhancer_Check = ['DEF', 'ATK', 'WITHER', 'FLOG']
+Sacrifice_Enhancer_Check = ['BZRK', 'CRYSTAL']
+FORT_Enhancer_Check = ['GROWTH', 'FEAR']
+Stamina_Enhancer_Check = ['STAM', 'DRAIN']
+Control_Enhancer_Check = ['SOULCHAIN']
+Damage_Enhancer_Check = ['DESTRUCTION', 'BLAST']
+Turn_Enhancer_Check = ['WAVE', 'CREATION']
+IMAGE_CACHE = {}

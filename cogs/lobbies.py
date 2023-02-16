@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 import bot as main
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
