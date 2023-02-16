@@ -1447,18 +1447,18 @@ class CrownUnlimited(commands.Cog):
             return
 
         try:
-            universe_data = db.queryAllUniverse()
-            # user = db.queryUser({'DID': str(ctx.author.id)})
+            universe_data = list(db.queryAllUniverse())
+            universe_subset = random.sample(universe_data, k=min(len(universe_data), 25))
+
             universe_embed_list = []
-            for uni in universe_data:
+            for uni in universe_subset:
                 available = ""
-                # if len(uni['CROWN_TALES']) > 2:
                 if uni['CROWN_TALES']:
                     available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
-                    
+
                     tales_list = ", ".join(uni['CROWN_TALES'])
 
-                    embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
+                    embedVar = discord.Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""
                     {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
                     🎗️ **Universe Title**: {uni['UTITLE']}
                     🦾 **Universe Arm**: {uni['UARM']}
@@ -6655,147 +6655,68 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
     if mode in U_modes:
         completed_crown_tales = sowner['CROWN_TALES']
         all_universes = db.queryAllUniverse()
-        available_universes = []
+        available_universes = [uni for uni in all_universes if uni['HAS_CROWN_TALES']]
         universe_menu = []
-        selected_universe = ""
-        universe_embed_list = []
+        selected_universes = []
+
         if rift_on:
-            for uni in all_universes:
-                if uni['HAS_CROWN_TALES'] == True or uni['TIER'] == 9:
-                    if uni['TITLE'] in completed_crown_tales:
-                        save_spot_text = "No Save Data"
-                        if difficulty != "EASY":
-                            for save in saved_spots:
-                                if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
-                                    save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
-                        if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted** | 🔮 *Crown Rifts*"
-                        if uni['GUILD'] != "PCG":
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
-                        else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
+            # Determine how many rift universes will be included
+            max_rift_universes = min(len([uni for uni in available_universes if uni['TIER'] == 9]), 25)
+            num_rift_universes = random.randint(1, max_rift_universes)
+            rift_universes = [uni for uni in available_universes if uni['TIER'] == 9]
+            if num_rift_universes > 0:
+                selected_universes.extend(random.sample(rift_universes, num_rift_universes))
 
-                        embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Title**: {uni['UTITLE']}
-                        🦾 **Arm**: {uni['UARM']}
-                        🧬 **Summon**: {uni['UPET']}
-
-                        **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
-                        **Completed**: 🟢
-                        {corruption_message}
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=uni['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        embedVar.set_footer(text=f"⚔️ | Traverse {uni['TITLE']} Tale : /universes to view all Tales Drops.")
-                        universe_embed_list.append(embedVar)
-                    else:
-                        save_spot_text = "No Save Data"
-                        if difficulty != "EASY":
-                            for save in saved_spots:
-                                if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
-                                    save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
-                        if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted** | 🔮 *Crown Rifts*"
-                        if uni['GUILD'] != "PCG":
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
-                        else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
-
-                        embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Universe Title**: {uni['UTITLE']}
-                        🦾 **Universe Arm**: {uni['UARM']}
-                        🧬 **Universe Summon**: {uni['UPET']}
-
-                        **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
-                        **Completed**: 🔴
-                        {corruption_message}
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=uni['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        if alevel > 40:
-                            embedVar.set_footer(text=f"⚔️ | Conquer {uni['TITLE']} Tale to unlock Dungeon and a Major Reward!.")
-                        else:
-                            embedVar.set_footer(text=f"⚔️ | Conquer {uni['TITLE']} Tale for a Major Reward!")
-                        universe_embed_list.append(embedVar)
+            # Determine how many non-rift universes will be included
+            max_non_rift_universes = 25 - num_rift_universes
+            non_rift_universes = [uni for uni in available_universes if uni['TIER'] != 9]
+            if max_non_rift_universes > 0:
+                selected_universes.extend(random.sample(non_rift_universes, min(len(non_rift_universes), max_non_rift_universes)))
         else:
-            for uni in all_universes:
-                if uni['HAS_CROWN_TALES'] == True and uni['TIER'] != 9:
-                    if uni['TITLE'] in completed_crown_tales:
-                        save_spot_text = "No Save Data"
-                        if difficulty != "EASY":
-                            for save in saved_spots:
-                                if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
-                                    save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted"
-                        if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted**"
-                        owner_message = ""
-                        if uni['GUILD'] != "PCG":
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned** : {uni['GUILD']}"
-                        else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
-                        
+            selected_universes = random.sample(available_universes, min(len(available_universes), 25))
 
+        universe_embed_list = []
+        for uni in selected_universes:
+            save_spot_text = "No Save Data"
+            if difficulty != "EASY":
+                for save in saved_spots:
+                    if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
+                        save_spot_text = str(save['CURRENTOPPONENT'])
+            corruption_message = "📢 Not Corrupted"
+            if uni['CORRUPTED']:
+                corruption_message = "👾 **Corrupted**"
+            owner_message = ""
+            if uni['GUILD'] != "PCG":
+                owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
+            else: 
+                owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
+            completed_message = "🔴"
+            if uni['TITLE'] in completed_crown_tales:
+                completed_message = "🟢"
 
-                        embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Universe Title**: {uni['UTITLE']}
-                        🦾 **Universe Arm**: {uni['UARM']}
-                        🧬 **Universe Summon**: {uni['UPET']}
+            embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
+            {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
+            🎗️ **Universe Title**: {uni['UTITLE']}
+            🦾 **Universe Arm**: {uni['UARM']}
+            🧬 **Universe Summon**: {uni['UPET']}
 
-                        **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
-                        **Completed**: 🟢
-                        {corruption_message}
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=uni['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        embedVar.set_footer(text=f"⚔️ | Traverse {uni['TITLE']} Tale : /universes to view all Tales Drops.")
-                        
-                        universe_embed_list.append(embedVar)
-                    else:
-                        save_spot_text = "No Save Data"
-                        if difficulty != "EASY":
-                            for save in saved_spots:
-                                if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in U_modes:
-                                    save_spot_text = str(save['CURRENTOPPONENT'])
-                        corruption_message = "📢 Not Corrupted"
-                        owner_message = ""
-                        if uni['CORRUPTED']:
-                            corruption_message = "👾 **Corrupted**"
-                        if uni['GUILD'] != "PCG":
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
-                        else: 
-                            owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
+            **Saved Game**: :crossed_swords: *{save_spot_text}*
+            **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
+            **Completed**: {completed_message}
+            {corruption_message}
+            {owner_message}
+            """))
+            embedVar.set_image(url=uni['PATH'])
+            embedVar.set_thumbnail(url=ctx.author.avatar_url)
+            if rift_on:
+                if uni['TIER'] == 9:
+                    embedVar.set_footer(text=f"⚔️ | Traverse {uni['TITLE']} Tale : /universes to view all Tales Drops. | 🔮 *Crown Rifts*")
+                else:
+                    embedVar.set_footer(text=f"⚔️ | Traverse {uni['TITLE']} Tale : /universes to view all Tales Drops.")
+            else:
+                embedVar.set_footer(text=f"⚔️ | Traverse {uni['TITLE']} Tale : /universes to view all Tales Drops.")
 
-                        embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                        {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                        🎗️ **Universe Title**: {uni['UTITLE']}
-                        🦾 **Universe Arm**: {uni['UARM']}
-                        🧬 **Universe Summon**: {uni['UPET']}
-
-                        **Saved Game**: :crossed_swords: *{save_spot_text}*
-                        **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
-                        **Completed**: 🔴
-                        {corruption_message}
-                        {owner_message}
-                        """))
-                        embedVar.set_image(url=uni['PATH'])
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                        if alevel > 40:
-                            embedVar.set_footer(text=f"⚔️ | Conquer {uni['TITLE']} Tale to unlock Dungeon and a Major Reward!.")
-                        else:
-                            embedVar.set_footer(text=f"⚔️ | Conquer {uni['TITLE']} Tale for a Major Reward!")
-                        universe_embed_list.append(embedVar)
+            universe_embed_list.append(embedVar)
 
         buttons = [
             manage_components.create_button(style=3, label="Start Tales!", custom_id="start"),
@@ -6899,6 +6820,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
     if mode in D_modes:
         completed_dungeons = sowner['DUNGEONS']
         completed_crown_tales = sowner['CROWN_TALES']
+        if len(completed_crown_tales) > 25:
+            completed_crown_tales = random.sample(completed_crown_tales, 25)
         all_universes = db.queryAllUniverse()
         available_universes = []
         universe_menu = []
@@ -7021,6 +6944,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
     if mode in B_modes:
         completed_crown_tales = sowner['CROWN_TALES']
         completed_dungeons = sowner['DUNGEONS']
+        if len(completed_dungeons) > 25:
+            completed_dungeons = random.sample(completed_dungeons, 25)
         completed_bosses = sowner['BOSS_WINS']
         can_fight_boss = False
         can_fight_message = "🔥 | Conquer A Dungeon to Gain a Boss Key"
@@ -24176,6 +24101,7 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
                         return {"MESSAGE": False}
                     else:
                         return {"MESSAGE": f"**{arm['ARM']}** will lose all ⚒️ durability soon! Use **/blacksmith** to repair!"}
+                    
         return {"MESSAGE": False}
     except Exception as ex:
         trace = []

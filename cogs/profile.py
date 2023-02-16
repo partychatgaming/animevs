@@ -10842,17 +10842,25 @@ async def menushop(self, ctx):
 
         if riftShopOpen:
             close_rift = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'RIFT': 0}})
-
             
-        if riftShopOpen:    
-            for uni in all_universes:
-                if uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
-                    available_universes.append(uni)
+            # Select at least one rift universe
+            rift_universes = [uni for uni in all_universes if uni['TIER'] == 9 and uni['HAS_CROWN_TALES']]
+            if rift_universes:
+                available_universes.append(random.choice(rift_universes))
+                
+            # Select up to 24 more universes
+            other_universes = [uni for uni in all_universes if uni['TIER'] != 9 and uni['HAS_CROWN_TALES']]
+            available_universes.extend(random.sample(other_universes, min(len(other_universes), 24)))
+            
         else:
-            for uni in all_universes:
-                if uni['TIER'] != 9 and uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
-                    available_universes.append(uni)
-        
+            # Select up to 25 non-rift universes
+            universes = [uni for uni in all_universes if uni['TIER'] != 9 and uni['HAS_CROWN_TALES']]
+            available_universes = random.sample(universes, min(len(universes), 25))
+
+        # Shuffle the list of available universes
+        random.shuffle(available_universes)
+
+                
         vault_query = {'DID' : str(ctx.author.id)}
         vault = db.altQueryVault(vault_query)
         storage_amount = len(vault['STORAGE'])

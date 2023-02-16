@@ -629,7 +629,7 @@ async def animevs(ctx):
    - Players can use **/apply** to join as well!
    
    **Guild Bonusus**
-   - Guildmates gain an extra **50 Attack** and **Defense** playing Co-Op Together !
+   - Guildmates gain an extra **100 Attack** and **Defense** playing Co-Op Together !
    - Guilds earn additional :coin: for every **Tales**, **Dungeon** and **Boss** Victory
    
    **Guild Economy**
@@ -639,7 +639,7 @@ async def animevs(ctx):
    **Guild Buffs**
    - Quest Buff: Start Quest from the required fight in the Tale, not for dungeons
    - Level Buff: Each fight will grant you a level up
-   - Stat Buff: Add 50 ATK & DEF, 30 AP, and 100 HLT
+   - Stat Buff: Add 100 ATK & DEF, 100 AP, and 500 HLT
    - Rift Buff: Rifts will always be available
 
    Guild Position Explanations
