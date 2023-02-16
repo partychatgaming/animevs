@@ -2002,7 +2002,7 @@ destiny = [
     },{
         "NAME": "Daddy Issues",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 15,
         "DEFEAT": "Father Gascoigne",
         "USE_CARDS": ["Mad Hunter"],
         "EARN": "Father Gascoigne",
@@ -2011,7 +2011,7 @@ destiny = [
     },{
         "NAME": "Bloody Battle",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Blood Starved Beast",
         "USE_CARDS": ["Ranged Hunter"],
         "EARN": "Blood Starved Beast",
@@ -2020,7 +2020,7 @@ destiny = [
     },{
         "NAME": "Hunt The Vicar",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 30,
         "DEFEAT": "Vicar Amelia",
         "USE_CARDS": ["Insight Hunter"],
         "EARN": "Vicar Amelia",
@@ -2056,7 +2056,7 @@ destiny = [
     },{
         "NAME": "Corpse Battle",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 30,
         "DEFEAT": "The One Reborn",
         "USE_CARDS": ["Ranged Hunter"],
         "EARN": "The One Reborn",
@@ -2065,7 +2065,7 @@ destiny = [
     },{
         "NAME": "The Darkbeast Den",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 40,
         "DEFEAT": "The Darkbeast Paarl",
         "USE_CARDS": ["Insight Hunter"],
         "EARN": "The Darkbeast Paarl",
@@ -2074,7 +2074,7 @@ destiny = [
     },{
         "NAME": "Lurking Phantoms",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 25,
         "DEFEAT": "Amygdala",
         "USE_CARDS": ["Priest"],
         "EARN": "Amygdala",
@@ -2083,7 +2083,7 @@ destiny = [
     },{
         "NAME": "Host Of The Nightmare",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 15,
         "DEFEAT": "Micolash",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Micolash",
@@ -2092,7 +2092,7 @@ destiny = [
     },{
         "NAME": "Nightnare Nurse",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 60,
         "DEFEAT": "Mergo's Wet Nurse",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Mergo's Wet Nurse",
@@ -2101,7 +2101,7 @@ destiny = [
     },{
         "NAME": "Martyrdom",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 55,
         "DEFEAT": "Martyr Logarius",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Martyr Logarius",
@@ -2119,7 +2119,7 @@ destiny = [
     },{
         "NAME": "Cosmic Child",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 60,
         "DEFEAT": "Ebrietas",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Ebrietas",
@@ -2128,7 +2128,7 @@ destiny = [
     },{
         "NAME": "Hunters Dream?",
         "WINS": 0,
-        "REQUIRED": 30,
+        "REQUIRED": 60,
         "DEFEAT": "Gehrman",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Gehrman",
@@ -2137,7 +2137,7 @@ destiny = [
     },{
         "NAME": "Servant Of The Nightmare",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 100,
         "DEFEAT": "Moon Presence",
         "USE_CARDS": ["Gehrman"],
         "EARN": "Moon Presence",
@@ -2146,7 +2146,7 @@ destiny = [
     },{
         "NAME": "Hunter Of Great Ones",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 100,
         "DEFEAT": "Cthulhu",
         "USE_CARDS": ["Moon Presence"],
         "EARN": "Cthulhu",
@@ -2155,7 +2155,7 @@ destiny = [
     },{
         "NAME": "Outer God Alpha",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Shub Niggurath",
         "USE_CARDS": ["The Unnamed Darkness"],
         "EARN": "Shub Niggurath",
@@ -2164,7 +2164,7 @@ destiny = [
     },{
         "NAME": "Outer God Omega",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 100,
         "DEFEAT": "Yog Sothoth",
         "USE_CARDS": ["The Nameless Mist"],
         "EARN": "Yog Sothoth",
@@ -2173,7 +2173,7 @@ destiny = [
     },{
         "NAME": "The Deep Dark",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 100,
         "DEFEAT": "Azathoth",
         "USE_CARDS": ["Yog Sothoth"],
         "EARN": "Azathoth",

@@ -2609,7 +2609,7 @@ async def buffshop(ctx, player, team):
 
    if guild_buff_available:
       guild_buff_length = len(team['GUILD_BUFFS'])
-      if guild_buff_length <= 5:
+      if guild_buff_length >= 5:
          await ctx.send("Guilds may only have up to 5 Guild Buffs at one time, max.")
          return
    war_tax = 0
