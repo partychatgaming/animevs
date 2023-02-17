@@ -1283,6 +1283,31 @@ async def cursefamily(amount, family):
                 'trace': trace
         }))
 
+async def prestige_icon(prestige = int):
+    aicon = ":new_moon:"
+
+    if prestige == 1:
+        aicon = ":waxing_crescent_moon:"
+    elif prestige == 2:
+        aicon = ":first_quarter_moon:"
+    elif prestige == 3:
+        aicon = ":waxing_gibbous_moon:"
+    elif prestige == 4:
+        aicon = ":full_moon:"
+    elif prestige == 5:
+        aicon = ":waning_gibbous_moon:"
+    elif prestige == 6:
+        aicon = ":last_quarter_moon:"
+    elif prestige == 7:
+        aicon = ":waning_crescent_moon:"
+    elif prestige == 8:
+        aicon = ":crescent_moon:"
+    elif prestige == 9:
+        aicon = ":crown:"
+    elif prestige >= 10:
+        aicon = ":japanese_ogre:"
+
+    return aicon
 
 async def blessguild(amount, guild):
     try:

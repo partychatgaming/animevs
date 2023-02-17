@@ -23498,11 +23498,12 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_FOUGHT': True}})
                                 match = await savematch(str(ouser), str(o_card), str(o_card_path), str(otitle['TITLE']),
                                                         str(oarm['ARM']), "N/A", "Boss", o['EXCLUSIVE'])
-                                bank_amount = 100000
-                                fam_amount = 50000
+                                bank_amount = 5000000
+                                fam_amount = 1000000
+                                bonus_amount = 10000000
                                 if difficulty == "HARD":
-                                    bank_amount = 1500000
-                                    fam_amount = 1000000
+                                    bank_amount = 10000000
+                                    fam_amount = 5000000
 
 
                                 if mode == "CBoss":
@@ -23692,8 +23693,8 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                                 gameClock = getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
                                                     s_playtime)
 
-                                bank_amount = 5000
-                                fam_amount = 2000
+                                bank_amount = 25000
+                                fam_amount = 10000
                                 if mode in D_modes:
                                     bank_amount = 20000
                                     fam_amount = 5000
