@@ -6658,9 +6658,10 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
         all_universes = db.queryAllUniverse()
         available_universes = [uni for uni in all_universes if uni['HAS_CROWN_TALES']]
         tales_universes = [t for t in available_universes if t['TIER'] != 9]
+        print(tales_universes)
         universe_menu = []
         selected_universes = []
-
+        print(rift_on)
         if rift_on:
             # Determine how many rift universes will be included
             rift_universes = [uni for uni in available_universes if uni['TIER'] == 9]
@@ -6676,6 +6677,8 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
                 selected_universes.extend(random.sample(non_rift_universes, min(len(non_rift_universes), max_non_rift_universes)))
         else:
             selected_universes = random.sample(tales_universes, min(len(tales_universes), 25))
+        
+        print(selected_universes)
 
 
         universe_embed_list = []
