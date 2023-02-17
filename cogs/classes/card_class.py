@@ -2559,7 +2559,7 @@ class Card:
             self.barrier_meter = self.barrier_meter + 1
             if self.barrier_meter == 3:
                 self._barrier_active = True
-                self._barrier_active = self._barrier_active + 1
+                self._barrier_value = self._barrier_value + 1
                 self.barrier_meter = 0
 
             opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .30)

@@ -174,7 +174,7 @@ class CrownUnlimited(commands.Cog):
                     custom_id="ignore"
                 ),
             ]
-            if selected_card.tier > 4 and selected_card.card_lvl > 350:
+            if selected_card.tier > 4 or selected_card.card_lvl > 350:
                 random_battle_buttons.append(manage_components.create_button(
                     style=ButtonStyle.blue,
                     label="Glory",
@@ -1015,30 +1015,6 @@ async def tutorial(self, ctx, player, mode):
         return
 
 
-async def score(owner, user: User):
-    session_query = {"OWNER": str(owner), "AVAILABLE": True, "KINGSGAMBIT": False}
-    session_data = db.querySession(session_query)
-    teams = [x for x in session_data['TEAMS']]
-    winning_team = {}
-    for x in teams:
-        if str(user) in x['TEAM']:
-            winning_team = x
-    new_score = winning_team['SCORE'] + 1
-    update_query = {'$set': {'TEAMS.$.SCORE': new_score}}
-    query = {"_id": session_data["_id"], "TEAMS.TEAM": str(user)}
-    response = db.updateSession(session_query, query, update_query)
-    reciever = db.queryUser({'DISNAME': str(user)})
-    name = reciever['DISNAME']
-    message = ":one: You Scored, Don't Let Up :one:"
-
-    if response:
-        message = ":one:"
-    else:
-        message = "Score not added. Please, try again. "
-
-    return message
-
-
 async def quest(player, opponent, mode):
     user_data = db.queryVault({'DID': str(player.id)})
     quest_data = {}
@@ -1320,12 +1296,6 @@ async def savematch(player, card, path, title, arm, universe, universe_type, exc
                   'UNIVERSE_TYPE': universe_type, 'EXCLUSIVE': exclusive}
     save_match = db.createMatch(data.newMatch(matchquery))
 
-
-def starting_position(o, t):
-    if o > t:
-        return True
-    else:
-        return False
 
 
 async def abyss_level_up_message(did, floor, card, title, arm):
