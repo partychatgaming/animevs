@@ -6657,7 +6657,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
         completed_crown_tales = sowner['CROWN_TALES']
         all_universes = db.queryAllUniverse()
         available_universes = [uni for uni in all_universes if uni['HAS_CROWN_TALES']]
-        tales_universes = [t for t in available_universes if t['TIER'] != 9]
+        tales_universes = [uni for uni in available_universes if uni['TIER'] != 9]
         universe_menu = []
         selected_universes = []
 
@@ -6669,7 +6669,7 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
             max_non_rift_universes = 24 - num_rift_universes
             if max_non_rift_universes > 0:
                 non_rift_universes = [uni for uni in tales_universes if uni not in selected_universes]
-                selected_universes.extend(random.sample(non_rift_universes, min(len(non_rift_universes), max_non_rift_universes)))
+                selected_universes.extend(random.sample(available_universes, min(len(available_universes), max_non_rift_universes)))
         else:
             selected_universes = random.sample(tales_universes, min(len(tales_universes), 25))
 
