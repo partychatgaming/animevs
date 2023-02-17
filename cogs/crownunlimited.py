@@ -6655,30 +6655,25 @@ async def select_universe(self, ctx, sowner: object, oteam: str, ofam: str, mode
 
     if mode in U_modes:
         completed_crown_tales = sowner['CROWN_TALES']
-        available_universes = db.queryAllUniverse()
-        #available_universes = [uni for uni in all_universes if uni['HAS_CROWN_TALES']]
-        #print(len(available_universes))
+        all_universes = db.queryAllUniverse()
+        available_universes = [uni for uni in all_universes if uni['HAS_CROWN_TALES']]
         tales_universes = [t for t in available_universes if t['TIER'] != 9]
-        print(len(tales_universes))
         universe_menu = []
         selected_universes = []
-        print(rift_on)
-        if rift_on:
-            # Determine how many rift universes will be included
-            rift_universes = [uni for uni in available_universes if uni['TIER'] == 9]
-            max_rift_universes = len(rift_universes)
-            num_rift_universes = random.randint(1, max_rift_universes)
-            if num_rift_universes > 0:
-                selected_universes.extend(random.sample(rift_universes, num_rift_universes))
 
-            # Determine how many non-rift universes will be included
-            max_non_rift_universes = 25 - num_rift_universes
-            non_rift_universes = [uni for uni in available_universes if uni['TIER'] != 9]
+        if rift_on:
+            rift_universes = [uni for uni in available_universes if uni['TIER'] == 9]
+            num_rift_universes = min(len(rift_universes), 1)
+            selected_universes.extend(random.sample(rift_universes, num_rift_universes))
+
+            max_non_rift_universes = 24 - num_rift_universes
             if max_non_rift_universes > 0:
+                non_rift_universes = [uni for uni in tales_universes if uni not in selected_universes]
                 selected_universes.extend(random.sample(non_rift_universes, min(len(non_rift_universes), max_non_rift_universes)))
         else:
             selected_universes = random.sample(tales_universes, min(len(tales_universes), 25))
-        
+
+                
         print(len(selected_universes))
 
 
