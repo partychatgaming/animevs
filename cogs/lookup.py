@@ -1438,7 +1438,7 @@ class Lookup(commands.Cog):
                                 armory_action_row = manage_components.create_actionrow(*armory_buttons)
                                 armory_screen = discord.Embed(title=f"{guild['GNAME']} Armory!", description=textwrap.dedent(f"""\
                                 {armory_message}
-                                
+                                 
                                 🕋 **Armory Inventory** | 300
                                 🎴 **Cards** |  {len(guild['CSTORAGE'])}
                                 🎗️ **Titles** |  {len(guild['TSTORAGE'])}
@@ -2102,13 +2102,15 @@ class Lookup(commands.Cog):
                                                                         await ctx.send(f"🕋 | **{selected_card}** cannot donate Equipped Card")
                                                                         return
                                                                     if len(card_storage) <= 300:
+                                                                        transaction_message = f"{ctx.author} Donated 🎴**{selected_card}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'CARDS': selected_card, 'CARD_LEVELS': {'CARD' :  selected_card}},
                                                                         }
                                                                         response = db.updateVaultNoFilter(query, update_storage_query)
                                                                         update_gstorage_query = {
-                                                                            '$addToSet' : {'CSTORAGE' : str(selected_card)}                                                                            
+                                                                            '$addToSet' : {'CSTORAGE' : str(selected_card)},
+                                                                            '$push': {'TRANSACTIONS': transaction_message}                                                                         
                                                                         }
                                                                         response = db.updateGuildAlt(guild_query, update_gstorage_query)
                                                                         update_glevel_query = {
@@ -2214,13 +2216,15 @@ class Lookup(commands.Cog):
                                                                         return
                                                                 if button_ctx.custom_id == "Donate":
                                                                     if len(title_storage) <= 300:
+                                                                        transaction_message = f"{ctx.author} Donated 🎗️ **{selected_title}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'TITLES': selected_title},
                                                                         }
                                                                         response = db.updateVaultNoFilter(query, update_storage_query)
                                                                         update_gstorage_query = {
-                                                                            '$addToSet' : {'TSTORAGE' : str(selected_title)}                                                                            
+                                                                            '$addToSet' : {'TSTORAGE' : str(selected_title)},
+                                                                            '$push': {'TRANSACTIONS': transaction_message}                                                                          
                                                                         }
                                                                         response = db.updateGuildAlt(guild_query, update_gstorage_query)
                                                                         await msg.delete()
@@ -2348,13 +2352,15 @@ class Lookup(commands.Cog):
                                                                         if names['ARM'] == selected_arm:
                                                                             durability = names['DUR']
                                                                     if len(arm_storage) <= 300:
+                                                                        transaction_message = f"{ctx.author} Donated 🦾 **{selected_arm}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'ARMS': {'ARM' : str(selected_arm)}}
                                                                         }
                                                                         response = db.updateVaultNoFilter(query, update_storage_query)
                                                                         update_gstorage_query = {
-                                                                            '$addToSet' : {'ASTORAGE': { 'ARM' : str(selected_arm), 'DUR' : int(durability)}}                                                                            
+                                                                            '$addToSet' : {'ASTORAGE': { 'ARM' : str(selected_arm), 'DUR' : int(durability)}},
+                                                                            '$push': {'TRANSACTIONS': transaction_message}                                                                           
                                                                         }
                                                                         response = db.updateGuildAlt(guild_query, update_gstorage_query)
                                                                         await msg.delete()

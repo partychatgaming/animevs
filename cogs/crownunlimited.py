@@ -1467,7 +1467,7 @@ class CrownUnlimited(commands.Cog):
                     :crossed_swords: **Tales Order**: {tales_list}
                     """))
                     embedVar.set_image(url=uni['PATH'])
-                    embedVar.set_footer(text=f":earth_africa: Universe Count {len(universe_subset)} | You can access up to 25 Universes each command.")
+                    embedVar.set_footer(text=f"🌍 Universe Count {len(universe_subset)} | You can access up to 25 Universes each command.")
                     universe_embed_list.append(embedVar)
                 
 
@@ -8019,7 +8019,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 battle_msg = await private_channel.send(embed=embedVar, components=[start_tales_buttons_action_row], file=player_2_card)
             
             if mode in PVP_MODES and tutorial:
-                embedVar = discord.Embed(title=f"✅ Click Start Match to Begin the Tutorial!", description=f"You:{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n🆚 | \nThem:{t_talisman_emoji} | {tcard_lvl_message}**{t_card}**")
+                embedVar = discord.Embed(title=f"✅ Click Start Match to Begin the Tutorial!", description=f"You:{o_talisman_emoji} | {ocard_lvl_message} **{o_card}**\n🆚 | \nThem:{t_talisman_emoji} | {tcard_lvl_message} **{t_card}**")
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.add_field(name=f"__Your Affinities__", value=f"{o_affinity_message}")
                 embedVar.add_field(name=f"__Opponent Affinities__", value=f"{t_affinity_message}")

@@ -2233,7 +2233,7 @@ async def invest(ctx, amount):
          await crown_utilities.blessfamily_Alt(int(amount), user['FAMILY'])
          await crown_utilities.curse(int(amount), ctx.author.id)
          transaction_message = f"{user['DISNAME']} invested :coin:{amount} "
-         update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
+         update_family = db.updateFamily(family['HEAD'], {'$push': {'TRANSACTIONS': transaction_message}})
          await ctx.send(f"**:coin:{amount}** invested into **{user['NAME']}'s Family**.")
          return
    else:
@@ -2572,7 +2572,7 @@ async def allowance(ctx, player: User, amount):
          await crown_utilities.bless(int(amount), user2.id)
          await crown_utilities.cursefamily(int(amount), family['HEAD'])
          transaction_message = f"{user['DISNAME']} paid :coin:{amount}  allowance to {user2_info['DISNAME']}"
-         update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
+         update_family = db.updateFamily(family['HEAD'], {'$push': {'TRANSACTIONS': transaction_message}})
          await ctx.send(f":coin:{amount} has been gifted to {user2.mention}.")
          return
    except Exception as ex:
@@ -3075,6 +3075,8 @@ async def fund(ctx, amount):
       user = db.queryUser({'DID': str(ctx.author.id)})
       team = db.queryTeam({'TEAM_NAME': user['TEAM'].lower()})
       team_guild = team['GUILD']
+      guild = db.queryGuildAlt({'GNAME': team['GUILD']})
+      guild_query = {"GNAME": guild['GNAME']}
       if team_guild =="PCG":
          await ctx.send("Your team must join a Association First!")
          return
@@ -3088,7 +3090,7 @@ async def fund(ctx, amount):
       else:
          await crown_utilities.curseteam(int(amount), team['TEAM_NAME'])
          await blessguild_Alt(int(amount), str(team_guild))
-         guild_query = {"GNAME": {str(team_guild)}}
+         #guild_query = {"GNAME": {str(team_guild)}}
          transaction_message = f"{team['TEAM_DISPLAY_NAME']} funded :coin:{amount}"
          update_query = {'$push': {'TRANSACTIONS': transaction_message}}
          response = db.updateGuildAlt(guild_query, update_query)

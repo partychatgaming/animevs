@@ -1345,7 +1345,7 @@ class Profile(commands.Cog):
                     embedVar = discord.Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
                     {icon} **[{index}]**
                     🦠 **{title_passive_type}:** {title_passive_value}
-                    :earth_africa: **Universe:** {resp['UNIVERSE']}"""), 
+                    🌍 **Universe:** {resp['UNIVERSE']}"""), 
                     colour=0x7289da)
                     embedVar.set_thumbnail(url=avatar)
                     embedVar.set_footer(text=f"{title_passive_type}: {title_enhancer_mapping[title_passive_type]}")
@@ -1845,7 +1845,7 @@ class Profile(commands.Cog):
 
                     {arm_type}
                     {arm_message}
-                    :earth_africa: **Universe:** {resp['UNIVERSE']}
+                    🌍 **Universe:** {resp['UNIVERSE']}
                     ⚒️ {arm['DUR']}
                     """), 
                     colour=0x7289da)
@@ -5918,9 +5918,11 @@ class Profile(commands.Cog):
                                                          
                             
                             if not item_owned:
+                                transaction_message = f"{ctx.author} claimed 🎴**{storage_card['NAME']}**."
                                 query = {'DID': str(ctx.author.id)}
                                 update_gstorage_query = {
                                     '$pull': {'CSTORAGE': storage_card['NAME'], 'S_CARD_LEVELS' : {'CARD' :  storage_card['NAME']}},
+                                    '$push': {'TRANSACTIONS': transaction_message}
                                 }
                                 response = db.updateGuildAlt(guild_query, update_gstorage_query)
                                 update_storage_query = {
@@ -5954,6 +5956,7 @@ class Profile(commands.Cog):
                             if storage_title['TITLE'] in title_list:
                                 item_owned = True
                             if not item_owned:
+                                transaction_message = f"{ctx.author} claimed 🎗️ **{storage_title['TITLE']}**."
                                 query = {'DID': str(ctx.author.id)}
                                 update_storage_query = {
                                     '$addToSet': {'TITLES': storage_title['TITLE']},
@@ -5961,11 +5964,14 @@ class Profile(commands.Cog):
                                 response = db.updateVaultNoFilter(query, update_storage_query)
                                 update_gstorage_query = {
                                         '$pull': {'TSTORAGE': storage_title['TITLE']},
+                                        '$push': {'TRANSACTIONS': transaction_message}
                                     }
                                 response = db.updateGuildAlt(guild_query, update_gstorage_query)
+                                transaction_message = f"{ctx.author} claimed 🎗️ **{storage_title['TITLE']}****."
                             else:
                                 await ctx.send(f"🎗️ **{storage_title['TITLE']}** already owned**")
                                 return
+                            
                             await ctx.send(f"🎗️ **{storage_title['TITLE']}** has been added to **/titles**")
                             return
                         else:
@@ -5988,6 +5994,7 @@ class Profile(commands.Cog):
                                     durability = arms['DUR']
                                     print(durability)
                             if not item_owned:
+                                transaction_message = f"{ctx.author} claimed 🦾 **{storage_arm['ARM']}**."
                                 query = {'DID': str(ctx.author.id)}
                                 update_storage_query = {
                                     '$addToSet': {'ARMS': {'ARM' : str(storage_arm['ARM']) , 'DUR': int(durability)}},
@@ -5995,6 +6002,7 @@ class Profile(commands.Cog):
                                 response = db.updateVaultNoFilter(query, update_storage_query)
                                 update_gstorage_query = {
                                     '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
+                                    '$push': {'TRANSACTIONS': transaction_message}
                                 }
                                 response = db.updateGuildAlt(guild_query, update_gstorage_query)
                             else:
@@ -8256,7 +8264,7 @@ async def menutitles(self, ctx):
                 embedVar = discord.Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
                 {icon} **[{index}]**
                 🦠 **{title_passive_type}:** {title_passive_value}
-                :earth_africa: **Universe:** {resp['UNIVERSE']}"""), 
+                🌍 **Universe:** {resp['UNIVERSE']}"""), 
                 colour=0x7289da)
                 embedVar.set_thumbnail(url=avatar)
                 embedVar.set_footer(text=f"{title_passive_type}: {title_enhancer_mapping[title_passive_type]}")
@@ -8755,7 +8763,7 @@ async def menuarms(self, ctx):
 
                 {arm_type}
                 {arm_message}
-                :earth_africa: **Universe:** {resp['UNIVERSE']}
+                🌍 **Universe:** {resp['UNIVERSE']}
                 ⚒️ {arm['DUR']}
                 """), 
                 colour=0x7289da)
