@@ -937,6 +937,13 @@ class Card:
                     ebasic = ""
                     especial = ""
                     eultimate = ""
+
+                if len(self.move1) > 40:
+                    self.move1 = self.move1[:37] + "..."
+                if len(self.move2) > 40:
+                    self.move2 = self.move2[:37] + "..."
+                if len(self.move3) > 40:
+                    self.move3 = self.move3[:37] + "..."
                 move1_text = f"{self.move1_emoji} {self.move1}: {self.move1ap} {ebasic}"
                 move2_text = f"{self.move2_emoji} {self.move2}: {self.move2ap} {especial}"
                 move3_text = f"{self.move3_emoji} {self.move3}: {self.move3ap} {eultimate}"
@@ -1054,6 +1061,8 @@ class Card:
                     lvl_sizing = (75, 70)
                 if int(self.card_lvl) > 99:
                     lvl_sizing = (55, 70)
+                if int(self.card_lvl) > 999:
+                    lvl_sizing = (45, 70)
                 draw.text(lvl_sizing, f"{self.card_lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="center")
 
@@ -1061,7 +1070,7 @@ class Card:
                 rift_universes = ['Crown Rift Awakening']
                 if self.universe in rift_universes:
                     draw.text((730, 417), health_bar, (0, 0, 0), font=health_and_stamina_font, align="left")
-                    draw.text((730, 457), f"{stamina}", (0, 0, 0), font=health_and_stamina_font, align="left")
+                    draw.text((730, 457), f"{self.stamina}", (0, 0, 0), font=health_and_stamina_font, align="left")
                 else:
                     draw.text((730, 417), health_bar, (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
                             stroke_fill=(0, 0, 0), align="left")
