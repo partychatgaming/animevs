@@ -296,10 +296,6 @@ class Card:
                         self.card_lvl = x.get('LVL', 0)
                         self.card_exp = x.get('EXP', 0)
                         break
-                else:
-                    self.card_lvl = 0
-            else:
-                self.card_lvl = 0
 
             self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
             self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
@@ -970,7 +966,7 @@ class Card:
                 # move4enh is the TYPE of enhancer
                 if not turn_crit:
                     move_enhanced_text = f"🦠 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
-                elif self.move4enh in crown_utilities.Damage_Enhancer_Check and self.move4ap == (100 * card_tier):
+                elif self.move4enh in crown_utilities.Damage_Enhancer_Check and self.move4ap == (100 * self.tier):
                     move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
                 elif self.move4enh in crown_utilities.Turn_Enhancer_Check and (turn_total % 10 == 0 or turn_total == 0):
                     move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
@@ -1354,7 +1350,7 @@ class Card:
                 hit_roll = round(random.randint(0, 20))
 
                 if move_element == "SPIRIT" and hit_roll >= 15:
-                    hit_roll = hit_roll + 5
+                    hit_roll = hit_roll + 7
                     
                 if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
                     hit_roll = hit_roll + 2
@@ -2542,7 +2538,6 @@ class Card:
                 self.physical_meter = 0
             opponent_card.health = opponent_card.health - dmg['DMG']
 
-        
         elif dmg['ELEMENT'] == "LIFE":
             self.max_health = self.max_health + (dmg['DMG'] * .35)
             self.health = self.health + (dmg['DMG'] * .40)
@@ -2553,7 +2548,6 @@ class Card:
             if self.health <= 0:
                 self.health = 1
             opponent_card.health = opponent_card.health - dmg['DMG']
-
 
         elif dmg['ELEMENT'] == "PSYCHIC":
             self.barrier_meter = self.barrier_meter + 1
@@ -2569,7 +2563,6 @@ class Card:
         elif dmg['ELEMENT'] == "FIRE":
             self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .45)
             opponent_card.health = opponent_card.health - dmg['DMG']
-
 
         elif dmg['ELEMENT'] == "ELECTRIC":
             self.shock_buff = self.shock_buff +  (dmg['DMG'] * .35)
@@ -2604,7 +2597,7 @@ class Card:
         
         else:
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
+            # battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
 
 
     def reset_stats_to_limiter(self, _opponent_card):

@@ -49,6 +49,7 @@ class Battle:
         self.battle_buttons = []
         self.co_op_buttons = []
         self.utility_buttons = []
+        self.rematch_buff = False
 
         self.continue_fighting = True
 
@@ -552,18 +553,31 @@ class Battle:
                     self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
                     universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
 
-                    if self.mode in crown_utilities.DUNGEON_M or self._ai_opponent_card_lvl >= 350:
+                    if self.mode in crown_utilities.DUNGEON_M:
                         self._ai_title = universe_data['DTITLE']
                         self._ai_arm = universe_data['DARM']
                         self._ai_summon = universe_data['DPET']
-                        self._ai_opponent_card_lvl = min(400, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl
+                        if player1_card_level >= 500:
+                            self._ai_opponent_card_lvl = 500
+                        else:
+                            self._ai_opponent_card_lvl = min(max(350, player1_card_level), 500) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
                     
-                    if self.mode in crown_utilities.TALE_M or (self._ai_opponent_card_lvl < 350):
+                    if self.mode in crown_utilities.TALE_M:
                         self._ai_title = universe_data['UTITLE']
                         self._ai_arm = universe_data['UARM']
                         self._ai_summon = universe_data['UPET']
                         self._ai_opponent_card_lvl = min(150, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
-            
+
+                    if any((self.is_scenario_game_mode, self.is_explore_game_mode)):
+                        if self._ai_opponent_card_lvl < 150:
+                            self._ai_title = universe_data['UTITLE']
+                            self._ai_arm = universe_data['UARM']
+                            self._ai_summon = universe_data['UPET']
+                        if self._ai_opponent_card_lvl >= 150:
+                            self._ai_title = universe_data['DTITLE']
+                            self._ai_arm = universe_data['DARM']
+                            self._ai_summon = universe_data['DPET']
+
                 self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
                 self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
                 self._ai_opponentsummon_data = db.queryPet({'PET': self._ai_summon})
@@ -1222,7 +1236,7 @@ class Battle:
         gameClock = crown_utilities.getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
                             s_playtime)
 
-        embedVar = discord.Embed(title=f"YOU LOSE!", description=textwrap.dedent(f"""
+        embedVar = discord.Embed(title=f"Try Again", description=textwrap.dedent(f"""
         {self.get_previous_moves_embed()}
         
         """),colour=0xe91e63)
@@ -1314,6 +1328,66 @@ class Battle:
 
         return corruption_message
 
+
+    async def get_rematch_buttons(self, player):
+        try:
+            play_again_buttons = [
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="Start Over",
+                    custom_id="Yes"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.red,
+                    label="End",
+                    custom_id="No"
+                )
+            ]
+            
+            self.rematch_buff = False
+            if player.guild != 'PCG':
+                team_info = db.queryTeam({'TEAM_NAME': str(player.guild.lower())})
+                guild_buff_info = team_info['ACTIVE_GUILD_BUFF']
+                if guild_buff_info == 'Rematch':
+                    self.rematch_buff =True
+            
+            if self.rematch_buff: #rematch update
+                play_again_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label=f"Guild Rematches Available!",
+                        custom_id="grematch"
+                    )
+                )
+            
+            elif player.retries >= 1:
+                play_again_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label=f"{player.retries} Rematches Available!",
+                        custom_id="rematch"
+                    )
+                )
+
+            else:
+                self.rematch_buff = False
+
+            return play_again_buttons
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
 
 def ai_enhancer_moves(your_card, opponent_card):
     aiMove = 1
