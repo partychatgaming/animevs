@@ -7479,7 +7479,7 @@ async def battle_commands(self, ctx, mode, universe, selected_universe, complete
                 if difficulty =="NORMAL":
                     t_talisman = str(tmove1_element)
                 if difficulty == "HARD":
-                    t_talisman = tmove3_element
+                    t_talisman = str(tmove3_element)
                 if mode in B_modes:
                     t_talisman = str(tmove3_element)
                 if t_talisman == "NULL":
