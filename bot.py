@@ -2912,14 +2912,14 @@ async def buffswap(ctx, player, team):
          
       if button_ctx.custom_id == "3":
          update_query = {
-            '$set': {'GUILD_BUFF_AVAILABLE': True, 'ACTIVE_GUILD_BUFF': f"{guild_buffs[2]['TYPE']}"},
-            '$push': {'TRANSACTIONS': f"{player['DISNAME']} swapped to {guild_buffs[2]['TYPE']} Buff"}
+            '$set': {'GUILD_BUFF_AVAILABLE': True, 'ACTIVE_GUILD_BUFF': f"{guild_buffs[3]['TYPE']}"},
+            '$push': {'TRANSACTIONS': f"{player['DISNAME']} swapped to {guild_buffs[3]['TYPE']} Buff"}
          }
          
       if button_ctx.custom_id == "4":
          update_query = {
-            '$set': {'GUILD_BUFF_AVAILABLE': True, 'ACTIVE_GUILD_BUFF': f"{guild_buffs[2]['TYPE']}"},
-            '$push': {'TRANSACTIONS': f"{player['DISNAME']} swapped to {guild_buffs[2]['TYPE']} Buff"}
+            '$set': {'GUILD_BUFF_AVAILABLE': True, 'ACTIVE_GUILD_BUFF': f"{guild_buffs[4]['TYPE']}"},
+            '$push': {'TRANSACTIONS': f"{player['DISNAME']} swapped to {guild_buffs[4]['TYPE']} Buff"}
          }
 
 
