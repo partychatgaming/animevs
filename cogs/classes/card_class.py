@@ -2386,7 +2386,7 @@ class Card:
                         self._barrier_active = False
                         self._barrier_value = 0
                         self._arm_message = ""
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack!")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
 
                     if dmg['ELEMENT'] == "POISON": #Poison Update
                         if self.poison_dmg <= 600:
@@ -2398,13 +2398,13 @@ class Card:
                             opponent_card._shield_active = False
                             opponent_card._arm_message = ""
                             residue_damage = abs(opponent_card._shield_value)
-                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌐** {opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG!**")
+                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌐 **{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG**")
                             opponent_card.health = opponent_card.health - residue_damage
                             if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                                 opponent_card._barrier_active = False
                                 opponent_card._barrier_value = 0
                                 opponent_card._arm_message = ""
-                                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
                         else:
                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** strikes **{opponent_card.name}**'s Shield 🌐\n**{opponent_card._shield_value} Shield** Left!")
                             if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
@@ -2417,18 +2417,18 @@ class Card:
                         self._barrier_active = False
                         self._barrier_value = 0
                         self._arm_message = ""
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack!")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
 
                     if opponent_card._barrier_value > 1:
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** hits **{opponent_card.name}** Barrier 💠 blocking the attack!\n{opponent_card._barrier_value - 1} Barriers remain!")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** hits **{opponent_card.name}** Barrier 💠 blocking the attack\n{opponent_card._barrier_value - 1} Barriers remain")
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
-                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                     elif opponent_card._barrier_value == 1:
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                         opponent_card._barrier_active = False
                         opponent_card._barrier_value = 0
@@ -2439,19 +2439,19 @@ class Card:
                         self._barrier_active = False
                         self._barrier_value = 0
                         self._arm_message = ""
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack!")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
                     
                     if opponent_card._parry_value > 1:
                         parry_damage = round(dmg['DMG'])
                         opponent_card.health = round(opponent_card.health - (parry_damage * .65))
                         self.health = round(self.health - (parry_damage * .40))
                         opponent_card._parry_value = opponent_card._parry_value - 1
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Parried 🔄 **{self.name}**'s attack\n     After dealing **{round(parry_damage * .75)}** dmg, {self.name} takes {round(parry_damage * .40)}! dmg\n     {opponent_card._parry_value} Parries left!")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Parried 🔄 **{self.name}**'s attack\nAfter dealing **{round(parry_damage * .75)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
-                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain!")
                         
                     elif opponent_card._parry_value == 1:
                         parry_damage = round(dmg['DMG'])
@@ -2463,7 +2463,7 @@ class Card:
                             opponent_card._barrier_active = False
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
-                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
                         opponent_card._parry_active = False
                         opponent_card._parry_value = 0
                         opponent_card._arm_message = ""
@@ -2486,7 +2486,7 @@ class Card:
                         self._barrier_active = False
                         self._barrier_value = 0
                         self._arm_message = ""
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
 
                     self.activate_element_check(battle_config, dmg, opponent_card)
 
@@ -2535,7 +2535,7 @@ class Card:
             opponent_card.health = opponent_card.health - dmg['DMG']
         
         elif dmg['ELEMENT'] == "TIME":
-            if self.stamina <= 80:
+            if self.stamina <= 50:
                 self.stamina = 0
             self.used_block = True
             self.defense = round(self.defense * 2)
@@ -2547,6 +2547,7 @@ class Card:
         elif dmg['ELEMENT'] == "EARTH":
             self._shield_active = True
             self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
+            battle_config.add_battle_history_messsage(f"*{self.name} erected a 🌐 {str(self._shield_value)} Shield*")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "DEATH":
@@ -2569,7 +2570,7 @@ class Card:
                 self._parry_active = True
                 self._parry_value = self._parry_value + 1
                 self.physical_meter = 0
-                battle_config.add_battle_history_messsage(f"{self.name} prepares to Parry the next attack!")
+                battle_config.add_battle_history_messsage(f"*{self.name} prepares to Parry 🔄 the next attack*")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "LIFE":
@@ -2589,6 +2590,7 @@ class Card:
                 self._barrier_active = True
                 self._barrier_value = self._barrier_value + 1
                 self.barrier_meter = 0
+                battle_config.add_battle_history_messsage(f"*{self.name} projects a Barrier 💠 to block next attack*")
 
             opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .30)
             opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .30)
