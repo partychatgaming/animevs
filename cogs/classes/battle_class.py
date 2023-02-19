@@ -42,7 +42,7 @@ class Battle:
         self.turn_total = 0
         self._turn_zero_has_happened = False
         self._max_turns_allowed = 250
-        self.previous_moves = ["Match has started!"]
+        self.previous_moves = ["Match has started"]
         self.previous_moves_len = 0
         self.main_battle_options = ["1", "2", "3", "4"]
         self.battle_options = ["1", "2", "3", "4"]
