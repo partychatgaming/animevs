@@ -3172,7 +3172,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                                         
                                     if int(selected_move) in [1, 2, 3, 4]:
                                         damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)                                    
-                                        if battle_config.is_auto_battle_game_mode:
+                                        if not battle_config.is_auto_battle_game_mode and int(selected_move) == 3:
                                             if player2_card.gif != "N/A"  and not player1.performance:
                                                 await battle_msg.delete(delay=2)
                                                 await asyncio.sleep(2)
@@ -3573,7 +3573,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 return
 
                             # If you lose non pvp it sends message from here. Everything else is winning stuff.
-                            if battle_config.player2_wins:
+                            if battle_config.player2_wins and not battle_config.is_pvp_game_mode:
                                 if not battle_config.is_abyss_game_mode:
                                     play_again_buttons = [
                                         manage_components.create_button(
@@ -3664,9 +3664,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     battle_config.continue_fighting = False
                                     return
 
-                            if battle_config.player1_wins:
+                            if battle_config.player1_wins and not battle_config.is_pvp_game_mode:
                                 if any((battle_config.is_tales_game_mode, battle_config.is_dungeon_game_mode, battle_config.is_boss_game_mode)):
-                                    print("HELLO WORLD")
                                     if battle_config.is_dungeon_game_mode:
                                         drop_response = await dungeondrops(self, user1, battle_config.selected_universe, battle_config.current_opponent_number)
                                     if battle_config.is_tales_game_mode:
@@ -3733,7 +3732,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     value=f"{destinylogger}")
                                         
                                         elif battle_config.is_duo_mode:
-                                            embedVar = discord.Embed(title=f"🎊 DUO VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n{drop_response}\n{corrupted_message}",description=textwrap.dedent(f"""
+                                            embedVar = discord.Embed(title=f"🎊 DUO VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n{drop_response}\n{corruption_message}",description=textwrap.dedent(f"""
                                             {battle_config.get_previous_moves_embed()}
                                             
                                             """),colour=0x1abc9c)
@@ -3755,7 +3754,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                                         if battle_config.is_dungeon_game_mode:
-                                            embedVar = discord.Embed(title=f":fire: DUNGEON CONQUERED",description=f"**{battle_config.selected_universe} Dungeon** has been conquered\n\n{drop_response}\n{corrupted_message}",
+                                            embedVar = discord.Embed(title=f":fire: DUNGEON CONQUERED",description=f"**{battle_config.selected_universe} Dungeon** has been conquered\n\n{drop_response}\n{corruption_message}",
                                                                     colour=0xe91e63)
                                             embedVar.set_author(name=f"{battle_config.selected_universe} Boss has been unlocked!")
                                             if battle_config.crestsearch:
@@ -3798,7 +3797,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             # await discord.TextChannel.delete(private_channel, reason=None)
                                         elif battle_config.is_tales_game_mode:
                                             embedVar = discord.Embed(title=f"🎊 UNIVERSE CONQUERED",
-                                                                    description=f"**{battle_config.selected_universe}** has been conquered\n\n{drop_response}\n{corrupted_message}",
+                                                                    description=f"**{battle_config.selected_universe}** has been conquered\n\n{drop_response}\n{corruption_message}",
                                                                     colour=0xe91e63)
                                             if questlogger:
                                                 embedVar.add_field(name="**Quest Progress**",
@@ -3852,7 +3851,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         await battle_config.save_boss_win(player1, player1_card, player1_title, player1_arm)
 
                                         if battle_config.is_co_op_mode:
-                                            embedVar = discord.Embed(title=f":zap: **{player1_card.name}** and **{player3_card}** defeated the {battle_config.selected_universe} Boss {player2_card.name}!\nMatch concluded in {battle_config.turn_total} turns!\n\n{drop_response} + :coin: 15,000!\n\n{c_user['NAME']} got :coin: 10,000!", description=textwrap.dedent(f"""
+                                            embedVar = discord.Embed(title=f":zap: **{player1_card.name}** and **{player3_card}** defeated the {battle_config.selected_universe} Boss {player2_card.name}!\nMatch concluded in {battle_config.turn_total} turns!\n\n{drop_response} + :coin: 15,000!\n\n{player3_card.name} got :coin: 10,000!", description=textwrap.dedent(f"""
                                             {battle_config.get_previous_moves_embed()}
                                             
                                             """),colour=0x1abc9c)
@@ -3860,7 +3859,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             embedVar.add_field(name="**Co-Op Bonus**",
                                                         value=f"{p3_co_op_bonuses}")
                                         else:
-                                            embedVar = discord.Embed(title=f":zap: **{player1_card.name}** defeated the {battle_config.selected_universe} Boss {player2_card.name}!\nMatch concluded in {battle_config.turn_total} turns!\n\n{drop_response} + :coin: 25,000!\n{corrupted_message}",description=textwrap.dedent(f"""
+                                            embedVar = discord.Embed(title=f":zap: **{player1_card.name}** defeated the {battle_config.selected_universe} Boss {player2_card.name}!\nMatch concluded in {battle_config.turn_total} turns!\n\n{drop_response} + :coin: 25,000!\n{corruption_message}",description=textwrap.dedent(f"""
                                             {battle_config.get_previous_moves_embed()}
                                             
                                             """),colour=0x1abc9c)
@@ -3980,7 +3979,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                                 if battle_config.is_explore_game_mode:
-                                    explore_response =  await battle_config.explore_embed(user1, player1, player1_card, player1_arm, player1_title)
+                                    explore_response =  await battle_config.explore_embed(user1, player1, player1_card, player2_card)
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     battle_msg = await private_channel.send(embed=explore_response)
@@ -4085,8 +4084,10 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     player_card.freeze_enh = False
     battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
     player_card.set_gravity_hit()
-    player_title.activate_title_passive(battle_config, player_card, opponent_card)
-    player_card.activate_card_passive(opponent_card, battle_config)
+    if not opponent_card.wind_element_activated:
+        player_title.activate_title_passive(battle_config, player_card, opponent_card)
+        player_card.activate_card_passive(opponent_card, battle_config)
+    opponent_card.wind_element_activated = False
     player_card.activate_demon_slayer_trait(battle_config, opponent_card)
     opponent_card.activate_demon_slayer_trait(battle_config, player_card)
     if player_card.used_block == True:
@@ -4409,8 +4410,7 @@ async def scenario_drop(self, ctx, scenario, difficulty):
             response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
             response = f"{response}\nYou earned :coin: **{'{:,}'.format(scenario_gold)}**!"
             if not response:
-                bless_amount = (5000 + (2500 * matchcount)) * (1 + rebirth)
-                await crown_utilities.bless(bless_amount, str(ctx.author.id))
+                await crown_utilities.bless(15000, str(ctx.author.id))
                 return f"You earned :coin: **{'{:,}'.format(scenario_gold)}**!"
             return response
 

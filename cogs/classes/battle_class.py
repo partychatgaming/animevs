@@ -1259,13 +1259,14 @@ class Battle:
 
 
 
-    async def explore_embed(self, ctx, winner, winner_card, player_arm, player_title):
+    async def explore_embed(self, ctx, winner, winner_card, opponent_card):
         talisman_response = crown_utilities.inc_talisman(winner.did, winner.equipped_talisman)
         
         if self.player1_wins:
+            print(f"The explore type is {self.explore_type}")
             if self.explore_type == "glory":
                 await crown_utilities.bless(self.bounty, winner.did)
-                drop_response = await crown_utilities.store_drop_card(ctx, winner, winner_card, self.selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
+                drop_response = await crown_utilities.store_drop_card(ctx, winner.did, opponent_card.name, self.selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
             
                 message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
             if self.explore_type == "gold":

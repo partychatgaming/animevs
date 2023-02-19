@@ -58,19 +58,11 @@ async def store_drop_card(user, player, card_name, card_universe, vault, owned_d
             hand_length = len(current_cards_in_vault)
 
 
-            list1 = current_cards_in_vault
-            list2 = current_storage
-            list2.extend(list1)
-            current_cards = list2
+            # Combine the current storage and cards in the vault into a single list
+            current_cards = current_storage + current_cards_in_vault
 
-            card_owned = False
-            for owned_card in current_cards:
-                if owned_card == card_name:
-                    card_owned = True
-            card_owned = False
-            for owned_card in current_storage:
-                if owned_card == card_name:
-                    card_owned = True
+            # Check if the card is already owned
+            card_owned = card_name in current_cards
 
             if card_owned:
                 if is_shop:
