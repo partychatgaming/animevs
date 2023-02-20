@@ -445,11 +445,15 @@ class Player:
         _card.summon_image = self._equippedsummon_image
         _card.summon_universe = self._equippedsummon_universe
     
-    def get_talisman_ready(self, _card):
+    def get_talisman_ready(self, card):
         if self.equipped_talisman:
-            _card._talisman = self.equipped_talisman
+            card._talisman = self.equipped_talisman
         else:
-            _card.talisman = "None"
+            card._talisman = "None"
+
+        if self.equipped_talisman == "NULL":
+            card._talisman = "None"
+            print(card._talisman)
 
 
     def has_storage(self):

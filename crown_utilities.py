@@ -557,7 +557,7 @@ def set_emoji(element):
     if element == "GRAVITY":
         emoji = "🪐"
     if element == "None":
-        emoji = "📿 No"
+        emoji = "📿"
         
 
     return emoji

@@ -2572,8 +2572,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 battle_ping_message = await private_channel.send(f"{user1.mention} 🆚 {opponent_ping} ")
 
             embed = discord.Embed(title=f"{battle_config.get_starting_match_title()}\n{title_lvl_msg}")
-            embed.add_field(name=f"__Your Affinities:__ {crown_utilities.set_emoji(player1.equipped_talisman)} ", value=f"{player1_card.affinity_message}")
-            embed.add_field(name=f"__Opponent Affinities:__ {crown_utilities.set_emoji(opponent_card._talisman)}", value=f"{opponent_card.affinity_message}")
+            embed.add_field(name=f"__Your Affinities:__", value=f"{player1_card.affinity_message}")
+            embed.add_field(name=f"__Opponent Affinities:__", value=f"{opponent_card.affinity_message}")
             embed.set_image(url="attachment://image.png")
             embed.set_thumbnail(url=ctx.author.avatar_url)
             embed.set_footer(text="🩸 card passives and 🎗️ titles are applied every turn.")
@@ -2670,11 +2670,17 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                 if battle_config.is_boss_game_mode:
                                     await private_channel.send(embed=battle_config._boss_embed_message)
-                                    
+                                
+                                continue 
                             else:
                                 if battle_config.is_auto_battle_game_mode:                                    
                                     embedVar = await auto_battle_embed_and_starting_traits(ctx, player1_card, player2_card, battle_config, None)
-                                    await battle_msg.edit(embed=embedVar, components=[])
+                                    if battle_msg is None:
+                                        # If the message does not exist, send a new message
+                                        battle_msg = await private_channel.send(embed=embedVar, components=[])
+                                    else:
+                                        # If the message exists, edit it
+                                        await battle_msg.edit(embed=embedVar, components=[])
 
                                     selected_move = battle_config.ai_battle_command(player1_card, player2_card)
 
@@ -3159,7 +3165,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode:
                                     if battle_config.is_auto_battle_game_mode:
                                         embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
-                                        await battle_msg.edit(embed=embedVar, components=[])
+                                        if battle_msg is None:
+                                            # If the message does not exist, send a new message
+                                            battle_msg = await private_channel.send(embed=embedVar, components=[])
+                                        else:
+                                            # If the message exists, edit it
+                                            await battle_msg.edit(embed=embedVar, components=[])
                                         await asyncio.sleep(2)
 
                                     if not battle_config.is_auto_battle_game_mode:
@@ -4030,7 +4041,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     'message': str(ex),
                     'trace': trace
                 }))
-                await battle_msg.delete()
+                # await battle_msg.delete()
                 guild = self.bot.get_guild(main.guild_id)
                 channel = guild.get_channel(main.guild_channel)
                 await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")

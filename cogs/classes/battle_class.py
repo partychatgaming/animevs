@@ -37,11 +37,11 @@ class Battle:
         self.list_of_opponents_by_name = []
         self.total_number_of_opponents = 0
         self.current_opponent_number = 0
-        self._match_lineup = ""
+        self.match_lineup = ""
         self.is_turn = 0
         self.turn_total = 0
-        self._turn_zero_has_happened = False
-        self._max_turns_allowed = 250
+        self.turn_zero_has_happened = False
+        self.max_turns_allowed = 250
         self.previous_moves = ["Match has started"]
         self.previous_moves_len = 0
         self.main_battle_options = ["1", "2", "3", "4"]
@@ -537,7 +537,7 @@ class Battle:
 
 
     def get_lineup(self):
-        self._match_lineup = f"{str(self.current_opponent_number + 1)}/{str(self.total_number_of_opponents)}"
+        self.match_lineup = f"{str(self.current_opponent_number + 1)}/{str(self.total_number_of_opponents)}"
 
 
     def save_match_turned_on(self):
@@ -1041,11 +1041,11 @@ class Battle:
 
         p1_msg = get_player_message(your_card)
         p2_msg = get_player_message(opponent_card)
-        message = f"{p1_msg} 🆚\n{p2_msg}"
+        message = f"{crown_utilities.set_emoji(your_card._talisman)} | {p1_msg}\n🆚\n{crown_utilities.set_emoji(opponent_card._talisman)} | {p2_msg}"
 
         if self.is_co_op_mode:
             p3_msg = get_player_message(companion_card)
-            message = f"{p1_msg} & {p3_msg} 🆚\n{p2_msg}"
+            message = f"{crown_utilities.set_emoji(your_card._talisman)} | {p1_msg}\n{crown_utilities.set_emoji(companion_card._talisman)} | {p3_msg}\n🆚\n{crown_utilities.set_emoji(opponent_card._talisman)} | {p2_msg}"
 
         return message
 
@@ -1263,7 +1263,6 @@ class Battle:
         talisman_response = crown_utilities.inc_talisman(winner.did, winner.equipped_talisman)
         
         if self.player1_wins:
-            print(f"The explore type is {self.explore_type}")
             if self.explore_type == "glory":
                 await crown_utilities.bless(self.bounty, winner.did)
                 drop_response = await crown_utilities.store_drop_card(ctx, winner.did, opponent_card.name, self.selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
