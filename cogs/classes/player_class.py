@@ -453,7 +453,6 @@ class Player:
 
         if self.equipped_talisman == "NULL":
             card._talisman = "None"
-            print(card._talisman)
 
 
     def has_storage(self):
