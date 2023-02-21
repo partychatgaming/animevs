@@ -1326,6 +1326,7 @@ class Lookup(commands.Cog):
                                                                 if newBalance < 0 :
                                                                     await ctx.send("You have an insufficent Balance")
                                                                 else:
+                                                                    guild_query = {'GNAME': guild['GNAME']}
                                                                     await crown_utilities.curseguild(cost, guild['GNAME'])
                                                                     transaction_message = f"{ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                                     response = db.updateGuildAlt(guild_query,{'$set':{'HALL': str(hall_name)},'$push': {'TRANSACTIONS': transaction_message}})
