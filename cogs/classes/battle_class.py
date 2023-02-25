@@ -165,11 +165,14 @@ class Battle:
         self.is_training_match = False
         self.is_testing_match = False
         self._hall_info = ""
+        self._association_info = ""
+        self._association_name = ""
         self._raid_fee = 0
         self._raid_bounty = 0
         self._raid_bonus = 0
         self._victory_streak = 0
         self._hall_defense = 0
+        
 
         self.player1_wins = False
         self.player2_wins = False
@@ -493,11 +496,14 @@ class Battle:
             self.is_test_match = True
         if training_match:
             self.is_training_match = True
-            
+        self._hall_info = hall_info
+        self._association_info = association
+        self._association_name = association['GNAME']
         self._raid_fee = hall_info['FEE']
-        self._raid_bounty = hall_info['']
-        self._victory_streak = 
+        self._raid_bounty = association['BOUNTY']
+        self._victory_streak = association['STREAK']
         self._hall_defense = hall_info['DEFENSE']
+        self._raid.bonus = int(((self._victory_streak / 100) * self._raid_bounty))
             
         
             
@@ -1228,7 +1234,13 @@ class Battle:
 
         match = await crown_utilities.savematch(winner.did, winner_card.name, winner_card.path, winner_title.name,
                                 winner_arm.name, "N/A", "PVP", False)
-        
+        if self.is_raid_game_mode:
+            embedVar = discord.Embed(
+                title=f"{endmessage}\n\n You have defeated the {self._association_name} SHIELD!\nMatch concluded in {self.turn_total} turns",
+                description=textwrap.dedent(f"""
+                                            {self.get_previous_moves_embed()}
+                                            
+                                            """), colour=0xe91e63)
         victory_message = f":zap: {winner_card.name} WINS!"
         victory_description = f"Match concluded in {self.turn_total} turns."
         if self.is_tutorial_game_mode:
@@ -1268,11 +1280,17 @@ class Battle:
         s_playtime = int(wintime[17:19])
         gameClock = crown_utilities.getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
                             s_playtime)
-
-        embedVar = discord.Embed(title=f"Try Again", description=textwrap.dedent(f"""
-        {self.get_previous_moves_embed()}
-        
-        """),colour=0xe91e63)
+        if self.is_raid_game_mode:
+            embedVar = discord.Embed(title=f"🛡️ **{opponent_card.name}** defended the {self._association_name}\nMatch concluded in {self.turn_total} turns",
+                description=textwrap.dedent(f"""
+                                            {self.get_previous_moves_embed()}
+                                            """),
+                colour=0x1abc9c)
+        else:
+            embedVar = discord.Embed(title=f":skull: Try Again", description=textwrap.dedent(f"""
+            {self.get_previous_moves_embed()}
+            
+            """),colour=0xe91e63)
         # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
         if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
             embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
