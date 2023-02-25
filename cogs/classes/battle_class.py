@@ -159,6 +159,17 @@ class Battle:
         self.tutorialsummon = False
         self.tutorial_message = ""
         self.tutorial_did = 0
+        
+        #Raid Config
+        self.is_title_match = False
+        self.is_training_match = False
+        self.is_testing_match = False
+        self._hall_info = ""
+        self._raid_fee = 0
+        self._raid_bounty = 0
+        self._raid_bonus = 0
+        self._victory_streak = 0
+        self._hall_defense = 0
 
         self.player1_wins = False
         self.player2_wins = False
@@ -185,6 +196,7 @@ class Battle:
         if self.mode in crown_utilities.RAID_M:
             self.is_raid_game_mode = True
             self.is_ai_opponent = True
+            self.total_number_of_opponents = 1
             self.starting_match_title = f"Raid Battle!"
 
         if self.mode in crown_utilities.TALE_M:
@@ -267,6 +279,9 @@ class Battle:
 
         if self.is_ai_opponent:
             self._ai_can_usesummon = True
+            
+        if self.is_raid_game_mode:
+            self._ai_can_usesummon = False
 
         if self.is_tutorial_game_mode:
             self.starting_match_title = "Click Start Match to Begin the Tutorial!"
@@ -470,6 +485,24 @@ class Battle:
             self.is_pvp_game_mode = True
             # self.is_ai_opponent = True
             self.is_turn = 0
+            
+    def raid_type(self, title_match, test_match, training_match, association, hall_info): #findme
+        if title_match:
+            self.is_title_match = True
+        if test_match:
+            self.is_test_match = True
+        if training_match:
+            self.is_training_match = True
+            
+        self._raid_fee = hall_info['FEE']
+        self._raid_bounty = hall_info['']
+        self._victory_streak = 
+        self._hall_defense = hall_info['DEFENSE']
+            
+        
+            
+    # def set_hall(self, hall_info):
+        
 
 
     def set_explore_config(self, universe_data, card_data):
@@ -577,7 +610,6 @@ class Battle:
                             self._ai_title = universe_data['DTITLE']
                             self._ai_arm = universe_data['DARM']
                             self._ai_summon = universe_data['DPET']
-
                 self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
                 self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
                 self._ai_opponentsummon_data = db.queryPet({'PET': self._ai_summon})
@@ -589,6 +621,7 @@ class Battle:
                 self._ai_opponentsummon_power = list(summon_passive.values())[0]
                 self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
                 self._ai_opponentsummon_type = summon_passive['TYPE']
+                
             else:
                 self._boss_data = db.queryBoss({"UNIVERSE": self.selected_universe, "AVAILABLE": True})
                 self._ai_opponent_card_data = db.queryCard({'NAME': self._boss_data['CARD']})
@@ -985,7 +1018,7 @@ class Battle:
                 )
             ]
 
-        if your_card.used_focus and your_card.used_resolve and not your_card.usedsummon:
+        if your_card.used_focus and your_card.used_resolve and not your_card.usedsummon and not self.is_raid_game_mode:
             u_butts.append(
                 manage_components.create_button(
                     style=ButtonStyle.green,
@@ -1011,7 +1044,7 @@ class Battle:
             ),
         )
 
-        if not self.is_explore_game_mode and not self.is_easy_difficulty and not self.is_abyss_game_mode and not self.is_tutorial_game_mode and not self.is_scenario_game_mode:
+        if not self.is_explore_game_mode and not self.is_easy_difficulty and not self.is_abyss_game_mode and not self.is_tutorial_game_mode and not self.is_scenario_game_mode and not self.is_raid_game_mode and not self.is_pvp_game_mode:
             u_butts.append(
                 manage_components.create_button(
                 style=ButtonStyle.red,

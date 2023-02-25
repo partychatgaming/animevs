@@ -562,11 +562,12 @@ class Card:
 
 
     def set_card_level_icon(self):
+        licon = "🔰"
         if self.card_lvl >= 200:
             licon ="🔱"
         if self.card_lvl >= 700:
             licon ="⚜️"
-        if self.card_lvl >=999:
+        if self.card_lvl > 999:
             licon ="🏅"
         
         return licon

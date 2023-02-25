@@ -666,7 +666,7 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send(p2._locked_feature_message)
                 return
 
-            await battle_commands(self, ctx, mode, battle, p1, None, p2, None)
+            await battle_commands(self, ctx, battle, p1, None, p2, None)
 
         except Exception as ex:
             trace = []
@@ -686,7 +686,7 @@ class CrownUnlimited(commands.Cog):
             }))
             guild = self.bot.get_guild(main.guild_id)
             channel = guild.get_channel(main.guild_channel)
-            await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+            await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {tracplayer1e}")
             return
 
 
@@ -713,20 +713,20 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send("Raiding is unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
                 return
 
-            player1.guild = sowner['TEAM']
-            player1.guild_info = db.queryTeam({'TEAM_NAME': player1.guild.lower()})
+            guild = sowner['TEAM']
+            guild_info = db.queryTeam({'TEAM_NAME': guild.lower()})
             oguild_name = "PCG"
             shield_test_active = False
             shield_training_active = False
-            if player1.guild_info:
-                oguild_name = player1.guild_info['GUILD']
-                oguild = db.queryGuildAlt({'GNAME': oguild_name})
+            if guild_info:
+                oguild_name = guild_info['GUILD']
+                oassociation = db.queryGuildAlt({'GNAME': oguild_name})
             player_guild = sowner['GUILD']
 
             if oguild_name == "PCG":
                 await ctx.send(m.NO_GUILD, delete_after=5)
                 return
-            if oguild['SHIELD'] == sowner['DISNAME']:
+            if oassociation['SHIELD'] == sowner['DISNAME']:
                 shield_training_active = True
             elif player_guild == guildname:
                 shield_test_active = True
@@ -754,22 +754,34 @@ class CrownUnlimited(commands.Cog):
             tarm = db.queryArm({'ARM': t_user['ARM']})
             ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
             
-            mode = "RAID"
-
             # Guild Fees
             title_match_active = False
             fee = hall_info['FEE']
             if oguild_name == tguild:
                 title_match_active = True
+            
+            
+            mode = "RAID"
+            
+            player = sowner
+            player2 = t_user
+            p1 = Player(player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+            p2 = Player(player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])  
+            battle = Battle(mode, p1)
+            battle.create_raid(title_match_active, shield_test_active, shield_training_active, guild_info, hall_info)
+            
 
-            o = db.queryCard({'NAME': sowner['CARD']})
-            otitle = db.queryTitle({'TITLE': sowner['TITLE']})
 
-            t = db.queryCard({'NAME': t_user['CARD']})
-            ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
+            
+
+            # o = db.queryCard({'NAME': sowner['CARD']})
+            # otitle = db.queryTitle({'TITLE': sowner['TITLE']})
+
+            # t = db.queryCard({'NAME': t_user['CARD']})
+            # ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
             
             if private_channel:
-                await battle_commands(self, ctx, mode, hall_info, title_match_active, shield_test_active, oguild, shield_training_active, None, sowner, player1.guild, None, t_user,tteam, tguild, None, None, None, None, None, None, None)
+                await battle_commands(self, ctx, battle, p1, None, p2, player3=None)
             else:
                 await ctx.send("Failed to start raid battle!")
         except Exception as ex:
@@ -2467,6 +2479,22 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player2_card.set_affinity_message()
                 player2.get_talisman_ready(player2_card)
                 player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
+            if battle_config.mode in crown_utilities.RAID_M:
+                player2.get_battle_ready()
+                player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'])
+                player2_title = Title(player2._equipped_title_data['TITLE'], player2._equipped_title_data['UNIVERSE'], player2._equipped_title_data['PRICE'], player2._equipped_title_data['EXCLUSIVE'], player2._equipped_title_data['AVAILABLE'], player2._equipped_title_data['ABILITIES'])            
+                player2_arm = Arm(player2._equipped_arm_data['ARM'], player2._equipped_arm_data['UNIVERSE'], player2._equipped_arm_data['PRICE'], player2._equipped_arm_data['ABILITIES'], player2._equipped_arm_data['EXCLUSIVE'], player2._equipped_arm_data['AVAILABLE'], player2._equipped_arm_data['ELEMENT'])
+                opponent_talisman_emoji = crown_utilities.set_emoji(player2.equipped_talisman)
+
+                
+                player2.getsummon_ready(player2_card)
+                player2_arm.set_durability(player2.equipped_arm, player2._arms)
+                player2_card.set_card_level_buffs(player2._card_levels)
+                player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
+                player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
+                player2_card.set_affinity_message()
+                player2.get_talisman_ready(player2_card)
+                player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
 
             if battle_config.mode in crown_utilities.CO_OP_M or battle_config.is_duo_mode:
                 player3.get_battle_ready()
@@ -2483,7 +2511,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player3_card.set_affinity_message()
                 player3.get_talisman_ready(player3_card)
             
-            if battle_config.is_ai_opponent:
+            if battle_config.is_ai_opponent and not battle_config.is_raid_game_mode:
                 if battle_config.is_scenario_game_mode:
                     battle_config.is_tales_game_mode = False
                 if battle_config.is_explore_game_mode:
@@ -2498,9 +2526,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     return
                 if not any((battle_config.is_abyss_game_mode, battle_config.is_explore_game_mode, battle_config.is_scenario_game_mode)):
                     battle_config.set_corruption_config()
-                player2_card.set_talisman(battle_config)
                 player2_title = Title(battle_config._ai_opponent_title_data['TITLE'], battle_config._ai_opponent_title_data['UNIVERSE'], battle_config._ai_opponent_title_data['PRICE'], battle_config._ai_opponent_title_data['EXCLUSIVE'], battle_config._ai_opponent_title_data['AVAILABLE'], battle_config._ai_opponent_title_data['ABILITIES'])            
                 player2_arm = Arm(battle_config._ai_opponent_arm_data['ARM'], battle_config._ai_opponent_arm_data['UNIVERSE'], battle_config._ai_opponent_arm_data['PRICE'], battle_config._ai_opponent_arm_data['ABILITIES'], battle_config._ai_opponent_arm_data['EXCLUSIVE'], battle_config._ai_opponent_arm_data['AVAILABLE'], battle_config._ai_opponent_arm_data['ELEMENT'])
+                player2_card.set_talisman(battle_config)
                 opponent_talisman_emoji = ""
                 player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
                 player2_card.set_affinity_message()
@@ -2568,15 +2596,18 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             else:
                 title_lvl_msg = f"{battle_config.set_levels_message(player1_card, player2_card)}"
 
-            if battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
-                battle_ping_message = await private_channel.send(f"{user1.mention} 🆚 {opponent_ping} ")
+            # if battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
+            #     battle_ping_message = await private_channel.send(f"{user1.mention} 🆚 {opponent_ping} ")
 
             embed = discord.Embed(title=f"{battle_config.get_starting_match_title()}\n{title_lvl_msg}")
             embed.add_field(name=f"__Your Affinities:__", value=f"{player1_card.affinity_message}")
             embed.add_field(name=f"__Opponent Affinities:__", value=f"{opponent_card.affinity_message}")
             embed.set_image(url="attachment://image.png")
-            embed.set_thumbnail(url=ctx.author.avatar_url)
-            embed.set_footer(text="🩸 card passives and 🎗️ titles are applied every turn.")
+            if battle_config.is_pvp_game_mode:
+                embed.set_thumbnail(url=user2.avatar_url)
+            else:
+                embed.set_thumbnail(url=ctx.author.avatar_url)
+            embed.set_footer(text="🩸 card passives and 🎗️ titles are applied every turn or Focus.")
 
             battle_msg = await private_channel.send(
                 content=f"{ctx.author.mention} 🆚 {opponent_ping}",
@@ -4073,7 +4104,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             'message': str(ex),
             'trace': trace
         }))
-        await battle_msg.delete()
+        #await battle_msg.delete()
         guild = self.bot.get_guild(main.guild_id)
         channel = guild.get_channel(main.guild_channel)
         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
