@@ -733,15 +733,15 @@ class CrownUnlimited(commands.Cog):
                 
 
             guild_query = {'GNAME': guildname}
-            guild_info = db.queryGuildAlt(guild_query)
+            association_info = db.queryGuildAlt(guild_query)
             guild_shield = ""
 
-            if not guild_info:
+            if not association_info:
                 await ctx.send(m.GUILD_DOESNT_EXIST, delete_after=5)
                 return
-            guild_shield = guild_info['SHIELD']
-            shield_id = guild_info['SDID']
-            guild_hall = guild_info['HALL']
+            guild_shield = association_info['SHIELD']
+            shield_id = association_info['SDID']
+            guild_hall = association_info['HALL']
             hall_info = db.queryHall({'HALL': str(guild_hall)})
             hall_def = hall_info['DEFENSE']
             t_user = db.queryUser({'DID': shield_id})
@@ -768,7 +768,7 @@ class CrownUnlimited(commands.Cog):
             p1 = Player(player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
             p2 = Player(player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])  
             battle = Battle(mode, p1)
-            battle.create_raid(title_match_active, shield_test_active, shield_training_active, guild_info, hall_info)
+            battle.create_raid(title_match_active, shield_test_active, shield_training_active, association_info, hall_info, tteam, oguild_name)
             
 
 
@@ -2464,6 +2464,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             player1.get_talisman_ready(player1_card)
 
             if battle_config.mode in crown_utilities.PVP_M:
+                player2 = player2
                 player2.get_battle_ready()
                 player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'])
                 player2_title = Title(player2._equipped_title_data['TITLE'], player2._equipped_title_data['UNIVERSE'], player2._equipped_title_data['PRICE'], player2._equipped_title_data['EXCLUSIVE'], player2._equipped_title_data['AVAILABLE'], player2._equipped_title_data['ABILITIES'])            
@@ -2480,6 +2481,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player2.get_talisman_ready(player2_card)
                 player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
             if battle_config.mode in crown_utilities.RAID_M:
+                player2 = player2
                 player2.get_battle_ready()
                 player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'])
                 player2_title = Title(player2._equipped_title_data['TITLE'], player2._equipped_title_data['UNIVERSE'], player2._equipped_title_data['PRICE'], player2._equipped_title_data['EXCLUSIVE'], player2._equipped_title_data['AVAILABLE'], player2._equipped_title_data['ABILITIES'])            
@@ -2493,6 +2495,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
                 player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player2_card.set_affinity_message()
+                player2_card.set_raid_defense_buff(battle_config._hall_defense)
                 player2.get_talisman_ready(player2_card)
                 player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
 
@@ -2632,10 +2635,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             start_tales_buttons_action_row], timeout=300, check=check)
 
                 if button_ctx.custom_id == "start_tales_no":
+                    await button_ctx.defer()
                     await battle_msg.delete()
                     return
 
                 if button_ctx.custom_id == "save_tales_yes":
+                    await button_ctx.defer()
                     await battle_msg.edit(components=[])
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                     await button_ctx.send(f"Game has been saved.")
@@ -2643,6 +2648,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 
                 if button_ctx.custom_id == "start_tales_yes" or button_ctx.custom_id == "start_auto_tales":
                     if button_ctx.custom_id == "start_auto_tales":
+                        await button_ctx.defer()
                         battle_config.is_auto_battle_game_mode = True
                         embedVar = discord.Embed(title=f"Auto Battle has started", color=0xe74c3c)
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -3547,7 +3553,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         gameClock = getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
                                             s_playtime)
                         try:
-
+                            
                             if battle_config.is_pvp_game_mode:
                                 if battle_config.player1_wins:
                                     pvp_response = await battle_config.pvp_victory_embed(player1, player1_card, player1_arm, player1_title, player2, player2_card)
@@ -3560,59 +3566,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 battle_msg = await private_channel.send(embed=pvp_response)
                                 battle_config.continue_fighting = False
                                 return
-                            
-                            if battle_config.is_raid_game_mode:
-                                guild_query = {'FDID': oguild['FDID']}
-                                bounty = oguild['BOUNTY']
-                                bonus = oguild['STREAK']
-                                total_bounty = (bounty + ((bonus / 100) * bounty))
-                                winbonus = int(((bonus / 100) * bounty))
-                                if winbonus == 0:
-                                    winbonus = bounty
-                                wage = int(total_bounty)
-                                endmessage = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(winbonus)}"
-                                hall_info = db.queryHall({"HALL":oguild['HALL']})
-                                fee = hall_info['FEE']
-                                if title_match_active:
-                                    if shield_test_active:
-                                        endmessage = f":flags: {player1.association} DEFENSE TEST OVER!"
-                                    elif shield_training_active:
-                                        endmessage = f":flags: {player1.association} TRAINING COMPLETE!"
-                                    else:
-                                        newshield = db.updateGuild(guild_query, {'$set': {'SHIELD': str(ctx.author)}})
-                                        newshieldid = db.updateGuild(guild_query, {'$set': {'SDID': str(ctx.author.id)}})
-                                        guildwin = db.updateGuild(guild_query, {'$set': {'BOUNTY': winbonus, 'STREAK': 1}})
-                                        endmessage = f":flags: {player1.association} SHIELD CLAIMED!"
-                                        prev_team_update = {'$set': {'SHIELDING': False}}
-                                        remove_shield = db.updateTeam({'TEAM_NAME': str(tteam)}, prev_team_update)
-                                        update_shielding = {'$set': {'SHIELDING': True}}
-                                        add_shield = db.updateTeam({'TEAM_NAME': str(player1.guild)}, update_shielding)
-                                else:
-                                    guildloss = db.updateGuild(guild_query, {'$set': {'BOUNTY': fee, 'STREAK': 0}})
-                            
-                                embedVar = discord.Embed(
-                                    title=f"{endmessage}\n\n You have defeated the {tguild} SHIELD!\nMatch concluded in {battle_config.turn_total} turns",
-                                    description=textwrap.dedent(f"""
-                                                                {battle_config.get_previous_moves_embed()}
-                                                                
-                                                                """), colour=0xe91e63)
-                                # embedVar.set_author(name=f"{player2_card.name} says\n{t_lose_description}")
-                                if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
-                                    embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
-                                elif int(gameClock[0]) == 0:
-                                    embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-                                else:
-                                    embedVar.set_footer(
-                                        text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-                                embedVar.add_field(name="🔢 Focus Count",
-                                                value=f"**{player1_card.name}**: {o_focus_count}\n**{player2_card.name}**: {t_focus_count}")
-                                if o_focus_count >= t_focus_count:
-                                    embedVar.add_field(name="🌀 Most Focused", value=f"**{player1_card.name}**")
-                                else:
-                                    embedVar.add_field(name="🌀 Most Focused", value=f"**{player2_card.name}**")
-                                battle_msg = await private_channel.send(embed=embedVar)
-                                battle_config.continue_fighting = False
-                                return
+                        
 
                             # If you lose non pvp it sends message from here. Everything else is winning stuff.
                             if battle_config.player2_wins and not battle_config.is_pvp_game_mode:
@@ -4027,6 +3981,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     battle_msg = await private_channel.send(embed=explore_response)
                                     return
 
+                                if battle_config.is_raid_game_mode:
+                                    shield_response = battle_config.raid_victory()
+                                    raid_response = await battle_config.pvp_victory_embed(player1, player1_card, player1_arm, player1_title, player2, player2_card)
+                                    await battle_msg.delete(delay=2)
+                                    await asyncio.sleep(2)
+                                    battle_msg = await private_channel.send(embed=raid_response)
+                                    return
+                        
                         except Exception as ex:
                             trace = []
                             tb = ex.__traceback__

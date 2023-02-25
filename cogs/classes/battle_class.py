@@ -161,17 +161,24 @@ class Battle:
         self.tutorial_did = 0
         
         #Raid Config
-        self.is_title_match = False
-        self.is_training_match = False
-        self.is_testing_match = False
+        self._is_title_match = False
+        self._is_training_match = False
+        self._is_test_match = False
+        self._is_bounty_match = False
+        self._shield_name = ""
         self._hall_info = ""
+        self._raid_hall = ""
+        self._shield_guild = ""
+        self._player_guild = ""
         self._association_info = ""
         self._association_name = ""
+        self._raid_end_message = ""
         self._raid_fee = 0
         self._raid_bounty = 0
         self._raid_bonus = 0
         self._victory_streak = 0
         self._hall_defense = 0
+        self._raid_bounty_plus_bonus = 0
         
 
         self.player1_wins = False
@@ -489,21 +496,62 @@ class Battle:
             # self.is_ai_opponent = True
             self.is_turn = 0
             
-    def raid_type(self, title_match, test_match, training_match, association, hall_info): #findme
+    def create_raid(self, title_match, test_match, training_match, association, hall_info, shield_guild, player_guild): #findme
         if title_match:
-            self.is_title_match = True
+            self._is_title_match = True
         if test_match:
-            self.is_test_match = True
+            self._is_test_match = True
         if training_match:
-            self.is_training_match = True
+            self._is_training_match = True
+        if not training_match and not test_match and not title_match:
+            self._is_bounty_match = True
         self._hall_info = hall_info
+        self._raid_hall = hall_info['HALL']
         self._association_info = association
         self._association_name = association['GNAME']
-        self._raid_fee = hall_info['FEE']
-        self._raid_bounty = association['BOUNTY']
-        self._victory_streak = association['STREAK']
+        self._shield_name = association['SHIELD']
+        self._shield_guild = shield_guild
+        self._player_guild = player_guild
+        self._raid_fee = int(hall_info['FEE'])
+        self._raid_bounty = int(association['BOUNTY'])
+        self._victory_streak = int(association['STREAK'])
         self._hall_defense = hall_info['DEFENSE']
-        self._raid.bonus = int(((self._victory_streak / 100) * self._raid_bounty))
+        self._raid_bonus = int(((self._victory_streak / 100) * self._raid_bounty))
+        
+    def raid_victory(self):
+        guild_query = {'GNAME': self._association_name}
+        guild_info = db.queryGuildAlt(guild_query)
+        bounty = guild_info['BOUNTY']
+        bonus = guild_info['STREAK']
+        total_bounty = int((bounty + ((bonus / 100) * bounty)))
+        winbonus = int(((bonus / 100) * bounty))
+        if winbonus == 0:
+            winbonus = int(bounty)
+        wage = int(total_bounty)
+        bounty_drop = winbonus + total_bounty
+        self._raid_bounty_plus_bonus = int(bounty_drop)
+        self._raid_end_message = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)}"
+        hall_info = db.queryHall({"HALL":self._raid_hall})
+        fee = hall_info['FEE']
+        transaction_message = f":shield: {self._shield_name} loss to {self.player}!"
+        update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+        response = db.updateGuildAlt(guild_query, update_query)
+        if self._is_title_match:
+            if self._is_test_match:
+                self._raid_end_message  = f":flags: {self._association_name} DEFENSE TEST OVER!"
+            elif self._is_training_match:
+                self._raid_end_message  = f":flags: {self._association_name} TRAINING COMPLETE!"
+            else:
+                newshield = db.updateGuild(guild_query, {'$set': {'SHIELD': str(self._player.id)}})
+                newshieldid = db.updateGuild(guild_query, {'$set': {'SDID': str(self._player.id)}})
+                guildwin = db.updateGuild(guild_query, {'$set': {'BOUNTY': winbonus, 'STREAK': 1}})
+                self._raid_end_message  = f":flags: {self._association_name} SHIELD CLAIMED!"
+                prev_team_update = {'$set': {'SHIELDING': False}}
+                remove_shield = db.updateTeam({'TEAM_NAME': str(self._shield_guild)}, prev_team_update)
+                update_shielding = {'$set': {'SHIELDING': True}}
+                add_shield = db.updateTeam({'TEAM_NAME': str(self._player_guild)}, update_shielding)
+        else:
+            guildloss = db.updateGuild(guild_query, {'$set': {'BOUNTY': fee, 'STREAK': 0}})
             
         
             
@@ -710,6 +758,7 @@ class Battle:
 
         return self.match_has_ended
 
+    
 
     def reset_game(self):
         self.match_has_ended = False
@@ -1236,7 +1285,7 @@ class Battle:
                                 winner_arm.name, "N/A", "PVP", False)
         if self.is_raid_game_mode:
             embedVar = discord.Embed(
-                title=f"{endmessage}\n\n You have defeated the {self._association_name} SHIELD!\nMatch concluded in {self.turn_total} turns",
+                title=f"{self._raid_end_message}\n\nYou have defeated the {self._association_name} SHIELD!\nMatch concluded in {self.turn_total} turns",
                 description=textwrap.dedent(f"""
                                             {self.get_previous_moves_embed()}
                                             
@@ -1247,10 +1296,10 @@ class Battle:
             victory_message = f":zap: TUTORIAL VICTORY"
             victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self.turn_total} turns."
         
-        embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
-        {self.get_previous_moves_embed()}
-        
-        """),colour=0xe91e63)
+            embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
+            {self.get_previous_moves_embed()}
+            
+            """),colour=0xe91e63)
         # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
         if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
             embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
@@ -1265,7 +1314,10 @@ class Battle:
             embedVar.add_field(name="🌀 Most Focused", value=f"**{winner_card.name}**")
         else:
             embedVar.add_field(name="🌀 Most Focused", value=f"**{loser_card.name}**")
-
+        if self._is_bounty_match:
+            embedVar.add_field(name=":shinto_shrine: Raid Earnings", value=f"**:coin:{self._raid_bounty_plus_bonus}**")
+        if self._is_title_match:
+            embedVar.add_field(name=":shinto_shrine: Raid Earnings", value=f"**:shield: New Shield** {self.player.disname}")
         return embedVar
 
 

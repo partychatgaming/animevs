@@ -205,6 +205,9 @@ class Card:
             self._boss_concede_message = ""
             self._boss_wins_message = ""
             self._special_description = ""
+            
+            # Raid Buffs
+            self._raid_defense_buff = 0
 
             self.affinity_message = ""
             self.price_message = ""
@@ -287,7 +290,10 @@ class Card:
         self.move2ap = self.move2ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff
         self.move3ap = self.move3ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff
 
-
+    def set_raid_defense_buff(self, hall_defense):
+        self.defense = round(self.defense * hall_defense)
+        
+    
     # This method will set the level buffs & apply them
     def set_card_level_buffs(self, list_of_card_levels=None):
         try:
