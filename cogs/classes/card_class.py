@@ -102,6 +102,7 @@ class Card:
             self.card_lvl_hlt_buff = 0
             self.card_lvl_ap_buff = 0
             self.arbitrary_ap_buff = 0
+            self.prestige_difficulty = 0
 
             # Battle requirements
             self.resolved = False
@@ -275,20 +276,24 @@ class Card:
             return True
 
     # AI ONLY BUFFS
-    def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff):   
+    def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff, prestige_level, rebirth_level):
+        if rebirth_level > 0 or prestige_level > 0: 
+            self.prestige_difficulty = ((((prestige_level + 1) * (10 + rebirth_level)) /100)) 
+        else:
+            self.prestige_difficulty = 0   
         self.card_lvl = ai_lvl_buff
         self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
         self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
         self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
         self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
 
-        self.max_health = self.max_health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff
-        self.health = self.health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff
-        self.attack = self.attack + self.card_lvl_attack_buff + ai_stat_buff + ai_stat_debuff
-        self.defense = self.defense + self.card_lvl_defense_buff + ai_stat_buff + ai_stat_debuff
-        self.move1ap = self.move1ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff
-        self.move2ap = self.move2ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff
-        self.move3ap = self.move3ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff
+        self.max_health = self.max_health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff + ((self.card_lvl_hlt_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
+        self.health = self.health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff + ((self.card_lvl_hlt_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
+        self.attack = self.attack + self.card_lvl_attack_buff + ai_stat_buff + ai_stat_debuff + ((self.card_lvl_attack_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
+        self.defense = self.defense + self.card_lvl_defense_buff + ai_stat_buff + ai_stat_debuff + ((self.card_lvl_defense_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
+        self.move1ap = self.move1ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
+        self.move2ap = self.move2ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
+        self.move3ap = self.move3ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
 
     def set_raid_defense_buff(self, hall_defense):
         self.defense = round(self.defense * hall_defense)
