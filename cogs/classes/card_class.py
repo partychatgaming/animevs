@@ -1684,7 +1684,7 @@ class Card:
 
             elif self.universe == "Black Clover":                
                 self.stamina = 100
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50 + battle_config.turn_total
 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
                 battle_config.next_turn()
@@ -2252,13 +2252,14 @@ class Card:
         if self.stamina >= 20:
             if self.universe == "Attack On Titan":
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Increased Max Health ❤️")
-                self.max_health = round(self.max_health + 100)
-                self.health = self.health + 100
+                self.max_health = round(self.max_health + (100 * self.tier))
+                    
+                self.health = self.health + (100 * self.tier)
 
             if self.universe == "Black Clover":                
                 self.stamina = self.stamina + 50
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 30
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Charged their stamina, increasing their stamina & ap by 30")
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50
+                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Charged their stamina, increasing their stamina & ap by 50")
 
             if self.universe == "Bleach":
                 dmg = self.damage_cal(1, battle_config, opponent_card)
@@ -2501,7 +2502,7 @@ class Card:
                         parry_damage = round(dmg['DMG'])
                         opponent_card.health = round(opponent_card.health - (parry_damage * .75))
                         self.health = round(self.health - (parry_damage * .40))
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing {round(parry_damage * .75)} dmg, {self.name} takes {round(parry_damage * .40)} dmg")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing **{round(parry_damage * .75)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
                         opponent_card._parry_value = opponent_card._parry_value - 1
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False

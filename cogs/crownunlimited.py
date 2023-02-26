@@ -406,6 +406,13 @@ class CrownUnlimited(commands.Cog):
                                    create_choice(
                                        name="Preset 3",
                                        value="3"
+                                   ),create_choice(
+                                       name="Preset 4",
+                                       value="4"
+                                   ),
+                                   create_choice(
+                                       name="Preset 5",
+                                       value="5"
                                    )
                                ]
                            ),
@@ -435,12 +442,16 @@ class CrownUnlimited(commands.Cog):
         try:
             # await ctx.defer()
             deck = int(deck)
-            if deck != 1 and deck != 2 and deck != 3:
+            if deck != 1 and deck != 2 and deck != 3 and deck != 4 and deck != 5:
                 await ctx.send("Not a valid Deck Option")
                 return
             deckNumber = deck - 1
 
             player = db.queryUser({'DID': str(ctx.author.id)})
+            
+            if not player['U_PRESET'] and int(deck) > 3:
+                await ctx.send(":coin: Purchase additional **/preset** slots at the **/blacksmith**")
+                return
 
             p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
             player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
