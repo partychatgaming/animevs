@@ -2187,9 +2187,15 @@ class Card:
                     self.stamina = round(self.stamina + damage_calculation_response['DMG'])
                 elif self.summon_type == 'HLT':
                     self.health = round(self.health + damage_calculation_response['DMG'])
+                    if self.health > self.max_health:
+                        damage_calculation_response['DMG'] = self.max_health - self.health
                 elif self.summon_type == 'LIFE':
-                    self.health = round(self.health + damage_calculation_response['DMG'])
-                    opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
+                    if self.health < self.max_health:
+                        self.health = round(self.health + damage_calculation_response['DMG'])
+                        if self.health > self.max_health:
+                            self.health = self.max_health
+                            damage_calculation_reponse['DMG'] = self.max_health - self.health
+                        opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
                 elif self.summon_type == 'DRAIN':
                     self.stamina = round(self.stamina + damage_calculation_response['DMG'])
                     opponent_card.stamina = round(opponent_card.stamina - damage_calculation_response['DMG'])
@@ -2461,9 +2467,18 @@ class Card:
                 elif self.move4enh == 'STAM':
                     self.stamina = round(self.stamina + dmg['DMG'])
                 elif self.move4enh == 'HLT':
-                    self.max_health = round(self.max_health + dmg['DMG'])
+                    #self.max_health = round(self.max_health + dmg['DMG'])
+                    if self.health < self.max_health:
+                        self.health = round(self.health + damage_calculation_response['DMG'])
+                        if self.health > self.max_health:
+                            self.health = self.max_health
                 elif self.move4enh == 'LIFE':
-                    self.max_health = round(self.max_health + dmg['DMG'])
+                    #self.max_health = round(self.max_health + dmg['DMG'])
+                    if self.health < self.max_health:
+                        self.health = round(self.health + dmg['DMG'])
+                        if self.health > self.max_health:
+                            self.health = self.max_health
+                            dmg['DMG'] = self.max_health - self.health
                     opponent_card.health = round(opponent_card.health - dmg['DMG'])
                 elif self.move4enh == 'DRAIN':
                     self.stamina = round(self.stamina + dmg['DMG'])
@@ -2787,7 +2802,7 @@ class Card:
         elif dmg['ELEMENT'] == "LIFE":
             self.max_health = self.max_health + (dmg['DMG'] * .35)
             self.health = self.health + (dmg['DMG'] * .35)
-            opponent_card.health = opponent_card.health - dmg['DMG']
+            opponent_card.health = round(opponent_card.health - dmg['DMG'])
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .35))} Health*")
 
         elif dmg['ELEMENT'] == "RECOIL":
@@ -2913,7 +2928,11 @@ class Card:
             if self.passive_type == "LIFE":
                 if self.max_health > self.health:
                     player2_card.health = round(player2_card.health - ((value_for_passive / 100) * player2_card.health))
+                    if self.health > self.max_health
+                        dmg = self.max_health - self.health
+                        self.health = self.max_health
                     self.health = round(self.health + ((value_for_passive / 100) * player2_card.health))
+                    player2_card.health = player2_card.health - dmg
             if self.passive_type == "ATK":
                 self.attack = round(self.attack + ((value_for_passive / 100) * self.attack))
             if self.passive_type == "DEF":
