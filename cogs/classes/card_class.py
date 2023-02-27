@@ -2928,7 +2928,7 @@ class Card:
             if self.passive_type == "LIFE":
                 if self.max_health > self.health:
                     player2_card.health = round(player2_card.health - ((value_for_passive / 100) * player2_card.health))
-                    if self.health > self.max_health
+                    if self.health > self.max_health:
                         dmg = self.max_health - self.health
                         self.health = self.max_health
                     self.health = round(self.health + ((value_for_passive / 100) * player2_card.health))
