@@ -13,7 +13,7 @@ from io import BytesIO
 
 class Card:
     try:
-        def __init__(self, name, path, price, exclusive, available, is_skin, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, type, passive, speed, universe, has_collection, tier, collection, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath):
+        def __init__(self, name, path, price, exclusive, available, is_skin, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, type, passive, speed, universe, has_collection, tier, collection, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss):
             self.name = name
             self.fpath= fpath
             self.rpath = rpath
@@ -78,6 +78,8 @@ class Card:
             self.gravity_hit = False
             self.physical_meter = 0
             self.barrier_meter = 0
+            self.ranged_meter = 0
+            self.ranged_hit_bonus = 0
             self.wind_element_activated = False
 
             # Card Defense From Arm
@@ -206,6 +208,7 @@ class Card:
             self._boss_concede_message = ""
             self._boss_wins_message = ""
             self._special_description = ""
+            self._is_boss = is_boss
             
             # Raid Buffs
             self._raid_defense_buff = 0
@@ -258,15 +261,19 @@ class Card:
                 if self.passive_type == "DESTRUCTION":
                     self.passive_num = value_for_passive
                 if self.passive_type == "SLOW":
-                    self.passive_num = "1"
+                    self.passive_num = self.passive_num
                 if self.passive_type == "HASTE":
-                    self.passive_num = "1"
+                    self.passive_num = self.passive_num
                 if self.passive_type == "STANCE":
                     self.passive_num = flat_for_passive
                 if self.passive_type == "CONFUSE":
                     self.passive_num = flat_for_passive
                 if self.passive_type == "BLINK":
                     self.passive_num = stam_for_passive
+                if self.passive_type == "SOULCHAIN":
+                    self.passive_num = self.passive_num + 90
+                if self.passive_type == "GAMBLE":
+                    self.passive_num = self.passive_num
 
     except:
         print("ERROR")
@@ -276,25 +283,123 @@ class Card:
             return True
 
     # AI ONLY BUFFS
-    def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff, prestige_level, rebirth_level):
+    def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff, prestige_level, rebirth_level, mode):
         if rebirth_level > 0 or prestige_level > 0: 
             self.prestige_difficulty = ((((prestige_level + 1) * (10 + rebirth_level)) /100)) 
         else:
             self.prestige_difficulty = 0   
-        self.card_lvl = ai_lvl_buff
+        # print(self.prestige_difficulty)
+        self.card_lvl = self.get_ai_card_level(ai_lvl_buff, mode)
+        # print(self.card_lvl)
+        # print(self.move1ap)
         self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
         self.card_lvl_attack_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
         self.card_lvl_defense_buff = crown_utilities.level_sync_stats(self.card_lvl, "ATK_DEF")
         self.card_lvl_hlt_buff = crown_utilities.level_sync_stats(self.card_lvl, "HLT")
+        
+        # print(self.card_lvl_ap_buff)
+        self.max_health = round(self.max_health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff + ((self.card_lvl_hlt_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty ))
+        self.health = round(self.health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff + ((self.card_lvl_hlt_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty ))
+        self.attack = round(self.attack + self.card_lvl_attack_buff + ai_stat_buff + ai_stat_debuff + ((self.card_lvl_attack_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty ))
+        self.defense = round(self.defense + self.card_lvl_defense_buff + ai_stat_buff + ai_stat_debuff + ((self.card_lvl_defense_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty ))
+        self.move1ap = round(self.move1ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty ))
+        self.move2ap = round(self.move2ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty ))
+        self.move3ap = round(self.move3ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty ))
+        # print(self.move1ap)
 
-        self.max_health = self.max_health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff + ((self.card_lvl_hlt_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
-        self.health = self.health + self.card_lvl_hlt_buff + ai_health_buff + ai_health_debuff + ((self.card_lvl_hlt_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
-        self.attack = self.attack + self.card_lvl_attack_buff + ai_stat_buff + ai_stat_debuff + ((self.card_lvl_attack_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
-        self.defense = self.defense + self.card_lvl_defense_buff + ai_stat_buff + ai_stat_debuff + ((self.card_lvl_defense_buff  + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
-        self.move1ap = self.move1ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
-        self.move2ap = self.move2ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
-        self.move3ap = self.move3ap + self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff + ((self.card_lvl_ap_buff + ai_ap_buff + ai_ap_debuff) * self.prestige_difficulty )
-
+    def get_ai_card_level(self, card_lvl, mode):
+        # print(mode)
+        if mode == "Tales":
+            if card_lvl > 210:
+                return 200
+            elif card_lvl >= 10:
+                if card_lvl <= 20 and card_lvl >=10:
+                    return 10
+                elif card_lvl >= 0 and card_lvl <=10:
+                    return card_lvl
+                else:
+                    return (card_lvl - 10)
+            else:
+                return card_lvl
+        if mode == "Tales":
+            if card_lvl > 210:
+                return 200
+            elif card_lvl >= 10:
+                if card_lvl <= 20 and card_lvl >=10:
+                    return 10
+                elif card_lvl >= 0 and card_lvl <=10:
+                    return card_lvl
+                else:
+                    return (card_lvl - 10)
+            else:
+                return card_lvl
+        elif mode == "Dungeon":
+            if card_lvl > 600:
+                return 600
+            else:
+                if card_lvl <= 350:
+                    return 350
+                elif card_lvl <= 500:
+                    if card_lvl <= 590 and card_lvl >=550:
+                        return card_lvl + 20
+                    else:
+                        return card_lvl + 30
+                else:
+                    return card_lvl + 40
+        elif mode == "DTales":
+            if card_lvl > 210:
+                return 200
+            elif card_lvl >= 10:
+                if card_lvl <= 20 and card_lvl >=10:
+                    return 10
+                elif card_lvl >= 0 and card_lvl <=10:
+                    return card_lvl
+                else:
+                    return (card_lvl - 10)
+            else:
+                return card_lvl
+        elif mode == "DDungeon":
+            if card_lvl > 600:
+                return 600
+            else:
+                if card_lvl <= 350:
+                    return 350
+                elif card_lvl <= 500:
+                    if card_lvl <= 590 and card_lvl >=550:
+                        return card_lvl + 20
+                    else:
+                        return card_lvl + 30
+                else:
+                    return card_lvl + 40
+        elif mode == "CTales":
+            if card_lvl > 210:
+                return 200
+            elif card_lvl >= 10:
+                if card_lvl <= 20 and card_lvl >=10:
+                    return 10
+                elif card_lvl >= 0 and card_lvl <=10:
+                    return card_lvl
+                else:
+                    return (card_lvl - 10)
+            else:
+                return card_lvl
+        elif mode == "CDungeon":
+            if card_lvl > 600:
+                return 600
+            else:
+                if card_lvl <= 350:
+                    return 350
+                elif card_lvl <= 500:
+                    if card_lvl <= 590 and card_lvl >=550:
+                        return card_lvl + 20
+                    else:
+                        return card_lvl + 30
+                else:
+                    return card_lvl + 40
+        elif mode == "Boss":
+            return 1000
+        elif mode == "CBoss":
+            return 1000
     def set_raid_defense_buff(self, hall_defense):
         self.defense = round(self.defense * hall_defense)
         
@@ -515,19 +620,19 @@ class Card:
                 self.move1 = arm_name
                 self.move1ap = arm_value + self.card_lvl_ap_buff
                 self.move1_element = arm_element
-                self.move1_emoji = crown_utilities.set_emoji(self.move1_emoji)
+                self.move1_emoji = crown_utilities.set_emoji(self.move1_element)
 
             if arm_type == "SPECIAL":
                 self.move2 = arm_name
                 self.move2ap = arm_value + self.card_lvl_ap_buff
                 self.move2_element = arm_element
-                self.move2_emoji = crown_utilities.set_emoji(self.move2_emoji)
+                self.move2_emoji = crown_utilities.set_emoji(self.move2_element)
 
             if arm_type == "ULTIMATE":
                 self.move3 = arm_name
                 self.move3ap = arm_value + self.card_lvl_ap_buff
                 self.move3_element = arm_element
-                self.move3_emoji = crown_utilities.set_emoji(self.move3_emoji)
+                self.move3_emoji = crown_utilities.set_emoji(self.move3_element)
 
             if arm_type == "ULTIMAX":
                 self.move1ap = self.move1ap + arm_value
@@ -627,7 +732,7 @@ class Card:
 
         if mode_selector_randomizer <= 19:
             selected_mode = "Impossible"
-            self.approach_message = "😈 An Impossible "
+            self.approach_message = "👹 An Impossible "
             self._explore_cardtitle = {'TITLE': 'Dungeon Title'}
             self.card_lvl = random.randint(850, 1500)
             self.bounty = self.bounty * 150
@@ -657,7 +762,7 @@ class Card:
 
 
         self.bounty_message = f"{bounty_icon} {'{:,}'.format(self.bounty)}"
-        self.battle_message = "Glory: Defeat the card and earn the card and the bounty, but if you lose you lose gold! Gold: Earn gold only!"
+        self.battle_message = "\n:crown: | **Glory**: Earn the Card & Bounty, But if you Lose, You lose gold!\n:coin: | **Gold**: Earn gold only!"
 
         self.set_card_level_buffs(None)
 
@@ -790,9 +895,14 @@ class Card:
         if self.used_resolve and self.universe == "Souls":
             self.move2 = self.move3
             self.move2ap = self.move3ap
-            self.move2_stamina = self.move3_stamina
+            self.move2_stamina = self.move2_stamina
             self.move2_element = self.move3_element
             self.move2_emoji = self.move3_emoji
+            self.move1 = self.move2
+            self.move1ap = self.move2ap
+            self.move1_stamina = self.move1_stamina
+            self.move1_element = self.move2_element
+            self.move1_emoji = self.move2_emoji
 
 
     def get_card_index(self, list_of_cards):
@@ -944,6 +1054,11 @@ class Card:
                     arm_message = f"{arm.passive_type.title()} {arm.passive_value}"
                     if arm.passive_type in crown_utilities.ABILITY_ARMS:
                         arm_message = "Ability Arm"
+                        #self.element = arm.element
+                 
+                
+                        
+                        
                     
 
                 if mode == "non-battle":
@@ -1168,6 +1283,20 @@ class Card:
             }))
             return
 
+    # def equip_ability_arm(self, arm):
+    #     if arm.passive_type == 
+        
+    #     if arm.passive_type == 'BASIC':
+    #         self.move1_element
+    #         self.move1_emoji
+    #         self.move1_ap
+    #         arm_message = "Ability"
+    #     elif arm.passive_type == 'SPECIAL':
+    #         move2 = {arm_name: (arm_passive_value), "STAM": 30, "ELEMENT": arm_element}
+    #         arm_message = "Ability"
+    #     elif arm.passive_type == 'ULTIMATE':
+    #         move3 = {arm_name: (arm_passive_value), "STAM": 80, "ELEMENT": arm_element}
+    #         arm_message = "Ability"
 
     def damage_cal(self, selected_move, battle_config, _opponent_card):
         if _opponent_card.defense <= 0:
@@ -1263,14 +1392,14 @@ class Card:
                 "STAM": lambda ap: ap,
                 "HLT": lambda ap: round(min(health + ap + (.16 * self.health), self.max_health) - health),
                 "LIFE": lambda ap: round(min(health + ap + (.09 * _opponent_card.health), self.max_health) - health),
-                "DRAIN": lambda ap: ap,
+                "DRAIN": lambda ap: round(ap),
                 "FLOG": lambda ap: round((ap / 100) * min(_opponent_card.attack, 2000)),
                 "WITHER": lambda ap: round((ap / 100) * min(_opponent_card.defense, 2000)),
                 "RAGE": lambda ap: round((ap / 100) * min(defense, 2000)),
                 "BRACE": lambda ap: round((ap / 100) * min(attack, 2000)),
                 "BZRK": lambda ap: round((ap / 100) * health),
                 "CRYSTAL": lambda ap: round((ap / 100) * health),
-                "GROWTH": lambda ap: ap,
+                "GROWTH": lambda ap: round(ap),
                 "STANCE": lambda ap: attack + ap,
                 "CONFUSE": lambda ap: _opponent_card.attack - ap,
                 "BLINK": lambda ap: ap,
@@ -1279,7 +1408,7 @@ class Card:
                 "FEAR": lambda ap: ap,
                 "SOULCHAIN": lambda ap: ap,
                 "GAMBLE": lambda ap: ap,
-                "WAVE": lambda ap: ap if battle_config.is_turn == 0 else (ap * (battle_config.turn_total == round(random.randint(2, 50))) if battle_config.turn_total % 10 == 0 else ap / battle_config.turn_total),
+                "WAVE": lambda ap: ap if battle_config.is_turn == 0 else (ap if battle_config.turn_total % 10 == 0 else ap / battle_config.turn_total),
                 "BLAST": lambda ap: ap if battle_config.is_turn == 0 else min(round(ap * battle_config.turn_total), 100 * tier),
                 "CREATION": lambda ap: ap if battle_config.is_turn == 0 else (ap if battle_config.turn_total % 10 == 0 else (ap * 2 if battle_config.turn_total == round(random.randint(2, 50)) else ap / battle_config.turn_total)),
                 "DESTRUCTION": lambda ap: ap
@@ -1402,6 +1531,8 @@ class Card:
 
                 if ranged_attack:
                     true_dmg = round(true_dmg * 1.7)
+                    self.ranged_hit_bonus = self.ranged_hit_bonus + 1
+                    hit_roll = hit_roll + self.ranged_hit_bonus
 
                 if move_element == "RECOIL" and hit_roll > miss_hit:
                     true_dmg = round(true_dmg * 2.9)
@@ -1451,28 +1582,29 @@ class Card:
 
                 if is_physical_element:
                     if self.stamina > 80:
-                        true_dmg = round(true_dmg * 3)
+                        true_dmg = round(true_dmg * 1.5)
 
                 if move_element in _opponent_card.weaknesses and not (hit_roll <= miss_hit):
                     true_dmg = round(true_dmg * 1.6)
                     message = f"Opponent is weak to {move_emoji} {move_element.lower()}! Strong hit for **{true_dmg}**!"
 
-                if not battle_config.is_ai_opponent:
-                    if not _opponent_card._talisman == move_element and not battle_config.is_boss_game_mode:
-                        if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) :
-                            true_dmg = round(true_dmg * .45)
-                            message = f"Opponent is resistant to {move_emoji} {move_element.lower()}. Weak hit for **{true_dmg}**!"
+                #if not battle_config.is_ai_opponent:
+                
+                if not self._talisman == move_element and not self._is_boss:
+                    if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) :
+                        true_dmg = round(true_dmg * .45)
+                        message = f"Opponent is resistant to {move_emoji} {move_element.lower()}. Weak hit for **{true_dmg}**!"
 
-                        if move_element in _opponent_card.immunity and not (hit_roll <= miss_hit):
-                            true_dmg = 0
-                            message = f"Opponent is immune to {move_emoji} {move_element.lower()}. **0** dmg dealt!"
+                    if move_element in _opponent_card.immunity and not (hit_roll <= miss_hit):
+                        true_dmg = 0
+                        message = f"Opponent is immune to {move_emoji} {move_element.lower()}. **0** dmg dealt!"
 
-                        if move_element in _opponent_card.repels and not (hit_roll <= miss_hit):
-                            message = f"Opponent repels {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
-                            does_repel = True
-                        if move_element in _opponent_card.absorbs and not (hit_roll <= miss_hit):
-                            message = f"Opponent absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
-                            does_absorb = True
+                    if move_element in _opponent_card.repels and not (hit_roll <= miss_hit):
+                        message = f"Opponent repels {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
+                        does_repel = True
+                    if move_element in _opponent_card.absorbs and not (hit_roll <= miss_hit):
+                        message = f"Opponent absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
+                        does_absorb = True
 
                 self.stamina = self.stamina - move_stamina
 
@@ -1573,11 +1705,6 @@ class Card:
             if _title.passive_type:
                 if _title.passive_type == "GAMBLE":
                     health_calculation = _title.passive_value
-                if _title.passive_type == "SOULCHAIN":
-                    self.stamina = _title.passive_value
-                    _opponent_card.stamina = _title.passive_value
-                    if battle_config.is_co_op_mode:
-                        _co_op_card.stamina = _title.passive_value
                 if _title.passive_type == "BLAST":
                     _opponent_card.health = _opponent_card.health - (_title.passive_value * battle_config.turn_total)
 
@@ -1585,10 +1712,10 @@ class Card:
                 if _opponent_title.passive_type == "GAMBLE":
                     health_calculation = _opponent_title.passive_value
             
-            if battle_config.is_co_op_mode:
-                if _co_op_title.passive_type:
-                    if _co_op_title.passive_type == "GAMBLE":
-                        health_calculation = _co_op_title.passive_value
+            # if battle_config.is_co_op_mode:
+            #     if _co_op_title.passive_type:
+            #         if _co_op_title.passive_type == "GAMBLE":
+            #             health_calculation = _co_op_title.passive_value
 
             new_health_value = 0
             heal_message = ""
@@ -1691,12 +1818,32 @@ class Card:
                 battle_config.turn_total = battle_config.turn_total + 1
 
             elif self.universe == "Death Note":
-                if battle_config.turn_total >= 100:
+                if battle_config.turn_total >= 250:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{_opponent_card.name}** 🩸 had a heart attack and died")
                     
                     _opponent_card.health = 0
                     battle_config.next_turn()
                     battle_config.turn_total = battle_config.turn_total + 1
+            elif self.universe == "One Punch Man":
+                low_tier_cards = [1,2]
+                mid_tier_cards = [3,4]
+                high_tier_cards = [5,6]
+                rank = "F"
+                ap_boost = 15 * self.tier
+                if self.tier == 7:
+                    ap_boost = 110
+                    rank = ":regional_indicator_s:"
+                if self.tier in low_tier_cards:
+                    rank = ":regional_indicator_c:"
+                if self.tier in mid_tier_cards:
+                    rank = ":regional_indicator_b:"
+                if self.tier in high_tier_cards:
+                    rank = ":regional_indicator_a:"
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + ap_boost
+                
+                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**)  🩸{rank} Rank Hero : **{self.name}** increased AP by **{ap_boost}** :sunny:!")
+                battle_config.next_turn()
+                battle_config.turn_total = battle_config.turn_total + 1
 
             elif _opponent_card.universe == "One Punch Man" and self.universe != "Death Note":
                 _opponent_card.health = round(_opponent_card.health + 100)
@@ -1756,7 +1903,7 @@ class Card:
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.repeat_turn()
 
-            if self.universe == "One Piece" and (self.name_tier in crown_utilities.HIGH_TIER_CARDS):
+            elif self.universe == "One Piece" and (self.name_tier in crown_utilities.HIGH_TIER_CARDS):
                 # fortitude or luck is based on health
                 fortitude = 0.0
                 low = self.health - (self.health * .75)
@@ -2010,6 +2157,7 @@ class Card:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(60 * (self.focus_count + opponent_card.focus_count))} damage.")
                 elif self.universe == "Souls":
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
+                    self.set_souls_trait
                 else:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) ⚡ **{self.name}** Resolved!")
 
@@ -2434,7 +2582,7 @@ class Card:
                         battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
 
                     if dmg['ELEMENT'] == "POISON": #Poison Update
-                        if self.poison_dmg <= 600:
+                        if self.poison_dmg <= (150 * self.tier):
                             self.poison_dmg = self.poison_dmg + 30
                     if opponent_card._shield_value > 0:
                         opponent_card._shield_value = opponent_card._shield_value - dmg['DMG']
@@ -2572,11 +2720,11 @@ class Card:
 
         if dmg['ELEMENT'] == "WATER":
             if self.move1_element == "WATER":
-                self.basic_water_buff = self.basic_water_buff + 75
+                self.basic_water_buff = self.basic_water_buff + 100
             if self.move2_element == "WATER":
-                self.special_water_buff = self.special_water_buff + 75
+                self.special_water_buff = self.special_water_buff + 100
             if self.move3_element == "WATER":
-                self.ultimate_water_buff = self.ultimate_water_buff + 75
+                self.ultimate_water_buff = self.ultimate_water_buff + 100
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}:** {dmg['MESSAGE']}")
         
@@ -2585,9 +2733,9 @@ class Card:
                 self.stamina = 0
             self.used_block = True
             self.defense = round(self.defense * 2)
-            battle_config.turn_total = battle_config.turn_total + 1
+            battle_config.turn_total = battle_config.turn_total + 3
             self.card_lvl_ap_buff = self.card_lvl_ap_buff + (dmg['DMG'] + (dmg['DMG'] / battle_config.turn_total))
-            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}:** {dmg['MESSAGE']}\n*Time forward +3 turns!*")
+            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}:** {dmg['MESSAGE']}\n*Time speeds forward +3 turns!*")
             # battle_config.add_battle_history_messsage(f"**{self.name}** moved time forward +3 turns!")
             opponent_card.health = opponent_card.health - (dmg['DMG'] * (battle_config.turn_total / 100))
 
@@ -2606,9 +2754,9 @@ class Card:
 
         elif dmg['ELEMENT'] == "LIGHT":
             # self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
-            self.attack = self.attack + (dmg['DMG'] * .80)
+            self.attack = self.attack + (dmg['DMG'] * .50)
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
+            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {(dmg['DMG'] * .80)} ATK*")
 
         elif dmg['ELEMENT'] == "DARK":
             opponent_card.stamina = opponent_card.stamina - 15
@@ -2624,9 +2772,15 @@ class Card:
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} prepares to Parry 🔄 the next attack*")
             else:
                  battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
-    
-                # battle_config.add_battle_history_messsage(f"*{self.name} prepares to Parry 🔄 the next attack*")
+            opponent_card.health = opponent_card.health - dmg['DMG']
             
+        elif dmg['ELEMENT'] == "RANGED":
+            self.ranged_meter = self.ranged_meter + 1
+            if self.ranged_meter == 2:
+                self.ranged_meter = 0
+                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} prepares to Parry 🔄 the next attack*")
+            else:
+                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "LIFE":
@@ -2653,12 +2807,12 @@ class Card:
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
                 # battle_config.add_battle_history_messsage(f"*{self.name} projects a Barrier 💠 to block next attack*")
 
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .30)
-            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .30)
+            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .35)
+            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .35)
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "FIRE":
-            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .45)
+            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
 
@@ -2668,8 +2822,10 @@ class Card:
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .35))} AP*")
 
         elif dmg['ELEMENT'] == "POISON":
-            if self.poison_dmg <= 600:
+            if self.poison_dmg <= (150 * self.tier):
                 self.poison_dmg = self.poison_dmg + 30
+                if self.poison_dmg > (150 * self.tier):
+                   self.poison_dmg = (150 * self.tier)
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
 
@@ -2690,12 +2846,12 @@ class Card:
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
 
         elif dmg['ELEMENT'] == "GRAVITY":
-            battle_config.turn_total = battle_config.turn_total - 2
+            battle_config.turn_total = battle_config.turn_total - 3
             if (battle_config.turn_total - 3) < 0:
                 battle_config.turn_total = 0
             self.gravity_hit = True
             opponent_card.health = opponent_card.health - dmg['DMG']
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .75)
+            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .50)
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} has slowed down time -3 turns*")
         
         else:
@@ -2704,11 +2860,11 @@ class Card:
 
 
     def reset_stats_to_limiter(self, _opponent_card):
-        if self.card_lvl_ap_buff > 700:
-            self.card_lvl_ap_buff = 700
+        if self.card_lvl_ap_buff > 1000:
+            self.card_lvl_ap_buff = 1000
         
-        if _opponent_card.card_lvl_ap_buff > 700:
-            _opponent_card.card_lvl_ap_buff = 700
+        if _opponent_card.card_lvl_ap_buff > 1000:
+            _opponent_card.card_lvl_ap_buff = 1000
         
         if self.attack <= 25:
             self.attack = 25
@@ -2731,9 +2887,9 @@ class Card:
         if self.health >= self.max_health:
             self.health = self.max_health
 
-        self.move1ap = list(self.m1.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff
-        self.move2ap = list(self.m2.values())[0] + self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff
-        self.move3ap = list(self.m3.values())[0]+ self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff
+        self.move1ap = list(self.m1.values())[0] + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff)
+        self.move2ap = list(self.m2.values())[0] + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff)
+        self.move3ap = list(self.m3.values())[0]+ round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff)
         
         # _opponent_card.move1ap = _opponent_card.list(self.m1.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
         # _opponent_card.move2ap = _opponent_card.list(self.m2.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
@@ -2819,6 +2975,9 @@ class Card:
             if self.passive_type == "WAVE":
                 if battle_config.turn_total % 10 == 0:
                     player2_card.health = round(player2_card.health - 100)
+            if  self.passive_type == "SOULCHAIN":
+                self.stamina_focus_recovery_amount  = self.passive_num + 90 #hello1
+                player2_card.stamina_focus_recovery_amount = self.passive_num + 90
 
 
     def activate_chainsawman_trait(self, battle_config):

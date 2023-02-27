@@ -55,6 +55,7 @@ class USER():
     BATTLE_HISTORY: int = field(default_factory=lambda: 6)
     SCENARIO_HISTORY: list[str] = field(default_factory=lambda: [""])
     FAMILY_PET: bool = field(default_factory=lambda: False)
+    EXPLORE_LOCATION: str = field(default_factory=lambda: "NULL")
     
 @dataclass(frozen=True, order=True)
 class CODES():

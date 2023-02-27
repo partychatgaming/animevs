@@ -4,6 +4,7 @@ import crown_utilities
 import discord
 from discord import Embed
 import textwrap
+import random
 
 
 class Player:
@@ -47,7 +48,7 @@ class Player:
 
         self.owned_destinies = []
 
-        self.talisman_message = "No Talisman Equipped"
+        self.talisman_message = "📿 | No Talisman Equipped"
 
         self.summon_power_message = ""
         self.summon_lvl_message = ""
@@ -111,6 +112,8 @@ class Player:
         self._equippedsummon_ability_name = ""
         self._equippedsummon_image = ""
         self._equippedsummon_universe = ""
+        
+        self._universe_buff_msg = ""
 
 
     def set_talisman_message(self):
@@ -120,7 +123,7 @@ class Player:
                     if t["TYPE"].upper() == self.equipped_talisman.upper():
                         talisman_emoji = crown_utilities.set_emoji(self.equipped_talisman.upper())
                         talisman_durability = t["DUR"]
-                self.talisman_message = f"{talisman_emoji} {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
+                self.talisman_message = f"{talisman_emoji} | {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
         except:
             print("Error setting talisman message.")
             return self.talisman_message
@@ -156,7 +159,6 @@ class Player:
         except:
             print("Error setting summon message")
             return "Error"
-
 
     def set_explore(self, universe):
         if self.level < 25 and self.prestige == 0:             
@@ -208,13 +210,27 @@ class Player:
         universe_menu = []
         universe_embed_list = []
         available_dungeons_list = "Sadly, you have no available dungeons at this time!\n🌍 To unlock a Universe Dungeon you must first complete the Universe Tale!"
+        can_fight_boss = False
+        can_fight_message = "🗝️ | Conquer A Dungeon to Gain a Boss Key"
+        if self.boss_fought == False:
+            can_fight_boss = True
+            can_fight_message = "📿| Boss Talismans ignore all Affinities. Be Prepared"
+        difficulty = self.difficulty
+        prestige_slider = 0
+        p_message = ""
+        aicon = crown_utilities.prestige_icon(self.prestige)
+        if self.prestige > 0:
+            prestige_slider = ((((self.prestige + 1) * (10 + self.rebirth)) /100))
+            p_percent = (prestige_slider * 100)
+            p_message = f"*{aicon} x{round(p_percent)}%*"
         if self.completed_tales:
             l = []
             for uni in self.completed_tales:
                 if uni != "":
                     l.append(uni)
             available_dungeons_list = "\n".join(l)
-        
+        if len(self.completed_dungeons) > 25:
+            all_universes = random.sample(self.completed_dungeons, 25)
         for uni in all_universes:
             if uni['TITLE'] in self.completed_dungeons:
                 if uni != "":
@@ -225,24 +241,33 @@ class Player:
                     if uni['UNIVERSE_BOSS'] != "":
                         boss_info = db.queryBoss({"NAME": uni['UNIVERSE_BOSS']})
                         if boss_info:
+                            if boss_info['NAME'] in self.boss_wins:
+                                completed = "🟢"
+                            else:
+                                completed = "🔴"
                             embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                             {crown_utilities.crest_dict[uni['TITLE']]} **Boss**: :japanese_ogre: **{boss_info['NAME']}**
                             🎗️ **Boss Title**: {boss_info['TITLE']}
                             🦾 **Boss Arm**: {boss_info['ARM']}
                             🧬 **Boss Summon**: {boss_info['PET']}
                             
+                            **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
+                            **Soul Aquired**: {completed}
                             {owner_message}
                             """))
                             embedVar.set_image(url=boss_info['PATH'])
                             embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                            embedVar.set_footer(text="📿| Boss Talismans ignore all Affinities. Be Prepared")
+                            embedVar.set_footer(text=f"{can_fight_message}")
                             universe_embed_list.append(embedVar)
 
         if not universe_embed_list:
-            universe_embed_list = discord.Embed(title= f"👹 There are no available bosses at this time.", description=textwrap.dedent(f"""
-            __👹 How to unlock bosses?__
-            You unlock Bosses by completing the Dungeon for a universe. Once a universe dungeon has been completed the boss for that universe will be unlocked for you to fight!
+            universe_embed_list = discord.Embed(title= f"👹 There are no available Bosses at this time.", description=textwrap.dedent(f"""
+            __👹 How to unlock Bosses?__
+            You unlock Bosses by completing the Universe Dungeon. Once a Dungeon has been completed the boss for that universe will be unlocked for you to fight!
             
+            A Boss Key is required to Enter the Boss Arena.
+            Earn Boss Keys by completing any Universe Dungeon
+
             __🌍 Available Universe Dungeons__
             {available_dungeons_list}
             """))
@@ -254,7 +279,7 @@ class Player:
         return universe_embed_list
 
 
-    def set_selectable_universes(self, ctx, mode):
+    def set_selectable_universes(self, ctx, mode, fight_number = None):
         try:
             completed_message = f"**Completed**: 🔴"
             save_spot_text = "No Save Data"
@@ -265,16 +290,26 @@ class Player:
             summon_message = "Universe Summon"
             arm = "UARM"
             summon = "UPET"
+            fight_emoji = ":crossed_swords:"
             list_of_opponents = "CROWN_TALES"
             save_spot_check = crown_utilities.TALE_M
             mode_check = "HAS_CROWN_TALES"
             completed_check = self.completed_tales
-
+            
+            
+            prestige_slider = 0
+            p_message = ""
+            aicon = crown_utilities.prestige_icon(self.prestige)
+            if self.prestige > 0:
+                prestige_slider = ((((self.prestige + 1) * (10 + self.rebirth)) /100))
+                p_percent = (prestige_slider * 100)
+                p_message = f"*{aicon} x{round(p_percent)}%*"
             if mode in crown_utilities.DUNGEON_M:
                 title = "DTITLE"
                 title_message = "Dungeon Title"
                 arm_message = "Dungeon Arm"
                 summon_message = "Dungeon Summon"
+                fight_emoji = ":fire:"
                 arm = "DARM"
                 summon = "DPET"
                 list_of_opponents = "DUNGEONS"
@@ -311,11 +346,25 @@ class Player:
                         return None
                 if mode in crown_utilities.TALE_M:
                     all_universes = db.queryTaleUniversesNotRift()
-            
+                    
+            tales_universes = [uni for uni in all_universes if uni['TIER'] != 9]
+            if self.rift:
+                rift_universes = [uni for uni in all_universes if uni['TIER'] == 9]
+                num_rift_universes = random.randint(1, min(len(rift_universes), 3))
+                selected_universes = random.sample(rift_universes, num_rift_universes)
+
+                max_non_rift_universes = 25 - num_rift_universes
+                non_rift_universes = [uni for uni in all_universes if uni['TIER'] != 9]
+                selected_universes.extend(random.sample(non_rift_universes, min(len(non_rift_universes), max_non_rift_universes)))
+            else:
+                if len(tales_universes) > 25:
+                    selected_universes = random.sample(tales_universes, min(len(tales_universes), 25))
+                else:
+                        selected_universes = random.sample(tales_universes, min(len(tales_universes), len(tales_universes)))
 
             universe_embed_list = []
             
-            for uni in all_universes:
+            for uni in selected_universes:
                 if uni[mode_check] == True:
                     if uni['TITLE'] in completed_check:
                         completed_message = f"**Completed**: 🟢"
@@ -335,13 +384,13 @@ class Player:
 
 
                     embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                    {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni[list_of_opponents])}**
+                    {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: {fight_emoji} **{len(uni[list_of_opponents])}**
                     🎗️ **{title_message}**: {uni[title]}
                     🦾 **{arm_message}**: {uni[arm]}
                     🧬 **{summon_message}**: {uni[summon]}
 
                     **Saved Game**: :crossed_swords: *{save_spot_text}*
-                    **Difficulty**: ⚙️ {self.difficulty.lower().capitalize()}
+                    **Difficulty**: ⚙️ {self.difficulty.lower().capitalize()} {p_message}
                     {completed_message}
                     {corruption_message}
                     {owner_message}
@@ -475,6 +524,10 @@ class Player:
             self._deck_title = db.queryTitle({'TITLE': str(active_deck['TITLE'])})
             self._deck_arm = db.queryArm({'ARM': str(active_deck['ARM'])})
             self._decksummon = db.queryPet({'PET': str(active_deck['PET'])})
+            self._equipped_card_data = self._deck_card
+            self._equipped_title_data = self._deck_title
+            self._equipped_arm_data = self._deck_arm
+            self._equippedsummon_data = self._decksummon
         except Exception as ex:
             trace = []
             tb = ex.__traceback__

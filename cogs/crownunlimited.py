@@ -155,7 +155,7 @@ class CrownUnlimited(commands.Cog):
 
             c = len(cards) - 1
             rand_card = random.randint(1, c)
-            selected_card = Card(cards[rand_card]['NAME'], cards[rand_card]['PATH'], cards[rand_card]['PRICE'], cards[rand_card]['EXCLUSIVE'], cards[rand_card]['AVAILABLE'], cards[rand_card]['IS_SKIN'], cards[rand_card]['SKIN_FOR'], cards[rand_card]['HLT'], cards[rand_card]['HLT'], cards[rand_card]['STAM'], cards[rand_card]['STAM'], cards[rand_card]['MOVESET'], cards[rand_card]['ATK'], cards[rand_card]['DEF'], cards[rand_card]['TYPE'], cards[rand_card]['PASS'][0], cards[rand_card]['SPD'], cards[rand_card]['UNIVERSE'], cards[rand_card]['HAS_COLLECTION'], cards[rand_card]['TIER'], cards[rand_card]['COLLECTION'], cards[rand_card]['WEAKNESS'], cards[rand_card]['RESISTANT'], cards[rand_card]['REPEL'], cards[rand_card]['ABSORB'], cards[rand_card]['IMMUNE'], cards[rand_card]['GIF'], cards[rand_card]['FPATH'], cards[rand_card]['RNAME'], cards[rand_card]['RPATH'])
+            selected_card = Card(cards[rand_card]['NAME'], cards[rand_card]['PATH'], cards[rand_card]['PRICE'], cards[rand_card]['EXCLUSIVE'], cards[rand_card]['AVAILABLE'], cards[rand_card]['IS_SKIN'], cards[rand_card]['SKIN_FOR'], cards[rand_card]['HLT'], cards[rand_card]['HLT'], cards[rand_card]['STAM'], cards[rand_card]['STAM'], cards[rand_card]['MOVESET'], cards[rand_card]['ATK'], cards[rand_card]['DEF'], cards[rand_card]['TYPE'], cards[rand_card]['PASS'][0], cards[rand_card]['SPD'], cards[rand_card]['UNIVERSE'], cards[rand_card]['HAS_COLLECTION'], cards[rand_card]['TIER'], cards[rand_card]['COLLECTION'], cards[rand_card]['WEAKNESS'], cards[rand_card]['RESISTANT'], cards[rand_card]['REPEL'], cards[rand_card]['ABSORB'], cards[rand_card]['IMMUNE'], cards[rand_card]['GIF'], cards[rand_card]['FPATH'], cards[rand_card]['RNAME'], cards[rand_card]['RPATH'], battle_config._ai_is_boss)
             selected_card.set_affinity_message()
             selected_card.set_explore_bounty_and_difficulty(battle)
 
@@ -165,12 +165,12 @@ class CrownUnlimited(commands.Cog):
             random_battle_buttons = [
                 manage_components.create_button(
                     style=ButtonStyle.blue,
-                    label="Gold",
+                    label="🪙 Gold",
                     custom_id="gold"
                 ),
                 manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="Glory",
+                    style=ButtonStyle.green,
+                    label="👑 Glory",
                     custom_id="glory"
                 ),
                 manage_components.create_button(
@@ -194,7 +194,7 @@ class CrownUnlimited(commands.Cog):
             embedVar.set_thumbnail(url=message.author.avatar_url)
 
             setchannel = discord.utils.get(channel_list, name=server_channel)
-            await setchannel.send(f"{message.author.mention}") 
+            await setchannel.send(f":milky_way:{message.author.mention}") 
             msg = await setchannel.send(embed=embedVar, file=selected_card.showcard("non-battle", "none", {'TITLE': 'EXPLORE TITLE'}, 0, 0), components=[random_battle_buttons_action_row])     
 
             def check(button_ctx):
@@ -459,7 +459,7 @@ class CrownUnlimited(commands.Cog):
             p3 = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
             player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
-            p3.set_deck_config(deck)
+            p3.set_deck_config(deckNumber)
 
             if p.get_locked_feature(mode):
                 await ctx.send(p._locked_feature_message)
@@ -701,8 +701,8 @@ class CrownUnlimited(commands.Cog):
             return
 
 
-    @cog_ext.cog_slash(description="Start an Association Raid", guild_ids=main.guild_ids)
-    async def raid(self, ctx: SlashContext, guild: str):
+    #@cog_ext.cog_slash(description="Start an Association Raid", guild_ids=main.guild_ids)
+    async def raid(self, ctx, guild):
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -825,9 +825,17 @@ class CrownUnlimited(commands.Cog):
 
         try:
             universe_data = db.queryAllUniverse()
+            universe_count = 0
+            for uni in universe_data:
+                universe_count = universe_count + 1
+            if universe_count > 25:
+                universe_subset = random.sample(universe_data, k=min(len(universe_data), 25))
+            else:
+                universe_subset = random.sample(universe_data, k=min(len(universe_data), universe_count))
+
             # user = db.queryUser({'DID': str(ctx.author.id)})
             universe_embed_list = []
-            for uni in universe_data:
+            for uni in universe_subset:
                 available = ""
                 # if len(uni['CROWN_TALES']) > 2:
                 if uni['CROWN_TALES']:
@@ -2204,7 +2212,7 @@ async def summonlist(self, ctx: SlashContext, universe: str):
 async def select_universe(self, ctx, p: object, mode: str, p2: None):
     p.set_rift_on()
     await p.set_guild_data()
-
+    
     if mode in crown_utilities.CO_OP_M and mode not in crown_utilities.DUO_M:
         await ctx.send(f"{p.name} needs your help! React in server to join their Coop Tale!!")
         coop_buttons = [
@@ -2265,11 +2273,17 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         return
 
     if mode in crown_utilities.TALE_M or mode in crown_utilities.DUNGEON_M:
-        available_universes = p.set_selectable_universes(ctx, mode)
+        available_universes = p.set_selectable_universes(ctx, mode, None)
 
         if not available_universes:
             if mode == "Dungeon":
-                await ctx.send("You currently have no available dungeons to play. To unlock a dungeon you must first complete it's Tale counterpart.")
+                universe_embed_list = discord.Embed(title= f":fire: There are no available Dungeons at this time.", description=textwrap.dedent(f"""
+                __:fire: How to unlock Dungeons?__
+                You unlock Dungeons by Completing the Universe Tale. Once a Dungeon is unlocked you can enter it forever.
+                
+                Conquer Dungeons for High Tier Loot Drops and Increased Gold!
+                """))
+                await ctx.send(embed=universe_embed_list)
                 return
 
         buttons = [
@@ -2369,16 +2383,36 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             }))
 
     if mode in crown_utilities.BOSS_M:
+        l = []
+        for uni in p.completed_tales:
+            if uni != "":
+                l.append(uni)
+        available_dungeons_list = "\n".join(l)
         available_bosses = p.set_selectable_bosses(ctx, mode)
 
         if type(available_bosses) is not list:
             await ctx.send(embed=available_bosses)
             return
         
-        custom_button = manage_components.create_button(style=3, label="Select")
+        custom_button = manage_components.create_button(style=3, label="Enter Boss Arena")
 
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
+                if p.boss_fought:
+                    boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
+                    __🗝️  How to get Arena Keys?__
+                    Conquer any Universe Dungeon to gain a Boss Arena Key
+                    
+                    ☀️ | You also earn 1 Boss Key per /daily !
+
+                    __🌍 Available Universe Dungeons__
+                    {available_dungeons_list}
+                    """))
+                    boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
+                    # embedVar.set_footer(text="Use /tutorial")
+                    await ctx.send(embed=boss_key_embed)
+                    self.stop = True
+                    return    
                 await button_ctx.defer(ignore=True)
                 selected_universe = custom_function
                 custom_function.selected_universe = str(button_ctx.origin_message.embeds[0].title)
@@ -2402,7 +2436,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                 await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {p.association} {selected_universe} Crest Activated! No entrance fee!")
             else:
                 if p._balance <= entrance_fee:
-                    await ctx.send(f"Tales require an :coin: {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
+                    await ctx.send(f"Bosses require an :coin: {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
                     db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AVAILABLE': True}})
                     return
                 else:
@@ -2452,6 +2486,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 async def battle_commands(self, ctx, battle_config, _player, _custom_explore_card, player2=None, player3=None):
     private_channel = ctx.channel
 
+
     try:
         starttime = time.asctime()
         h_gametime = starttime[11:13]
@@ -2463,7 +2498,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             player1 = _player
             player1.get_battle_ready()
             
-            player1_card = Card(player1._equipped_card_data['NAME'], player1._equipped_card_data['PATH'], player1._equipped_card_data['PRICE'], player1._equipped_card_data['EXCLUSIVE'], player1._equipped_card_data['AVAILABLE'], player1._equipped_card_data['IS_SKIN'], player1._equipped_card_data['SKIN_FOR'], player1._equipped_card_data['HLT'], player1._equipped_card_data['HLT'], player1._equipped_card_data['STAM'], player1._equipped_card_data['STAM'], player1._equipped_card_data['MOVESET'], player1._equipped_card_data['ATK'], player1._equipped_card_data['DEF'], player1._equipped_card_data['TYPE'], player1._equipped_card_data['PASS'][0], player1._equipped_card_data['SPD'], player1._equipped_card_data['UNIVERSE'], player1._equipped_card_data['HAS_COLLECTION'], player1._equipped_card_data['TIER'], player1._equipped_card_data['COLLECTION'], player1._equipped_card_data['WEAKNESS'], player1._equipped_card_data['RESISTANT'], player1._equipped_card_data['REPEL'], player1._equipped_card_data['ABSORB'], player1._equipped_card_data['IMMUNE'], player1._equipped_card_data['GIF'], player1._equipped_card_data['FPATH'], player1._equipped_card_data['RNAME'], player1._equipped_card_data['RPATH'])
+            player1_card = Card(player1._equipped_card_data['NAME'], player1._equipped_card_data['PATH'], player1._equipped_card_data['PRICE'], player1._equipped_card_data['EXCLUSIVE'], player1._equipped_card_data['AVAILABLE'], player1._equipped_card_data['IS_SKIN'], player1._equipped_card_data['SKIN_FOR'], player1._equipped_card_data['HLT'], player1._equipped_card_data['HLT'], player1._equipped_card_data['STAM'], player1._equipped_card_data['STAM'], player1._equipped_card_data['MOVESET'], player1._equipped_card_data['ATK'], player1._equipped_card_data['DEF'], player1._equipped_card_data['TYPE'], player1._equipped_card_data['PASS'][0], player1._equipped_card_data['SPD'], player1._equipped_card_data['UNIVERSE'], player1._equipped_card_data['HAS_COLLECTION'], player1._equipped_card_data['TIER'], player1._equipped_card_data['COLLECTION'], player1._equipped_card_data['WEAKNESS'], player1._equipped_card_data['RESISTANT'], player1._equipped_card_data['REPEL'], player1._equipped_card_data['ABSORB'], player1._equipped_card_data['IMMUNE'], player1._equipped_card_data['GIF'], player1._equipped_card_data['FPATH'], player1._equipped_card_data['RNAME'], player1._equipped_card_data['RPATH'], battle_config._ai_is_boss)
             player1_title = Title(player1._equipped_title_data['TITLE'], player1._equipped_title_data['UNIVERSE'], player1._equipped_title_data['PRICE'], player1._equipped_title_data['EXCLUSIVE'], player1._equipped_title_data['AVAILABLE'], player1._equipped_title_data['ABILITIES'])            
             player1_arm = Arm(player1._equipped_arm_data['ARM'], player1._equipped_arm_data['UNIVERSE'], player1._equipped_arm_data['PRICE'], player1._equipped_arm_data['ABILITIES'], player1._equipped_arm_data['EXCLUSIVE'], player1._equipped_arm_data['AVAILABLE'], player1._equipped_arm_data['ELEMENT'])
             
@@ -2477,7 +2512,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             if battle_config.mode in crown_utilities.PVP_M:
                 player2 = player2
                 player2.get_battle_ready()
-                player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'])
+                player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'], battle_config._ai_is_boss)
                 player2_title = Title(player2._equipped_title_data['TITLE'], player2._equipped_title_data['UNIVERSE'], player2._equipped_title_data['PRICE'], player2._equipped_title_data['EXCLUSIVE'], player2._equipped_title_data['AVAILABLE'], player2._equipped_title_data['ABILITIES'])            
                 player2_arm = Arm(player2._equipped_arm_data['ARM'], player2._equipped_arm_data['UNIVERSE'], player2._equipped_arm_data['PRICE'], player2._equipped_arm_data['ABILITIES'], player2._equipped_arm_data['EXCLUSIVE'], player2._equipped_arm_data['AVAILABLE'], player2._equipped_arm_data['ELEMENT'])
                 opponent_talisman_emoji = crown_utilities.set_emoji(player2.equipped_talisman)
@@ -2494,7 +2529,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             if battle_config.mode in crown_utilities.RAID_M:
                 player2 = player2
                 player2.get_battle_ready()
-                player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'])
+                player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'], battle_config._ai_is_boss)
                 player2_title = Title(player2._equipped_title_data['TITLE'], player2._equipped_title_data['UNIVERSE'], player2._equipped_title_data['PRICE'], player2._equipped_title_data['EXCLUSIVE'], player2._equipped_title_data['AVAILABLE'], player2._equipped_title_data['ABILITIES'])            
                 player2_arm = Arm(player2._equipped_arm_data['ARM'], player2._equipped_arm_data['UNIVERSE'], player2._equipped_arm_data['PRICE'], player2._equipped_arm_data['ABILITIES'], player2._equipped_arm_data['EXCLUSIVE'], player2._equipped_arm_data['AVAILABLE'], player2._equipped_arm_data['ELEMENT'])
                 opponent_talisman_emoji = crown_utilities.set_emoji(player2.equipped_talisman)
@@ -2512,7 +2547,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
             if battle_config.mode in crown_utilities.CO_OP_M or battle_config.is_duo_mode:
                 player3.get_battle_ready()
-                player3_card = Card(player3._equipped_card_data['NAME'], player3._equipped_card_data['PATH'], player3._equipped_card_data['PRICE'], player3._equipped_card_data['EXCLUSIVE'], player3._equipped_card_data['AVAILABLE'], player3._equipped_card_data['IS_SKIN'], player3._equipped_card_data['SKIN_FOR'], player3._equipped_card_data['HLT'], player3._equipped_card_data['HLT'], player3._equipped_card_data['STAM'], player3._equipped_card_data['STAM'], player3._equipped_card_data['MOVESET'], player3._equipped_card_data['ATK'], player3._equipped_card_data['DEF'], player3._equipped_card_data['TYPE'], player3._equipped_card_data['PASS'][0], player3._equipped_card_data['SPD'], player3._equipped_card_data['UNIVERSE'], player3._equipped_card_data['HAS_COLLECTION'], player3._equipped_card_data['TIER'], player3._equipped_card_data['COLLECTION'], player3._equipped_card_data['WEAKNESS'], player3._equipped_card_data['RESISTANT'], player3._equipped_card_data['REPEL'], player3._equipped_card_data['ABSORB'], player3._equipped_card_data['IMMUNE'], player3._equipped_card_data['GIF'], player3._equipped_card_data['FPATH'], player3._equipped_card_data['RNAME'], player3._equipped_card_data['RPATH'])
+                player3_card = Card(player3._equipped_card_data['NAME'], player3._equipped_card_data['PATH'], player3._equipped_card_data['PRICE'], player3._equipped_card_data['EXCLUSIVE'], player3._equipped_card_data['AVAILABLE'], player3._equipped_card_data['IS_SKIN'], player3._equipped_card_data['SKIN_FOR'], player3._equipped_card_data['HLT'], player3._equipped_card_data['HLT'], player3._equipped_card_data['STAM'], player3._equipped_card_data['STAM'], player3._equipped_card_data['MOVESET'], player3._equipped_card_data['ATK'], player3._equipped_card_data['DEF'], player3._equipped_card_data['TYPE'], player3._equipped_card_data['PASS'][0], player3._equipped_card_data['SPD'], player3._equipped_card_data['UNIVERSE'], player3._equipped_card_data['HAS_COLLECTION'], player3._equipped_card_data['TIER'], player3._equipped_card_data['COLLECTION'], player3._equipped_card_data['WEAKNESS'], player3._equipped_card_data['RESISTANT'], player3._equipped_card_data['REPEL'], player3._equipped_card_data['ABSORB'], player3._equipped_card_data['IMMUNE'], player3._equipped_card_data['GIF'], player3._equipped_card_data['FPATH'], player3._equipped_card_data['RNAME'], player3._equipped_card_data['RPATH'], battle_config._ai_is_boss)
                 player3_title = Title(player3._equipped_title_data['TITLE'], player3._equipped_title_data['UNIVERSE'], player3._equipped_title_data['PRICE'], player3._equipped_title_data['EXCLUSIVE'], player3._equipped_title_data['AVAILABLE'], player3._equipped_title_data['ABILITIES'])            
                 player3_arm = Arm(player3._equipped_arm_data['ARM'], player3._equipped_arm_data['UNIVERSE'], player3._equipped_arm_data['PRICE'], player3._equipped_arm_data['ABILITIES'], player3._equipped_arm_data['EXCLUSIVE'], player3._equipped_arm_data['AVAILABLE'], player3._equipped_arm_data['ELEMENT'])
                 player3_talisman_emoji = crown_utilities.set_emoji(player3.equipped_talisman)
@@ -2532,9 +2567,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     player2_card = _custom_explore_card
                 else:
                     battle_config.get_ai_battle_ready(player1_card.card_lvl)
-                    player2_card = Card(battle_config._ai_opponent_card_data['NAME'], battle_config._ai_opponent_card_data['PATH'], battle_config._ai_opponent_card_data['PRICE'], battle_config._ai_opponent_card_data['EXCLUSIVE'], battle_config._ai_opponent_card_data['AVAILABLE'], battle_config._ai_opponent_card_data['IS_SKIN'], battle_config._ai_opponent_card_data['SKIN_FOR'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['MOVESET'], battle_config._ai_opponent_card_data['ATK'], battle_config._ai_opponent_card_data['DEF'], battle_config._ai_opponent_card_data['TYPE'], battle_config._ai_opponent_card_data['PASS'][0], battle_config._ai_opponent_card_data['SPD'], battle_config._ai_opponent_card_data['UNIVERSE'], battle_config._ai_opponent_card_data['HAS_COLLECTION'], battle_config._ai_opponent_card_data['TIER'], battle_config._ai_opponent_card_data['COLLECTION'], battle_config._ai_opponent_card_data['WEAKNESS'], battle_config._ai_opponent_card_data['RESISTANT'], battle_config._ai_opponent_card_data['REPEL'], battle_config._ai_opponent_card_data['ABSORB'], battle_config._ai_opponent_card_data['IMMUNE'], battle_config._ai_opponent_card_data['GIF'], battle_config._ai_opponent_card_data['FPATH'], battle_config._ai_opponent_card_data['RNAME'], battle_config._ai_opponent_card_data['RPATH'])
-                    player2_card.set_ai_card_buffs(battle_config._ai_opponent_card_lvl, battle_config.stat_buff, battle_config.stat_debuff, battle_config.health_buff, battle_config.health_debuff, battle_config.ap_buff, battle_config.ap_debuff, _player.prestige, _player.rebirth)
-                
+                    player2_card = Card(battle_config._ai_opponent_card_data['NAME'], battle_config._ai_opponent_card_data['PATH'], battle_config._ai_opponent_card_data['PRICE'], battle_config._ai_opponent_card_data['EXCLUSIVE'], battle_config._ai_opponent_card_data['AVAILABLE'], battle_config._ai_opponent_card_data['IS_SKIN'], battle_config._ai_opponent_card_data['SKIN_FOR'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['MOVESET'], battle_config._ai_opponent_card_data['ATK'], battle_config._ai_opponent_card_data['DEF'], battle_config._ai_opponent_card_data['TYPE'], battle_config._ai_opponent_card_data['PASS'][0], battle_config._ai_opponent_card_data['SPD'], battle_config._ai_opponent_card_data['UNIVERSE'], battle_config._ai_opponent_card_data['HAS_COLLECTION'], battle_config._ai_opponent_card_data['TIER'], battle_config._ai_opponent_card_data['COLLECTION'], battle_config._ai_opponent_card_data['WEAKNESS'], battle_config._ai_opponent_card_data['RESISTANT'], battle_config._ai_opponent_card_data['REPEL'], battle_config._ai_opponent_card_data['ABSORB'], battle_config._ai_opponent_card_data['IMMUNE'], battle_config._ai_opponent_card_data['GIF'], battle_config._ai_opponent_card_data['FPATH'], battle_config._ai_opponent_card_data['RNAME'], battle_config._ai_opponent_card_data['RPATH'], battle_config._ai_is_boss)
+                    if not battle_config.is_abyss_game_mode:
+                        player2_card.set_ai_card_buffs(battle_config._ai_opponent_card_lvl, battle_config.stat_buff, battle_config.stat_debuff, battle_config.health_buff, battle_config.health_debuff, battle_config.ap_buff, battle_config.ap_debuff, _player.prestige, _player.rebirth, battle_config.mode)
                 if battle_config.abyss_player_card_tier_is_banned:
                     await ctx.send(f"Tier {str(player1_card.tier)} cards are banned on Floor {str(battle_config.abyss_floor)} of the abyss. Please try again with another card.")
                     return
@@ -2590,7 +2625,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
             start_tales_buttons_action_row = manage_components.create_actionrow(*start_tales_buttons)          
             
-            battle_config.set_who_starts_match(player1_card.speed, player2_card.speed)
+            battle_config.set_who_starts_match(player1_card.speed, player2_card.speed, battle_config.mode)
             user1 = await main.bot.fetch_user(player1.did)
 
             opponent_card = player2_card
@@ -2615,6 +2650,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
             embed = discord.Embed(title=f"{battle_config.get_starting_match_title()}\n{title_lvl_msg}")
             embed.add_field(name=f"__Your Affinities:__", value=f"{player1_card.affinity_message}")
+            if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                embed.add_field(name=f"__Companion Affinities:__", value=f"{player3_card.affinity_message}")
             embed.add_field(name=f"__Opponent Affinities:__", value=f"{opponent_card.affinity_message}")
             embed.set_image(url="attachment://image.png")
             if battle_config.is_pvp_game_mode:
@@ -3626,7 +3663,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                                     play_again_buttons_action_row = manage_components.create_actionrow(*play_again_buttons)
-                                    loss_response = battle_config.you_lose_embed(player1_card, player2_card)
+                                    if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                        loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
+                                    else:
+                                        loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     battle_msg = await private_channel.send(embed=loss_response, components=[play_again_buttons_action_row])
@@ -3664,7 +3704,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         return
 
                                 else:
-                                    loss_response = battle_config.you_lose_embed(player1_card, player2_card)
+                                    if battle_config.is_duo_mode or battle._config.is_co_op_mode:
+                                        loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
+                                    else:
+                                        loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     battle_msg = await private_channel.send(embed=loss_response)
@@ -3679,7 +3722,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         drop_response = await drops(self, user1, battle_config.selected_universe, battle_config.current_opponent_number)
                                     if battle_config.is_boss_game_mode:
                                         drop_response = await bossdrops(self,ctx.author, battle_config.selected_universe)
-                                        battle_config.save_boss_win(player1, player1_card, player1_title, player1_arm)
+                                        await battle_config.save_boss_win(player1, player1_card, player1_title, player1_arm)
 
                                     p1_win_rewards = await battle_config.get_win_rewards(player1)
                                     corruption_message = await battle_config.get_corruption_message(ctx)
@@ -3787,6 +3830,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 await asyncio.sleep(2)
                                                 embedVar.add_field(name="Minor Reward",
                                                             value=f"You were awarded :coin: 300,000 for completing the {battle_config.selected_universe} Dungeon again!")
+                                                embedVar.add_field(name="Boss Key Aquired!",
+                                                            value=f"The Boss Arena has been Unlocked!")
                                             else:
                                                 await crown_utilities.bless(6000000, ctx.author.id)
                                                 await battle_msg.delete(delay=2)
@@ -4533,24 +4578,24 @@ async def drops(self, player, universe, matchcount):
         rand_pet = random.randint(0, p)
 
     gold_drop = 125  # 125
-    rift_rate = 150  # 150
+    rift_rate = 140  # 150
     rematch_rate = 175 #175
     title_drop = 190  # 190
     arm_drop = 195  # 195
     pet_drop = 198  # 198
     card_drop = 200  # 200
-    drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 200)
+    drop_rate = random.randint((0 + (rebirth * 10) ), 200)
     durability = random.randint(1, 45)
     if difficulty == "HARD":
         mode = "Purchase"
-        gold_drop = 30
-        rift_rate = 55
-        rematch_rate = 70
-        title_drop = 75  
-        arm_drop = 100  
-        pet_drop = 180  
+        gold_drop = 60
+        rift_rate = 80
+        rematch_rate = 100
+        title_drop = 150  
+        arm_drop = 170
+        pet_drop = 190  
         card_drop = 200 
-        drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 200)
+        drop_rate = random.randint(0 + (rebirth * 15), 200)
         durability = random.randint(35, 50)
         
     try:
@@ -4572,14 +4617,6 @@ async def drops(self, player, universe, matchcount):
             return f"🆚  You have earned 1 Rematch and  :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > rematch_rate:
             if all_available_drop_titles:
-                # if len(vault['TITLES']) >= 25:
-                #     await crown_utilities.bless(300, player.id)
-                #     return f"You're maxed out on Titles! You earned :coin: 300 instead!"
-                # if str(titles[rand_title]) in owned_titles:
-                #     await crown_utilities.bless(150, player.id)
-                #     return f"You already own **{titles[rand_title]}**! You earn :coin: **150**."
-                # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
-                # return f"You earned _Title:_ **{titles[rand_title]}**!"
                 response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 150, 150, "mode", False, 0, "titles")
                 return response
             else:
@@ -4587,15 +4624,6 @@ async def drops(self, player, universe, matchcount):
                 return f"You earned :coin: **150**!"
         elif drop_rate <= arm_drop and drop_rate > title_drop:
             if all_available_drop_arms:
-                # if len(vault['ARMS']) >= 25:
-                #     await crown_utilities.bless(300, player.id)
-                #     return f"You're maxed out on Arms! You earned :coin: 300 instead!"
-                # if str(arms[rand_arm]) in owned_arms:
-                #     await crown_utilities.bless(150, player.id)
-                #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **150**."
-                # else:
-                #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-                #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
                 response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 2000, 2000, "mode", False, 0, "arms")
             else:
                 await crown_utilities.bless(150, player.id)
@@ -4746,25 +4774,25 @@ async def dungeondrops(self, player, universe, matchcount):
         rand_pet = random.randint(0, p)
 
 
-    gold_drop = 250  #
-    rift_rate = 300  #
-    rematch_rate = 350
-    title_drop = 380  #
-    arm_drop = 390  #
-    pet_drop = 396  #
+    gold_drop = 125  #
+    rift_rate = 150  #
+    rematch_rate = 250
+    title_drop = 300  #
+    arm_drop = 350  #
+    pet_drop = 380  #
     card_drop = 400  #
-    drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 400)
+    drop_rate = random.randint((0 + (rebirth * 20) ), 400)
     durability = random.randint(10, 75)
     mode="Dungeon"
     if difficulty == "HARD":
         gold_drop = 30  
         rift_rate = 55
-        rematch_rate = 70
-        title_drop = 75  
-        arm_drop = 100  
-        pet_drop = 250  
+        rematch_rate = 180
+        title_drop = 210  
+        arm_drop = 240  
+        pet_drop = 270  
         card_drop = 300 
-        drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 300)
+        drop_rate = random.randint((0 + (rebirth * 15)), 300)
         durability = 100
         mode="Purchase"
 
@@ -4795,7 +4823,7 @@ async def dungeondrops(self, player, universe, matchcount):
             # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
             # return f"You earned _Title:_ **{titles[rand_title]}**!"
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000,"mode", False, 0, "titles")
+            response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000,"mode", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
             # if len(vault['ARMS']) >= 25:
@@ -4808,7 +4836,7 @@ async def dungeondrops(self, player, universe, matchcount):
             #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
             #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, arms[rand_arm], universe, vault, durability, 3000, 3000,"mode", False, 0, "arms")
+            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 3000, 3000,"mode", False, 0, "arms")
             return response
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if len(vault['PETS']) >= 25:
@@ -4835,7 +4863,7 @@ async def dungeondrops(self, player, universe, matchcount):
                 return f"You earned _Summon:_ **{pets[rand_pet]}** + :coin: 10000!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, cards[rand_card], universe, vault, owned_destinies, 5000, 2500,"mode", False, 0, "cards")
+            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 5000, 2500,"mode", False, 0, "cards")
             return response
     except Exception as ex:
         trace = []
@@ -4941,8 +4969,22 @@ async def bossdrops(self,player, universe):
     boss_pet_drop = 495  #
     boss_card_drop = 500  #
 
-    drop_rate = random.randint((0 + (rebirth * rebirth) * (1 + rebirth)), 500)
+    drop_rate = random.randint((0 + (rebirth * 25)), 500)
     durability = random.randint(100, 150)
+    if difficulty == "HARD":
+        gold_drop = 125  #
+        rematch_drop = 150 #330
+        title_drop = 200  #
+        arm_drop = 230  #
+        pet_drop = 270  #
+        card_drop = 310  #
+        boss_title_drop = 350  #
+        boss_arm_drop = 370  #
+        boss_pet_drop = 395  #
+        boss_card_drop = 400  #
+
+        drop_rate = random.randint((0 + (rebirth * 25)), 400)
+    durability = random.randint(150, 200)
 
     try:
         if drop_rate <= gold_drop:
@@ -4966,7 +5008,7 @@ async def bossdrops(self,player, universe):
             # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
             # return f"You earned {titles[rand_title]}!"
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000, "Dungeon", False, 0, "titles")
+            response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000, "Dungeon", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
             # if len(vault['ARMS']) >= 25:
@@ -4979,7 +5021,7 @@ async def bossdrops(self,player, universe):
             #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
             #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, arms[rand_arm], universe, vault, durability, 40000, 40000, "Dungeon", False, 0, "arms")
+            response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 40000, 40000, "Dungeon", False, 0, "arms")
             return response
         elif drop_rate <= pet_drop and drop_rate > arm_drop:
             if len(vault['PETS']) >= 25:
@@ -4997,7 +5039,7 @@ async def bossdrops(self,player, universe):
             return f"You earned {pets[rand_pet]} + :coin: 750000!"
         elif drop_rate <= card_drop and drop_rate > pet_drop:
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, cards[rand_card], universe, vault, owned_destinies, 500000, 500000, "Dungeon", False, 0, "cards")
+            response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 500000, 500000, "Dungeon", False, 0, "cards")
             return response
         elif drop_rate <= boss_title_drop and drop_rate > card_drop:
             # if len(vault['TITLES']) >= 25:
@@ -5006,7 +5048,7 @@ async def bossdrops(self,player, universe):
             # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(boss_title)}})
             # return f"You earned the Exclusive Boss Title: {boss_title}!"
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, boss_title, universe, vault, owned_destinies, 50000, 50000, "Boss", False, 0, "titles")
+            response = await crown_utilities.store_drop_card(player.id, boss_title, universe, vault, owned_destinies, 50000, 50000, "Boss", False, 0, "titles")
             return response
         elif drop_rate <= boss_arm_drop and drop_rate > boss_title_drop:
             # if len(vault['ARMS']) >= 25:
@@ -5019,7 +5061,7 @@ async def bossdrops(self,player, universe):
             #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(boss_arm), 'DUR': durability}}})
             #     return f"You earned the Exclusive Boss Arm: **{str(boss_arm)}** with ⚒️**{str(durability)}**!"
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, boss_arm, universe, vault, durability, 9000000, 9000000, "Boss", False, 0, "arms")
+            response = await crown_utilities.store_drop_card(player.id, boss_arm, universe, vault, durability, 9000000, 9000000, "Boss", False, 0, "arms")
             return response
         elif drop_rate <= boss_pet_drop and drop_rate > boss_arm_drop:
             if len(vault['PETS']) >= 25:
@@ -5037,7 +5079,7 @@ async def bossdrops(self,player, universe):
             return f"You earned the Exclusive Boss Summon:  {boss['PET']} + :coin: **10,000,000**!"
         elif drop_rate <= boss_card_drop and drop_rate > boss_pet_drop:
             u = await main.bot.fetch_user(player.id)
-            response = await crown_utilities.store_drop_card(u, player.id, boss_card, universe, vault, owned_destinies, 30000, 10000, "Boss", False, 0, "cards")
+            response = await crown_utilities.store_drop_card(player.id, boss_card, universe, vault, owned_destinies, 30000, 10000, "Boss", False, 0, "cards")
             return response
     except Exception as ex:
         trace = []
@@ -5137,26 +5179,28 @@ title_enhancer_mapping = {'ATK': 'Increase Attack',
 }
 
 
-element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Damage',
-'FIRE': 'Does 25% damage of previous attack over the next opponent turns, stacks',
-'ICE': 'After 2 uses opponent freezes and loses 1 turn',
-'WATER': 'Increases all water attack dmg by 40 Flat',
-'EARTH': 'Cannot be Parried. Increases Def by 25% AP',
-'ELECTRIC': 'Add 15% to Shock damage, added to each attack',
-'WIND': 'Cannot Miss, boost all wind damage by 15% DMG',
-'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP',
-'DEATH': 'Adds 20% opponent max health as damage',
-'LIFE': 'Heal for 20% AP',
-'LIGHT': 'Regain 50% Stamina Cost, Increase ATK by 20% DMG',
-'DARK': 'Penetrates shields & decrease opponent stamina by 15',
-'POISON': 'Penetrates shields, Opponent takes additional 30 damage each turn stacking up to 600',
-'RANGED': 'If ST(Stamina) > 30 deals 1.7x Damage',
-'SPIRIT': 'Has higher chance of Crit',
-'RECOIL': 'Deals 60% damage back to you, if damage would kill you reduce health to 1',
-'TIME': 'IF ST(Stamina) < 80 you Focus after attacking, You Block during your Focus',
-'BLEED': 'After 3 Attacks deal 10x turn count damage to opponent',
-'GRAVITY': 'Disables Opponent Block and Reduce opponent DEF by 25% AP'
+element_mapping = {
+'PHYSICAL': 'If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry',
+'FIRE': 'Does 50% damage of previous attack over the next opponent turns, stacks.',
+'ICE': 'Every 2 attacks, opponent freezes and loses 1 turn.',
+'WATER': 'Increases all water move AP by 100 Flat.',
+'EARTH': 'Cannot be Parried. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG',
+'ELECTRIC': 'Add 35% DMG Dealt to Shock damage, added to all Move AP.',
+'WIND': 'On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.',
+'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits Gain a Barrier',
+'DEATH': 'Deals 45% DMG to opponent max health. Gain Attack equal to that amount.',
+'LIFE': 'Create Max Health and Heal for 35% DMG.',
+'LIGHT': 'Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 50% of DMG.',
+'DARK': 'Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.',
+'POISON': 'Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).',
+'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%',
+'SPIRIT': 'Has higher 35% higher chance of Crit.',
+'RECOIL': 'Deals Incredible Bonus Damage, take 60% as recoil. If Recoil would kill you reduce HP to 1',
+'TIME': 'Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.',
+'BLEED': 'Every 2 Attacks deal 10x turn count damage to opponent.',
+'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.'
 }
+
 
 
 passive_enhancer_suffix_mapping = {'ATK': ' %',

@@ -141,6 +141,7 @@ class Battle:
         self._concede_boss_description = ""
         self._wins_boss_description = ""
         self._boss_embed_message = ""
+        self._ai_is_boss = False
 
         # Boss Specific Moves
         self._turns_to_skip = 0
@@ -318,12 +319,12 @@ class Battle:
                 self._player_association = universe_selection['OGUILD']
                 if self.player.boss_fought:
                     self._boss_fought_already = True
+                    
 
             if self.crestsearch:
                 self._player_association = universe_selection['OGUILD']
             else:
                 self._player_association = "PCG"
-
             self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
 
 
@@ -402,7 +403,7 @@ class Battle:
                     enemies = scenario['ENEMIES']
                     number_of_fights = len(enemies)
                     enemy_level = scenario['ENEMY_LEVEL']
-                    scenario_gold = crown_utilities.scenario_gold_drop(enemy_level)
+                    scenario_gold = crown_utilities.scenario_gold_drop(enemy_level, number_of_fights)
                     universe = scenario['UNIVERSE']
                     scenario_image = scenario['IMAGE']
                     reward_list = []
@@ -533,7 +534,7 @@ class Battle:
         self._raid_end_message = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)}"
         hall_info = db.queryHall({"HALL":self._raid_hall})
         fee = hall_info['FEE']
-        transaction_message = f":shield: {self._shield_name} loss to {self.player}!"
+        transaction_message = f":shield: {self._shield_name} loss to {self.player.name}!"
         update_query = {'$push': {'TRANSACTIONS': transaction_message}}
         response = db.updateGuildAlt(guild_query, update_query)
         if self._is_title_match:
@@ -542,7 +543,10 @@ class Battle:
             elif self._is_training_match:
                 self._raid_end_message  = f":flags: {self._association_name} TRAINING COMPLETE!"
             else:
-                newshield = db.updateGuild(guild_query, {'$set': {'SHIELD': str(self._player.id)}})
+                transaction_message = f":shield:{self.player.name} becomes the new Shield!"
+                update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+                response = db.updateGuildAlt(guild_query, update_query)
+                newshield = db.updateGuild(guild_query, {'$set': {'SHIELD': str(self._player.disname)}})
                 newshieldid = db.updateGuild(guild_query, {'$set': {'SDID': str(self._player.id)}})
                 guildwin = db.updateGuild(guild_query, {'$set': {'BOUNTY': winbonus, 'STREAK': 1}})
                 self._raid_end_message  = f":flags: {self._association_name} SHIELD CLAIMED!"
@@ -551,6 +555,9 @@ class Battle:
                 update_shielding = {'$set': {'SHIELDING': True}}
                 add_shield = db.updateTeam({'TEAM_NAME': str(self._player_guild)}, update_shielding)
         else:
+            transaction_message = f":vs: {self.player.name} defeated {self._shield_name}! They claimed the :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)} Bounty!"
+            update_query = {'$push': {'TRANSACTIONS': transaction_message}}
+            response = db.updateGuildAlt(guild_query, update_query)
             guildloss = db.updateGuild(guild_query, {'$set': {'BOUNTY': fee, 'STREAK': 0}})
             
         
@@ -616,11 +623,16 @@ class Battle:
                 self.health_buff = 1300
 
 
-    def set_who_starts_match(self, player1_speed, player2_speed):
-        if player1_speed >= player2_speed:
+    def set_who_starts_match(self, player1_speed, player2_speed, mode):
+        boss_modes = ['Boss','Cboss', 'BOSS', 'CBoss', 'CBOSS']
+        if mode in boss_modes:
             self.is_turn = 0
-        if player2_speed > player1_speed:
+        elif player1_speed >= player2_speed:
+            self.is_turn = 0
+        elif player2_speed > player1_speed:
             self.is_turn = 1
+        else:
+            self.is_turn = 0
 
 
     def get_lineup(self):
@@ -685,6 +697,7 @@ class Battle:
                 self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
                 self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
                 self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
+                self._ai_is_boss = True
 
                 summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
                 self._ai_opponentsummon_power = list(summon_passive.values())[0]
@@ -1121,10 +1134,16 @@ class Battle:
             700: "⚜️",
             999: "🏅"
         }
-
         def get_player_message(card):
             lvl = int(card.card_lvl)
-            emoji = level_to_emoji.get(lvl, level_to_emoji[0])
+            emoji = "🔰"
+            
+            if lvl >= 1000:
+                emoji = "🏅"
+            elif lvl >= 700:
+                emoji = "⚜️"
+            elif lvl >=200:
+                emoji = "🔱"
             return f"{emoji} *{lvl} {card.name}*"
 
         p1_msg = get_player_message(your_card)
@@ -1144,12 +1163,12 @@ class Battle:
             if not self.is_tutorial_game_mode:
                 if self.is_pvp_game_mode:
                     response = f"Your game timed out. Your channel has been closed"
+                elif self.is_boss_game_mode:
+                    response = f"Your game timed out. Your channel has been closed."
                 else:
-                    response = f"Your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
                     response = f"Your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
             else:
                 response = f"Your game timed out. Your channel has been closed, restart the tutorial with **/solo**."
-                response = f"Your game timed out. Your channel has been closed , restart the tutorial with **/solo**."
         else:
             response = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
         self.match_has_ended = True
@@ -1204,7 +1223,10 @@ class Battle:
 
 
     async def set_boss_win(self, player1, boss_card, companion=None):
-        if boss_card.name not in player1.boss_fought:
+        query = {'DISNAME': player1.disname} 
+        fight_query = {'$set' : {'BOSS_FOUGHT' : True}}
+        resp = db.updateUserNoFilter(query, fight_query)
+        if boss_card.name not in player1.boss_wins:
             if self.is_hard_difficulty:
                 await crown_utilities.bless(5000000, player1.did)
             else:
@@ -1214,8 +1236,6 @@ class Battle:
                     await crown_utilities.bless(5000000, companion.did)
                 else:
                     await crown_utilities.bless(15000000, companion.did)
-
-            query = {'DISNAME': player1.disname}
             new_query = {'$addToSet': {'BOSS_WINS': boss_card.name}}
             resp = db.updateUserNoFilter(query, new_query)
 
@@ -1321,7 +1341,7 @@ class Battle:
         return embedVar
 
 
-    def you_lose_embed(self, player_card, opponent_card):
+    def you_lose_embed(self, player_card, opponent_card, companion_card = None):
         wintime = time.asctime()
         starttime = time.asctime()
         h_gametime = starttime[11:13]
@@ -1351,13 +1371,25 @@ class Battle:
         else:
             embedVar.set_footer(
                 text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-        embedVar.add_field(name="🔢 Focus Count",
-                        value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}")
-        if opponent_card.focus_count >= player_card.focus_count:
-            embedVar.add_field(name="🌀 Most Focused", value=f"**{opponent_card.name}**")
+        if companion_card:
+            embedVar.add_field(name="🔢 Focus Count",
+                            value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}n**{companion_card.name}**: {companion_card.focus_count}")
+            if opponent_card.focus_count >= player_card.focus_count:
+                if opponent_card.focus_count >= companion_card.focus_count:
+                    embedVar.add_field(name="🌀 Most Focused", value=f"**{opponent_card.name}**")
+                else:
+                    embedVar.add_field(name="🌀 Most Focused", value=f"**{companion_card.name}**")
+            elif player_card.focus_count >= companion_card.focus_count:
+                embedVar.add_field(name="🌀 Most Focused", value=f"**{player_card.name}**")
+            else:
+                embedVar.add_field(name="🌀 Most Focused", value=f"**{companion_card.name}**")
         else:
-            embedVar.add_field(name="🌀 Most Focused", value=f"**{player_card.name}**")
-
+            embedVar.add_field(name="🔢 Focus Count",
+                        value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}")
+            if opponent_card.focus_count >= player_card.focus_count:
+                embedVar.add_field(name="🌀 Most Focused", value=f"**{opponent_card.name}**")
+            else:
+                embedVar.add_field(name="🌀 Most Focused", value=f"**{player_card.name}**")
         return embedVar
 
 
@@ -1368,7 +1400,7 @@ class Battle:
         if self.player1_wins:
             if self.explore_type == "glory":
                 await crown_utilities.bless(self.bounty, winner.did)
-                drop_response = await crown_utilities.store_drop_card(ctx, winner.did, opponent_card.name, self.selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
+                drop_response = await crown_utilities.store_drop_card(winner.did, opponent_card.name, self.selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
             
                 message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
             if self.explore_type == "gold":

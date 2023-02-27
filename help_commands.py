@@ -76,44 +76,43 @@ LEGEND = textwrap.dedent(f"""\
 
 ELEMENTS = textwrap.dedent(f"""\
 **🔅 Elements**    
+👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry
 
-👊 Physical - If ST(stamina) greater than 80, Deals double Damage 
+🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks.
 
-🔥 Fire - Does 25% damage of previous attack over the next opponent turns, stacks.
+❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn.
 
-❄️ Ice - After 2 uses opponent freezes and loses 1 turn.
+💧 Water - Increases all water move AP by 100 Flat.
 
-💧 Water - Increases all water attack dmg by 40 Flat.
+⛰️ Earth - Cannot be Parried. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG
 
-⛰️ Earth - Cannot be Parried. Increases Def by 25% AP.
+⚡️ Electric- Add 35% DMG Dealt to Shock damage, added to all Move AP.
 
-⚡️ Electric- Add 15% to Shock damage, added to all attacks.
+🌪️ Wind - On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.
 
-🌪️ Wind - Cannot Miss, boosts all wind damage by 15% of damage dealt.
+🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits Gain a Barrier
 
-🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP.
+☠️ Death - Deals 45% DMG to opponent max health. Gain Attack equal to that amount.
 
-☠️ Death - Deals 20% opponent max health as damage.
+❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.
 
-❤️‍🔥 Life - Heal for 20% AP.
+🌕 Light - Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 50% of DMG.
 
-🌕 Light - Regain 50% Stamina Cost, Increases ATK by 20% of DMG.
+🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.
 
-♠️ Dark- Penetrates shields & decreases opponent stamina by 15.
+🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).
 
-🧪 Poison - Penetrades shields, Poison 30 damage stacking up to 600.
+🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%
 
-🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
+🧿 Spirit - Has higher 35% higher chance of Crit.
 
-🧿 Spirit - Has higher chance of Crit.
+♻️ Recoil - Deals Incredible Bonus Damage, take 60% as recoil. If Recoil would kill you reduce HP to 1
 
-♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent. If Recoild would kill you reduce HP to 1
+⌛ Time - Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn. 
 
-⌛ Time - If ST is less than 80, You Block and Focus for 1 Turn. 
+🅱️ Bleed - Every 2 Attacks deal 10x turn count damage to opponent.
 
-🅱️ Bleed - After 3 Attacks deal 10x turn count damage to opponent.
-
-🪐 Gravity - Disables Opponent Block and Reduce opponent DEF by 25% AP.
+🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
@@ -144,7 +143,6 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 **/fund** - Donate coin to Association Bank
 **/bounty** - Set Association Bounty (Association Owners Only)
 **/viewhall** - View Hall Information
-**/buyhall** - Buy and move into a new Association Hall
 
 
 **Family Commands**
@@ -158,7 +156,6 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 **/invest** - Invest coin into family Bank
 **/houses** - Show list of available houses
 **/viewhouse** - View House Information
-**/buyhouse** - Buy and move into a new family house
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)

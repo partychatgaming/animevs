@@ -2,10 +2,18 @@ import discord
 from discord.embeds import Embed
 from discord.ext import commands
 import bot as main
+import time
+now = time.asctime()
 import crown_utilities
 import db
 import classes as dclass
 import dataclasses as data
+from .classes.player_class import Player
+from .classes.card_class import Card
+from .classes.title_class import Title
+from .classes.arm_class import Arm
+from .classes.summon_class import Summon
+from .classes.battle_class  import Battle
 import messages as m
 import numpy as np
 import help_commands as h
@@ -21,7 +29,7 @@ import io
 import unique_traits as ut
 import DiscordUtils
 import textwrap
-from .crownunlimited import  enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping
+from .crownunlimited import  enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping, battle_commands
 from collections import Counter
 from discord_slash import cog_ext, SlashContext
 from dinteractions_Paginator import Paginator
@@ -538,25 +546,25 @@ class Lookup(commands.Cog):
                 first_page = discord.Embed(title=f"{team_display_name}", description=textwrap.dedent(f"""
                 👑 **Owner** 
                 {formatted_owner}
-
+                
                 🅾️ **Officers**
                 {officers_list_joined}
-
+                
                 🇨 **Captains**
                 {captains_list_joined}
                 
                 **Guild Membership Count** 
                 {member_count}
-
+                
                 **Association**
                 {association_msg}
-
+                
                 **Guild Buff**
                 {guild_buff_message}
-
+                
                 **Active Buff**
                 {guild_buff_message_active}
-
+                
                 **Bank** 
                 {icon} {'{:,}'.format(balance)}
                 """), colour=0x7289da)
@@ -572,7 +580,6 @@ class Lookup(commands.Cog):
                 guild_mission_embed = discord.Embed(title=f"Guild Missions", description=textwrap.dedent(f"""
                 **Guild Mission** *Coming Soon*
                 {guild_mission_message}
-
                 **Completed Guild Missions**
                 {str(completed_missions)}
                
@@ -582,10 +589,8 @@ class Lookup(commands.Cog):
                 war_embed = discord.Embed(title=f"Guild War", description=textwrap.dedent(f"""
                 **War** *Coming Soon*
                 {war_message}
-
                 **Wars Won**
                 {str(war_wins)}
-
                
                 """), colour=0x7289da)
                 
@@ -608,7 +613,6 @@ class Lookup(commands.Cog):
                 - **Stat Buff**: Add 50 ATK & DEF, 30 AP, and 100 HLT
                 - **Rift Buff**: Rifts will always be available
                 - **Rematch Buff**: Unlimited Rematches
-
                 **Guild Position Explanations**
                 - **Owner**:  All operations */guildoperations*
                 - **Officer**:  Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
@@ -1058,13 +1062,15 @@ class Lookup(commands.Cog):
                 # print(is_guild_leader)
                 if is_visitor:
                     buttons.append(
-                        manage_components.create_button(style=3, label="Say Hello", custom_id="hello")
+                        manage_components.create_button(style=3, label="Say Hello", custom_id="hello"),
+                        manage_components.create_button(style=3, label="Raid!", custom_id="raid")
                     )
                     
                 if is_founder or is_sworn:
                     buttons = [
                         manage_components.create_button(style=3, label="Check/Purchase Halls", custom_id="property"),
                         manage_components.create_button(style=3, label="View/Update Armory", custom_id="armory"),
+                        manage_components.create_button(style=3, label="Test Shield Defenses", custom_id="raid")
                     ]
                 # elif is_sworn:
                 #     buttons = [
@@ -1075,12 +1081,14 @@ class Lookup(commands.Cog):
                     buttons = [
                         manage_components.create_button(style=3, label="View Properties", custom_id="property"),
                         manage_components.create_button(style=3, label="View/Update Armory", custom_id="armory"),
+                        manage_components.create_button(style=3, label="Shield Training", custom_id="raid")
                     ]
                     
                 elif is_guild_leader:
                     buttons = [
                         manage_components.create_button(style=3, label="View Properties", custom_id="property"),
                         manage_components.create_button(style=3, label="View Armory", custom_id="armory"),
+                        manage_components.create_button(style=3, label="Claim The Shield!", custom_id="raid")
                     ]
                     
                 custom_action_row = manage_components.create_actionrow(*buttons)
@@ -1092,10 +1100,20 @@ class Lookup(commands.Cog):
                                 guild_query = {"GNAME": guild['GNAME']}
                                 #await button_ctx.defer(ignore=True)
                                 update_query = {
-                                        '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
+                                        '$push': {'TRANSACTIONS': f":wave: | {button_ctx.author} said 'Hello'!"}
                                     }
                                 response = db.updateGuildAlt(guild_query, update_query)
                                 await ctx.send(f"**{button_ctx.author.mention}** Said Hello to **{guild['GNAME']}**!")
+                                self.stop = True
+                                return
+                            if button_ctx.custom_id == "raid":
+                                guild_query = {"GNAME": guild['GNAME']}
+                                #await button_ctx.defer(ignore=True)
+                                update_query = {
+                                        '$push': {'TRANSACTIONS': f":crossed_swords: | {button_ctx.author} Raided!"}
+                                    }
+                                response = db.updateGuildAlt(guild_query, update_query)
+                                await raid(button_ctx, guild['GNAME'])
                                 self.stop = True
                                 return
                             elif button_ctx.custom_id == "property":
@@ -1241,7 +1259,7 @@ class Lookup(commands.Cog):
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "equip":
-                                                    transaction_message = f"{ctx.author} changed the Association Hall to **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                    transaction_message = f"⛩️ | {ctx.author} changed the Association Hall to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                     update_query = {
                                                             '$set': {'HALL': hall_name},
                                                             '$push': {'TRANSACTIONS': transaction_message}
@@ -1329,7 +1347,7 @@ class Lookup(commands.Cog):
                                                                 else:
                                                                     guild_query = {'GNAME': guild['GNAME']}
                                                                     await crown_utilities.curseguild(cost, guild['GNAME'])
-                                                                    transaction_message = f"{ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                                    transaction_message = f":coin: | {ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                                     response = db.updateGuildAlt(guild_query,{'$set':{'HALL': str(hall_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                                     response2 = db.updateGuildAlt(guild_query,{'$addToSet':{'ESTATES': str(hall_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Hall!")
@@ -1369,7 +1387,7 @@ class Lookup(commands.Cog):
                                                         return
                                                     elif hall_name in guild['ESTATES']:
                                                         await crown_utilities.blessGuild(cost, guild['GNAME'])
-                                                        transaction_message = f"{ctx.author} sold the Association Hall: **{str(hall_name)}**."
+                                                        transaction_message = f":coin: | {ctx.author} sold the Association Hall: **{str(hall_name)}**."
                                                         response = db.updateGuildAlt(guild_query,{'$pull':{'ESTATES': str(hall_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f"{guild['GNAME']} sold their **{hall_name}** for **{formatted_cost}**")
                                                         #self.stop = True
@@ -1401,7 +1419,7 @@ class Lookup(commands.Cog):
                                 armory_buttons = []
                                 balance_message = '{:,}'.format(guild['BANK'])
                                 if is_founder:
-                                    armory_message = "Welcome Great Founder!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\nnWelcome Great Founder!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
@@ -1409,14 +1427,14 @@ class Lookup(commands.Cog):
                                     
                                 ]
                                 elif is_sworn:
-                                    armory_message = "Welcome Holy Sword!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\nWelcome Holy Sword!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
                                     manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
                                 ]
                                 elif is_shield:
-                                    armory_message = "Welcome Noble Shield!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\nWelcome Noble Shield!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
@@ -1424,14 +1442,14 @@ class Lookup(commands.Cog):
                                     
                                 ]
                                 elif is_guild_leader:
-                                    armory_message = "Welcome Oathsworn!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\nWelcome Oathsworn!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
                                     
                                 ]
                                 elif member:
-                                    armory_message = "Welcome Member!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\nWelcome Member!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
@@ -2104,7 +2122,7 @@ class Lookup(commands.Cog):
                                                                         await ctx.send(f"🕋 | **{selected_card}** cannot donate Equipped Card")
                                                                         return
                                                                     if len(card_storage) <= 300:
-                                                                        transaction_message = f"{ctx.author} Donated 🎴**{selected_card}**."
+                                                                        transaction_message = f":kaaba:  | {ctx.author} Donated 🎴**{selected_card}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'CARDS': selected_card, 'CARD_LEVELS': {'CARD' :  selected_card}},
@@ -2218,7 +2236,7 @@ class Lookup(commands.Cog):
                                                                         return
                                                                 if button_ctx.custom_id == "Donate":
                                                                     if len(title_storage) <= 300:
-                                                                        transaction_message = f"{ctx.author} Donated 🎗️ **{selected_title}**."
+                                                                        transaction_message = f":kaaba:  | {ctx.author} Donated 🎗️ **{selected_title}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'TITLES': selected_title},
@@ -2354,7 +2372,7 @@ class Lookup(commands.Cog):
                                                                         if names['ARM'] == selected_arm:
                                                                             durability = names['DUR']
                                                                     if len(arm_storage) <= 300:
-                                                                        transaction_message = f"{ctx.author} Donated 🦾 **{selected_arm}**."
+                                                                        transaction_message = f":kaaba:  | {ctx.author} Donated 🦾 **{selected_arm}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'ARMS': {'ARM' : str(selected_arm)}}
@@ -2651,7 +2669,7 @@ class Lookup(commands.Cog):
                 estates_list_joined = ", ".join(estates_list)
                 
                 
-                kids_names = "\n".join(f'{k}'.format(self) for k in kid_list)
+                kids_names = ", ".join(f'{k}'.format(self) for k in kid_list)
                 # if summon_data:
                 #     await ctx.send({summon_data})
                     
@@ -2857,7 +2875,7 @@ class Lookup(commands.Cog):
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "equip":
-                                                    transaction_message = f"{ctx.author} changed the family house to **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                    transaction_message = f"🏠 | {ctx.author} changed the family house to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                     update_query = {
                                                             '$set': {'HOUSE': house_name},
                                                             '$push': {'TRANSACTIONS': transaction_message}
@@ -2931,7 +2949,7 @@ class Lookup(commands.Cog):
                                                                     await ctx.send("You have an insufficent Balance")
                                                                 else:
                                                                     await crown_utilities.cursefamily(cost, family['HEAD'])
-                                                                    transaction_message = f"{ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                                    transaction_message = f":coin: | {ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                                     response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                                     response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addToSet':{'ESTATES': str(house_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
@@ -2971,7 +2989,7 @@ class Lookup(commands.Cog):
                                                         return
                                                     elif house_name in family['ESTATES']:
                                                         await crown_utilities.blessfamily(cost, family['HEAD'])
-                                                        transaction_message = f"{ctx.author} sold the family home: **{str(house_name)}**."
+                                                        transaction_message = f":coin: | {ctx.author} sold the family home: **{str(house_name)}**."
                                                         response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f'{family_name} sold their **{house_name}** for **{formatted_cost}**')
                                                         #self.stop = True
@@ -3203,7 +3221,7 @@ class Lookup(commands.Cog):
                                                         #update_query = {'$set': {'SUMMON': }}
                                                         #filter_query = [{'type.' + "NAME": str(pet)}]
                                                         #response = db.updateVault(query, update_query, filter_query)
-                                                        transaction_message = f"{ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                        transaction_message = f":dna: | {ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                         response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': pet_info}, '$push': {'TRANSACTIONS': transaction_message}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
                                                         self.stop = True
@@ -3292,6 +3310,120 @@ class Lookup(commands.Cog):
                 'trace': trace
             }))
 
+async def raid(ctx, guild):
+    a_registered_player = await crown_utilities.player_check(ctx)
+    if not a_registered_player:
+        return
+
+    try:
+        guildname = guild
+        private_channel = ctx
+        if isinstance(private_channel.channel, discord.channel.DMChannel):
+            await private_channel.send(m.SERVER_FUNCTION_ONLY)
+            return
+        starttime = time.asctime()
+        h_gametime = starttime[11:13]
+        m_gametime = starttime[14:16]
+        s_gametime = starttime[17:19]
+
+        # Get Session Owner Disname for scoring
+        sowner = db.queryUser({'DID': str(ctx.author.id)})
+        if sowner['DIFFICULTY'] == "EASY":
+            await ctx.send("Raiding is unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
+            return
+
+        guild = sowner['TEAM']
+        guild_info = db.queryTeam({'TEAM_NAME': guild.lower()})
+        oguild_name = "PCG"
+        shield_test_active = False
+        shield_training_active = False
+        if guild_info:
+            oguild_name = guild_info['GUILD']
+            oassociation = db.queryGuildAlt({'GNAME': oguild_name})
+        player_guild = sowner['GUILD']
+
+        if oguild_name == "PCG":
+            await ctx.send(m.NO_GUILD, delete_after=5)
+            return
+        if oassociation['SHIELD'] == sowner['DISNAME']:
+            shield_training_active = True
+        elif player_guild == guildname:
+            shield_test_active = True
+            
+
+        guild_query = {'GNAME': guildname}
+        association_info = db.queryGuildAlt(guild_query)
+        guild_shield = ""
+
+        if not association_info:
+            await ctx.send(m.GUILD_DOESNT_EXIST, delete_after=5)
+            return
+        guild_shield = association_info['SHIELD']
+        shield_id = association_info['SDID']
+        guild_hall = association_info['HALL']
+        hall_info = db.queryHall({'HALL': str(guild_hall)})
+        hall_def = hall_info['DEFENSE']
+        t_user = db.queryUser({'DID': shield_id})
+        tteam_name = t_user['TEAM']
+        tteam_info = db.queryTeam({'TEAM_NAME': tteam_name.lower()})
+        tteam = tteam_info['TEAM_NAME']
+        tguild = tteam_info['GUILD']
+        if tteam_info:
+            tguild = tteam_info['GUILD']
+        tarm = db.queryArm({'ARM': t_user['ARM']})
+        ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
+        
+        # Guild Fees
+        title_match_active = False
+        fee = hall_info['FEE']
+        if oguild_name == tguild:
+            title_match_active = True
+        
+        
+        mode = "RAID"
+        
+        player = sowner
+        player2 = t_user
+        p1 = Player(player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+        p2 = Player(player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])  
+        battle = Battle(mode, p1)
+        battle.create_raid(title_match_active, shield_test_active, shield_training_active, association_info, hall_info, tteam, oguild_name)
+        
+
+
+        
+
+        # o = db.queryCard({'NAME': sowner['CARD']})
+        # otitle = db.queryTitle({'TITLE': sowner['TITLE']})
+
+        # t = db.queryCard({'NAME': t_user['CARD']})
+        # ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
+        
+        if private_channel:
+            await battle_commands(main, ctx, battle, p1, None, p2, player3=None)
+        else:
+            await ctx.send("Failed to start raid battle!")
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'PLAYER': str(ctx.author),
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        guild = self.bot.get_guild(main.guild_id)
+        channel = guild.get_channel(main.guild_channel)
+        await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+        return
+
 def setup(bot):
     bot.add_cog(Lookup(bot))
 
@@ -3305,7 +3437,7 @@ def guild_buff_toggle(player, team):
     return_message = {}
     
     if guild_buff_on:
-        transaction_message = f"{player['DISNAME']} turned off Guild Buff."
+        transaction_message = f"🔴 | {player['DISNAME']} turned off Guild Buff."
         new_value_query = {
             '$set': {'GUILD_BUFF_ON': False},
             '$push': {'TRANSACTIONS': transaction_message}
@@ -3316,7 +3448,7 @@ def guild_buff_toggle(player, team):
         else:
             return False
     else:
-        transaction_message = f"{player['DISNAME']} turned on Guild Buff."
+        transaction_message = f"🟢 | {player['DISNAME']} turned on Guild Buff."
         new_value_query = {
             '$set': {'GUILD_BUFF_ON': True},
             '$push': {'TRANSACTIONS': transaction_message}
@@ -3360,7 +3492,7 @@ async def apply(self, ctx, owner: User):
                     )
                 ]
                 team_buttons_action_row = manage_components.create_actionrow(*team_buttons)
-                
+                enhancer_mapping
                 msg = await ctx.send(f"{ctx.author.mention}  applies to join **{team_profile['TEAM_DISPLAY_NAME']}**. Owner, Officers, or Captains - Please accept or deny".format(self), components=[team_buttons_action_row])
 
                 def check(button_ctx):

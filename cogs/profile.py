@@ -4,6 +4,7 @@ from discord.ext import commands
 import emoji
 from pymongo import response
 # from soupsieve import select
+import asyncio
 import bot as main
 import crown_utilities
 import db
@@ -27,6 +28,7 @@ from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.player_class import Player
+from .classes.battle_class  import Battle
 from .crownunlimited import enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping, battle_commands, destiny as update_destiny_call
 import random
 import textwrap
@@ -255,13 +257,14 @@ class Profile(commands.Cog):
             card = db.queryCard({'NAME':str(d['CARD'])})
             title = db.queryTitle({'TITLE': str(d['TITLE'])})
             arm = db.queryArm({'ARM': str(d['ARM'])})
+            vault = db.queryVault({'DID' : d['DID']})
             if not all([card, title, arm, d]):
                 # Handle error if one of the database calls fails
                 return "Error: One or more of the required data is not available."
 
             if card:
                 try:
-                    c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'])
+                    c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
                     t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                     a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
                     player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'])                 
@@ -273,21 +276,53 @@ class Profile(commands.Cog):
                     c.set_arm_config(a.passive_type, a.name, a.passive_value, a.element)
                     # c.set_passive_values()
                     
-
-                    player.set_talisman_message()
-                    player.setsummon_messages()
-
+                    x = 0.0999
+                    y = 1.25
+                    lvl_req = round((float(c.card_lvl)/x)**y)
+                    
                     a.set_arm_message(player.performance, c.universe)
                     t.set_title_message(player.performance, c.universe)
+                    
+                    has_universe_heart = False
+                    has_universe_soul = False
+                    pokemon_uni =["Kanto Region","Johto Region","Hoenn Region","Sinnoh Region","Kalos Region","Unova Region","Alola Region","Galar Region"]
+                    
+                    if card['UNIVERSE'] != "n/a":
+                        for gems in vault['GEMS']:
+                            if gems['UNIVERSE'] == card['UNIVERSE'] and gems['UNIVERSE_HEART']:
+                                has_universe_heart = True
+                            if gems['UNIVERSE'] == card['UNIVERSE'] and gems['UNIVERSE_SOUL']:
+                                has_universe_soul = True
+                    
+                    trebirth_message = f"_⚔️Tales: +0_"
+                    drebirth_message = f"_🔥Dungeon: +0_"
+                    trebirthBonus = (player.rebirth + (player.prestige * 10) + 25)
+                    drebirthBonus = ((player.rebirth + 1) * ((player.prestige * 10) + 100))
+                    if player.prestige > 0:
+                        trebirthBonus = trebirthBonus * player.prestige
+                        drebirthBonus = drebirthBonus * player.prestige
+                    if player.rebirth > 0:
+                        trebirth_message = f"_⚔️Tales: {trebirthBonus}xp_"
+                        drebirth_message = f"_🔥Dungeon: {drebirthBonus}xp_"
+                    if has_universe_soul:
+                        trebirthBonus = (player.rebirth + (player.prestige * 10) + 25) * 4
+                        drebirthBonus = ((player.rebirth + 1) * ((player.prestige * 10) + 100)) * 4
+                        trebirth_message = f"_🌹⚔️Tales: {trebirthBonus}xp_"
+                        drebirth_message = f"_🌹🔥Dungeon: {drebirthBonus}xp_"
 
+                    level_up_message = lvl_req - c.card_exp
+                    if lvl_req - c.card_exp <= 0:
+                        level_up_message = "🎆 Battle To Level Up!"
+                    if c.card_lvl >= 1000:
+                        level_up_message = "👑 Max Level!!"
 
                     if player.performance:
                         embedVar = discord.Embed(title=f"{c.set_card_level_icon()}{c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                         :mahjong: **{c.tier}**
-                        ❤️ **{c.max_health}**
-                        🗡️ **{c.attack}**
-                        🛡️ **{c.defense}**
-                        🏃 **{c.speed}**
+                        ❤️ | **{c.max_health}**
+                        🗡️ | **{c.attack}**
+                        🛡️ | **{c.defense}**
+                        🏃 | **{c.speed}**
 
 
                         **{t.title_message}**
@@ -296,21 +331,21 @@ class Profile(commands.Cog):
                         {player.summon_power_message}
                         {player.summon_lvl_message}
 
-                        🩸 **{c.passive_name}:** {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
+                        🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
                         
-                        {c.move1_emoji} **{c.move1}:** {c.move1ap}
-                        {c.move2_emoji} **{c.move2}:** {c.move2ap}
-                        {c.move3_emoji} **{c.move3}:** {c.move3ap}
-                        🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
+                        {c.move1_emoji} | **{c.move1}:** {c.move1ap}
+                        {c.move2_emoji} | **{c.move2}:** {c.move2ap}
+                        {c.move3_emoji} | **{c.move3}:** {c.move3ap}
+                        🦠 | **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
 
-                        ♾️ {c.set_trait_message()}
+                        ♾️ | {c.set_trait_message()}
                         """),colour=000000)
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                         embedVar.set_image(url="attachment://image.png")
                         if c.card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {150 - c.card_exp}\nRebirth Buff: +{player.rebirthBonus}")
+                            embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nVeterans Buff: {trebirth_message} | {drebirth_message}")
                         else:
-                            embedVar.set_footer(text=f"Max Level\nRebirth Buff: +{player.rebirthBonus}")
+                            embedVar.set_footer(text=f"Max Level\nVeterans Buff: {trebirth_message} | {drebirth_message}")
                         embedVar.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                         
                         await ctx.send(embed=embedVar)
@@ -328,14 +363,14 @@ class Profile(commands.Cog):
                         {a.arm_message}
                         {player.talisman_message}
 
-                        🩸 {c.passive_name}      
-                        🏃 {c.speed}
+                        🩸 | {c.passive_name}      
+                        🏃 | {c.speed}
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
                         if c.card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {150 - c.card_exp}\nRebirth Buff: +{player.rebirthBonus}\n♾️ {c.set_trait_message()}")
+                            embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nVeterans Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
                         else:
-                            embedVar.set_footer(text=f"Max Level")
+                            embedVar.set_footer(text=f"Max Level\nVeterans Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
                         
                         await ctx.send(file=card_file, embed=embedVar)
                 except Exception as ex:
@@ -2126,311 +2161,395 @@ class Profile(commands.Cog):
 
     @cog_ext.cog_slash(description="Open the blacksmith", guild_ids=main.guild_ids)
     async def blacksmith(self, ctx):
-        user_query = {'DID': str(ctx.author.id)}
-        user = db.queryUser(user_query)
-        #    if user['LEVEL'] < 11:
-        #       await ctx.send(f"🔓 Unlock the Trinket Shop by completing Floor 10 of the 🌑 Abyss! Use /solo to enter the abyss.")
-        #       return
-        patron_flag = user['PATRON']
-        current_arm = user['ARM']
-        storage_type = user['STORAGE_TYPE'] #Storage Update
-        storage_pricing = (storage_type + 1) * 1500000
-        storage_pricing_text = f"{'{:,}'.format(storage_pricing)}" 
-        storage_tier_message = (storage_type + 1)
-        if storage_type >=10:
-            storage_pricing_text = "Max Storage Level"
-            storage_tier_message = "MAX"
-        
-        arm_info = db.queryArm({'ARM': str(current_arm)})
-        boss_arm = False
-        dungeon_arm = False
-        boss_message = "Nice Arm!"
-        durability_message = "100,000"
-        if arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
-            boss_arm = True
-        elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
-            dungeon_arm= True
-        if boss_arm:
-            boss_message = "Cannot Repair"
-            durability_message = "UNAVAILABLE"
-        elif dungeon_arm:
-            boss_message = "Dungeon eh?!"
-        vault = db.altQueryVault({'DID' : str(ctx.author.id)})
-        current_card = user['CARD']
-        has_gabes_purse = user['TOURNAMENT_WINS']
-        balance = vault['BALANCE']
-        icon = ":coin:"
-        if balance >= 1000000:
-            icon = ":money_with_wings:"
-        elif balance >=650000:
-            icon = ":moneybag:"
-        elif balance >= 150000:
-            icon = ":dollar:"
-        
-        owned_arms = []
-        current_durability = 0
-        for arms in vault['ARMS']:
-            if arms['ARM'] == current_arm:
-                current_durability = arms['DUR']
-
-        card_info = {}
-        for level in vault['CARD_LEVELS']:
-            if level['CARD'] == current_card:
-                card_info = level
-
-        lvl = card_info['LVL']
-
-        
-        hundred_levels = 650000
-        thirty_levels = 220000
-        ten_levels = 80000
-        
-        licon = "🔰"
-        if lvl>= 200:
-            licon ="🔱"
-        if lvl>= 700:
-            licon ="⚜️"
-        if lvl >= 999:
-            licon = "🏅"
-
-        if lvl >= 200 and lvl < 299:
-            hundred_levels = 30000000
-            thirty_levels = 20000000
-            ten_levels = 10000000
-        elif lvl >= 300 and lvl < 399:
-            hundred_levels = 70000000
-            thirty_levels = 50000000
-            ten_levels = 25000000
-        elif lvl >= 400 and lvl < 499:
-            hundred_levels = 90000000
-            thirty_levels = 75000000
-            ten_levels = 50000000
-        elif lvl >= 500 and lvl < 599:
-            hundred_levels = 150000000
-            thirty_levels = 100000000
-            ten_levels = 75000000
-        elif lvl >= 600 and lvl < 699:
-            hundred_levels = 300000000
-            thirty_levels = 200000000
-            ten_levels = 100000000
-        # if lvl >= 700 and lvl <= 800:
-        #     hundred_levels = hundred_levels * 2000
-        sell_buttons = [
-                manage_components.create_button(
-                    style=ButtonStyle.green,
-                    label="🔋 1️⃣",
-                    custom_id="1"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="🔋 2️⃣",
-                    custom_id="2"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.red,
-                    label="🔋 3️⃣",
-                    custom_id="3"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.red,
-                    label="⚒️ 4️⃣",
-                    custom_id="5"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.grey,
-                    label="Cancel",
-                    custom_id="cancel"
-                )
-            ]
-        
-        util_sell_buttons = [
-                manage_components.create_button(
-                    style=ButtonStyle.grey,
-                    label="Gabe's Purse 👛",
-                    custom_id="4"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.grey,
-                    label="Storage 💼",
-                    custom_id="6"
-                )
-        ]
-        
-        sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
-        util_sell_buttons_action_row = manage_components.create_actionrow(*util_sell_buttons)
-        embedVar = discord.Embed(title=f"🔨 | **Blacksmith** - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
-        Welcome {ctx.author.mention}!
-        Purchase **Card XP** and **Arm Durability**!
-        🎴 Card:  **{current_card}** {licon}**{lvl}**
-        🦾 Arm: **{current_arm}** *{boss_message}*
-        
-
-        🔋 1️⃣ **10 Levels** for :coin: **{'{:,}'.format(ten_levels)}**
-        
-        🔋 2️⃣ **30 Levels** for :dollar: **{'{:,}'.format(thirty_levels)}**
-
-        🔋 3️⃣ **100 Levels** for :moneybag: **{'{:,}'.format(hundred_levels)}**
-
-        ⚒️ 4️⃣ **50 Durability** for :dollar: **{durability_message}**
-
-        💼 **Storage Tier {str(storage_type + 1)}**: :money_with_wings: **{storage_pricing_text}**
-
-
-        Purchase **Gabe's Purse** to Keep ALL ITEMS when **Rebirthing**
-        *You will not be able to select a new starting universe!*
-
-        **Gabe's Purse** 👛 for :money_with_wings: **10,000,000**
-
-        What would you like to buy?
-        """), colour=0xf1c40f)
-        embedVar.set_footer(text="Boosts are used immediately upon purchase. Click cancel to exit purchase.", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
-        msg = await ctx.send(embed=embedVar, components=[sell_buttons_action_row, util_sell_buttons_action_row])
-
-        def check(button_ctx):
-            return button_ctx.author == ctx.author
-
         try:
-            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row, util_sell_buttons_action_row], timeout=120,check=check)
-            levels_gained = 0
-            price = 0
-            exp_boost_buttons = ["1", "2", "3"]
-            if button_ctx.custom_id == "1":
-                # if lvl >= 200:
-                #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                #     return
-                levels_gained = 10
-                price = ten_levels
-            if button_ctx.custom_id == "2":
-                # if lvl >= 200:
-                #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                #     return
-                levels_gained = 30
-                price = thirty_levels
-            if button_ctx.custom_id == "3":
-                levels_gained = 100
-                price=hundred_levels
-            if button_ctx.custom_id == "5":
-                levels_gained = 50
-                price=100000
-
-
-            if button_ctx.custom_id == "cancel":
-                await msg.edit(components=[])
-                return
-
-            if button_ctx.custom_id in exp_boost_buttons:
-                if price > balance:
-                    await button_ctx.send("You're too broke to buy. Get your money up.", hidden=True)
-                    await msg.edit(components=[])
-                    return
-
-                card_info = {}
-                for level in vault['CARD_LEVELS']:
-                    if level['CARD'] == current_card:
-                        card_info = level
-
-                lvl = card_info['LVL']
-                max_lvl = 700
-                if lvl >= max_lvl:
-                    await button_ctx.send(f"**{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
-                    await msg.edit(components=[])
-                    return
-
-                elif (levels_gained + lvl) > max_lvl:
-                    levels_gained =  max_lvl - lvl
-
-
-                atk_def_buff = round(levels_gained / 2)
-                ap_buff = round(levels_gained / 3)
-                hlt_buff = (round(levels_gained / 20) * 25)
-
-                query = {'DID': str(ctx.author.id)}
-                update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0}, '$inc': {'CARD_LEVELS.$[type].' + "LVL": levels_gained, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff, 'CARD_LEVELS.$[type].' + "DEF": atk_def_buff, 'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                filter_query = [{'type.'+ "CARD": str(current_card)}]
-                response = db.updateVault(query, update_query, filter_query)
-                await crown_utilities.curse(price, str(ctx.author.id))
-                await button_ctx.send(f"**{str(current_card)}** gained {levels_gained} levels!")
-                await msg.edit(components=[])
-                if button_ctx.custom_id == "cancel":
-                    await button_ctx.send("Sell ended.", hidden=True)
-                    await msg.edit(components=[])
-                    return
-
-            if button_ctx.custom_id == "4":
-                price = 10000000
-                if price > balance:
-                    await button_ctx.send("Insufficent funds.", hidden=True)
-                    await msg.edit(components=[])
-                    return
-                if has_gabes_purse:
-                    await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", hidden=True)
-                    await msg.edit(components=[])
-                    return
-                else:
-                    update = db.updateUserNoFilterAlt(user_query, {'$set': {'TOURNAMENT_WINS': 1}})
-                    await crown_utilities.curse(10000000, str(ctx.author.id))
-                    await button_ctx.send("Gabe's Purse has been purchased!")
-                    await msg.edit(components=[])
-                    return
+            user_query = {'DID': str(ctx.author.id)}
+            user = db.queryUser(user_query)
+            #    if user['LEVEL'] < 11:
+            #       await ctx.send(f"🔓 Unlock the Trinket Shop by completing Floor 10 of the 🌑 Abyss! Use /solo to enter the abyss.")
+            #       return
+            patron_flag = user['PATRON']
+            current_arm = user['ARM']
+            storage_type = user['STORAGE_TYPE'] #Storage Update
+            storage_pricing = (storage_type + 1) * 1500000
+            storage_pricing_text = f"{'{:,}'.format(storage_pricing)}" 
+            storage_tier_message = (storage_type + 1)
+            preset_upgrade = user['U_PRESET']
+            preset_message = "Preset Upgraded!"
+            if preset_upgrade == False:
+                preset_message = "10,000,000"
+            gabes = user['TOURNAMENT_WINS']
+            gabes_message = "Purse Purchased!"
+            gabes_explain = ""
             
-            if button_ctx.custom_id == "5":
-                if boss_arm:
-                    await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
-                    await msg.edit(components=[])
-                    return
-                if price > balance:
-                    await button_ctx.send("Insufficent funds.", hidden=True)
-                    await msg.edit(components=[])
-                    return
-                if current_durability >= 100:
-                    await button_ctx.send(f"🦾 {current_arm} is already at Max Durability. ⚒️",hidden=True)
-                    await msg.edit(components=[])
-                    return
-                else:
-                    try:
-                        new_durability = current_durability + levels_gained
-                        full_repair = False
-                        if new_durability > 100:
-                            levels_gained = 100 - current_durability
-                            full_repair=True
-                        query = {'DID': str(ctx.author.id)}
-                        update_query = {'$inc': {'ARMS.$[type].' + 'DUR': levels_gained}}
-                        filter_query = [{'type.' + "ARM": str(current_arm)}]
-                        resp = db.updateVault(query, update_query, filter_query)
+            storage_message = f"{str(storage_type + 1)}"
+            
+            if storage_type >=10:
+                storage_pricing_text = "Max Storage Level"
+                storage_tier_message = "MAX"
+                storage_message = "MAX"
+            
+            arm_info = db.queryArm({'ARM': str(current_arm)})
+            boss_arm = False
+            dungeon_arm = False
+            boss_message = "Nice Arm!"
+            abyss_arm = False
+            boss_message = "Nice Arm!"
+            arm_cost = '{:,}'.format(100000)
+            durability_message = f"{arm_cost}"
+            if arm_info['UNIVERSE'] == "Unbound":
+                abyss_arm= True
+                arm_cost = '{:,}'.format(1000000)
+                durability_message = f"{arm_cost}"
+            elif arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
+                boss_arm = True
+            elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
+                dungeon_arm= True
+                arm_cost = '{:,}'.format(250000)
+                durability_message = f"{arm_cost}"
 
-                        await crown_utilities.curse(price, str(ctx.author.id))
-                        if full_repair:
-                                await button_ctx.send(f"{current_arm}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
-                        else:
-                                await button_ctx.send(f"{current_arm}'s ⚒️ durability has increased by **{levels_gained}**!")
+            if boss_arm:
+                boss_message = "Cannot Repair"
+                durability_message = "UNAVAILABLE"
+            elif dungeon_arm:
+                boss_message = "Dungeon eh?!"
+            elif abyss_arm:
+                boss_message = "That's Abyssal!!"
+            vault_query = {'DID' : str(ctx.author.id)}
+            vault = db.altQueryVault(vault_query)
+            current_card = user['CARD']
+            current_title = user['TITLE']
+            current_pet = user['PET']
+            has_gabes_purse = user['TOURNAMENT_WINS']
+            if not has_gabes_purse:
+                gabes_message = "25,000,000"
+                gabes_explain = "Purchase **Gabe's Purse** to Keep ALL ITEMS during **/rebirth**"
+            balance = vault['BALANCE']
+            icon = ":coin:"
+            if balance >= 1000000:
+                icon = ":money_with_wings:"
+            elif balance >=650000:
+                icon = ":moneybag:"
+            elif balance >= 150000:
+                icon = ":dollar:"
+            
+            owned_arms = []
+            current_durability = 0
+            for arms in vault['ARMS']:
+                if arms['ARM'] == current_arm:
+                    current_durability = arms['DUR']
+
+            card_info = {}
+            for level in vault['CARD_LEVELS']:
+                if level['CARD'] == current_card:
+                    card_info = level
+
+            lvl = card_info['LVL']
+            
+
+            
+            hundred_levels = 650000
+            thirty_levels = 220000
+            ten_levels = 80000
+            
+            licon = "🔰"
+            if lvl>= 200:
+                licon ="🔱"
+            if lvl>= 700:
+                licon ="⚜️"
+            if lvl >= 999:
+                licon = "🏅"
+
+            if lvl >= 200 and lvl < 299:
+                hundred_levels = 30000000
+                thirty_levels = 20000000
+                ten_levels = 10000000
+            elif lvl >= 300 and lvl < 399:
+                hundred_levels = 70000000
+                thirty_levels = 50000000
+                ten_levels = 25000000
+            elif lvl >= 400 and lvl < 499:
+                hundred_levels = 90000000
+                thirty_levels = 75000000
+                ten_levels = 50000000
+            elif lvl >= 500 and lvl < 599:
+                hundred_levels = 150000000
+                thirty_levels = 100000000
+                ten_levels = 75000000
+            elif lvl >= 600 and lvl < 699:
+                hundred_levels = 300000000
+                thirty_levels = 200000000
+                ten_levels = 100000000
+            elif lvl >= 700 and lvl <= 800:
+                hundred_levels = 750000000
+                thirty_levels = 500000000
+                ten_levels = 250000000
+            elif lvl >= 800 and lvl <= 900:
+                hundred_levels = 1000000000
+                thirty_levels = 800000000
+                ten_levels = 500000000
+            elif lvl >= 900 and lvl <= 1000:
+                hundred_levels = 5000000000
+                thirty_levels = 2500000000
+                ten_levels = 1000000000
+            sell_buttons = [
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label="🔋 1️⃣",
+                        custom_id="1"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="🔋 2️⃣",
+                        custom_id="2"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.red,
+                        label="🔋 3️⃣",
+                        custom_id="3"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.red,
+                        label="⚒️ 4️⃣",
+                        custom_id="5"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.grey,
+                        label="Cancel",
+                        custom_id="cancel"
+                    )
+                ]
+            
+            util_sell_buttons = [
+                    manage_components.create_button(
+                        style=ButtonStyle.grey,
+                        label="Gabe's Purse 👛",
+                        custom_id="4"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.grey,
+                        label="Storage 💼",
+                        custom_id="6"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.grey,
+                        label="Preset 🔖",
+                        custom_id="7"
+                    )
+            ]
+            
+            sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+            util_sell_buttons_action_row = manage_components.create_actionrow(*util_sell_buttons)
+            embedVar = discord.Embed(title=f"🔨 | **Blacksmith** - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
+            Welcome {ctx.author.mention}!
+            Purchase **Card XP** and **Arm Durability**!
+            🎴 Card:  **{current_card}** {licon}**{lvl}**
+            🦾 Arm: **{current_arm}** *{boss_message}* ⚒️*{current_durability}*
+            
+            **Card Level Boost**
+            🔋 1️⃣ **10 Levels** for :coin: **{'{:,}'.format(ten_levels)}**
+            🔋 2️⃣ **30 Levels** for :dollar: **{'{:,}'.format(thirty_levels)}**
+            🔋 3️⃣ **100 Levels** for :moneybag: **{'{:,}'.format(hundred_levels)}**
+            ⚒️ 4️⃣ **50 Durability** for :dollar: **{durability_message}**
+            
+            **Vault Upgrades**
+            💼 **Storage Tier {storage_message}**: :money_with_wings: **{storage_pricing_text}**
+            🔖 **Preset Upgrade**: :money_with_wings: **{preset_message}**
+            👛 **Gabe's Purse**: :money_with_wings: **{gabes_message}**
+            {gabes_explain}
+            
+            What would you like to buy?
+            """), colour=0xf1c40f)
+            embedVar.set_footer(text="Boosts are used immediately upon purchase. Click cancel to exit purchase.", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
+            msg = await ctx.send(embed=embedVar, components=[sell_buttons_action_row, util_sell_buttons_action_row])
+
+            def check(button_ctx):
+                return button_ctx.author == ctx.author
+
+            try:
+                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row, util_sell_buttons_action_row], timeout=120,check=check)
+                levels_gained = 0
+                price = 0
+                exp_boost_buttons = ["1", "2", "3"]
+                if button_ctx.custom_id == "1":
+                    # if lvl >= 200:
+                    #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
+                    #     return
+                    levels_gained = 10
+                    price = ten_levels
+                if button_ctx.custom_id == "2":
+                    # if lvl >= 200:
+                    #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
+                    #     return
+                    levels_gained = 30
+                    price = thirty_levels
+                if button_ctx.custom_id == "3":
+                    levels_gained = 100
+                    price=hundred_levels
+                if button_ctx.custom_id == "5":
+                    levels_gained = 50
+                    price=100000
+
+
+                if button_ctx.custom_id == "cancel":
+                    await msg.edit(components=[])
+                    return
+
+                if button_ctx.custom_id in exp_boost_buttons:
+                    if price > balance:
+                        await button_ctx.send("You're too broke to buy. Get your money up.", hidden=True)
                         await msg.edit(components=[])
                         return
-                    except:
-                        await ctx.send("Failed to purchase durability boost.", hidden=True)
 
-            if button_ctx.custom_id == "6":
-                if storage_pricing > balance:
-                    await button_ctx.send("Insufficent funds.", hidden=True)
-                    await msg.edit(components=[])
-                    return
-                    
-                if not patron_flag and storage_type >= 2:
-                    await button_ctx.send("Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", hidden=True)
-                    await msg.edit(components=[])
-                    return
-                    
-                if storage_type == 10:
-                    await button_ctx.send("You already have max storage.")
-                    await msg.edit(components=[])
-                    return
-                    
-                else:
-                    update = db.updateUserNoFilterAlt(user_query, {'$inc': {'STORAGE_TYPE': 1}})
-                    await crown_utilities.curse(storage_pricing, str(ctx.author.id))
-                    await button_ctx.send(f"Storage Tier {str(storage_type + 1)} has been purchased!")
-                    await msg.edit(components=[])
-                    return
+                    card_info = {}
+                    for level in vault['CARD_LEVELS']:
+                        if level['CARD'] == current_card:
+                            card_info = level
 
+                    lvl = card_info['LVL']
+                    max_lvl = 700
+                    if lvl >= max_lvl:
+                        await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+
+                    elif (levels_gained + lvl) > max_lvl:
+                        levels_gained =  max_lvl - lvl
+
+
+                    atk_def_buff = round(levels_gained / 2)
+                    ap_buff = round(levels_gained / 3)
+                    hlt_buff = (round(levels_gained / 20) * 25)
+
+                    query = {'DID': str(ctx.author.id)}
+                    update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0}, '$inc': {'CARD_LEVELS.$[type].' + "LVL": levels_gained, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff, 'CARD_LEVELS.$[type].' + "DEF": atk_def_buff, 'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
+                    filter_query = [{'type.'+ "CARD": str(current_card)}]
+                    response = db.updateVault(query, update_query, filter_query)
+                    await crown_utilities.curse(price, str(ctx.author.id))
+                    await button_ctx.send(f"🔋🎴 | **{str(current_card)}** gained {levels_gained} levels!")
+                    await msg.edit(components=[])
+                    if button_ctx.custom_id == "cancel":
+                        await button_ctx.send("Sell ended.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+
+                if button_ctx.custom_id == "4":
+                    price = 25000000
+                    if price > balance:
+                        await button_ctx.send("Insufficent funds.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                    if has_gabes_purse:
+                        await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                    else:
+                        update = db.updateUserNoFilterAlt(user_query, {'$set': {'TOURNAMENT_WINS': 1}})
+                        await crown_utilities.curse(price, str(ctx.author.id))
+                        await button_ctx.send("👛 | Gabe's Purse has been purchased!")
+                        await msg.edit(components=[])
+                        return
+                    
+                if button_ctx.custom_id == "7":
+                    price = 10000000
+                    if price > balance:
+                        await button_ctx.send("Insufficent funds.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                    if preset_upgrade:
+                        await button_ctx.send("You already have 5 Presets!", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                    else:
+                        await crown_utilities.curse(price, str(ctx.author.id))
+                        response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': str(current_arm), 'PET': "Chick"}}})
+                        response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': str(current_arm), 'PET': "Chick"}}})
+                        #response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
+                        update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
+                        await button_ctx.send("🔖 | Preset Upgraded")
+                        await msg.edit(components=[])
+                        return
+                
+                if button_ctx.custom_id == "5":
+                    if dungeon_arm:
+                        price = 250000
+                    if abyss_arm:
+                        price = 1000000
+                    if boss_arm:
+                        await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                    if price > balance:
+                        await button_ctx.send("Insufficent funds.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                    if current_durability >= 100:
+                        await button_ctx.send(f"🦾 | {current_arm} is already at Max Durability. ⚒️",hidden=True)
+                        await msg.edit(components=[])
+                        return
+                    else:
+                        try:
+                            new_durability = current_durability + levels_gained
+                            full_repair = False
+                            if new_durability > 100:
+                                levels_gained = 100 - current_durability
+                                full_repair=True
+                            query = {'DID': str(ctx.author.id)}
+                            update_query = {'$inc': {'ARMS.$[type].' + 'DUR': levels_gained}}
+                            filter_query = [{'type.' + "ARM": str(current_arm)}]
+                            resp = db.updateVault(query, update_query, filter_query)
+
+                            await crown_utilities.curse(price, str(ctx.author.id))
+                            if full_repair:
+                                    await button_ctx.send(f"🦾 | {current_arm}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
+                            else:
+                                    await button_ctx.send(f"🦾 | {current_arm}'s ⚒️ durability has increased by **{levels_gained}**!")
+                            await msg.edit(components=[])
+                            return
+                        except:
+                            await ctx.send("Failed to purchase durability boost.", hidden=True)
+
+                if button_ctx.custom_id == "6":
+                    if storage_pricing > balance:
+                        await button_ctx.send("Insufficent funds.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                        
+                    if not patron_flag and storage_type >= 2:
+                        await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                        
+                    if storage_type == 10:
+                        await button_ctx.send("💼 | You already have max storage.", hidden=True)
+                        await msg.edit(components=[])
+                        return
+                        
+                    else:
+                        update = db.updateUserNoFilterAlt(user_query, {'$inc': {'STORAGE_TYPE': 1}})
+                        await crown_utilities.curse(storage_pricing, str(ctx.author.id))
+                        await button_ctx.send(f"💼 | Storage Tier {str(storage_type + 1)} has been purchased!")
+                        await msg.edit(components=[])
+                        return
+            except asyncio.TimeoutError:
+                await ctx.send("Blacksmith closed.", hidden=True)
+            except Exception as ex:
+                trace = []
+                tb = ex.__traceback__
+                while tb is not None:
+                    trace.append({
+                        "filename": tb.tb_frame.f_code.co_filename,
+                        "name": tb.tb_frame.f_code.co_name,
+                        "lineno": tb.tb_lineno
+                    })
+                    tb = tb.tb_next
+                print(str({
+                    'type': type(ex).__name__,
+                    'message': str(ex),
+                    'trace': trace
+                }))
+                await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
+        except asyncio.TimeoutError:
+            await ctx.send("Blacksmith closed.", hidden=True)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -2446,8 +2565,7 @@ class Profile(commands.Cog):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("Trinket Shop closed unexpectedly. Seek support.", hidden=True)
-
+            await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
     @cog_ext.cog_slash(description="View your summons", guild_ids=main.guild_ids)
     async def summons(self, ctx):
         await ctx.defer()
@@ -2496,8 +2614,8 @@ class Profile(commands.Cog):
                     bond_req = ((petmove_ap * 5) * (pet_bond + 1))
                     lvl_req = int(pet_level) * 10
                     
-                    bond_message = f"*{pet_exp}/{lvl_req}*"
-                    lvl_message = f"*{bond_exp}/{bond_req}*"
+                    lvl_message = f"*{pet_exp}/{lvl_req}*"
+                    bond_message = f"*{bond_exp}/{bond_req}*"
                     
                     if pet['BOND'] == 3:
                         bond_message = ":star2:"
@@ -2891,6 +3009,8 @@ class Profile(commands.Cog):
         query = {'DID': str(ctx.author.id)}
         d = db.queryUser(query)
         vault = db.queryVault({'DID': d['DID']})
+        prestige = d['PRESTIGE']
+        exchange = int(100 - (prestige * 10))
         # server = db.queryServer({"GNAME": str(ctx.author.guild)})
         if not vault['QUESTS']:
             await ctx.send("You have no quests available at this time!", hidden=True)
@@ -2956,40 +3076,49 @@ class Profile(commands.Cog):
                     else:
                         completed = "🔴"
                     icon = ":coin:"
-                    if balance >= 150000:
+                    if quest['REWARD'] >= 3000000:
+                        icon = ":credit_card:"
+                    if quest['REWARD'] >= 2000000:
                         icon = ":money_with_wings:"
-                    elif balance >=100000:
+                    elif quest['REWARD'] >=1000000:
                         icon = ":moneybag:"
-                    elif balance >= 50000:
+                    elif quest['REWARD'] >= 200000:
                         icon = ":dollar:"
-
+                    
 
                     embedVar = discord.Embed(title=f"{opponent_name}", description=textwrap.dedent(f"""\
                     **Quest**: Defeat {opponent_name} **{str(goal)}** times!
                     **Universe:** 🌍 {opponent['UNIVERSE']}
                     **Reward:** {icon} {reward}
-
                     **Guild Quest Buff:**  {guild_buff_msg}
                     
                     **Wins so far:** {str(wins)}
                     **Completed:** {completed}
-
                     {tales_message}
                     {dungeon_message}
-
                     {buff_message}
                     
                     {virus_message}
                     """))
 
                     embedVar.set_thumbnail(url=opponent_universe_image)
+                    if guild_buff:
+                        if guild_buff['Quest']:
+                            if int(goal) > 1:
+                                embedVar.set_footer(text=f"🌑 | Conquer Abyss **{exchange}** and Prestige to reduce Quest Requirements!")
+                            else:
+                                embedVar.set_footer(text=f"☀️ | You can use /daily every 12 Hours for More Quest!")
+                        else:
+                            embedVar.set_footer(text=f"🪖 | Purchase a Guild Quest Buff and skip to the Quest Fight!")
+                    else:
+                        embedVar.set_footer(text=f"🪖 | Create a Guild and purchase Quest Buff! Skip to the quest fight!")
                     # embedVar.set_footer(text="Use /tales to complete daily quest!", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
 
                     if quest['GOAL'] != quest['WINS']:
                         embed_list.append(embedVar)
 
                 if not embed_list:
-                    await ctx.send("All quests have been completed today! 👑")
+                    await ctx.send(" 👑 | All quests have been completed today!")
                     return
 
                 buttons = [manage_components.create_button(style=3, label="Start Quest Tales", custom_id="quests_tales"),]
@@ -3036,14 +3165,23 @@ class Profile(commands.Cog):
                                         if opp == card['NAME']:
                                             currentopponent = universe['CROWN_TALES'].index(opp)
                                             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-                                        
-                            await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild,
-                                    crestlist, crestsearch, sowner, oteam, ofam, currentopponent, None, None, None,
-                                    None, None, None, None, None)
+                            player = db.queryUser({'DID': str(ctx.author.id)})
+                            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+                            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
+
+                            #print(currentopponent)
+                            mode  = "Tales"
+                            battle = Battle(mode, p)
+                            response = {'SELECTED_UNIVERSE': selected_universe,
+                            'UNIVERSE_DATA': universe, 'CREST_LIST': p.crestlist, 'CREST_SEARCH': p.crestsearch,
+                            'COMPLETED_TALES': p.completed_tales, 'OGUILD': p.association_info, 'CURRENTOPPONENT': currentopponent}
+                            battle.set_universe_selection_config(response)
+                            
+                            await battle_commands(self, ctx, battle, p, None, player2=None, player3=None)
                             
                             self.stop = True
                     else:
-                        await ctx.send("This is not your Title list.")
+                        await ctx.send("This is not your Quest list.")
 
                 await Paginator(bot=self.bot, disableAfterTimeout=True, useQuitButton=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
                     custom_action_row,
@@ -3069,7 +3207,7 @@ class Profile(commands.Cog):
                 return
         else:
             newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
-
+            
     @cog_ext.cog_slash(description="View your balance", guild_ids=main.guild_ids)
     async def balance(self, ctx):
         a_registered_player = await crown_utilities.player_check(ctx)
@@ -3119,318 +3257,482 @@ class Profile(commands.Cog):
             
     @cog_ext.cog_slash(description="Load a saved preset", guild_ids=main.guild_ids)
     async def preset(self, ctx):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
+        try:
+            a_registered_player = await crown_utilities.player_check(ctx)
+            if not a_registered_player:
+                return
 
-        query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)
-        vault_query = {'DID': d['DID']}
-        vault = db.queryVault(vault_query)
-        if vault:
-            ownedcards = []
-            ownedtitles = []
-            ownedarms = []
-            ownedpets = []
-            for cards in vault['CARDS']:
-                ownedcards.append(cards)
-            for titles in vault['TITLES']:
-                ownedtitles.append(titles)
-            for arms in vault['ARMS']:
-                ownedarms.append(arms['ARM'])
-            for pets in vault['PETS']:
-                ownedpets.append(pets['NAME'])
+            query = {'DID': str(ctx.author.id)}
+            d = db.queryUser(query)
+            vault_query = {'DID': d['DID']}
+            vault = db.queryVault(vault_query)
+            if vault:
+                ownedcards = []
+                ownedtitles = []
+                ownedarms = []
+                ownedpets = []
+                for cards in vault['CARDS']:
+                    ownedcards.append(cards)
+                for titles in vault['TITLES']:
+                    ownedtitles.append(titles)
+                for arms in vault['ARMS']:
+                    ownedarms.append(arms['ARM'])
+                for pets in vault['PETS']:
+                    ownedpets.append(pets['NAME'])
 
-            name = d['DISNAME'].split("#",1)[0]
-            avatar = d['AVATAR']
-            cards = vault['CARDS']
-            titles = vault['TITLES']
-            deck = vault['DECK']
-            preset_length = len(deck)
-            
-            
-            preset1_card = list(deck[0].values())[0]
-            preset1_title = list(deck[0].values())[1]
-            preset1_arm = list(deck[0].values())[2]
-            preset1_pet = list(deck[0].values())[3]
-
-            preset2_card = list(deck[1].values())[0]
-            preset2_title = list(deck[1].values())[1]
-            preset2_arm = list(deck[1].values())[2]
-            preset2_pet = list(deck[1].values())[3]
-
-            preset3_card = list(deck[2].values())[0]
-            preset3_title = list(deck[2].values())[1]
-            preset3_arm = list(deck[2].values())[2]
-            preset3_pet = list(deck[2].values())[3]    
-            
-
-
-            listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-            f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-            f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
-        
-            embedVar = discord.Embed(title="What Preset would you like?", description=textwrap.dedent(f"""
-            {"".join(listed_options)}
-            """))
-            embedVar.set_thumbnail(url=avatar)
-            # embedVar.add_field(name=f"Preset 1:{preset1_title} {preset1_card} and {preset1_pet}", value=f"Card: {preset1_card}\nTitle: {preset1_title}\nArm: {preset1_arm}\nSummon: {preset1_pet}", inline=False)
-            # embedVar.add_field(name=f"Preset 2:{preset2_title} {preset2_card} and {preset2_pet}", value=f"Card: {preset2_card}\nTitle: {preset2_title}\nArm: {preset2_arm}\nSummon: {preset2_pet}", inline=False)
-            # embedVar.add_field(name=f"Preset 3:{preset3_title} {preset3_card} and {preset3_pet}", value=f"Card: {preset3_card}\nTitle: {preset3_title}\nArm: {preset3_arm}\nSummon: {preset3_pet}", inline=False)
-            util_buttons = [
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="1️⃣",
-                    custom_id = "1"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="2️⃣",
-                    custom_id = "2"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="3️⃣",
-                    custom_id = "3"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.grey,
-                    label="Quit",
-                    custom_id = "0"
-                ),
-            ]
-            util_action_row = manage_components.create_actionrow(*util_buttons)
-            components = [util_action_row]
-            await ctx.send(embed=embedVar,components=[util_action_row])
-            
-            def check(button_ctx):
-                return button_ctx.author == ctx.author
-            try:
-                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
-
-                if  button_ctx.custom_id == "0":
-                    await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
-                    return
-                elif  button_ctx.custom_id == "1":
-                    for card in ownedcards :                     
-                        if preset1_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset1_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset1_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset1_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
-                            return
-                elif  button_ctx.custom_id == "2":
-                    for card in ownedcards :                     
-                        if preset2_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset2_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset2_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset2_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
-                            return
-                elif  button_ctx.custom_id == "3":
-                    for card in ownedcards :                     
-                        if preset3_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset3_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset3_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset3_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
-                            return  
+                name = d['DISNAME'].split("#",1)[0]
+                avatar = d['AVATAR']
+                cards = vault['CARDS']
+                titles = vault['TITLES']
+                deck = vault['DECK']
+                preset_length = len(deck)
+                preset_update = d['U_PRESET']
                 
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-                await ctx.send("Preset Issue Seek support.", hidden=True)
-        else:
-            newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+                
+                preset1_card = list(deck[0].values())[0]
+                preset1_title = list(deck[0].values())[1]
+                preset1_arm = list(deck[0].values())[2]
+                preset1_pet = list(deck[0].values())[3]
+
+                preset2_card = list(deck[1].values())[0]
+                preset2_title = list(deck[1].values())[1]
+                preset2_arm = list(deck[1].values())[2]
+                preset2_pet = list(deck[1].values())[3]
+
+                preset3_card = list(deck[2].values())[0]
+                preset3_title = list(deck[2].values())[1]
+                preset3_arm = list(deck[2].values())[2]
+                preset3_pet = list(deck[2].values())[3]    
+                
+                if preset_update:
+                    preset4_card = list(deck[3].values())[0]
+                    preset4_title = list(deck[3].values())[1]
+                    preset4_arm = list(deck[3].values())[2]
+                    preset4_pet = list(deck[3].values())[3]
+
+                    preset5_card = list(deck[4].values())[0]
+                    preset5_title = list(deck[4].values())[1]
+                    preset5_arm = list(deck[4].values())[2]
+                    preset5_pet = list(deck[4].values())[3]  
+                    
+                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
+                    f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
+                    f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
+                else:
+                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
+            
+                embedVar = discord.Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
+                {"".join(listed_options)}
+                """))
+                embedVar.set_thumbnail(url=avatar)
+                # embedVar.add_field(name=f"Preset 1:{preset1_title} {preset1_card} and {preset1_pet}", value=f"Card: {preset1_card}\nTitle: {preset1_title}\nArm: {preset1_arm}\nSummon: {preset1_pet}", inline=False)
+                # embedVar.add_field(name=f"Preset 2:{preset2_title} {preset2_card} and {preset2_pet}", value=f"Card: {preset2_card}\nTitle: {preset2_title}\nArm: {preset2_arm}\nSummon: {preset2_pet}", inline=False)
+                # embedVar.add_field(name=f"Preset 3:{preset3_title} {preset3_card} and {preset3_pet}", value=f"Card: {preset3_card}\nTitle: {preset3_title}\nArm: {preset3_arm}\nSummon: {preset3_pet}", inline=False)
+                util_buttons = [
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="1️⃣",
+                        custom_id = "1"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="2️⃣",
+                        custom_id = "2"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="3️⃣",
+                        custom_id = "3"
+                    )
+                ]
+                
+                if preset_update:
+                    util_buttons.append(
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="4️⃣",
+                            custom_id="4"
+                        )
+                    )
+                    util_buttons.append(
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="5️⃣",
+                            custom_id="5"
+                        )
+                    )
+                    
+                        
+
+                util_action_row = manage_components.create_actionrow(*util_buttons)
+                components = [util_action_row]
+                await ctx.send(embed=embedVar,components=[util_action_row])
+                
+                def check(button_ctx):
+                    return button_ctx.author == ctx.author
+                try:
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=30,check=check)
+
+                    if  button_ctx.custom_id == "0":
+                        await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
+                        return
+                    elif  button_ctx.custom_id == "1":
+                        for card in ownedcards :                     
+                            if preset1_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset1_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset1_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset1_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
+                                return
+                    elif  button_ctx.custom_id == "2":
+                        for card in ownedcards :                     
+                            if preset2_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset2_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset2_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset2_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
+                                return
+                    elif  button_ctx.custom_id == "3":
+                        for card in ownedcards :                     
+                            if preset3_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset3_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset3_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset3_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
+                                return  
+                    elif  button_ctx.custom_id == "4":
+                        for card in ownedcards :                     
+                            if preset4_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset4_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset4_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset4_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm), 'PET': str(preset4_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_pet}")
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'PET': str(preset4_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset4_title),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset4_card}")
+                                return  
+                    elif  button_ctx.custom_id == "5":
+                        for card in ownedcards :                     
+                            if preset5_card in ownedcards:
+                                for title in ownedtitles:
+                                    if preset5_title in ownedtitles:
+                                        for arm in ownedarms:
+                                            if preset5_arm in ownedarms:
+                                                for pet in ownedpets:
+                                                    if preset5_pet in ownedpets:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                        return
+                                                    else:
+                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm)}})
+                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_pet}")
+                                                        return
+                                            else:
+                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'PET': str(preset5_pet)}})
+                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_arm}")
+                                                return
+                                    else:
+                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_title}")
+                                        return
+                            else:
+                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset5_card}")
+                                return  
+                    
+                except Exception as ex:
+                    trace = []
+                    tb = ex.__traceback__
+                    while tb is not None:
+                        trace.append({
+                            "filename": tb.tb_frame.f_code.co_filename,
+                            "name": tb.tb_frame.f_code.co_name,
+                            "lineno": tb.tb_lineno
+                        })
+                        tb = tb.tb_next
+                    print(str({
+                        'type': type(ex).__name__,
+                        'message': str(ex),
+                        'trace': trace
+                    }))
+                    await ctx.send("Preset Issue Seek support.", hidden=True)
+            else:
+                newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+        except asyncio.TimeoutError:
+            await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send("Preset Issue Seek support.", hidden=True)
 
     @cog_ext.cog_slash(description="Save your current build as a preset", guild_ids=main.guild_ids)
     async def savepreset(self, ctx):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
+        try:
+            a_registered_player = await crown_utilities.player_check(ctx)
+            if not a_registered_player:
+                return
 
-        query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)
-        vault_query = {'DID': d['DID']}
-        vault = db.queryVault(vault_query)
-        if vault:
-            name = d['DISNAME'].split("#",1)[0]
-            avatar = d['AVATAR']
-            cards = vault['CARDS']
-            titles = vault['TITLES']
-            deck = vault['DECK']
+            query = {'DID': str(ctx.author.id)}
+            d = db.queryUser(query)
+            vault_query = {'DID': d['DID']}
+            vault = db.queryVault(vault_query)
+            if vault:
+                name = d['DISNAME'].split("#",1)[0]
+                avatar = d['AVATAR']
+                cards = vault['CARDS']
+                titles = vault['TITLES']
+                deck = vault['DECK']
 
 
-            current_card = d['CARD']
-            current_title = d['TITLE']
-            current_arm= d['ARM']
-            current_pet = d['PET']
+                current_card = d['CARD']
+                current_title = d['TITLE']
+                current_arm= d['ARM']
+                current_pet = d['PET']
+                preset_update = d['U_PRESET']
 
+                
+                preset1_card = list(deck[0].values())[0]
+                preset1_title = list(deck[0].values())[1]
+                preset1_arm = list(deck[0].values())[2]
+                preset1_pet = list(deck[0].values())[3]
+
+                preset2_card = list(deck[1].values())[0]
+                preset2_title = list(deck[1].values())[1]
+                preset2_arm = list(deck[1].values())[2]
+                preset2_pet = list(deck[1].values())[3]
+
+                preset3_card = list(deck[2].values())[0]
+                preset3_title = list(deck[2].values())[1]
+                preset3_arm = list(deck[2].values())[2]
+                preset3_pet = list(deck[2].values())[3]    
+
+                if preset_update:
+                    preset4_card = list(deck[3].values())[0]
+                    preset4_title = list(deck[3].values())[1]
+                    preset4_arm = list(deck[3].values())[2]
+                    preset4_pet = list(deck[3].values())[3]
+
+                    preset5_card = list(deck[4].values())[0]
+                    preset5_title = list(deck[4].values())[1]
+                    preset5_arm = list(deck[4].values())[2]
+                    preset5_pet = list(deck[4].values())[3]  
+                    
+                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n\n",
+                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
+                    f"📝4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
+                    f"📝5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
+                else:
+                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n\n",
+                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
             
-            preset1_card = list(deck[0].values())[0]
-            preset1_title = list(deck[0].values())[1]
-            preset1_arm = list(deck[0].values())[2]
-            preset1_pet = list(deck[0].values())[3]
+                embedVar = discord.Embed(title=f"📝 | Save Current Build", description=textwrap.dedent(f"""
+                {"".join(listed_options)}
+                """))
+                util_buttons = [
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label="📝 1️⃣",
+                        custom_id = "1"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label="📝 2️⃣",
+                        custom_id = "2"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label="📝 3️⃣",
+                        custom_id = "3"
+                    )
+                ]
+                
+                if preset_update:
+                    util_buttons.append(
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="📝4️⃣",
+                            custom_id="4"
+                        )
+                    )
+                    util_buttons.append(
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="📝5️⃣",
+                            custom_id="5"
+                        )
+                    )
+                util_action_row = manage_components.create_actionrow(*util_buttons)
+                components = [util_action_row]
+                await ctx.send(embed=embedVar,components=[util_action_row])
 
-            preset2_card = list(deck[1].values())[0]
-            preset2_title = list(deck[1].values())[1]
-            preset2_arm = list(deck[1].values())[2]
-            preset2_pet = list(deck[1].values())[3]
+                
+                def check(button_ctx):
+                    return button_ctx.author == ctx.author
 
-            preset3_card = list(deck[2].values())[0]
-            preset3_title = list(deck[2].values())[1]
-            preset3_arm = list(deck[2].values())[2]
-            preset3_pet = list(deck[2].values())[3]    
+                try:
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
 
-            listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n\n",
-            f"1️⃣ | {preset1_title} {preset1_card} & {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-            f"2️⃣ | {preset2_title} {preset2_card} & {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-            f"3️⃣ | {preset3_title} {preset3_card} & {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
-        
-            embedVar = discord.Embed(title=f"Save Current Build", description=textwrap.dedent(f"""
-            {"".join(listed_options)}
-            """))
-            util_buttons = [
-                manage_components.create_button(
-                    style=ButtonStyle.red,
-                    label="📝 1️⃣",
-                    custom_id = "1"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="📝 2️⃣",
-                    custom_id = "2"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.green,
-                    label="📝 3️⃣",
-                    custom_id = "3"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.grey,
-                    label="Quit",
-                    custom_id = "0"
-                ),
-            ]
-            util_action_row = manage_components.create_actionrow(*util_buttons)
-            components = [util_action_row]
-            await ctx.send(embed=embedVar,components=[util_action_row])
-
-            
-            def check(button_ctx):
-                return button_ctx.author == ctx.author
-
-            try:
-                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
-
-                if button_ctx.custom_id == "0":
-                    await button_ctx.send(f"{ctx.author.mention}, No change has been made")
-                    return
-                elif button_ctx.custom_id == "1":
-                    response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.0.CARD' :str(current_card), 'DECK.0.TITLE': str(current_title),'DECK.0.ARM': str(current_arm), 'DECK.0.PET': str(current_pet)}})
-                    if response:
-                        await button_ctx.send("📝 1️⃣| Preset Updated!")
+                    if button_ctx.custom_id == "0":
+                        await button_ctx.send(f"{ctx.author.mention}, No change has been made")
                         return
-                elif button_ctx.custom_id == "2":
-                    response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.1.CARD' :str(current_card), 'DECK.1.TITLE': str(current_title),'DECK.1.ARM': str(current_arm), 'DECK.1.PET': str(current_pet)}})
-                    if response:
-                        await button_ctx.send("📝 2️⃣| Preset Updated!")
-                        return
-                elif button_ctx.custom_id == "3":
-                    response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.2.CARD' :str(current_card), 'DECK.2.TITLE': str(current_title),'DECK.2.ARM': str(current_arm), 'DECK.2.PET': str(current_pet)}})
-                    if response:
-                        await button_ctx.send("📝 3️⃣| Preset Updated!")
-                        return
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-                await ctx.send("Preset Issue Seek support.", hidden=True)
-        else:
-            newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+                    elif button_ctx.custom_id == "1":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.0.CARD' :str(current_card), 'DECK.0.TITLE': str(current_title),'DECK.0.ARM': str(current_arm), 'DECK.0.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 1️⃣| Preset Updated!")
+                            return
+                    elif button_ctx.custom_id == "2":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.1.CARD' :str(current_card), 'DECK.1.TITLE': str(current_title),'DECK.1.ARM': str(current_arm), 'DECK.1.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 2️⃣| Preset Updated!")
+                            return
+                    elif button_ctx.custom_id == "3":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.2.CARD' :str(current_card), 'DECK.2.TITLE': str(current_title),'DECK.2.ARM': str(current_arm), 'DECK.2.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 3️⃣| Preset Updated!")
+                            return
+                    elif button_ctx.custom_id == "4":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.3.CARD' :str(current_card), 'DECK.3.TITLE': str(current_title),'DECK.3.ARM': str(current_arm), 'DECK.3.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 4️⃣| Preset Updated!")
+                            return
+                    elif button_ctx.custom_id == "5":
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.4.CARD' :str(current_card), 'DECK.4.TITLE': str(current_title),'DECK.4.ARM': str(current_arm), 'DECK.4.PET': str(current_pet)}})
+                        if response:
+                            await button_ctx.send("📝 5️⃣| Preset Updated!")
+                            return
+                except asyncio.TimeoutError:
+                    await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+                except Exception as ex:
+                    trace = []
+                    tb = ex.__traceback__
+                    while tb is not None:
+                        trace.append({
+                            "filename": tb.tb_frame.f_code.co_filename,
+                            "name": tb.tb_frame.f_code.co_name,
+                            "lineno": tb.tb_lineno
+                        })
+                        tb = tb.tb_next
+                    print(str({
+                        'type': type(ex).__name__,
+                        'message': str(ex),
+                        'trace': trace
+                    }))
+                    await ctx.send("Preset Issue Seek support.", hidden=True)
+            else:
+                newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send("Preset Issue Seek support.", hidden=True)
 
     @cog_ext.cog_slash(description="Open the shop", guild_ids=main.guild_ids)
     async def shop(self, ctx):
@@ -3447,7 +3749,7 @@ class Profile(commands.Cog):
                 guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
                 guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
 
-            if user['LEVEL'] < 1:
+            if user['LEVEL'] < 1 and user['PRESTIGE'] < 1:
                 await ctx.send("🔓 Unlock the Shop by completing Floor 0 of the 🌑 Abyss! Use /solo to enter the abyss.")
                 return
 
@@ -3472,6 +3774,7 @@ class Profile(commands.Cog):
                 for uni in all_universes:
                     if uni['TIER'] != 9 and uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
                         available_universes.append(uni)
+            universe_subset = random.sample(available_universes, k=min(len(available_universes), 25))
             
             vault_query = {'DID' : str(ctx.author.id)}
             vault = db.altQueryVault(vault_query)
@@ -3522,10 +3825,38 @@ class Profile(commands.Cog):
 
 
             embed_list = []
-            for universe in available_universes:
+            for universe in universe_subset:
+                t1_pre_list_of_cards = False
+                t2_pre_list_of_cards = False
+                t3_pre_list_of_cards = False
+                #Universe Image and Adjusted Pricing
                 universe_name = universe['TITLE']
                 universe_image = universe['PATH']
                 adjusted_prices = price_adjuster(15000, universe_name, completed_tales, completed_dungeons)
+                
+                
+                #Shop Messages and Card Count
+                t1_acceptable = [1,2,3]
+                t2_acceptable = [3,4,5]
+                t3_acceptable = [5,6,7]
+                
+                t1_pre_list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_name), 'TIER': {'$in': t1_acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION']]
+                t1_card_message = (f"💵 {'{:,}'.format(adjusted_prices['C1'])} *🎴{len(t1_pre_list_of_cards)}*")
+                if not t1_pre_list_of_cards:
+                    t1_card_message = ("Unavailable")
+                    
+                t2_pre_list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_name), 'TIER': {'$in': t2_acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION']]
+                t2_card_message = (f"💰 {'{:,}'.format(adjusted_prices['C2'])} *🎴{len(t2_pre_list_of_cards)}*")
+                if not t2_pre_list_of_cards:
+                    t2_card_message = ("Unavailable")
+                    
+                t3_pre_list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_name), 'TIER': {'$in': t3_acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION']]
+                t3_card_message = (f"💸 {'{:,}'.format(adjusted_prices['C3'])} *🎴{len(t3_pre_list_of_cards)}*")
+                if not t3_pre_list_of_cards:
+                    t3_card_message = ("Unavailable")
+
+                
+                
                 embedVar = discord.Embed(title= f"{universe_name}", description=textwrap.dedent(f"""
                 *Welcome {ctx.author.mention}! {adjusted_prices['MESSAGE']}
                 You have {icon}{'{:,}'.format(balance)} coins!*
@@ -3533,9 +3864,9 @@ class Profile(commands.Cog):
                 
                 🎗️ **Title:** Title Purchase for 💵 {'{:,}'.format(adjusted_prices['TITLE_PRICE'])}
                 🦾 **Arm:** Arm Purchase for 💵 {'{:,}'.format(adjusted_prices['ARM_PRICE'])}
-                1️⃣ **1-3 Tier Card:** for 💵 {'{:,}'.format(adjusted_prices['C1'])}
-                2️⃣ **3-5 Tier Card:** for 💰 {'{:,}'.format(adjusted_prices['C2'])}
-                3️⃣ **5-7 Tier Card:** for 💸 {'{:,}'.format(adjusted_prices['C3'])}
+                1️⃣ **1-3 Tier Card:** for {t1_card_message}
+                2️⃣ **3-5 Tier Card:** for {t2_card_message}
+                3️⃣ **5-7 Tier Card:** for {t3_card_message}
                 """), colour=0x7289da)
                 embedVar.set_image(url=universe_image)
                 #embedVar.set_thumbnail(url="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620236723/PCG%20LOGOS%20AND%20RESOURCES/Party_Chat_Shop.png")
@@ -3777,7 +4108,9 @@ class Profile(commands.Cog):
             all_universes = db.queryAllUniverse()
             user = db.queryUser({'DID': str(ctx.author.id)})
             guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
-            guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
+            guild_buff = "NONE"
+            if guild_info:
+                guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
             completed_dungeons = user['DUNGEONS']
             completed_tales = user['CROWN_TALES']
             card_info = db.queryCard({"NAME": user['CARD']})
@@ -3805,7 +4138,7 @@ class Profile(commands.Cog):
                 for uni in all_universes:
                     if uni['TIER'] != 9 and uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
                         available_universes.append(uni)
-            
+            universe_subset = random.sample(available_universes, k=min(len(available_universes), 25))
             vault_query = {'DID' : str(ctx.author.id)}
             vault = db.altQueryVault(vault_query)
             current_cards = vault['CARDS']
@@ -3853,7 +4186,7 @@ class Profile(commands.Cog):
             
                     
             embed_list = []
-            for universe in available_universes:
+            for universe in universe_subset:
                 universe_name = universe['TITLE']
                 universe_image = universe['PATH']
                 universe_heart = False
@@ -3870,11 +4203,11 @@ class Profile(commands.Cog):
                 craft_card_message = "Cannot Afford"
                 if universe_heart:
                     heart_message = "Owned"
-                elif gems >= 1000000:
+                elif gems >= 5000000:
                     heart_message = "Craftable"
                 if universe_soul:
                     soul_message = "Owned"
-                elif gems >= 500000:
+                elif gems >= 20000000:
                     soul_message = "Craftable"
                 if gems >= 1500000 and universe_name == card_info['UNIVERSE'] and destiny_alert:
                     destiny_message = f"Destinies available"
@@ -3898,24 +4231,27 @@ class Profile(commands.Cog):
                 
                 💟 **Universe Heart:** 💎 5,000,000 *{heart_message}*
                 *Grants ability to level past 200*
-
-                🌹 **Universe Soul:** 💎 5,000,000 *{soul_message}*
-                *Grants double exp in this Universe*
-
-                ✨ **Destiny Line:** 💎 1,500,000 *{destiny_message}*
-                *Grants win for a Destiny Line*
                 
-                🃏 **Card Skins:** 💎 2,000,000 *{card_skin_message}*
+                🌹 **Universe Soul:** 💎 20,000,000 *{soul_message}*
+                *Grants double exp in this Universe*
+                
+                ✨ **Destiny Line:** 💎 1,500,000 *{destiny_message}*
+                *Grants wins for a Destiny Line*
+                
+                🃏 **Card Skins:** 💎 12,000,000 *{card_skin_message}*
                 *Grants Card Skin*
-
-                ✨🎴 **Craft Card:** 💎 15,000,000 *{craft_card_message}*
-                *Craft a random dungeon card from this Universe*
-
+                
+                ✨🎴 **Craft Card:** 💎 6,000,000 *{craft_card_message}*
+                *Craft a random Shop or Dungeon card from this Universe*
                 """), colour=0x7289da)
                 embedVar.set_image(url=universe_image)
+                if gems == 0:
+                    embedVar.set_footer(
+                        text=f"💎 | Dismantle Cards or Accessories from {universe_name} to create Gems!")
+                else:
+                    embedVar.set_footer(
+                        text=f"👾 | Fight Battles during Corruption Hour to Earn Bonus Gems!")
                 embed_list.append(embedVar)
-
-        
             buttons = [
                 manage_components.create_button(style=3, label="💟", custom_id="UNIVERSE_HEART"),
                 manage_components.create_button(style=1, label="🌹", custom_id="UNIVERSE_SOUL"),
@@ -3940,7 +4276,7 @@ class Profile(commands.Cog):
                             self.stop = True                           
 
                     if button_ctx.custom_id == "UNIVERSE_SOUL":
-                        price = 5000000
+                        price = 20000000
                         response = await craft_adjuster(self, ctx, vault, universe, price, button_ctx.custom_id, None, completed_tales)
                         if response['SUCCESS']:
                             await button_ctx.send(f"{response['MESSAGE']}")
@@ -3956,13 +4292,13 @@ class Profile(commands.Cog):
                         self.stop = True
                     if button_ctx.custom_id == "Skin":
                         await button_ctx.defer(ignore=True)
-                        price = 2000000
+                        price = 12000000
                         response = await craft_adjuster(self, ctx, vault, universe, price, card_info, new_skin_list, completed_tales)
                         await button_ctx.send(f"{response['MESSAGE']}")
                         self.stop = True
                     if button_ctx.custom_id == "Card":
                         await button_ctx.defer(ignore=True)
-                        price = 15000000
+                        price = 6000000
                         response = await craft_adjuster(self, ctx, vault, universe, price, "Card", new_skin_list, completed_tales)
                         await button_ctx.send(f"{response['MESSAGE']}")
                         self.stop = True                       
@@ -5657,7 +5993,7 @@ def price_adjuster(price, selected_universe, completed_tales, completed_dungeons
 
 async def menubuild(self, ctx):
     try:
-        # await ctx.defer()
+        await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -5666,355 +6002,123 @@ async def menubuild(self, ctx):
         card = db.queryCard({'NAME':str(d['CARD'])})
         title = db.queryTitle({'TITLE': str(d['TITLE'])})
         arm = db.queryArm({'ARM': str(d['ARM'])})
-        user_info = db.queryUser(query)
         vault = db.queryVault({'DID': d['DID']})
+        if not all([card, title, arm, d]):
+            # Handle error if one of the database calls fails
+            return "Error: One or more of the required data is not available."
+
         if card:
             try:
-                durability = ""
-                base_arm_names = ['Reborn Stock', 'Stock', 'Deadgun', 'Glaive', 'Kings Glaive', 'Legendary Weapon']
-                for a in vault['ARMS']:
-                    if a['ARM'] == str(d['ARM']) and a['ARM'] in base_arm_names:
-                        durability = f""
-                    elif a['ARM'] == str(d['ARM']) and a['ARM'] not in base_arm_names:
-                        durability = f"⚒️ {a['DUR']}"
+                c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
+                t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
+                a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
+                player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'])                 
                 
-                # Acquire Card Levels data
-                card_lvl = 0
-                card_tier = 0
-                card_exp = 0
-                card_lvl_attack_buff = 0
-                card_lvl_defense_buff = 0
-                card_lvl_ap_buff = 0
-                card_lvl_hlt_buff = 0
-
-                for x in vault['CARD_LEVELS']:
-                    if x['CARD'] == card['NAME']:
-                        card_lvl = x['LVL']
-                        card_exp = x['EXP']
-                        card_lvl_ap_buff = crown_utilities.level_sync_stats(card_lvl, "AP")
-                        card_lvl_attack_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
-                        card_lvl_defense_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
-                        card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
-
-                oarm_universe = arm['UNIVERSE']
-                o_title_universe = title['UNIVERSE']
-                o_card = card['NAME']
-                o_card_path=card['PATH']
-                o_max_health = card['HLT'] + card_lvl_hlt_buff
-                o_health = card['HLT'] + card_lvl_hlt_buff
-                o_stamina = card['STAM']
-                o_max_stamina = card['STAM']
-                o_moveset = card['MOVESET']
-                o_attack = card['ATK'] + card_lvl_attack_buff
-                o_defense = card['DEF'] + card_lvl_defense_buff
-                o_type = card['TYPE']
-                o_passive = card['PASS'][0]
-                o_speed = card['SPD']
-                o_show = card['UNIVERSE']
-                o_collection = card['COLLECTION']
-                o_destiny = card['HAS_COLLECTION']
-                o_rebirth = d['REBIRTH']
-                performance_mode = d['PERFORMANCE']
-                card_tier = card['TIER']
-                affinity_message = crown_utilities.set_affinities(card)
-                talisman = d['TALISMAN']
-                talisman_message = "No Talisman Equipped"
-                if talisman == "NULL":
-                    talisman_message = "No Talisman Equipped"
-                else:
-                    for t in vault["TALISMANS"]:
-                        if t["TYPE"].upper() == talisman.upper():
-                            talisman_emoji = crown_utilities.set_emoji(talisman.upper())
-                            talisman_durability = t["DUR"]
-                    talisman_message = f"{talisman_emoji} {talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
-        
-                rebirthBonus = o_rebirth * 10
-                traits = ut.traits
-                mytrait = {}
-                traitmessage = ''
-                for trait in traits:
-                    if trait['NAME'] == o_show:
-                        mytrait = trait
-                    if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
-                        if trait['NAME'] == 'Pokemon':
-                            mytrait = trait
-                if mytrait:
-                    traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
-
-                pets = vault['PETS']
-
-                active_pet = {}
-                pet_names = []
-
-                for pet in pets:
-                    pet_names.append(pet['NAME'])
-                    if pet['NAME'] == d['PET']:
-                        active_pet = pet
-
-                power = list(active_pet.values())[3]
-                pet_ability_power = (active_pet['BOND'] * active_pet['LVL']) + power
-                bond = active_pet['BOND']
-                lvl = active_pet['LVL']
-
-                bond_message = ""
-                lvl_message = ""
-                if bond == 3:
-                    bond_message = "🌟"
+                durability = a.set_durability(player.equipped_arm, player._arms)
                 
-                if lvl == 10:
-                    lvl_message = "⭐"
-
-                # Arm Information
-                arm_name = arm['ARM']
-                arm_passive = arm['ABILITIES'][0]
-                arm_passive_type = list(arm_passive.keys())[0]
-                arm_moves_type_list = ['BASIC', 'SPECIAL', 'ULTIMATE']
-                if arm_passive_type in arm_moves_type_list:
-                    arm_element = arm['ELEMENT']
-                arm_passive_value = list(arm_passive.values())[0]
-                title_name= title['TITLE']
-                title_passive = title['ABILITIES'][0]
-                title_passive_type = list(title_passive.keys())[0]
-                title_passive_value = list(title_passive.values())[0]
-
-                o_1 = o_moveset[0]
-                o_2 = o_moveset[1]
-                o_3 = o_moveset[2]
-                o_enhancer = o_moveset[3]
+                c.set_card_level_buffs(player._card_levels)
+                c.set_affinity_message()
+                c.set_arm_config(a.passive_type, a.name, a.passive_value, a.element)
+                # c.set_passive_values()
                 
-                # Move 1
-                move1 = list(o_1.keys())[0]
-                move1ap = list(o_1.values())[0] + card_lvl_ap_buff
-                move1_stamina = list(o_1.values())[1]
-                move1_element = list(o_1.values())[2]
-                move1_emoji = crown_utilities.set_emoji(move1_element)
-                if arm_passive_type == 'BASIC':
-                    move1 = arm_name
-                    move1ap = list(o_1.values())[0] + card_lvl_ap_buff + arm_passive_value
-                    move1_stamina = list(o_1.values())[1]
-                    move1_element = arm_element
-                    move1_emoji = crown_utilities.set_emoji(move1_element)
-                # Move 2
-                move2 = list(o_2.keys())[0]
-                move2ap = list(o_2.values())[0] + card_lvl_ap_buff
-                move2_stamina = list(o_2.values())[1]
-                move2_element = list(o_2.values())[2]
-                move2_emoji = crown_utilities.set_emoji(move2_element)
-                if arm_passive_type == 'SPECIAL':
-                    move2 = arm_name
-                    move2ap = list(o_2.values())[0] + card_lvl_ap_buff + arm_passive_value
-                    move2_stamina = list(o_2.values())[1]
-                    move2_element = arm_element
-                    move2_emoji = crown_utilities.set_emoji(move2_element)
+                x = 0.0999
+                y = 1.25
+                lvl_req = round((float(c.card_lvl)/x)**y)
 
+                player.set_talisman_message()
+                player.setsummon_messages()
 
-                # Move 3
-                move3 = list(o_3.keys())[0]
-                move3ap = list(o_3.values())[0] + card_lvl_ap_buff
-                move3_stamina = list(o_3.values())[1]
-                move3_element = list(o_3.values())[2]
-                move3_emoji = crown_utilities.set_emoji(move3_element)
-                if arm_passive_type == 'ULTIMATE':
-                    move3 = arm_name
-                    move3ap = list(o_3.values())[0] + card_lvl_ap_buff + arm_passive_value
-                    move3_stamina = list(o_3.values())[1]
-                    move3_element = arm_element
-                    move3_emoji = crown_utilities.set_emoji(move3_element)
-
-
-                # Move Enhancer
-                move4 = list(o_enhancer.keys())[0]
-                move4ap = list(o_enhancer.values())[0]
-                move4_stamina = list(o_enhancer.values())[1]
-                move4enh = list(o_enhancer.values())[2]
-
-
-                resolved = False
-                focused = False
-                att = 0
-                defe = 0
-                turn = 0
-
-                passive_name = list(o_passive.keys())[0]
-                passive_num = list(o_passive.values())[0]
-                passive_type = list(o_passive.values())[1]
-
-            
-                if passive_type:
-                    value_for_passive = card_tier * .5
-                    flat_for_passive = round(10 * (card_tier * .5))
-                    stam_for_passive = 5 * (card_tier * .5)
-                    if passive_type == "HLT":
-                        passive_num = value_for_passive
-                    if passive_type == "LIFE":
-                        passive_num = value_for_passive
-                    if passive_type == "ATK":
-                        passive_num = value_for_passive
-                    if passive_type == "DEF":
-                        passive_num = value_for_passive
-                    if passive_type == "STAM":
-                        passive_num = stam_for_passive
-                    if passive_type == "DRAIN":
-                        passive_num = stam_for_passive
-                    if passive_type == "FLOG":
-                        passive_num = value_for_passive
-                    if passive_type == "WITHER":
-                        passive_num = value_for_passive
-                    if passive_type == "RAGE":
-                        passive_num = value_for_passive
-                    if passive_type == "BRACE":
-                        passive_num = value_for_passive
-                    if passive_type == "BZRK":
-                        passive_num = value_for_passive
-                    if passive_type == "CRYSTAL":
-                        passive_num = value_for_passive
-                    if passive_type == "FEAR":
-                        passive_num = flat_for_passive
-                    if passive_type == "GROWTH":
-                        passive_num = flat_for_passive
-                    if passive_type == "CREATION":
-                        passive_num = value_for_passive
-                    if passive_type == "DESTRUCTION":
-                        passive_num = value_for_passive
-                    if passive_type == "SLOW":
-                        passive_num = "1"
-                    if passive_type == "HASTE":
-                        passive_num = "1"
-                    if passive_type == "STANCE":
-                        passive_num = flat_for_passive
-                    if passive_type == "CONFUSE":
-                        passive_num = flat_for_passive
-                    if passive_type == "BLINK":
-                        passive_num = stam_for_passive
-
-                atk_buff = ""
-                def_buff = ""
-                hlt_buff = ""
-                message = ""
-                if (oarm_universe == o_show) and (o_title_universe == o_show):
-                    o_attack = o_attack + 20
-                    o_defense = o_defense + 20
-                    o_health = o_health + 100
-                    o_max_health = o_max_health + 100
-                    message = "_Universe Buff Applied_"
-                    if o_destiny:
-                        o_attack = o_attack + 25
-                        o_defense = o_defense + 25
-                        o_health = o_health + 150
-                        o_max_health = o_max_health + 150
-                        message = "_Destiny Buff Applied_"
-
-                #Title errors 
-                titled =False
-                titleicon="⚠️"
-                licon = "🔰"
-                armicon = "⚠️"
-                if card_lvl >= 200:
-                    licon ="🔱"
-                if card_lvl >= 700:
-                    licon ="⚜️"
-                if card_lvl >=999:
-                    licon ="🏅"
-                titlemessage = f"{titleicon} {title_name} ~ INEFFECTIVE"
-                armmessage = f"🦾 ⚠️ {arm_name}: {durability}"
-                if arm_passive_type in arm_moves_type_list:
-                    arm_emoji = crown_utilities.set_emoji(arm_element)
-                    if performance_mode:
-                        armmessage = f'☢️ {arm_name}: {arm_emoji} {arm_passive_type.title()} Attack: {arm_passive_value} | {durability}'
-                    else:
-                        armmessage = f'☢️ {arm_name}'
-                warningmessage = f"Use {o_show} or Unbound Titles on this card"
-                if o_title_universe == "Unbound" or o_show == "Crown Rift Awakening":
-                    titled =True
-                    titleicon = "👑"
-                    if performance_mode:
-                        titlemessage = f"👑 {title_name}: {title_passive_type} {title_passive_value}{title_enhancer_suffix_mapping[title_passive_type]}"
-                    else:
-                        titlemessage = f"👑 {title_name}" 
-                    warningmessage= f""
-                elif o_title_universe == o_show:
-                    titled =True
-                    titleicon = "🎗️"
-                    if performance_mode:
-                        titlemessage = f"🎗️ {title_name}: {title_passive_type} {title_passive_value}{title_enhancer_suffix_mapping[title_passive_type]}"
-                    else:
-                        titlemessage = f"🎗️ {title_name}"
-                    warningmessage= f""
+                a.set_arm_message(player.performance, c.universe)
+                t.set_title_message(player.performance, c.universe)
                 
-                if oarm_universe == "Unbound" or o_show == "Crown Rift Slayers":
-                    armicon = "💪"
-                    if performance_mode:
-                        armmessage = f'💪 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
-                    else:
-                        armmessage = f'💪 {arm_name}'
+                has_universe_heart = False
+                has_universe_soul = False
+                pokemon_uni =["Kanto Region","Johto Region","Hoenn Region","Sinnoh Region","Kalos Region","Unova Region","Alola Region","Galar Region"]
+                
+                if card['UNIVERSE'] != "n/a":
+                    for gems in vault['GEMS']:
+                        if gems['UNIVERSE'] == card['UNIVERSE'] and gems['UNIVERSE_HEART']:
+                            has_universe_heart = True
+                        if gems['UNIVERSE'] == card['UNIVERSE'] and gems['UNIVERSE_SOUL']:
+                            has_universe_soul = True
+                
+                trebirth_message = f"_⚔️Tales: +0_"
+                drebirth_message = f"_🔥Dungeon: +0_"
+                trebirthBonus = (player.rebirth + (player.prestige * 10) + 25)
+                drebirthBonus = ((player.rebirth + 1) * ((player.prestige * 10) + 100))
+                if player.prestige > 0:
+                    trebirthBonus = trebirthBonus * player.prestige
+                    drebirthBonus = drebirthBonus * player.prestige
+                if player.rebirth > 0:
+                    trebirth_message = f"_⚔️Tales: {trebirthBonus}xp_"
+                    drebirth_message = f"_🔥Dungeon: {drebirthBonus}xp_"
+                if has_universe_soul:
+                    trebirthBonus = (player.rebirth + (player.prestige * 10) + 25) * 4
+                    drebirthBonus = ((player.rebirth + 1) * ((player.prestige * 10) + 100)) * 4
+                    trebirth_message = f"_🌹⚔️Tales: {trebirthBonus}xp_"
+                    drebirth_message = f"_🌹🔥Dungeon: {drebirthBonus}xp_"
 
-                elif oarm_universe == o_show:
-                    armicon = "🦾"
-                    if performance_mode:
-                        armmessage = f'🦾 {arm_name}: {arm_passive_type} {arm_passive_value}{enhancer_suffix_mapping[arm_passive_type]} {durability}'
-                    else:
-                        armmessage = f'🦾 {arm_name}: {durability}'
+                level_up_message = lvl_req - c.card_exp
+                if lvl_req - c.card_exp <= 0:
+                    level_up_message = "🎆 Battle To Level Up!"
+                if c.card_lvl >= 1000:
+                    level_up_message = "👑 Max Level!!"
+
+                if player.performance:
+                    embedVar = discord.Embed(title=f"{c.set_card_level_icon()}{c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
+                    :mahjong: **{c.tier}**
+                    ❤️ | **{c.max_health}**
+                    🗡️ | **{c.attack}**
+                    🛡️ | **{c.defense}**
+                    🏃 | **{c.speed}**
+
+
+                    **{t.title_message}**
+                    **{a.arm_message}**
+                    **{player.talisman_message}**
+                    {player.summon_power_message}
+                    {player.summon_lvl_message}
+
+                    🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
                     
+                    {c.move1_emoji} **{c.move1}:** {c.move1ap}
+                    {c.move2_emoji} **{c.move2}:** {c.move2ap}
+                    {c.move3_emoji} **{c.move3}:** {c.move3ap}
+                    🦠 | **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
 
-                cardtitle = {'TITLE': title_name}
-                
-
-                #<:PCG:769471288083218432>
-                if performance_mode:
-                    embedVar = discord.Embed(title=f"{licon}{card_lvl} {o_card}".format(self), description=textwrap.dedent(f"""\
-                    :mahjong: **{card_tier}**
-                    ❤️ **{o_max_health}**
-                    🗡️ **{o_attack}**
-                    🛡️ **{o_defense}**
-                    🏃 **{o_speed}**
-
-                    **{talisman_message}**
-
-                    **{titlemessage}**
-                    **{armmessage}**
-                    🧬 **{active_pet['NAME']}:** {active_pet['TYPE']}: {pet_ability_power}{enhancer_suffix_mapping[active_pet['TYPE']]}
-                    🧬 Bond {bond} {bond_message} & Level {lvl} {lvl_message}
-
-                    🩸 **{passive_name}:** {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}                
-                    
-                    {move1_emoji} **{move1}:** {move1ap}
-                    {move2_emoji} **{move2}:** {move2ap}
-                    {move3_emoji} **{move3}:** {move3ap}
-                    🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
-
-                    ♾️ {traitmessage}
+                    ♾️ {c.set_trait_message()}
                     """),colour=000000)
-                    embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
+                    embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_image(url="attachment://image.png")
-                    if card_lvl != 999:
-                        embedVar.set_footer(text=f"EXP Until Next Level: {150 - card_exp}\nRebirth Buff: +{rebirthBonus}\n{warningmessage}")
+                    if c.card_lvl != 999:
+                        embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nVeterans Buff: {trebirth_message} | {drebirth_message}")
                     else:
-                        embedVar.set_footer(text=f"Max Level\nRebirth Buff: +{rebirthBonus}\n{warningmessage}")
-                    embedVar.set_author(name=f"{ctx.author}", icon_url=user_info['AVATAR'])
+                        embedVar.set_footer(text=f"Max Level\nVeterans Buff: {trebirth_message} | {drebirth_message}")
+                    embedVar.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                     
                     await ctx.send(embed=embedVar)
                 
                 else:
-                    card_file = showcard("non-battle", card, arm, o_max_health, o_health, o_max_stamina, o_stamina, resolved, title, focused, o_attack, o_defense, turn, move1ap, move2ap, move3ap, move4ap, move4enh, card_lvl, None)
+                    card_file = c.showcard("non-battle", a, t, 0, 0)
 
                     embedVar = discord.Embed(title=f"".format(self), colour=000000)
-                    embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
+                    embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_image(url="attachment://image.png")
                     embedVar.set_author(name=textwrap.dedent(f"""\
-                    🧬 {active_pet['NAME']}: {active_pet['TYPE'].title()}: {pet_ability_power}{enhancer_suffix_mapping[active_pet['TYPE']]} 
-                    🧬 Bond {bond} {bond_message} & Level {lvl} {lvl_message}
-                    {titlemessage}
-                    {armmessage}
-                    {talisman_message}
+                    {player.summon_power_message}
+                    {player.summon_lvl_message}
+                    {t.title_message}
+                    {a.arm_message}
+                    {player.talisman_message}
 
-                    🩸 {passive_name}      
-                    🏃 {o_speed}
+                    🩸 | {c.passive_name}      
+                    🏃 | {c.speed}
                     """))
                     embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                    if card_lvl != 999:
-                        embedVar.set_footer(text=f"EXP Until Next Level: {150 - card_exp}\nRebirth Buff: +{rebirthBonus}\n♾️ {traitmessage}\n{warningmessage}")
+                    if c.card_lvl != 999:
+                        embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nVeterans Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
                     else:
-                        embedVar.set_footer(text=f"Max Level")
+                        embedVar.set_footer(text=f"Max Level\nVeterans Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
                     
                     await ctx.send(file=card_file, embed=embedVar)
             except Exception as ex:
@@ -6047,7 +6151,6 @@ async def menubuild(self, ctx):
             })
             tb = tb.tb_next
         print(str({
-            'player': str(player),
             'type': type(ex).__name__,
             'message': str(ex),
             'trace': trace
@@ -7965,342 +8068,392 @@ async def menugems(self, ctx: SlashContext):
         await ctx.send("You currently own no 💎.")
 
     async def menublacksmith(self, ctx):
-        try:
-            user_query = {'DID': str(ctx.author.id)}
-            user = db.queryUser(user_query)
-            #    if user['LEVEL'] < 11:
-            #       await ctx.send(f"🔓 Unlock the Trinket Shop by completing Floor 10 of the 🌑 Abyss! Use /solo to enter the abyss.")
-            #       return
-            patron_flag = user['PATRON']
-            current_arm = user['ARM']
-            storage_type = user['STORAGE_TYPE']
-            storage_pricing = (storage_type + 1) * 1500000
-            storage_pricing_text = f"{'{:,}'.format(storage_pricing)}" 
-            arm_info = db.queryArm({'ARM': str(current_arm)})
-            boss_arm = False
-            dungeon_arm = False
-            boss_message = "Nice Arm!"
-            durability_message = "100,000"
-            if arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
-                boss_arm = True
-            elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
-                dungeon_arm= True
-            if boss_arm:
-                boss_message = "Cannot Repair"
-                durability_message = "UNAVAILABLE"
-            elif dungeon_arm:
-                boss_message = "Dungeon eh?!"
-            vault = db.altQueryVault({'DID' : str(ctx.author.id)})
-            current_card = user['CARD']
-            if storage_type >=10:
-                storage_pricing_text = "Max Storage Level"
-                storage_tier_message = "MAX"
-            has_gabes_purse = user['TOURNAMENT_WINS']
-            balance = vault['BALANCE']
-            icon = ":coin:"
-            if balance >= 1000000:
-                icon = ":money_with_wings:"
-            elif balance >=650000:
-                icon = ":moneybag:"
-            elif balance >= 150000:
-                icon = ":dollar:"
-            
-            owned_arms = []
-            current_durability = 0
-            for arms in vault['ARMS']:
-                if arms['ARM'] == current_arm:
-                    current_durability = arms['DUR']
-
-            card_info = {}
-            for level in vault['CARD_LEVELS']:
-                if level['CARD'] == current_card:
-                    card_info = level
-
-            lvl = card_info['LVL']
-
-            
-            hundred_levels = 650000
-            thirty_levels = 220000
-            ten_levels = 80000
-            
-            licon = "🔰"
-            if lvl>= 200:
-                licon ="🔱"
-            if lvl>= 700:
-                licon ="⚜️"
-            if lvl >= 999:
-                licon = "🏅"
-
-            if lvl >= 200 and lvl < 299:
-                hundred_levels = 30000000
-                thirty_levels = 20000000
-                ten_levels = 10000000
-            elif lvl >= 300 and lvl < 399:
-                hundred_levels = 70000000
-                thirty_levels = 50000000
-                ten_levels = 25000000
-            elif lvl >= 400 and lvl < 499:
-                hundred_levels = 90000000
-                thirty_levels = 75000000
-                ten_levels = 50000000
-            elif lvl >= 500 and lvl < 599:
-                hundred_levels = 150000000
-                thirty_levels = 100000000
-                ten_levels = 75000000
-            elif lvl >= 600 and lvl < 699:
-                hundred_levels = 300000000
-                thirty_levels = 200000000
-                ten_levels = 100000000
-            # if lvl >= 700 and lvl <= 800:
-            #     hundred_levels = hundred_levels * 2000
-            sell_buttons = [
-                    manage_components.create_button(
-                        style=ButtonStyle.green,
-                        label="🔋 1️⃣",
-                        custom_id="1"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.blue,
-                        label="🔋 2️⃣",
-                        custom_id="2"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.red,
-                        label="🔋 3️⃣",
-                        custom_id="3"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.red,
-                        label="⚒️ 4️⃣",
-                        custom_id="5"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.grey,
-                        label="Cancel",
-                        custom_id="cancel"
-                    )
-                ]
-            
-            util_sell_buttons = [
-                    manage_components.create_button(
-                        style=ButtonStyle.grey,
-                        label="Gabe's Purse 👛",
-                        custom_id="4"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.grey,
-                        label="Storage 💼",
-                        custom_id="6"
-                    )
-            ]
-            
-            sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
-            util_sell_buttons_action_row = manage_components.create_actionrow(*util_sell_buttons)
-            embedVar = discord.Embed(title=f"🔨 | **Blacksmith** - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
-            Welcome {ctx.author.mention}!
-            Purchase **Card XP** and **Arm Durability**!
-            🎴 Card:  **{current_card}** {licon}**{lvl}**
-            🦾 Arm: **{current_arm}** *{boss_message}*
-            
-
-            🔋 1️⃣ **10 Levels** for :coin: **{'{:,}'.format(ten_levels)}**
+        user_query = {'DID': str(ctx.author.id)}
+        user = db.queryUser(user_query)
+        #    if user['LEVEL'] < 11:
+        #       await ctx.send(f"🔓 Unlock the Trinket Shop by completing Floor 10 of the 🌑 Abyss! Use /solo to enter the abyss.")
+        #       return
+        patron_flag = user['PATRON']
+        current_arm = user['ARM']
+        storage_type = user['STORAGE_TYPE'] #Storage Update
+        storage_pricing = (storage_type + 1) * 1500000
+        storage_pricing_text = f"{'{:,}'.format(storage_pricing)}" 
+        storage_tier_message = (storage_type + 1)
+        preset_upgrade = user['U_PRESET']
+        preset_message = "Preset Upgraded!"
+        if preset_upgrade == False:
+            preset_message = "10,000,000"
+        gabes = user['TOURNAMENT_WINS']
+        gabes_message = "Purse Purchased!"
+        gabes_explain = ""
         
-            🔋 2️⃣ **30 Levels** for :dollar: **{'{:,}'.format(thirty_levels)}**
+        storage_message = f"{str(storage_type + 1)}"
+        
+        if storage_type >=10:
+            storage_pricing_text = "Max Storage Level"
+            storage_tier_message = "MAX"
+            storage_message = "MAX"
+        
+        arm_info = db.queryArm({'ARM': str(current_arm)})
+        boss_arm = False
+        dungeon_arm = False
+        boss_message = "Nice Arm!"
+        abyss_arm = False
+        boss_message = "Nice Arm!"
+        arm_cost = '{:,}'.format(100000)
+        durability_message = f"{arm_cost}"
+        if arm_info['UNIVERSE'] == "Unbound":
+            abyss_arm= True
+            arm_cost = '{:,}'.format(1000000)
+            durability_message = f"{arm_cost}"
+        elif arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
+            boss_arm = True
+        elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
+            dungeon_arm= True
+            arm_cost = '{:,}'.format(250000)
+            durability_message = f"{arm_cost}"
 
-            🔋 3️⃣ **100 Levels** for :moneybag: **{'{:,}'.format(hundred_levels)}**
+        if boss_arm:
+            boss_message = "Cannot Repair"
+            durability_message = "UNAVAILABLE"
+        elif dungeon_arm:
+            boss_message = "Dungeon eh?!"
+        elif abyss_arm:
+            boss_message = "That's Abyssal!!"
+        vault_query = {'DID' : str(ctx.author.id)}
+        vault = db.altQueryVault(vault_query)
+        current_card = user['CARD']
+        current_title = user['TITLE']
+        current_pet = user['PET']
+        has_gabes_purse = user['TOURNAMENT_WINS']
+        if not has_gabes_purse:
+            gabes_message = "25,000,000"
+            gabes_explain = "Purchase **Gabe's Purse** to Keep ALL ITEMS during **/rebirth**"
+        balance = vault['BALANCE']
+        icon = ":coin:"
+        if balance >= 1000000:
+            icon = ":money_with_wings:"
+        elif balance >=650000:
+            icon = ":moneybag:"
+        elif balance >= 150000:
+            icon = ":dollar:"
+        
+        owned_arms = []
+        current_durability = 0
+        for arms in vault['ARMS']:
+            if arms['ARM'] == current_arm:
+                current_durability = arms['DUR']
 
-            ⚒️ 4️⃣ **50 Durability** for :dollar: **{durability_message}**
+        card_info = {}
+        for level in vault['CARD_LEVELS']:
+            if level['CARD'] == current_card:
+                card_info = level
 
-            💼 **Storage Tier {str(storage_type + 1)}**: :money_with_wings: **{storage_pricing_text}**
+        lvl = card_info['LVL']
+        
+
+        
+        hundred_levels = 650000
+        thirty_levels = 220000
+        ten_levels = 80000
+        
+        licon = "🔰"
+        if lvl>= 200:
+            licon ="🔱"
+        if lvl>= 700:
+            licon ="⚜️"
+        if lvl >= 999:
+            licon = "🏅"
+
+        if lvl >= 200 and lvl < 299:
+            hundred_levels = 30000000
+            thirty_levels = 20000000
+            ten_levels = 10000000
+        elif lvl >= 300 and lvl < 399:
+            hundred_levels = 70000000
+            thirty_levels = 50000000
+            ten_levels = 25000000
+        elif lvl >= 400 and lvl < 499:
+            hundred_levels = 90000000
+            thirty_levels = 75000000
+            ten_levels = 50000000
+        elif lvl >= 500 and lvl < 599:
+            hundred_levels = 150000000
+            thirty_levels = 100000000
+            ten_levels = 75000000
+        elif lvl >= 600 and lvl < 699:
+            hundred_levels = 300000000
+            thirty_levels = 200000000
+            ten_levels = 100000000
+        elif lvl >= 700 and lvl <= 800:
+            hundred_levels = 750000000
+            thirty_levels = 500000000
+            ten_levels = 250000000
+        elif lvl >= 800 and lvl <= 900:
+            hundred_levels = 1000000000
+            thirty_levels = 800000000
+            ten_levels = 500000000
+        elif lvl >= 900 and lvl <= 1000:
+            hundred_levels = 5000000000
+            thirty_levels = 2500000000
+            ten_levels = 1000000000
+        sell_buttons = [
+                manage_components.create_button(
+                    style=ButtonStyle.green,
+                    label="🔋 1️⃣",
+                    custom_id="1"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="🔋 2️⃣",
+                    custom_id="2"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.red,
+                    label="🔋 3️⃣",
+                    custom_id="3"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.red,
+                    label="⚒️ 4️⃣",
+                    custom_id="5"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.grey,
+                    label="Cancel",
+                    custom_id="cancel"
+                )
+            ]
+        
+        util_sell_buttons = [
+                manage_components.create_button(
+                    style=ButtonStyle.grey,
+                    label="Gabe's Purse 👛",
+                    custom_id="4"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.grey,
+                    label="Storage 💼",
+                    custom_id="6"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.grey,
+                    label="Preset 🔖",
+                    custom_id="7"
+                )
+        ]
+        
+        sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+        util_sell_buttons_action_row = manage_components.create_actionrow(*util_sell_buttons)
+        embedVar = discord.Embed(title=f"🔨 | **Blacksmith** - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
+        Welcome {ctx.author.mention}!
+        Purchase **Card XP** and **Arm Durability**!
+        🎴 Card:  **{current_card}** {licon}**{lvl}**
+        🦾 Arm: **{current_arm}** *{boss_message}* ⚒️*{current_durability}*
+        
+        **Card Level Boost**
+        🔋 1️⃣ **10 Levels** for :coin: **{'{:,}'.format(ten_levels)}**
+        🔋 2️⃣ **30 Levels** for :dollar: **{'{:,}'.format(thirty_levels)}**
+        🔋 3️⃣ **100 Levels** for :moneybag: **{'{:,}'.format(hundred_levels)}**
+        ⚒️ 4️⃣ **50 Durability** for :dollar: **{durability_message}**
+        
+        **Vault Upgrades**
+        💼 **Storage Tier {storage_message}**: :money_with_wings: **{storage_pricing_text}**
+        🔖 **Preset Upgrade**: :money_with_wings: **{preset_message}**
+        👛 **Gabe's Purse**: :money_with_wings: **{gabes_message}**
+        {gabes_explain}
+        
+        What would you like to buy?
+        """), colour=0xf1c40f)
+        embedVar.set_footer(text="Boosts are used immediately upon purchase. Click cancel to exit purchase.", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
+        msg = await ctx.send(embed=embedVar, components=[sell_buttons_action_row, util_sell_buttons_action_row])
+
+        def check(button_ctx):
+            return button_ctx.author == ctx.author
+
+        try:
+            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row, util_sell_buttons_action_row], timeout=120,check=check)
+            levels_gained = 0
+            price = 0
+            exp_boost_buttons = ["1", "2", "3"]
+            if button_ctx.custom_id == "1":
+                # if lvl >= 200:
+                #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
+                #     return
+                levels_gained = 10
+                price = ten_levels
+            if button_ctx.custom_id == "2":
+                # if lvl >= 200:
+                #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
+                #     return
+                levels_gained = 30
+                price = thirty_levels
+            if button_ctx.custom_id == "3":
+                levels_gained = 100
+                price=hundred_levels
+            if button_ctx.custom_id == "5":
+                levels_gained = 50
+                price=100000
 
 
-            Purchase **Gabe's Purse** to Keep ALL ITEMS when **Rebirthing**
-            *You will not be able to select a new starting universe!*
+            if button_ctx.custom_id == "cancel":
+                await msg.edit(components=[])
+                return
 
-            **Gabe's Purse** 👛 for :money_with_wings: **10,000,000**
-
-            What would you like to buy?
-            """), colour=0xf1c40f)
-            embedVar.set_footer(text="Boosts are used immediately upon purchase. Click cancel to exit purchase.", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
-            msg = await ctx.send(embed=embedVar, components=[sell_buttons_action_row, util_sell_buttons_action_row])
-
-            def check(button_ctx):
-                return button_ctx.author == ctx.author
-
-            try:
-                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row, util_sell_buttons_action_row], timeout=120,check=check)
-                levels_gained = 0
-                price = 0
-                exp_boost_buttons = ["1", "2", "3"]
-                if button_ctx.custom_id == "1":
-                    # if lvl >= 200:
-                    #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                    #     return
-                    levels_gained = 10
-                    price = ten_levels
-                if button_ctx.custom_id == "2":
-                    # if lvl >= 200:
-                    #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                    #     return
-                    levels_gained = 30
-                    price = thirty_levels
-                if button_ctx.custom_id == "3":
-                    levels_gained = 100
-                    price=hundred_levels
-                if button_ctx.custom_id == "5":
-                    levels_gained = 50
-                    price=100000
-
-
-                if button_ctx.custom_id == "cancel":
+            if button_ctx.custom_id in exp_boost_buttons:
+                if price > balance:
+                    await button_ctx.send("You're too broke to buy. Get your money up.", hidden=True)
                     await msg.edit(components=[])
                     return
 
-                if button_ctx.custom_id in exp_boost_buttons:
-                    if price > balance:
-                        await button_ctx.send("You're too broke to buy. Get your money up.", hidden=True)
-                        await msg.edit(components=[])
-                        return
+                card_info = {}
+                for level in vault['CARD_LEVELS']:
+                    if level['CARD'] == current_card:
+                        card_info = level
 
-                    card_info = {}
-                    for level in vault['CARD_LEVELS']:
-                        if level['CARD'] == current_card:
-                            card_info = level
-
-                    lvl = card_info['LVL']
-                    max_lvl = 700
-                    if lvl >= max_lvl:
-                        await button_ctx.send(f"**{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
-                        await msg.edit(components=[])
-                        return
-
-                    elif (levels_gained + lvl) > max_lvl:
-                        levels_gained =  max_lvl - lvl
-
-
-                    atk_def_buff = round(levels_gained / 2)
-                    ap_buff = round(levels_gained / 3)
-                    hlt_buff = (round(levels_gained / 20) * 25)
-
-                    query = {'DID': str(ctx.author.id)}
-                    update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0}, '$inc': {'CARD_LEVELS.$[type].' + "LVL": levels_gained, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff, 'CARD_LEVELS.$[type].' + "DEF": atk_def_buff, 'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                    filter_query = [{'type.'+ "CARD": str(current_card)}]
-                    response = db.updateVault(query, update_query, filter_query)
-                    await crown_utilities.curse(price, str(ctx.author.id))
-                    await button_ctx.send(f"**{str(current_card)}** gained {levels_gained} levels!")
+                lvl = card_info['LVL']
+                max_lvl = 700
+                if lvl >= max_lvl:
+                    await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
                     await msg.edit(components=[])
-                    if button_ctx.custom_id == "cancel":
-                        await button_ctx.send("Sell ended.", hidden=True)
-                        await msg.edit(components=[])
-                        return
+                    return
 
-                if button_ctx.custom_id == "4":
-                    price = 10000000
-                    if price > balance:
-                        await button_ctx.send("Insufficent funds.", hidden=True)
-                        await msg.edit(components=[])
-                        return
-                    if has_gabes_purse:
-                        await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", hidden=True)
-                        await msg.edit(components=[])
-                        return
-                    else:
-                        update = db.updateUserNoFilterAlt(user_query, {'$set': {'TOURNAMENT_WINS': 1}})
-                        await crown_utilities.curse(10000000, str(ctx.author.id))
-                        await button_ctx.send("Gabe's Purse has been purchased!")
-                        await msg.edit(components=[])
-                        return
+                elif (levels_gained + lvl) > max_lvl:
+                    levels_gained =  max_lvl - lvl
+
+
+                atk_def_buff = round(levels_gained / 2)
+                ap_buff = round(levels_gained / 3)
+                hlt_buff = (round(levels_gained / 20) * 25)
+
+                query = {'DID': str(ctx.author.id)}
+                update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0}, '$inc': {'CARD_LEVELS.$[type].' + "LVL": levels_gained, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff, 'CARD_LEVELS.$[type].' + "DEF": atk_def_buff, 'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
+                filter_query = [{'type.'+ "CARD": str(current_card)}]
+                response = db.updateVault(query, update_query, filter_query)
+                await crown_utilities.curse(price, str(ctx.author.id))
+                await button_ctx.send(f"🔋🎴 | **{str(current_card)}** gained {levels_gained} levels!")
+                await msg.edit(components=[])
+                if button_ctx.custom_id == "cancel":
+                    await button_ctx.send("Sell ended.", hidden=True)
+                    await msg.edit(components=[])
+                    return
+
+            if button_ctx.custom_id == "4":
+                price = 25000000
+                if price > balance:
+                    await button_ctx.send("Insufficent funds.", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                if has_gabes_purse:
+                    await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                else:
+                    update = db.updateUserNoFilterAlt(user_query, {'$set': {'TOURNAMENT_WINS': 1}})
+                    await crown_utilities.curse(price, str(ctx.author.id))
+                    await button_ctx.send("👛 | Gabe's Purse has been purchased!")
+                    await msg.edit(components=[])
+                    return
                 
-                if button_ctx.custom_id == "5":
-                    if boss_arm:
-                        await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
-                        await msg.edit(components=[])
-                        return
-                    if price > balance:
-                        await button_ctx.send("Insufficent funds.", hidden=True)
-                        await msg.edit(components=[])
-                        return
-                    if current_durability >= 100:
-                        await button_ctx.send(f"🦾 {current_arm} is already at Max Durability. ⚒️",hidden=True)
-                        await msg.edit(components=[])
-                        return
-                    else:
-                        try:
-                            new_durability = current_durability + levels_gained
-                            full_repair = False
-                            if new_durability > 100:
-                                levels_gained = 100 - current_durability
-                                full_repair=True
-                            query = {'DID': str(ctx.author.id)}
-                            update_query = {'$inc': {'ARMS.$[type].' + 'DUR': levels_gained}}
-                            filter_query = [{'type.' + "ARM": str(current_arm)}]
-                            resp = db.updateVault(query, update_query, filter_query)
+            if button_ctx.custom_id == "7":
+                price = 10000000
+                if price > balance:
+                    await button_ctx.send("Insufficent funds.", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                if preset_upgrade:
+                    await button_ctx.send("You already have 5 Presets!", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                else:
+                    await crown_utilities.curse(price, str(ctx.author.id))
+                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': str(current_arm), 'PET': "Chick"}}})
+                    response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': str(current_arm), 'PET': "Chick"}}})
+                    #response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
+                    update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
+                    await button_ctx.send("🔖 | Preset Upgraded")
+                    await msg.edit(components=[])
+                    return
+            
+            if button_ctx.custom_id == "5":
+                if dungeon_arm:
+                    price = 250000
+                if abyss_arm:
+                    price = 1000000
+                if boss_arm:
+                    await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                if price > balance:
+                    await button_ctx.send("Insufficent funds.", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                if current_durability >= 100:
+                    await button_ctx.send(f"🦾 | {current_arm} is already at Max Durability. ⚒️",hidden=True)
+                    await msg.edit(components=[])
+                    return
+                else:
+                    try:
+                        new_durability = current_durability + levels_gained
+                        full_repair = False
+                        if new_durability > 100:
+                            levels_gained = 100 - current_durability
+                            full_repair=True
+                        query = {'DID': str(ctx.author.id)}
+                        update_query = {'$inc': {'ARMS.$[type].' + 'DUR': levels_gained}}
+                        filter_query = [{'type.' + "ARM": str(current_arm)}]
+                        resp = db.updateVault(query, update_query, filter_query)
 
-                            await crown_utilities.curse(price, str(ctx.author.id))
-                            if full_repair:
-                                    await button_ctx.send(f"{current_arm}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
-                            else:
-                                    await button_ctx.send(f"{current_arm}'s ⚒️ durability has increased by **{levels_gained}**!")
-                            await msg.edit(components=[])
-                            return
-                        except:
-                            await ctx.send("Failed to purchase durability boost.", hidden=True)
+                        await crown_utilities.curse(price, str(ctx.author.id))
+                        if full_repair:
+                                await button_ctx.send(f"🦾 | {current_arm}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
+                        else:
+                                await button_ctx.send(f"🦾 | {current_arm}'s ⚒️ durability has increased by **{levels_gained}**!")
+                        await msg.edit(components=[])
+                        return
+                    except:
+                        await ctx.send("Failed to purchase durability boost.", hidden=True)
 
-                if button_ctx.custom_id == "6":
-                    if storage_pricing > balance:
-                        await button_ctx.send("Insufficent funds.", hidden=True)
-                        await msg.edit(components=[])
-                        return
-                        
-                    if not patron_flag and storage_type >= 2:
-                        await button_ctx.send("Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", hidden=True)
-                        await msg.edit(components=[])
-                        return
-                        
-                    if storage_type == 10:
-                        await button_ctx.send("You already have max storage.")
-                        await msg.edit(components=[])
-                        return
-                        
-                    else:
-                        update = db.updateUserNoFilterAlt(user_query, {'$inc': {'STORAGE_TYPE': 1}})
-                        await crown_utilities.curse(storage_pricing, str(ctx.author.id))
-                        await button_ctx.send(f"Storage Tier {str(storage_type + 1)} has been purchased!")
-                        await msg.edit(components=[])
-                        return
-
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-                await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
+            if button_ctx.custom_id == "6":
+                if storage_pricing > balance:
+                    await button_ctx.send("Insufficent funds.", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                    
+                if not patron_flag and storage_type >= 2:
+                    await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                    
+                if storage_type == 10:
+                    await button_ctx.send("💼 | You already have max storage.", hidden=True)
+                    await msg.edit(components=[])
+                    return
+                    
+                else:
+                    update = db.updateUserNoFilterAlt(user_query, {'$inc': {'STORAGE_TYPE': 1}})
+                    await crown_utilities.curse(storage_pricing, str(ctx.author.id))
+                    await button_ctx.send(f"💼 | Storage Tier {str(storage_type + 1)} has been purchased!")
+                    await msg.edit(components=[])
+                    return
+        except asyncio.TimeoutError:
+            await ctx.send("Blacksmith closed.", hidden=True)
         except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-                await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
 
 async def menusummons(self, ctx):
     await ctx.defer()
@@ -8741,6 +8894,101 @@ async def menuquests(self, ctx):
     query = {'DID': str(ctx.author.id)}
     d = db.queryUser(query)
     vault = db.queryVault({'DID': d['DID']})
+    if not vault['DESTINY']:
+        await ctx.send("No Destiny Lines available at this time!")
+        return
+    if vault:
+        try:
+            name = d['DISNAME'].split("#",1)[0]
+            avatar = d['AVATAR']
+            balance = vault['BALANCE']
+            destiny = vault['DESTINY']
+
+            destiny_messages = []
+            icon = ":coin:"
+            if balance >= 150000:
+                icon = ":money_with_wings:"
+            elif balance >=100000:
+                icon = ":moneybag:"
+            elif balance >= 50000:
+                icon = ":dollar:"
+            for d in destiny:
+                if not d['COMPLETED']:
+                    destiny_messages.append(textwrap.dedent(f"""\
+                    :sparkles: **{d["NAME"]}**
+                    Defeat **{d['DEFEAT']}** with **{" ".join(d['USE_CARDS'])}** | **Current Progress:** {d['WINS']}/{d['REQUIRED']}
+                    Win :flower_playing_cards: **{d['EARN']}**
+                    """))
+
+            if not destiny_messages:
+                await ctx.send("No Destiny Lines available at this time!")
+                return
+            # Adding to array until divisible by 10
+            while len(destiny_messages) % 10 != 0:
+                destiny_messages.append("")
+
+            # Check if divisible by 10, then start to split evenly
+            if len(destiny_messages) % 10 == 0:
+                first_digit = int(str(len(destiny_messages))[:1])
+                if len(destiny_messages) >= 89:
+                    if first_digit == 1:
+                        first_digit = 10
+                destinies_broken_up = np.array_split(destiny_messages, first_digit)
+            
+            # If it's not an array greater than 10, show paginationless embed
+            if len(destiny_messages) < 10:
+                embedVar = discord.Embed(title= f"Destiny Lines\n**Balance**: :coin:{'{:,}'.format(balance)}", description="\n".join(destiny_messages), colour=0x7289da)
+                embedVar.set_thumbnail(url=avatar)
+                # embedVar.set_footer(text=f".equippet pet name: Equip Pet\n.viewpet pet name: View Pet Details")
+                await ctx.send(embed=embedVar)
+
+            embed_list = []
+            for i in range(0, len(destinies_broken_up)):
+                globals()['embedVar%s' % i] = discord.Embed(title= f":sparkles: Destiny Lines\n**Balance**: {icon}{'{:,}'.format(balance)}", description="\n".join(destinies_broken_up[i]), colour=0x7289da)
+                globals()['embedVar%s' % i].set_thumbnail(url=avatar)
+                # globals()['embedVar%s' % i].set_footer(text=f"{total_pets} Total Pets\n.equippet pet name: Equip Pet\n.viewpet pet name: View Pet Details")
+                embed_list.append(globals()['embedVar%s' % i])
+
+            paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+            paginator.add_reaction('⏮️', "first")
+            paginator.add_reaction('⬅️', "back")
+            paginator.add_reaction('🔐', "lock")
+            paginator.add_reaction('➡️', "next")
+            paginator.add_reaction('⏭️', "last")
+            embeds = embed_list
+            await paginator.run(embeds)
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send("There's an issue with your Destiny Line list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92")
+            return
+    else:
+        newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+
+@cog_ext.cog_slash(description="View your quests", guild_ids=main.guild_ids)
+async def quests(self, ctx):
+    await ctx.defer()
+    a_registered_player = await crown_utilities.player_check(ctx)
+    if not a_registered_player:
+        return
+
+    query = {'DID': str(ctx.author.id)}
+    d = db.queryUser(query)
+    vault = db.queryVault({'DID': d['DID']})
+    prestige = d['PRESTIGE']
+    exchange = int(100 - (prestige * 10))
     # server = db.queryServer({"GNAME": str(ctx.author.guild)})
     if not vault['QUESTS']:
         await ctx.send("You have no quests available at this time!", hidden=True)
@@ -8806,40 +9054,49 @@ async def menuquests(self, ctx):
                 else:
                     completed = "🔴"
                 icon = ":coin:"
-                if balance >= 150000:
+                if quest['REWARD'] >= 3000000:
+                    icon = ":credit_card:"
+                if quest['REWARD'] >= 2000000:
                     icon = ":money_with_wings:"
-                elif balance >=100000:
+                elif quest['REWARD'] >=1000000:
                     icon = ":moneybag:"
-                elif balance >= 50000:
+                elif quest['REWARD'] >= 200000:
                     icon = ":dollar:"
-
+                
 
                 embedVar = discord.Embed(title=f"{opponent_name}", description=textwrap.dedent(f"""\
                 **Quest**: Defeat {opponent_name} **{str(goal)}** times!
                 **Universe:** 🌍 {opponent['UNIVERSE']}
                 **Reward:** {icon} {reward}
-
                 **Guild Quest Buff:**  {guild_buff_msg}
                 
                 **Wins so far:** {str(wins)}
                 **Completed:** {completed}
-
                 {tales_message}
                 {dungeon_message}
-
                 {buff_message}
                 
                 {virus_message}
                 """))
 
                 embedVar.set_thumbnail(url=opponent_universe_image)
+                if guild_buff:
+                    if guild_buff['Quest']:
+                        if int(goal) > 1:
+                            embedVar.set_footer(text=f"🌑 | Conquer Abyss **{exchange}** and Prestige to reduce Quest Requirements!")
+                        else:
+                            embedVar.set_footer(text=f"☀️ | You can use /daily every 12 Hours for More Quest!")
+                    else:
+                        embedVar.set_footer(text=f"🪖 | Purchase a Guild Quest Buff and skip to the Quest Fight!")
+                else:
+                    embedVar.set_footer(text=f"🪖 | Create a Guild and purchase Quest Buff! Skip to the quest fight!")
                 # embedVar.set_footer(text="Use /tales to complete daily quest!", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
 
                 if quest['GOAL'] != quest['WINS']:
                     embed_list.append(embedVar)
 
             if not embed_list:
-                await ctx.send("All quests have been completed today! 👑")
+                await ctx.send(" 👑 | All quests have been completed today!")
                 return
 
             buttons = [manage_components.create_button(style=3, label="Start Quest Tales", custom_id="quests_tales"),]
@@ -8886,14 +9143,23 @@ async def menuquests(self, ctx):
                                     if opp == card['NAME']:
                                         currentopponent = universe['CROWN_TALES'].index(opp)
                                         update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-                                    
-                        await battle_commands(self, ctx, mode, universe, selected_universe, completed_universes, oguild,
-                                crestlist, crestsearch, sowner, oteam, ofam, currentopponent, None, None, None,
-                                None, None, None, None, None)
+                        player = db.queryUser({'DID': str(ctx.author.id)})
+                        p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+                        player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
+
+                        #print(currentopponent)
+                        mode  = "Tales"
+                        battle = Battle(mode, p)
+                        response = {'SELECTED_UNIVERSE': selected_universe,
+                        'UNIVERSE_DATA': universe, 'CREST_LIST': p.crestlist, 'CREST_SEARCH': p.crestsearch,
+                        'COMPLETED_TALES': p.completed_tales, 'OGUILD': p.association_info, 'CURRENTOPPONENT': currentopponent}
+                        battle.set_universe_selection_config(response)
+                        
+                        await battle_commands(self, ctx, battle, p, None, player2=None, player3=None)
                         
                         self.stop = True
                 else:
-                    await ctx.send("This is not your Title list.")
+                    await ctx.send("This is not your Quest list.")
 
             await Paginator(bot=self.bot, disableAfterTimeout=True, useQuitButton=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
                 custom_action_row,
@@ -8967,200 +9233,307 @@ async def menubalance(self, ctx):
         }))
         
 async def menupreset(self, ctx):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
+    try:
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
 
-    query = {'DID': str(ctx.author.id)}
-    d = db.queryUser(query)
-    vault_query = {'DID': d['DID']}
-    vault = db.queryVault(vault_query)
-    if vault:
-        ownedcards = []
-        ownedtitles = []
-        ownedarms = []
-        ownedpets = []
-        for cards in vault['CARDS']:
-            ownedcards.append(cards)
-        for titles in vault['TITLES']:
-            ownedtitles.append(titles)
-        for arms in vault['ARMS']:
-            ownedarms.append(arms['ARM'])
-        for pets in vault['PETS']:
-            ownedpets.append(pets['NAME'])
+        query = {'DID': str(ctx.author.id)}
+        d = db.queryUser(query)
+        vault_query = {'DID': d['DID']}
+        vault = db.queryVault(vault_query)
+        if vault:
+            ownedcards = []
+            ownedtitles = []
+            ownedarms = []
+            ownedpets = []
+            for cards in vault['CARDS']:
+                ownedcards.append(cards)
+            for titles in vault['TITLES']:
+                ownedtitles.append(titles)
+            for arms in vault['ARMS']:
+                ownedarms.append(arms['ARM'])
+            for pets in vault['PETS']:
+                ownedpets.append(pets['NAME'])
 
-        name = d['DISNAME'].split("#",1)[0]
-        avatar = d['AVATAR']
-        cards = vault['CARDS']
-        titles = vault['TITLES']
-        deck = vault['DECK']
-        preset_length = len(deck)
+            name = d['DISNAME'].split("#",1)[0]
+            avatar = d['AVATAR']
+            cards = vault['CARDS']
+            titles = vault['TITLES']
+            deck = vault['DECK']
+            preset_length = len(deck)
+            preset_update = d['U_PRESET']
+            
+            
+            preset1_card = list(deck[0].values())[0]
+            preset1_title = list(deck[0].values())[1]
+            preset1_arm = list(deck[0].values())[2]
+            preset1_pet = list(deck[0].values())[3]
+
+            preset2_card = list(deck[1].values())[0]
+            preset2_title = list(deck[1].values())[1]
+            preset2_arm = list(deck[1].values())[2]
+            preset2_pet = list(deck[1].values())[3]
+
+            preset3_card = list(deck[2].values())[0]
+            preset3_title = list(deck[2].values())[1]
+            preset3_arm = list(deck[2].values())[2]
+            preset3_pet = list(deck[2].values())[3]    
+            
+            if preset_update:
+                preset4_card = list(deck[3].values())[0]
+                preset4_title = list(deck[3].values())[1]
+                preset4_arm = list(deck[3].values())[2]
+                preset4_pet = list(deck[3].values())[3]
+
+                preset5_card = list(deck[4].values())[0]
+                preset5_title = list(deck[4].values())[1]
+                preset5_arm = list(deck[4].values())[2]
+                preset5_pet = list(deck[4].values())[3]  
+                
+                listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
+                f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
+                f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
+            else:
+                listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
+                f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
+                f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
         
-        
-        preset1_card = list(deck[0].values())[0]
-        preset1_title = list(deck[0].values())[1]
-        preset1_arm = list(deck[0].values())[2]
-        preset1_pet = list(deck[0].values())[3]
+            embedVar = discord.Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
+            {"".join(listed_options)}
+            """))
+            embedVar.set_thumbnail(url=avatar)
+            # embedVar.add_field(name=f"Preset 1:{preset1_title} {preset1_card} and {preset1_pet}", value=f"Card: {preset1_card}\nTitle: {preset1_title}\nArm: {preset1_arm}\nSummon: {preset1_pet}", inline=False)
+            # embedVar.add_field(name=f"Preset 2:{preset2_title} {preset2_card} and {preset2_pet}", value=f"Card: {preset2_card}\nTitle: {preset2_title}\nArm: {preset2_arm}\nSummon: {preset2_pet}", inline=False)
+            # embedVar.add_field(name=f"Preset 3:{preset3_title} {preset3_card} and {preset3_pet}", value=f"Card: {preset3_card}\nTitle: {preset3_title}\nArm: {preset3_arm}\nSummon: {preset3_pet}", inline=False)
+            util_buttons = [
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="1️⃣",
+                    custom_id = "1"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="2️⃣",
+                    custom_id = "2"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="3️⃣",
+                    custom_id = "3"
+                )
+            ]
+            
+            if preset_update:
+                util_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="4️⃣",
+                        custom_id="4"
+                    )
+                )
+                util_buttons.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="5️⃣",
+                        custom_id="5"
+                    )
+                )
+                
+                    
 
-        preset2_card = list(deck[1].values())[0]
-        preset2_title = list(deck[1].values())[1]
-        preset2_arm = list(deck[1].values())[2]
-        preset2_pet = list(deck[1].values())[3]
+            util_action_row = manage_components.create_actionrow(*util_buttons)
+            components = [util_action_row]
+            await ctx.send(embed=embedVar,components=[util_action_row])
+            
+            def check(button_ctx):
+                return button_ctx.author == ctx.author
+            try:
+                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=30,check=check)
 
-        preset3_card = list(deck[2].values())[0]
-        preset3_title = list(deck[2].values())[1]
-        preset3_arm = list(deck[2].values())[2]
-        preset3_pet = list(deck[2].values())[3]    
-        
-
-
-        listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-        f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-        f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
-    
-        embedVar = discord.Embed(title="What Preset would you like?", description=textwrap.dedent(f"""
-        {"".join(listed_options)}
-        """))
-        embedVar.set_thumbnail(url=avatar)
-        # embedVar.add_field(name=f"Preset 1:{preset1_title} {preset1_card} and {preset1_pet}", value=f"Card: {preset1_card}\nTitle: {preset1_title}\nArm: {preset1_arm}\nSummon: {preset1_pet}", inline=False)
-        # embedVar.add_field(name=f"Preset 2:{preset2_title} {preset2_card} and {preset2_pet}", value=f"Card: {preset2_card}\nTitle: {preset2_title}\nArm: {preset2_arm}\nSummon: {preset2_pet}", inline=False)
-        # embedVar.add_field(name=f"Preset 3:{preset3_title} {preset3_card} and {preset3_pet}", value=f"Card: {preset3_card}\nTitle: {preset3_title}\nArm: {preset3_arm}\nSummon: {preset3_pet}", inline=False)
-        util_buttons = [
-            manage_components.create_button(
-                style=ButtonStyle.blue,
-                label="1️⃣",
-                custom_id = "1"
-            ),
-            manage_components.create_button(
-                style=ButtonStyle.blue,
-                label="2️⃣",
-                custom_id = "2"
-            ),
-            manage_components.create_button(
-                style=ButtonStyle.blue,
-                label="3️⃣",
-                custom_id = "3"
-            ),
-            manage_components.create_button(
-                style=ButtonStyle.grey,
-                label="Quit",
-                custom_id = "0"
-            ),
-        ]
-        util_action_row = manage_components.create_actionrow(*util_buttons)
-        components = [util_action_row]
-        await ctx.send(embed=embedVar,components=[util_action_row])
-        
-        def check(button_ctx):
-            return button_ctx.author == ctx.author
-        try:
-            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=120,check=check)
-
-            if  button_ctx.custom_id == "0":
-                await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
-                return
-            elif  button_ctx.custom_id == "1":
-                for card in ownedcards :                     
-                    if preset1_card in ownedcards:
-                        for title in ownedtitles:
-                            if preset1_title in ownedtitles:
-                                for arm in ownedarms:
-                                    if preset1_arm in ownedarms:
-                                        for pet in ownedpets:
-                                            if preset1_pet in ownedpets:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                                await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                return
-                                            else:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
-                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
-                                                return
-                                    else:
-                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
-                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
-                                        return
-                            else:
-                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
-                                return
-                    else:
-                        response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                        await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
-                        return
-            elif  button_ctx.custom_id == "2":
-                for card in ownedcards :                     
-                    if preset2_card in ownedcards:
-                        for title in ownedtitles:
-                            if preset2_title in ownedtitles:
-                                for arm in ownedarms:
-                                    if preset2_arm in ownedarms:
-                                        for pet in ownedpets:
-                                            if preset2_pet in ownedpets:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                                await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                return
-                                            else:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
-                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
-                                                return
-                                    else:
-                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
-                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
-                                        return
-                            else:
-                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
-                                return
-                    else:
-                        response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                        await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
-                        return
-            elif  button_ctx.custom_id == "3":
-                for card in ownedcards :                     
-                    if preset3_card in ownedcards:
-                        for title in ownedtitles:
-                            if preset3_title in ownedtitles:
-                                for arm in ownedarms:
-                                    if preset3_arm in ownedarms:
-                                        for pet in ownedpets:
-                                            if preset3_pet in ownedpets:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                                await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                return
-                                            else:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
-                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
-                                                return
-                                    else:
-                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
-                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
-                                        return
-                            else:
-                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
-                                return
-                    else:
-                        response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                        await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
-                        return  
-        except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-            await ctx.send("Preset Issue Seek support.", hidden=True)
-    else:
+                if  button_ctx.custom_id == "0":
+                    await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
+                    return
+                elif  button_ctx.custom_id == "1":
+                    for card in ownedcards :                     
+                        if preset1_card in ownedcards:
+                            for title in ownedtitles:
+                                if preset1_title in ownedtitles:
+                                    for arm in ownedarms:
+                                        if preset1_arm in ownedarms:
+                                            for pet in ownedpets:
+                                                if preset1_pet in ownedpets:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                    return
+                                                else:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
+                                                    return
+                                        else:
+                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
+                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
+                                            return
+                                else:
+                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
+                                    return
+                        else:
+                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
+                            await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
+                            return
+                elif  button_ctx.custom_id == "2":
+                    for card in ownedcards :                     
+                        if preset2_card in ownedcards:
+                            for title in ownedtitles:
+                                if preset2_title in ownedtitles:
+                                    for arm in ownedarms:
+                                        if preset2_arm in ownedarms:
+                                            for pet in ownedpets:
+                                                if preset2_pet in ownedpets:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                    return
+                                                else:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
+                                                    return
+                                        else:
+                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
+                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
+                                            return
+                                else:
+                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
+                                    return
+                        else:
+                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
+                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
+                            return
+                elif  button_ctx.custom_id == "3":
+                    for card in ownedcards :                     
+                        if preset3_card in ownedcards:
+                            for title in ownedtitles:
+                                if preset3_title in ownedtitles:
+                                    for arm in ownedarms:
+                                        if preset3_arm in ownedarms:
+                                            for pet in ownedpets:
+                                                if preset3_pet in ownedpets:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                    return
+                                                else:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
+                                                    return
+                                        else:
+                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
+                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
+                                            return
+                                else:
+                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
+                                    return
+                        else:
+                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
+                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
+                            return  
+                elif  button_ctx.custom_id == "4":
+                    for card in ownedcards :                     
+                        if preset4_card in ownedcards:
+                            for title in ownedtitles:
+                                if preset4_title in ownedtitles:
+                                    for arm in ownedarms:
+                                        if preset4_arm in ownedarms:
+                                            for pet in ownedpets:
+                                                if preset4_pet in ownedpets:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm), 'PET': str(preset4_pet)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                    return
+                                                else:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_pet}")
+                                                    return
+                                        else:
+                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'PET': str(preset4_pet)}})
+                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_arm}")
+                                            return
+                                else:
+                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
+                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_title}")
+                                    return
+                        else:
+                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset4_title),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
+                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset4_card}")
+                            return  
+                elif  button_ctx.custom_id == "5":
+                    for card in ownedcards :                     
+                        if preset5_card in ownedcards:
+                            for title in ownedtitles:
+                                if preset5_title in ownedtitles:
+                                    for arm in ownedarms:
+                                        if preset5_arm in ownedarms:
+                                            for pet in ownedpets:
+                                                if preset5_pet in ownedpets:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
+                                                    return
+                                                else:
+                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm)}})
+                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_pet}")
+                                                    return
+                                        else:
+                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'PET': str(preset5_pet)}})
+                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_arm}")
+                                            return
+                                else:
+                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_title}")
+                                    return
+                        else:
+                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
+                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset5_card}")
+                            return  
+                
+            except Exception as ex:
+                trace = []
+                tb = ex.__traceback__
+                while tb is not None:
+                    trace.append({
+                        "filename": tb.tb_frame.f_code.co_filename,
+                        "name": tb.tb_frame.f_code.co_name,
+                        "lineno": tb.tb_lineno
+                    })
+                    tb = tb.tb_next
+                print(str({
+                    'type': type(ex).__name__,
+                    'message': str(ex),
+                    'trace': trace
+                }))
+                await ctx.send("Preset Issue Seek support.", hidden=True)
+        else:
             newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+    except asyncio.TimeoutError:
+        await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        await ctx.send("Preset Issue Seek support.", hidden=True)
+
 
 async def menushop(self, ctx):
     a_registered_player = await crown_utilities.player_check(ctx)
@@ -9176,7 +9549,7 @@ async def menushop(self, ctx):
             guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
             guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
 
-        if user['LEVEL'] < 1:
+        if user['LEVEL'] < 1 and user['PRESTIGE'] < 1:
             await ctx.send("🔓 Unlock the Shop by completing Floor 0 of the 🌑 Abyss! Use /solo to enter the abyss.")
             return
 
@@ -9201,6 +9574,7 @@ async def menushop(self, ctx):
             for uni in all_universes:
                 if uni['TIER'] != 9 and uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
                     available_universes.append(uni)
+        universe_subset = random.sample(available_universes, k=min(len(available_universes), 25))
         
         vault_query = {'DID' : str(ctx.author.id)}
         vault = db.altQueryVault(vault_query)
@@ -9251,10 +9625,38 @@ async def menushop(self, ctx):
 
 
         embed_list = []
-        for universe in available_universes:
+        for universe in universe_subset:
+            t1_pre_list_of_cards = False
+            t2_pre_list_of_cards = False
+            t3_pre_list_of_cards = False
+            #Universe Image and Adjusted Pricing
             universe_name = universe['TITLE']
             universe_image = universe['PATH']
             adjusted_prices = price_adjuster(15000, universe_name, completed_tales, completed_dungeons)
+            
+            
+            #Shop Messages and Card Count
+            t1_acceptable = [1,2,3]
+            t2_acceptable = [3,4,5]
+            t3_acceptable = [5,6,7]
+            
+            t1_pre_list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_name), 'TIER': {'$in': t1_acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION']]
+            t1_card_message = (f"💵 {'{:,}'.format(adjusted_prices['C1'])} *🎴{len(t1_pre_list_of_cards)}*")
+            if not t1_pre_list_of_cards:
+                t1_card_message = ("Unavailable")
+                
+            t2_pre_list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_name), 'TIER': {'$in': t2_acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION']]
+            t2_card_message = (f"💰 {'{:,}'.format(adjusted_prices['C2'])} *🎴{len(t2_pre_list_of_cards)}*")
+            if not t2_pre_list_of_cards:
+                t2_card_message = ("Unavailable")
+                
+            t3_pre_list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_name), 'TIER': {'$in': t3_acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION']]
+            t3_card_message = (f"💸 {'{:,}'.format(adjusted_prices['C3'])} *🎴{len(t3_pre_list_of_cards)}*")
+            if not t3_pre_list_of_cards:
+                t3_card_message = ("Unavailable")
+
+            
+            
             embedVar = discord.Embed(title= f"{universe_name}", description=textwrap.dedent(f"""
             *Welcome {ctx.author.mention}! {adjusted_prices['MESSAGE']}
             You have {icon}{'{:,}'.format(balance)} coins!*
@@ -9262,9 +9664,9 @@ async def menushop(self, ctx):
             
             🎗️ **Title:** Title Purchase for 💵 {'{:,}'.format(adjusted_prices['TITLE_PRICE'])}
             🦾 **Arm:** Arm Purchase for 💵 {'{:,}'.format(adjusted_prices['ARM_PRICE'])}
-            1️⃣ **1-3 Tier Card:** for 💵 {'{:,}'.format(adjusted_prices['C1'])}
-            2️⃣ **3-5 Tier Card:** for 💰 {'{:,}'.format(adjusted_prices['C2'])}
-            3️⃣ **5-7 Tier Card:** for 💸 {'{:,}'.format(adjusted_prices['C3'])}
+            1️⃣ **1-3 Tier Card:** for {t1_card_message}
+            2️⃣ **3-5 Tier Card:** for {t2_card_message}
+            3️⃣ **5-7 Tier Card:** for {t3_card_message}
             """), colour=0x7289da)
             embedVar.set_image(url=universe_image)
             #embedVar.set_thumbnail(url="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620236723/PCG%20LOGOS%20AND%20RESOURCES/Party_Chat_Shop.png")
@@ -9296,9 +9698,9 @@ async def menushop(self, ctx):
                     price = price_adjuster(50000, universe, completed_tales, completed_dungeons)['TITLE_PRICE']
                     bless_amount = price
                     # if len(current_titles) >=25:
-                        # await button_ctx.send("You have max amount of Titles. Transaction cancelled.")
-                        # self.stop = True
-                        # return
+                    #     await button_ctx.send("You have max amount of Titles. Transaction cancelled.")
+                    #     self.stop = True
+                    #     return
 
                     if price > balance:
                         await button_ctx.send("Insufficent funds.")
@@ -9326,12 +9728,12 @@ async def menushop(self, ctx):
                             bless_reduction = bless_amount * .50
                             bless_amount = round((bless_amount - bless_reduction)/2)
                         else: 
-                            bless_amount = round(bless_amount /2)
+                            bless_amount = round(bless_amount /2) #Send bless amount for price in utilities
                             
                     response = await crown_utilities.store_drop_card(str(ctx.author.id), title['TITLE'], universe_name, updated_vault, "Titles_NoDestinies", bless_amount, bless_amount, "Purchase", True, int(price), "titles")
                     await button_ctx.send(response)
-                    #     await button_ctx.send(f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!") 
-                    #     await crown_utilities.curse(bless_amount, str(ctx.author.id))
+                        # await button_ctx.send(f"You already own **{title['TITLE']}**. You get a :coin:**{'{:,}'.format(bless_amount)}** refund!") 
+                    #     #await crown_utilities.curse(bless_amount, str(ctx.author.id)) 
                     # else:
                     #     response = db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title['TITLE'])}})   
                     #     await crown_utilities.curse(price, str(ctx.author.id))
@@ -9506,14 +9908,16 @@ async def menucraft(self, ctx):
         all_universes = db.queryAllUniverse()
         user = db.queryUser({'DID': str(ctx.author.id)})
         guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
-        guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
+        guild_buff = "NONE"
+        if guild_info:
+            guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
         completed_dungeons = user['DUNGEONS']
         completed_tales = user['CROWN_TALES']
         card_info = db.queryCard({"NAME": user['CARD']})
         destiny_alert_message = f"No Skins or Destinies available for {card_info['NAME']}"
         destiny_alert = False
         # if user['LEVEL'] < 9:
-        #     await ctx.send("🔓 Unlock Crafting by completeing Floor 8 of the 🌑 Abyss! Use /solo to enter the abyss.")
+        #     await ctx.send("🔓 Unlock Crafting by completing Floor 8 of the 🌑 Abyss! Use **/solo** to enter the abyss.")
         #     return
 
         #skin_alert_message = f"No Skins for {card_info['NAME']}"
@@ -9534,7 +9938,7 @@ async def menucraft(self, ctx):
             for uni in all_universes:
                 if uni['TIER'] != 9 and uni['HAS_CROWN_TALES'] and uni['HAS_DUNGEON']:
                     available_universes.append(uni)
-        
+        universe_subset = random.sample(available_universes, k=min(len(available_universes), 25))
         vault_query = {'DID' : str(ctx.author.id)}
         vault = db.altQueryVault(vault_query)
         current_cards = vault['CARDS']
@@ -9582,7 +9986,7 @@ async def menucraft(self, ctx):
         
                 
         embed_list = []
-        for universe in available_universes:
+        for universe in universe_subset:
             universe_name = universe['TITLE']
             universe_image = universe['PATH']
             universe_heart = False
@@ -9599,11 +10003,11 @@ async def menucraft(self, ctx):
             craft_card_message = "Cannot Afford"
             if universe_heart:
                 heart_message = "Owned"
-            elif gems >= 1000000:
+            elif gems >= 5000000:
                 heart_message = "Craftable"
             if universe_soul:
                 soul_message = "Owned"
-            elif gems >= 500000:
+            elif gems >= 20000000:
                 soul_message = "Craftable"
             if gems >= 1500000 and universe_name == card_info['UNIVERSE'] and destiny_alert:
                 destiny_message = f"Destinies available"
@@ -9627,21 +10031,26 @@ async def menucraft(self, ctx):
             
             💟 **Universe Heart:** 💎 5,000,000 *{heart_message}*
             *Grants ability to level past 200*
-
-            🌹 **Universe Soul:** 💎 5,000,000 *{soul_message}*
-            *Grants double exp in this Universe*
-
-            ✨ **Destiny Line:** 💎 1,500,000 *{destiny_message}*
-            *Grants win for a Destiny Line*
             
-            🃏 **Card Skins:** 💎 2,000,000 *{card_skin_message}*
+            🌹 **Universe Soul:** 💎 20,000,000 *{soul_message}*
+            *Grants double exp in this Universe*
+            
+            ✨ **Destiny Line:** 💎 1,500,000 *{destiny_message}*
+            *Grants wins for a Destiny Line*
+            
+            🃏 **Card Skins:** 💎 12,000,000 *{card_skin_message}*
             *Grants Card Skin*
-
-            ✨🎴 **Craft Card:** 💎 15,000,000 *{craft_card_message}*
-            *Craft a random dungeon card from this Universe*
-
+            
+            ✨🎴 **Craft Card:** 💎 6,000,000 *{craft_card_message}*
+            *Craft a random Shop or Dungeon card from this Universe*
             """), colour=0x7289da)
             embedVar.set_image(url=universe_image)
+            if gems == 0:
+                embedVar.set_footer(
+                    text=f"💎 | Dismantle Cards or Accessories from {universe_name} to create Gems!")
+            else:
+                embedVar.set_footer(
+                    text=f"👾 | Fight Battles during Corruption Hour to Earn Bonus Gems!")
             embed_list.append(embedVar)
 
     
@@ -9669,7 +10078,7 @@ async def menucraft(self, ctx):
                         self.stop = True                           
 
                 if button_ctx.custom_id == "UNIVERSE_SOUL":
-                    price = 5000000
+                    price = 20000000
                     response = await craft_adjuster(self, ctx, vault, universe, price, button_ctx.custom_id, None, completed_tales)
                     if response['SUCCESS']:
                         await button_ctx.send(f"{response['MESSAGE']}")
@@ -9685,13 +10094,13 @@ async def menucraft(self, ctx):
                     self.stop = True
                 if button_ctx.custom_id == "Skin":
                     await button_ctx.defer(ignore=True)
-                    price = 2000000
+                    price = 12000000
                     response = await craft_adjuster(self, ctx, vault, universe, price, card_info, new_skin_list, completed_tales)
                     await button_ctx.send(f"{response['MESSAGE']}")
                     self.stop = True
                 if button_ctx.custom_id == "Card":
                     await button_ctx.defer(ignore=True)
-                    price = 15000000
+                    price = 6000000
                     response = await craft_adjuster(self, ctx, vault, universe, price, "Card", new_skin_list, completed_tales)
                     await button_ctx.send(f"{response['MESSAGE']}")
                     self.stop = True                       
@@ -9718,6 +10127,631 @@ async def menucraft(self, ctx):
             'message': str(ex),
             'trace': trace
         }))
+        
+@cog_ext.cog_slash(description="Draw Items from Association Armory",
+                options=[
+                    create_option(
+                        name="mode",
+                        description="Draw: Draw card, Dismantle:  Dismantle storage card, Resll: Resell storage card",
+                        option_type=3,
+                        required=True,
+                        choices=[
+                            create_choice(
+                                name="🕋 🎴 Draw Armory Card",
+                                value="cdraw"
+                            ),create_choice(
+                                name="🕋 🎗️ Draw Armory Title",
+                                value="tdraw"
+                            ),create_choice(
+                                name="🕋 🦾 Draw Armory Arm",
+                                value="adraw"
+                            ),
+                        ]
+                    ),create_option(
+                        name="item",
+                        description="Storage Item Name",
+                        option_type=3,
+                        required=True,
+                    )
+                ]
+    , guild_ids=main.guild_ids)
+async def armory(self, ctx: SlashContext, mode : str, item : str ):
+    await ctx.defer()
+    a_registered_player = await crown_utilities.player_check(ctx)
+    if not a_registered_player:
+        return
+    query = {'DID': str(ctx.author.id)}
+    d = db.queryUser(query)#Storage Update
+    team = db.queryTeam({'TEAM_NAME': d['TEAM'].lower()})
+    guild = db.queryGuildAlt({'GNAME': team['GUILD']})
+    guild_name = ""
+    if guild:
+        guild_name = guild['GNAME']
+        #in_guild = True
+        guild_query = {"GNAME": guild['GNAME']}
+    else:
+        await ctx.send("Your Guild is not Associated.")
+        return
+    storage_type = d['STORAGE_TYPE']
+    vault = db.queryVault({'DID': d['DID']})
+    card_name = item
+    title_name = item
+    arm_name = item
+    current_gems = []
+    try: 
+        if vault:
+            for gems in vault['GEMS']:
+                current_gems.append(gems['UNIVERSE'])
+            cards_list = vault['CARDS']
+            card_levels = vault['CARD_LEVELS']
+            title_list = vault['TITLES']
+            arm_list = vault['ARMS']
+            arm_list_names = []
+            for names in arm_list:
+                arm_list_names.append(names['ARM'])
+            total_cards = len(cards_list)
+            total_titles = len(title_list)
+            total_arms = len(arm_list)
+            cstorage = guild['CSTORAGE']
+            cstorage_levels = guild['S_CARD_LEVELS']
+            tstorage = guild['TSTORAGE']
+            astorage = guild['ASTORAGE']
+            storage_arm_names = []
+            item_owned = False
+            levels_owned = False
+            for snames in astorage:
+                storage_arm_names.append(snames['ARM'])
+            
+            storage_card = db.queryCard({'NAME': {"$regex": f"^{str(item)}$", "$options": "i"}})
+            storage_title = db.queryTitle({'TITLE':{"$regex": f"^{str(item)}$", "$options": "i"} })
+            storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"}})
+            lvl = 0
+            tier = 0
+            exp = 0
+            ap_buff = 0
+            atk_buff = 0
+            def_buff = 0
+            hlt_buff = 0
+            if mode == 'cdraw':
+                if total_cards > 24:
+                    await ctx.send("You already have 25 cards.")
+                    return
+                if storage_card:                  
+                    if storage_card['NAME'] in cstorage:
+                        if storage_card['NAME'] in cards_list:
+                            item_owned = True
+                        if not item_owned:
+                            for levels in cstorage_levels:
+                                if levels['CARD'] == storage_card['NAME']:
+                                    lvl = levels['LVL']
+                                    tier = levels['TIER']
+                                    exp = levels['EXP']
+                                    ap_buff = levels['AP']
+                                    atk_buff = levels['ATK']
+                                    def_buff = levels['DEF']
+                                    hlt_buff = levels['HLT']
+                            for c in card_levels:
+                                if c['CARD'] == storage_card['NAME']:
+                                    levels_owned = True
+                                                        
+                        
+                        if not item_owned:
+                            transaction_message = f"{ctx.author} claimed 🎴**{storage_card['NAME']}**."
+                            query = {'DID': str(ctx.author.id)}
+                            update_gstorage_query = {
+                                '$pull': {'CSTORAGE': storage_card['NAME'], 'S_CARD_LEVELS' : {'CARD' :  storage_card['NAME']}},
+                                '$push': {'TRANSACTIONS': transaction_message}
+                            }
+                            response = db.updateGuildAlt(guild_query, update_gstorage_query)
+                            update_storage_query = {
+                                '$addToSet': {'CARDS': storage_card['NAME']},
+                            }
+                            response = db.updateVaultNoFilter(query, update_storage_query)
+                            if not levels_owned:
+                                update_glevel_query = {
+                                '$addToSet' : {
+                                        'CARD_LEVELS': {'CARD': str(storage_card['NAME']), 'LVL': lvl, 'TIER': tier, 'EXP': exp,
+                                                        'HLT': hlt_buff, 'ATK': atk_buff, 'DEF': def_buff, 'AP': ap_buff}}
+                                }
+                                response = db.updateVaultNoFilter(query, update_glevel_query)
+                        else:
+                            await ctx.send(f"🎴**{storage_card['NAME']}** already owned**")
+                            return
+                        await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
+                        return
+                    else:
+                        await ctx.send(f"🎴:{storage_card['NAME']} does not exist in storage.")
+                        return
+                else:
+                    await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
+                    return
+            if mode == 'tdraw':
+                if total_titles > 24:
+                    await ctx.send("You already have 25 titles.")
+                    return
+                if storage_title:                  
+                    if storage_title['TITLE'] in tstorage: #title storage update
+                        if storage_title['TITLE'] in title_list:
+                            item_owned = True
+                        if not item_owned:
+                            transaction_message = f"{ctx.author} claimed 🎗️ **{storage_title['TITLE']}**."
+                            query = {'DID': str(ctx.author.id)}
+                            update_storage_query = {
+                                '$addToSet': {'TITLES': storage_title['TITLE']},
+                            }
+                            response = db.updateVaultNoFilter(query, update_storage_query)
+                            update_gstorage_query = {
+                                    '$pull': {'TSTORAGE': storage_title['TITLE']},
+                                    '$push': {'TRANSACTIONS': transaction_message}
+                                }
+                            response = db.updateGuildAlt(guild_query, update_gstorage_query)
+                            transaction_message = f"{ctx.author} claimed 🎗️ **{storage_title['TITLE']}****."
+                        else:
+                            await ctx.send(f"🎗️ **{storage_title['TITLE']}** already owned**")
+                            return
+                        
+                        await ctx.send(f"🎗️ **{storage_title['TITLE']}** has been added to **/titles**")
+                        return
+                    else:
+                        await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist in storage.")
+                        return
+                else:
+                    await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist.")
+                    return
+            if mode == 'adraw':
+                if total_arms > 24:
+                    await ctx.send("You already have 25 arms.")
+                    return
+                if storage_arm:                  
+                    if storage_arm['ARM'] in storage_arm_names: #title storage update
+                        if storage_arm['ARM'] in arm_list_names:
+                            item_owned = True
+                        durability = 0
+                        for arms in astorage:
+                            if storage_arm['ARM'] == arms['ARM']:
+                                durability = arms['DUR']
+                                print(durability)
+                        if not item_owned:
+                            transaction_message = f"{ctx.author} claimed 🦾 **{storage_arm['ARM']}**."
+                            query = {'DID': str(ctx.author.id)}
+                            update_storage_query = {
+                                '$addToSet': {'ARMS': {'ARM' : str(storage_arm['ARM']) , 'DUR': int(durability)}},
+                            }
+                            response = db.updateVaultNoFilter(query, update_storage_query)
+                            update_gstorage_query = {
+                                '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
+                                '$push': {'TRANSACTIONS': transaction_message}
+                            }
+                            response = db.updateGuildAlt(guild_query, update_gstorage_query)
+                        else:
+                            await ctx.send(f"🦾 **{storage_arm['ARM']}** already owned**")
+                            return
+                        await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/arms**")
+                        return
+                    else:
+                        await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist in storage.")
+                        return
+                else:
+                    await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist.")
+            if mode == 'cdismantle':
+                card_data = storage_card
+                card_tier =  card_data['TIER']
+                card_health = card_data['HLT']
+                card_name = card_data['NAME']
+                selected_universe = card_data['UNIVERSE']
+                o_moveset = card_data['MOVESET']
+                o_3 = o_moveset[2]
+                element = list(o_3.values())[2]
+                essence_amount = (200 * card_tier)
+                o_enhancer = o_moveset[3]
+
+                dismantle_amount = (10000 * card_tier) + card_health
+                if card_name in vault['STORAGE']:
+                    dismantle_buttons = [
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="Yes",
+                            custom_id="yes"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="No",
+                            custom_id="no"
+                        )
+                    ]
+                    dismantle_buttons_action_row = manage_components.create_actionrow(*dismantle_buttons)
+                    msg = await ctx.send(f"Are you sure you want to dismantle **{card_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
+                    
+                    def check(button_ctx):
+                        return button_ctx.author == ctx.author
+
+                    
+                    try:
+                        button_ctx: ComponentContextDismantle = await manage_components.wait_for_component(self.bot, components=[dismantle_buttons_action_row], timeout=120, check=check)
+
+                        if button_ctx.custom_id == "no":
+                            await button_ctx.send("Dismantle cancelled. ")
+                        if button_ctx.custom_id == "yes":
+                            if selected_universe in current_gems:
+                                query = {'DID': str(ctx.author.id)}
+                                update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
+                                filter_query = [{'type.' + "UNIVERSE": selected_universe}]
+                                response = db.updateVault(query, update_query, filter_query)
+                            else:
+                                response = db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
+
+                            em = crown_utilities.inc_essence(str(ctx.author.id), element, essence_amount)
+                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'STORAGE': card_name}})
+                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'CARD_LEVELS': {'CARD': card_name}}})
+                            #await crown_utilities.bless(sell_price, ctx.author.id)
+                            await msg.delete()
+                            await button_ctx.send(f"**{card_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}. Acquired **{'{:,}'.format(essence_amount)}** {em} {element.title()} Essence.")
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                        await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                        return
+                else:
+                    await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                    return
+            if mode == 'tdismantle':
+                title_data = storage_title
+                title_name = title_data['TITLE']
+                dismantle_amount = 1000
+                selected_universe = title_data['UNIVERSE']
+                if title_name in vault['TSTORAGE']:
+                    dismantle_buttons = [
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="Yes",
+                            custom_id="yes"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="No",
+                            custom_id="no"
+                        )
+                    ]
+                    dismantle_buttons_action_row = manage_components.create_actionrow(*dismantle_buttons)
+                    msg = await ctx.send(f"Are you sure you want to dismantle **{title_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
+                    
+                    def check(button_ctx):
+                        return button_ctx.author == ctx.author
+
+                    
+                    try:
+                        button_ctx: ComponentContextDismantle = await manage_components.wait_for_component(self.bot, components=[dismantle_buttons_action_row], timeout=120, check=check)
+
+                        if button_ctx.custom_id == "no":
+                            await button_ctx.send("Dismantle cancelled. ")
+                        if button_ctx.custom_id == "yes":
+                            if selected_universe in current_gems:
+                                query = {'DID': str(ctx.author.id)}
+                                update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
+                                filter_query = [{'type.' + "UNIVERSE": selected_universe}]
+                                response = db.updateVault(query, update_query, filter_query)
+                            else:
+                                response = db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
+
+                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'TSTORAGE': title_name}})
+                            await msg.delete()
+                            await button_ctx.send(f"**{title_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}.")
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                        await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                        return
+                else:
+                    await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                    return
+            if mode == 'adismantle':
+                arm_data = storage_arm
+                arm_name = arm_data['ARM']
+                element = arm_data['ELEMENT']
+                essence_amount = 100
+                arm_passive = arm_data['ABILITIES'][0]
+                arm_passive_type = list(arm_passive.keys())[0]
+                arm_passive_value = list(arm_passive.values())[0]
+                move_types = ["BASIC", "SPECIAL", "ULTIMATE"]
+                if arm_data["EXCLUSIVE"]:
+                    essence_amount = 250
+                selected_universe = arm_data['UNIVERSE']
+                dismantle_amount = 10000
+                storage_arm_names = []
+                for names in vault['ASTORAGE']:
+                    if arm_name == names['ARM']:
+                        storage_arm_names = names['ARM']
+                if arm_name == storage_arm_names:
+                    dismantle_buttons = [
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="Yes",
+                            custom_id="yes"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="No",
+                            custom_id="no"
+                        )
+                    ]
+                    dismantle_buttons_action_row = manage_components.create_actionrow(*dismantle_buttons)
+                    msg = await ctx.send(f"Are you sure you want to dismantle **{arm_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
+                    
+                    def check(button_ctx):
+                        return button_ctx.author == ctx.author
+
+                    
+                    try:
+                        button_ctx: ComponentContextDismantle = await manage_components.wait_for_component(self.bot, components=[dismantle_buttons_action_row], timeout=120, check=check)
+
+                        if button_ctx.custom_id == "no":
+                            await button_ctx.send("Dismantle cancelled. ")
+                        if button_ctx.custom_id == "yes":
+                            if selected_universe in current_gems:
+                                query = {'DID': str(ctx.author.id)}
+                                update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
+                                filter_query = [{'type.' + "UNIVERSE": selected_universe}]
+                                response = db.updateVault(query, update_query, filter_query)
+                            else:
+                                response = db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
+
+                            em = crown_utilities.inc_essence(str(ctx.author.id), element, essence_amount)
+                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'ASTORAGE': {'ARM' : str(arm_name)}}})
+                            #await crown_utilities.bless(sell_price, ctx.author.id)
+                            await msg.delete()
+                            await button_ctx.send(f"**{arm_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}. Acquired **{'{:,}'.format(essence_amount)}** {em} {element.title()} Essence.")
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                        await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                        return
+                else:
+                    await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                    return
+            if mode == 'cresell':
+                card_data = storage_card
+                card_name = card_data['NAME']
+                sell_price = 0
+                sell_price = (card_data['TIER'] * 250000)
+                if card_name in vault['STORAGE']:
+                    sell_buttons = [
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="Yes",
+                            custom_id="yes"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="No",
+                            custom_id="no"
+                        )
+                    ]
+                    sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+                    msg = await ctx.send(f"Are you sure you want to sell **{card_name}** for :coin:{round(sell_price)}?", components=[sell_buttons_action_row])
+                    
+                    def check(button_ctx):
+                        return button_ctx.author == ctx.author
+
+                    
+                    try:
+                        button_ctx: ComponentContextSell = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row], timeout=120, check=check)
+
+                        if button_ctx.custom_id == "no":
+                            await button_ctx.send("Sell cancelled. ")
+                        if button_ctx.custom_id == "yes":
+                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'STORAGE': card_name}})
+                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'CARD_LEVELS': {'CARD': card_name}}})
+                            await crown_utilities.bless(sell_price, ctx.author.id)
+                            await msg.delete()
+                            await button_ctx.send(f"**{card_name}** has been sold.")
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'PLAYER': str(ctx.author),
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                        await ctx.send("There's an issue with selling one or all of your items.")
+                        return
+                else:
+                    await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                    return
+            if mode == 'tresell':
+                title_data = storage_title
+                title_name = title_data['TITLE']
+                sell_price = 1
+                title_available = title_data['AVAILABLE']
+                arm_exclusive = title_data['EXCLUSIVE']
+                sell_price = 25000
+                if title_data['UNIVERSE'] == "Unbound":
+                    sell_price = 500000
+                elif title_available and title_exclusive:
+                    sell_price = 100000
+                elif title_available == False and title_exclusive ==False:
+                    sell_price = 1000000
+                sell_price = sell_price + (title_data['PRICE'] * .10)
+                selected_universe = title_data['UNIVERSE']
+                if title_name in vault['TSTORAGE']:
+                    sell_buttons = [
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="Yes",
+                            custom_id="yes"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="No",
+                            custom_id="no"
+                        )
+                    ]
+                    sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+                    msg = await ctx.send(f"Are you sure you want to sell **{title_name}** for :coin: {round(sell_price)}?", components=[sell_buttons_action_row])
+                    
+                    def check(button_ctx):
+                        return button_ctx.author == ctx.author
+
+                    
+                    try:
+                        button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row], timeout=120, check=check)
+
+                        if button_ctx.custom_id == "no":
+                            await button_ctx.send("Sell cancelled. ")
+                        if button_ctx.custom_id == "yes":
+                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'TSTORAGE': title_name}})
+                            await crown_utilities.bless(sell_price, ctx.author.id)
+                            await msg.delete()
+                            await button_ctx.send(f"**{title_name}** has been sold.")
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                        await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                        return
+                else:
+                    await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                    return
+            if mode == 'aresell':
+                arm_data = storage_arm
+                arm_name = arm_data['ARM']
+                sell_price = 1
+                arm_available = arm_data['AVAILABLE']
+                arm_exclusive = arm_data['EXCLUSIVE']
+                sell_price = 25000
+                if arm_data['UNIVERSE'] == "Unbound":
+                    sell_price = 500000
+                elif arm_available and arm_exclusive:
+                    sell_price = 100000
+                elif arm_available == False and arm_exclusive ==False:
+                    sell_price = 1000000
+                #sell_price = sell_price + (arm_data['PRICE'] * .07)
+                selected_universe = arm_data['UNIVERSE']
+                storage_arm_names = []
+                for names in vault['ASTORAGE']:
+                    if arm_name == names['ARM']:
+                        storage_arm_names = names['ARM']
+                if arm_name in storage_arm_names:
+                    sell_buttons = [
+                        manage_components.create_button(
+                            style=ButtonStyle.green,
+                            label="Yes",
+                            custom_id="yes"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="No",
+                            custom_id="no"
+                        )
+                    ]
+                    sell_buttons_action_row = manage_components.create_actionrow(*sell_buttons)
+                    msg = await ctx.send(f"Are you sure you want to sell **{arm_name}** for :coin: {round(sell_price)}?", components=[sell_buttons_action_row])
+                    
+                    def check(button_ctx):
+                        return button_ctx.author == ctx.author
+
+                    
+                    try:
+                        button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[sell_buttons_action_row], timeout=120, check=check)
+
+                        if button_ctx.custom_id == "no":
+                            await button_ctx.send("Sell cancelled. ")
+                        if button_ctx.custom_id == "yes":
+                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'ASTORAGE': {'ARM' :str(arm_name)}}})
+                            await crown_utilities.bless(sell_price, ctx.author.id)
+                            await msg.delete()
+                            await button_ctx.send(f"**{arm_name}** has been sold.")
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                        await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                        return
+                else:
+                    await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                    return
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+        return
 
 
 def setup(bot):

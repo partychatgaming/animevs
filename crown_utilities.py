@@ -2,6 +2,7 @@
 # from urllib import response
 # from re import A
 import db
+import bot as main
 import time
 import destiny as d
 import classes as data
@@ -45,9 +46,11 @@ def storage_limit_hit(player_info, vault, type):
     return limit_hit
 
 
-async def store_drop_card(user, player, card_name, card_universe, vault, owned_destinies, bless_amount_if_max_cards, bless_amount_if_card_owned, mode, is_shop, price, item_override):
+async def store_drop_card(player, card_name, card_universe, vault, owned_destinies, bless_amount_if_max_cards, bless_amount_if_card_owned, mode, is_shop, price, item_override):
     try:
+        
         player_info = db.queryUser({"DID": str(player)})
+        user = await main.bot.fetch_user(player)
         if item_override == "cards":
             storage_limit_has_been_hit = storage_limit_hit(player_info, vault, "cards")
 
@@ -240,7 +243,6 @@ async def store_drop_card(user, player, card_name, card_universe, vault, owned_d
                 return f"You already own 🦾: **{arm_name}**. Increased durability for the arm by 10 as you already own it."
             else:
                 if hand_length < 25:
-                    response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': 25}}})
                     if is_shop:
                         await curse(int(price), str(player))
                         response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': 25}}})
@@ -249,7 +251,10 @@ async def store_drop_card(user, player, card_name, card_universe, vault, owned_d
                         response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': durability}}})
                         return f"You earned the Exclusive Boss Arm 🦾: **{arm_name}**!"
                     elif mode == "Abyss":
+                        response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': 100}}})
                         return f"💼🦾 **{arm_name}**!"
+                    else:
+                        response = db.updateVaultNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': 25}}})
                     return f"You earned 🦾: **{arm_name}**!"
                 if hand_length >= 25 and not storage_limit_has_been_hit:
 
@@ -868,6 +873,8 @@ async def cardlevel(user, card: str, player, mode: str, universe: str):
     try:
         vault = db.queryVault({'DID': str(player)})
         player_info = db.queryUser({'DID': str(player)})
+        rebirth_buff = player_info['REBIRTH']
+        prestige_buff = (player_info['PRESTIGE'] * 10)
         guild_buff = await guild_buff_update_function(player_info['TEAM'].lower())
         if player_info['DIFFICULTY'] == "EASY":
             return
@@ -895,20 +902,22 @@ async def cardlevel(user, card: str, player, mode: str, universe: str):
         lvl_req = 150
         exp = cardinfo['EXP']
         exp_gain = 0
+        t_exp_gain = 25 + (rebirth_buff) + prestige_buff
+        d_exp_gain = ((100 + prestige_buff) * (1 + rebirth_buff))
         if has_universe_soul:
             if mode == "Dungeon":
-                exp_gain = 65
+                exp_gain = d_exp_gain * 4
             if mode == "Tales":
-                exp_gain = 35
+                exp_gain = t_exp_gain * 4
             if mode == "Purchase":
-                exp_gain = 150
+                exp_gain = lvl_req
         else:
             if mode == "Dungeon":
-                exp_gain = 30
+                exp_gain = d_exp_gain
             if mode == "Tales":
-                exp_gain = 15
+                exp_gain = t_exp_gain
             if mode == "Purchase":
-                exp_gain = 150
+                exp_gain = lvl_req
 
 
         hlt_buff = 0
@@ -1036,7 +1045,7 @@ async def guild_buff_update_function(team):
 
                         if buff['USES'] == 1:
                             
-                            if guild_buff_count == 1:
+                            if guild_buff_count <= 1:
                                 guild_buff_update_query = {
                                         '$pull': {
                                             'GUILD_BUFFS': {'TYPE': active_guild_buff, 'USES': 1}
@@ -1381,8 +1390,8 @@ async def player_check(ctx):
         return False
 
 
-def scenario_gold_drop(scenario_lvl):
-    gold = scenario_lvl * 2000
+def scenario_gold_drop(scenario_lvl, fight_count):
+    gold = scenario_lvl * (500 * fight_count)
     if scenario_lvl > 900:
         gold = gold + 100000000
     elif scenario_lvl > 500:
@@ -1549,6 +1558,29 @@ def essence_cost(vault, element, did):
                 'trace': trace
         }))
 
+def prestige_icon(prestige):
+    aicon = ":new_moon:"
+    if prestige == 1:
+        aicon = ":waxing_crescent_moon:"
+    elif prestige == 2:
+        aicon = ":first_quarter_moon:"
+    elif prestige == 3:
+        aicon = ":waxing_gibbous_moon:"
+    elif prestige == 4:
+        aicon = ":full_moon:"
+    elif prestige == 5:
+        aicon = ":waning_gibbous_moon:"
+    elif prestige == 6:
+        aicon = ":last_quarter_moon:"
+    elif prestige == 7:
+        aicon = ":waning_crescent_moon:"
+    elif prestige == 8:
+        aicon = ":crescent_moon:"
+    elif prestige == 9:
+        aicon = ":crown:"
+    elif prestige >= 10:
+        aicon = ":japanese_ogre:"
+    return str(aicon)
 
 def level_sync_stats(lvl, stat):
     stat_sync = 0

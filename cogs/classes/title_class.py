@@ -21,7 +21,7 @@ class Title:
         self.message = ""
         self.pokemon_title = False
 
-        self.title_message = f"⚠️ {self.name} ~ INEFFECTIVE"
+        self.title_message = f"⚠️ | {self.name} ~ INEFFECTIVE"
         if self.universe in crown_utilities.pokemon_universes:
             self.pokemon_title = True
 
@@ -155,15 +155,15 @@ class Title:
         try:
             if self.universe == "Unbound" or (card_universe in crown_utilities.pokemon_universes) or card_universe == "Crown Rift Awakening":
                 if performance_mode:
-                    self.title_message = f"👑 {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
+                    self.title_message = f"👑 | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
                 else:
-                    self.title_message = f"👑 {self.name}" 
+                    self.title_message = f"👑 | {self.name}" 
 
             elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_title==True):
                 if performance_mode:
-                    self.title_message = f"🎗️ {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
+                    self.title_message = f"🎗️ | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
                 else:
-                    self.title_message = f"🎗️ {self.name}"
+                    self.title_message = f"🎗️ | {self.name}"
                         
         except:
             print("error setting title message")
@@ -243,9 +243,11 @@ class Title:
                 player1_card.card_lvl_ap_buff = player1_card.card_lvl_ap_buff + self.passive_value
             if self.passive_type == "SLOW":
                 if battle.turn_total != 0:
-                    battle.turn_total = battle.turn_total - 1
+                    battle.turn_total = battle.turn_total - self.passive_value
+                    if battle.turn_total <= 0:
+                        battle.turn_total = 0
             if self.passive_type == "HASTE":
-                battle.turn_total = battle.turn_total + 1
+                battle.turn_total = battle.turn_total + self.passive_value
             if self.passive_type == "STANCE":
                 tempattack = player1_card.attack + self.passive_value
                 player1_card.attack = player1_card.defense
