@@ -362,7 +362,7 @@ class Battle:
                 unlockable_message = f"⭐ Drops on this Floor\nUnlockable Card: **{card_to_earn}**\nUnlockable Title: **{self._ai_title}**\nUnlockable Arm: **{self._ai_arm}**\n"
             else:
                 unlockable_message = ""
-            print(checks['TIER']
+            print(checks['TIER'])
             print(self.abyss_banned_card_tiers)
             print(self.abyss_player_card_tier_is_banned)
             if checks['TIER'] in self.abyss_banned_card_tiers:
