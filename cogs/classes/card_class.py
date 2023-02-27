@@ -1768,7 +1768,7 @@ class Card:
                 high = self.health - (self.health * .66)
                 fortitude = round(random.randint(int(low), int(high)))
                 # Resolve Scaling
-                resolve_health = round(fortitude + (.5 * self.resolve))
+                resolve_health = round(fortitude + (.5 * self.resolve_value))
                 resolve_attack_value = round((.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
                 resolve_defense_value = round((.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
 
