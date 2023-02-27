@@ -233,9 +233,9 @@ class Card:
                 if self.passive_type == "LIFE":
                     self.passive_num = value_for_passive
                 if self.passive_type == "ATK":
-                    self.passive_num = flat_for_passive
+                    self.passive_num = value_for_passive
                 if self.passive_type == "DEF":
-                    self.passive_num = flat_for_passive
+                    self.passive_num = value_for_passive
                 if self.passive_type == "STAM":
                     self.passive_num = stam_for_passive
                 if self.passive_type == "DRAIN":
