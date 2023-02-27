@@ -831,7 +831,7 @@ class CrownUnlimited(commands.Cog):
             #if universe_count > 25:
                 #universe_subset = random.sample(universe_data, k=min(len(universe_data), 25))
             #else:
-            universe_subset = random.sample(universe_data, k=min(len(universe_data), universe_count))
+            universe_subset = random.sample(universe_data, k=min(len(universe_data), 25))
 
             # user = db.queryUser({'DID': str(ctx.author.id)})
             universe_embed_list = []
