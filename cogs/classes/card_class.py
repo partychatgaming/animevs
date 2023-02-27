@@ -2926,6 +2926,7 @@ class Card:
             if self.passive_type == "DESTRUCTION":
                 player2_card.max_health = round(round(player2_card.max_health - ((value_for_passive / 100) * player2_card.max_health)))
             if self.passive_type == "LIFE":
+                dmg = round(player2_card.health - ((value_for_passive / 100) * player2_card.health)
                 if self.max_health > self.health:
                     player2_card.health = round(player2_card.health - ((value_for_passive / 100) * player2_card.health))
                     if self.health > self.max_health:
