@@ -1531,8 +1531,9 @@ class Card:
 
                 if ranged_attack:
                     true_dmg = round(true_dmg * 1.7)
-                    self.ranged_hit_bonus = self.ranged_hit_bonus + 1
-                    hit_roll = hit_roll + self.ranged_hit_bonus
+                    if self.ranged_meter >= 4:
+                        self.ranged_hit_bonus = self.ranged_hit_bonus + 1
+                        hit_roll = hit_roll + self.ranged_hit_bonus
 
                 if move_element == "RECOIL" and hit_roll > miss_hit:
                     true_dmg = round(true_dmg * 2.9)
@@ -2776,9 +2777,9 @@ class Card:
             
         elif dmg['ELEMENT'] == "RANGED":
             self.ranged_meter = self.ranged_meter + 1
-            if self.ranged_meter == 2:
+            if self.ranged_meter == 4:
                 self.ranged_meter = 0
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} prepares to Parry 🔄 the next attack*")
+                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} accurary Increased by {self.ranged_hit_bonus * 5}%*")
             else:
                  battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
