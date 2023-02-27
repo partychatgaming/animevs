@@ -362,12 +362,10 @@ class Battle:
                 unlockable_message = f"⭐ Drops on this Floor\nUnlockable Card: **{card_to_earn}**\nUnlockable Title: **{self._ai_title}**\nUnlockable Arm: **{self._ai_arm}**\n"
             else:
                 unlockable_message = ""
-            print(checks['TIER'])
-            print(self.abyss_banned_card_tiers)
-            print(self.abyss_player_card_tier_is_banned)
+
             if checks['TIER'] in self.abyss_banned_card_tiers:
                 self.abyss_player_card_tier_is_banned = True
-            print(self.abyss_player_card_tier_is_banned)
+
 
             embedVar = discord.Embed(title=f":new_moon: Abyss Floor {str(self.abyss_floor)}  ⚔️{len(self.list_of_opponents_by_name)}", description=textwrap.dedent(f"""
             {unlockable_message}
