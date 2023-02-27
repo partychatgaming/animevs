@@ -618,19 +618,19 @@ class Card:
         try:
             if arm_type == "BASIC":
                 self.move1 = arm_name
-                self.move1ap = arm_value + self.card_lvl_ap_buff
+                self.move1ap = self.move1ap + arm_value + self.card_lvl_ap_buff
                 self.move1_element = arm_element
                 self.move1_emoji = crown_utilities.set_emoji(self.move1_element)
 
             if arm_type == "SPECIAL":
                 self.move2 = arm_name
-                self.move2ap = arm_value + self.card_lvl_ap_buff
+                self.move2ap = self.move2ap + arm_value + self.card_lvl_ap_buff
                 self.move2_element = arm_element
                 self.move2_emoji = crown_utilities.set_emoji(self.move2_element)
 
             if arm_type == "ULTIMATE":
                 self.move3 = arm_name
-                self.move3ap = arm_value + self.card_lvl_ap_buff
+                self.move3ap = self.move3ap + arm_value + self.card_lvl_ap_buff
                 self.move3_element = arm_element
                 self.move3_emoji = crown_utilities.set_emoji(self.move3_element)
 
