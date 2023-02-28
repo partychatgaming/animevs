@@ -159,6 +159,8 @@ class Card:
             self.move1_stamina = list(self.m1.values())[1]
             self.move1_element = list(self.m1.values())[2]
             self.move1_emoji = crown_utilities.set_emoji(self.move1_element)
+            self.move1base = self.move1ap
+            
 
             # Move 2
             self.move2 = list(self.m2.keys())[0]
@@ -166,6 +168,8 @@ class Card:
             self.move2_stamina = list(self.m2.values())[1]
             self.move2_element = list(self.m2.values())[2]
             self.move2_emoji = crown_utilities.set_emoji(self.move2_element)
+            self.move2base = self.move2ap
+            
 
             # Move 3
             self.move3 = list(self.m3.keys())[0]
@@ -173,6 +177,7 @@ class Card:
             self.move3_stamina = list(self.m3.values())[1]
             self.move3_element = list(self.m3.values())[2]
             self.move3_emoji = crown_utilities.set_emoji(self.move3_element)
+            self.move3base = self.move3ap
 
             # Move Enhancer
             self.move4 = list(self.enhancer.keys())[0]
@@ -229,15 +234,15 @@ class Card:
                 flat_for_passive = round(10 * (self.tier * .5))
                 stam_for_passive = 5 * (self.tier * .5)
                 if self.passive_type == "HLT":
-                    self.passive_num = value_for_passive
+                    self.passive_num = value_for_passive * 2
                 if self.passive_type == "LIFE":
                     self.passive_num = value_for_passive
                 if self.passive_type == "ATK":
-                    self.passive_num = value_for_passive
+                    self.passive_num = value_for_passive * 2
                 if self.passive_type == "DEF":
-                    self.passive_num = value_for_passive
+                    self.passive_num = value_for_passive * 2
                 if self.passive_type == "STAM":
-                    self.passive_num = stam_for_passive
+                    self.passive_num = stam_for_passive * 2
                 if self.passive_type == "DRAIN":
                     self.passive_num = stam_for_passive
                 if self.passive_type == "FLOG":
@@ -281,6 +286,58 @@ class Card:
     def is_universe_unbound(self):
         if(self.universe == "Unbound"):
             return True
+        
+    def set_passive_num(self, passive_type):
+        value_for_passive = self.tier * .5
+        flat_for_passive = round(10 * (self.tier * .5))
+        stam_for_passive = 5 * (self.tier * .5)
+        if passive_type == "HLT":
+            self.passive_num = value_for_passive * 2
+        if passive_type == "LIFE":
+            self.passive_num = value_for_passive
+        if passive_type == "ATK":
+            self.passive_num = value_for_passive * 2
+        if passive_type == "DEF":
+            self.passive_num = value_for_passive * 2
+        if passive_type == "STAM":
+            self.passive_num = stam_for_passive * 2
+        if passive_type == "DRAIN":
+            self.passive_num = stam_for_passive
+        if passive_type == "FLOG":
+            self.passive_num = value_for_passive
+        if passive_type == "WITHER":
+            self.passive_num = value_for_passive
+        if passive_type == "RAGE":
+            self.passive_num = value_for_passive
+        if passive_type == "BRACE":
+            self.passive_num = value_for_passive
+        if passive_type == "BZRK":
+            self.passive_num = value_for_passive
+        if passive_type == "CRYSTAL":
+            self.passive_num = value_for_passive
+        if passive_type == "FEAR":
+            self.passive_num = flat_for_passive
+        if passive_type == "GROWTH":
+            self.passive_num = flat_for_passive
+        if passive_type == "CREATION":
+            self.passive_num = value_for_passive
+        if passive_type == "DESTRUCTION":
+            self.passive_num = value_for_passive
+        if passive_type == "SLOW":
+            self.passive_num = self.passive_num
+        if passive_type == "HASTE":
+            self.passive_num = self.passive_num
+        if passive_type == "STANCE":
+            self.passive_num = flat_for_passive
+        if passive_type == "CONFUSE":
+            self.passive_num = flat_for_passive
+        if passive_type == "BLINK":
+            self.passive_num = stam_for_passive
+        if passive_type == "SOULCHAIN":
+            self.passive_num = self.passive_num + 90
+        if passive_type == "GAMBLE":
+            self.passive_num = self.passive_num
+            
 
     # AI ONLY BUFFS
     def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff, prestige_level, rebirth_level, mode):
@@ -289,7 +346,10 @@ class Card:
         else:
             self.prestige_difficulty = 0   
         # print(self.prestige_difficulty)
-        self.card_lvl = self.get_ai_card_level(ai_lvl_buff, mode)
+        if mode == "Abyss":
+            self.card_lvl = ai_lvl_buff
+        else:
+            self.card_lvl = self.get_ai_card_level(ai_lvl_buff, mode)
         # print(self.card_lvl)
         # print(self.move1ap)
         self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
@@ -619,18 +679,23 @@ class Card:
             if arm_type == "BASIC":
                 self.move1 = arm_name
                 self.move1ap = self.move1ap + arm_value + self.card_lvl_ap_buff
+                self.move1base = self.move1ap
                 self.move1_element = arm_element
                 self.move1_emoji = crown_utilities.set_emoji(self.move1_element)
+                
 
             if arm_type == "SPECIAL":
                 self.move2 = arm_name
                 self.move2ap = self.move2ap + arm_value + self.card_lvl_ap_buff
+                self.move2base = self.move2ap
                 self.move2_element = arm_element
                 self.move2_emoji = crown_utilities.set_emoji(self.move2_element)
+
 
             if arm_type == "ULTIMATE":
                 self.move3 = arm_name
                 self.move3ap = self.move3ap + arm_value + self.card_lvl_ap_buff
+                self.move3base = self.move3ap
                 self.move3_element = arm_element
                 self.move3_emoji = crown_utilities.set_emoji(self.move3_element)
 
@@ -638,6 +703,9 @@ class Card:
                 self.move1ap = self.move1ap + arm_value
                 self.move2ap = self.move2ap + arm_value
                 self.move3ap = self.move3ap + arm_value
+                self.move1base = self.move1ap
+                self.move2base = self.move2ap
+                self.move3base = self.move3ap
 
             if arm_type == "SHIELD":
                 self._shield_active = True
@@ -822,6 +890,12 @@ class Card:
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
+            
+    def activate_observation_haki_trait(self, battle_config, opponent_card):
+        if self.universe == "One Piece" and battle_config.turn_total == 0 and not battle_config.turn_zero_has_happened:
+            battle_config.turn_zero_has_happened = True
+            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Observation Haki: **40% Damage Reduction Until First Focus!**")
+
     
 
     def set_poison_hit(self, opponent_card):
@@ -893,16 +967,17 @@ class Card:
 
     def set_souls_trait(self):
         if self.used_resolve and self.universe == "Souls":
-            self.move2 = self.move3
-            self.move2ap = self.move3ap
-            self.move2_stamina = self.move2_stamina
-            self.move2_element = self.move3_element
-            self.move2_emoji = self.move3_emoji
             self.move1 = self.move2
             self.move1ap = self.move2ap
             self.move1_stamina = self.move1_stamina
             self.move1_element = self.move2_element
             self.move1_emoji = self.move2_emoji
+            
+            self.move2 = self.move3
+            self.move2ap = self.move3ap
+            self.move2_stamina = self.move2_stamina
+            self.move2_element = self.move3_element
+            self.move2_emoji = self.move3_emoji
 
 
     def get_card_index(self, list_of_cards):
@@ -916,6 +991,10 @@ class Card:
     def showcard(self, mode, arm, title, turn_total, opponent_card_defense):
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
+        # print(self.move1)
+        # print(self.move1ap)
+        # print(self.move1_element)
+        # print(self.move1_emoji)
         try:    
             if self.health <= 0:
                 im = get_card(self.path, self.name, "base")
@@ -967,7 +1046,7 @@ class Card:
                     title_message = f"{title.passive_type.title()} {title.passive_value}"
                     title_len = int(len(list(title.name)))
 
-
+                self.set_passive_num(self.passive_num)
                 card_message = f"{self.passive_type.title()} {self.passive_num}"
                     
                 #Moveset Emojis
@@ -1390,8 +1469,8 @@ class Card:
                 "ATK": lambda ap: round((ap / 100) * attack),
                 "DEF": lambda ap: round((ap / 100) * defense),
                 "STAM": lambda ap: ap,
-                "HLT": lambda ap: round(min(health + ap + (.16 * self.health), self.max_health) - health),
-                "LIFE": lambda ap: round(min(health + ap + (.09 * _opponent_card.health), self.max_health) - health),
+                "HLT": lambda ap: round(min(health + ap + (.20 * self.max_health), self.max_health) - health + (health/self.max_health)*ap),
+                "LIFE": lambda ap: round(min(health + ap + (.15 * _opponent_card.health * (1 + (_opponent_card.max_health - _opponent_card.health) / _opponent_card.max_health)), self.max_health) - health),
                 "DRAIN": lambda ap: round(ap),
                 "FLOG": lambda ap: round((ap / 100) * min(_opponent_card.attack, 2000)),
                 "WITHER": lambda ap: round((ap / 100) * min(_opponent_card.defense, 2000)),
@@ -1443,7 +1522,7 @@ class Card:
                         if enh == 'LIFE' and enhancer_value == 0:
                             message = f"{move} used! Stealing {enhancer_value} Health... Your Health is full!"
                         else:
-                            message = f"{move} used! Stealing opponents {legend[enh]} by {enhancer_value}"
+                            message = f"{move} used! Stealing {enhancer_value} {legend[enh]}!"
                     elif enh in ['RAGE', 'BRACE', 'BZRK', 'CRYSTAL']:
                         message = f"{move} used! Sacrificing {enhancer_value} {legend[enh]}, Increasing {legend[f'{enh}_INC']} by {enhancer_value}"
                     elif enh in ['WAVE', 'BLAST']:
@@ -1464,7 +1543,7 @@ class Card:
                         else:
                             message = f"{move} used! {'Healing' if enh == 'HLT' else 'Sacrificing 10% Max Health to Decrease Opponent Attack, Defense and AP'} by {round(enhancer_value)}"
                     elif enh in ['SOULCHAIN', 'GAMBLE']:
-                        message = f"{move} used! Synchronizing {enh[:-6].capitalize()} to {enhancer_value}"
+                        message = f"{move} used! Synchronizing {'Stamina' if enh == 'SOULCHAIN' else 'Health'}  to {enhancer_value}"
                     else:
                         message = f"{move} used! Inflicts {enh}"
                     return message
@@ -1696,13 +1775,10 @@ class Card:
 
             self.stamina = self.stamina_focus_recovery_amount
             health_calculation = round(fortitude)
-            attack_calculation = round(fortitude * (self.tier / 10))
-            defense_calculation = round(fortitude * (self.tier / 10))
+            attack_calculation = round((fortitude * (self.tier / 10)) + (.05 * self.attack))
+            defense_calculation = round((fortitude * (self.tier / 10)) + (.05 * self.defense))
             
-            if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
-                attack_calculation = attack_calculation + attack_calculation
-                defense_calculation = defense_calculation + defense_calculation
-
+            
             if _title.passive_type:
                 if _title.passive_type == "GAMBLE":
                     health_calculation = _title.passive_value
@@ -1738,12 +1814,23 @@ class Card:
                 else:
                     heal_message = f"**{_opponent_card.name}**'s blows don't appear to have any effect!"
                     message_number = 0
-            if not self.used_resolve:
-                self.attack = self.attack + attack_calculation
-                self.defense = self.defense + defense_calculation
             
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
-            
+            if self.universe == "Crown Rift Madness" and self.used_resolve:
+                self.attack = self.attack + attack_calculation
+                self.defense = self.defense + defense_calculation
+                battle_config.add_battle_history_messsage(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+            elif not self.used_resolve:
+                if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
+                    attack_calculation = attack_calculation + attack_calculation
+                    defense_calculation = defense_calculation + defense_calculation
+                    battle_config.add_battle_history_messsage(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}**  Gains 2x ATK and DEF\n+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                else:
+                    battle_config.add_battle_history_messsage(f"(🌀) *{self.name} +:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                self.attack = self.attack + attack_calculation
+                self.defense = self.defense + defense_calculation
+                
+                
 
             # Resolve Check and Calculation
             if not self.used_resolve and self.used_focus and self.universe == "Digimon":  # Digimon Universal Trait
@@ -2158,7 +2245,7 @@ class Card:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(60 * (self.focus_count + opponent_card.focus_count))} damage.")
                 elif self.universe == "Souls":
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
-                    self.set_souls_trait
+                    self.set_souls_trait()
                 else:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) ⚡ **{self.name}** Resolved!")
 
@@ -2194,7 +2281,7 @@ class Card:
                         self.health = round(self.health + damage_calculation_response['DMG'])
                         if self.health > self.max_health:
                             self.health = self.max_health
-                            damage_calculation_reponse['DMG'] = self.max_health - self.health
+                            damage_calculation_response['DMG'] = self.max_health - self.health
                         opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
                 elif self.summon_type == 'DRAIN':
                     self.stamina = round(self.stamina + damage_calculation_response['DMG'])
@@ -2254,7 +2341,8 @@ class Card:
                         self.max_health = round(self.max_health - (self.max_health * .10))
                     opponent_card.defense = round(opponent_card.defense - damage_calculation_response['DMG'])
                     opponent_card.attack= round(opponent_card.attack - damage_calculation_response['DMG'])
-                    opponent_card.card_lvl_ap_buff = round(opponent_card.card_lvl_ap_buff - damage_calculation_response['DMG'])
+                    if opponent_card.card_lvl_ap_buff > 0:
+                        opponent_card.card_lvl_ap_buff = round(opponent_card.card_lvl_ap_buff - damage_calculation_response['DMG'])
                 elif self.summon_type == 'WAVE':
                     opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
                 elif self.summon_type == 'BLAST':
@@ -2318,7 +2406,7 @@ class Card:
                 companion_card.health = round(companion_card.health + dmg['DMG'])
             elif companion_card.move4enh == 'LIFE':
                 companion_card.health = round(companion_card.health + dmg['DMG'])
-                self.health = round(self.health - dmg['DMG'])
+                opponent_card.health = round(self.health - dmg['DMG'])
             elif companion_card.move4enh == 'DRAIN':
                 companion_card.stamina = round(companion_card.stamina + dmg['DMG'])
                 companion_card.stamina = round(companion_card.stamina - dmg['DMG'])
@@ -2377,7 +2465,8 @@ class Card:
                     companion_card.max_health = round(companion_card.max_health - (companion_card.max_health * .10))
                 opponent_card.defense = round(opponent_card.defense - dmg['DMG'])
                 opponent_card.attack= round(opponent_card.attack - dmg['DMG'])
-                opponent_card.card_lvl_ap_buff = round(opponent_card.card_lvl_ap_buff - dmg['DMG'])
+                if opponent_card.card_lvl_ap_buff > 0:
+                    opponent_card.card_lvl_ap_buff = round(opponent_card.card_lvl_ap_buff - dmg['DMG'])
             elif companion_card.move4enh == 'WAVE':
                 opponent_card.health = round(opponent_card.health - dmg['DMG'])
             elif companion_card.move4enh == 'BLAST':
@@ -2469,7 +2558,7 @@ class Card:
                 elif self.move4enh == 'HLT':
                     #self.max_health = round(self.max_health + dmg['DMG'])
                     if self.health < self.max_health:
-                        self.health = round(self.health + damage_calculation_response['DMG'])
+                        self.health = round(self.health + dmg['DMG'])
                         if self.health > self.max_health:
                             self.health = self.max_health
                 elif self.move4enh == 'LIFE':
@@ -2545,7 +2634,8 @@ class Card:
                         self.max_health = round(self.max_health - (self.max_health * .10))
                     opponent_card.defense = round(opponent_card.defense - dmg['DMG'])
                     opponent_card.attack= round(opponent_card.attack - dmg['DMG'])
-                    opponent_card.card_lvl_ap_buff = round(opponent_card.card_lvl_ap_buff - dmg['DMG'])
+                    if opponent_card.card_lvl_ap_buff > 0:
+                        opponent_card.card_lvl_ap_buff = round(opponent_card.card_lvl_ap_buff - dmg['DMG'])
                 elif self.move4enh == 'WAVE':
                     opponent_card.health = round(opponent_card.health - dmg['DMG'])
                 elif self.move4enh == 'BLAST':
@@ -2584,7 +2674,7 @@ class Card:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         self._barrier_active = False
                         self._barrier_value = 0
-                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
 
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
                     if not opponent_card.used_resolve:
@@ -2747,10 +2837,10 @@ class Card:
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
                 self.stamina = 0
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (dmg['DMG'] / battle_config.turn_total)
             self.used_block = True
             self.defense = round(self.defense * 2)
             battle_config.turn_total = battle_config.turn_total + 3
-            self.card_lvl_ap_buff = self.card_lvl_ap_buff + (dmg['DMG'] + (dmg['DMG'] / battle_config.turn_total))
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}:** {dmg['MESSAGE']}\n*Time speeds forward +3 turns!*")
             # battle_config.add_battle_history_messsage(f"**{self.name}** moved time forward +3 turns!")
             opponent_card.health = opponent_card.health - (dmg['DMG'] * (battle_config.turn_total / 100))
@@ -2772,7 +2862,7 @@ class Card:
             # self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
             self.attack = self.attack + (dmg['DMG'] * .50)
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {(dmg['DMG'] * .80)} ATK*")
+            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {round((dmg['DMG'] * .80))} ATK*")
 
         elif dmg['ELEMENT'] == "DARK":
             opponent_card.stamina = opponent_card.stamina - 15
@@ -2902,17 +2992,21 @@ class Card:
     
         if self.health >= self.max_health:
             self.health = self.max_health
-
-        self.move1ap = list(self.m1.values())[0] + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff)
-        self.move2ap = list(self.m2.values())[0] + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff)
-        self.move3ap = list(self.m3.values())[0]+ round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff)
+            
+        if self.used_resolve and self.universe == "Souls":
+            self.move1ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff)
+            self.move2ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff)
+            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff)
+        else:
+            self.move1ap = self.move1base + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff)
+            self.move2ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff)
+            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff)
         
         # _opponent_card.move1ap = _opponent_card.list(self.m1.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
         # _opponent_card.move2ap = _opponent_card.list(self.m2.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
         # _opponent_card.move3ap = _opponent_card.list(self.m3.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
 
-    
-    
+ 
     def activate_card_passive(self, player2_card, battle_config):
         if self.passive_type:
             value_for_passive = self.tier * .5
@@ -2968,7 +3062,8 @@ class Card:
                     self.max_health = self.max_health - (self.max_health * .03)
                 player2_card.defense = player2_card.defense - flat_value_for_passive
                 player2_card.attack = player2_card.attack - flat_value_for_passive
-                player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - flat_value_for_passive
+                if player2_card.card_lvl_ap_buff > 0:
+                    player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - flat_value_for_passive
             if self.passive_type == "GROWTH":
                 self.max_health = self.max_health - (self.max_health * .03)
                 self.defense = self.defense + flat_value_for_passive

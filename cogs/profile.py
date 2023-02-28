@@ -280,8 +280,12 @@ class Profile(commands.Cog):
                     y = 1.25
                     lvl_req = round((float(c.card_lvl)/x)**y)
                     
+                    player.set_talisman_message()
+                    player.setsummon_messages()
+                    
                     a.set_arm_message(player.performance, c.universe)
                     t.set_title_message(player.performance, c.universe)
+                    
                     
                     has_universe_heart = False
                     has_universe_soul = False
@@ -2157,8 +2161,6 @@ class Profile(commands.Cog):
         else:
             await ctx.send("You currently own no 💎.")
 
-
-
     @cog_ext.cog_slash(description="Open the blacksmith", guild_ids=main.guild_ids)
     async def blacksmith(self, ctx):
         try:
@@ -2219,6 +2221,7 @@ class Profile(commands.Cog):
             current_card = user['CARD']
             current_title = user['TITLE']
             current_pet = user['PET']
+            current_talisman = user['TALISMAN']
             has_gabes_purse = user['TOURNAMENT_WINS']
             if not has_gabes_purse:
                 gabes_message = "25,000,000"
@@ -2461,8 +2464,8 @@ class Profile(commands.Cog):
                         return
                     else:
                         await crown_utilities.curse(price, str(ctx.author.id))
-                        response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': str(current_arm), 'PET': "Chick"}}})
-                        response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': str(current_arm), 'PET': "Chick"}}})
+                        response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': str(current_arm), 'PET': "Chick", 'TALISMAN': str(current_talisman)}}})
+                        response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': str(current_arm), 'PET': "Chick", 'TALISMAN': str(current_talisman)}}})
                         #response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
                         update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
                         await button_ctx.send("🔖 | Preset Upgraded")
@@ -2566,6 +2569,7 @@ class Profile(commands.Cog):
                 'trace': trace
             }))
             await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
+    
     @cog_ext.cog_slash(description="View your summons", guild_ids=main.guild_ids)
     async def summons(self, ctx):
         await ctx.defer()
@@ -3271,6 +3275,7 @@ class Profile(commands.Cog):
                 ownedtitles = []
                 ownedarms = []
                 ownedpets = []
+                ownedtalismans = []
                 for cards in vault['CARDS']:
                     ownedcards.append(cards)
                 for titles in vault['TITLES']:
@@ -3279,6 +3284,8 @@ class Profile(commands.Cog):
                     ownedarms.append(arms['ARM'])
                 for pets in vault['PETS']:
                     ownedpets.append(pets['NAME'])
+                for talismans in vault['TALISMANS']:
+                    ownedtalismans.append(talismans['TYPE'])
 
                 name = d['DISNAME'].split("#",1)[0]
                 avatar = d['AVATAR']
@@ -3293,41 +3300,70 @@ class Profile(commands.Cog):
                 preset1_title = list(deck[0].values())[1]
                 preset1_arm = list(deck[0].values())[2]
                 preset1_pet = list(deck[0].values())[3]
+                preset1_talisman = list(deck[0].values())[4]
 
                 preset2_card = list(deck[1].values())[0]
                 preset2_title = list(deck[1].values())[1]
                 preset2_arm = list(deck[1].values())[2]
                 preset2_pet = list(deck[1].values())[3]
+                preset2_talisman = list(deck[1].values())[4]
 
                 preset3_card = list(deck[2].values())[0]
                 preset3_title = list(deck[2].values())[1]
                 preset3_arm = list(deck[2].values())[2]
                 preset3_pet = list(deck[2].values())[3]    
+                preset3_talisman = list(deck[2].values())[4]
+                
+                preset3_message = "📿"
+                if preset3_talisman != "NULL":
+                    preset3_message = crown_utilities.set_emoji(preset3_talisman)
+                    
+                preset2_message = "📿"
+                if preset2_talisman != "NULL":
+                    preset2_message = crown_utilities.set_emoji(preset2_talisman)
+                    
+                preset1_message = "📿"
+                if preset1_talisman != "NULL":
+                    preset1_message = crown_utilities.set_emoji(preset1_talisman)
                 
                 if preset_update:
                     preset4_card = list(deck[3].values())[0]
                     preset4_title = list(deck[3].values())[1]
                     preset4_arm = list(deck[3].values())[2]
                     preset4_pet = list(deck[3].values())[3]
+                    preset4_talisman = list(deck[3].values())[4]
 
                     preset5_card = list(deck[4].values())[0]
                     preset5_title = list(deck[4].values())[1]
                     preset5_arm = list(deck[4].values())[2]
                     preset5_pet = list(deck[4].values())[3]  
+                    preset5_talisman = list(deck[4].values())[4]
                     
-                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
-                    f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
-                    f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
+                    preset5_message = "📿"
+                    if preset5_talisman != "NULL":
+                        preset5_message = crown_utilities.set_emoji(preset5_talisman)
+                        
+                    preset4_message = "📿"
+                    if preset4_talisman != "NULL":
+                        preset4_message = crown_utilities.set_emoji(preset4_talisman)
+                        
+                    
+
+                        
+                    
+                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_talisman.title()}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_talisman.title()}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_talisman.title()}\n\n", 
+                    f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}{preset4_talisman.title()}\n\n", 
+                    f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}{preset5_talisman.title()}\n\n"]  
                 else:
-                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
+                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset4_talisman.title()}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_talisman.title()}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_talisman.title()}\n\n"]
             
                 embedVar = discord.Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
                 {"".join(listed_options)}
-                """))
+                """), color=discord.Color.blue())
                 embedVar.set_thumbnail(url=avatar)
                 # embedVar.add_field(name=f"Preset 1:{preset1_title} {preset1_card} and {preset1_pet}", value=f"Card: {preset1_card}\nTitle: {preset1_title}\nArm: {preset1_arm}\nSummon: {preset1_pet}", inline=False)
                 # embedVar.add_field(name=f"Preset 2:{preset2_title} {preset2_card} and {preset2_pet}", value=f"Card: {preset2_card}\nTitle: {preset2_title}\nArm: {preset2_arm}\nSummon: {preset2_pet}", inline=False)
@@ -3376,151 +3412,208 @@ class Profile(commands.Cog):
                     return button_ctx.author == ctx.author
                 try:
                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[util_action_row], timeout=30,check=check)
-
+                    equipped_items = []
+                    not_owned_items = []
+                    update_data = {}
                     if  button_ctx.custom_id == "0":
                         await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
                         return
                     elif  button_ctx.custom_id == "1":
-                        for card in ownedcards :                     
-                            if preset1_card in ownedcards:
-                                for title in ownedtitles:
-                                    if preset1_title in ownedtitles:
-                                        for arm in ownedarms:
-                                            if preset1_arm in ownedarms:
-                                                for pet in ownedpets:
-                                                    if preset1_pet in ownedpets:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                        return
-                                                    else:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
-                                                        return
-                                            else:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
-                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
-                                                return
-                                    else:
-                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
-                                        return
-                            else:
-                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
-                                return
+                        equipped_items = []
+                        not_owned_items = []
+                        update_data = {}
+                        if preset1_card in ownedcards:
+                            equipped_items.append(f":flower_playing_cards: **Card** | {preset1_card}")
+                            update_data['CARD'] = str(preset1_card)
+                        else:
+                            not_owned_items.append(f":x: {preset1_card}")
+
+                        if preset1_title in ownedtitles:
+                            equipped_items.append(f":reminder_ribbon: **Title** | {preset1_title}")
+                            update_data['TITLE'] = str(preset1_title)
+                        elif preset1_title is not None:
+                            not_owned_items.append(f":x: | {preset1_title}")
+
+                        if preset1_arm in ownedarms:
+                            equipped_items.append(f":mechanical_arm: **Arm** | {preset1_arm}")
+                            update_data['ARM'] = str(preset1_arm)
+                        elif preset1_arm is not None:
+                            not_owned_items.append(f":x: | {preset1_arm}")
+
+                        if preset1_pet in ownedpets:
+                            equipped_items.append(f":dna: **Summon** | {preset1_pet}")
+                            update_data['PET'] = str(preset1_pet)
+                        elif preset1_pet is not None:
+                            not_owned_items.append(f":x: | {preset1_pet}")
+
+                        if preset1_talisman in ownedtalismans:
+                            equipped_items.append(f"{preset1_message} **Talisman** | {preset1_talisman.title()}")
+                            update_data['TALISMAN'] = str(preset1_talisman)
+                        elif preset1_talisman is not None:
+                            not_owned_items.append(f":x: | {preset1_message}{preset1_talisman.title()}")
+
                     elif  button_ctx.custom_id == "2":
-                        for card in ownedcards :                     
-                            if preset2_card in ownedcards:
-                                for title in ownedtitles:
-                                    if preset2_title in ownedtitles:
-                                        for arm in ownedarms:
-                                            if preset2_arm in ownedarms:
-                                                for pet in ownedpets:
-                                                    if preset2_pet in ownedpets:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                        return
-                                                    else:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
-                                                        return
-                                            else:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
-                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
-                                                return
-                                    else:
-                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
-                                        return
-                            else:
-                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
-                                return
+                        # Check if items are owned
+                        equipped_items = []
+                        not_owned_items = []
+                        update_data = {}
+                        if preset2_card in ownedcards:
+                            equipped_items.append(f":flower_playing_cards: **Card** | {preset2_card}")
+                            update_data['CARD'] = str(preset2_card)
+                        else:
+                            not_owned_items.append(f":x: {preset2_card}")
+
+                        if preset2_title in ownedtitles:
+                            equipped_items.append(f":reminder_ribbon: **Title** | {preset2_title}")
+                            update_data['TITLE'] = str(preset2_title)
+                        else:
+                            not_owned_items.append(f":x: | {preset2_title}")
+
+                        if preset2_arm in ownedarms:
+                            equipped_items.append(f":mechanical_arm: **Arm** | {preset2_arm}")
+                            update_data['ARM'] = str(preset2_arm)
+                        else:
+                            not_owned_items.append(f":x: | {preset2_arm}")
+
+                        if preset2_pet in ownedpets:
+                            equipped_items.append(f":dna: **Summon** | {preset2_pet}")
+                            update_data['PET'] = str(preset2_pet)
+                        else:
+                            not_owned_items.append(f":x: | {preset2_pet}")
+
+                        if preset2_talisman in ownedtalismans:
+                            equipped_items.append(f"{preset2_message} **Talisman** | {preset2_talisman.title()}")
+                            update_data['TALISMAN'] = str(preset2_talisman)
+                        else:
+                            not_owned_items.append(f":x: | {preset2_message}{preset2_talisman.title()}")
+
                     elif  button_ctx.custom_id == "3":
-                        for card in ownedcards :                     
-                            if preset3_card in ownedcards:
-                                for title in ownedtitles:
-                                    if preset3_title in ownedtitles:
-                                        for arm in ownedarms:
-                                            if preset3_arm in ownedarms:
-                                                for pet in ownedpets:
-                                                    if preset3_pet in ownedpets:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                        return
-                                                    else:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
-                                                        return
-                                            else:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
-                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
-                                                return
-                                    else:
-                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
-                                        return
-                            else:
-                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
-                                return  
+                        equipped_items = []
+                        not_owned_items = []
+                        update_data = {}
+                        if preset3_card in ownedcards:
+                            equipped_items.append(f":flower_playing_cards: **Card** | {preset3_card}")
+                            update_data['CARD'] = str(preset3_card)
+                        else:
+                            not_owned_items.append(f":x: {preset3_card}")
+
+                        if preset3_title in ownedtitles:
+                            equipped_items.append(f":reminder_ribbon: **Title** | {preset3_title}")
+                            update_data['TITLE'] = str(preset3_title)
+                        else:
+                            not_owned_items.append(f":x: | {preset3_title}")
+
+                        if preset3_arm in ownedarms:
+                            equipped_items.append(f":mechanical_arm: **Arm** | {preset3_arm}")
+                            update_data['ARM'] = str(preset3_arm)
+                        else:
+                            not_owned_items.append(f":x: | {preset3_arm}")
+
+                        if preset3_pet in ownedpets:
+                            equipped_items.append(f":dna: **Summon** | {preset3_pet}")
+                            update_data['PET'] = str(preset3_pet)
+                        else:
+                            not_owned_items.append(f":x: | {preset3_pet}")
+
+                        if preset3_talisman in ownedtalismans:
+                            equipped_items.append(f"{preset3_message} **Talisman** | {preset3_talisman.title()}")
+                            update_data['TALISMAN'] = str(preset3_talisman)
+                        else:
+                            not_owned_items.append(f":x: | {preset3_message}{preset3_talisman.title()}")
+
                     elif  button_ctx.custom_id == "4":
-                        for card in ownedcards :                     
-                            if preset4_card in ownedcards:
-                                for title in ownedtitles:
-                                    if preset4_title in ownedtitles:
-                                        for arm in ownedarms:
-                                            if preset4_arm in ownedarms:
-                                                for pet in ownedpets:
-                                                    if preset4_pet in ownedpets:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm), 'PET': str(preset4_pet)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                        return
-                                                    else:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_pet}")
-                                                        return
-                                            else:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'PET': str(preset4_pet)}})
-                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_arm}")
-                                                return
-                                    else:
-                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
-                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_title}")
-                                        return
-                            else:
-                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset4_title),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
-                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset4_card}")
-                                return  
+                        equipped_items = []
+                        not_owned_items = []
+                        update_data = {}
+                        if preset4_card in ownedcards:
+                            equipped_items.append(f":flower_playing_cards: **Card** | {preset4_card}")
+                            update_data['CARD'] = str(preset4_card)
+                        else:
+                            not_owned_items.append(f":x: {preset4_card}")
+
+                        if preset4_title in ownedtitles:
+                            equipped_items.append(f":reminder_ribbon: **Title** | {preset4_title}")
+                            update_data['TITLE'] = str(preset4_title)
+                        else:
+                            not_owned_items.append(f":x: | {preset4_title}")
+
+                        if preset4_arm in ownedarms:
+                            equipped_items.append(f":mechanical_arm: **Arm** | {preset4_arm}")
+                            update_data['ARM'] = str(preset4_arm)
+                        else:
+                            not_owned_items.append(f":x: | {preset4_arm}")
+
+                        if preset4_pet in ownedpets:
+                            equipped_items.append(f":dna: **Summon** | {preset4_pet}")
+                            update_data['PET'] = str(preset4_pet)
+                        else:
+                            not_owned_items.append(f":x: | {preset4_pet}")
+
+                        if preset4_talisman in ownedtalismans:
+                            equipped_items.append(f"{preset4_message} **Talisman** | {preset4_talisman.title()}")
+                            update_data['TALISMAN'] = str(preset4_talisman)
+                        else:
+                            not_owned_items.append(f":x: | {preset4_message}{preset4_talisman.title()}")
+                        
                     elif  button_ctx.custom_id == "5":
-                        for card in ownedcards :                     
-                            if preset5_card in ownedcards:
-                                for title in ownedtitles:
-                                    if preset5_title in ownedtitles:
-                                        for arm in ownedarms:
-                                            if preset5_arm in ownedarms:
-                                                for pet in ownedpets:
-                                                    if preset5_pet in ownedpets:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                        return
-                                                    else:
-                                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm)}})
-                                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_pet}")
-                                                        return
-                                            else:
-                                                response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'PET': str(preset5_pet)}})
-                                                await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_arm}")
-                                                return
-                                    else:
-                                        response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                                        await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_title}")
-                                        return
-                            else:
-                                response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                                await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset5_card}")
-                                return  
+                        equipped_items = []
+                        not_owned_items = []
+                        update_data = {}
+
+                        if preset5_card in ownedcards:
+                            equipped_items.append(f":flower_playing_cards: **Card** | {preset5_card}")
+                            update_data['CARD'] = str(preset5_card)
+                        else:
+                            not_owned_items.append(f":x: {preset5_card}")
+
+                        if preset5_title in ownedtitles:
+                            equipped_items.append(f":reminder_ribbon: **Title** | {preset5_title}")
+                            update_data['TITLE'] = str(preset5_title)
+                        else:
+                            not_owned_items.append(f":x: | {preset5_title}")
+
+                        if preset5_arm in ownedarms:
+                            equipped_items.append(f":mechanical_arm: **Arm** | {preset5_arm}")
+                            update_data['ARM'] = str(preset5_arm)
+                        else:
+                            not_owned_items.append(f":x: | {preset5_arm}")
+
+                        if preset5_pet in ownedpets:
+                            equipped_items.append(f":dna: **Summon** | {preset5_pet}")
+                            update_data['PET'] = str(preset5_pet)
+                        else:
+                            not_owned_items.append(f":x: | {preset5_pet}")
+
+                        if preset5_talisman in ownedtalismans:
+                            equipped_items.append(f"{preset5_message} **Talisman** | {preset5_talisman.title()}")
+                            update_data['TALISMAN'] = str(preset5_talisman)
+                        else:
+                            not_owned_items.append(f":x: | {preset5_message}{preset5_talisman.title()}")
+
+                        # Update the user's build in the database with owned items
                     
+                    response = db.updateUserNoFilter(query, {'$set': update_data})
+
+                    # Create the embed
+                    ecolor = discord.Color.gold()
+                    if not_owned_items:
+                        ecolor = discord.Color.red()
+                    embed = discord.Embed(title=f"{ctx.author.display_name}'s Build Updated", color=ecolor)
+                    if equipped_items:
+                        embed.add_field(name="Equipped Items", value="\n".join(equipped_items), inline=False)
+                        if not not_owned_items:
+                            embed.set_footer(text="👥 | Conquer Universes with this preset in /duo!")
+                    if not_owned_items:
+                        embed.add_field(name="Not Owned", value="\n".join(not_owned_items), inline=False)
+                        embed.set_footer(text="🔴 | Update this Preset with /savepreset!")
+                    embed.set_thumbnail(url=ctx.author.avatar_url)
+                    
+
+                    # Send the response
+                    await button_ctx.send(embed=embed)
+
+                except asyncio.TimeoutError:
+                    await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
                 except Exception as ex:
                     trace = []
                     tb = ex.__traceback__
@@ -3581,6 +3674,10 @@ class Profile(commands.Cog):
                 current_title = d['TITLE']
                 current_arm= d['ARM']
                 current_pet = d['PET']
+                current_talisman = d['TALISMAN']
+                current_talisman_message = "📿"
+                if current_talisman != "NULL":
+                    current_talisman_message = crown_utilities.set_emoji(current_talisman)
                 preset_update = d['U_PRESET']
 
                 
@@ -3588,43 +3685,68 @@ class Profile(commands.Cog):
                 preset1_title = list(deck[0].values())[1]
                 preset1_arm = list(deck[0].values())[2]
                 preset1_pet = list(deck[0].values())[3]
+                preset1_talisman = list(deck[0].values())[4]
 
                 preset2_card = list(deck[1].values())[0]
                 preset2_title = list(deck[1].values())[1]
                 preset2_arm = list(deck[1].values())[2]
                 preset2_pet = list(deck[1].values())[3]
+                preset2_talisman = list(deck[1].values())[4]
 
                 preset3_card = list(deck[2].values())[0]
                 preset3_title = list(deck[2].values())[1]
                 preset3_arm = list(deck[2].values())[2]
                 preset3_pet = list(deck[2].values())[3]    
-
+                preset3_talisman = list(deck[2].values())[4]
+                
+                preset3_message = "📿"
+                if preset3_talisman != "NULL":
+                    preset3_message = crown_utilities.set_emoji(preset3_talisman)
+                    
+                preset2_message = "📿"
+                if preset2_talisman != "NULL":
+                    preset2_message = crown_utilities.set_emoji(preset2_talisman)
+                    
+                preset1_message = "📿"
+                if preset1_talisman != "NULL":
+                    preset1_message = crown_utilities.set_emoji(preset1_talisman)
+                
                 if preset_update:
                     preset4_card = list(deck[3].values())[0]
                     preset4_title = list(deck[3].values())[1]
                     preset4_arm = list(deck[3].values())[2]
                     preset4_pet = list(deck[3].values())[3]
+                    preset4_talisman = list(deck[3].values())[4]
 
                     preset5_card = list(deck[4].values())[0]
                     preset5_title = list(deck[4].values())[1]
                     preset5_arm = list(deck[4].values())[2]
                     preset5_pet = list(deck[4].values())[3]  
+                    preset5_talisman = list(deck[4].values())[4]
                     
-                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n\n",
-                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
-                    f"📝4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
-                    f"📝5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
+                    preset5_message = "📿"
+                    if preset5_talisman != "NULL":
+                        preset5_message = crown_utilities.set_emoji(preset5_talisman)
+                        
+                    preset4_message = "📿"
+                    if preset4_talisman != "NULL":
+                        preset4_message = crown_utilities.set_emoji(preset4_talisman)
+                    
+                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}\n\n",
+                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}\n\n", 
+                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}\n\n", 
+                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}\n\n", 
+                    f"📝4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}\n\n", 
+                    f"📝5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}\n\n"]  
                 else:
-                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n\n",
-                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
+                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}\n\n",
+                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}\n\n", 
+                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}\n\n", 
+                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}\n\n"]
             
                 embedVar = discord.Embed(title=f"📝 | Save Current Build", description=textwrap.dedent(f"""
                 {"".join(listed_options)}
-                """))
+                """), color=discord.Color.green())
                 util_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.green,
@@ -3672,31 +3794,21 @@ class Profile(commands.Cog):
                     if button_ctx.custom_id == "0":
                         await button_ctx.send(f"{ctx.author.mention}, No change has been made")
                         return
-                    elif button_ctx.custom_id == "1":
-                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.0.CARD' :str(current_card), 'DECK.0.TITLE': str(current_title),'DECK.0.ARM': str(current_arm), 'DECK.0.PET': str(current_pet)}})
+                    elif button_ctx.custom_id in ["1", "2", "3", "4", "5"]:
+                        preset_number = button_ctx.custom_id
+                        response = db.updateVaultNoFilter(vault_query, {'$set': {f'DECK.{int(preset_number) - 1}.CARD': str(current_card), f'DECK.{int(preset_number) - 1}.TITLE': str(current_title), f'DECK.{int(preset_number) - 1}.ARM': str(current_arm), f'DECK.{int(preset_number) - 1}.PET': str(current_pet), f'DECK.{int(preset_number) - 1}.TALISMAN': str(current_talisman)}})
                         if response:
-                            await button_ctx.send("📝 1️⃣| Preset Updated!")
+                            talisman_message = crown_utilities.set_emoji(current_talisman)
+                            embed = discord.Embed(title=f"{ctx.author.display_name}'s Preset {preset_number} Updated", color=discord.Color.gold() )
+                            embed.add_field(name="Card", value=f":flower_playing_cards: | {current_card}", inline=False)
+                            embed.add_field(name="Title", value=f":reminder_ribbon: | {current_title}", inline=False)
+                            embed.add_field(name="Arm", value=f":mechanical_arm: | {current_arm}", inline=False)
+                            embed.add_field(name="Summons", value=f":dna: | {current_pet}", inline=False)
+                            embed.add_field(name="Talisman", value=f"{talisman_message} | {current_talisman.title()}", inline=False)
+                            embed.set_thumbnail(url=ctx.author.avatar_url)
+                            await button_ctx.send(embed=embed)
                             return
-                    elif button_ctx.custom_id == "2":
-                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.1.CARD' :str(current_card), 'DECK.1.TITLE': str(current_title),'DECK.1.ARM': str(current_arm), 'DECK.1.PET': str(current_pet)}})
-                        if response:
-                            await button_ctx.send("📝 2️⃣| Preset Updated!")
-                            return
-                    elif button_ctx.custom_id == "3":
-                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.2.CARD' :str(current_card), 'DECK.2.TITLE': str(current_title),'DECK.2.ARM': str(current_arm), 'DECK.2.PET': str(current_pet)}})
-                        if response:
-                            await button_ctx.send("📝 3️⃣| Preset Updated!")
-                            return
-                    elif button_ctx.custom_id == "4":
-                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.3.CARD' :str(current_card), 'DECK.3.TITLE': str(current_title),'DECK.3.ARM': str(current_arm), 'DECK.3.PET': str(current_pet)}})
-                        if response:
-                            await button_ctx.send("📝 4️⃣| Preset Updated!")
-                            return
-                    elif button_ctx.custom_id == "5":
-                        response = db.updateVaultNoFilter(vault_query, {'$set': {'DECK.4.CARD' :str(current_card), 'DECK.4.TITLE': str(current_title),'DECK.4.ARM': str(current_arm), 'DECK.4.PET': str(current_pet)}})
-                        if response:
-                            await button_ctx.send("📝 5️⃣| Preset Updated!")
-                            return
+
                 except asyncio.TimeoutError:
                     await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
                 except Exception as ex:
@@ -6009,6 +6121,7 @@ async def menubuild(self, ctx):
 
         if card:
             try:
+                print(d['TALISMAN'])
                 c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
                 t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                 a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
@@ -9247,6 +9360,7 @@ async def menupreset(self, ctx):
             ownedtitles = []
             ownedarms = []
             ownedpets = []
+            ownedtalismans = []
             for cards in vault['CARDS']:
                 ownedcards.append(cards)
             for titles in vault['TITLES']:
@@ -9255,6 +9369,8 @@ async def menupreset(self, ctx):
                 ownedarms.append(arms['ARM'])
             for pets in vault['PETS']:
                 ownedpets.append(pets['NAME'])
+            for talismans in vault['TALISMANS']:
+                ownedtalismans.append(talismans['TYPE'])
 
             name = d['DISNAME'].split("#",1)[0]
             avatar = d['AVATAR']
@@ -9269,41 +9385,70 @@ async def menupreset(self, ctx):
             preset1_title = list(deck[0].values())[1]
             preset1_arm = list(deck[0].values())[2]
             preset1_pet = list(deck[0].values())[3]
+            preset1_talisman = list(deck[0].values())[4]
 
             preset2_card = list(deck[1].values())[0]
             preset2_title = list(deck[1].values())[1]
             preset2_arm = list(deck[1].values())[2]
             preset2_pet = list(deck[1].values())[3]
+            preset2_talisman = list(deck[1].values())[4]
 
             preset3_card = list(deck[2].values())[0]
             preset3_title = list(deck[2].values())[1]
             preset3_arm = list(deck[2].values())[2]
             preset3_pet = list(deck[2].values())[3]    
+            preset3_talisman = list(deck[2].values())[4]
+            
+            preset3_message = "📿"
+            if preset3_talisman != "NULL":
+                preset3_message = crown_utilities.set_emoji(preset3_talisman)
+                
+            preset2_message = "📿"
+            if preset2_talisman != "NULL":
+                preset2_message = crown_utilities.set_emoji(preset2_talisman)
+                
+            preset1_message = "📿"
+            if preset1_talisman != "NULL":
+                preset1_message = crown_utilities.set_emoji(preset1_talisman)
             
             if preset_update:
                 preset4_card = list(deck[3].values())[0]
                 preset4_title = list(deck[3].values())[1]
                 preset4_arm = list(deck[3].values())[2]
                 preset4_pet = list(deck[3].values())[3]
+                preset4_talisman = list(deck[3].values())[4]
 
                 preset5_card = list(deck[4].values())[0]
                 preset5_title = list(deck[4].values())[1]
                 preset5_arm = list(deck[4].values())[2]
                 preset5_pet = list(deck[4].values())[3]  
+                preset5_talisman = list(deck[4].values())[4]
                 
-                listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n", 
-                f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n\n", 
-                f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n\n"]  
+                preset5_message = "📿"
+                if preset5_talisman != "NULL":
+                    preset5_message = crown_utilities.set_emoji(preset5_talisman)
+                    
+                preset4_message = "📿"
+                if preset4_talisman != "NULL":
+                    preset4_message = crown_utilities.set_emoji(preset4_talisman)
+                    
+                
+
+                    
+                
+                listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}\n\n", 
+                f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}\n\n", 
+                f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}\n\n", 
+                f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}\n\n", 
+                f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}\n\n"]  
             else:
-                listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n\n", 
-                f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n\n", 
-                f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n\n"]
+                listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}\n\n", 
+                f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}\n\n", 
+                f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}\n\n"]
         
             embedVar = discord.Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
             {"".join(listed_options)}
-            """))
+            """), color=discord.Color.blue())
             embedVar.set_thumbnail(url=avatar)
             # embedVar.add_field(name=f"Preset 1:{preset1_title} {preset1_card} and {preset1_pet}", value=f"Card: {preset1_card}\nTitle: {preset1_title}\nArm: {preset1_arm}\nSummon: {preset1_pet}", inline=False)
             # embedVar.add_field(name=f"Preset 2:{preset2_title} {preset2_card} and {preset2_pet}", value=f"Card: {preset2_card}\nTitle: {preset2_title}\nArm: {preset2_arm}\nSummon: {preset2_pet}", inline=False)
@@ -9357,146 +9502,270 @@ async def menupreset(self, ctx):
                     await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
                     return
                 elif  button_ctx.custom_id == "1":
-                    for card in ownedcards :                     
-                        if preset1_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset1_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset1_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset1_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'ARM': str(preset1_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_pet}", hidden=True)
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card), 'TITLE': str(preset1_title),'PET': str(preset1_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset1_card),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset1_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset1_title),'ARM': str(preset1_arm), 'PET': str(preset1_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s items updated, You No Longer Own {preset1_card}")
-                            return
+                    equipped_items = []
+                    not_owned_items = []
+                    update_data = {}
+                    if preset1_card in ownedcards:
+                        equipped_items.append(f":flower_playing_cards: **Card** | {preset1_card}")
+                        update_data['CARD'] = str(preset1_card)
+                    else:
+                        not_owned_items.append(f":x: {preset1_card}")
+
+                    if preset1_title in ownedtitles:
+                        equipped_items.append(f":reminder_ribbon: **Title** | {preset1_title}")
+                        update_data['TITLE'] = str(preset1_title)
+                    elif preset1_title is not None:
+                        not_owned_items.append(f":x: | {preset1_title}")
+
+                    if preset1_arm in ownedarms:
+                        equipped_items.append(f":mechanical_arm: **Arm** | {preset1_arm}")
+                        update_data['ARM'] = str(preset1_arm)
+                    elif preset1_arm is not None:
+                        not_owned_items.append(f":x: | {preset1_arm}")
+
+                    if preset1_pet in ownedpets:
+                        equipped_items.append(f":dna: **Summon** | {preset1_pet}")
+                        update_data['PET'] = str(preset1_pet)
+                    elif preset1_pet is not None:
+                        not_owned_items.append(f":x: | {preset1_pet}")
+
+                    if preset1_talisman in ownedtalismans:
+                        equipped_items.append(f":prayer_beads: | {preset1_message}")
+                        update_data['TALISMAN'] = str(preset1_talisman)
+                    elif preset1_talisman is not None:
+                        not_owned_items.append(f":x: |{preset1_message}{preset1_talisman.title()}")
+
+                    # Update the user's build in the database with owned items
+                    response = db.updateUserNoFilter(query, {'$set': update_data})
+                    if not_owned_items:
+                        ecolor = discord.Color.red()
+                    # Create the embed
+                    embed = discord.Embed(title=f"{ctx.author.display_name}'s Build Updated", color=discord.Color.gold())
+                    if equipped_items:
+                        embed.add_field(name="Equipped Items", value="\n".join(equipped_items), inline=False)
+                        if not not_owned_items:
+                            embed.set_footer(text="👥 | Conquer Universes with this preset in /duo!")
+                    if not_owned_items:
+                        embed.add_field(name="Not Owned", value="\n".join(not_owned_items), inline=False)
+                        embed.set_footer(text="🔴 | Update this Preset with /savepreset!")
+                    embed.set_thumbnail(url=ctx.author.avatar_url)
+                    
+
+                    # Send the response
+                    await button_ctx.send(embed=embed)
+
                 elif  button_ctx.custom_id == "2":
-                    for card in ownedcards :                     
-                        if preset2_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset2_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset2_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset2_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title),'ARM': str(preset2_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card), 'TITLE': str(preset2_title), 'PET': str(preset2_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset2_card),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset2_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset2_title),'ARM': str(preset2_arm), 'PET': str(preset2_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset2_card}.")
-                            return
+                    # Check if items are owned
+                    equipped_items = []
+                    not_owned_items = []
+                    update_data = {}
+                    if preset2_card in ownedcards:
+                        equipped_items.append(f":flower_playing_cards: **Card** | {preset2_card}")
+                        update_data['CARD'] = str(preset2_card)
+                    else:
+                        not_owned_items.append(f":x: {preset2_card}")
+
+                    if preset2_title in ownedtitles:
+                        equipped_items.append(f":reminder_ribbon: **Title** | {preset2_title}")
+                        update_data['TITLE'] = str(preset2_title)
+                    else:
+                        not_owned_items.append(f":x: | {preset2_title}")
+
+                    if preset2_arm in ownedarms:
+                        equipped_items.append(f":mechanical_arm: **Arm** | {preset2_arm}")
+                        update_data['ARM'] = str(preset2_arm)
+                    else:
+                        not_owned_items.append(f":x: | {preset2_arm}")
+
+                    if preset2_pet in ownedpets:
+                        equipped_items.append(f":dna: **Summon** | {preset2_pet}")
+                        update_data['PET'] = str(preset2_pet)
+                    else:
+                        not_owned_items.append(f":x: | {preset2_pet}")
+
+                    if preset2_talisman in ownedtalismans:
+                        equipped_items.append(f":prayer_beads: | {preset2_message}")
+                        update_data['TALISMAN'] = str(preset2_talisman)
+                    else:
+                        not_owned_items.append(f":x: | {preset2_talisman}")
+
+                    # Update the user's build in the database with owned items
+                    response = db.updateUserNoFilter(query, {'$set': update_data})
+
+                    # Create the embed
+                    embed = discord.Embed(title=f"{ctx.author.display_name}'s Build Updated", color=discord.Color.gold())
+                    if equipped_items:
+                        embed.add_field(name="Equipped Items", value="\n".join(equipped_items), inline=False)
+                        if not not_owned_items:
+                            embed.set_footer(text="👥 | Conquer Universes with this preset in /duo!")
+                    if not_owned_items:
+                        embed.add_field(name="Not Owned", value="\n".join(not_owned_items), inline=False)
+                        embed.set_footer(text="🔴 | Update this Preset with /savepreset!")
+                    embed.set_thumbnail(url=ctx.author.avatar_url)
+                    
+
+                    # Send the response
+                    await button_ctx.send(embed=embed)
+
                 elif  button_ctx.custom_id == "3":
-                    for card in ownedcards :                     
-                        if preset3_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset3_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset3_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset3_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'ARM': str(preset3_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card), 'TITLE': str(preset3_title),'PET': str(preset3_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset3_card),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset3_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset3_title),'ARM': str(preset3_arm), 'PET': str(preset3_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset3_card}")
-                            return  
+                    equipped_items = []
+                    not_owned_items = []
+                    update_data = {}
+                    if preset3_card in ownedcards:
+                        equipped_items.append(f":flower_playing_cards: **Card** | {preset3_card}")
+                        update_data['CARD'] = str(preset3_card)
+                    else:
+                        not_owned_items.append(f":x: {preset3_card}")
+
+                    if preset3_title in ownedtitles:
+                        equipped_items.append(f":reminder_ribbon: **Title** | {preset3_title}")
+                        update_data['TITLE'] = str(preset3_title)
+                    else:
+                        not_owned_items.append(f":x: | {preset3_title}")
+
+                    if preset3_arm in ownedarms:
+                        equipped_items.append(f":mechanical_arm: **Arm** | {preset3_arm}")
+                        update_data['ARM'] = str(preset3_arm)
+                    else:
+                        not_owned_items.append(f":x: | {preset3_arm}")
+
+                    if preset3_pet in ownedpets:
+                        equipped_items.append(f":dna: **Summon** | {preset3_pet}")
+                        update_data['PET'] = str(preset3_pet)
+                    else:
+                        not_owned_items.append(f":x: | {preset3_pet}")
+
+                    if preset3_talisman in ownedtalismans:
+                        equipped_items.append(f":prayer_beads: | {preset3_message}")
+                        update_data['TALISMAN'] = str(preset3_talisman)
+                    else:
+                        not_owned_items.append(f":x: | {preset3_talisman}")
+
+                    # Update the user's build in the database with owned items
+                    response = db.updateUserNoFilter(query, {'$set': update_data})
+
+                    # Create the embed
+                    embed = discord.Embed(title=f"{ctx.author.display_name}'s Build Updated", color=discord.Color.gold())
+                    if equipped_items:
+                        embed.add_field(name="Equipped Items", value="\n".join(equipped_items), inline=False)
+                        if not not_owned_items:
+                            embed.set_footer(text="👥 | Conquer Universes with this preset in /duo!")
+                    if not_owned_items:
+                        embed.add_field(name="Not Owned", value="\n".join(not_owned_items), inline=False)
+                        embed.set_footer(text="🔴 | Update this Preset with /savepreset!")
+                    embed.set_thumbnail(url=ctx.author.avatar_url)
+                    
+
+                    # Send the response
+                    await button_ctx.send(embed=embed)
+
                 elif  button_ctx.custom_id == "4":
-                    for card in ownedcards :                     
-                        if preset4_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset4_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset4_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset4_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm), 'PET': str(preset4_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'ARM': str(preset4_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card), 'TITLE': str(preset4_title),'PET': str(preset4_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset4_card),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset4_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset4_title),'ARM': str(preset3_arm), 'PET': str(preset4_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset4_card}")
-                            return  
+                    equipped_items = []
+                    not_owned_items = []
+                    update_data = {}
+                    if preset4_card in ownedcards:
+                        equipped_items.append(f":flower_playing_cards: **Card** | {preset4_card}")
+                        update_data['CARD'] = str(preset4_card)
+                    else:
+                        not_owned_items.append(f":x: {preset4_card}")
+
+                    if preset4_title in ownedtitles:
+                        equipped_items.append(f":reminder_ribbon: **Title** | {preset4_title}")
+                        update_data['TITLE'] = str(preset4_title)
+                    else:
+                        not_owned_items.append(f":x: | {preset4_title}")
+
+                    if preset4_arm in ownedarms:
+                        equipped_items.append(f":mechanical_arm: **Arm** | {preset4_arm}")
+                        update_data['ARM'] = str(preset4_arm)
+                    else:
+                        not_owned_items.append(f":x: | {preset4_arm}")
+
+                    if preset4_pet in ownedpets:
+                        equipped_items.append(f":dna: **Summon** | {preset4_pet}")
+                        update_data['PET'] = str(preset4_pet)
+                    else:
+                        not_owned_items.append(f":x: | {preset4_pet}")
+
+                    if preset4_talisman in ownedtalismans:
+                        equipped_items.append(f":prayer_beads: | {preset4_message}")
+                        update_data['TALISMAN'] = str(preset4_talisman)
+                    else:
+                        not_owned_items.append(f":x: | {preset4_talisman}")
+
+                    # Update the user's build in the database with owned items
+                    response = db.updateUserNoFilter(query, {'$set': update_data})
+
+                    # Create the embed
+                    embed = discord.Embed(title=f"{ctx.author.display_name}'s Build Updated", color=discord.Color.gold())
+                    if equipped_items:
+                        embed.add_field(name="Equipped Items", value="\n".join(equipped_items), inline=False)
+                        if not not_owned_items:
+                            embed.set_footer(text="👥 | Conquer Universes with this preset in /duo!")
+                    if not_owned_items:
+                        embed.add_field(name="Not Owned", value="\n".join(not_owned_items), inline=False)
+                        embed.set_footer(text="🔴 | Update this Preset with /savepreset!")
+                    embed.set_thumbnail(url=ctx.author.avatar_url)
+                    
+
+                    # Send the response
+                    await button_ctx.send(embed=embed)
+                    
                 elif  button_ctx.custom_id == "5":
-                    for card in ownedcards :                     
-                        if preset5_card in ownedcards:
-                            for title in ownedtitles:
-                                if preset5_title in ownedtitles:
-                                    for arm in ownedarms:
-                                        if preset5_arm in ownedarms:
-                                            for pet in ownedpets:
-                                                if preset5_pet in ownedpets:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}, your build updated successfully!")
-                                                    return
-                                                else:
-                                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'ARM': str(preset5_arm)}})
-                                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_pet}")
-                                                    return
-                                        else:
-                                            response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card), 'TITLE': str(preset5_title),'PET': str(preset5_pet)}})
-                                            await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_arm}")
-                                            return
-                                else:
-                                    response = db.updateUserNoFilter(query, {'$set': {'CARD': str(preset5_card),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                                    await button_ctx.send(f"{ctx.author.mention}'s build updated, You No Longer Own {preset5_title}")
-                                    return
-                        else:
-                            response = db.updateUserNoFilter(query, {'$set': {'TITLE': str(preset5_title),'ARM': str(preset5_arm), 'PET': str(preset5_pet)}})
-                            await button_ctx.send(f"{ctx.author.mention}'s Items updated, You No Longer Own {preset5_card}")
-                            return  
-                
+                    equipped_items = []
+                    not_owned_items = []
+                    update_data = {}
+
+                    if preset5_card in ownedcards:
+                        equipped_items.append(f":flower_playing_cards: **Card** | {preset5_card}")
+                        update_data['CARD'] = str(preset5_card)
+                    else:
+                        not_owned_items.append(f":x: {preset5_card}")
+
+                    if preset5_title in ownedtitles:
+                        equipped_items.append(f":reminder_ribbon: **Title** | {preset5_title}")
+                        update_data['TITLE'] = str(preset5_title)
+                    else:
+                        not_owned_items.append(f":x: | {preset5_title}")
+
+                    if preset5_arm in ownedarms:
+                        equipped_items.append(f":mechanical_arm: **Arm** | {preset5_arm}")
+                        update_data['ARM'] = str(preset5_arm)
+                    else:
+                        not_owned_items.append(f":x: | {preset5_arm}")
+
+                    if preset5_pet in ownedpets:
+                        equipped_items.append(f":dna: **Summon** | {preset5_pet}")
+                        update_data['PET'] = str(preset5_pet)
+                    else:
+                        not_owned_items.append(f":x: | {preset5_pet}")
+
+                    if preset5_talisman in ownedtalismans:
+                        equipped_items.append(f":prayer_beads: | {preset5_message}")
+                        update_data['TALISMAN'] = str(preset5_talisman)
+                    else:
+                        not_owned_items.append(f":x: | {preset5_talisman}")
+
+                    # Update the user's build in the database with owned items
+                    response = db.updateUserNoFilter(query, {'$set': update_data})
+
+                    # Create the embed
+                    embed = discord.Embed(title=f"{ctx.author.display_name}'s Build Updated", color=discord.Color.gold())
+                    if equipped_items:
+                        embed.add_field(name="Equipped Items", value="\n".join(equipped_items), inline=False)
+                        if not not_owned_items:
+                            embed.set_footer(text="👥 | Conquer Universes with this preset in /duo!")
+                    if not_owned_items:
+                        embed.add_field(name="Not Owned", value="\n".join(not_owned_items), inline=False)
+                        embed.set_footer(text="🔴 | Update this Preset with /savepreset!")
+                    embed.set_thumbnail(url=ctx.author.avatar_url)
+                    
+
+                    # Send the response
+                    await button_ctx.send(embed=embed)
+
+            except asyncio.TimeoutError:
+                await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__

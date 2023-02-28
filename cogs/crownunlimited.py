@@ -202,7 +202,7 @@ class CrownUnlimited(commands.Cog):
 
             try:
                 button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[
-                    random_battle_buttons_action_row], timeout=120, check=check)
+                    random_battle_buttons_action_row], timeout=300, check=check)
 
                 if button_ctx.custom_id == "glory":
                     await button_ctx.defer(ignore=True)
@@ -1011,8 +1011,6 @@ async def tutorial(self, ctx, player, mode):
         if not a_registered_player:
             return
 
-        print("Hello World")
-
         await ctx.send("🆚 Building Tutorial Match...", delete_after=10)
 
         tutorial_did = '837538366509154407'
@@ -1701,7 +1699,7 @@ async def abyss(self, ctx: SlashContext, _player, mode):
 
                 if abyss.abyss_player_card_tier_is_banned:
                     await ctx.send(
-                        f":x: We're sorry! The tier of your equipped card is banned on floor {abyss.abyss_floor}. Please, try again with another card.")
+                        f":x: We're sorry! Tier of your equipped card is banned on floor {abyss.abyss_floor}. Please, try again with another card.")
                     return
                 
                 await battle_commands(self, ctx, abyss, _player, None, player2=None, player3=None)
@@ -2285,17 +2283,25 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                 """))
                 await ctx.send(embed=universe_embed_list)
                 return
-
-        buttons = [
-            manage_components.create_button(style=3, label="Start Battle!", custom_id="start"),
-            manage_components.create_button(style=1, label="View Available Scenario Battles!", custom_id="scenario"),
-        ]
+        if mode in crown_utilities.TALE_M:
+            buttons = [
+                manage_components.create_button(style=3, label="Start Battle!", custom_id="start"),
+                manage_components.create_button(style=1, label="View Available Scenario Battles!", custom_id="scenario"),
+            ]
+        if  mode in crown_utilities.DUNGEON_M:
+            buttons = [
+                manage_components.create_button(style=3, label="Start Battle!", custom_id="start"),
+                manage_components.create_button(style=2, label="View Available Universe Raids!", custom_id="scenario"),
+            ]
         custom_action_row = manage_components.create_actionrow(*buttons)        
 
 
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
                 if button_ctx.custom_id == "scenario":
+                    if button_ctx.label == "Universe Raid!":
+                        await ctx.send("Universe Raids Coming Soon...")
+                        return
                     await button_ctx.defer(ignore=True)
                     universe = str(button_ctx.origin_message.embeds[0].title)
                     await scenario(self, ctx, p, universe)
@@ -2419,12 +2425,10 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                 self.stop = True
             else:
                 await ctx.send("This is not your button.", hidden=True)
-
-        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=available_bosses, timeout=60,  customButton=[
-            custom_button,
-            custom_function,
-        ]).run()
-
+            await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=available_bosses, timeout=5,  customButton=[
+                custom_button,
+                custom_function,
+            ]).run()
         try:
             # Universe Cost
             selected_universe = custom_function.selected_universe
@@ -2480,7 +2484,9 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             guild = self.bot.get_guild(main.guild_id)
             channel = guild.get_channel(main.guild_channel)
             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+
             return
+        
 
 
 async def battle_commands(self, ctx, battle_config, _player, _custom_explore_card, player2=None, player3=None):
@@ -2505,6 +2511,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             player1.getsummon_ready(player1_card)
             player1_arm.set_durability(player1.equipped_arm, player1._arms)
             player1_card.set_card_level_buffs(player1._card_levels)
+
             player1_card.set_arm_config(player1_arm.passive_type, player1_arm.name, player1_arm.passive_value, player1_arm.element)
             player1_card.set_affinity_message()
             player1.get_talisman_ready(player1_card)
@@ -2568,8 +2575,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 else:
                     battle_config.get_ai_battle_ready(player1_card.card_lvl)
                     player2_card = Card(battle_config._ai_opponent_card_data['NAME'], battle_config._ai_opponent_card_data['PATH'], battle_config._ai_opponent_card_data['PRICE'], battle_config._ai_opponent_card_data['EXCLUSIVE'], battle_config._ai_opponent_card_data['AVAILABLE'], battle_config._ai_opponent_card_data['IS_SKIN'], battle_config._ai_opponent_card_data['SKIN_FOR'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['MOVESET'], battle_config._ai_opponent_card_data['ATK'], battle_config._ai_opponent_card_data['DEF'], battle_config._ai_opponent_card_data['TYPE'], battle_config._ai_opponent_card_data['PASS'][0], battle_config._ai_opponent_card_data['SPD'], battle_config._ai_opponent_card_data['UNIVERSE'], battle_config._ai_opponent_card_data['HAS_COLLECTION'], battle_config._ai_opponent_card_data['TIER'], battle_config._ai_opponent_card_data['COLLECTION'], battle_config._ai_opponent_card_data['WEAKNESS'], battle_config._ai_opponent_card_data['RESISTANT'], battle_config._ai_opponent_card_data['REPEL'], battle_config._ai_opponent_card_data['ABSORB'], battle_config._ai_opponent_card_data['IMMUNE'], battle_config._ai_opponent_card_data['GIF'], battle_config._ai_opponent_card_data['FPATH'], battle_config._ai_opponent_card_data['RNAME'], battle_config._ai_opponent_card_data['RPATH'], battle_config._ai_is_boss)
-                    if not battle_config.is_abyss_game_mode:
-                        player2_card.set_ai_card_buffs(battle_config._ai_opponent_card_lvl, battle_config.stat_buff, battle_config.stat_debuff, battle_config.health_buff, battle_config.health_debuff, battle_config.ap_buff, battle_config.ap_debuff, _player.prestige, _player.rebirth, battle_config.mode)
+                    player2_card.set_ai_card_buffs(battle_config._ai_opponent_card_lvl, battle_config.stat_buff, battle_config.stat_debuff, battle_config.health_buff, battle_config.health_debuff, battle_config.ap_buff, battle_config.ap_debuff, _player.prestige, _player.rebirth, battle_config.mode)
                 if battle_config.abyss_player_card_tier_is_banned:
                     await ctx.send(f"Tier {str(player1_card.tier)} cards are banned on Floor {str(battle_config.abyss_floor)} of the abyss. Please try again with another card.")
                     return
@@ -2704,13 +2710,13 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         await asyncio.sleep(2)
                         battle_msg = await private_channel.send(embed=embedVar)
 
-                    game_over = False
-                    while not game_over:
+                    game_over_check = False
+                    while not game_over_check:
                         if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                            game_over = battle_config.game_over(player1_card, player2_card, player3_card)
+                            game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
                         else:
-                            game_over = battle_config.game_over(player1_card, player2_card)
-                        if game_over:
+                            game_over_check = battle_config.set_game_over(player1_card, player2_card, None)
+                        if game_over_check:
                             break
 
                         if battle_config.previous_moves:
@@ -2837,7 +2843,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     try:
                                         button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot,
                                                                                                                 components=components,
-                                                                                                                timeout=120,
+                                                                                                                timeout=300,
                                                                                                                 check=check)
                                         
 
@@ -3150,7 +3156,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                                                                                     components=[
                                                                                                                         battle_action_row,
                                                                                                                         util_action_row],
-                                                                                                                    timeout=120,
+                                                                                                                    timeout=300,
                                                                                                                     check=check)
 
                                             if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
@@ -3406,7 +3412,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             button_ctx: ComponentContext = await manage_components.wait_for_component(
                                                 self.bot,
                                                 components=[battle_action_row, util_action_row, coop_util_action_row],
-                                                timeout=120, check=check)
+                                                timeout=300, check=check)
 
                                             # calculate data based on selected move
                                             if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
@@ -3593,7 +3599,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         else:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                     
-                    if game_over:
+                    if game_over_check:
                         wintime = time.asctime()
                         h_playtime = int(wintime[11:13])
                         m_playtime = int(wintime[14:16])
@@ -3704,7 +3710,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         return
 
                                 else:
-                                    if battle_config.is_duo_mode or battle._config.is_co_op_mode:
+                                    if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                                         loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
                                     else:
                                         loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
@@ -4150,6 +4156,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.wind_element_activated = False
     player_card.activate_demon_slayer_trait(battle_config, opponent_card)
     opponent_card.activate_demon_slayer_trait(battle_config, player_card)
+    player_card.activate_observation_haki_trait(battle_config, opponent_card)
+    opponent_card.activate_observation_haki_trait(battle_config, player_card)
     if player_card.used_block == True:
         player_card.defense = int(player_card.defense / 2)
         player_card.used_block = False
@@ -5117,13 +5125,13 @@ enhancer_mapping = {'ATK': 'Increase Attack %',
 'BRACE': 'Lose Attack, Increase AP',
 'BZRK': 'Lose Health, Increase Attack',
 'CRYSTAL': 'Lose Health, Increase Defense',
-'GROWTH': 'Lose 10% Max Health, Increase Attack, Defense and AP',
+'GROWTH': 'Lose 10% Max Health, Increase Attack, Defense and AP Buffs',
 'STANCE': 'Swap your Attack & Defense, Increase Defense',
 'CONFUSE': 'Swap Opponent Attack & Defense, Decrease Opponent Defense',
 'BLINK': 'Decrease your  Stamina, Increase Target Stamina',
 'SLOW': 'Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent',
 'HASTE': 'Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent',
-'FEAR': 'Lose 10% Max Health, Decrease Opponent Attack, Defense and AP',
+'FEAR': 'Lose 10% Max Health, Decrease Opponent Attack, Defense and AP Buffs',
 'SOULCHAIN': 'You and Your Opponent Stamina Link',
 'GAMBLE': 'You and Your Opponent Health Link',
 'WAVE': 'Deal Damage, Decreases over time',

@@ -748,7 +748,7 @@ class Battle:
         _card.summon_universe = self._ai_opponentsummon_universe
 
 
-    def game_over(self, player1_card, player2_card, player3_card=None):
+    def set_game_over(self, player1_card, player2_card, player3_card=None):
         if player1_card.health <= 0:
             self.match_has_ended = True
             self.player2_wins = True
@@ -769,7 +769,6 @@ class Battle:
             if self.turn_total >= 250:
                 self.previous_moves.append(f"⚙️**{player1_card.name}** could not defeat {player2_card.name} before the turn Limit...")
                 player1_card.health = 0
-
         return self.match_has_ended
 
     
@@ -989,40 +988,40 @@ class Battle:
             self.battle_options = options
 
         if your_card.stamina >= 10:
-            if your_card.universe == "Souls" and your_card.used_resolve:
-                b_butts.append(
-                    manage_components.create_button(
-                        style=ButtonStyle.green,
-                        label=f"{your_card.move2_emoji} 10",
-                        custom_id="1"
-                    )
+            # if your_card.universe == "Souls" and your_card.used_resolve:
+            #     b_butts.append(
+            #         manage_components.create_button(
+            #             style=ButtonStyle.green,
+            #             label=f"{your_card.move2_emoji} 10",
+            #             custom_id="1"
+            #         )
+            #     )
+            # else:
+            b_butts.append(
+                manage_components.create_button(
+                    style=ButtonStyle.green,
+                    label=f"{your_card.move1_emoji} 10",
+                    custom_id="1"
                 )
-            else:
-                b_butts.append(
-                    manage_components.create_button(
-                        style=ButtonStyle.green,
-                        label=f"{your_card.move1_emoji} 10",
-                        custom_id="1"
-                    )
-                )
+            )
 
         if your_card.stamina >= 30:
-            if your_card.universe == "Souls" and your_card.used_resolve:
-                b_butts.append(
-                    manage_components.create_button(
-                        style=ButtonStyle.green,
-                        label=f"{your_card.move3_emoji} 30",
-                        custom_id="2"
-                    )
+            # if your_card.universe == "Souls" and your_card.used_resolve:
+            #     b_butts.append(
+            #         manage_components.create_button(
+            #             style=ButtonStyle.green,
+            #             label=f"{your_card.move3_emoji} 30",
+            #             custom_id="2"
+            #         )
+            #     )
+            # else:
+            b_butts.append(
+                manage_components.create_button(
+                    style=ButtonStyle.green,
+                    label=f"{your_card.move2_emoji} 30",
+                    custom_id="2"
                 )
-            else:
-                b_butts.append(
-                    manage_components.create_button(
-                        style=ButtonStyle.green,
-                        label=f"{your_card.move2_emoji} 30",
-                        custom_id="2"
-                    )
-                )
+            )
 
         if your_card.stamina >= 80:
             b_butts.append(

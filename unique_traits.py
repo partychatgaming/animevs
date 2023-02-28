@@ -78,8 +78,7 @@ traits = [{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Spirit Energy, Demon Energy ',
     'TRAIT': 'Spirit Energy : Stamina + Turn Count added to each Attack. Demon Energy :  Attack increased by Stamina each turn.'
-},
-{
+},{
     'NAME': 'One Piece',
     'EFFECT': 'Haki : Tier Based Trait',
     'TRAIT': 'Observation: 1-7: Before Focus: 40% DMG Reduction. Armament: 4-7: 2x Focus Stacking.Conquerors: 6-7:Resolve, Decrease OPP AP by 125'

@@ -118,13 +118,28 @@ class Player:
 
     def set_talisman_message(self):
         try:
+            print(self.equipped_talisman)
             if self.equipped_talisman != "NULL":
                 for t in self._talismans:
                     if t["TYPE"].upper() == self.equipped_talisman.upper():
                         talisman_emoji = crown_utilities.set_emoji(self.equipped_talisman.upper())
                         talisman_durability = t["DUR"]
-                self.talisman_message = f"{talisman_emoji} | {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
-        except:
+                        self.talisman_message = f"{talisman_emoji} | {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
             print("Error setting talisman message.")
             return self.talisman_message
         
@@ -326,6 +341,15 @@ class Player:
                     return None
                 else:
                     return all_universes
+                
+            def get_tales(universes):
+                all_universes = []
+                for uni in universes:
+                    all_universes.append(uni)
+                if not all_universes:
+                    return None
+                else:
+                    return all_universes
 
             if self.rift:
                 if mode in crown_utilities.DUNGEON_M:
@@ -334,21 +358,8 @@ class Player:
                     if not all_universes:
                         return None
                 if mode in crown_utilities.TALE_M:
-                    all_universes = db.queryTaleAllUniverse()
-                
-                corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
-
-            if not self.rift:
-                if mode in crown_utilities.DUNGEON_M:
-                    _all_universes = db.queryDungeonUniversesNotRift()
-                    all_universes = get_dungeons(_all_universes)
-                    if not all_universes:
-                        return None
-                if mode in crown_utilities.TALE_M:
-                    all_universes = db.queryTaleUniversesNotRift()
-                    
-            tales_universes = [uni for uni in all_universes if uni['TIER'] != 9]
-            if self.rift:
+                    _all_universes = db.queryTaleAllUniverse()
+                    all_universes = get_tales(_all_universes)
                 rift_universes = [uni for uni in all_universes if uni['TIER'] == 9]
                 num_rift_universes = random.randint(1, min(len(rift_universes), 3))
                 selected_universes = random.sample(rift_universes, num_rift_universes)
@@ -356,11 +367,23 @@ class Player:
                 max_non_rift_universes = 25 - num_rift_universes
                 non_rift_universes = [uni for uni in all_universes if uni['TIER'] != 9]
                 selected_universes.extend(random.sample(non_rift_universes, min(len(non_rift_universes), max_non_rift_universes)))
-            else:
-                if len(tales_universes) > 25:
-                    selected_universes = random.sample(tales_universes, min(len(tales_universes), 25))
-                else:
-                        selected_universes = random.sample(tales_universes, min(len(tales_universes), len(tales_universes)))
+                
+                corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
+
+            if not self.rift:
+                if mode in crown_utilities.DUNGEON_M:
+                    _all_universes = db.queryDungeonAllUniverse()
+                    all_universes = get_dungeons(_all_universes)
+                    if not all_universes:
+                        return None
+                if mode in crown_utilities.TALE_M:
+                    _all_universes = db.queryTaleAllUniverse()
+                    all_universes = get_tales(_all_universes)
+                selected_universes = random.sample(all_universes, min(len(all_universes), 25))
+                    
+
+        
+                
 
             universe_embed_list = []
             

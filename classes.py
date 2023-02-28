@@ -18,8 +18,8 @@ class USER():
     FAMILY: str = field(default_factory=lambda: 'PCG')
     TITLE: str = field(default_factory=lambda: 'Starter')
     CARD: str = field(default_factory=lambda: "Ochaco Uraraka")
-    DECK: list[str] = field(default_factory=lambda: [''])
     ARM: str = field(default_factory=lambda: "Stock")
+    DECK: list[str] = field(default_factory=lambda: [''])
     TALISMAN: str = field(default_factory=lambda: 'NULL')
     PET: str = field(default_factory=lambda: "Chick")
     MATCHES: list = field(default_factory=lambda: [{'1V1': [0, 0]}, {'2V2': [0, 0]}, {'3V3': [0, 0]}, {'4V4': [0, 0]}, {'5V5': [0, 0]}])
@@ -33,6 +33,7 @@ class USER():
     REFERRER: str = field(default_factory=lambda: "N/A")
     TIMESTAMP: str = now
     IS_ADMIN: bool = field(default_factory=lambda: False)
+    U_PRESET: bool = field(default_factory=lambda: False)
     RIFT: int = field(default_factory=lambda: 0)
     REBIRTH: int = field(default_factory=lambda: 0)
     RETRIES: int = field(default_factory=lambda: 5)
@@ -473,10 +474,10 @@ class VAULT():
         {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
          'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}])
     DECK: list[str] = field(
-        default_factory=lambda: [{'CARD': 'Eevee', 'TITLE': 'Pokemon Trainer', 'ARM': 'Poke Ball', 'PET': 'Chick'},
+        default_factory=lambda: [{'CARD': 'Eevee', 'TITLE': 'Pokemon Trainer', 'ARM': 'Poke Ball', 'PET': 'Chick', 'TALISMAN': 'NULL'},
                                  {'CARD': 'Ochaco Uraraka', 'TITLE': 'UA 1st Year', 'ARM': 'Hyper-Density Seals',
-                                  'PET': 'Chick'},
-                                 {'CARD': 'Garen', 'TITLE': 'Iron 4', 'ARM': 'Dorans Shield', 'PET': 'Chick'}])
+                                  'PET': 'Chick', 'TALISMAN': 'NULL'},
+                                 {'CARD': 'Garen', 'TITLE': 'Iron 4', 'ARM': 'Dorans Shield', 'PET': 'Chick', 'TALISMAN': 'NULL'}])
     CARD_LEVELS: list[str] = field(default_factory=lambda: [
         {'CARD': 'Eevee', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0},
         {'CARD': 'Ochaco Uraraka', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0},

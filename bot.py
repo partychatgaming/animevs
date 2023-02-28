@@ -239,7 +239,7 @@ async def enhancers(ctx):
 
       embedVar7 = discord.Embed(title= f"Enhancer Type: Fortitude",colour=0x7289da)
       embedVar7.set_thumbnail(url=avatar)
-      embedVar7.add_field(name="`FORTITUDE`", value="**GROWTH**- Decrease Your Max Health by 10%, Increase Your Attack, Defense and all Moves AP by GROWTH AP\n\n**FEAR** - Decrease Your Max Health by 10%, Decrease Opponent Attack, Defense, and all moves AP by FEAR AP\n\n")
+      embedVar7.add_field(name="`FORTITUDE`", value="**GROWTH**- Decrease Your Max Health by 10%, Increase Your Attack, Defense and AP Buff by GROWTH AP\n\n**FEAR** - Decrease Your Max Health by 10%, Decrease Opponent Attack, Defense, and reduce Opponent AP Buffs by AP\n\n")
       embedVar7.set_footer(text=f"/help - Bot Help")
 
       embedVar8 = discord.Embed(title= f"Enhancer Type: Damage",colour=0x7289da)
@@ -525,8 +525,8 @@ async def animevs(ctx):
    **Boss:** End Game battles featuring Iconic Villians from Anime VS+ Universes. (Unlocks after completing **Anime VS+ Dungeon**)
    
    👥 **Duo**/duo *Beta*
-   **Tales Deck(1-3):** Battle with your favorite AI preset in this Duo Tale!
-   **Dungeon Deck(1-3):** Bring your strongest builds through the Darkest Duo Dungeons.
+   **Tales Deck(1-5):** Battle with your favorite AI preset in this Duo Tale!
+   **Dungeon Deck(1-5):** Bring your strongest builds through the Darkest Duo Dungeons.
  
    🔮 **Anime VS+ Rifts**
    Mash-Up Universes featuring heroes and villians connected through common traits and themes!
@@ -1038,7 +1038,11 @@ async def register(ctx):
                      bcard = card_name
                      btitle = title['TITLE']
                      barm = arm
-                     firstbuild = db.updateUserNoFilter({'DID' : ctx.author.id}, {'$set' : {'CARD' : bcard, 'TITLE' : btitle, 'ARM' : barm}})
+
+                     # Update user with selected card, title and arm
+                     query = {'DID': button_ctx.author.id}
+                     update = {'$set': {'CARD': bcard, 'TITLE': btitle, 'ARM': barm}}
+                     firstbuild = db.updateUserNoFilter(query, update)
                      embedVar = discord.Embed(title=f"**Welcome to Anime VS+**!",description=textwrap.dedent(f"""
                      **Let's get started** {ctx.author.mention}!
                      :one:**/build** with **{universe} Items**
@@ -1059,31 +1063,9 @@ async def register(ctx):
                      embedVar.set_author(name=f"Registration Complete!", icon_url=user_info['AVATAR'])
                      embedVar.set_footer(text="📜Use /daily for Daily Reward and Quest\n🔥/difficulty - Change difficulty setting!",
                                  icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
-                     #await button_ctx.send(f"Nice choice {ctx.author.mention}!\n\nCreate your first **Build**!\n**/cards** Select your 🎴  Card\n**/titles** Select your 🎗️ Title\n**/arms** Select your 🦾  Arm\n\nOnce you're done, run **/tutorial** to begin the **Tutorial Battle**! ⚔️")
                      await button_ctx.send(embed=embedVar)
                      await ctx.author.send(embed=embedVar)
                      await asyncio.sleep(3)
-
-                     # embedVar = discord.Embed(title=f"**Welcome to Anime VS+**!", description=textwrap.dedent(f"""
-                     # Welcome 🆕 {ctx.author.mention}!                                                                                           
-                     
-                     # Congrats on selecting your starting universe! **Now what?**
-
-                     # **Let's get started playing the game!**
-                     # **Step 1:** Use the /daily command right now for your daily reward!
-                     # **Step 2:** Use /menu to open your list of **Cards**, **Titles**, and **Arms** and equip a card you just got!
-                     # **Step 3:** Use /solo and select **tutorial** to learn how to play through battle!
-
-                     # **The /help command is your ❤️ Friend!**
-                     # Use the help command dropdown to learn how to play Anime VS+!
-
-                     # **/difficulty** - Change difficulty setting! **You start on easy mode**
-
-                     # [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
-                     # """), colour=0xe91e63)
-                     # embedVar.set_footer(text="Changing your Discord Account Name or Numbers will break your Anime VS+ Account.")
-                     # await ctx.author.send(embed=embedVar)
-                     # await ctx.send(embed=embedVar)
 
                      self.stop = True
             except Exception as ex:
@@ -1924,6 +1906,7 @@ async def before():
    print("Finished waiting")
 
 called_once_a_day.start()
+
 
 
 @slash.slash(name="Daily", description="Receive your daily reward and quests", guild_ids=guild_ids)
@@ -3295,7 +3278,9 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
             {"ELEMENT": "BLEED", "ESSENCE": 5000},
             {"ELEMENT": "GRAVITY", "ESSENCE": 5000}
          ]
-      
+      elif field_type == 'deck':
+         new_field = "DECK.$[].TALISMAN"
+         field_type = "NULL"
       elif field_type == 'blank_list':
          field_type = []
 
@@ -3308,6 +3293,8 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       elif collection == 'titles':
          response = db.updateManyTitles({'$set': {new_field: field_type}})
       elif collection == 'vault':
+         response = db .updateVaultNoFilter({'DID' : str(ctx.author.id)}, {new_field: field_type})
+         print(response)
          response = db.updateManyVaults({'$set': {new_field: field_type}})
       elif collection == 'users':
          response = db.updateManyUsers({'$set': {new_field: field_type}})
