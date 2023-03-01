@@ -1469,22 +1469,24 @@ def queryAllUniverse():
 
 
 def queryTaleAllUniverse():
-    data = universe_col.find({"HAS_CROWN_TALES": True, 'TIER': {'$nin': [9]}})
-    return data
-
-
-def queryTaleUniversesNotRift():
     data = universe_col.find({"HAS_CROWN_TALES": True})
     return data
 
 
+def queryTaleUniversesNotRift():
+    data = universe_col.find({"HAS_CROWN_TALES": True, "TIER": {"$nin": [9]}})
+
+    return data
+
+
 def queryDungeonAllUniverse():
-    data = universe_col.find({"HAS_DUNGEON": True, 'TIER': {'$nin': [9]}})
+    data = universe_col.find({"HAS_DUNGEON": True})
     return data
 
 
 def queryDungeonUniversesNotRift():
-    data = universe_col.find({"HAS_DUNGEON": True})
+    data = universe_col.find({"HAS_DUNGEON": True, "TIER": {"$nin": [9]}})
+
     return data
 
 
@@ -1675,7 +1677,6 @@ def updateTeam(query, new_value):
 
 def updateTeamWithFilter(query, new_value, arrayFilter):
     try:
-
         data = teams_col.update_one(query, new_value, array_filters=arrayFilter)
         if data:
             print("hi")

@@ -86,7 +86,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ⛰️ Earth - Cannot be Parried. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG
 
-⚡️ Electric- Add 35% DMG Dealt to Shock damage, added to all Move AP.
+⚡️ Electric- Add 20% DMG Dealt to Shock damage, added to all Move AP.
 
 🌪️ Wind - On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.
 

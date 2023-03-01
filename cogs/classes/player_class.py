@@ -59,6 +59,7 @@ class Player:
         self._default_guild = ""
         self.guild_info = "" 
         self.guild_buff = ""
+        self.guild_query = ""
         self.guild_buff_update_query = ""
         self.filter_query = ""
 
@@ -166,10 +167,10 @@ class Player:
 
             summon_ability_power = (bond * lvl) + power
 
-            self.summon_power_message = f"🧬 {self.equippedsummon}: {s_type.title()}: {summon_ability_power}{crown_utilities.enhancer_suffix_mapping[s_type]}"
+            self.summon_power_message = f"🧬 | {self.equippedsummon}: {s_type.title()}: {summon_ability_power}{crown_utilities.enhancer_suffix_mapping[s_type]}"
 
 
-            self.summon_lvl_message = f"🧬 Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"
+            self.summon_lvl_message = f"🧬 | Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"
 
         except:
             print("Error setting summon message")
@@ -201,10 +202,12 @@ class Player:
             self.guild_info = db.queryTeam({'TEAM_NAME': self.guild.lower()})
             self.guild_buff = await crown_utilities.guild_buff_update_function(self.guild)
             if self.guild_buff:
-                if self.guild_buff['Rift']:
+                if self.guild_buff['Rift'] is True:
                     self.rift_on = True
+                    self.guild_query = self.guild_buff['QUERY']
                     self.guild_buff_update_query = self.guild_buff['UPDATE_QUERY']
                     self.filter_query = self.guild_buff['FILTER_QUERY']
+                
 
             if self.association != "PCG":
                 self.association_info = db.queryGuildAlt({'GNAME': self.association})
@@ -244,6 +247,7 @@ class Player:
                 if uni != "":
                     l.append(uni)
             available_dungeons_list = "\n".join(l)
+        
         if len(self.completed_dungeons) > 25:
             all_universes = random.sample(self.completed_dungeons, 25)
         for uni in all_universes:
@@ -271,7 +275,7 @@ class Player:
                             {owner_message}
                             """))
                             embedVar.set_image(url=boss_info['PATH'])
-                            embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                            #embedVar.set_thumbnail(url=ctx.author.avatar_url)
                             embedVar.set_footer(text=f"{can_fight_message}")
                             universe_embed_list.append(embedVar)
 
@@ -296,6 +300,7 @@ class Player:
 
     def set_selectable_universes(self, ctx, mode, fight_number = None):
         try:
+            
             completed_message = f"**Completed**: 🔴"
             save_spot_text = "No Save Data"
             corruption_message = "📢 Not Corrupted"
@@ -310,7 +315,7 @@ class Player:
             save_spot_check = crown_utilities.TALE_M
             mode_check = "HAS_CROWN_TALES"
             completed_check = self.completed_tales
-            
+            all_universes = ""
             
             prestige_slider = 0
             p_message = ""
@@ -350,8 +355,21 @@ class Player:
                     return None
                 else:
                     return all_universes
-
-            if self.rift:
+                    
+            def get_rifts(universes):
+                rift_universes = []
+                for uni in universes:
+                    if uni['TIER'] == 9:
+                        rift_universes.append(uni)
+                if not rift_universes:
+                    if mode in crown_utilities.TALE_M:
+                        return get_tales(universes)
+                    if mode in crown_utilities.DUNGEON_M:
+                        return get_dungeons(universes)
+                else:
+                    return rift_universes
+                
+            if self.rift_on:
                 if mode in crown_utilities.DUNGEON_M:
                     _all_universes = db.queryDungeonAllUniverse()
                     all_universes = get_dungeons(_all_universes)
@@ -360,7 +378,7 @@ class Player:
                 if mode in crown_utilities.TALE_M:
                     _all_universes = db.queryTaleAllUniverse()
                     all_universes = get_tales(_all_universes)
-                rift_universes = [uni for uni in all_universes if uni['TIER'] == 9]
+                rift_universes = get_rifts(all_universes)
                 num_rift_universes = random.randint(1, min(len(rift_universes), 3))
                 selected_universes = random.sample(rift_universes, num_rift_universes)
 
@@ -370,14 +388,14 @@ class Player:
                 
                 corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
 
-            if not self.rift:
+            if not self.rift_on:
                 if mode in crown_utilities.DUNGEON_M:
-                    _all_universes = db.queryDungeonAllUniverse()
+                    _all_universes = db.queryDungeonUniversesNotRift()
                     all_universes = get_dungeons(_all_universes)
                     if not all_universes:
                         return None
                 if mode in crown_utilities.TALE_M:
-                    _all_universes = db.queryTaleAllUniverse()
+                    _all_universes = db.queryTaleUniversesNotRift()
                     all_universes = get_tales(_all_universes)
                 selected_universes = random.sample(all_universes, min(len(all_universes), 25))
                     
@@ -566,7 +584,6 @@ class Player:
                 'message': str(ex),
                 'trace': trace
             }))
-
 
 
 

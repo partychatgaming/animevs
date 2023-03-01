@@ -51,7 +51,9 @@ guild_ids = None
 guild_id = None
 guild_channel = None
 
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.members = True
+intents.messages = True
 client = discord.Client()
 
 if config('ENV') == "production":
@@ -2670,22 +2672,22 @@ async def buffshop(ctx, player, team):
             custom_id="1"
          ),
          manage_components.create_button(
-            style=ButtonStyle.blue,
+            style=ButtonStyle.green,
             label="🔋 2️⃣",
             custom_id="2"
          ),
          manage_components.create_button(
-            style=ButtonStyle.red,
+            style=ButtonStyle.green,
             label="🔋 3️⃣",
             custom_id="3"
          ),
          manage_components.create_button(
-            style=ButtonStyle.red,
+            style=ButtonStyle.green,
             label="🔋 4️⃣",
             custom_id="4"
          ),
          manage_components.create_button(
-            style=ButtonStyle.red,
+            style=ButtonStyle.green,
             label="🔋 5️⃣",
             custom_id="5"
          )
@@ -2706,15 +2708,13 @@ async def buffshop(ctx, player, team):
    {war_message}
    {shield_message}
    🔋 1️⃣ **Quest Buff** for :money_with_wings: **{'{:,}'.format(quest_buff_cost)}**
-   
    🔋 2️⃣ **Level Buff** for :money_with_wings: **{'{:,}'.format(level_buff_cost)}**
    🔋 3️⃣ **Stat Buff** for :money_with_wings: **{'{:,}'.format(stat_buff_cost)}**
    🔋 4️⃣ **Rift Buff** for :money_with_wings: **{'{:,}'.format(rift_buff_cost)}**
-   
    🔋 5️⃣ **Rematch Buff** for :money_with_wings: **{'{:,}'.format(rematch_cost)}**
    All Buffs are available for 100 uses.
    What would you like to buy?
-   """), colour=0xf1c40f)
+   """), colour=discord.Color.green())
    msg = await ctx.send(embed=embedVar, components=[sell_buttons_action_row, utility_buttons_action_row])
    def check(button_ctx):
       return button_ctx.author == ctx.author

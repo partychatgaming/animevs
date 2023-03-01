@@ -83,7 +83,7 @@ class Arm:
                 self.durability = f""
             elif a['ARM'] == equipped_arm and a['ARM'] not in base_names:
                 self.durability = f"⚒️ {a['DUR']}"
-
+        
         return self.durability
 
 
@@ -91,9 +91,9 @@ class Arm:
         if self.passive_type in move_types:
             arm_emoji = crown_utilities.set_emoji(self.element)
             if performance_mode:
-                self.arm_message = f'🔅 | {self.name}: {arm_emoji} {self.passive_type.title()} Attack: {self.passive_value} | {self.durability}'
+                self.arm_message = f'{arm_emoji} | {self.name}: {self.passive_type.title()} Attack: {self.passive_value} | {self.durability}'
             else:
-                self.arm_message = f'🔅 | {arm_emoji} | {self.name}'
+                self.arm_message = f'{arm_emoji} | {self.name}'
 
         if self.universe == "Unbound" or card_universe == "Crown Rift Slayers":
             armicon = "👑"
@@ -108,6 +108,13 @@ class Arm:
                 self.arm_message = f'🦾 | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
             else:
                 self.arm_message = f'🦾 | {self.name}: {self.durability}'
+                
+        else:
+            armicon = "⚠️"
+            if performance_mode:
+                self.arm_message = f'⚠️ | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
+            else:
+                self.arm_message = f'⚠️ | {self.name}: {self.durability}'
 
 
 move_types = ['BASIC', 'SPECIAL', 'ULTIMATE']

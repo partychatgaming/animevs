@@ -1611,11 +1611,10 @@ class Card:
                 if ranged_attack:
                     true_dmg = round(true_dmg * 1.7)
                     if self.ranged_meter >= 4:
-                        self.ranged_hit_bonus = self.ranged_hit_bonus + 1
                         hit_roll = hit_roll + self.ranged_hit_bonus
 
                 if move_element == "RECOIL" and hit_roll > miss_hit:
-                    true_dmg = round(true_dmg * 2.9)
+                    true_dmg = round(true_dmg * 2)
 
                 if self.wind_element_activated and hit_roll > miss_hit:
                     battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * .35))
@@ -1991,7 +1990,7 @@ class Card:
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.repeat_turn()
 
-            elif self.universe == "One Piece" and (self.name_tier in crown_utilities.HIGH_TIER_CARDS):
+            elif self.universe == "One Piece" and (self.tier in crown_utilities.HIGH_TIER_CARDS):
                 # fortitude or luck is based on health
                 fortitude = 0.0
                 low = self.health - (self.health * .75)
@@ -2046,7 +2045,7 @@ class Card:
 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Total Concentration Breathing!")
                 battle_config.turn_total = battle_config.turn_total + 1
-                battle_config.next_turn()()
+                battle_config.next_turn()
 
             elif self.universe == "Naruto": 
                 # fortitude or luck is based on health
@@ -2495,9 +2494,8 @@ class Card:
     def use_block(self, battle_config, opponent_card, co_op_card=None):
         if self.stamina >= 20:
             if self.universe == "Attack On Titan":
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Increased Max Health ❤️")
+                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Gained {(100 * self.tier)} Health & Max Health ❤️")
                 self.max_health = round(self.max_health + (100 * self.tier))
-                    
                 self.health = self.health + (100 * self.tier)
 
             if self.universe == "Black Clover":                
@@ -2768,7 +2766,7 @@ class Card:
                         opponent_card._arm_message = ""
                 
                 else:
-                    if self.universe == "One Piece" and (self.name_tier in crown_utilities.LOW_TIER_CARDS or self.name_tier in crown_utilities.MID_TIER_CARDS or self.name_tier in crown_utilities.HIGH_TIER_CARDS):
+                    if self.universe == "One Piece" and (self.tier in crown_utilities.LOW_TIER_CARDS or self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                         if self.focus_count == 0:
                             dmg['DMG'] = dmg['DMG'] * .6
 
@@ -2882,8 +2880,11 @@ class Card:
             
         elif dmg['ELEMENT'] == "RANGED":
             self.ranged_meter = self.ranged_meter + 1
-            if self.ranged_meter == 4:
+            if self.ranged_meter ==3:
+                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} takes aim...*")
+            elif self.ranged_meter == 4:
                 self.ranged_meter = 0
+                self.ranged_hit_bonus = self.ranged_hit_bonus + 1
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} accurary Increased by {self.ranged_hit_bonus * 5}%*")
             else:
                  battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
@@ -2923,7 +2924,7 @@ class Card:
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
 
         elif dmg['ELEMENT'] == "ELECTRIC":
-            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .35)
+            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .20)
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .35))} AP*")
 
@@ -3020,13 +3021,13 @@ class Card:
             if self.passive_type == "DESTRUCTION":
                 player2_card.max_health = round(round(player2_card.max_health - ((value_for_passive / 100) * player2_card.max_health)))
             if self.passive_type == "LIFE":
-                dmg = round(player2_card.health - ((value_for_passive / 100) * player2_card.health))
+                dmg = round((value_for_passive / 100) * player2_card.health)
                 if self.health < self.max_health:
-                    player2_card.health = round(player2_card.health - ((value_for_passive / 100) * player2_card.health))
+                    player2_card.health = player2_card.health - dmg
                     if self.health > self.max_health:
                         dmg = self.max_health - self.health
                         self.health = self.max_health
-                    self.health = round(self.health + ((value_for_passive / 100) * player2_card.health))
+                    self.health = round(self.health + dmg)
                     player2_card.health = player2_card.health - dmg
             if self.passive_type == "ATK":
                 self.attack = round(self.attack + ((value_for_passive / 100) * self.attack))
@@ -3140,5 +3141,4 @@ def get_card(url, cardname, cardtype):
             }))
             return         
             
-
 
