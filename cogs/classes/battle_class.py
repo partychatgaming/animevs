@@ -7,7 +7,7 @@ now = time.asctime()
 from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
 from discord_slash.utils.manage_commands import create_option, create_choice
-
+import unique_traits as ut
 
 class Battle:
     def __init__(self, mode, _player):
@@ -158,6 +158,7 @@ class Battle:
         self.tutorial_resolve = False
         self.tutorial_focus = False
         self.tutorialsummon = False
+        self.tutorial_opponent_focus = False
         self.tutorial_message = ""
         self.tutorial_did = 0
         
@@ -180,6 +181,56 @@ class Battle:
         self._victory_streak = 0
         self._hall_defense = 0
         self._raid_bounty_plus_bonus = 0
+        
+        self.blocking_traits = ['Attack On Titan',
+                           'Bleach',
+                           'Black Clover'
+        ]
+        self.focus_traits = ['Black Clover', 
+                        'Dragon Ball Z',
+                        'One Punch Man',
+                        'League Of Legends',
+                        'Solo Leveling',
+                        'One Piece',
+                        'Naruto',
+                        'Digimon',
+                        'Crown Rift Madness'
+        ]
+        self.opponent_focus_traits = ['7ds',
+                                 'Souls',
+                                 'One Punch Man',
+                                 
+            
+        ]
+        self.resolve_traits = ['My Hero Academia',
+                          'One Piece',
+                          'Pokemon',
+                          'Digimon',
+                          'Fate',
+                          'League Of Legends',
+                          'Bleach',
+                          'Naruto',
+                          'Attack On Titan',
+                          'God Of War',
+                          'Souls',
+                          'Crown Rift Madness'
+            
+        ]
+        self.set_up_traits = ['Demon Slayer',
+                         'Solo Leveling',
+                         'Crown Rift Slayers',
+                         'Crown Rift Awakening',
+                         'YuYu Hakusho',
+                         'Death Note',
+                         'Chainsawman',
+                         'Dragon Ball Z'
+                        
+        ]
+        
+        self.summon_traits = ['7ds',
+                         'Persona'
+            
+        ]
         
 
         self.player1_wins = False
@@ -623,6 +674,35 @@ class Battle:
                 self.stat_buff = 100
                 self.health_buff = 1300
 
+    # def get_tutorial_message(self, card, option):
+    #     traits = ut.traits
+    #     mytrait = {}
+    #     traitmessage = ''
+    #     for trait in traits:
+    #         if trait['NAME'] == card.universe:
+    #             mytrait = trait
+    #         if card.universe in crown_utilities.pokemon_universes:
+    #             if trait['NAME'] == 'Pokemon':
+    #                 mytrait = trait
+    #     if mytrait:
+    #         traitmessage = f"{mytrait['T1']}"
+
+    #     if option == "Start":
+    #         if card.universe in self.set_up_traits:
+    #             #do 
+    #     if option == "Focus":
+    #         if card.universe in self.focus_traits:
+    #             #do
+    #     if option == "b":
+    #         if card.universe in self.blocking_traits:
+    #             #do
+    #     if option == "5":
+    #         if card.universe in self.resolve_traits:
+    #             #do
+    #     if option == "6":
+    #         if card.universe in self.summon_traits:
+    #             #do
+                
 
     def set_who_starts_match(self, player1_speed, player2_speed, mode):
         boss_modes = ['Boss','Cboss', 'BOSS', 'CBoss', 'CBOSS']
