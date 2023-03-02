@@ -2942,6 +2942,7 @@ class Card:
                 self.freeze_enh = True
                 self.ice_counter = 0
             opponent_card.health = opponent_card.health - dmg['DMG']
+            print(dmg['MESSAGE'])
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
 
         elif dmg['ELEMENT'] == "BLEED":

@@ -4198,8 +4198,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
-        battle_config.is_turn = new_turn['MESSAGE']
-        battle_config.add_battle_history_messsage(new_turn['TURN'])
+        battle_config.is_turn = new_turn['TURN']
+        battle_config.add_battle_history_messsage(new_turn['MESSAGE'])
         return new_turn
     
     player_card.freeze_enh = False
