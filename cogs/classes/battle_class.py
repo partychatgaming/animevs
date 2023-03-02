@@ -1453,7 +1453,7 @@ class Battle:
                 text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
         if companion_card:
             embedVar.add_field(name="🔢 Focus Count",
-                            value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}n**{companion_card.name}**: {companion_card.focus_count}")
+                            value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}\n**{companion_card.name}**: {companion_card.focus_count}")
             if opponent_card.focus_count >= player_card.focus_count:
                 if opponent_card.focus_count >= companion_card.focus_count:
                     embedVar.add_field(name="🌀 Most Focused", value=f"**{opponent_card.name}**")

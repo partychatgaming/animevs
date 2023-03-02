@@ -3388,8 +3388,25 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     player3_card.focusing(player3_title, player2_title, player2_card, battle_config)
                                 else:
                                     if battle_config.is_auto_battle_game_mode or battle_config.is_duo_mode:
-                                        embedVar = await auto_battle_embed_and_starting_traits(ctx, player3_card, player2_card, battle_config, player1_card)
-                                        await battle_msg.edit(embed=embedVar, components=[])
+                                        if battle_config.is_duo_mode:
+                                            embedVar = discord.Embed(title=f"", description=textwrap.dedent(f"""\
+                                            {battle_config.get_previous_moves_embed()}
+                                            
+                                            """), color=0xe74c3c)
+                                            embedVar.set_author(name=f"{player3_card._arm_message}\n{player3_card.summon_resolve_message}\n")
+                                            embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {user2.mention}'s Turn!")
+                                            # await asyncio.sleep(2)
+                                            embedVar.set_image(url="attachment://image.png")
+                                            embedVar.set_footer(
+                                                text=f"{battle_config.get_battle_footer_text(player2_card, player3_card, player1_card)}",
+                                                icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
+                                            await battle_msg.delete(delay=2)
+                                            await asyncio.sleep(2)
+                                            battle_msg = await private_channel.send(embed=embedVar, components=[], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
+                                            # Make sure user is responding with move
+                                        else:
+                                            embedVar = await auto_battle_embed_and_starting_traits(ctx, player3_card, player2_card, battle_config, player1_card)
+                                            await battle_msg.edit(embed=embedVar, components=[])
 
 
                                         selected_move = battle_config.ai_battle_command(player3_card, player2_card)
