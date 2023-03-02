@@ -2737,7 +2737,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     return
                 
                 if button_ctx.custom_id == "start_tales_yes" or button_ctx.custom_id == "start_auto_tales":
-                    if player1.autosave
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                     if button_ctx.custom_id == "start_auto_tales":
                         await button_ctx.defer()
