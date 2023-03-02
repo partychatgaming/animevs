@@ -3057,10 +3057,11 @@ class Card:
                 self.attack = self.attack + flat_value_for_passive
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + flat_value_for_passive
             if self.passive_type == "SLOW":
-                if battle_config.turn_total != 0:
-                   battle_config.turn_total = battle_config.turn_total - 1
+                battle_config.turn_total = battle_config.turn_total - self.passive_num
+                if battle_config.turn_total <= 0:
+                     battle_config.turn_total = 0
             if self.passive_type == "HASTE":
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + self.passive_num
             if self.passive_type == "STANCE":
                 tempattack = self.attack + flat_value_for_passive
                 self.attack = self.defense
