@@ -1534,8 +1534,8 @@ class Card:
                     return message
             
             m = get_message(move, enh, enhancer_value, self.tier)
-
-            self.stamina = self.stamina - move_stamina
+            if move_stamina != 15:
+                self.stamina = self.stamina - move_stamina
 
             response = {"DMG": enhancer_value, "MESSAGE": m,
                         "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh, "ENHANCE": True, "STAMINA_USED": move_stamina}
