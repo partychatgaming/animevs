@@ -2775,7 +2775,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                             description=f"Follow the instructions to learn how to play the Game!",
                                                             colour=0xe91e63)
                                     embedVar.add_field(name="**Moveset**",value=f"{player1_card.move1_emoji} - **Basic Attack** *10 :zap:ST*\n{player1_card.move2_emoji} - **Special Attack** *30 :zap:ST*\n{player1_card.move3_emoji} - **Ultimate Move** *80 :zap:ST*\n🦠 - **Enhancer** *20 :zap:ST*\n🛡️ - **Block** *20 :zap:ST*\n:zap: - **Resolve** : Heal and Activate Resolve\n:dna: - **Summon** : {player1.equippedsummon}")
-                                    embedVar.set_footer(text="Focus State : When card deplete to 0 stamina, they focus to Heal they also gain ATK and DEF ")
+                                    embedVar.set_footer(text="Focus State : When Stamina = 0, You will focus to Heal and gain ATK and DEF ")
                                     await private_channel.send(embed=embedVar)
                                     await asyncio.sleep(2)
                                 if battle_config.is_boss_game_mode:

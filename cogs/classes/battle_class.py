@@ -863,6 +863,7 @@ class Battle:
 
 
     def get_previous_moves_embed(self):
+        print(self.previous_moves)
         msg = "\n\n".join(self.previous_moves)
         if msg:
             return msg
