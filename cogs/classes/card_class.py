@@ -2484,7 +2484,7 @@ class Card:
                 self.health = self.health + (100 * self.tier)
 
             if self.universe == "Black Clover":                
-                self.stamina = self.stamina + 50
+                self.stamina = self.stamina + 70
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Charged their stamina, increasing their stamina & ap by 50")
 

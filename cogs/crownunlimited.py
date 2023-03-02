@@ -2890,7 +2890,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                                                 await battle_msg.delete(delay=1)
                                                 await asyncio.sleep(1)
-                                                battle_msg = await private_channel.send(content="Your game has been saved.")
+                                                if battle_config.is_co_op_mode:
+                                                    battle_msg = await private_channel.send(embed=battle_config.saved_game_embed(player1_card,player2_card, player3_card))
+                                                else:
+                                                    battle_msg = await private_channel.send(embed=battle_config.saved_game_embed(player1_card,player2_card))
                                                 return
                                             except Exception as ex:
                                                 trace = []
@@ -3363,9 +3366,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         else:
                                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
-                                    elif int(selected_move) == 7:
+                                    elif int(selected_move) == 0:
                                         player2_card.use_block(battle_config, player1_card)                                            
-                                    if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 7:
+                                    if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 0:
 
                                         # If you have enough stamina for move, use it
                                         # if c used block
@@ -3640,9 +3643,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         else:
                                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
-                                    elif int(selected_move) == 7:
+                                    elif int(selected_move) == 0:
                                         player2_card.use_block(battle_config, player3_card)                                            
-                                    if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 7:
+                                    if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 0:
 
                                         # If you have enough stamina for move, use it
                                         # if c used block

@@ -72,6 +72,7 @@ class Battle:
         self._ai_opponentsummon_ability_name = ""
         self._ai_opponentsummon_image = ""
         self._deck_selection = 0
+        self._previous_ai_move = ""
 
         self.difficulty = _player.difficulty
         self.is_easy_difficulty = False
@@ -95,6 +96,7 @@ class Battle:
         self._ai_opponent_card_lvl = 0
         self._ai_opponentsummon_bond = 0
         self._ai_can_usesummon = False
+        self._ai_combo_counter = 0
 
         self._boss_fought_already = False
         self._boss_data = ""
@@ -924,6 +926,15 @@ class Battle:
                 aiMove = 1
         elif your_card.health <= (.50 * your_card.max_health) and your_card.used_resolve == False and your_card.used_focus:
             aiMove = 5
+        elif your_card.universe in self.blocking_traits and your_card.stamina >=20:
+            if opponent_card.attack <= (your_card.defense * 2):
+                aiMove = 0
+            elif your_card.universe == "Attack On Titan" and your_card.health <= (your_card.max_health * .50):
+                aiMove = 0
+            elif opponent_card._barrier_active and opponent_card.stamina <= 20 and your_card.universe == "Bleach":
+                aiMove = 0
+            else:
+                aiMove = 1
         elif your_card.stamina >= 160 and (your_card.health >= opponent_card.health):
             aiMove = 3
         elif your_card.stamina >= 160:
@@ -956,11 +967,16 @@ class Battle:
             else:
                 aiMove = 1
         elif your_card.stamina >= 100:
-            aiMove = 1
+            if your_card.universe in self.blocking_traits:
+                aiMove = 0
+            else:
+                aiMove = 1
         elif your_card.stamina >= 90 and (your_card.health >= opponent_card.health):
             aiMove = 3
         elif your_card.stamina >= 90:
-            if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
+            if your_card.used_resolve == True and your_card.universe in self.blocking_traits:
+                aiMove = 0
+            elif your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
                 aiMove = 3
             elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check or your_card.move4enh in crown_utilities.Sacrifice_Enhancer_Check:
                 aiMove = 4
@@ -987,6 +1003,8 @@ class Battle:
         elif your_card.stamina >= 60:
             if your_card.used_resolve == False and your_card.used_focus:
                 aiMove = 5
+            elif your_card.universe in self.blocking_traits:
+                aiMove = 0
             elif your_card.used_focus == False:
                 aiMove = 2
             else:
@@ -1033,6 +1051,124 @@ class Battle:
             aiMove = 1
         else:
             aiMove = 0
+            
+        #Hard Mode Ai
+        if self.is_hard_difficulty:
+            self._combo_counter = 0
+            if aiMove == self._previous_ai_move:
+                self._combo_counter = self._combo_counter + 1
+                if self._combo_counter == 2:
+                    self._combo_counter = 0
+                    #Try to select a different move
+                    if self._previous_ai_move == 0:
+                        if your_card.stamina >= 80:
+                            aiMove =3
+                        elif your_card.stamina >= 30:
+                            aiMove=2
+                        elif your_card.stamina >= 20:
+                            if your_card.move4enh == "LIFE" or your_card.move4enh in crown_utilities.Damage_Enhancer_Check:
+                                aiMove = 4
+                            else:
+                                aiMove = 1
+                        else:
+                            aiMove = 1
+                    elif self._previous_ai_move == 1:
+                        if your_card._barrier_active:
+                            if your_card.used_focus and not your_card.used_resolve:
+                                aiMove =5
+                            else:
+                                aiMove = 4
+                        else:    
+                            if your_card.stamina >=120:
+                                aiMove = 0
+                            elif your_card.stamina>=100:
+                                aiMove = 1
+                            elif your_card.stamina>=80:
+                                aiMove = 3
+                            elif your_card.stamina>=50:
+                                aiMove = 0
+                            elif your_card.stamina>=30:
+                                aiMove = 2
+                            else:
+                                aiMove = 1   
+                    elif self._previous_ai_move == 2:
+                        if your_card._barrier_active:
+                            if your_card.used_focus and not your_card.used_resolve:
+                                aiMove =5
+                            else:
+                                aiMove = 4
+                        else:    
+                            if your_card.stamina >=120:
+                                aiMove = 4
+                            elif your_card.stamina>=100:
+                                aiMove = 0
+                            elif your_card.stamina>=80:
+                                aiMove = 3
+                            elif your_card.stamina>=50:
+                                aiMove = 2
+                            elif your_card.stamina>=30:
+                                aiMove = 1
+                            else:
+                                aiMove = 1   
+                    elif self._previous_ai_move == 3:
+                        if your_card._barrier_active:
+                            if your_card.used_focus and not your_card.used_resolve:
+                                aiMove = 5
+                            else:
+                                aiMove = 4
+                        else:    
+                            if your_card.stamina >=120:
+                                aiMove = 1
+                            elif your_card.stamina>=100:
+                                aiMove = 2
+                            elif your_card.stamina>=80:
+                                aiMove = 4
+                            elif your_card.stamina>=50:
+                                aiMove = 4
+                            elif your_card.stamina>=30:
+                                aiMove = 0
+                            else:
+                                aiMove = 1   
+                    elif self._previous_ai_move == 4:
+                        if your_card._barrier_active:
+                            if your_card.used_focus and not your_card.used_resolve:
+                                aiMove =5
+                            else:
+                                aiMove = 4
+                        else:    
+                            if your_card.stamina >=120:
+                                aiMove = 2
+                            elif your_card.stamina>=100:
+                                aiMove = 1
+                            elif your_card.stamina>=80:
+                                aiMove = 3
+                            elif your_card.stamina>=50:
+                                aiMove = 1
+                            elif your_card.stamina>=30:
+                                aiMove = 0
+                            else:
+                                aiMove = 1              
+                    else:
+                        if your_card._barrier_active:
+                            if your_card.used_focus and not your_card.used_resolve:
+                                aiMove =5
+                            else:
+                                aiMove = 4
+                        else:    
+                            if your_card.stamina >=120:
+                                aiMove = 4
+                            elif your_card.stamina>=100:
+                                aiMove = 3
+                            elif your_card.stamina>=80:
+                                aiMove = 0
+                            elif your_card.stamina>=50:
+                                aiMove = 2
+                            elif your_card.stamina>=30:
+                                aiMove = 1
+                            else:
+                                aiMove = 1   
+                        
+            self._previous_ai_move = aiMove
 
         return aiMove
 
@@ -1192,7 +1328,7 @@ class Battle:
             ),
         )
 
-        if not self.is_explore_game_mode and not self.is_easy_difficulty and not self.is_abyss_game_mode and not self.is_tutorial_game_mode and not self.is_scenario_game_mode and not self.is_raid_game_mode and not self.is_pvp_game_mode:
+        if not self.is_explore_game_mode and not self.is_easy_difficulty and not self.is_abyss_game_mode and not self.is_tutorial_game_mode and not self.is_scenario_game_mode and not self.is_raid_game_mode and not self.is_pvp_game_mode and not self.is_boss_game_mode:
             u_butts.append(
                 manage_components.create_button(
                 style=ButtonStyle.red,
@@ -1254,7 +1390,53 @@ class Battle:
         self.match_has_ended = True
         return response
 
+    def saved_game_embed(self, player_card, opponent_card, companion_card = None):
 
+        wintime = time.asctime()
+        starttime = time.asctime()
+        h_gametime = starttime[11:13]
+        m_gametime = starttime[14:16]
+        s_gametime = starttime[17:19]
+        h_playtime = int(wintime[11:13])
+        m_playtime = int(wintime[14:16])
+        s_playtime = int(wintime[17:19])
+        gameClock = crown_utilities.getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
+                            s_playtime)
+        picon = ":crossed_swords:"
+        if self.is_co_op_mode:
+            if self.is_duo_mode:
+                if self.is_dungeon_game_mode:
+                    save_message = "Duo Dungeon"
+                    picon = ":fire:"
+                else:
+                    save_message = "Duo Tale"
+            else:
+                if self.is_dungeon_game_mode:
+                    save_message = "CO-OP Dungeon"
+                    picon = ":fire:"
+                else:
+                    save_message = "CO-OP Tale"
+        else:
+            if self.is_dungeon_game_mode:
+                save_message = "Dungeon"
+                picon = ":fire:"
+            else:
+                save_message = "Tale"
+        embedVar = discord.Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!", description=textwrap.dedent(f"""
+            {self.get_previous_moves_embed()}
+            
+            """),colour=discord.Color.green())
+        embedVar.add_field(name="💽 | Saved Data",
+                                value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n:flower_playing_cards: | **Opponent**: {opponent_card.name}")
+        if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
+            embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
+        elif int(gameClock[0]) == 0:
+            embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+        else:
+            embedVar.set_footer(
+                text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+        
+        return embedVar
     def next_turn(self):
         if self.is_co_op_mode:
             if self.is_turn == 3:
