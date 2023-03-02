@@ -888,9 +888,11 @@ class Battle:
         
         if your_card.used_resolve and not your_card.usedsummon and your_card.stamina >= 30:
             aiMove = 6
-        elif opponent_card.move4enh == "WAVE" and (self.turn_total % 10 == 0 or self.turn_total == 0 or self.turn_total == 1):
-            if opponent_card.stamina >=20:
+        elif your_card.move4enh == "WAVE" and (self.turn_total % 10 == 0 or self.turn_total == 0 or self.turn_total == 1):
+            if your_card.stamina >=20:
                 aiMove =4
+            else:
+                aiMove = 1
         elif your_card._barrier_active: #Ai Barrier Checks
             if your_card.stamina >=20: #Stamina Check For Enhancer
                 aiMove = ai_enhancer_moves(your_card, opponent_card)
