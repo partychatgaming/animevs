@@ -361,13 +361,7 @@ class Player:
                 for uni in universes:
                     if uni['TIER'] == 9:
                         rift_universes.append(uni)
-                if not rift_universes:
-                    if mode in crown_utilities.TALE_M:
-                        return get_tales(universes)
-                    if mode in crown_utilities.DUNGEON_M:
-                        return get_dungeons(universes)
-                else:
-                    return rift_universes
+                return rift_universes
                 
             if self.rift_on:
                 if mode in crown_utilities.DUNGEON_M:
@@ -379,7 +373,9 @@ class Player:
                     _all_universes = db.queryTaleAllUniverse()
                     all_universes = get_tales(_all_universes)
                 rift_universes = get_rifts(all_universes)
-                num_rift_universes = random.randint(1, min(len(rift_universes), 3))
+                num_rift_universes = len(rift_universes)
+                if len(rift_universes) != 1:
+                    num_rift_universes = random.randint(0, min(len(rift_universes), 3))
                 selected_universes = random.sample(rift_universes, num_rift_universes)
 
                 max_non_rift_universes = 25 - num_rift_universes
@@ -404,11 +400,13 @@ class Player:
                 
 
             universe_embed_list = []
-            
+            can_fight_message = ""
             for uni in selected_universes:
+                can_fight_message = f"🔥 Dungeon | {uni['TITLE']} : /universes to view all Dungeon Drops."
                 if uni[mode_check] == True:
                     if uni['TITLE'] in completed_check:
                         completed_message = f"**Completed**: 🟢"
+                        can_fight_message = f"🔥 Dungeon | Conquer {uni['TITLE']} Dungeon again for a Boss Key and Minor Reward."
 
                     if self.difficulty != "EASY":
                         for save in self.save_spot:
@@ -438,7 +436,19 @@ class Player:
                     """))
                     embedVar.set_image(url=uni['PATH'])
                     embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                    if mode not in crown_utilities.DUNGEON_M:
+                        if self.rift_on:
+                            if uni['TIER'] == 9:
+                                embedVar.set_footer(text=f"🔮 Rift | Traverse {uni['TITLE']} : /universes to view all Rift Drops.")
+                            else:
+                                embedVar.set_footer(text=f"⚔️ Tales | Traverse {uni['TITLE']} : /universes to view all Tales Drops.")
+                        else:
+                            embedVar.set_footer(text=f"⚔️ Tales | Traverse {uni['TITLE']} : /universes to view all Tales Drops.")
+                    else:
+                        embedVar.set_footer(text=f"{can_fight_message}")
+                        
                     universe_embed_list.append(embedVar)
+                        
 
             return universe_embed_list
 

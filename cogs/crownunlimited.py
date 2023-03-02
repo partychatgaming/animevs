@@ -482,7 +482,8 @@ class CrownUnlimited(commands.Cog):
                 return
 
             universe_selection = await select_universe(self, ctx, p, mode, None)
-
+            if not universe_selection:
+                return
             battle = Battle(mode, p)
 
             battle.set_universe_selection_config(universe_selection)
@@ -2289,8 +2290,9 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
     if mode in crown_utilities.TALE_M or mode in crown_utilities.DUNGEON_M:
         available_universes = p.set_selectable_universes(ctx, mode, None)
 
+
         if not available_universes:
-            if mode == "Dungeon":
+            if mode in crown_utilities.DUNGEON_M:
                 universe_embed_list = discord.Embed(title= f":fire: There are no available Dungeons at this time.", description=textwrap.dedent(f"""
                 __:fire: How to unlock Dungeons?__
                 You unlock Dungeons by Completing the Universe Tale. Once a Dungeon is unlocked you can enter it forever.
