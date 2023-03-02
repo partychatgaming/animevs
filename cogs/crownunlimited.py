@@ -46,7 +46,7 @@ import destiny as d
 class CrownUnlimited(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self._cd = commands.CooldownMapping.from_cooldown(1, 360, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
+        self._cd = commands.CooldownMapping.from_cooldown(1, 900, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
         self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)
     co_op_modes = ['CTales', 'DTales', 'CDungeon', 'DDungeon']
     ai_co_op_modes = ['DTales', 'DDungeon']
