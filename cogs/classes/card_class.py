@@ -1362,21 +1362,6 @@ class Card:
             }))
             return
 
-    # def equip_ability_arm(self, arm):
-    #     if arm.passive_type == 
-        
-    #     if arm.passive_type == 'BASIC':
-    #         self.move1_element
-    #         self.move1_emoji
-    #         self.move1_ap
-    #         arm_message = "Ability"
-    #     elif arm.passive_type == 'SPECIAL':
-    #         move2 = {arm_name: (arm_passive_value), "STAM": 30, "ELEMENT": arm_element}
-    #         arm_message = "Ability"
-    #     elif arm.passive_type == 'ULTIMATE':
-    #         move3 = {arm_name: (arm_passive_value), "STAM": 80, "ELEMENT": arm_element}
-    #         arm_message = "Ability"
-
     def damage_cal(self, selected_move, battle_config, _opponent_card):
         if _opponent_card.defense <= 0:
             _opponent_card.defense = 25
@@ -1616,9 +1601,9 @@ class Card:
                 if move_element == "RECOIL" and hit_roll > miss_hit:
                     true_dmg = round(true_dmg * 2)
 
-                if self.wind_element_activated and hit_roll > miss_hit:
-                    battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * .35))
-                    battle_config.add_battle_history_messsage(f"*The wind is mustering... all wind power increased by {round(true_dmg * .35)}*")
+                if self.wind_element_activated and hit_roll < miss_hit:
+                    battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * .25))
+                    battle_config.add_battle_history_messsage(f"*The wind is mustering... all wind power increased by {round(true_dmg * .25)}*")
                     true_dmg = round(true_dmg + battle_config._wind_buff)
 
                 if hit_roll < miss_hit:
