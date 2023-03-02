@@ -3289,7 +3289,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             # Resolve Check and Calculation
                                             player2_card.usesummon(battle_config, player1_card)
                                         
-                                        if selected_move == 7:
+                                        if selected_move == 0:
                                             player2_card.use_block(battle_config, damage_calculation_response, player1_card)
 
                                         if selected_move != 5 and selected_move != 6 and selected_move != 0:
