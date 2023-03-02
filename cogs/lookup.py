@@ -118,6 +118,10 @@ class Lookup(commands.Cog):
                 team = d['TEAM']
                 guild = d['GUILD']
                 patreon = d['PATRON']
+                autosave_message = "🔴 Off"
+                autosave = d['AUTOSAVE']
+                if autosave:
+                    autosave_message = "🟢 On"
                 patreon_message = ""
                 if patreon == True:
                     patreon_message = "**💞 | Patreon Supporter**"
@@ -176,29 +180,15 @@ class Lookup(commands.Cog):
                     prestige_message = f"**Prestige:** *{prestige}*"
                 #print(day_joined + " " + year_joined)
                 birthday = f"🎉 | Registered on {day_joined}, {year_joined}"
-                icon = ':triangular_flag_on_post:'
+                icon = ':heart_on_fire:'
                 if rebirth == 0:
                     icon = ':triangular_flag_on_post:'
-                elif rebirth == 1:
-                    icon = ':heart_on_fire:'
-                elif rebirth == 2:
-                    icon = ':heart_on_fire::heart_on_fire:'
-                elif rebirth == 3:
-                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire:'
-                elif rebirth == 4:
-                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire:'
-                elif rebirth == 5:
-                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire:'
-                elif rebirth == 6:
+                elif rebirth >= 6:
                     icon = '👼'
-                elif rebirth == 7:
-                    icon = '👼👼'
-                elif rebirth == 8:
-                    icon = '👼👼👼'
-                elif rebirth == 9:
-                    icon = '👼👼👼👼'
-                elif rebirth == 10:
-                    icon = '👼👼👼👼👼'
+                elif rebirth >= 10:
+                    icon = ':man_fairy:'
+                else:
+                    icon = ':man_fairy:'
 
                 talisman = d['TALISMAN']
                 talisman_message = "No Talisman Equipped"
@@ -282,41 +272,49 @@ class Lookup(commands.Cog):
 
 
 
-                embed1 = discord.Embed(title= f"{icon} | " + f"{name}".format(self), description=textwrap.dedent(f"""\
+                embed1 = discord.Embed(title=f"{name}".format(self), description=textwrap.dedent(f"""\
                 {aicon} | **Abyss Rank**: {abyss_level}
+                :heart_on_fire: | **Rebirth: 
                 :flower_playing_cards: | **Card:** {card}
-                :reminder_ribbon:** | Title: **{titles}
-                :mechanical_arm: | **Arm: **{arm}
-                🧬 | **Summon: **{pet}
+                :reminder_ribbon:** | Title:** {titles}
+                :mechanical_arm: | **Arm:** {arm}
+                🧬 | **Summon:** {pet}
                 {talisman_message}
 
-                :flags: | **Association: **{guild}
-                :military_helmet: | **Guild: **{team} 
-                :family_mwgb: | **Family: **{family}
+                :flags: | **Association: ** {guild}
+                :military_helmet: | **Guild:** {team} 
+                :family_mwgb: | **Family:** {family}
+                """), colour=discord.Color.green())
+                embed1.set_thumbnail(url=avatar)
                 
+                embed2 = discord.Embed(title=f"{name} Settings".format(self), description=textwrap.dedent(f"""\
                 🆚 **Retries** {retries} available
                 ⚙️ **Battle History Setting** {str(battle_history)} messages
                 ⚙️ **Difficulty** {difficulty.lower().capitalize()}
-                """), colour=000000)
-                embed1.set_thumbnail(url=avatar)
+                :floppy_disk:  **Autosave** {autosave_message}
+                """), colour=discord.Color.darker_grey())
+                embed2.set_thumbnail(url=avatar)
                 
-                embed5 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Stats".format(self), description=textwrap.dedent(f"""\
+                embed5 = discord.Embed(title=f"{name} Stats".format(self), description=textwrap.dedent(f"""\
                 ⚔️ | **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                 🔥 | **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
                 👹 | **Bosses Played: **{'{:,}'.format(len(boss_matches))}
                 🆚 | **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
                 📊 | **Pvp Record: ** :regional_indicator_w: **{pvp_wins}** / :regional_indicator_l: **{pvp_loss}**
+                """), colour=discord.Color.red())
+                embed5.set_thumbnail(url=avatar)
                 
+                embed3 = discord.Embed(title=f"{name} Vault".format(self), description=textwrap.dedent(f"""\
                 **Balance** | {bal_message}
                 :flower_playing_cards: **Cards** | {all_cards} ~ :briefcase: *{cstorage}*
                 :reminder_ribbon: **Titles** | {all_titles} ~ :briefcase: *{tstorage}*
                 :mechanical_arm: **Arms** | {all_arms} ~ :briefcase: *{astorage}*
                 🧬 **Summons** | {all_pets}
                 {fs_message}
-                """), colour=000000)
-                embed5.set_thumbnail(url=avatar)
+                """), colour=discord.Color.dark_purple())
+                embed3.set_thumbnail(url=avatar)
                 
-                embed6 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Avatar".format(self), description=textwrap.dedent(f"""\
+                embed6 = discord.Embed(title=f"{name} Avatar".format(self), description=textwrap.dedent(f"""\
                     **:bust_in_silhouette: | User**: {user.mention}
                     {aicon} | {prestige_message}
                     :military_medal: | {most_played_card_message}
@@ -325,16 +323,8 @@ class Lookup(commands.Cog):
                 """), colour=000000)
                 embed6.set_image(url=avi)
                 embed6.set_footer(text=f"{birthday}")
-                # embed1.add_field(name="Team" + " :military_helmet:", value=team)
-                # embed1.add_field(name="Family" + " :family_mwgb:", value=family)
-                # embed1.add_field(name="Card" + " ::flower_playing_cards: :", value=' '.join(str(x) for x in titles))
-                # embed1.add_field(name="Title" + " :crown:", value=' '.join(str(x) for x in titles))
-                # embed1.add_field(name="Arm" + " :mechanical_arm: ", value=f"{arm}")
-                # embed1.add_field(name="Pet" + " :dog:  ", value=f"{pet}")
-                # embed1.add_field(name="Tournament Wins" + " :fireworks:", value=tournament_wins)
-
                 if crown_list:
-                    embed4 = discord.Embed(title= f"{icon} | " + f"{name} Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=000000)
+                    embed4 = discord.Embed(title=f"{name} Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=discord.Color.gold())
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name=":medal: | " + "Completed Tales" , value="\n".join(crown_list))
                     if dungeon_list:
@@ -347,20 +337,14 @@ class Lookup(commands.Cog):
                         embed4.add_field(name=":fire: | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
                         embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                 else:
-                    embed4 = discord.Embed(title= f"{icon} " + f"{name}".format(self), description=":bank: Party Chat Gaming Database™️", colour=000000)
+                    embed4 = discord.Embed(title= f"{icon} " + f"{name}".format(self), description=":bank: Party Chat Gaming Database™️", colour=discord.Color.gold())
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name="Completed Tales" + " :medal:", value="No Completed Tales, yet!")
                     embed4.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")
                     embed4.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
 
-                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
-                paginator.add_reaction('⏮️', "first")
-                paginator.add_reaction('⬅️', "back")
-                paginator.add_reaction('🔐', "lock")
-                paginator.add_reaction('➡️', "next")
-                paginator.add_reaction('⏭️', "last")
-                embeds = [embed6, embed1, embed5, embed4]
-                await paginator.run(embeds)
+                embeds = [embed6, embed1, embed5, embed4, embed3, embed2]
+                await Paginator(bot=self.bot, ctx=ctx, pages=embeds, timeout=60).run()
             else:
                 await ctx.send(m.USER_NOT_REGISTERED)
         except Exception as ex:

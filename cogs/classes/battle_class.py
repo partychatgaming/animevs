@@ -1413,8 +1413,6 @@ class Battle:
         
         
     def saved_game_embed(self, player_card, opponent_card, companion_card = None):
-
-        
         picon = ":crossed_swords:"
         save_message = "Tale"
         if self.is_dungeon_game_mode:
@@ -1430,6 +1428,7 @@ class Battle:
                                 value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n:flower_playing_cards: | **Opponent**: {opponent_card.name}")
         embedVar.set_footer(text=f"{self.get_battle_time()}")
         return embedVar
+    
     def next_turn(self):
         if self.is_co_op_mode:
             if self.is_turn == 3:

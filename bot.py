@@ -2601,6 +2601,34 @@ async def performance(ctx):
             'message': str(ex),
             'trace': trace
       }))
+      
+@slash.slash(name="Autosave", description="Toggles Autosave on Battle Start.", guild_ids=guild_ids)
+async def autosave(ctx):
+   try:
+      player = db.queryUser({"DID": str(ctx.author.id)})
+      if not player["AUTOSAVE"]:
+            await ctx.send(f"Activated Autosave :gear:")
+            db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AUTOSAVE': True}})
+            return
+      if player["AUTOSAVE"]:
+            await ctx.send(f"Autosave Deactivated :gear:")
+            db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AUTOSAVE': False}})
+            return
+   except Exception as ex:
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+            trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+      print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+      }))
 
 async def buffshop(ctx, player, team):
    team_query = {'TEAM_NAME': team['TEAM_NAME']}

@@ -469,7 +469,7 @@ class Player:
                 'trace': trace
             }))
 
-
+        
     async def set_guild_buff(self):
         guild_buff = await crown_utilities.guild_buff_update_function(self.guild.lower())
         if guild_buff['Auto Battle']:
