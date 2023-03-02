@@ -3066,7 +3066,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 player3_card.use_companion_enhancer(battle_config, player2_card, player1_card)
 
                                             elif button_ctx.custom_id == "9":
-                                                player3_card.use_block(battle_config, player2_card, player1_card, player3_card)
+                                                player3_card.use_block(battle_config, player2_card, player3_card, player1_card)
 
                                         if button_ctx.custom_id == "0":
                                             if battle_config.is_tutorial_game_mode and battle_config.tutorial_block==False:
@@ -3082,8 +3082,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     text=f"Use 🛡️Block strategically to defend against your opponents strongest abilities!")
                                                 await private_channel.send(embed=embedVar)
                                                 await asyncio.sleep(2)
-                                            
-                                            player1_card.use_block(battle_config, player2_card)                                            
+                                            if battle_config.is_co_op_mode:
+                                                player1_card.use_block(battle_config, player2_card, player3_card)  
+                                            else:
+                                                player1_card.use_block(battle_config, player2_card)                                            
 
                                         if button_ctx.custom_id in battle_config.main_battle_options:
                                             player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
@@ -3394,7 +3396,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             
                                             """), color=0xe74c3c)
                                             embedVar.set_author(name=f"{player3_card._arm_message}\n{player3_card.summon_resolve_message}\n")
-                                            embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {user2.mention}'s Turn!")
+                                            embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!")
                                             # await asyncio.sleep(2)
                                             embedVar.set_image(url="attachment://image.png")
                                             embedVar.set_footer(

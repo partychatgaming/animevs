@@ -98,6 +98,7 @@ class Player:
         self._deck_title = ""
         self._deck_arm = ""
         self._decksummon = ""
+        self._deck_talisman = ""
 
         self._equipped_card_data = ""
         self._equipped_title_data = ""
@@ -512,6 +513,7 @@ class Player:
                 self._equipped_title_data = self._deck_title
                 self._equipped_arm_data = self._deck_arm
                 self.equippedsummon = self._decksummon['PET']
+                self.equipped_talisman = self._deck_talisman
             else:
                 self._equipped_card_data = db.queryCard({'NAME': self.equipped_card})
                 self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
@@ -575,10 +577,12 @@ class Player:
             self._deck_title = db.queryTitle({'TITLE': str(active_deck['TITLE'])})
             self._deck_arm = db.queryArm({'ARM': str(active_deck['ARM'])})
             self._decksummon = db.queryPet({'PET': str(active_deck['PET'])})
+            self._deck_talisman = str(active_deck['TALISMAN'])
             self._equipped_card_data = self._deck_card
             self._equipped_title_data = self._deck_title
             self._equipped_arm_data = self._deck_arm
             self._equippedsummon_data = self._decksummon
+            self.equipped_talisman = self._deck_talisman
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
