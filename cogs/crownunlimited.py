@@ -2301,16 +2301,34 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                 """))
                 await ctx.send(embed=universe_embed_list)
                 return
-        if mode in crown_utilities.TALE_M:
-            buttons = [
-                manage_components.create_button(style=3, label="Start Battle!", custom_id="start"),
-                manage_components.create_button(style=1, label="View Available Scenario Battles!", custom_id="scenario"),
-            ]
-        if  mode in crown_utilities.DUNGEON_M:
-            buttons = [
-                manage_components.create_button(style=3, label="Start Battle!", custom_id="start"),
-                manage_components.create_button(style=2, label="View Available Universe Raids!", custom_id="scenario"),
-            ]
+        label_text = "Start Battle!"
+        scenario_text = "View Available Scenario Battles!"
+        if mode in crown_utilities.CO_OP_M:
+            label_text = "Start CO-OP Battle!"
+            scenario_text = "View Available Scenario Battles!"
+            if mode in crown_utilities.DUO_M:
+                label_text = "Start Duo Battle!"
+                scenario_text = "View Available Scenario Battles!"
+        if mode in crown_utilities.CO_OP_M:
+            if mode in crown_utilities.TALE_M:
+                buttons = [
+                    manage_components.create_button(style=3, label=label_text, custom_id="start"),
+                ]
+            if  mode in crown_utilities.DUNGEON_M:
+                buttons = [
+                    manage_components.create_button(style=3, label=label_text, custom_id="start"),
+                ]
+        else:
+            if mode in crown_utilities.TALE_M:
+                buttons = [
+                    manage_components.create_button(style=3, label=label_text, custom_id="start"),
+                    manage_components.create_button(style=1, label=scenario_text, custom_id="scenario"),
+                ]
+            if  mode in crown_utilities.DUNGEON_M:
+                buttons = [
+                    manage_components.create_button(style=3, label=label_text, custom_id="start"),
+                    manage_components.create_button(style=2, label=scenario_text, custom_id="scenario"),
+                ]
         custom_action_row = manage_components.create_actionrow(*buttons)        
 
 
@@ -3048,7 +3066,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 player3_card.use_companion_enhancer(battle_config, player2_card, player1_card)
 
                                             elif button_ctx.custom_id == "9":
-                                                player3_card.use_block(battle_config, player2_card, player1_card)
+                                                player3_card.use_block(battle_config, player2_card, player1_card, player3_card)
 
                                         if button_ctx.custom_id == "0":
                                             if battle_config.is_tutorial_game_mode and battle_config.tutorial_block==False:

@@ -374,8 +374,8 @@ class Player:
                     all_universes = get_tales(_all_universes)
                 rift_universes = get_rifts(all_universes)
                 num_rift_universes = len(rift_universes)
-                if len(rift_universes) != 1:
-                    num_rift_universes = random.randint(0, min(len(rift_universes), 3))
+                if len(rift_universes) > 1:
+                    num_rift_universes = random.randint(1, min(len(rift_universes), 3))
                 selected_universes = random.sample(rift_universes, num_rift_universes)
 
                 max_non_rift_universes = 25 - num_rift_universes
