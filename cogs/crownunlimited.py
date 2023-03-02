@@ -2733,7 +2733,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     await button_ctx.defer()
                     await battle_msg.edit(components=[])
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-                    await button_ctx.send(f"Game has been saved.")
+                    await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
                     return
                 
                 if button_ctx.custom_id == "start_tales_yes" or button_ctx.custom_id == "start_auto_tales":
