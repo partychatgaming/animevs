@@ -767,7 +767,7 @@ class Battle:
                 summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
                 self._ai_opponentsummon_power = list(summon_passive.values())[0]
                 self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
-                self._ai_opponentsummon_type = summon_passive['TYPE']
+                self._ai_opponentsummon_type = summon_passive['TYPE']#
                 
             else:
                 self._boss_data = db.queryBoss({"UNIVERSE": self.selected_universe, "AVAILABLE": True})
