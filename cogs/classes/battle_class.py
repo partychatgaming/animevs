@@ -1390,8 +1390,7 @@ class Battle:
         self.match_has_ended = True
         return response
 
-    def saved_game_embed(self, player_card, opponent_card, companion_card = None):
-
+    def get_battle_time(self):
         wintime = time.asctime()
         starttime = time.asctime()
         h_gametime = starttime[11:13]
@@ -1402,40 +1401,34 @@ class Battle:
         s_playtime = int(wintime[17:19])
         gameClock = crown_utilities.getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
                             s_playtime)
-        picon = ":crossed_swords:"
-        if self.is_co_op_mode:
-            if self.is_duo_mode:
-                if self.is_dungeon_game_mode:
-                    save_message = "Duo Dungeon"
-                    picon = ":fire:"
-                else:
-                    save_message = "Duo Tale"
-            else:
-                if self.is_dungeon_game_mode:
-                    save_message = "CO-OP Dungeon"
-                    picon = ":fire:"
-                else:
-                    save_message = "CO-OP Tale"
+        
+        if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
+            return f"Battle Time: {gameClock[2]} Seconds."
+        elif int(gameClock[0]) == 0:
+            return f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds."
         else:
-            if self.is_dungeon_game_mode:
-                save_message = "Dungeon"
-                picon = ":fire:"
-            else:
-                save_message = "Tale"
+            return f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds."
+        
+        
+        
+        
+    def saved_game_embed(self, player_card, opponent_card, companion_card = None):
+
+        
+        picon = ":crossed_swords:"
+        save_message = "Tale"
+        if self.is_dungeon_game_mode:
+            save_message = "Dungeon"
+            picon = ":fire:"
+
+                
         embedVar = discord.Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!", description=textwrap.dedent(f"""
             {self.get_previous_moves_embed()}
             
             """),colour=discord.Color.green())
         embedVar.add_field(name="💽 | Saved Data",
                                 value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n:flower_playing_cards: | **Opponent**: {opponent_card.name}")
-        if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
-            embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
-        elif int(gameClock[0]) == 0:
-            embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-        else:
-            embedVar.set_footer(
-                text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-        
+        embedVar.set_footer(text=f"{self.get_battle_time()}")
         return embedVar
     def next_turn(self):
         if self.is_co_op_mode:

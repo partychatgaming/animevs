@@ -412,7 +412,7 @@ class Player:
                     if self.difficulty != "EASY":
                         for save in self.save_spot:
                             if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in save_spot_check:
-                                save_spot_text = str(save['CURRENTOPPONENT'])
+                                save_spot_text = str((int(save['CURRENTOPPONENT']) + 1))
                     
                     if uni['CORRUPTED']:
                         corruption_message = "👾 **Corrupted**"

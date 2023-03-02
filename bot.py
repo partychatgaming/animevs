@@ -692,7 +692,7 @@ async def animevs(ctx):
    **Association Bonuses**
    - Associations earn extra income towards the **Association Bank**
    - Associations increase the earned income in **PvP**
-   - Associations can **/raid**
+   - Associations can Raid
    - Associations can earn passive income owning **Universe Crest**
    - Associations can purchase **Halls**
    
@@ -723,12 +723,6 @@ async def animevs(ctx):
    - The **Shield** exist within the Association hall as the **Current Equipped Build** of the **Shield Player**.
    - As the **Shield**, whenever your Avatar succesfully defends a raid you earn :coin:
    - With each victory you will build a streak earning both respect and more :coin: via **Multipliers**.
-   
-   **Association Competition**
-   - However, many of **Blades** will covet this position and may /raid you themseleves triggering a **Title Match**
-   - The winner of this **Title MAtch** becomes the new **Shield** and must defend the 
-   - Occasionally the Founder or Sworn may /raid to start a Defense Test gauging the strength of their Chosen Shield
-   - host a /raid tournament within the Association to find a new champion or simply /knight one yourself
    
    **Shield Benefits**
    - Earn income by defending your Association from raiders
