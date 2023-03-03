@@ -232,10 +232,13 @@ class Player:
             for uni in universes:
                 if uni["TITLE"] in self.completed_dungeons:
                     all_universes.append(uni)
+                    print(uni)
                 if not all_universes:
                     return None
                 else:
                     return all_universes
+        all_universes = get_bosses(_all_universes)
+        print(all_universes)
         available_universes = []
         selected_universe = ""
         universe_menu = []
@@ -261,7 +264,7 @@ class Player:
                     l.append(uni)
             available_dungeons_list = "\n".join(l)
         
-        all_universes = get_bosses(_all_universes)
+        
         if len(self.completed_dungeons) > 25:
             all_universes = random.sample(all_universes, 25)
             print(all_universes)
