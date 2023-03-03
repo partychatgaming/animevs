@@ -232,7 +232,7 @@ class Player:
             for uni in universes:
                 if uni["TITLE"] in self.completed_dungeons:
                     all_universes.append(uni)
-                    print(uni)
+                    print(uni["TITLE"])
                 if not all_universes:
                     return None
                 else:
@@ -267,7 +267,7 @@ class Player:
         
         if len(self.completed_dungeons) > 25:
             all_universes = random.sample(all_universes, 25)
-            print(all_universes)
+            #print(all_universes)
         for uni in all_universes:
             if uni['TITLE'] in self.completed_dungeons:
                 if uni != "":
