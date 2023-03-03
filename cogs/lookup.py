@@ -272,9 +272,9 @@ class Lookup(commands.Cog):
 
 
 
-                embed1 = discord.Embed(title=f"{name}".format(self), description=textwrap.dedent(f"""\
+                embed1 = discord.Embed(title=f"{name}'s Profile".format(self), description=textwrap.dedent(f"""\
                 {aicon} | **Abyss Rank**: {abyss_level}
-                :heart_on_fire: | **Rebirth: 
+                :heart_on_fire: | **Rebirth**: {rebirth}
                 :flower_playing_cards: | **Card:** {card}
                 :reminder_ribbon:** | Title:** {titles}
                 :mechanical_arm: | **Arm:** {arm}
@@ -287,7 +287,7 @@ class Lookup(commands.Cog):
                 """), colour=discord.Color.green())
                 embed1.set_thumbnail(url=avatar)
                 
-                embed2 = discord.Embed(title=f"{name} Settings".format(self), description=textwrap.dedent(f"""\
+                embed2 = discord.Embed(title=f"{name}'s Settings".format(self), description=textwrap.dedent(f"""\
                 🆚 **Retries** {retries} available
                 ⚙️ **Battle History Setting** {str(battle_history)} messages
                 ⚙️ **Difficulty** {difficulty.lower().capitalize()}
@@ -295,7 +295,7 @@ class Lookup(commands.Cog):
                 """), colour=discord.Color.darker_grey())
                 embed2.set_thumbnail(url=avatar)
                 
-                embed5 = discord.Embed(title=f"{name} Stats".format(self), description=textwrap.dedent(f"""\
+                embed5 = discord.Embed(title=f"{name}'s Stats".format(self), description=textwrap.dedent(f"""\
                 ⚔️ | **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                 🔥 | **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
                 👹 | **Bosses Played: **{'{:,}'.format(len(boss_matches))}
@@ -304,7 +304,7 @@ class Lookup(commands.Cog):
                 """), colour=discord.Color.red())
                 embed5.set_thumbnail(url=avatar)
                 
-                embed3 = discord.Embed(title=f"{name} Vault".format(self), description=textwrap.dedent(f"""\
+                embed3 = discord.Embed(title=f"{name}'s Vault".format(self), description=textwrap.dedent(f"""\
                 **Balance** | {bal_message}
                 :flower_playing_cards: **Cards** | {all_cards} ~ :briefcase: *{cstorage}*
                 :reminder_ribbon: **Titles** | {all_titles} ~ :briefcase: *{tstorage}*
@@ -314,7 +314,7 @@ class Lookup(commands.Cog):
                 """), colour=discord.Color.dark_purple())
                 embed3.set_thumbnail(url=avatar)
                 
-                embed6 = discord.Embed(title=f"{name} Avatar".format(self), description=textwrap.dedent(f"""\
+                embed6 = discord.Embed(title=f"{name}'s Avatar".format(self), description=textwrap.dedent(f"""\
                     **:bust_in_silhouette: | User**: {user.mention}
                     {aicon} | {prestige_message}
                     :military_medal: | {most_played_card_message}
@@ -324,7 +324,7 @@ class Lookup(commands.Cog):
                 embed6.set_image(url=avi)
                 embed6.set_footer(text=f"{birthday}")
                 if crown_list:
-                    embed4 = discord.Embed(title=f"{name} Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=discord.Color.gold())
+                    embed4 = discord.Embed(title=f"{name}'s Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=discord.Color.gold())
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name=":medal: | " + "Completed Tales" , value="\n".join(crown_list))
                     if dungeon_list:
@@ -337,7 +337,7 @@ class Lookup(commands.Cog):
                         embed4.add_field(name=":fire: | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
                         embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                 else:
-                    embed4 = discord.Embed(title= f"{icon} " + f"{name}".format(self), description=":bank: Party Chat Gaming Database™️", colour=discord.Color.gold())
+                    embed4 = discord.Embed(title=f"{name}'s Achievements".format(self), description=":bank: Party Chat Gaming Database™️", colour=discord.Color.gold())
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name="Completed Tales" + " :medal:", value="No Completed Tales, yet!")
                     embed4.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")

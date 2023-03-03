@@ -1537,8 +1537,8 @@ class Card:
                     return message
             
             m = get_message(move, enh, enhancer_value, self.tier)
-
-            self.stamina = self.stamina - move_stamina
+            if move_stamina != 15:
+                self.stamina = self.stamina - move_stamina
 
             response = {"DMG": enhancer_value, "MESSAGE": m,
                         "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh, "ENHANCE": True, "STAMINA_USED": move_stamina}
@@ -1813,7 +1813,7 @@ class Card:
                     defense_calculation = defense_calculation + defense_calculation
                     battle_config.add_battle_history_messsage(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}**  Gains 2x ATK and DEF\n+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 else:
-                    battle_config.add_battle_history_messsage(f"(🌀) *{self.name} +:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_battle_history_messsage(f"*(🌀)+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
                 
@@ -1833,8 +1833,8 @@ class Card:
                     embedVar.set_footer(
                         text=f"You can only enter ⚡Resolve once per match! Use the Heal Wisely!!!")
                     battle_config.tutorial_message = embedVar
-                    battle_config.next_turn()
-                    battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.next_turn()
+                battle_config.turn_total = battle_config.turn_total + 2
 
                 
                 # fortitude or luck is based on health
@@ -1869,20 +1869,20 @@ class Card:
                 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{60 + battle_config.turn_total}** Damage 💥")
                 battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Dragon Ball Z":
                 self.health = self.health + _opponent_card.stamina + battle_config.turn_total
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + battle_config.turn_total}** ❤️")
                 battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Solo Leveling":
                 _opponent_card.defense = round(_opponent_card.defense - (30 + battle_config.turn_total))
                 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Ruler's Authority... Opponent loses **{30 + battle_config.turn_total}** 🛡️ 🔻")
                 battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Black Clover":                
                 self.stamina = 100
@@ -1890,7 +1890,7 @@ class Card:
 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
                 battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Death Note":
                 if battle_config.turn_total >= 250:
@@ -1898,7 +1898,7 @@ class Card:
                     
                     _opponent_card.health = 0
                     battle_config.next_turn()
-                    battle_config.turn_total = battle_config.turn_total + 1
+                    battle_config.turn_total = battle_config.turn_total + 2
             elif self.universe == "One Punch Man":
                 low_tier_cards = [1,2]
                 mid_tier_cards = [3,4]
@@ -1918,7 +1918,7 @@ class Card:
                 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**)  🩸{rank} Rank Hero : **{self.name}** increased AP by **{ap_boost}** :sunny:!")
                 battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
 
             elif _opponent_card.universe == "One Punch Man" and self.universe != "Death Note":
                 _opponent_card.health = round(_opponent_card.health + 100)
@@ -1926,7 +1926,7 @@ class Card:
 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
                 battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
 
             elif _opponent_card.universe == "7ds":
                 _opponent_card.stamina = _opponent_card.stamina + 60
@@ -1934,17 +1934,17 @@ class Card:
                 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina 🌀")
                 battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
 
             elif _opponent_card.universe == "Souls":
                 _opponent_card.attack = round(_opponent_card.attack + (60 + battle_config.turn_total))
 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{60 + battle_config.turn_total}** 🔺")
                 battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
 
             else:
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + 2
                 if self.universe != "Crown Rift Madness":
                     battle_config.next_turn()
                 else:
@@ -3060,10 +3060,11 @@ class Card:
                 self.attack = self.attack + flat_value_for_passive
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + flat_value_for_passive
             if self.passive_type == "SLOW":
-                if battle_config.turn_total != 0:
-                   battle_config.turn_total = battle_config.turn_total - 1
+                battle_config.turn_total = battle_config.turn_total - self.passive_num
+                if battle_config.turn_total <= 0:
+                     battle_config.turn_total = 0
             if self.passive_type == "HASTE":
-                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.turn_total = battle_config.turn_total + self.passive_num
             if self.passive_type == "STANCE":
                 tempattack = self.attack + flat_value_for_passive
                 self.attack = self.defense

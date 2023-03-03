@@ -46,7 +46,7 @@ import destiny as d
 class CrownUnlimited(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self._cd = commands.CooldownMapping.from_cooldown(1, 360, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
+        self._cd = commands.CooldownMapping.from_cooldown(1, 900, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
         self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)
     co_op_modes = ['CTales', 'DTales', 'CDungeon', 'DDungeon']
     ai_co_op_modes = ['DTales', 'DDungeon']
@@ -2825,7 +2825,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     elif selected_move == 6:
                                         player1_card.usesummon(battle_config, player2_card)
 
-                                    elif selected_move == 7:
+                                    elif selected_move == 0:
                                         player1_card.use_block(battle_config, damage_calculation_response, player2_card)                                
                                 
                                 else:
@@ -3289,7 +3289,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             # Resolve Check and Calculation
                                             player2_card.usesummon(battle_config, player1_card)
                                         
-                                        if selected_move == 7:
+                                        if selected_move == 0:
                                             player2_card.use_block(battle_config, damage_calculation_response, player1_card)
 
                                         if selected_move != 5 and selected_move != 6 and selected_move != 0:
