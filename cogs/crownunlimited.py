@@ -4199,7 +4199,9 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     player_card.yuyu_hakusho_attack_increase()
     player_card.activate_chainsawman_trait(battle_config)
     battle_config.add_battle_history_messsage(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
-    battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
+    burn_turn = player_card.set_burn_hit(opponent_card)
+    if burn_turn != " ":
+        battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']

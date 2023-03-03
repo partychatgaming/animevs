@@ -862,14 +862,17 @@ class Card:
 
 
     def set_burn_hit(self, opponent_card):
+        burn_message = " "
         if opponent_card.burn_dmg > 3:
             self.health = self.health - opponent_card.burn_dmg
-            return f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
+            burn_message =  f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
             if self.health < 0:
                 self.health = 0
 
         if opponent_card.burn_dmg >= 2:
             opponent_card.burn_dmg = round(opponent_card.burn_dmg / 2)
+        
+        return burn_message
 
 
     def frozen(self, battle_config, opponent_card):
