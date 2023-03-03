@@ -235,7 +235,7 @@ class Player:
                 if not all_universes:
                     return None
                 else:
-                    return all_universss
+                    return all_universes
         available_universes = []
         selected_universe = ""
         universe_menu = []
