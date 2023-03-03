@@ -224,7 +224,18 @@ class Player:
         return self.auto_battle
 
     def set_selectable_bosses(self, ctx, mode):
-        all_universes = db.queryAllUniverse()
+        _all_universes = db.queryAllUniverse()
+        
+        
+        def get_bosses(universes):
+            all_universes = []
+            for uni in universes:
+                if uni["TITLE"] in self.completed_dungeons:
+                    all_universes.append(uni)
+                if not all_universes:
+                    return None
+                else:
+                    return all_universss
         available_universes = []
         selected_universe = ""
         universe_menu = []
@@ -250,8 +261,9 @@ class Player:
                     l.append(uni)
             available_dungeons_list = "\n".join(l)
         
+        all_universes = get_bosses(_all_universes)
         if len(self.completed_dungeons) > 25:
-            all_universes = random.sample(self.completed_dungeons, 25)
+            all_universes = random.sample(all_universes, 25)
             print(all_universes)
         for uni in all_universes:
             if uni['TITLE'] in self.completed_dungeons:
