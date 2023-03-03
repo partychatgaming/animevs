@@ -233,10 +233,10 @@ class Player:
                 if uni["TITLE"] in self.completed_dungeons:
                     all_universes.append(uni)
                     print(uni["TITLE"])
-                if not all_universes:
-                    return None
-                else:
-                    return all_universes
+            if not all_universes:
+                return None
+            else:
+                return all_universes
         all_universes = get_bosses(_all_universes)
         print(all_universes)
         available_universes = []
