@@ -2916,17 +2916,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
                                                 
                                         if button_ctx.custom_id == "b":
-                                            player3_card.stamina = player3_card.stamina + 10
-                                            player3_card.health = player3_card.health + 50
-                                            boost_message = f"**{player1_card.name}** Boosted **{player3_card.name}** +10 🌀 +100 :heart:"
-                                            player1_card.used_block = True
-                                            player1_card.stamina = player1_card.stamina - 20
-                                            player1_card.defense = round(player1_card.defense * 2)
-                                            embedVar = discord.Embed(title=f"{boost_message}", colour=0xe91e63)
-
-                                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) {boost_message}")
-                                            turn_total = turn_total + 1
-                                            battle_config.next_turn()
+                                            if battle_config.is_co_op_mode:
+                                                battle_config.use_boost(battle_config, player3_card)
+                                            else:
+                                                battle_config.use_boost(battle_config)
                                         
                                         if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
                                             player1_card.health = 0
@@ -3429,10 +3422,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         elif selected_move == 8:
                                             player3_card.use_companion_enhancer(battle_config, player2_card, player1_card)
                                         
-                                        elif selected_move == 7:
+                                        elif selected_move == 0:
                                             player3_card.use_defend(battle_config, player1_card)
 
-                                        if selected_move != 5 and selected_move != 6 and selected_move != 7 and selected_move != 8:
+                                        if selected_move != 5 and selected_move != 6 and selected_move != 7 and selected_move != 8 and selected_move != 0:
                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card) 
 
                                     else:
@@ -3589,7 +3582,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     selected_move = battle_config.ai_battle_command(player2_card, player3_card)
                                     
-                                    damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                     
                                     if int(selected_move) == 3:                                    
 
@@ -3645,11 +3637,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         else:
                                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
                                     elif int(selected_move) == 0:
-                                        player2_card.use_block(battle_config, player3_card)                                            
-                                    if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 0:
-
-                                        # If you have enough stamina for move, use it
-                                        # if c used block
+                                        player2_card.use_block(battle_config, player3_card) 
+                                    if int(selected_move) == 10:
+                                        player2_card.use_boost(battle_config)     
+                                                                                 
+                                    if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 0 and int(selected_move) != 10:
+                                        damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                         if battle_config.is_co_op_mode:
                                             if player3_card.used_defend == True:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
@@ -4208,7 +4201,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         battle_config.add_battle_history_messsage(new_turn['MESSAGE'])
         return new_turn
     
-    player_card.freeze_enh = False
+    opponent_card.freeze_enh = False
     battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
     player_card.set_gravity_hit()
     if not opponent_card.wind_element_activated:

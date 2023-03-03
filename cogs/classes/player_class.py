@@ -178,12 +178,13 @@ class Player:
             return "Error"
 
     def set_explore(self, universe):
+        
         if self.level < 25 and self.prestige == 0:             
             return "🔓 Unlock the Explore Mode by completing Floor 25 of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss."
-                
-        if universe == "all":
-            db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True}})
-            return f"You are now entering Explore Mode across all universes! :milky_way: "
+        
+        if universe.lower() == "all":
+            db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True, 'EXPLORE_LOCATION': 'NULL'}})
+            return f"Exploring all universes! :milky_way: "
 
         universe_selected = db.queryUniverse({"TITLE": {"$regex": f"^{universe}$", "$options": "i"}})
 

@@ -120,6 +120,13 @@ class Card:
             self.used_block = False
             self.used_defend = False
             self.focus_count = 0
+            self.damage_recieved = 0
+            self.damage_dealt = 0
+            self.enhancers_count = 0
+            self.element_selection = []
+            self.move_selection = []
+            self.favorite_move = 0
+            self.favorite_element = 0
             self.enhance_turn_iterators = 0
             self.stamina_required_to_focus = 10
             self.stamina_focus_recovery_amount = 90
@@ -370,19 +377,7 @@ class Card:
     def get_ai_card_level(self, card_lvl, mode):
         # print(mode)
         if mode == "Tales":
-            if card_lvl > 210:
-                return 200
-            elif card_lvl >= 10:
-                if card_lvl <= 20 and card_lvl >=10:
-                    return 10
-                elif card_lvl >= 0 and card_lvl <=10:
-                    return card_lvl
-                else:
-                    return (card_lvl - 10)
-            else:
-                return card_lvl
-        if mode == "Tales":
-            if card_lvl > 210:
+            if card_lvl >= 210:
                 return 200
             elif card_lvl >= 10:
                 if card_lvl <= 20 and card_lvl >=10:
@@ -394,8 +389,8 @@ class Card:
             else:
                 return card_lvl
         elif mode == "Dungeon":
-            if card_lvl > 600:
-                return 600
+            if card_lvl >= 600:
+                return 650
             else:
                 if card_lvl <= 350:
                     return 350
@@ -405,57 +400,33 @@ class Card:
                     else:
                         return card_lvl + 30
                 else:
-                    return card_lvl + 40
+                    return card_lvl + 50
         elif mode == "DTales":
-            if card_lvl > 210:
-                return 200
-            elif card_lvl >= 10:
-                if card_lvl <= 20 and card_lvl >=10:
-                    return 10
-                elif card_lvl >= 0 and card_lvl <=10:
-                    return card_lvl
-                else:
-                    return (card_lvl - 10)
+            if card_lvl > 400:
+                return 400
             else:
                 return card_lvl
         elif mode == "DDungeon":
-            if card_lvl > 600:
-                return 600
+            if card_lvl >= 600:
+                return 650
             else:
-                if card_lvl <= 350:
-                    return 350
-                elif card_lvl <= 500:
-                    if card_lvl <= 590 and card_lvl >=550:
-                        return card_lvl + 20
-                    else:
-                        return card_lvl + 30
+                if card_lvl <= 400:
+                    return 400
                 else:
-                    return card_lvl + 40
+                    return card_lvl + 50
         elif mode == "CTales":
-            if card_lvl > 210:
-                return 200
-            elif card_lvl >= 10:
-                if card_lvl <= 20 and card_lvl >=10:
-                    return 10
-                elif card_lvl >= 0 and card_lvl <=10:
-                    return card_lvl
-                else:
-                    return (card_lvl - 10)
+            if card_lvl >= 285:
+                return 300
             else:
-                return card_lvl
+                return card_lvl + 15
         elif mode == "CDungeon":
-            if card_lvl > 600:
-                return 600
+            if card_lvl >= 600:
+                return 550
             else:
-                if card_lvl <= 350:
-                    return 350
-                elif card_lvl <= 500:
-                    if card_lvl <= 590 and card_lvl >=550:
-                        return card_lvl + 20
-                    else:
-                        return card_lvl + 30
+                if card_lvl <= 400:
+                    return 400
                 else:
-                    return card_lvl + 40
+                    return card_lvl + 50
         elif mode == "Boss":
             return 1000
         elif mode == "CBoss":
@@ -1811,7 +1782,7 @@ class Card:
                 if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                     attack_calculation = attack_calculation + attack_calculation
                     defense_calculation = defense_calculation + defense_calculation
-                    battle_config.add_battle_history_messsage(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}**  Gains 2x ATK and DEF\n+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_battle_history_messsage(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}**  Gains 2x ATK and DEF\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 else:
                     battle_config.add_battle_history_messsage(f"*(🌀) {self.name} +:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 self.attack = self.attack + attack_calculation
@@ -2500,7 +2471,7 @@ class Card:
                 
                 self.activate_element_check(battle_config, dmg, opponent_card)
 
-            if battle_config.is_co_op_mode:
+            if battle_config.is_co_op_mode and not (battle_config.is_turn == 1 or battle_config.is_turn == 3):
                 block_message = f"**{self.name}**: Defended 🛡️ **{co_op_card.name}**"
                 self.used_defend = True
             else:
@@ -2524,6 +2495,28 @@ class Card:
             self.defense = round(self.defense * 2)
             
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: Defended 🛡️ **{companion_card.name}**")
+            battle_config.turn_total = battle_config.turn_total + 1
+            battle_config.next_turn()
+        else:
+            #await private_channel.send(f"{c_card} is too tired to block...")
+            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** is too tired to block.")
+            battle_config.repeat_turn()
+            
+    def use_boost(self, battle_config, companion_card=None):
+        if self.stamina >= 20:
+            if companion_card:
+                companion_card.stamina = companion_card.stamina + 10
+                companion_card.health = companion_card.health + 50
+                boost_message = f"**{self.name}** Boosted **{companion_card.name}** +10 🌀 +100 :heart:"
+                self.used_boost = True
+                self.stamina = self.stamina - 20
+            else:
+                self.stamina = self.stamina + 10
+                self.health = self.health + 50
+                boost_message = f"**{self.name}** Boosted +10 🌀 +100 :heart:"
+                self.stamina = self.stamina
+
+            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) {boost_message}")   
             battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
         else:
@@ -2635,6 +2628,7 @@ class Card:
                     opponent_card.max_health = round(opponent_card.max_health - dmg['DMG'])
                     if opponent_card.max_health <=1:
                         opponent_card.max_health = 1
+                self.enhancers_count = self.enhancers_count + 1
 
                 if self.move4enh in crown_utilities.Stamina_Enhancer_Check or self.move4enh in crown_utilities.Time_Enhancer_Check or self.move4enh in crown_utilities.Control_Enhancer_Check:
                     self.stamina = self.stamina
@@ -2930,7 +2924,6 @@ class Card:
                 self.freeze_enh = True
                 self.ice_counter = 0
             opponent_card.health = opponent_card.health - dmg['DMG']
-            print(dmg['MESSAGE'])
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
 
         elif dmg['ELEMENT'] == "BLEED":
@@ -2953,6 +2946,10 @@ class Card:
         else:
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
+            
+        self.element_selection.append(dmg['ELEMENT'])
+        self.damage_dealt = self.damage_dealt + dmg['DMG']
+        opponent_card.damage_recieved = opponent_card.damage_recieved + dmg['DMG']
 
 
     def reset_stats_to_limiter(self, _opponent_card):

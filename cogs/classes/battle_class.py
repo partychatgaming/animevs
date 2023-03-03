@@ -1339,7 +1339,6 @@ class Battle:
             )
             )
 
-
         self.battle_buttons = b_butts
         self.utility_buttons = u_butts
         self.co_op_buttons = c_butts
@@ -1577,6 +1576,7 @@ class Battle:
             
             """),colour=0xe91e63)
         # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
+        
         if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
             embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
         elif int(gameClock[0]) == 0:
@@ -1584,12 +1584,17 @@ class Battle:
         else:
             embedVar.set_footer(
                 text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+            
+            
         embedVar.add_field(name="🔢 Focus Count",
                         value=f"**{winner_card.name}**: {winner_card.focus_count}\n**{loser_card.name}**: {loser_card.focus_count}")
         if winner_card.focus_count >= loser_card.focus_count:
             embedVar.add_field(name="🌀 Most Focused", value=f"**{winner_card.name}**")
         else:
             embedVar.add_field(name="🌀 Most Focused", value=f"**{loser_card.name}**")
+            
+            
+            
         if self._is_bounty_match:
             embedVar.add_field(name=":shinto_shrine: Raid Earnings", value=f"**:coin:{self._raid_bounty_plus_bonus}**")
         if self._is_title_match:
