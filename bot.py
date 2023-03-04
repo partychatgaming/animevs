@@ -52,6 +52,7 @@ guild_id = None
 guild_channel = None
 
 intents = discord.Intents.default()
+# intents.guilds = True
 intents.members = True
 intents.messages = True
 client = discord.Client()
