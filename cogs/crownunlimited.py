@@ -3119,7 +3119,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.is_scenario_game_mode, 
                                                     battle_config.is_explore_game_mode, 
                                                     battle_config.is_pvp_game_mode, 
-                                                    battle_config.is_tutorial_game_mode)):
+                                                    battle_config.is_tutorial_game_mode,
+                                                    battle_config.is_boss_game_mode)):
                                             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                                             await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                         elif any((battle_config.is_pvp_game_mode, 
@@ -3563,7 +3564,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_config.is_scenario_game_mode, 
                                                         battle_config.is_explore_game_mode, 
                                                         battle_config.is_pvp_game_mode, 
-                                                        battle_config.is_tutorial_game_mode)):
+                                                        battle_config.is_tutorial_game_mode,
+                                                        battle_config.is_boss_game_mode)):
                                                 await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                                                 await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                             elif any((battle_config.is_pvp_game_mode, 
@@ -3833,7 +3835,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 battle_config.is_scenario_game_mode, 
                                                 battle_config.is_explore_game_mode, 
                                                 battle_config.is_pvp_game_mode, 
-                                                battle_config.is_tutorial_game_mode)):
+                                                battle_config.is_tutorial_game_mode,
+                                                battle_config.is_boss_game_mode)):
                                         await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                                         await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                     elif any((battle_config.is_pvp_game_mode, 
@@ -4241,7 +4244,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             battle_config.is_scenario_game_mode, 
                             battle_config.is_explore_game_mode, 
                             battle_config.is_pvp_game_mode, 
-                            battle_config.is_tutorial_game_mode)):
+                            battle_config.is_tutorial_game_mode,
+                            battle_config.is_boss_game_mode)):
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                     await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                 elif any((battle_config.is_pvp_game_mode, 
@@ -4279,7 +4283,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     battle_config.is_scenario_game_mode, 
                     battle_config.is_explore_game_mode, 
                     battle_config.is_pvp_game_mode, 
-                    battle_config.is_tutorial_game_mode,)):
+                    battle_config.is_tutorial_game_mode,
+                    battle_config.is_boss_game_mode)):
             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
             await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
         elif any((battle_config.is_pvp_game_mode, 
