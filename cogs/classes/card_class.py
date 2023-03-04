@@ -1776,13 +1776,15 @@ class Card:
                     if new_health_value > self.max_health:
                         heal_message = "the injuries dissapeared!"
                         message_number = 1
-                        self.health = self.max_health
                         health_calculation = self.max_health - self.health
+                        self.health = self.max_health
+                        
                     else:
                         heal_message = "regained some vitality."
                         message_number = 2
-                        self.health = new_health_value
                         self.damage_healed = self.damage_healed + health_calculation
+                        self.health = new_health_value
+                       
                 else:
                     heal_message = f"**{_opponent_card.name}**'s blows don't appear to have any effect!"
                     message_number = 0

@@ -2462,7 +2462,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                     ☀️ | You also earn 1 Boss Key per /daily !
 
                     __🌍 Available Universe Dungeons__
-                    {available_dungeons_list}
+                    \n{available_dungeons_list}
                     """))
                     boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
                     # embedVar.set_footer(text="Use /tutorial")
