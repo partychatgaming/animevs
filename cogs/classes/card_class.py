@@ -47,6 +47,8 @@ class Card:
 
             # Universe Traits
             self._final_stand = False
+            if self.universe == "Dragon Ball Z":
+                self._final_stand =True
             self._chainsawman_activated = False
             self._atk_chainsawman_buff = False
             self._def_chainsawman_buff = False
