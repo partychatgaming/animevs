@@ -1129,7 +1129,7 @@ async def rebirth(ctx):
          
          rebirthCost = round(100000000 * (1 + (1.5 * (rLevel))))
          pReq = 100 - (pLevel * 10)
-         picon = await crown_utilities.prestige_icon(pLevel)
+         picon = crown_utilities.prestige_icon(pLevel)
          
          pursemessage = " "
          gabes_purse = user_is_validated['TOURNAMENT_WINS']
