@@ -267,7 +267,7 @@ class Profile(commands.Cog):
                     c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
                     t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                     a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
-                    player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'])                 
+                    player = Player(d['AUTOSAVE'], d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'])                 
                     
                     durability = a.set_durability(player.equipped_arm, player._arms)
                     
@@ -321,8 +321,8 @@ class Profile(commands.Cog):
                         level_up_message = "👑 Max Level!!"
 
                     if player.performance:
-                        embedVar = discord.Embed(title=f"{c.set_card_level_icon()}{c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
-                        :mahjong: **{c.tier}**
+                        embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
+                        :mahjong: | **{c.tier}**
                         ❤️ | **{c.max_health}**
                         🗡️ | **{c.attack}**
                         🛡️ | **{c.defense}**
@@ -3316,16 +3316,22 @@ class Profile(commands.Cog):
                 preset3_talisman = list(deck[2].values())[4]
                 
                 preset3_message = "📿"
+                preset3_element = "None"
                 if preset3_talisman != "NULL":
                     preset3_message = crown_utilities.set_emoji(preset3_talisman)
+                    preset3_element = preset3_talisman.title()
                     
                 preset2_message = "📿"
+                preset2_element = "None"
                 if preset2_talisman != "NULL":
                     preset2_message = crown_utilities.set_emoji(preset2_talisman)
+                    preset2_element = preset2_talisman.title()
                     
                 preset1_message = "📿"
+                preset1_element = "None"
                 if preset1_talisman != "NULL":
                     preset1_message = crown_utilities.set_emoji(preset1_talisman)
+                    preset1_element = preset1_talisman.title()
                 
                 if preset_update:
                     preset4_card = list(deck[3].values())[0]
@@ -3341,26 +3347,30 @@ class Profile(commands.Cog):
                     preset5_talisman = list(deck[4].values())[4]
                     
                     preset5_message = "📿"
+                    preset5_element = "None"
                     if preset5_talisman != "NULL":
                         preset5_message = crown_utilities.set_emoji(preset5_talisman)
+                        preset5_element = preset5_talisman.title()
                         
                     preset4_message = "📿"
+                    preset4_element = "None"
                     if preset4_talisman != "NULL":
                         preset4_message = crown_utilities.set_emoji(preset4_talisman)
+                        preset4_element = preset4_talisman.title()
                         
                     
 
                         
                     
-                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_talisman.title()}\n\n", 
-                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_talisman.title()}\n\n", 
-                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_talisman.title()}\n\n", 
-                    f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}{preset4_talisman.title()}\n\n", 
-                    f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}{preset5_talisman.title()}\n\n"]  
+                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_element}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_element}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_element}\n\n", 
+                    f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}{preset4_element}\n\n", 
+                    f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}{preset5_element}\n\n"]  
                 else:
-                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset4_talisman.title()}\n\n", 
-                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_talisman.title()}\n\n", 
-                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_talisman.title()}\n\n"]
+                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_element}\n\n", 
+                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_element}\n\n", 
+                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_element}\n\n"]
             
                 embedVar = discord.Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
                 {"".join(listed_options)}
@@ -3447,11 +3457,11 @@ class Profile(commands.Cog):
                         elif preset1_pet is not None:
                             not_owned_items.append(f":x: | {preset1_pet}")
 
-                        if preset1_talisman in ownedtalismans:
-                            equipped_items.append(f"{preset1_message} **Talisman** | {preset1_talisman.title()}")
+                        if preset1_talisman in ownedtalismans or preset1_talisman == "NULL":
+                            equipped_items.append(f"{preset1_message} **Talisman** | {preset1_element}")
                             update_data['TALISMAN'] = str(preset1_talisman)
                         elif preset1_talisman is not None:
-                            not_owned_items.append(f":x: | {preset1_message}{preset1_talisman.title()}")
+                            not_owned_items.append(f":x: | {preset1_message}{preset1_element}")
 
                     elif  button_ctx.custom_id == "2":
                         # Check if items are owned
@@ -3482,11 +3492,11 @@ class Profile(commands.Cog):
                         else:
                             not_owned_items.append(f":x: | {preset2_pet}")
 
-                        if preset2_talisman in ownedtalismans:
-                            equipped_items.append(f"{preset2_message} **Talisman** | {preset2_talisman.title()}")
+                        if preset2_talisman in ownedtalismans or preset2_talisman == "NULL":
+                            equipped_items.append(f"{preset2_message} **Talisman** | {preset2_element}")
                             update_data['TALISMAN'] = str(preset2_talisman)
                         else:
-                            not_owned_items.append(f":x: | {preset2_message}{preset2_talisman.title()}")
+                            not_owned_items.append(f":x: | {preset2_message}{preset2_element}")
 
                     elif  button_ctx.custom_id == "3":
                         equipped_items = []
@@ -3516,11 +3526,11 @@ class Profile(commands.Cog):
                         else:
                             not_owned_items.append(f":x: | {preset3_pet}")
 
-                        if preset3_talisman in ownedtalismans:
-                            equipped_items.append(f"{preset3_message} **Talisman** | {preset3_talisman.title()}")
+                        if preset3_talisman in ownedtalismans or preset3_talisman == "NULL":
+                            equipped_items.append(f"{preset3_message} **Talisman** | {preset3_element}")
                             update_data['TALISMAN'] = str(preset3_talisman)
                         else:
-                            not_owned_items.append(f":x: | {preset3_message}{preset3_talisman.title()}")
+                            not_owned_items.append(f":x: | {preset3_message}{preset3_element}")
 
                     elif  button_ctx.custom_id == "4":
                         equipped_items = []
@@ -3550,11 +3560,11 @@ class Profile(commands.Cog):
                         else:
                             not_owned_items.append(f":x: | {preset4_pet}")
 
-                        if preset4_talisman in ownedtalismans:
-                            equipped_items.append(f"{preset4_message} **Talisman** | {preset4_talisman.title()}")
+                        if preset4_talisman in ownedtalismans or preset4_talisman == "NULL":
+                            equipped_items.append(f"{preset4_message} **Talisman** | {preset4_element}")
                             update_data['TALISMAN'] = str(preset4_talisman)
                         else:
-                            not_owned_items.append(f":x: | {preset4_message}{preset4_talisman.title()}")
+                            not_owned_items.append(f":x: | {preset4_message}{preset4_element}")
                         
                     elif  button_ctx.custom_id == "5":
                         equipped_items = []
@@ -3585,11 +3595,11 @@ class Profile(commands.Cog):
                         else:
                             not_owned_items.append(f":x: | {preset5_pet}")
 
-                        if preset5_talisman in ownedtalismans:
-                            equipped_items.append(f"{preset5_message} **Talisman** | {preset5_talisman.title()}")
+                        if preset5_talisman in ownedtalismans or preset5_talisman == "NULL":
+                            equipped_items.append(f"{preset5_message} **Talisman** | {preset5_element}")
                             update_data['TALISMAN'] = str(preset5_talisman)
                         else:
-                            not_owned_items.append(f":x: | {preset5_message}{preset5_talisman.title()}")
+                            not_owned_items.append(f":x: | {preset5_message}{preset5_element}")
 
                         # Update the user's build in the database with owned items
                     
@@ -3677,8 +3687,10 @@ class Profile(commands.Cog):
                 current_pet = d['PET']
                 current_talisman = d['TALISMAN']
                 current_talisman_message = "📿"
+                current_talisman_element = "None"
                 if current_talisman != "NULL":
                     current_talisman_message = crown_utilities.set_emoji(current_talisman)
+                    current_talisman_element = current_talisman.title()
                 preset_update = d['U_PRESET']
 
                 
@@ -3701,16 +3713,22 @@ class Profile(commands.Cog):
                 preset3_talisman = list(deck[2].values())[4]
                 
                 preset3_message = "📿"
+                preset3_element = "None"
                 if preset3_talisman != "NULL":
                     preset3_message = crown_utilities.set_emoji(preset3_talisman)
+                    preset3_element = preset3_talisman.title()
                     
                 preset2_message = "📿"
+                preset2_element = "None"
                 if preset2_talisman != "NULL":
                     preset2_message = crown_utilities.set_emoji(preset2_talisman)
+                    preset2_element = preset2_talisman.title()
                     
                 preset1_message = "📿"
+                preset1_element = "None"
                 if preset1_talisman != "NULL":
                     preset1_message = crown_utilities.set_emoji(preset1_talisman)
+                    preset1_element = preset1_talisman.title()
                 
                 if preset_update:
                     preset4_card = list(deck[3].values())[0]
@@ -3726,24 +3744,28 @@ class Profile(commands.Cog):
                     preset5_talisman = list(deck[4].values())[4]
                     
                     preset5_message = "📿"
+                    preset5_element = "None"
                     if preset5_talisman != "NULL":
                         preset5_message = crown_utilities.set_emoji(preset5_talisman)
+                        preset5_element = preset5_talisman.title()
                         
                     preset4_message = "📿"
+                    preset4_element = "None"
                     if preset4_talisman != "NULL":
                         preset4_message = crown_utilities.set_emoji(preset4_talisman)
+                        preset4_element = preset4_talisman.title()
                     
-                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}{current_talisman.title()}\n\n",
-                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_talisman.title()}\n\n", 
-                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_talisman.title()}\n\n", 
-                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_talisman.title()}\n\n", 
-                    f"📝4️⃣ | {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}{preset4_talisman.title()}\n\n", 
-                    f"📝5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}{preset5_talisman.title()}\n\n"]  
+                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}{current_talisman_element}\n\n",
+                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_element}\n\n", 
+                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_element}\n\n", 
+                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_element}\n\n", 
+                    f"📝4️⃣ | {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}{preset4_element}\n\n", 
+                    f"📝5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}{preset5_element}\n\n"]  
                 else:
-                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}{current_talisman.title()}\n\n",
-                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_talisman.title()}\n\n", 
-                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_talisman.title()}\n\n", 
-                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_talisman.title()}\n\n"]
+                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}{current_talisman_element}\n\n",
+                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_element}\n\n", 
+                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_element}\n\n", 
+                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_element}\n\n"]
             
                 embedVar = discord.Embed(title=f"📝 | Save Current Build", description=textwrap.dedent(f"""
                 {"".join(listed_options)}
@@ -3805,7 +3827,7 @@ class Profile(commands.Cog):
                             embed.add_field(name="Title", value=f":reminder_ribbon: | {current_title}", inline=False)
                             embed.add_field(name="Arm", value=f":mechanical_arm: | {current_arm}", inline=False)
                             embed.add_field(name="Summons", value=f":dna: | {current_pet}", inline=False)
-                            embed.add_field(name="Talisman", value=f"{talisman_message} | {current_talisman.title()}", inline=False)
+                            embed.add_field(name="Talisman", value=f"{talisman_message} | {current_talisman_element}", inline=False)
                             embed.set_thumbnail(url=ctx.author.avatar_url)
                             await button_ctx.send(embed=embed)
                             return
@@ -6122,11 +6144,11 @@ async def menubuild(self, ctx):
 
         if card:
             try:
-                print(d['TALISMAN'])
+                #print(d['TALISMAN'])
                 c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
                 t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                 a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
-                player = Player(d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'])                 
+                player = Player(d['AUTOSAVE'], d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'])                 
                 
                 durability = a.set_durability(player.equipped_arm, player._arms)
                 
@@ -6179,8 +6201,8 @@ async def menubuild(self, ctx):
                     level_up_message = "👑 Max Level!!"
 
                 if player.performance:
-                    embedVar = discord.Embed(title=f"{c.set_card_level_icon()}{c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
-                    :mahjong: **{c.tier}**
+                    embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
+                    :mahjong: | **{c.tier}**
                     ❤️ | **{c.max_health}**
                     🗡️ | **{c.attack}**
                     🛡️ | **{c.defense}**
@@ -8006,7 +8028,7 @@ async def menuarms(self, ctx):
                                         response = db.updateVaultNoFilter(query, update_storage_query)
 
                                         await msg.delete()
-                                        await ctx.send(f"**{selected_card}** has been swapped with **{swap_with}**")
+                                        await ctx.send(f"**{selected_arm}** has been swapped with **{swap_with}**")
                                         return
                                     else:
                                         await ctx.send("The card number you want to swap with does not exist.")

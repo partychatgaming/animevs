@@ -195,12 +195,17 @@ class Title:
     def activate_title_passive(self, battle, player1_card, player2_card, player3_card=None):
         if self.passive_type:
             if self.passive_type == "HLT":
-                if player1_card.max_health > player1_card.health:
+                if player1_card.max_health > player1_card.health + ((self.passive_value / 100) * player1_card.health):
                     player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player1_card.health))
+                else:
+                    player1_card.health = round(player1_card.health + (player2_card.max_health - player2_card.health))
             if self.passive_type == "LIFE":
-                if player1_card.max_health > player1_card.health:
+                if player1_card.max_health > (player1_card.health + ((self.passive_value / 100) * player2_card.health)):
                     player2_card.health = round(player2_card.health - ((self.passive_value / 100) * player2_card.health))
                     player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player2_card.health))
+                else:
+                    player2_card.health = round(player2_card.health - (player2_card.max_health - player2_card.health))
+                    player1_card.health = round(player1_card.health + (player2_card.max_health - player2_card.health))
             if self.passive_type == "ATK":
                 player1_card.attack = player1_card.attack + self.passive_value
             if self.passive_type == "DEF":

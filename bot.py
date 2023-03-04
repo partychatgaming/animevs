@@ -2132,7 +2132,7 @@ async def battlehistory(ctx, history: int):
       user_query = {"DID": str(ctx.author.id)}
       update_query = {"$set": {"BATTLE_HISTORY": history}}
       db.updateUserNoFilter(user_query, update_query)
-      await ctx.send(f"You will now see up to {str(history)} history messages during battle.")
+      await ctx.send(f":bookmark_tabs:  | You will now see up to {str(history)} history messages during battle.")
    except Exception as e:
       await ctx.send(e)
 
@@ -2580,11 +2580,11 @@ async def performance(ctx):
    try:
       player = db.queryUser({"DID": str(ctx.author.id)})
       if not player["PERFORMANCE"]:
-            await ctx.send(f"Entering Performance Mode :gear:")
+            await ctx.send(f":gear: | Entering Performance Mode")
             db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PERFORMANCE': True}})
             return
       if player["PERFORMANCE"]:
-            await ctx.send(f"Exiting Performance Mode :gear:")
+            await ctx.send(f":gear: | Exiting Performance Mode")
             db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PERFORMANCE': False}})
             return
    except Exception as ex:
@@ -2608,11 +2608,11 @@ async def autosave(ctx):
    try:
       player = db.queryUser({"DID": str(ctx.author.id)})
       if not player["AUTOSAVE"]:
-            await ctx.send(f"Activated Autosave :gear:")
+            await ctx.send(f":floppy_disk:  | Activated Autosave")
             db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AUTOSAVE': True}})
             return
       if player["AUTOSAVE"]:
-            await ctx.send(f"Autosave Deactivated :gear:")
+            await ctx.send(f":gear: | Autosave Deactivated")
             db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'AUTOSAVE': False}})
             return
    except Exception as ex:
