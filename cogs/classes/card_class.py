@@ -1776,13 +1776,13 @@ class Card:
                     if new_health_value > self.max_health:
                         heal_message = "the injuries dissapeared!"
                         message_number = 1
-                        health_calculation = self.max_health - self.health
+                        health_calculation = round(self.max_health - self.health)
                         self.health = self.max_health
                         
                     else:
                         heal_message = "regained some vitality."
                         message_number = 2
-                        self.damage_healed = self.damage_healed + health_calculation
+                        self.damage_healed = round(self.damage_healed + health_calculation)
                         self.health = new_health_value
                        
                 else:
