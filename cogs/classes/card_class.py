@@ -2301,6 +2301,8 @@ class Card:
                     self.defense = round(self.defense + damage_calculation_response['DMG'])
                 elif self.summon_type == 'GROWTH':
                     self.max_health = round(self.max_health - (self.max_health * .10))
+                    if self.health > self.max_health:
+                        self.health = self.max_health
                     self.defense = round(self.defense + damage_calculation_response['DMG'])
                     self.attack= round(self.attack + damage_calculation_response['DMG'])
                     self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + damage_calculation_response['DMG'])
@@ -2334,6 +2336,8 @@ class Card:
                 elif self.summon_type == 'FEAR':
                     if self.universe != "Chainsawman":
                         self.max_health = round(self.max_health - (self.max_health * .10))
+                        if self.health > self.max_health:
+                            self.health = self.max_health
                     opponent_card.defense = round(opponent_card.defense - damage_calculation_response['DMG'])
                     opponent_card.attack= round(opponent_card.attack - damage_calculation_response['DMG'])
                     if opponent_card.card_lvl_ap_buff > 0:
@@ -2428,6 +2432,8 @@ class Card:
                 companion_card.defense = round(companion_card.defense + dmg['DMG'])
             elif companion_card.move4enh == 'GROWTH':
                 companion_card.max_health = round(companion_card.max_health - (companion_card.max_health * .10))
+                if companion_card.health > companion_card.max_health:
+                    companion_card.health = companion_card.max_health
                 companion_card.defense = round(companion_card.defense + dmg['DMG'])
                 companion_card.attack = round(companion_card.attack + dmg['DMG'])
                 companion_card.card_lvl_ap_buff = round(companion_card.card_lvl_ap_buff + dmg['DMG'])
@@ -2461,6 +2467,8 @@ class Card:
             elif companion_card.move4enh == 'FEAR':
                 if companion_card.universe != "Chainsawman":
                     companion_card.max_health = round(companion_card.max_health - (companion_card.max_health * .10))
+                    if companion_card.health > companion_card.max_health:
+                        companion_card.health = companion_card.max_health
                 opponent_card.defense = round(opponent_card.defense - dmg['DMG'])
                 opponent_card.attack= round(opponent_card.attack - dmg['DMG'])
                 if opponent_card.card_lvl_ap_buff > 0:
@@ -2615,6 +2623,8 @@ class Card:
                     self.defense = round(self.defense + dmg['DMG'])
                 elif self.move4enh == 'GROWTH':
                     self.max_health = round(self.max_health - (self.max_health * .10))
+                    if self.health > self.max_health:
+                        self.health = self.max_health
                     self.defense = round(self.defense + dmg['DMG'])
                     self.attack= round(self.attack + dmg['DMG'])
                     self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + dmg['DMG'])
@@ -2655,6 +2665,8 @@ class Card:
                 elif self.move4enh == 'FEAR':
                     if self.universe != "Chainsawman":
                         self.max_health = round(self.max_health - (self.max_health * .10))
+                        if self.health > self.max_health:
+                            self.health = self.max_health
                     opponent_card.defense = round(opponent_card.defense - dmg['DMG'])
                     opponent_card.attack= round(opponent_card.attack - dmg['DMG'])
                     if opponent_card.card_lvl_ap_buff > 0:
@@ -3097,12 +3109,16 @@ class Card:
             if self.passive_type == "FEAR":
                 if self.universe != "Chainsawman":
                     self.max_health = self.max_health - (self.max_health * .03)
+                    if self.health > self.max_health:
+                        self.health = self.max_health
                 player2_card.defense = player2_card.defense - flat_value_for_passive
                 player2_card.attack = player2_card.attack - flat_value_for_passive
                 if player2_card.card_lvl_ap_buff > 0:
                     player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - flat_value_for_passive
             if self.passive_type == "GROWTH":
                 self.max_health = self.max_health - (self.max_health * .03)
+                if self.health > self.max_health:
+                    self.health = self.max_health
                 self.defense = self.defense + flat_value_for_passive
                 self.attack = self.attack + flat_value_for_passive
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + flat_value_for_passive

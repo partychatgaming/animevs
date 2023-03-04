@@ -242,11 +242,15 @@ class Title:
             if self.passive_type == "FEAR":
                 if player1_card.universe != "Chainsawman":
                     player1_card.max_health = player1_card.max_health - (player1_card.max_health * .03)
+                    if player1_card.health > player1_card.max_health:
+                        player1_card.health = player1_card.max_health
                 player2_card.defense = player2_card.defense - self.passive_value
                 player2_card.attack = player2_card.attack - self.passive_value
                 player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - self.passive_value
             if self.passive_type == "GROWTH":
                 player1_card.max_health = player1_card.max_health - (player1_card.max_health * .03)
+                if player1_card.health > player1_card.max_health:
+                    player1_card.health = player1_card.max_health
                 player1_card.defense = player1_card.defense + self.passive_value
                 player1_card.attack = player1_card.attack + self.passive_value
                 player1_card.card_lvl_ap_buff = player1_card.card_lvl_ap_buff + self.passive_value
