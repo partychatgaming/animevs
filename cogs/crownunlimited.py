@@ -199,8 +199,6 @@ class CrownUnlimited(commands.Cog):
                                          description=textwrap.dedent(f"""\
                 **Bounty** **{selected_card.bounty_message}**
                 {selected_card.battle_message}
-
-                To turn off explore mode, use the command `/explore`
                 """), colour=0xf1c40f)
              
                 embedVar.set_image(url="attachment://image.png")
