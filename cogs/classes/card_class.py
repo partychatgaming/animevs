@@ -1731,13 +1731,13 @@ class Card:
                 embedVar = discord.Embed(title=f"{battle_config._punish_boss_description}")
                 embedVar.add_field(name=f"{battle_config._arena_boss_description}", value=f"{battle_config._world_boss_description}", inline=False)
                 embedVar.set_footer(text=f"{battle_config._assault_boss_description}")
+                battle_config._boss_embed_message = embedVar
             elif battle_config.is_boss_game_mode and battle_config.is_turn in [1,3]:
                 embedVar = discord.Embed(title=f"{battle_config._powerup_boss_description}", colour=0xe91e63)
                 embedVar.add_field(name=f"A great aura starts to envelop **{self.name}** ",
                                 value=f"{battle_config._aura_boss_description}")
-                embedVar.set_footer(text=f"{self.name} Says: 'Now, are you ready for a real fight?'")
-                
-            battle_config._boss_embed_message = embedVar
+                embedVar.set_footer(text=f"{self.name} Says: 'Now, are you ready for a real fight?'")   
+                battle_config._boss_embed_message = embedVar
             # fortitude or luck is based on health
             fortitude = round(self.health * .1)
             if fortitude <= 50:
