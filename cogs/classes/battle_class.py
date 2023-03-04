@@ -1450,7 +1450,10 @@ class Battle:
             close_message = "Explore Battle"
             picon = ":milky_way:"
             f_message = f"💀 | Explore Battle Failed!"
-            # db_adjustment = 0
+        if self.is_scenario_game_mode:
+            close_message = "Scenario Battle"
+            picon = "📹"
+            f_message = f"💀 | Scenario Battle Ended."
             
             
 
@@ -1473,6 +1476,10 @@ class Battle:
             close_message = "Tutorial"
             icon2 = ":teacher:"
             f_message = f"🧠 | Tutorial will teach you about Game Mechanics and Card Abiltiies!"
+        if self.is_raid_game_mode:
+            close_message = "Raid"
+            icon2 = "🛡️"
+            f_message = f"⛩️ | Raid Associations to Claim the Bounty or Claim The Shield Title"
             
 
                 
