@@ -929,7 +929,7 @@ class Battle:
         elif your_card.health <= (.50 * your_card.max_health) and your_card.used_resolve == False and your_card.used_focus:
             aiMove = 5
         elif your_card.universe in self.blocking_traits and your_card.stamina ==20:
-            if opponent_card.attack <= (your_card.defense * 2):
+            if opponent_card.attack >= your_card.defense and opponent_card.attack <= (your_card.defense * 2):
                 aiMove = 0
             elif your_card.universe == "Attack On Titan" and your_card.health <= (your_card.max_health * .50):
                 aiMove = 0
