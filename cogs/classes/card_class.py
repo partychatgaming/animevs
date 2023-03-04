@@ -2238,11 +2238,11 @@ class Card:
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
 
-            if battle_config.is_boss_game_mode and not battle_config.is_turn in [1,3]:
+            if battle_config.is_boss_game_mode and (battle_config.is_turn != 1 or battle_config.is_turn !=3):
                 embedVar = discord.Embed(title=f"{opponent_card.name}'s Rebuke\n{battle_config._rebuke_boss_description}")
                 embedVar.set_footer(text=f"{self.name} this is your chance!")
                 battle_config._boss_embed_message = embedVar
-            elif battle_config.is_boss_game_mode and battle_config.is_turn in [1,3]:
+            elif battle_config.is_boss_game_mode and  (battle_config.is_turn == 1 or battle_config.is_turn ==3):
                 embedVar = discord.Embed(title=f"{battle_config._rmessage_boss_description}")
                 embedVar.set_footer(text=f"{opponent_card.name} this will not be easy...")
                 battle_config._boss_embed_message = embedVar
