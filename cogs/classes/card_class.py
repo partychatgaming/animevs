@@ -1777,6 +1777,7 @@ class Card:
                         heal_message = "the injuries dissapeared!"
                         message_number = 1
                         health_calculation = round(self.max_health - self.health)
+                        self.damage_healed = round(self.damage_healed + health_calculation)
                         self.health = self.max_health
                         
                     else:
@@ -1787,6 +1788,7 @@ class Card:
                        
                 else:
                     heal_message = f"**{_opponent_card.name}**'s blows don't appear to have any effect!"
+                    self.health = self.max_health
                     message_number = 0
             
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
