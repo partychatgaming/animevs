@@ -2326,7 +2326,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             scenario_text = "View Available Scenario Battles!"
             if mode in crown_utilities.DUO_M:
                 label_text = "Start Duo Battle!"
-                scenario_text = "View Available Scenario Battles!
+                scenario_text = "View Available Scenario Battles!"
         if mode in crown_utilities.CO_OP_M:
             if mode in crown_utilities.TALE_M:
                 buttons = [
