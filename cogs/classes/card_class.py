@@ -191,6 +191,7 @@ class Card:
             self.move4ap = list(self.enhancer.values())[0]
             self.move4_stamina = list(self.enhancer.values())[1]
             self.move4enh = list(self.enhancer.values())[2]
+            self.move4base = self.move4ap
 
             self.dungeon_card_details
             
@@ -1133,13 +1134,13 @@ class Card:
                 turn_crit = False
                 if self.move4enh in crown_utilities.Turn_Enhancer_Check:
                     if turn_total == 0:
-                        self.move4ap = round(self.move4ap)
+                        self.move4ap = round(self.move4base)
                         turn_crit = True
                     elif turn_total % 10 == 0:
-                        self.move4ap = round(self.move4ap)
+                        self.move4ap = round(self.move4base)
                         turn_crit = True
                     elif turn_total >= 1:
-                        self.move4ap = round(self.move4ap / turn_total)
+                        self.move4ap = round(self.move4base / turn_total)
 
                 elif self.move4enh in crown_utilities.Damage_Enhancer_Check:
                     if turn_total > 0:
