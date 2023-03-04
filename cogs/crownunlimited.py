@@ -102,8 +102,8 @@ class CrownUnlimited(commands.Cog):
                     print(f"{str(message.author)} Error in on_message: {e}")
     
             if ratelimit is None:
-                if isinstance(message.channel, discord.channel.DMChannel):
-                    return
+                # if isinstance(message.channel, discord.channel.DMChannel):
+                #     return
     
                 g = message.author.guild
                 channel_list = message.author.guild.text_channels
@@ -189,6 +189,8 @@ class CrownUnlimited(commands.Cog):
                                          description=textwrap.dedent(f"""\
                 **Bounty** **{selected_card.bounty_message}**
                 {selected_card.battle_message}
+
+                To turn off explore mode, use the command `/explore`
                 """), colour=0xf1c40f)
              
                 embedVar.set_image(url="attachment://image.png")

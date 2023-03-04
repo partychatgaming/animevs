@@ -766,8 +766,8 @@ class Card:
             selected_mode = "Hard"
             self.approach_message = "🔥 An Empowered "
             self._explore_cardtitle = {'TITLE': 'Dungeon Title'}
-            self.card_lvl = random.randint(350, 600)
-            self.bounty = self.bounty * 30
+            self.card_lvl = random.randint(400, 700)
+            self.bounty = self.bounty * 10
 
 
         if mode_selector_randomizer <= 19:
