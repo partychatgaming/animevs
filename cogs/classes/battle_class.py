@@ -1379,13 +1379,13 @@ class Battle:
         if not self.is_abyss_game_mode and not self.is_scenario_game_mode:
             if not self.is_tutorial_game_mode:
                 if self.is_pvp_game_mode:
-                    response = f"Your game timed out. Your channel has been closed"
+                    response = f"Your :vs: timed out. Your channel has been closed"
                 elif self.is_boss_game_mode:
-                    response = f"Your game timed out. Your channel has been closed."
+                    response = f"Your Boss Fight timed out. Your channel has been closed."
                 else:
-                    response = f"Your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
+                    response = f"Your Game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
             else:
-                response = f"Your game timed out. Your channel has been closed, restart the tutorial with **/solo**."
+                response = f"Your Game timed out. Your channel has been closed, restart the tutorial with **/solo**."
         else:
             response = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
         self.match_has_ended = True

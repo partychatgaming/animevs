@@ -836,7 +836,7 @@ class Card:
 
 
     def set_burn_hit(self, opponent_card):
-        burn_message = " "
+        burn_message = "0"
         if opponent_card.burn_dmg > 3:
             self.health = self.health - opponent_card.burn_dmg
             burn_message =  f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."

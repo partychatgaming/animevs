@@ -3116,9 +3116,22 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     
                                     except asyncio.TimeoutError:
                                         await battle_msg.edit(components=[])
-                                        if not battle_config.is_abyss_game_mode and not battle_config.is_scenario_game_mode and not battle_config.is_explore_game_mode and not battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
+                                        if not any((battle_config.is_abyss_game_mode, 
+                                                    battle_config.is_scenario_game_mode, 
+                                                    battle_config.is_explore_game_mode, 
+                                                    battle_config.is_pvp_game_mode, 
+                                                    battle_config.is_tutorial_game_mode)):
                                             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                                             await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                                        elif any((battle_config.is_pvp_game_mode, 
+                                                    battle_config.is_tutorial_game_mode
+                                                                )):
+                                            await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                                        else:
+                                            await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
+                                        # if not battle_config.is_abyss_game_mode and not battle_config.is_scenario_game_mode and not battle_config.is_explore_game_mode and not battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
+                                        #     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                        #     await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                         await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
                                         return
                                     except Exception as ex:
@@ -3547,8 +3560,21 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         except asyncio.TimeoutError:
                                             await battle_msg.delete()
                                             #await battle_msg.edit(components=[])
-                                            await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-                                            await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                                            if not any((battle_config.is_abyss_game_mode, 
+                                                        battle_config.is_scenario_game_mode, 
+                                                        battle_config.is_explore_game_mode, 
+                                                        battle_config.is_pvp_game_mode, 
+                                                        battle_config.is_tutorial_game_mode)):
+                                                await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                                await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                                            elif any((battle_config.is_pvp_game_mode, 
+                                                        battle_config.is_tutorial_game_mode
+                                                                    )):
+                                                await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                                            else:
+                                                await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
+                                            # await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                            # await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                             await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             # await discord.TextChannel.delete(private_channel, reason=None)
@@ -3804,11 +3830,24 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         battle_config.continue_fighting = True
                                 except asyncio.TimeoutError:
                                     battle_config.continue_fighting = False
-                                    if player1.autosave and battle_config.match_can_be_saved:
-                                        await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
+                                    if not any((battle_config.is_abyss_game_mode, 
+                                                battle_config.is_scenario_game_mode, 
+                                                battle_config.is_explore_game_mode, 
+                                                battle_config.is_pvp_game_mode, 
+                                                battle_config.is_tutorial_game_mode)):
+                                        await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                        await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                                    elif any((battle_config.is_pvp_game_mode, 
+                                                battle_config.is_tutorial_game_mode
+                                                            )):
+                                        await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
                                     else:
-                                        await button_ctx.send(embed = battle_config.close_pve_embed(player1_card, player2_card))
-                                    return
+                                        await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
+                                    # if player1.autosave and battle_config.match_can_be_saved:
+                                    #     await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
+                                    # else:
+                                    #     await button_ctx.send(embed = battle_config.close_pve_embed(player1_card, player2_card))
+                                    # return
 
                                 # else:
                                 #     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
@@ -4206,7 +4245,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             battle_config.is_tutorial_game_mode)):
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                     await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
-                    
+                elif any((battle_config.is_pvp_game_mode, 
+                            battle_config.is_tutorial_game_mode
+                                        )):
+                    await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                else:
+                    await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
                 await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
             except Exception as ex:
                 trace = []
@@ -4236,9 +4280,15 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     battle_config.is_scenario_game_mode, 
                     battle_config.is_explore_game_mode, 
                     battle_config.is_pvp_game_mode, 
-                    battle_config.is_tutorial_game_mode)):
+                    battle_config.is_tutorial_game_mode,)):
             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
             await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+        elif any((battle_config.is_pvp_game_mode, 
+                    battle_config.is_tutorial_game_mode
+                                )):
+            await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+        else:
+            await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
             
         await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
     except Exception as ex:
@@ -4270,7 +4320,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     player_card.activate_chainsawman_trait(battle_config)
     battle_config.add_battle_history_messsage(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
     burn_turn = player_card.set_burn_hit(opponent_card)
-    if burn_turn != " ":
+    if burn_turn != "0":
         battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
