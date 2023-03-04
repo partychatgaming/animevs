@@ -354,7 +354,7 @@ class Card:
         else:
             self.prestige_difficulty = 0   
         # print(self.prestige_difficulty)
-        if mode == "Abyss":
+        if mode == "Abyss" or mode == "SCENARIO":
             self.card_lvl = ai_lvl_buff
         else:
             self.card_lvl = self.get_ai_card_level(ai_lvl_buff, mode)
