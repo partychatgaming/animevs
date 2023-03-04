@@ -205,6 +205,8 @@ class CrownUnlimited(commands.Cog):
              
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.set_footer(text=f"To turn off explore mode, use the command `/explore`",icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
+                
     
                 setchannel = discord.utils.get(channel_list, name=server_channel)
                 await setchannel.send(f":milky_way:{message.author.mention}") 
