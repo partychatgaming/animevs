@@ -180,7 +180,7 @@ async def viewcard(self, ctx, card: str):
 
                 ♾️ {c.set_trait_message()}
                 """), colour=000000)
-                embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message}")
+                embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
                 embedVar.set_footer(text=f"{c.tip}")
                 await ctx.send(embed=embedVar)
 

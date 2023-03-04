@@ -342,7 +342,7 @@ class Card:
         if passive_type == "BLINK":
             self.passive_num = stam_for_passive
         if passive_type == "SOULCHAIN":
-            self.passive_num = self.passive_num + 90
+            self.passive_num = self.passive_num
         if passive_type == "GAMBLE":
             self.passive_num = self.passive_num
             
