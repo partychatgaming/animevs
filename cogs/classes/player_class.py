@@ -8,7 +8,7 @@ import random
 
 
 class Player:
-    def __init__(self, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equippedsummon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location):
+    def __init__(self, auto_save, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equippedsummon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location):
         self.disname = disname
         self.did = did
         self.avatar = avatar
@@ -45,6 +45,7 @@ class Player:
         self._is_locked_feature = False
         self._locked_feature_message = ""
         self.explore_location = explore_location
+        self.autosave = auto_save
 
         self.owned_destinies = []
 
@@ -184,13 +185,13 @@ class Player:
         
         if universe.lower() == "all":
             db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True, 'EXPLORE_LOCATION': 'NULL'}})
-            return f"Exploring all universes! :milky_way: "
+            return f":milky_way: | Exploring **All universes!**"
 
         universe_selected = db.queryUniverse({"TITLE": {"$regex": f"^{universe}$", "$options": "i"}})
 
         if universe_selected:
             db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True, 'EXPLORE_LOCATION': universe_selected['TITLE']}})
-            return f"You are now exploring {universe_selected['TITLE']} :milky_way: "
+            return f":milky_way: | You are Exploring **{universe_selected['TITLE']}**"
 
     
     def set_rift_on(self):
@@ -232,13 +233,13 @@ class Player:
             for uni in universes:
                 if uni["TITLE"] in self.completed_dungeons:
                     all_universes.append(uni)
-                    print(uni["TITLE"])
+                    #print(uni["TITLE"])
             if not all_universes:
                 return None
             else:
                 return all_universes
         all_universes = get_bosses(_all_universes)
-        print(all_universes)
+        #print(all_universes)
         available_universes = []
         selected_universe = ""
         universe_menu = []

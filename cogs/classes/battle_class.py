@@ -1430,6 +1430,62 @@ class Battle:
         embedVar.set_footer(text=f"{self.get_battle_time()}")
         return embedVar
     
+    def close_pve_embed(self, player_card, opponent_card, companion_card = None):
+        picon = ":crossed_swords:"
+        close_message = "Tale"
+        f_message = f"💾 | Enable /autosave or use the Save button to maintain progress!"
+        db_adjustment = 1
+        if self.is_dungeon_game_mode:
+            close_message = "Dungeon"
+            picon = ":fire:"
+        if self.is_boss_game_mode:
+            close_message = "Boss"
+            picon = ":japanese_ogre:"
+            f_message = f"💀 | You fail to claim {opponent_card.name}'s Soul"
+        if self.is_abyss_game_mode:
+            close_message = "Abyss"
+            picon = ":new_moon:"
+            f_message = f"💀 | The Abyss Claims Another..."
+        if self.is_explore_game_mode:
+            close_message = "Explore Battle"
+            picon = ":milky_way:"
+            f_message = f"💀 | Explore Battle Failed!"
+            # db_adjustment = 0
+            
+            
+
+                
+        embedVar = discord.Embed(title=f"{picon} {opponent_card.universe} {close_message} Ended!", description=textwrap.dedent(f"""
+            """),colour=discord.Color.red())
+        embedVar.add_field(name=f"{picon} | Last Battle : {self.current_opponent_number + db_adjustment}",
+                                value=f":flower_playing_cards: | **Opponent**: {opponent_card.name}")
+        
+        embedVar.set_footer(text=f_message)
+        return embedVar
+    
+    def close_pvp_embed(self, player, opponent):
+        picon = ":vs:"
+        icon1 = "1️⃣"
+        icon2 = "2️⃣"
+        close_message = "PVP"
+        f_message = f":people_hugging: | Try Co-Op Battle and Conquer The Multiverse Together!"
+        if self.is_tutorial_game_mode:
+            close_message = "Tutorial"
+            icon2 = ":teacher:"
+            f_message = f"🧠 | Tutorial will teach you about Game Mechanics and Card Abiltiies!"
+            
+
+                
+        embedVar = discord.Embed(title=f"{picon} {close_message} Ended!", description=textwrap.dedent(f"""
+            {player.disname} :vs: {opponent.disname}
+            """),colour=discord.Color.red())
+        embedVar.add_field(name=f"{icon1} | {player.disname}",
+                                value=f":flower_playing_cards: | {player.equipped_card}\n:reminder_ribbon: | {player.equipped_title}\n:mechanical_arm: | {player.equipped_arm}\n🧬 | {player.equippedsummon}")
+        embedVar.add_field(name=f"{icon2} | {opponent.disname}",
+                                value=f":flower_playing_cards: | {opponent.equipped_card}\n:reminder_ribbon: | {opponent.equipped_title}\n:mechanical_arm: | {opponent.equipped_arm}\n🧬 | {opponent.equippedsummon}")
+        embedVar.set_footer(text=f_message)
+        return embedVar
+    
     def next_turn(self):
         if self.is_co_op_mode:
             if self.is_turn == 3:
@@ -1475,6 +1531,7 @@ class Battle:
                 bonus_message = f"Join a Guild or Create a Family for Coop Bonuses!"
 
             return bonus_message
+    
 
 
     async def set_boss_win(self, player1, boss_card, companion=None):
@@ -1586,12 +1643,17 @@ class Battle:
                 text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
             
             
-        embedVar.add_field(name="🔢 Focus Count",
-                        value=f"**{winner_card.name}**: {winner_card.focus_count}\n**{loser_card.name}**: {loser_card.focus_count}")
-        if winner_card.focus_count >= loser_card.focus_count:
-            embedVar.add_field(name="🌀 Most Focused", value=f"**{winner_card.name}**")
-        else:
-            embedVar.add_field(name="🌀 Most Focused", value=f"**{loser_card.name}**")
+        f_message = self.get_most_focused(winner_card, loser_card)
+        embedVar.add_field(name=f"🌀 | Focus Count",
+                        value=f"**{loser_card.name}**: {loser_card.focus_count}\n**{winner_card.name}**: {winner_card.focus_count}")
+        #Most Damage Dealth
+        d_message = self.get_most_damage_dealt(winner_card, loser_card)
+        embedVar.add_field(name=f":boom: | Damage Dealt",
+                        value=f"**{loser_card.name}**: {loser_card.damage_dealt}\n**{winner_card.name}**: {winner_card.damage_dealt}")
+        #Most Healed
+        h_message = self.get_most_damage_healed(winner_card, loser_card)
+        embedVar.add_field(name=f":mending_heart: | Healing",
+                        value=f"**{loser_card.name}**: {loser_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}")
             
             
             
@@ -1624,36 +1686,94 @@ class Battle:
             {self.get_previous_moves_embed()}
             
             """),colour=0xe91e63)
-        # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
-        if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
-            embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
-        elif int(gameClock[0]) == 0:
-            embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-        else:
-            embedVar.set_footer(
-                text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
+            
+            clock = self.get_battle_time()
+            embedVar.set_footer(text=f"{clock}")
+            
         if companion_card:
-            embedVar.add_field(name="🔢 Focus Count",
+            f_message = self.get_most_focused(player_card, opponent_card, companion_card)
+            embedVar.add_field(name=f"🌀 | Focus Count",
                             value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}\n**{companion_card.name}**: {companion_card.focus_count}")
-            if opponent_card.focus_count >= player_card.focus_count:
-                if opponent_card.focus_count >= companion_card.focus_count:
-                    embedVar.add_field(name="🌀 Most Focused", value=f"**{opponent_card.name}**")
-                else:
-                    embedVar.add_field(name="🌀 Most Focused", value=f"**{companion_card.name}**")
-            elif player_card.focus_count >= companion_card.focus_count:
-                embedVar.add_field(name="🌀 Most Focused", value=f"**{player_card.name}**")
-            else:
-                embedVar.add_field(name="🌀 Most Focused", value=f"**{companion_card.name}**")
+            #Most Damage Dealth
+            d_message = self.get_most_damage_dealt(player_card, opponent_card, companion_card)
+            embedVar.add_field(name=f":anger_right: | Damage Dealt",
+                            value=f"**{opponent_card.name}**: {opponent_card.damage_dealt}\n**{player_card.name}**: {player_card.damage_dealt}\n**{companion_card.name}**: {companion_card.damage_dealt}")
+            #Most Healed
+            h_message = self.get_most_damage_healed(player_card, opponent_card, companion_card)
+            embedVar.add_field(name=f":mending_heart: | Healing",
+                            value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{player_card.name}**: {player_card.damage_healed}\n**{companion_card.name}**: {companion_card.damage_healed}")
         else:
-            embedVar.add_field(name="🔢 Focus Count",
-                        value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}")
-            if opponent_card.focus_count >= player_card.focus_count:
-                embedVar.add_field(name="🌀 Most Focused", value=f"**{opponent_card.name}**")
-            else:
-                embedVar.add_field(name="🌀 Most Focused", value=f"**{player_card.name}**")
+            f_message = self.get_most_focused(player_card, opponent_card)
+            embedVar.add_field(name=f"🌀 | Focus Count",
+                            value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{player_card.name}**: {player_card.focus_count}")
+            #Most Damage Dealth
+            d_message = self.get_most_damage_dealt(player_card, opponent_card)
+            embedVar.add_field(name=f":boom: | Damage Dealt",
+                            value=f"**{opponent_card.name}**: {opponent_card.damage_dealt}\n**{player_card.name}**: {player_card.damage_dealt}")
+            #Most Healed
+            h_message = self.get_most_damage_healed(player_card, opponent_card)
+            embedVar.add_field(name=f":mending_heart: | Healing",
+                            value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{player_card.name}**: {player_card.damage_healed}")
         return embedVar
 
-
+    def get_most_focused(self, player_card, opponent_card, companion_card=None):
+        value = ""
+        if companion_card:
+            if opponent_card.focus_count >= player_card.focus_count:
+                if opponent_card.focus_count >= companion_card.focus_count:
+                    value=f"{opponent_card.name}"
+                else:
+                    value=f"{companion_card.name}"
+            elif player_card.focus_count >= companion_card.focus_count:
+                value=f"{player_card.name}"
+            else:
+                value=f"{companion_card.name}"
+        else:
+            if opponent_card.focus_count >= player_card.focus_count:
+                value=f"{opponent_card.name}"
+            else:
+                value=f"{player_card.name}"
+        return value
+    
+    def get_most_damage_dealt(self, player_card, opponent_card, companion_card=None):
+        value = ""
+        if companion_card:
+            if opponent_card.damage_dealt >= player_card.damage_dealt:
+                if opponent_card.damage_dealt >= companion_card.damage_dealt:
+                    value=f"{opponent_card.name}"
+                else:
+                    value=f"{companion_card.name}"
+            elif player_card.damage_dealt >= companion_card.damage_dealt:
+                value=f"{player_card.name}"
+            else:
+                value=f"{companion_card.name}"
+        else:
+            if opponent_card.damage_dealt >= player_card.damage_dealt:
+                value=f"{opponent_card.name}"
+            else:
+                value=f"{player_card.name}"
+        return value
+    
+    def get_most_damage_healed(self, player_card, opponent_card, companion_card=None):
+        value = ""
+        if companion_card:
+            if opponent_card.damage_healed >= player_card.damage_healed:
+                if opponent_card.damage_healed >= companion_card.damage_healed:
+                    value=f"{opponent_card.name}"
+                else:
+                    value=f"{companion_card.name}"
+            elif player_card.damage_healed >= companion_card.damage_healed:
+                value=f"{player_card.name}**"
+            else:
+                value=f"{companion_card.name}"
+        else:
+            if opponent_card.damage_healed >= player_card.damage_healed:
+                value=f"{opponent_card.name}"
+            else:
+                value=f"{player_card.name}"
+        return value
+        
+        
 
     async def explore_embed(self, ctx, winner, winner_card, opponent_card):
         talisman_response = crown_utilities.inc_talisman(winner.did, winner.equipped_talisman)
@@ -1686,6 +1806,19 @@ class Battle:
         {self.get_previous_moves_embed()}
         
         """),colour=0x1abc9c)
+        
+        f_message = self.get_most_focused(winner_card, opponent_card)
+        embedVar.add_field(name=f"🌀 | Focus Count",
+                        value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{winner_card.name}**: {winner_card.focus_count}")
+        #Most Damage Dealth
+        d_message = self.get_most_damage_dealt(winner_card, opponent_card)
+        embedVar.add_field(name=f":boom: | Damage Dealt",
+                        value=f"**{opponent_card.name}**: {opponent_card.damage_dealt}\n**{winner_card.name}**: {winner_card.damage_dealt}")
+        #Most Healed
+        h_message = self.get_most_damage_healed(winner_card, opponent_card)
+        embedVar.add_field(name=f":mending_heart: | Healing",
+                        value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}")
+        
         return embedVar
 
 

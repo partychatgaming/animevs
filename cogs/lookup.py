@@ -122,6 +122,32 @@ class Lookup(commands.Cog):
                 autosave = d['AUTOSAVE']
                 if autosave:
                     autosave_message = "🟢 On"
+                    
+                performance_message = "🔴 Off"
+                performance = d['PERFORMANCE']
+                if performance:
+                    performance_message = "🟢 On"
+                    
+                explore_message = "🔴 Off"
+                explore = d['EXPLORE']
+                if explore:
+                    explore_location = d['EXPLORE_LOCATION']
+                    location = "All"
+                    if explore_location != "NULL":
+                        location = explore_location
+                    explore_message = f"Exploring {location}"
+                if abyss_level <=25:
+                    explore_message = f"*Unlock After Abyss 25*"
+                    
+                rift_message = "*Closed*"
+                rift = d['RIFT']
+                if rift == 1:
+                    rift_message = "**Open**"
+                    
+                purse_message = ""
+                purse = d['TOURNAMENT_WINS']
+                if rift == 1:
+                    purse_message = "👛 | **Gabe's Purse** Activated"
                 patreon_message = ""
                 if patreon == True:
                     patreon_message = "**💞 | Patreon Supporter**"
@@ -136,13 +162,13 @@ class Lookup(commands.Cog):
                     family_summon_name = family_summon['NAME']
                 fs_message = ""
                 if d['FAMILY_PET']:
-                    fs_message = f":family_mwgb: **Family Summon** *{family_summon_name}*"
+                    fs_message = f":family_mwgb: | **Family Summon** *{family_summon_name}*"
                 titles = d['TITLE']
                 arm = d['ARM']
                 battle_history = d['BATTLE_HISTORY']
+
                 avatar = d['AVATAR']
                 matches = d['MATCHES']
-                tournament_wins = d['TOURNAMENT_WINS']
                 crown_tales = d['CROWN_TALES']
                 dungeons = d['DUNGEONS']
                 bosses = d['BOSS_WINS']
@@ -154,6 +180,7 @@ class Lookup(commands.Cog):
                 year_joined = join_raw[20:]
                 day_joined = join_raw[:10]
                 prestige = d['PRESTIGE']
+                
                 aicon = ":new_moon:"
                 if prestige == 1:
                     aicon = ":waxing_crescent_moon:"
@@ -288,10 +315,15 @@ class Lookup(commands.Cog):
                 embed1.set_thumbnail(url=avatar)
                 
                 embed2 = discord.Embed(title=f"{name}'s Settings".format(self), description=textwrap.dedent(f"""\
-                🆚 **Retries** {retries} available
-                ⚙️ **Battle History Setting** {str(battle_history)} messages
-                ⚙️ **Difficulty** {difficulty.lower().capitalize()}
-                :floppy_disk:  **Autosave** {autosave_message}
+                🆚 | **Retries** {retries} available
+                :crystal_ball: | **Rift** {rift_message}
+                :milky_way: | **Explore** {explore_message}
+                
+                ⚙️ | **Battle History Setting** {str(battle_history)} messages
+                ⚙️ | **Difficulty** {difficulty.lower().capitalize()}
+                ⚙️ | **Performance** {performance_message}
+                
+                :floppy_disk: | **Autosave** {autosave_message}
                 """), colour=discord.Color.darker_grey())
                 embed2.set_thumbnail(url=avatar)
                 
@@ -299,6 +331,7 @@ class Lookup(commands.Cog):
                 ⚔️ | **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                 🔥 | **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
                 👹 | **Bosses Played: **{'{:,}'.format(len(boss_matches))}
+                
                 🆚 | **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
                 📊 | **Pvp Record: ** :regional_indicator_w: **{pvp_wins}** / :regional_indicator_l: **{pvp_loss}**
                 """), colour=discord.Color.red())
@@ -306,11 +339,12 @@ class Lookup(commands.Cog):
                 
                 embed3 = discord.Embed(title=f"{name}'s Vault".format(self), description=textwrap.dedent(f"""\
                 **Balance** | {bal_message}
-                :flower_playing_cards: **Cards** | {all_cards} ~ :briefcase: *{cstorage}*
-                :reminder_ribbon: **Titles** | {all_titles} ~ :briefcase: *{tstorage}*
-                :mechanical_arm: **Arms** | {all_arms} ~ :briefcase: *{astorage}*
-                🧬 **Summons** | {all_pets}
+                :flower_playing_cards: | **Cards** {all_cards} ~ :briefcase: *{cstorage}*
+                :reminder_ribbon: | **Titles** {all_titles} ~ :briefcase: *{tstorage}*
+                :mechanical_arm: | **Arms** {all_arms} ~ :briefcase: *{astorage}*
+                🧬 | **Summons** {all_pets}
                 {fs_message}
+                {purse_message}
                 """), colour=discord.Color.dark_purple())
                 embed3.set_thumbnail(url=avatar)
                 
@@ -3368,8 +3402,8 @@ async def raid(ctx, guild):
         
         player = sowner
         player2 = t_user
-        p1 = Player(player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
-        p2 = Player(player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])  
+        p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+        p2 = Player(player2['AUTOSAVE'], player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])  
         battle = Battle(mode, p1)
         battle.create_raid(title_match_active, shield_test_active, shield_training_active, association_info, hall_info, tteam, oguild_name)
         

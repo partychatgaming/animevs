@@ -85,9 +85,11 @@ class CrownUnlimited(commands.Cog):
                 return #
             level_ratelimit = self.get_lvl_ratelimit(message)
             ratelimit = self.get_ratelimit(message)
+          
     
             if level_ratelimit is None:
                 try:
+                  
                     player_that_leveled = db.queryUser({'DID': str(message.author.id)})
                     if player_that_leveled:
                         card_that_leveled = db.queryCard({'NAME': player_that_leveled['CARD']})
@@ -97,12 +99,16 @@ class CrownUnlimited(commands.Cog):
                         u = await main.bot.fetch_user(str(message.author.id))
                         await crown_utilities.cardlevel(u, nam, str(message.author.id), mode, uni)
                     else:
+                      
                         return
                 except Exception as e:
                     print(f"{str(message.author)} Error in on_message: {e}")
     
             if ratelimit is None:
+              
+                
                 if isinstance(message.channel, discord.channel.DMChannel):
+                 
                     return
     
                 g = message.author.guild
@@ -125,17 +131,21 @@ class CrownUnlimited(commands.Cog):
                 mode = "EXPLORE"
     
                 # Pull Character Information
+            
                 player = db.queryUser({'DID': str(message.author.id)})
+              
                 if not player:
                     return
-                p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+                p = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+           
                 battle = Battle(mode, p)
+                 
                 if p.get_locked_feature(mode):
                     return
-    
+               
                 if p.explore is False:
                     return
-    
+
     
                 if p.explore_location == "NULL":
                     all_universes = db.queryExploreUniverses()
@@ -255,22 +265,22 @@ class CrownUnlimited(commands.Cog):
 
 
     @cog_ext.cog_slash(description="Toggle Explore Mode On/Off or explore a universe", options=[
-        create_option(
-            name="toggle",
-            description="Turn explore off or keep on",
-            option_type=3,
-            required=False,
-            choices=[
-                create_choice(
-                    name="Turn Explore Mode Off",
-                    value="off"
-                ),
-                create_choice(
-                    name="Turn Explore Mode On",
-                    value="on"
-                ),
-            ]
-        ),
+        # create_option(
+        #     name="toggle",
+        #     description="Turn explore off or keep on",
+        #     option_type=3,
+        #     required=False,
+        #     choices=[
+        #         create_choice(
+        #             name="Turn Explore Mode Off",
+        #             value="off"
+        #         ),
+        #         create_choice(
+        #             name="Turn Explore Mode On",
+        #             value="on"
+        #         ),
+        #     ]
+        # ),
         create_option(
             name="universe",
             description="Type universe you want to explore, or type 'all' to explore all universes",
@@ -279,10 +289,10 @@ class CrownUnlimited(commands.Cog):
         )
     ], guild_ids=main.guild_ids)
     @commands.cooldown(1, 15, commands.BucketType.user)
-    async def explore(self, ctx: SlashContext, toggle=None, universe=None):
+    async def explore(self, ctx: SlashContext, universe=None):
         try:
             player = db.queryUser({"DID": str(ctx.author.id)})
-            p = Player(
+            p = Player(player['AUTOSAVE'],
                 player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'],
                 player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'],
                 player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'],
@@ -292,14 +302,20 @@ class CrownUnlimited(commands.Cog):
                 player['EXPLORE_LOCATION']
             )
             message = None
-
-            if toggle is not None:
-                if toggle.lower() == "on":
-                    db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': True}})
-                    message = f"You are now entering Explore Mode :milky_way: "
-                elif toggle.lower() == "off":
-                    db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': False, 'EXPLORE_LOCATION': "NULL"}})
-                    message = "Exiting Exploration Mode :rotating_light:"
+            if p.explore == 0:
+                db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': True}})
+                message = f":milky_way: | Entering Explore Mode"
+            elif p.explore == 1:
+                db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': False, 'EXPLORE_LOCATION': "NULL"}})
+                message = ":rotating_light: | Exiting Explore Mode"
+                    
+            # if toggle is not None:
+            #     if toggle.lower() == "on":
+            #         db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': True}})
+            #         message = f"You are now entering Explore Mode :milky_way: "
+            #     elif toggle.lower() == "off":
+            #         db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': False, 'EXPLORE_LOCATION': "NULL"}})
+            #         message = "Exiting Exploration Mode :rotating_light:"
 
             if universe is not None:
                 message = p.set_explore(universe)
@@ -469,10 +485,10 @@ class CrownUnlimited(commands.Cog):
                 await ctx.send(":coin: Purchase additional **/preset** slots at the **/blacksmith**")
                 return
 
-            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+            p = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
             player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
-            p3 = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+            p3 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
             player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
             p3.set_deck_config(deckNumber)
@@ -546,8 +562,8 @@ class CrownUnlimited(commands.Cog):
         try:
             player = db.queryUser({'DID': str(ctx.author.id)})
             player3 = db.queryUser({'DID': str(user.id)})
-            p1 = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
-            p3 = Player(player3['DISNAME'], player3['DID'], player3['AVATAR'], player3['GUILD'], player3['TEAM'], player3['FAMILY'], player3['TITLE'], player3['CARD'], player3['ARM'], player3['PET'], player3['TALISMAN'], player3['CROWN_TALES'], player3['DUNGEONS'], player3['BOSS_WINS'], player3['RIFT'], player3['REBIRTH'], player3['LEVEL'], player3['EXPLORE'], player3['SAVE_SPOT'], player3['PERFORMANCE'], player3['TRADING'], player3['BOSS_FOUGHT'], player3['DIFFICULTY'], player3['STORAGE_TYPE'], player3['USED_CODES'], player3['BATTLE_HISTORY'], player3['PVP_WINS'], player3['PVP_LOSS'], player3['RETRIES'], player3['PRESTIGE'], player3['PATRON'], player3['FAMILY_PET'], player3['EXPLORE_LOCATION'])    
+            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+            p3 = Player(player3['AUTOSAVE'], player3['DISNAME'], player3['DID'], player3['AVATAR'], player3['GUILD'], player3['TEAM'], player3['FAMILY'], player3['TITLE'], player3['CARD'], player3['ARM'], player3['PET'], player3['TALISMAN'], player3['CROWN_TALES'], player3['DUNGEONS'], player3['BOSS_WINS'], player3['RIFT'], player3['REBIRTH'], player3['LEVEL'], player3['EXPLORE'], player3['SAVE_SPOT'], player3['PERFORMANCE'], player3['TRADING'], player3['BOSS_FOUGHT'], player3['DIFFICULTY'], player3['STORAGE_TYPE'], player3['USED_CODES'], player3['BATTLE_HISTORY'], player3['PVP_WINS'], player3['PVP_LOSS'], player3['RETRIES'], player3['PRESTIGE'], player3['PATRON'], player3['FAMILY_PET'], player3['EXPLORE_LOCATION'])    
             battle = Battle(mode, p1)
 
 
@@ -614,7 +630,7 @@ class CrownUnlimited(commands.Cog):
         
         try:
             player = db.queryUser({'DID': str(ctx.author.id)})
-            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+            p = Player(player['AUTOSAVE'],player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
             player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
             if mode == "Abyss":
@@ -672,8 +688,8 @@ class CrownUnlimited(commands.Cog):
             mode = "PVP"
             player = db.queryUser({'DID': str(ctx.author.id)})
             player2 = db.queryUser({'DID': str(opponent.id)})
-            p1 = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
-            p2 = Player(player2['DISNAME'], player2['DID'], player2['AVATAR'], player2['GUILD'], player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])    
+            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+            p2 = Player(player2['AUTOSAVE'], player2['DISNAME'], player2['DID'], player2['AVATAR'], player2['GUILD'], player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])    
             battle = Battle(mode, p1)
             battle.set_tutorial(p2.did)
             
@@ -793,8 +809,8 @@ class CrownUnlimited(commands.Cog):
             
             player = sowner
             player2 = t_user
-            p1 = Player(player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
-            p2 = Player(player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])  
+            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
+            p2 = Player(player2['AUTOSAVE'], player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'])  
             battle = Battle(mode, p1)
             battle.create_raid(title_match_active, shield_test_active, shield_training_active, association_info, hall_info, tteam, oguild_name)
             
@@ -1035,7 +1051,7 @@ async def tutorial(self, ctx, player, mode):
         battle.set_tutorial(tutorial_did)
         battle.mode = "PVP"
         opponent = db.queryUser({'DID': tutorial_did})
-        player2 = Player(opponent['DISNAME'], opponent['DID'], opponent['AVATAR'], opponent['GUILD'], opponent['TEAM'], opponent['FAMILY'], opponent['TITLE'], opponent['CARD'], opponent['ARM'],opponent['PET'], opponent['TALISMAN'], opponent['CROWN_TALES'], opponent['DUNGEONS'], opponent['BOSS_WINS'], opponent['RIFT'], opponent['REBIRTH'], opponent['LEVEL'], opponent['EXPLORE'], opponent['SAVE_SPOT'], opponent['PERFORMANCE'], opponent['TRADING'], opponent['BOSS_FOUGHT'], opponent['DIFFICULTY'], opponent['STORAGE_TYPE'], opponent['USED_CODES'], opponent['BATTLE_HISTORY'], opponent['PVP_WINS'], opponent['PVP_LOSS'], opponent['RETRIES'], opponent['PRESTIGE'], opponent['PATRON'], opponent['FAMILY_PET'], opponent['EXPLORE_LOCATION'])
+        player2 = Player(opponent['AUTOSAVE'], opponent['DISNAME'], opponent['DID'], opponent['AVATAR'], opponent['GUILD'], opponent['TEAM'], opponent['FAMILY'], opponent['TITLE'], opponent['CARD'], opponent['ARM'],opponent['PET'], opponent['TALISMAN'], opponent['CROWN_TALES'], opponent['DUNGEONS'], opponent['BOSS_WINS'], opponent['RIFT'], opponent['REBIRTH'], opponent['LEVEL'], opponent['EXPLORE'], opponent['SAVE_SPOT'], opponent['PERFORMANCE'], opponent['TRADING'], opponent['BOSS_FOUGHT'], opponent['DIFFICULTY'], opponent['STORAGE_TYPE'], opponent['USED_CODES'], opponent['BATTLE_HISTORY'], opponent['PVP_WINS'], opponent['PVP_LOSS'], opponent['RETRIES'], opponent['PRESTIGE'], opponent['PATRON'], opponent['FAMILY_PET'], opponent['EXPLORE_LOCATION'])
         
 
         await battle_commands(self, ctx, battle, player, None, player2, None)
@@ -1716,7 +1732,7 @@ async def abyss(self, ctx: SlashContext, _player, mode):
 
                 if abyss.abyss_player_card_tier_is_banned:
                     await ctx.send(
-                        f":x: We're sorry! Tier of your equipped card is banned on floor {abyss.abyss_floor}. Please, try again with another card.")
+                        f":x: We're sorry! :flower_playing_cards: | **{_player.equipped_card}** is banned on floor {abyss.abyss_floor}. Please, try again with another card.")
                     return
                 
                 await battle_commands(self, ctx, abyss, _player, None, player2=None, player3=None)
@@ -2440,7 +2456,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
                 if p.boss_fought:
-                    print("fought boss")
+
                     boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
                     __🗝️  How to get Arena Keys?__
                     Conquer any Universe Dungeon to gain a Boss Arena Key
@@ -2461,7 +2477,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                 self.stop = True
             else:
                 await ctx.send("This is not your button.", hidden=True)
-        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=available_bosses, timeout=5,  customButton=[
+        await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=available_bosses, timeout=120,  customButton=[
             custom_button,
             custom_function,
         ]).run()
@@ -2499,6 +2515,8 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                     'UNIVERSE_DATA': universe, 'CREST_LIST': p.crestlist, 'CREST_SEARCH': p.crestsearch,
                     'COMPLETED_DUNGEONS': p.completed_dungeons, 'OGUILD': p.association_info, 'BOSS_NAME': universe['UNIVERSE_BOSS'],
                     'CURRENTOPPONENT': currentopponent}
+        except asyncio.TimeoutError:
+            await ctx.send(f"**{str(ctx.author)}** Boss Arena Timed Out", hidden=True)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -2725,8 +2743,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             start_tales_buttons_action_row], timeout=300, check=check)
 
                 if button_ctx.custom_id == "start_tales_no":
-                    await button_ctx.defer()
+                    #await button_ctx.defer()
                     await battle_msg.delete()
+                    if player1.autosave and battle_config.match_can_be_saved:
+                        await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
+                    elif not battle_config.is_pvp_game_mode:
+                        await button_ctx.send(embed = battle_config.close_pve_embed(player1_card, player2_card))
+                    else:
+                        await button_ctx.send(embed = battle_config.close_pvp_embed(player1, player2))
                     return
 
                 if button_ctx.custom_id == "save_tales_yes":
@@ -2737,7 +2761,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     return
                 
                 if button_ctx.custom_id == "start_tales_yes" or button_ctx.custom_id == "start_auto_tales":
-                    await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                    if battle_config.match_can_be_saved and player1.autosave == True:
+                        await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                     if button_ctx.custom_id == "start_auto_tales":
                         await button_ctx.defer()
                         battle_config.is_auto_battle_game_mode = True
@@ -2784,7 +2809,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                             description=f"*{battle_config._description_boss_description}*", colour=0xe91e63)
                                     embedVar.add_field(name=f"{battle_config._arena_boss_description}", value=f"{battle_config._arenades_boss_description}")
                                     embedVar.add_field(name=f"Entering the {battle_config._arena_boss_description}", value=f"{battle_config._entrance_boss_description}", inline=False)
-                                    embedVar.set_footer(text=f"{player1_card.name} waits for you to strike....")
+                                    embedVar.set_footer(text=f"{player2_card.name} waits for you to strike....")
                                     await private_channel.send(embed=embedVar)
                                     await asyncio.sleep(2)
                                 
@@ -3091,7 +3116,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         await battle_msg.edit(components=[])
                                         if not battle_config.is_abyss_game_mode and not battle_config.is_scenario_game_mode and not battle_config.is_explore_game_mode and not battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
                                             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-                                        
+                                            await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                         await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
                                         return
                                     except Exception as ex:
@@ -3521,6 +3546,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await battle_msg.delete()
                                             #await battle_msg.edit(components=[])
                                             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                            await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                             await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             # await discord.TextChannel.delete(private_channel, reason=None)
@@ -3658,6 +3684,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         s_playtime = int(wintime[17:19])
                         gameClock = getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
                                             s_playtime)
+                        player1_card.damage_dealt = round(player1_card.damage_dealt)
+                        player2_card.damage_dealt = round(player2_card.damage_dealt)
+                        player1_card.damage_healed = round(player1_card.damage_healed)
+                        player2_card.damage_healed = round(player2_card.damage_healed)
                         try:
                             
                             if battle_config.is_pvp_game_mode:
@@ -3676,101 +3706,118 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                             # If you lose non pvp it sends message from here. Everything else is winning stuff.
                             if battle_config.player2_wins and not battle_config.is_pvp_game_mode:
-                                if not battle_config.is_abyss_game_mode:
-                                    play_again_buttons = [
+                                # if not battle_config.is_abyss_game_mode:
+                                play_again_buttons = [
+                                    manage_components.create_button(
+                                        style=ButtonStyle.blue,
+                                        label="Start Over",
+                                        custom_id="Yes"
+                                    ),
+                                    manage_components.create_button(
+                                        style=ButtonStyle.red,
+                                        label="End",
+                                        custom_id="No"
+                                    )
+                                ]
+                                
+                                battle_config.rematch_buff = False
+                                
+                                if player1.guild != 'PCG':
+                                    team_info = db.queryTeam({'TEAM_NAME': str(player1.guild.lower())})
+                                    guild_buff_info = team_info['ACTIVE_GUILD_BUFF']
+                                    if guild_buff_info == 'Rematch':
+                                        battle_config.rematch_buff =True
+                                
+                                if battle_config.rematch_buff: #rematch update
+                                    play_again_buttons.append(
                                         manage_components.create_button(
-                                            style=ButtonStyle.blue,
-                                            label="Start Over",
-                                            custom_id="Yes"
-                                        ),
+                                            style=ButtonStyle.green,
+                                            label=f"Guild Rematches Available!",
+                                            custom_id="grematch"
+                                        )
+                                    )
+                                
+                                elif player1.retries >= 1:
+                                    play_again_buttons.append(
                                         manage_components.create_button(
-                                            style=ButtonStyle.red,
-                                            label="End",
-                                            custom_id="No"
+                                            style=ButtonStyle.green,
+                                            label=f"{player1.retries} Rematches Available!",
+                                            custom_id="rematch"
                                         )
-                                    ]
-                                    
-                                    battle_config.rematch_buff = False
-                                    
-                                    if player1.guild != 'PCG':
-                                        team_info = db.queryTeam({'TEAM_NAME': str(player1.guild.lower())})
-                                        guild_buff_info = team_info['ACTIVE_GUILD_BUFF']
-                                        if guild_buff_info == 'Rematch':
-                                            battle_config.rematch_buff =True
-                                    
-                                    if battle_config.rematch_buff: #rematch update
-                                        play_again_buttons.append(
-                                            manage_components.create_button(
-                                                style=ButtonStyle.green,
-                                                label=f"Guild Rematches Available!",
-                                                custom_id="grematch"
-                                            )
-                                        )
-                                    
-                                    elif player1.retries >= 1:
-                                        play_again_buttons.append(
-                                            manage_components.create_button(
-                                                style=ButtonStyle.green,
-                                                label=f"{player1.retries} Rematches Available!",
-                                                custom_id="rematch"
-                                            )
-                                        )
-
-                                    else:
-                                        battle_config.rematch_buff = False
-
-
-                                    play_again_buttons_action_row = manage_components.create_actionrow(*play_again_buttons)
-                                    if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                                        loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
-                                    else:
-                                        loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
-                                    await battle_msg.delete(delay=2)
-                                    await asyncio.sleep(2)
-                                    battle_msg = await private_channel.send(embed=loss_response, components=[play_again_buttons_action_row])
-        
-                                    def check(button_ctx):
-                                        return button_ctx.author == user1
-
-                                    try:
-                                        button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[
-                                            play_again_buttons_action_row], timeout=300, check=check)
-
-                                        if button_ctx.custom_id == "No":
-                                            await battle_msg.edit(components=[])
-                                            await button_ctx.defer(ignore=True)
-                                            return
-
-                                        if button_ctx.custom_id == "Yes":
-                                            battle_config.current_opponent_number = 0
-                                            battle_config.reset_game()
-                                            # print(f"CURRENT OPPONENT {battle_config.current_opponent_number}")
-                                            battle_config.continue_fighting = True
-                                            
-                                        if button_ctx.custom_id == "rematch":
-                                            new_info = await crown_utilities.updateRetry(button_ctx.author.id, "U","DEC")
-                                            battle_config.reset_game()
-                                            battle_config.continue_fighting = True
-                                        
-                                        if button_ctx.custom_id == "grematch":
-                                            battle_config.reset_game()
-                                            new_info = await crown_utilities.guild_buff_update_function(str(player1.guild.lower()))
-                                            update_team_response = db.updateTeam(new_info['QUERY'], new_info['UPDATE_QUERY'])
-                                            battle_config.continue_fighting = True
-                                    except asyncio.TimeoutError:
-                                        battle_config.continue_fighting = False
-                                        return
+                                    )
 
                                 else:
-                                    if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                                        loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
-                                    else:
-                                        loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
-                                    await battle_msg.delete(delay=2)
-                                    await asyncio.sleep(2)
-                                    battle_msg = await private_channel.send(embed=loss_response)
+                                    battle_config.rematch_buff = False
+
+
+                                play_again_buttons_action_row = manage_components.create_actionrow(*play_again_buttons)
+                                if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                    loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
+                                else:
+                                    loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
+                                await battle_msg.delete(delay=2)
+                                await asyncio.sleep(2)
+                                battle_msg = await private_channel.send(embed=loss_response, components=[play_again_buttons_action_row])
+    
+                                def check(button_ctx):
+                                    return button_ctx.author == user1
+
+                                try:
+                                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[
+                                        play_again_buttons_action_row], timeout=300, check=check)
+
+                                    if button_ctx.custom_id == "No":
+                                        await battle_msg.edit(components=[])
+                                        # await button_ctx.defer(ignore=True)
+                                        if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                            loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
+                                        else:
+                                            loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
+                                        await battle_msg.delete(delay=2)
+                                        await asyncio.sleep(2)
+                                        battle_msg = await private_channel.send(embed=loss_response)
+                                        battle_config.continue_fighting = False
+                                        
+                                        if player1.autosave and battle_config.match_can_be_saved:
+                                            await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
+                                        else:
+                                            await button_ctx.send(embed = battle_config.close_pve_embed(player1_card, player2_card))
+                                        return
+
+                                    if button_ctx.custom_id == "Yes":
+                                        battle_config.current_opponent_number = 0
+                                        battle_config.reset_game()
+                                        # print(f"CURRENT OPPONENT {battle_config.current_opponent_number}")
+                                        battle_config.continue_fighting = True
+                                        
+                                    if button_ctx.custom_id == "rematch":
+                                        new_info = await crown_utilities.updateRetry(button_ctx.author.id, "U","DEC")
+                                        battle_config.reset_game()
+                                        battle_config.continue_fighting = True
+                                    
+                                    if button_ctx.custom_id == "grematch":
+                                        battle_config.reset_game()
+                                        new_info = await crown_utilities.guild_buff_update_function(str(player1.guild.lower()))
+                                        update_team_response = db.updateTeam(new_info['QUERY'], new_info['UPDATE_QUERY'])
+                                        battle_config.continue_fighting = True
+                                except asyncio.TimeoutError:
                                     battle_config.continue_fighting = False
+                                    if player1.autosave and battle_config.match_can_be_saved:
+                                        await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
+                                    else:
+                                        await button_ctx.send(embed = battle_config.close_pve_embed(player1_card, player2_card))
                                     return
+
+                                # else:
+                                #     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                #         loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
+                                #     else:
+                                #         loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
+                                #     await battle_msg.delete(delay=2)
+                                #     await asyncio.sleep(2)
+                                #     battle_msg = await private_channel.send(embed=loss_response)
+                                #     battle_config.continue_fighting = False
+                                #     return
 
                             if battle_config.player1_wins and not battle_config.is_pvp_game_mode:
                                 if any((battle_config.is_tales_game_mode, battle_config.is_dungeon_game_mode, battle_config.is_boss_game_mode)):
@@ -3824,6 +3871,17 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if destinylogger:
                                                     embedVar.add_field(name="**Destiny Progress**",
                                                         value=f"{destinylogger}")
+                                            f_message = battle_config.get_most_focused(player1_card, player2_card)
+                                            embedVar.add_field(name=f"🌀 | Focus Count",
+                                                            value=f"**{player2_card.name}**: {player2_card.focus_count}\n**{player1_card.name}**: {player1_card.focus_count}")
+                                            #Most Damage Dealth
+                                            d_message = battle_config.get_most_damage_dealt(player1_card, player2_card)
+                                            embedVar.add_field(name=f":boom: | Damage Dealt",
+                                                            value=f"**{player2_card.name}**: {player2_card.damage_dealt}\n**{player1_card.name}**: {player1_card.damage_dealt}")
+                                            #Most Healed
+                                            h_message = battle_config.get_most_damage_healed(player1_card, player2_card)
+                                            embedVar.add_field(name=f":mending_heart: | Healing",
+                                                            value=f"**{player2_card.name}**: {player2_card.damage_healed}\n**{player1_card.name}**: {player1_card.damage_healed}")
 
                                         elif battle_config.is_co_op_mode and not battle_config.is_duo_mode:
                                             embedVar = discord.Embed(title=f"👥 CO-OP VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n👤**{player1.disname}:** {drop_response}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence\n👥**{player3.disname}:** {cdrop_response}\nEarned {p3_win_rewards['ESSENCE']} {p3_win_rewards['RANDOM_ELEMENT']} Essence",description=textwrap.dedent(f"""
@@ -3844,6 +3902,21 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             {battle_config.get_previous_moves_embed()}
                                             
                                             """),colour=0x1abc9c)
+                                            
+                                        if battle_config.is_co_op_mode:
+                                            player3_card.damage_dealt = round(player3_card.damage_dealt)
+                                            player3_card.damage_healed = round(player3_card.damage_healed)
+                                            f_message = battle_config.get_most_focused(player1_card, player2_card, player3_card)
+                                            embedVar.add_field(name=f"🌀 | Focus Count",
+                                                            value=f"**{player2_card.name}**: {player2_card.focus_count}\n**{player1_card.name}**: {player1_card.focus_count}\n**{player3_card.name}**: {player3_card.focus_count}")
+                                            #Most Damage Dealth
+                                            d_message = battle_config.get_most_damage_dealt(player_card, player2_card, player3_card)
+                                            embedVar.add_field(name=f":anger_right: | Damage Dealt",
+                                                            value=f"**{player2_card.name}**: {player2_card.damage_dealt}\n**{player1_card.name}**: {player1_card.damage_dealt}\n**{player3_card.name}**: {player3_card.damage_dealt}")
+                                            #Most Healed
+                                            h_message = battle_config.get_most_damage_healed(player_card, player2_card, player3_card)
+                                            embedVar.add_field(name=f":mending_heart: | Healing",
+                                                            value=f"**{player2_card.name}**: {player2_card.damage_healed}\n**{player1_card.name}**: {player1_card.damage_healed}\n**{player3_card.name}**: {player3_card.damage_healed}")
 
                                         if battle_config.is_dungeon_game_mode:
                                             if battle_config.crestsearch:
@@ -4130,6 +4203,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             battle_config.is_pvp_game_mode, 
                             battle_config.is_tutorial_game_mode)):
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                    await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                     
                 await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
             except Exception as ex:
@@ -4162,6 +4236,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     battle_config.is_pvp_game_mode, 
                     battle_config.is_tutorial_game_mode)):
             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+            await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
             
         await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
     except Exception as ex:
@@ -4199,9 +4274,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']
         battle_config.add_battle_history_messsage(new_turn['MESSAGE'])
-        return new_turn
-    
     opponent_card.freeze_enh = False
+        # return new_turn
     battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
     player_card.set_gravity_hit()
     if not opponent_card.wind_element_activated:
@@ -4218,6 +4292,11 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     if player_card.used_defend == True:
         player_card.defense = int(player_card.defense / 2)
         player_card.used_defend = False
+    player_card.damage_dealt = round(player_card.damage_dealt)
+    opponent_card.damage_dealt = round(opponent_card.damage_dealt)
+    player_card.damage_healed = round(player_card.damage_healed)
+    opponent_card.damage_healed = round(opponent_card.damage_healed)
+
 
 
 async def auto_battle_embed_and_starting_traits(ctx, player_card, opponent_card, battle_config, companion_card):
