@@ -203,9 +203,13 @@ class Title:
                 if player1_card.max_health > (player1_card.health + ((self.passive_value / 100) * player2_card.health)):
                     player2_card.health = round(player2_card.health - ((self.passive_value / 100) * player2_card.health))
                     player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player2_card.health))
+                    player1_card.damage_healed = round(player1_card.damage_healed + ((self.passive_value / 100) * player2_card.health))
+                    player1_card.damage_dealt = round(player1_card.damage_dealt + ((self.passive_value / 100) * player2_card.health))
                 else:
                     player2_card.health = round(player2_card.health - (player2_card.max_health - player2_card.health))
                     player1_card.health = round(player1_card.health + (player2_card.max_health - player2_card.health))
+                    player1_card.damage_healed = round(player1_card.damage_healed + (player2_card.max_health - player2_card.health))
+                    player1_card.damage_dealt = round(player1_card.damage_dealt + (player2_card.max_health - player2_card.health))
             if self.passive_type == "ATK":
                 player1_card.attack = player1_card.attack + self.passive_value
             if self.passive_type == "DEF":
@@ -267,12 +271,18 @@ class Title:
                     player2_card.stamina = player2_card.stamina + self.passive_value
             if self.passive_type == "CREATION":
                 player1_card.max_health = round(round(player1_card.max_health + ((self.passive_value / 100) * player1_card.max_health)))
+                player1_card.damage_healed = round(player1_card.damage_healed + ((self.passive_value / 100) * player1_card.max_health))
             if self.passive_type == "DESTRUCTION":
                 player2_card.max_health = round(player2_card.max_health - ((self.passive_value / 100) * player2_card.max_health))
+                player1_card.damage_dealt = round(player1_card.damage_dealt + ((self.passive_value / 100) * player2_card.max_health))
             if self.passive_type == "BLAST":
                 player2_card.health = round(player2_card.health - self.passive_value)
+                player1_card.damage_dealt = round(player1_card.damage_dealt + self.passive_value)
             if self.passive_type == "WAVE":
                 if battle.turn_total % 10 == 0:
                     player2_card.health = round(player2_card.health - 100)
+                    player1_card.damage_dealt = player1_card.damage_dealt + 100
+                    
+                    
 
 
