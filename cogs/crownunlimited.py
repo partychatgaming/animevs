@@ -2352,9 +2352,6 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
                 if button_ctx.custom_id == "scenario":
-                    if button_ctx.label == "Universe Raid!":
-                        await ctx.send("Universe Raids Coming Soon...")
-                        return
                     await button_ctx.defer(ignore=True)
                     universe = str(button_ctx.origin_message.embeds[0].title)
                     await scenario(self, ctx, p, universe)
