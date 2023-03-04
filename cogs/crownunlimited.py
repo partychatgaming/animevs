@@ -3174,7 +3174,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     value=f"{battle_config._aura_boss_description}")
                                     embedVar.set_footer(text=f"{player2_card.name} Says: 'Now, are you ready for a real fight?'")
                                     await ctx.send(embed=embedVar)
-                                    battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌀 **{player2_card.name}** focused")
                                     # await asyncio.sleep(2)
                                     if player2_card.universe == "Digimon" and player2_card.used_resolve is False:
                                         embedVar = discord.Embed(title=f"(**{battle_config.turn_total}**) :zap: **{player2_card.name}** Resolved!", description=f"{battle_config._rmessage_boss_description}",
@@ -3359,7 +3358,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     elif int(selected_move) == 5:
                                         player2_card.resolving(battle_config, player1_card)
                                         if battle_config.is_boss_game_mode:
-                                            await button_ctx.send(embed=battle_config._boss_embed_message)
+                                            await private_channel.send(embed=battle_config._boss_embed_message)
 
                                     elif int(selected_move) == 6:
                                         # Resolve Check and Calculation
@@ -3620,7 +3619,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         value=f"{battle_config._aura_boss_description}")
                                         embedVar.set_footer(text=f"{player2_card.name} Says: 'Now, are you ready for a real fight?'")
                                         await ctx.send(embed=embedVar)
-                                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌀 **{player2_card.name}** focused")
                                         # await asyncio.sleep(2)
                                         if player2_card.universe == "Digimon" and player2_card.used_resolve is False:
                                             embedVar = discord.Embed(title=f"(**{battle_config.turn_total}**) :zap: **{player2_card.name}** Resolved!", description=f"{battle_config._rmessage_boss_description}",
