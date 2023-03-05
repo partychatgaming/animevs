@@ -137,73 +137,10 @@ class Matches(commands.Cog):
                     pvp_message = textwrap.dedent(f"""\
                     _Not enough data for analysis_
                     """)
-                
-                o_card = card_info['NAME']
-                o_card_path = card_info['PATH']
-                o_price = card_info['PRICE']
-                o_exclusive = card_info['EXCLUSIVE']
-                o_available = card_info['AVAILABLE']
-                o_is_skin = card_info['IS_SKIN']
-                o_skin_for = card_info['SKIN_FOR']
-                o_max_health = card_info['HLT']
-                o_health = card_info['HLT']
-                o_stamina = card_info['STAM']
-                o_max_stamina = card_info['STAM']
-                o_moveset = card_info['MOVESET']
-                o_attack = card_info['ATK']
-                o_defense = card_info['DEF']
-                o_type = card_info['TYPE']
-                o_passive = card_info['PASS'][0]
-                affinity_message = crown_utilities.set_affinities(card_info)
-                o_speed = card_info['SPD']
-                o_show = card_info['UNIVERSE']
-                o_has_collection = card_info['HAS_COLLECTION']
-                o_tier = card_info['TIER']
-                traits = ut.traits
-                show_img = db.queryUniverse({'TITLE': o_show})['PATH']
-                o_collection = card_info['COLLECTION']
-                resolved = False
-                focused = False
-                dungeon = False
+
                 title = {'TITLE': 'CARD PREVIEW'}
                 arm = {'ARM': 'CARD PREVIEW'}
                 
-                o_1 = o_moveset[0]
-                o_2 = o_moveset[1]
-                o_3 = o_moveset[2]
-                o_enhancer = o_moveset[3]
-
-                # Move 1
-                move1 = list(o_1.keys())[0]
-                move1ap = list(o_1.values())[0]
-                move1_stamina = list(o_1.values())[1]
-                move1_element = list(o_1.values())[2]
-                move1_emoji = crown_utilities.set_emoji(move1_element)
-
-                # Move 2
-                move2 = list(o_2.keys())[0]
-                move2ap = list(o_2.values())[0]
-                move2_stamina = list(o_2.values())[1]
-                move2_element = list(o_2.values())[2]
-                move2_emoji = crown_utilities.set_emoji(move2_element)
-
-                # Move 3
-                move3 = list(o_3.keys())[0]
-                move3ap = list(o_3.values())[0]
-                move3_stamina = list(o_3.values())[1]
-                move3_element = list(o_3.values())[2]
-                move3_emoji = crown_utilities.set_emoji(move3_element)
-
-                # Move Enhancer
-                move4 = list(o_enhancer.keys())[0]
-                move4ap = list(o_enhancer.values())[0]
-                move4_stamina = list(o_enhancer.values())[1]
-                move4enh = list(o_enhancer.values())[2]
-                active_pet = {}
-                pet_ability_power = 0
-                card_exp = 150
-                
-                turn = 300
                 
                 embedVar2 = discord.Embed(title=f":vs: {card_info['NAME']} | _Crown Analysis_".format(self), description=f"**Card Master**\n{card_main}", colour=0xe91e63) 
                 embedVar2.add_field(name=f":crown:Tales Stats", value=f"{tale_message}", inline=False)
