@@ -3242,7 +3242,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=1)
                                         await asyncio.sleep(1)
-                                        if player1.performance:
+                                        if player2.performance:
                                             embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
                                             battle_msg = await private_channel.send(embed=embedVar, components=components)
                                         else:
@@ -3332,7 +3332,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         tembedVar.set_image(url="attachment://image.png")
                                         await battle_msg.delete(delay=2)
                                         await asyncio.sleep(2)
-                                        battle_msg = await private_channel.send(embed=tembedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
+                                        if player1.performance:
+                                            embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                            battle_msg = await private_channel.send(embed=tembedVar)
+                                        else:
+                                            battle_msg = await private_channel.send(embed=tembedVar,file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
                                         await asyncio.sleep(3)
                                         
                                         selected_move = battle_config.ai_battle_command(player2_card, player1_card)
