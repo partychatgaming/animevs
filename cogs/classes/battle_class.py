@@ -882,11 +882,11 @@ class Battle:
         
         if opponent_card.used_focus:
             o_focus = '💓'
-        elif your_card.used_focus:
+        if your_card.used_focus:
             y_focus = '💓'
         if opponent_card.used_resolve:
             o_resolve = '⚡'
-        elif your_card.used_resolve:
+        if your_card.used_resolve:
             y_resolve = '⚡'
             
         if partner_card:
@@ -907,12 +907,12 @@ class Battle:
         
         if opponent_card.used_focus:
             o_focus = '💓'
-        elif your_card.used_focus:
+        if your_card.used_focus:
             y_focus = '💓'
         
         if opponent_card.used_resolve:
             o_resolve = '⚡'
-        elif your_card.used_resolve:
+        if your_card.used_resolve:
             y_resolve = '⚡'
             
         if partner_card:

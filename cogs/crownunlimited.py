@@ -2905,7 +2905,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     if player1.performance:
-                                        embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player1_card.move1_emoji}{player1_card.move1ap}\n{player1_card.move2_emoji}{player1_card.move2ap}\n{player1_card.move3_emoji}{player1_card.move3ap}\n:microbe:{player1_card.move4enh}{player1_card.move4ap}")
+                                        embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player1_card.move1_emoji}{player1_card.move1ap}\n{player1_card.move2_emoji}{player1_card.move2ap}\n{player1_card.move3_emoji}{player1_card.move3ap}\n:microbe:{player1_card.move4enh} {player1_card.move4ap}")
                                         battle_msg = await private_channel.send(embed=embedVar, components=components)
                                     else:
                                         battle_msg = await private_channel.send(embed=embedVar, components=components, file=player1_card.showcard(battle_config.mode, player1_arm, player1_title, battle_config.turn_total, player2_card.defense))
@@ -3242,7 +3242,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=1)
                                         await asyncio.sleep(1)
-                                        battle_msg = await private_channel.send(embed=embedVar, components=components, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
+                                        if player1.performance:
+                                            embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                            battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                        else:
+                                            battle_msg = await private_channel.send(embed=embedVar, components=components, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
 
                                         # Make sure user is responding with move
                                         def check(button_ctx):
@@ -3471,7 +3475,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
-                                            battle_msg = await private_channel.send(embed=embedVar, components=[], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
+                                            if player1.performance:
+                                                embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player3_card.move1_emoji}{player3_card.move1ap}\n{player3_card.move2_emoji}{player3_card.move2ap}\n{player3_card.move3_emoji}{player3_card.move3ap}\n:microbe:{player3_card.move4enh} {player3_card.move4ap}")
+                                                battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                            else:
+                                                battle_msg = await private_channel.send(embed=embedVar, components=[], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
                                             # Make sure user is responding with move
                                         else:
                                             embedVar = await auto_battle_embed_and_starting_traits(ctx, player3_card, player2_card, battle_config, player1_card)
@@ -3528,7 +3536,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=2)
                                         await asyncio.sleep(2)
-                                        battle_msg = await private_channel.send(embed=embedVar, components=[battle_action_row, util_action_row, coop_util_action_row], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
+                                        if player3.performance:
+                                            embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player3_card.move1_emoji}{player3_card.move1ap}\n{player3_card.move2_emoji}{player3_card.move2ap}\n{player3_card.move3_emoji}{player3_card.move3ap}\n:microbe:{player3_card.move4enh} {player3_card.move4ap}")
+                                            battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                        else:
+                                            battle_msg = await private_channel.send(embed=embedVar, components=[battle_action_row, util_action_row, coop_util_action_row], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
                                         # Make sure user is responding with move
                                         def check(button_ctx):
                                             return button_ctx.author == user2
@@ -3671,7 +3683,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 else:
                                     await battle_msg.delete(delay=2)
                                     embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player3_card, battle_config, None)
-                                    battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player3_card.defense))
+                                    # if player3.performance:
+                                    #     embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                    #     battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                    # else:
+                                    #     battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player3_card.defense))
 
 
                                     selected_move = battle_config.ai_battle_command(player2_card, player3_card)
