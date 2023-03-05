@@ -3372,7 +3372,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     if not battle_config.is_auto_battle_game_mode:
                                         await battle_msg.delete(delay=2)
                                         embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
-                                        battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
+                                        if player1.performance:
+                                            embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                            battle_msg = await private_channel.send(embed=embedVar)
+                                        else:
+                                            battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
 
 
                                     selected_move = battle_config.ai_battle_command(player2_card, player1_card)
@@ -3687,11 +3691,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 else:
                                     await battle_msg.delete(delay=2)
                                     embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player3_card, battle_config, None)
-                                    # if player3.performance:
-                                    #     embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
-                                    #     battle_msg = await private_channel.send(embed=embedVar, components=components)
-                                    # else:
-                                    #     battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player3_card.defense))
+                                    if player3.performance:
+                                        embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                        battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                    else:
+                                        battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player3_card.defense))
 
 
                                     selected_move = battle_config.ai_battle_command(player2_card, player3_card)
