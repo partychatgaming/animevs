@@ -2247,7 +2247,6 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
     await p.set_guild_data()
     
     if mode in crown_utilities.CO_OP_M and mode not in crown_utilities.DUO_M:
-        await ctx.send(f"{p.name} needs your help! React in server to join their Coop Tale!!")
         coop_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.green,
