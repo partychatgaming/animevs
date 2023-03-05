@@ -4369,8 +4369,10 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
     opponent_card.damage_healed = round(opponent_card.damage_healed)
-    if battle_config.set_game_over(pl)
-    return battle_config.set_game_over(player_card,opponent_card)
+    if battle_config.is_co_op_mode:
+        return battle_config.set_game_over(player_card,opponent_card, companion)
+    else:
+        return battle_config.set_game_over(player_card,opponent_card)
 
 
 
