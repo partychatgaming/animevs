@@ -4408,12 +4408,8 @@ async def auto_battle_embed_and_starting_traits(ctx, player_card, opponent_card,
     """), color=0xe74c3c)
     await asyncio.sleep(2)
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
-    if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-        footer_text = battle_config.get_battle_footer_text(player1_card, player2_card, player3_card)
-    else:
-        footer_text = battle_config.get_battle_footer_text(player1_card, player2_card)
     embedVar.set_footer(
-        text=f"{footer_text}",
+        text=f"{battle_config.get_battle_window_title_text(opponent_card, player_card)}",
         icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
 
     if not battle_config.is_auto_battle_game_mode:
