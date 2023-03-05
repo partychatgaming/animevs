@@ -3481,7 +3481,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if selected_move != 5 and selected_move != 6 and selected_move != 7 and selected_move != 8 and selected_move != 0:
                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card) 
-
                                     else:
                                         player3_card.set_battle_arm_messages(player2_card)
 
@@ -3567,7 +3566,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                             
                                             elif button_ctx.custom_id == "0":
-                                                player3_card.use_block(battle_config, player2_card)                                            
+                                                player3_card.use_block(battle_config, player2_card)
+                                                  
+                                            elif button_ctx.custom_id == "9":
+                                                player3_card.use_block(battle_config, player2_card, player1_card)                                           
 
                                             if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q" and button_ctx.custom_id in options:
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)

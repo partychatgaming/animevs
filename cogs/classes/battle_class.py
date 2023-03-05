@@ -1268,7 +1268,7 @@ class Battle:
                     )
                 )
                 
-        if your_card.stamina >= 20 and self.is_co_op_mode:
+        if your_card.stamina >= 20 and self.is_co_op_mode and self.mode in crown_utilities.DUO_M:
             if your_card.stamina >= 20:
                 c_butts = [
                     manage_components.create_button(
