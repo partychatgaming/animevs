@@ -263,15 +263,15 @@ async def viewarm(self, ctx, arm: str):
     try:
         if arm:
             a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
-            a.set_element_emoji()
-            a.set_message_and_price_message()
+            #a.set_element_emoji()
+            #a.set_message_and_price_message()
             embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[a.universe]} {a.name}\n{a.price_message}".format(self), colour=000000)
-            if a.is_not_universe_unbound():
+            if a.universe != "Unbound":
                 embedVar.set_thumbnail(url=a.show_img)
 
             if a.is_move():
                 # embedVar.add_field(name=f"Arm Move Element", value=f"{element}", inline=False)
-                embedVar.add_field(name=f"{a.type_message} {a.element} Attack", value=f"{a.element_emoji} **{a.name}**: **{a.passive_value}**", inline=False)
+                embedVar.add_field(name=f"{a.type_message} {a.element.title()} Attack", value=f"{a.element_emoji} | **{a.name}**: **{a.passive_value}**", inline=False)
                 embedVar.set_footer(text=f"The new {a.type_message} attack will reflect on your card when equipped")
 
             else:
