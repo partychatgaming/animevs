@@ -3571,7 +3571,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             elif button_ctx.custom_id == "9":
                                                 player3_card.use_block(battle_config, player2_card, player1_card)                                           
 
-                                            if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q" and button_ctx.custom_id in options:
+                                            if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                         except asyncio.TimeoutError:
                                             await battle_msg.delete()
