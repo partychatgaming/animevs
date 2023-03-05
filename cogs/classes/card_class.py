@@ -44,6 +44,10 @@ class Card:
             self.repels = repels
             self.absorbs = absorbs
             self.immunity = immunity
+            self.base_attack  = attack
+            self.base_defense = defense
+            self.base_health = health
+            self.base_max_health = max_health
 
             # Universe Traits
             self._final_stand = False
@@ -2842,13 +2846,14 @@ class Card:
                                 self._barrier_active = False
                                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
-                            print(opponent_card.attack)
-                            print(opponent_card.defense)
+                            # print(opponent_card.attack)
+                            # print(opponent_card.defense)
                             opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
                             if opponent_card.health < 0:
-                                opponent_card.health = (800 * opponent_card.tier)
+                                opponent_card.health = 100 + round(.75 * (opponent_card.base_attack + opponent_card.base_defense))
+                
                             opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
-                            print(opponent_card.health)
+                            # print(opponent_card.health)
                             opponent_card.used_resolve = True
                             opponent_card.used_focus = True
                             opponent_card._final_stand = False
