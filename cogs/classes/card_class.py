@@ -598,6 +598,7 @@ class Card:
             
             if  not message_list:
                 message_to = "No Affinities"
+                
 
             self.affinity_message = textwrap.dedent(f"""\
             {message_to}

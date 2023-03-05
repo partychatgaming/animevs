@@ -121,12 +121,12 @@ class Lookup(commands.Cog):
                 autosave_message = "🔴 Off"
                 autosave = d['AUTOSAVE']
                 if autosave:
-                    autosave_message = "🟢 On"
+                    autosave_message = "*🟢 On*"
                     
                 performance_message = "🔴 Off"
                 performance = d['PERFORMANCE']
                 if performance:
-                    performance_message = "🟢 On"
+                    performance_message = "*🟢 On*"
                     
                 explore_message = "🔴 Off"
                 explore = d['EXPLORE']
@@ -135,27 +135,34 @@ class Lookup(commands.Cog):
                     location = "All"
                     if explore_location != "NULL":
                         location = explore_location
-                    explore_message = f"Exploring {location}"
+                    explore_message = f"🟢 *Exploring {location}*"
                 if abyss_level <=25:
                     explore_message = f"*Unlock After Abyss 25*"
                     
-                rift_message = "*Closed*"
-                rift = d['RIFT']
-                if rift == 1:
-                    rift_message = "**Open**"
+
                     
                 purse_message = ""
                 purse = d['TOURNAMENT_WINS']
-                if rift == 1:
+                if purse == 1:
                     purse_message = "👛 | **Gabe's Purse** Activated"
+                    
                 patreon_message = ""
                 if patreon == True:
                     patreon_message = "**💞 | Patreon Supporter**"
+                
+                rift_message = "*🔴 Closed*"
+                rift = d['RIFT']
+                if rift == 1:
+                    rift_message = "*🟢 On*"
                 if team != "PCG":
                     team_info = db.queryTeam({'TEAM_NAME' : str(team.lower())})
                     guild = team_info['GUILD']
-                family = d['FAMILY']
+                    guild_buff = team_info['ACTIVE_GUILD_BUFF']
+                    guild_buff_active = team_info['GUILD_BUFF_ON']
+                    if guild_buff == "Rift" and guild_buff_active:
+                        rift_message = "*🟢 On Guild Buff*"
                 
+                family = d['FAMILY'] 
                 family_info = db.queryFamily({"HEAD": str(family)})
                 if family_info:
                     family_summon = family_info['SUMMON']
@@ -302,6 +309,7 @@ class Lookup(commands.Cog):
                 embed1 = discord.Embed(title=f"{name}'s Profile".format(self), description=textwrap.dedent(f"""\
                 {aicon} | **Abyss Rank**: {abyss_level}
                 :heart_on_fire: | **Rebirth**: {rebirth}
+                
                 :flower_playing_cards: | **Card:** {card}
                 :reminder_ribbon:** | Title:** {titles}
                 :mechanical_arm: | **Arm:** {arm}
@@ -315,15 +323,15 @@ class Lookup(commands.Cog):
                 embed1.set_thumbnail(url=avatar)
                 
                 embed2 = discord.Embed(title=f"{name}'s Settings".format(self), description=textwrap.dedent(f"""\
-                🆚 | **Retries** {retries} available
-                :crystal_ball: | **Rift** {rift_message}
-                :milky_way: | **Explore** {explore_message}
+                🆚 | **Retries:** {retries} available
+                :crystal_ball: | **Rift:** {rift_message}
+                :milky_way: | **Explore:** {explore_message}
                 
-                ⚙️ | **Battle History Setting** {str(battle_history)} messages
-                ⚙️ | **Difficulty** {difficulty.lower().capitalize()}
-                ⚙️ | **Performance** {performance_message}
+                ⚙️ | **Battle History Setting:** {str(battle_history)} messages
+                ⚙️ | **Difficulty:** {difficulty.lower().capitalize()}
+                ⚙️ | **Performance:** {performance_message}
                 
-                :floppy_disk: | **Autosave** {autosave_message}
+                :floppy_disk: | **Autosave:** {autosave_message}
                 """), colour=discord.Color.darker_grey())
                 embed2.set_thumbnail(url=avatar)
                 
@@ -339,17 +347,17 @@ class Lookup(commands.Cog):
                 
                 embed3 = discord.Embed(title=f"{name}'s Vault".format(self), description=textwrap.dedent(f"""\
                 **Balance** | {bal_message}
-                :flower_playing_cards: | **Cards** {all_cards} ~ :briefcase: *{cstorage}*
-                :reminder_ribbon: | **Titles** {all_titles} ~ :briefcase: *{tstorage}*
-                :mechanical_arm: | **Arms** {all_arms} ~ :briefcase: *{astorage}*
-                🧬 | **Summons** {all_pets}
+                :flower_playing_cards: | **Cards:** {all_cards} ~ :briefcase: *{cstorage}*
+                :reminder_ribbon: | **Titles:** {all_titles} ~ :briefcase: *{tstorage}*
+                :mechanical_arm: | **Arms:** {all_arms} ~ :briefcase: *{astorage}*
+                🧬 | **Summons:** {all_pets}
                 {fs_message}
                 {purse_message}
                 """), colour=discord.Color.dark_purple())
                 embed3.set_thumbnail(url=avatar)
                 
                 embed6 = discord.Embed(title=f"{name}'s Avatar".format(self), description=textwrap.dedent(f"""\
-                    **:bust_in_silhouette: | User**: {user.mention}
+                    **:bust_in_silhouette: | User:** {user.mention}
                     {aicon} | {prestige_message}
                     :military_medal: | {most_played_card_message}
                     :earth_africa: | {most_played_universe_message}
@@ -1140,7 +1148,7 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                                 balance_message = '{:,}'.format(guild['BANK'])
                                 if is_founder:
-                                    real_estate_message = "Welcome Great Founder!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\nWelcome Great Founder!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy/Sell Halls", custom_id="buy"),
@@ -1149,7 +1157,7 @@ class Lookup(commands.Cog):
                                     
                                 ]
                                 elif is_sworn:
-                                    real_estate_message = "Welcome Holy Sworn!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\nWelcome Holy Sworn!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy/Sell Halls", custom_id="buy"),
@@ -1157,14 +1165,14 @@ class Lookup(commands.Cog):
                                     manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
                                 ]
                                 elif is_shield:
-                                    real_estate_message = "Welcome Noble Shield!\n**View Property** - View Owned Properties or make a Move!\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\nWelcome Noble Shield!\n**View Property** - View Owned Properties or make a Move!\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=1, label="Browse Hall Catalog", custom_id="browse"),
                                     manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
                                 ]
                                 elif is_guild_leader:
-                                    real_estate_message = "Welcome Oathsworn!\n**View Property** - View Owned Properties\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\nWelcome Oathsworn!\n**View Property** - View Owned Properties\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="View Properties", custom_id="view"),
                                     manage_components.create_button(style=1, label="Browse Hall Catalog", custom_id="browse"),
@@ -2796,7 +2804,7 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                                 balance_message = '{:,}'.format(savings)
                                 if is_head:
-                                    real_estate_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n**Browse Housing Catalog** - View all Properties for sale"
+                                    real_estate_message = "\nWelcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n**Browse Housing Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy/Sell Houses", custom_id="buy"),
@@ -2805,14 +2813,14 @@ class Lookup(commands.Cog):
                                     
                                 ]
                                 if is_partner:
-                                    real_estate_message = "Welcome Partner!\n**View Property** - View Owned Properties or make a Move!\n**Browse Housing Catalog** - View all Properties for sale"
+                                    real_estate_message = "\nWelcome Partner!\n**View Property** - View Owned Properties or make a Move!\n**Browse Housing Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=1, label="Browse Housing Catalog", custom_id="browse"),
                                     manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
                                 ]
                                 if is_kid:
-                                    real_estate_message = "Welcome Kids!\n**View Property** - View Owned Properties"
+                                    real_estate_message = "\nWelcome Kids!\n**View Property** - View Owned Properties"
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="View Properties", custom_id="view"),
                                     manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
@@ -2820,7 +2828,7 @@ class Lookup(commands.Cog):
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
                                 real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
                                 {real_estate_message}
-                                \n*Current Savings*: 
+                                *Current Savings*: 
                                 :coin: **{balance_message}**
                                 """), color=0xe74c3c)
                                 real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
