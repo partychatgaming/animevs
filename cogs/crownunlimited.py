@@ -2791,7 +2791,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                         if battle_config.is_turn == 0:
-                            game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
+                            if battle_config.is_co_op_mode:
+                                game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config, player3_card)
+                            else:
+                                game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
                             if game_over_check:
                                 break
 
@@ -3159,7 +3162,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                         if battle_config.is_turn == 1:
-                            game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
+                            if battle_config.is_co_op_mode:
+                                game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config, player3_card)
+                            else:
+                                game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
                             if game_over_check:
                                 break
                             player1_card.set_deathnote_message(battle_config)
@@ -3421,6 +3427,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
                             if battle_config.is_turn == 2:
+                                if battle_config.is_co_op_mode:
+                                    game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config, player1_card)
+                                else:
                                 beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
                                 if game_over_check:
                                     break
@@ -3607,8 +3616,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
                             # Opponent Turn Start
-                            elif battle_config.is_turn == 3:
-                                beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
+                            elif battle_config.is_turn == 3
+                                if battle_config.is_co_op_mode:
+                                    game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config, player1_card)
+                                else::
+                                    beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
                                 if game_over_check:
                                     break
                                 player3_card.set_deathnote_message(battle_config)
@@ -4323,7 +4335,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
         return
 
 
-def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config):
+def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config, companion = None):
     player_card.reset_stats_to_limiter(opponent_card)
     player_card.yuyu_hakusho_attack_increase()
     player_card.activate_chainsawman_trait(battle_config)
@@ -4357,6 +4369,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
     opponent_card.damage_healed = round(opponent_card.damage_healed)
+    if battle_config.set_game_over(pl)
     return battle_config.set_game_over(player_card,opponent_card)
 
 
