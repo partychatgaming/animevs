@@ -1095,6 +1095,7 @@ class Card:
                     elif special < (self.move2ap / 3):
                         engagement_special = 1
                         especial = '💢'
+                    
             
                     ultimate_ability_power =  self.attack - opponent_card_defense + self.move3ap
                     if ultimate_ability_power <= 0:
@@ -1115,6 +1116,10 @@ class Card:
                     elif ultimate < (self.move3ap / 3):
                         engagement_ultimate = 1
                         eultimate = '💢'
+                    # self.d_emoji_1 = ebasic
+                    # self.d_emoji_2 = especial
+                    # self.d_emoji_3 = eultimate
+                    
 
 
                 if arm != "none":

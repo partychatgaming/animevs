@@ -2789,14 +2789,18 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             if battle_config.previous_moves_len >= player1.battle_history:
                                 battle_config.previous_moves = battle_config.previous_moves[-player1.battle_history:]
 
-
+                        if battle_config.is_co_op_mode:
+                            game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config, player3_card)
+                        else:
+                            game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
                         if battle_config.is_turn == 0:
-                            if battle_config.is_co_op_mode:
-                                game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config, player3_card)
-                            else:
-                                game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
+                            # if battle_config.is_co_op_mode:
+                            #     game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config, player3_card)
+                            # else:
+                            #     game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
                             if game_over_check:
                                 break
+
 
                             player1_card.set_deathnote_message(battle_config)
                             player2_card.set_deathnote_message(battle_config)
@@ -2886,9 +2890,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     player1_card.set_battle_arm_messages(player2_card)
 
                                     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                                        footer_text = battle_config.get_battle_footer_text(player1_card, player2_card, player3_card)
+                                        footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
                                     else:
-                                        footer_text = battle_config.get_battle_footer_text(player1_card, player2_card)
+                                        footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                     embedVar = discord.Embed(title=f"", description=textwrap.dedent(f"""\
                                     {battle_config.get_previous_moves_embed()}
                                     
@@ -3164,14 +3168,17 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         channel = guild.get_channel(main.guild_channel)
                                         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
-
+                        if battle_config.is_co_op_mode:
+                            game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config, player3_card)
+                        else:
+                            game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
                         if battle_config.is_turn == 1:
-                            if battle_config.is_co_op_mode:
-                                game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config, player3_card)
-                            else:
-                                game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
-                            if game_over_check:
-                                break
+                            # if battle_config.is_co_op_mode:
+                            #     game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config, player3_card)
+                            # else:
+                            #     game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
+                            # if game_over_check:
+                            #     break
                             player1_card.set_deathnote_message(battle_config)
                             player2_card.set_deathnote_message(battle_config)
                             if battle_config.is_co_op_mode:
@@ -3207,9 +3214,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 
                                 """), color=0xe74c3c)
                                 if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                                    footer_text = battle_config.get_battle_footer_text(player1_card, player2_card, player3_card)
+                                    footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
                                 else:
-                                    footer_text = battle_config.get_battle_footer_text(player1_card, player2_card)
+                                    footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                 embedVar.set_footer(
                                     text=f"{footer_text}",
                                     icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
@@ -3234,9 +3241,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention} Select move below!")
                                         embedVar.set_image(url="attachment://image.png")
                                         if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                                            footer_text = battle_config.get_battle_footer_text(player1_card, player2_card, player3_card)
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
                                         else:
-                                            footer_text = battle_config.get_battle_footer_text(player1_card, player2_card)
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                         embedVar.set_footer(
                                             text=f"{footer_text}",
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
@@ -3450,11 +3457,15 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
+                            if battle_config.is_co_op_mode:
+                                game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config, player1_card)
+                            else:
+                                game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
                             if battle_config.is_turn == 2:
-                                if battle_config.is_co_op_mode:
-                                    game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config, player1_card)
-                                else:
-                                    game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
+                                # if battle_config.is_co_op_mode:
+                                #     game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config, player1_card)
+                                # else:
+                                #     game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
                                 if game_over_check:
                                     break
                                 player2_card.set_deathnote_message(battle_config)
@@ -3475,9 +3486,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             # await asyncio.sleep(2)
                                             embedVar.set_image(url="attachment://image.png")
                                             if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                                                footer_text = battle_config.get_battle_footer_text(player1_card, player2_card, player3_card)
+                                                footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
                                             else:
-                                                footer_text = battle_config.get_battle_footer_text(player1_card, player2_card)
+                                                footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                             embedVar.set_footer(
                                                 text=f"{footer_text}",
                                                 icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
@@ -3536,9 +3547,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         # await asyncio.sleep(2)
                                         embedVar.set_image(url="attachment://image.png")
                                         if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                                            footer_text = battle_config.get_battle_footer_text(player1_card, player2_card, player3_card)
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
                                         else:
-                                            footer_text = battle_config.get_battle_footer_text(player1_card, player2_card)
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                         embedVar.set_footer(
                                             text=f"{footer_text}",
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
@@ -3658,11 +3669,15 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
                             # Opponent Turn Start
-                            elif battle_config.is_turn == 3:
-                                if battle_config.is_co_op_mode:
-                                    game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config, player1_card)
-                                else:
-                                    game_over_check =beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
+                            if battle_config.is_co_op_mode:
+                                game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config, player1_card)
+                            else:
+                                game_over_check =beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
+                            if battle_config.is_turn == 3:
+                                # if battle_config.is_co_op_mode:
+                                #     game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config, player1_card)
+                                # else:
+                                #     game_over_check =beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
                                 if game_over_check:
                                     break
                                 player3_card.set_deathnote_message(battle_config)
@@ -4393,7 +4408,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']
         battle_config.add_battle_history_messsage(new_turn['MESSAGE'])
-    opponent_card.freeze_enh = False
+        opponent_card.freeze_enh = False
         # return new_turn
     battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
     player_card.set_gravity_hit()

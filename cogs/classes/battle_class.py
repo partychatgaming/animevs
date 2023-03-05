@@ -881,9 +881,9 @@ class Battle:
         p_focus = '❤️'
         
         if opponent_card.used_focus:
-            o_focus = '💓'
+            o_focus = '💖'
         if your_card.used_focus:
-            y_focus = '💓'
+            y_focus = '💖'
         if opponent_card.used_resolve:
             o_resolve = '⚡'
         if your_card.used_resolve:
@@ -906,9 +906,9 @@ class Battle:
         p_focus = '❤️'
         
         if opponent_card.used_focus:
-            o_focus = '💓'
+            o_focus = '💖'
         if your_card.used_focus:
-            y_focus = '💓'
+            y_focus = '💖'
         
         if opponent_card.used_resolve:
             o_resolve = '⚡'
@@ -917,7 +917,7 @@ class Battle:
             
         if partner_card:
             if partner_card.used_focus:
-                p_focus = '💓'
+                p_focus = '💖'
             if partner_card.used_resolve:
                 p_resolve = '⚡'
             
