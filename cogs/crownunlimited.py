@@ -2824,7 +2824,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 if battle_config.is_boss_game_mode:
                                     await private_channel.send(embed=battle_config._boss_embed_message)
                                 
-                                continue 
+                                #continue 
                             else:
                                 if battle_config.is_auto_battle_game_mode:                                    
                                     embedVar = await auto_battle_embed_and_starting_traits(ctx, player1_card, player2_card, battle_config, None)
