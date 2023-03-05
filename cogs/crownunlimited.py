@@ -2247,6 +2247,8 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
     await p.set_guild_data()
     
     if mode in crown_utilities.CO_OP_M and mode not in crown_utilities.DUO_M:
+        user2 = await main.bot.fetch_user(p2.did)
+        opponent_ping = user2.mention
         coop_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.green,
@@ -2260,7 +2262,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                     )
                 ]
         coop_buttons_action_row = manage_components.create_actionrow(*coop_buttons)
-        msg = await ctx.send(f"{p2.did.mention} Do you accept the **Coop Invite**?", components=[coop_buttons_action_row])
+        msg = await ctx.send(f"{user2.mention} Do you accept the **Coop Invite**?", components=[coop_buttons_action_row])
         def check(button_ctx):
             return button_ctx.author.id == p2.did
         try:
