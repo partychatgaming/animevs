@@ -73,6 +73,7 @@ class Battle:
         self._ai_opponentsummon_image = ""
         self._deck_selection = 0
         self._previous_ai_move = ""
+        self._boss_tactics = []
 
         self.difficulty = _player.difficulty
         self.is_easy_difficulty = False
@@ -773,6 +774,7 @@ class Battle:
                 
             else:
                 self._boss_data = db.queryBoss({"UNIVERSE": self.selected_universe, "AVAILABLE": True})
+                self._boss_tactics = self._boss_data['TACTICS']
                 self._ai_opponent_card_data = db.queryCard({'NAME': self._boss_data['CARD']})
                 self._ai_opponent_title_data = db.queryTitle({'TITLE': self._boss_data['TITLE']})
                 self._ai_opponent_arm_data = db.queryArm({'ARM': self._boss_data['ARM']})

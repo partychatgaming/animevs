@@ -45,6 +45,51 @@ class Card:
             self.absorbs = absorbs
             self.immunity = immunity
 
+            # Tactics
+            self.tactics = []
+            self.max_base_health = self.max_health
+            self.temporary_max_health = self.max_health
+            self.temporary_health = health
+            self.temporary_stamina = stamina
+            self.temporary_attack = attack
+            self.temporary_defense = defense
+            self.temporary_speed = speed
+            self.temporary_ap = 0
+            self.enraged = False
+            self.overwhelming_power = False
+            self.damage_check = False
+            self.damage_check_activated = False
+            self.death_blow = False
+            self.almighty_will = False 
+            self.stagger = False 
+            self.provoked = False 
+            self.intimidation = False 
+            self.loyal_servant = False 
+            self.petrified_fear = False
+            self.regeneration = False
+            self.bloodlust = False
+
+            self.almighty_will_turn = []
+            self.damage_check_counter = 0
+            self.damage_check_limit = 0
+            self.damage_check_turns = 0
+            self.petrified_fear_counter = 0
+            self.petrified_fear_turns = 0
+            self.overwhelming_power_activated = False
+            self.overwhelming_power_counter = 0
+            self.intimidation_counter = 0
+            self.intimidation_turns = 0
+            self.intimidation_activated = False
+            self.bloodlust_activated = False
+            self.enrage_activated = False
+            self.regeneration_activated = False
+            self.provoked_activated = False
+            self.provoked_counter = 0
+            self.provoked_turns = 5
+            self.stagger_activated = False
+            self.death_blow_activated = False
+            self.death_blow_had_protections = False
+
             # Universe Traits
             self._final_stand = False
             self._chainsawman_activated = False
@@ -1566,7 +1611,30 @@ class Card:
                 high_hit = 20
                 hit_roll = round(random.randint(0, 20))
 
-                if move_element == "SPIRIT" and hit_roll >= 15:
+                if self.bloodlust_activated:
+                    hit_roll = hit_roll + 3
+                    self.health = self.health + (.35 * true_dmg)
+
+                if self.damage_check_activated:
+                    hit_roll = hit_roll + 3
+                    self.damage_check_counter = self.damage_check_counter + true_dmg
+                    damage_check_message = f"[Damage Check:] {round(self.damage_check_counter)} damage done so far!"
+                    self.damage_check_turns = self.damage_check_turns + 1
+                    if self.damage_check_counter >= self.damage_check_limit:
+                        self.damage_check_activated = False
+                        self.damage_check_counter = 0
+                        self.damage_check_limit = 0
+                        damage_check_message = f"[Damage Check:] {round(self.damage_check_counter)} damage done so far! Damage Check has ended!"
+                    if self.damage_check_turns > 5:
+                        self.damage_check_activated = False
+                        self.damage_check_counter = 0
+                        self.damage_check_limit = 0
+                        self.health = 0
+                        self.defense = 0
+                        self.attack = 0
+                        damage_check_message = f"[Damage Check:] {round(self.damage_check_counter)} damage done so far! It wasn't enough! A devastating blow will end your life!"
+                
+                if move_element == "SPIRIT" and hit_roll >= 13:
                     hit_roll = hit_roll + 7
                     
                 if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
@@ -1612,6 +1680,8 @@ class Card:
                     message = f'{move_emoji} {move} used! Hits for **{true_dmg}**! :anger_right:'
                 
                 elif hit_roll >= 20:
+                    if self.stagger:
+                        self.stagger_activated = True
                     if self.universe =="Crown Rift Awakening":
                         true_dmg = round(true_dmg * 4)
                         message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits for **{true_dmg}**!! :boom:"
@@ -1653,6 +1723,8 @@ class Card:
                         does_absorb = True
 
                 self.stamina = self.stamina - move_stamina
+
+
 
                 response = {"DMG": true_dmg, "MESSAGE": message,
                             "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element, "STAMINA_USED": move_stamina}
@@ -1937,8 +2009,14 @@ class Card:
                 else:
                     battle_config.repeat_turn()
 
+    
     def resolving(self, battle_config, opponent_card, player=None, opponent=None):
         if not self.used_resolve and self.used_focus:
+            if self.overwhelming_power:
+                self._parry_active = True
+                self._parry_value = random.randint(10, 20)
+                battle_config.add_battle_history_messsage(f"[**Overwhelming Power!] **{self.name}** will parry the next several attacks with ease. ")
+
             if self.universe == "My Hero Academia":  # My Hero Trait
                 # fortitude or luck is based on health
                 fortitude = 0.0
@@ -1992,7 +2070,7 @@ class Card:
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Conquerors Haki!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
-                battle_config.next_turn()()
+                battle_config.next_turn()
 
             elif self.universe == "Demon Slayer": 
                 # fortitude or luck is based on health
@@ -2205,6 +2283,7 @@ class Card:
                 self.damage_healed = self.damage_healed + resolve_health + evolution_boost
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
+            
             else:  # Standard Resolve
                 # fortitude or luck is based on health
                 fortitude = 0.0
@@ -2242,6 +2321,7 @@ class Card:
                 embedVar = discord.Embed(title=f"{opponent_card.name}'s Rebuke\n{battle_config._rebuke_boss_description}")
                 embedVar.set_footer(text=f"{self.name} this is your chance!")
                 battle_config._boss_embed_message = embedVar
+                print("boss rebuke")
             elif battle_config.is_boss_game_mode and battle_config.is_turn in [1,3]:
                 embedVar = discord.Embed(title=f"{battle_config._rmessage_boss_description}")
                 embedVar.set_footer(text=f"{opponent_card.name} this will not be easy...")
@@ -2540,6 +2620,7 @@ class Card:
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** is too tired to block.")
             battle_config.repeat_turn()
             
+    
     def use_boost(self, battle_config, companion_card=None):
         if self.stamina >= 20:
             if companion_card:
@@ -3039,6 +3120,37 @@ class Card:
         # _opponent_card.move3ap = _opponent_card.list(self.m3.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
 
  
+    def get_boss_tactics(self, battle_config):
+        if self._is_boss:
+            self.tactics = battle_config._boss_tactics
+            if self.tactics:
+                if "ENRAGED" in self.tactics:
+                    self.enraged = True
+                if "OVERWHELMING_POWER" in self.tactics:
+                    self.overwhelming_power = True
+                if "REGENERATION" in self.tactics:
+                    self.regeneration = True
+                if "DEATH_BLOW" in self.tactics:
+                    self.death_blow = True
+                if "ALMIGHTY_WILL" in self.tactics:
+                    self.almighty_will = True
+                    self.almighty_will_turns = [5, 9, 10, 14, 15, 19, 20, 24, 25, 40, 45, 53, 54, 55, 74, 75, 95, 98, 100, 101]
+                if "STAGGER" in self.tactics:
+                    self.stagger = True
+                if "PROVOKED" in self.tactics:
+                    self.provoked = True
+                if "INTIMIDATION" in self.tactics:
+                    self.intimidation = True
+                    self.intimidation_turns = random.randint(3, 10)
+                if "BLOODLUST" in self.tactics:
+                    self.bloodlust = True
+                if "PETRIFIED_FEAR" in self.tactics:
+                    self.petrified_fear = True
+                    self.petrified_fear_turns = random.randint(2, 6)
+
+
+
+
     def activate_card_passive(self, player2_card, battle_config):
         if self.passive_type:
             value_for_passive = self.tier * .5
@@ -3104,7 +3216,7 @@ class Card:
             if self.passive_type == "SLOW":
                 battle_config.turn_total = battle_config.turn_total - self.passive_num
                 if battle_config.turn_total <= 0:
-                     battle_config.turn_total = 0
+                    battle_config.turn_total = 0
             if self.passive_type == "HASTE":
                 battle_config.turn_total = battle_config.turn_total + self.passive_num
             if self.passive_type == "STANCE":
@@ -3139,8 +3251,6 @@ class Card:
                 
                 #destruction
             
-
-
     def activate_chainsawman_trait(self, battle_config):
         if self.universe == "Chainsawman":
             if self.health <= (self.max_health * .25):
@@ -3185,4 +3295,3 @@ def get_card(url, cardname, cardtype):
             }))
             return         
             
-

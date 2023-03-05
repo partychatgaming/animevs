@@ -2,6 +2,7 @@ from pymongo import MongoClient
 import certifi
 import messages as m
 from decouple import config
+import re
 
 if config('ENV') == "production":
     # PRODUCTION
@@ -26,16 +27,16 @@ sessions_col = db["SESSIONS"]
 games_col = db["GAMES"]
 matches_col = db["MATCHES"]
 tournaments_col = db["TOURNAMENTS"]
+gods_col = db["GODS"]
 cards_col = db["CARDS"]
 titles_col = db["TITLES"]
-gods_col = db["GODS"]
 arm_col = db["ARM"]
 universe_col = db['UNIVERSE']
+house_col =db["HOUSE"]
+hall_col =db["HALL"]
 boss_col = db['BOSS']
 pet_col = db['PET']
 vault_col =db["VAULT"]
-house_col =db["HOUSE"]
-hall_col =db["HALL"]
 menu_col = db['MENU']
 abyss_col = db['ABYSS']
 trade_col = db['TRADE']
@@ -47,6 +48,31 @@ scenario_col = db['SCENARIO']
 acceptable = [1, 2, 3, 4]
 arm_exclude_list = ['BASIC', 'SPECIAL', 'ULTIMATE']
 arm_moves_only = ['BASIC', 'SPECIAL', 'ULTIMATE']
+
+
+def viewQuery(search_string):
+    collections = {
+        "CARDS": "NAME",
+        "TITLES": "TITLE",
+        "ARM": "ARM",
+        "UNIVERSE": "TITLE",
+        "HOUSE": "HOUSE",
+        "HALL": "HALL",
+        "BOSS": "NAME",
+        "PET": 'PET'
+    }
+
+    results = {}
+    for col_name, field in collections.items():
+        col = db[col_name]
+        result = col.find_one({field: {"$regex": f"^{str(search_string)}$", "$options": "i"}})
+        if result:
+            results[col_name] = result
+
+    if results:
+        return results
+    else:
+        return False
 
 
 '''Check if Collection Exists'''

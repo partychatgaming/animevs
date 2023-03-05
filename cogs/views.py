@@ -63,86 +63,48 @@ class Views(commands.Cog):
             await ctx.send(m.USER_DOESNT_HAVE_THE_CARD, hidden=True)
 
 
-    @cog_ext.cog_slash(description="Select an operation from the menu!",
-                    options=[
-                        create_option(
-                            name="name",
-                            description="name of card, title, arm, summons, universe, hall, or house you want to view",
-                            option_type=3,
-                            required=True
-                        ),
-                        create_option(
-                            name="selection",
-                            description="Select an option!",
-                            option_type=3,
-                            required=True,
-                            choices=[
-                                create_choice(
-                                    name="🎴 It's a Card",
-                                    value="cards",
-                                ),
-                                create_choice(
-                                    name="🎗️ It's a Title",
-                                    value="titles",
-                                ),
-                                create_choice(
-                                    name="🦾 It's an Arm",
-                                    value="arms",
-                                ),
-                                create_choice(
-                                    name="🧬 It's a Summon",
-                                    value="summons",
-                                ),
-                                create_choice(
-                                    name="🌍 It's a Universe",
-                                    value="universe",
-                                ),
-                                create_choice(
-                                    name="👹 It's a Boss",
-                                    value="boss",
-                                ),
-                                create_choice(
-                                    name="🎏 It's a Hall",
-                                    value="hall",
-                                ),
-                                create_choice(
-                                    name="🏠 It's a House",
-                                    value="house",
-                                ),
-                            ]
-                        )
-                    ], guild_ids=main.guild_ids)
-    async def view(self, ctx, selection, name):
+    @cog_ext.cog_slash(description="Type a card name, title, arm, universe, house, hall, or boss to view it!", guild_ids=main.guild_ids)
+    async def view(self, ctx, name):
         if not await crown_utilities.player_check(ctx):
             return
-        if selection == "cards":
-            await viewcard(self, ctx, name)
-        if selection == "titles":
-            await viewtitle(self, ctx, name)
-        if selection == "arms":
-            await viewarm(self, ctx, name)
-        if selection == "summons":
-            await viewsummon(self, ctx, name)
-        if selection == "universe":
-            await viewuniverse(self, ctx, name)
-        if selection == "boss":
-            await viewboss(self, ctx, name)
-        if selection == "hall":
-            await viewhall(self, ctx, name)
-        if selection == "house":
-            await viewhouse(self, ctx, name)
 
+        response = db.viewQuery(f"^{str(name)}$")
+        
+        if response:
+            source = list(response.keys())[0]
+            data = list(response.values())[0]
+            print(source)
+            print(data)
+            if source == "CARDS":
+                await viewcard(self, ctx, data)
+            if source == "TITLES":
+                await viewtitle(self, ctx, data)
+            if source == "ARM":
+                await viewarm(self, ctx, data)
+            if source == "PET":
+                await viewsummon(self, ctx, data)
+            if source == "UNIVERSE":
+                await viewuniverse(self, ctx, data)
+            if source == "BOSS":
+                await viewboss(self, ctx, data)
+            if source == "HALL":
+                await viewhall(self, ctx, data)
+            if source == "HOUSE":
+                await viewhouse(self, ctx, data)
+
+        else:
+            await ctx.send("No results found.", hidden=True)
+            return
 
 def setup(bot):
     bot.add_cog(Views(bot))
 
 
 
-async def viewcard(self, ctx, card: str):
-    card_name = card
+async def viewcard(self, ctx, data):
     query = {'DID': str(ctx.author.id)}
     d = db.queryUser(query)
-    card = db.queryCard({'NAME': {"$regex": f"^{str(card_name)}$", "$options": "i"}})
+    card = data
     try:
         if card:
             c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
@@ -219,14 +181,9 @@ async def viewcard(self, ctx, card: str):
         return
 
 
-async def viewtitle(self, ctx, title: str):
+async def viewtitle(self, ctx, data):
     try:
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
-
-        title_name = title
-        title = db.queryTitle({'TITLE': {"$regex": f"^{str(title)}$", "$options": "i"}})
+        title = data
         if title:
             t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
             t.set_type_message_and_price_message()
@@ -257,9 +214,8 @@ async def viewtitle(self, ctx, title: str):
         }))
 
 
-async def viewarm(self, ctx, arm: str):
-    arm_name = arm
-    arm = db.queryArm({'ARM': {"$regex": f"^{str(arm_name)}$", "$options": "i"}})
+async def viewarm(self, ctx, data):
+    arm = data
     try:
         if arm:
             a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
@@ -300,12 +256,8 @@ async def viewarm(self, ctx, arm: str):
         return
 
 
-async def viewsummon(self, ctx, summon: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
-    pet = db.queryPet({'PET': {"$regex": f"^{str(summon)}$", "$options": "i"}})
+async def viewsummon(self, ctx, data):
+    pet = data
     try:
         if pet:
             s = Summon(pet['PET'], pet['UNIVERSE'], pet['PATH'], pet['ABILITIES'], pet['AVAILABLE'], pet['EXCLUSIVE'])
@@ -340,14 +292,9 @@ async def viewsummon(self, ctx, summon: str):
         return
 
 
-async def viewuniverse(self, ctx, universe: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
+async def viewuniverse(self, ctx, data):
     try:
-        universe_name = universe
-        universe = db.queryUniverse({'TITLE': {"$regex": f"^{universe_name}$", "$options": "i"}})
+        universe = data
         universe_name = universe['TITLE']
         ttitle = "Starter"
         tarm = "Stock"
@@ -450,12 +397,8 @@ async def viewuniverse(self, ctx, universe: str):
         return
 
 
-async def viewhouse(self, ctx, house: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
-    house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house)}$", "$options": "i"}})
+async def viewhouse(self, ctx, data):
+    house = data
     if house:
         house_house = house['HOUSE']
         house_price = house['PRICE']
@@ -479,12 +422,8 @@ async def viewhouse(self, ctx, house: str):
         await ctx.send(m.HOUSE_DOESNT_EXIST, delete_after=3)
 
 
-async def viewhall(self, ctx, hall: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
-    hall = db.queryHall({'HALL':{"$regex": f"^{str(hall)}$", "$options": "i"}})
+async def viewhall(self, ctx, data):
+    hall = data
     if hall:
         hall_hall = hall['HALL']
         hall_price = hall['PRICE']
@@ -516,8 +455,7 @@ async def viewhall(self, ctx, hall: str):
 
 async def viewboss(self, ctx, boss : str):
     try:
-        uboss_name = boss
-        uboss = db.queryBoss({'NAME': {"$regex": str(uboss_name), "$options": "i"}})
+        uboss = data
         if uboss:
             uboss_name = uboss['NAME']
             uboss_show = uboss['UNIVERSE']

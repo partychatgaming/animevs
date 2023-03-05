@@ -2589,6 +2589,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player2_card.set_affinity_message()
                 player2.get_talisman_ready(player2_card)
                 player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
+            
             if battle_config.mode in crown_utilities.RAID_M:
                 player2 = player2
                 player2.get_battle_ready()
@@ -2646,6 +2647,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
                 battle_config.get_aisummon_ready(player2_card)
+                player2_card.get_boss_tactics(battle_config)
 
                 if battle_config.mode in crown_utilities.CO_OP_M:
                     player2_card.set_solo_leveling_config(player3_card._shield_active, player3_card._shield_value, player3_card._barrier_active, player3_card._barrier_value, player3_card._parry_active, player3_card._parry_value)
@@ -2774,8 +2776,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         await asyncio.sleep(2)
                         battle_msg = await private_channel.send(embed=embedVar)
 
+                    tactics_set_base_stats(player2_card)
                     game_over_check = False
                     while not game_over_check:
+                        tactics_provoked_check(player2_card, battle_config)
                         if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                             game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
                         else:
@@ -2788,7 +2792,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             if battle_config.previous_moves_len >= player1.battle_history:
                                 battle_config.previous_moves = battle_config.previous_moves[-player1.battle_history:]
 
-
+                        tactics_petrified_fear_check(player2_card, player1_card, battle_config)
+                        tactics_bloodlust_check(player2_card, battle_config)
+                        tactics_damage_check(player2_card, battle_config)
+                        tactics_regeneration_check(player2_card, battle_config)
+                        tactics_stagger_check(player2_card, player1_card, battle_config)
+                        
                         if battle_config.is_turn == 0:
                             beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
 
@@ -2806,14 +2815,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     embedVar.set_footer(text="Focus State : When Stamina = 0, You will focus to Heal and gain ATK and DEF ")
                                     await private_channel.send(embed=embedVar)
                                     await asyncio.sleep(2)
-                                if battle_config.is_boss_game_mode:
-                                    embedVar = discord.Embed(title=f"**{player2_card.name}** Boss of `{player2_card.universe}`",
-                                                            description=f"*{battle_config._description_boss_description}*", colour=0xe91e63)
-                                    embedVar.add_field(name=f"{battle_config._arena_boss_description}", value=f"{battle_config._arenades_boss_description}")
-                                    embedVar.add_field(name=f"Entering the {battle_config._arena_boss_description}", value=f"{battle_config._entrance_boss_description}", inline=False)
-                                    embedVar.set_footer(text=f"{player2_card.name} waits for you to strike....")
-                                    await private_channel.send(embed=embedVar)
-                                    await asyncio.sleep(2)
+
                                 
                             if player1_card.stamina < 10:
                                 player1_card.focusing(player1_title, player2_title, player2_card, battle_config)
@@ -3149,7 +3151,16 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             if battle_config.is_co_op_mode:
                                 player3_card.set_deathnote_message(battle_config)                            
                             
-
+                            if battle_config.turn_total == 0:
+                                if battle_config.is_boss_game_mode:
+                                    embedVar = discord.Embed(title=f"**{player2_card.name}** Boss of `{player2_card.universe}`",
+                                                            description=f"*{battle_config._description_boss_description}*", colour=0xe91e63)
+                                    embedVar.add_field(name=f"{battle_config._arena_boss_description}", value=f"{battle_config._arenades_boss_description}")
+                                    embedVar.add_field(name=f"Entering the {battle_config._arena_boss_description}", value=f"{battle_config._entrance_boss_description}", inline=False)
+                                    embedVar.set_footer(text=f"{player2_card.name} waits for you to strike....")
+                                    await private_channel.send(embed=embedVar)
+                                    await asyncio.sleep(2)
+                            
                             # Focus
                             if player2_card.stamina < 10:
                                 player2_card.focusing(player2_title, player1_title, player1_card, battle_config)
@@ -3160,14 +3171,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     embedVar.add_field(name=f"A great aura starts to envelop **{player2_card.name}** ",
                                                     value=f"{battle_config._aura_boss_description}")
                                     embedVar.set_footer(text=f"{player2_card.name} Says: 'Now, are you ready for a real fight?'")
-                                    await ctx.send(embed=embedVar)
-                                    battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌀 **{player2_card.name}** focused")
+                                    await private_channel.send(embed=embedVar)
+                                    # battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌀 **{player2_card.name}** focused")
                                     # await asyncio.sleep(2)
                                     if player2_card.universe == "Digimon" and player2_card.used_resolve is False:
                                         embedVar = discord.Embed(title=f"(**{battle_config.turn_total}**) :zap: **{player2_card.name}** Resolved!", description=f"{battle_config._rmessage_boss_description}",
                                                                 colour=0xe91e63)
                                         embedVar.set_footer(text=f"{player1_card.name} this will not be easy...")
-                                        await ctx.send(embed=embedVar)
+                                        await private_channel.send(embed=embedVar)
                                         await asyncio.sleep(2)
 
                             else:
@@ -3346,7 +3357,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     elif int(selected_move) == 5:
                                         player2_card.resolving(battle_config, player1_card)
                                         if battle_config.is_boss_game_mode:
-                                            await button_ctx.send(embed=battle_config._boss_embed_message)
+                                            await private_channel.send(embed=battle_config._boss_embed_message)
 
                                     elif int(selected_move) == 6:
                                         # Resolve Check and Calculation
@@ -4066,9 +4077,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             embedVar.set_footer(
                                                 text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
                                         # await ctx.send(embed=embedVar)
-                                        await battle_msg.delete(delay=2)
-                                        await asyncio.sleep(2)
-                                        battle_msg = await private_channel.send(embed=embedVar)
+                                        # await battle_msg.delete(delay=2)
+                                        # await asyncio.sleep(2)
+                                        # battle_msg = await private_channel.send(embed=embedVar)
 
 
                                         await battle_config.set_boss_win(player1, player2_card)
@@ -4262,6 +4273,152 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
         channel = guild.get_channel(main.guild_channel)
         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
         return
+
+
+def tactics_set_base_stats(boss_card):
+    boss_card.max_base_health = boss_card.max_health
+
+
+def tactics_petrified_fear_check(boss_card, player_card, battle_config):
+    if boss_card.petrified_fear and boss_card.petrified_fear_counter < boss_card.petrified_fear_turns:
+        boss_card.petrified_fear_counter = boss_card.petrified_fear_counter + 1
+        battle_config.is_turn = 1
+        petrified_fear_message = f"*{player_card.name} is petrified with fear and cannot move!*"
+        battle_config.add_battle_history_messsage(petrified_fear_message)
+
+
+def tactics_bloodlust_check(boss_card, battle_config):
+    if boss_card.bloodlust:
+        if not boss_card.bloodlust_activated:
+            if boss_card.health <= (0.60 * boss_card.max_base_health):
+                print("bloodlust check")
+                boss_card.bloodlust_activated = True
+                boss_card.attack = boss_card.attack + 3000
+                bloodlust_message = f"*{boss_card.name} is bloodlusted! Attacks will now lifesteal!*"
+                battle_config.add_battle_history_messsage(bloodlust_message)
+
+
+def tactics_enrage_check(boss_card, battle_config):
+    if boss_card.enrage:
+        if not boss_card.enrage_activated:
+            if boss_card.health <= (0.30 * boss_card.max_base_health):
+                print("enrage check")
+                boss_card.enrage_activated = True
+                boss_card.attack = boss_card.attack + 9999
+                boss_card.defense = boss_card.defense + 3000
+                boss_card.arbitrary_ap_buff = boss_card.arbitrary_ap_buff + 600
+                enrage_message = f"*{boss_card.name} is enraged! Attacks will now deal much more damage to the enemy!*"
+                battle_config.add_battle_history_messsage(enrage_message)
+
+
+def tactics_intimidation_check(boss_card, player_card, battle_config):
+    if boss_card.intimidation:
+        if not boss_card.intimidation_activated:
+            if boss_card.health <= (0.50 * boss_card.max_base_health):
+                print("intimidation check")
+                boss_card.intimidation_activated = True
+                boss_card.intimidation_counter = boss_card.intimidation_counter + 1
+                boss_card.temporary_attack = boss_card.attack
+                boss_card.temporary_defense = boss_card.defense
+                boss_card.attack = 0
+                boss_card.defense = 0
+                intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name}!*"
+                battle_config.add_battle_history_messsage(intimidation_message)
+        if boss_card.intimidation_activated:
+            if boss_card.intimidation_counter < boss_card.intimidation_turns:
+                boss_card.intimidation_counter = boss_card.intimidation_counter + 1
+                boss_card.attack = 0
+                boss_card.defense = 0
+                intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name}!*"
+                battle_config.add_battle_history_messsage(intimidation_message)
+            else:
+                boss_card.attack = boss_card.temporary_attack
+                boss_card.defense = boss_card.temporary_defense
+                boss_card.intimidation_activated = False
+                boss_card.intimidation = False
+                boss_card.intimidation_counter = 0
+                intimidation_message = f"*{player_card.name} is no longer intimidated by {boss_card.name}!*"
+                battle_config.add_battle_history_messsage(intimidation_message)
+
+
+def tactics_damage_check(boss_card, battle_config):
+    if boss_card.damage_check:
+        if not boss_card.damage_check_activated:
+            if boss_card.focus_count in [4, 16, 27, 40, 65, 80]:
+                boss_card.damage_check_activated = True
+                boss_card.damage_check_limit = boss_card.max_health * 0.05
+                boss_card.damage_check_turns = 5
+                damage_check_message = f"*{boss_card.name} is charging a fatal blow, damage it to stop the attack!*"
+                battle_config.add_battle_history_messsage(damage_check_message)
+        if boss_card.damage_check_activated:
+            battle_config.add_battle_history_messsage(f"*{boss_card.name} is charging a fatal blow, damage it to stop the attack!*")
+            battle_config.is_turn = 0
+            if boss_card.damage_check_turns > 6:
+                battle_config.add_battle_history_messsage(f"*{boss_card.name} has dealt a fatal blow!*")
+
+
+def tactics_regeneration_check(boss_card, battle_config):
+    if boss_card.regeneration:
+        if not boss_card.regeneration_activated:
+            if battle_config.is_turn >= 50:
+                print("regeneration check")
+                boss_card.regeneration_activated = True
+                boss_card.health = boss_card.max_base_health
+                regeneration_message = f"*{boss_card.name} has regenerated!*"
+                battle_config.add_battle_history_messsage(regeneration_message)
+
+
+def tactics_death_blow(boss_card, player_card):
+    if boss_card.death_blow:
+        if boss_card.focus_count in [5, 15, 45, 70, 90]:
+            boss_card.death_blow_activated = True
+        if boss_card.death_blow_activated:
+            if any({player_card._shield.active, player_card._parry_active, player_card._barrier_active}):
+                player_card._shield_active = False
+                player_card._parry_active = False
+                player_card._barrier_active = False
+                death_blow_message = f"*{boss_card.name} destroyed {player_card.name} protections with a destructive blow!*"
+                boss_card.death_blow_activated = False
+            else:
+                player_card.health = 0
+                death_blow_message = f"*{boss_card.name} dealt a fatal blow to {player_card.name}!*"
+                boss_card.death_blow_activated = False
+
+
+def tactics_stagger_check(boss_card, player_card, battle_config):
+    if boss_card.stagger:
+        if boss_card.stagger_activated:
+            battle_config.is_turn = 1
+            stagger_message = f"*{player_card.name} is staggered and cannot move!*"
+            boss_card.stagger_activated = False
+
+
+def tactics_provoked_check(boss_card, battle_config):
+    if boss_card.provoked:
+        if boss_card.provoked_counter == 0 and boss_card.health <=0:
+            boss_card.max_health = 2000
+            boss_card.health = 2000
+            boss_card.provoked_activated = True
+            provoked_message = f"*{boss_card.name} has been provoked! It will now fight with all its might!*"
+            battle_config.add_battle_history_messsage(provoked_message)
+        if boss_card.provoked_activated:
+            if boss_card.provoked_counter <= 5:
+                print("provoked check")
+                boss_card.provoked_counter = boss_card.provoked_counter + 1
+            if boss_card.provoked_count > 5:
+                boss_card.health = 0
+                boss_card.provoked = False
+                boss_card.provoked_activated = False
+                provoked_message = f"*{boss_card.name} has been perished from exhaust!*"
+
+
+def tactics_almighty_will(boss_card, battle_config):
+    if boss_card.almighty_will:
+        if battle_config.is_turn in boss_card.almighty_will_turns:
+            battle_config.is_turn = random.randint(3, 80)
+            boss_card.focus_count = random.randint(3, 30)
+            almighty_will_message = f"*{boss_card.name} manipulated the flow of battle!*"
+            battle_config.add_battle_history_messsage(almighty_will_message)
 
 
 def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config):

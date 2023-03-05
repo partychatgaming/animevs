@@ -460,7 +460,6 @@ async def summonlevel(player, player_card):
         return
 
 
-
 async def updateRetry(player_id, mode, math_calc):
     player_info = db.queryUser({'DID' : str(player_id)})
     if player_info:
@@ -1638,6 +1637,7 @@ level_sync = {
     "AP": 2
 }
 
+
 elements = [
     "PHYSICAL",
     "FIRE",
@@ -1771,6 +1771,7 @@ passive_enhancer_suffix_mapping = {'ATK': ' %',
 'SIPHON': ' Healing 💉'
 }
 
+
 enhancer_mapping = {'ATK': 'Increase Attack %',
 'DEF': 'Increase Defense %',
 'STAM': 'Increase Stamina',
@@ -1808,7 +1809,6 @@ enhancer_mapping = {'ATK': 'Increase Attack %',
 }
 
 
-
 title_enhancer_mapping = {'ATK': 'Increase Attack',
 'DEF': 'Increase Defense',
 'STAM': 'Increase Stamina',
@@ -1844,6 +1844,7 @@ title_enhancer_mapping = {'ATK': 'Increase Attack',
 'PARRY': 'Returns 25% Damage, until broken',
 'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
+
 
 element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Damage',
 'FIRE': 'Does 25% damage of previous attack over the next opponent turns, stacks',
@@ -1929,6 +1930,20 @@ HIGH_TIER_CARDS = [6, 7]
 
 NOT_SAVE_MODES = ['Boss', 'CBoss', 'PVP', 'Abyss', 'SCENARIO', 'EXPLORE', 'RAID']
 BATTLE_OPTIONS = [1, 2, 3, 4, 5, 0]
+
+BOSS_TACTICS = [
+    'ENRAGE',
+    'OVERWHELMING POWER',
+    'DAMAGE CHECK',
+    'DEVASTATING BLOW',
+    'DEATH BLOW',
+    'ALMIGHTY WILL',
+    'STAGGER',
+    'PROVOKED',
+    'INTIMIDATION',
+    'PETRIFIED FEAR',
+    'BLOODLUST'
+]
 
 Healer_Enhancer_Check = ['HLT', 'LIFE']
 DPS_Enhancer_Check = ['FLOG', 'WITHER']
