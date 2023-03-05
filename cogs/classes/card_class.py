@@ -1857,9 +1857,9 @@ class Card:
                     self.health = self.health + 500
                     self.damage_healed = self.damage_healed + 500
                     self.max_health = self.max_health + 500
-                    battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Transformation: Mega Digivolution!!!")
+                    battle_config.add_battle_history_messsage(f"(**⚡**) **{self.name}** 🩸 Transformation: Mega Digivolution!!!")
                 else:
-                    battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Transformation: Digivolve")
+                    battle_config.add_battle_history_messsage(f"(**⚡**) **{self.name}** 🩸 Transformation: Digivolve")
             #Self Traits
             elif self.universe == "League Of Legends":                
                 _opponent_card.health = round(_opponent_card.health - (60 + battle_config.turn_total))
@@ -1885,7 +1885,7 @@ class Card:
                 self.stamina = 100
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50 + battle_config.turn_total
 
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
+                battle_config.add_battle_history_messsage(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
                 battle_config.next_turn()
                 battle_config.turn_total = battle_config.turn_total + 2
 
@@ -1923,7 +1923,7 @@ class Card:
                 _opponent_card.health = round(_opponent_card.health + 100)
                 _opponent_card.max_health = round(_opponent_card.max_health + 100)
 
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
+                battle_config.add_battle_history_messsage(f"(**🌀**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
                 battle_config.next_turn()
                 battle_config.turn_total = battle_config.turn_total + 2
 
@@ -1931,14 +1931,14 @@ class Card:
                 _opponent_card.stamina = _opponent_card.stamina + 60
                 _opponent_card.usedsummon = False
                 
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina 🌀")
+                battle_config.add_battle_history_messsage(f"(**🌀**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina 🌀")
                 battle_config.next_turn()
                 battle_config.turn_total = battle_config.turn_total + 2
 
             elif _opponent_card.universe == "Souls":
                 _opponent_card.attack = round(_opponent_card.attack + (60 + battle_config.turn_total))
 
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{60 + battle_config.turn_total}** 🔺")
+                battle_config.add_battle_history_messsage(f"(**🌀**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{60 + battle_config.turn_total}** 🔺")
                 battle_config.next_turn()
                 battle_config.turn_total = battle_config.turn_total + 2
 
@@ -1991,7 +1991,7 @@ class Card:
                 resolve_defense_value = round(
                     (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
 
-                opponent_card.card_lvl_ap_buff = opponent_card.card_lvl_ap_buff - 125
+                opponent_card.card_lvl_ap_buff = opponent_card.card_lvl_ap_buff - 150
 
                 self.stamina = self.stamina + self.resolve_value
                 self.health = self.health + resolve_health
