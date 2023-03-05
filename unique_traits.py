@@ -64,8 +64,8 @@ traits = [{
     'TRAIT': 'Combo Recognition : On opponent Focus, gain (60 + turn) ATK. Second Phase! : On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE.'
 },{
     'NAME': 'Death Note',
-    'EFFECT': 'Scheduled Death',
-    'TRAIT': ' Your First Focus After 250 Turns You Win.'
+    'EFFECT': 'Scheduled Death, Shinigami Eyes',
+    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death [100 + (10 * self.tier)] Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to increase Turn by (3 + Card Tier) then Focus.'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',

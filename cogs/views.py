@@ -403,7 +403,7 @@ async def viewuniverse(self, ctx, universe: str):
                     if trait['NAME'] == 'Pokemon':
                         mytrait = trait
             if mytrait:
-                traitmessage = f"**{mytrait['EFFECT']}**: {mytrait['TRAIT']}"
+                traitmessage = f"**{mytrait['EFFECT']}**| {mytrait['TRAIT']}"
                 
 
             embedVar = discord.Embed(title=f":earth_africa: | {universe_title} :crossed_swords: {fights} :fire: {dungeon_fights} ", description=textwrap.dedent(f"""
@@ -560,7 +560,7 @@ async def viewboss(self, ctx, boss : str):
                     if trait['NAME'] == 'Pokemon':
                         mytrait = trait
             if mytrait:
-                traitmessage = f"**{mytrait['EFFECT']}**: {mytrait['TRAIT']}"
+                traitmessage = f"**{mytrait['EFFECT']}**| {mytrait['TRAIT']}"
             
             embedVar = discord.Embed(title=f":japanese_ogre: | {uboss_name}\n:earth_africa: | {uboss_show} Boss", description=textwrap.dedent(f"""
             *{message}*

@@ -4643,7 +4643,7 @@ class Profile(commands.Cog):
                             if trait['NAME'] == 'Pokemon':
                                 mytrait = trait
                     if mytrait:
-                        traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                        traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
 
 
                     embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
@@ -5967,7 +5967,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                         if trait['NAME'] == 'Pokemon':
                                             mytrait = trait
                                 if mytrait:
-                                    traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                                    traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
                                     
                                 skin_stats = showcard("non-battle", skins, "none", skins['HLT'],skins['HLT'], skins['STAM'],skins['STAM'], False, base_title, False, skins['ATK'], skins['DEF'], 0, move1ap, move2ap, move3ap, enhap, enh, 0, None )
                                 embedVar = discord.Embed(title= f"{skins['NAME']}", description=textwrap.dedent(f"""
@@ -6527,7 +6527,7 @@ async def menucards(self, ctx):
                         if trait['NAME'] == 'Pokemon':
                             mytrait = trait
                 if mytrait:
-                    traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                    traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
 
 
                 embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
