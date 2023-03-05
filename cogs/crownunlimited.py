@@ -3225,8 +3225,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         embedVar.set_author(name=f"{player2_card._arm_message}\n{player2_card.summon_resolve_message}\n")
                                         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention} Select move below!")
                                         embedVar.set_image(url="attachment://image.png")
+                                        if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                            footer_text = battle_config.get_battle_footer_text(player1_card, player2_card, player3_card)
+                                        else:
+                                            footer_text = battle_config.get_battle_footer_text(player1_card, player2_card)
                                         embedVar.set_footer(
-                                            text=f"{battle_config.get_battle_footer_text(player1_card, player2_card)}",
+                                            text=f"{footer_text}",
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=1)
                                         await asyncio.sleep(1)
@@ -3450,8 +3454,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!")
                                             # await asyncio.sleep(2)
                                             embedVar.set_image(url="attachment://image.png")
+                                            if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                                footer_text = battle_config.get_battle_footer_text(player2_card, player3_card, player1_card)
+                                            else:
+                                                footer_text = battle_config.get_battle_footer_text(player2_card, player3_card)
                                             embedVar.set_footer(
-                                                text=f"{battle_config.get_battle_footer_text(player2_card, player3_card, player1_card)}",
+                                                text=f"{footer_text}",
                                                 icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
@@ -3503,8 +3511,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention} Select move below!")
                                         # await asyncio.sleep(2)
                                         embedVar.set_image(url="attachment://image.png")
+                                        if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player3_card, player1_card)
+                                        else:
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player3_card)
                                         embedVar.set_footer(
-                                            text=f"{battle_config.get_battle_footer_text(player2_card, player3_card)}",
+                                            text=f"{footer_text}",
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=2)
                                         await asyncio.sleep(2)
