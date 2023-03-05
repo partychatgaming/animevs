@@ -2904,7 +2904,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
   
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
-                                    battle_msg = await private_channel.send(embed=embedVar, components=components, file=player1_card.showcard(battle_config.mode, player1_arm, player1_title, battle_config.turn_total, player2_card.defense))
+                                    if player1.performance:
+                                        battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                    else:
+                                        battle_msg = await private_channel.send(embed=embedVar, components=components, file=player1_card.showcard(battle_config.mode, player1_arm, player1_title, battle_config.turn_total, player2_card.defense))
 
                                     # Make sure user is responding with move
                                     def check(button_ctx):
