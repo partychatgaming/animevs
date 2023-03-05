@@ -572,6 +572,8 @@ class CrownUnlimited(commands.Cog):
             universe_selection = await select_universe(self, ctx, p1, mode, p3)
             if not universe_selection:
                 return
+             battle.set_universe_selection_config(universe_selection)
+             battle.is_co_op_mode = True
 
             await battle_commands(self, ctx, battle, p1, None, None, p3)
         
