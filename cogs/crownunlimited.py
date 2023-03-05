@@ -2266,7 +2266,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         def check(button_ctx):
             print(button_ctx.author.id )
             print(user2)
-            return button_ctx.author.id == user2
+            return button_ctx.author == user2
         try:
             button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[coop_buttons_action_row], timeout=120, check=check)
 
