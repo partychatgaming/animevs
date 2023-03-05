@@ -3511,7 +3511,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         battle_msg = await private_channel.send(embed=embedVar, components=[battle_action_row, util_action_row, coop_util_action_row], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
                                         # Make sure user is responding with move
                                         def check(button_ctx):
-                                            return button_ctx.author == user2 and button_ctx.custom_id in options
+                                            return button_ctx.author == user2
 
                                         try:
                                             button_ctx: ComponentContext = await manage_components.wait_for_component(
@@ -3566,7 +3566,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                             
                                             elif button_ctx.custom_id == "0":
-                                                player3_card.use_block(battle_config, player2_card)
+                                                player3_card.use_block(battle_config, player2_card, player1_card)
                                                   
                                             elif button_ctx.custom_id == "9":
                                                 player3_card.use_block(battle_config, player2_card, player1_card)                                           
