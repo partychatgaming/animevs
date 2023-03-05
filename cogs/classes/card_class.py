@@ -2499,7 +2499,7 @@ class Card:
             if companion_card.move4enh in crown_utilities.Stamina_Enhancer_Check or companion_card.move4enh in crown_utilities.Time_Enhancer_Check:
                 opponent_card.stamina = opponent_card.stamina
 
-            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{companion_card.name}** used {companion_card.move4}:👥 Assisting **{companion_card.name}**")
+            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{companion_card.name}** used {companion_card.move4}:👥 Assisting **{self.name}**")
             battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
         else:
