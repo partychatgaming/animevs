@@ -907,14 +907,18 @@ class Battle:
             o_focus = '💓'
         elif your_card.used_focus:
             y_focus = '💓'
-        elif partner_card.used_focus:
-            p_focus = '💓'
+        
         if opponent_card.used_resolve:
             o_resolve = '⚡'
         elif your_card.used_resolve:
             y_resolve = '⚡'
-        elif partner_card.used_resolve:
-            p_resolve = '⚡'
+            
+        if partner_card:
+            if partner_card.used_focus:
+                p_focus = '💓'
+            if partner_card.used_resolve:
+                p_resolve = '⚡'
+            
             
         if self.is_co_op_mode or self.is_duo_mode:
             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
