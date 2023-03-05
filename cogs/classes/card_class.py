@@ -2908,6 +2908,8 @@ class Card:
         elif dmg['ELEMENT'] == "EARTH":
             self._shield_active = True
             self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
+            if self._shield_value <= 0:
+                self._shield_value = 0
             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} formed a 🌐 {str(self._shield_value)} Shield*")
             # battle_config.add_battle_history_messsage(f"*{self.name} erected a 🌐 {str(self._shield_value)} Shield*")
             opponent_card.health = opponent_card.health - dmg['DMG']

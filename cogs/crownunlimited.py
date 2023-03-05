@@ -4380,6 +4380,16 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
 def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config, companion = None):
+    #If any damage happened last turn that would kill
+    battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
+    burn_turn = player_card.set_burn_hit(opponent_card)
+    if burn_turn != "0":
+        battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
+    battle_config.add_battle_history_messsage(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
+    player_card.damage_dealt = round(player_card.damage_dealt)
+    opponent_card.damage_dealt = round(opponent_card.damage_dealt)
+    player_card.damage_healed = round(player_card.damage_healed)
+    opponent_card.damage_healed = round(opponent_card.damage_healed)
     if player_card.health <= 0:
         if battle_config.is_co_op_mode:
             if battle_config.is_turn == 0 or battle_config.ise_turn == 2:
@@ -4391,20 +4401,17 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
                 return battle_config.set_game_over(opponent_card,player_card)
             else:
                 return battle_config.set_game_over(player_card,opponent_card)
+    #If contiune to play
     player_card.reset_stats_to_limiter(opponent_card)
     player_card.yuyu_hakusho_attack_increase()
     player_card.activate_chainsawman_trait(battle_config)
-    battle_config.add_battle_history_messsage(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
-    burn_turn = player_card.set_burn_hit(opponent_card)
-    if burn_turn != "0":
-        battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']
         battle_config.add_battle_history_messsage(new_turn['MESSAGE'])
         opponent_card.freeze_enh = False
         # return new_turn
-    battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
+    
     player_card.set_gravity_hit()
     if not opponent_card.wind_element_activated:
         player_title.activate_title_passive(battle_config, player_card, opponent_card)
@@ -4420,10 +4427,6 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     if player_card.used_defend == True:
         player_card.defense = int(player_card.defense / 2)
         player_card.used_defend = False
-    player_card.damage_dealt = round(player_card.damage_dealt)
-    opponent_card.damage_dealt = round(opponent_card.damage_dealt)
-    player_card.damage_healed = round(player_card.damage_healed)
-    opponent_card.damage_healed = round(opponent_card.damage_healed)
     return False
 
 
@@ -4679,7 +4682,8 @@ async def scenario_drop(self, ctx, scenario, difficulty):
         vault_query = {'DID': str(ctx.author.id)}
         vault = db.queryVault(vault_query)
         scenario_level = scenario["ENEMY_LEVEL"]
-        scenario_gold = crown_utilities.scenario_gold_drop(scenario_level)
+        fight_count = len(scenario['ENEMIES'])
+        scenario_gold = crown_utilities.scenario_gold_drop(scenario_level,fight_count)
         # player_info = db.queryUser({'DID': str(vault['DID'])})
         
         owned_destinies = []
@@ -4710,7 +4714,7 @@ async def scenario_drop(self, ctx, scenario, difficulty):
             mode = "DUNGEON"
             scenario_gold = round(scenario_gold * 3)
         if len(rewards) > 1:
-            num_of_potential_rewards = len(rewards)
+            num_of_potential_rewards = (len(rewards) - 1)
             selection = round(random.randint(0, num_of_potential_rewards))
             rewarded = rewards[selection]
         else:
@@ -4730,14 +4734,14 @@ async def scenario_drop(self, ctx, scenario, difficulty):
             if len(vault['ARMS']) >= 25:
                 return f"You're maxed out on Arms! You earned :coin:**{scenario_gold}** instead!"
             elif rewarded in owned_arms:
-                return f"You already own {reward}! You earn :coin: **{cenario_gold}**."
+                return f"You already own {reward}! You earn :coin: **{scenario_gold}**."
             else:
                 response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': rewarded, 'DUR': 100}}})
                 return f"You earned _Arm:_ {reward} with ⚒️**{str(100)} Durability** and :coin: **{scenario_gold}**!"
         else:
             card = db.queryCard({"NAME": rewarded})
             u = await main.bot.fetch_user(str(ctx.author.id))
-            response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
+            response = await crown_utilities.store_drop_card(str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
             response = f"{response}\nYou earned :coin: **{scenario_gold}**!"
             if not response:
                 await crown_utilities.bless(15000, str(ctx.author.id))
