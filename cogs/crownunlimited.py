@@ -3430,7 +3430,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 if battle_config.is_co_op_mode:
                                     game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config, player1_card)
                                 else:
-                                beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
+                                    game_over_check = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
                                 if game_over_check:
                                     break
                                 player2_card.set_deathnote_message(battle_config)
@@ -3619,8 +3619,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             elif battle_config.is_turn == 3:
                                 if battle_config.is_co_op_mode:
                                     game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config, player1_card)
-                                else::
-                                    beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
+                                else:
+                                    game_over_check =beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
                                 if game_over_check:
                                     break
                                 player3_card.set_deathnote_message(battle_config)
