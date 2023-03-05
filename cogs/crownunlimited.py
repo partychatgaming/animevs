@@ -2275,7 +2275,6 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             
             if button_ctx.custom_id == "yes":
                 await button_ctx.defer(ignore=True)
-                continue
         
         except Exception as ex:
             trace = []
