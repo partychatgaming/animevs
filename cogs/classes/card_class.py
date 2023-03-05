@@ -2842,7 +2842,9 @@ class Card:
                                 self._barrier_active = False
                                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
                             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
-                            opponent_card.health = round(.75 * (opponent_card.attack + opponent_card.defense))
+                            print(opponent_card.attack)
+                            print(opponent_card.defense)
+                            opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
                             opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
                             print(opponent_card.health)
                             opponent_card.used_resolve = True

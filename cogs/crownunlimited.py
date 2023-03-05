@@ -2786,7 +2786,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                         if battle_config.is_turn == 0:
-                            beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
+                            game_over_check = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
+                            if game_over_check:
+                                break
 
                             player1_card.set_deathnote_message(battle_config)
                             player2_card.set_deathnote_message(battle_config)
@@ -3152,8 +3154,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                         if battle_config.is_turn == 1:
-                            beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
-
+                            game_over_check = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
+                            if game_over_check:
+                                break
                             player1_card.set_deathnote_message(battle_config)
                             player2_card.set_deathnote_message(battle_config)
                             if battle_config.is_co_op_mode:
@@ -3414,7 +3417,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
                             if battle_config.is_turn == 2:
                                 beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
-
+                                if game_over_check:
+                                    break
                                 player2_card.set_deathnote_message(battle_config)
                                 player3_card.set_deathnote_message(battle_config)
 
@@ -3600,7 +3604,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             # Opponent Turn Start
                             elif battle_config.is_turn == 3:
                                 beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
-
+                                if game_over_check:
+                                    break
                                 player3_card.set_deathnote_message(battle_config)
                                 player2_card.set_deathnote_message(battle_config)
 
@@ -4347,6 +4352,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
     opponent_card.damage_healed = round(opponent_card.damage_healed)
+    return battle_config.set_game_over(player_card,opponent_card)
 
 
 
@@ -4650,20 +4656,20 @@ async def scenario_drop(self, ctx, scenario, difficulty):
             reward = f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** dmg"
 
             if len(vault['ARMS']) >= 25:
-                return f"You're maxed out on Arms! You earned :coin:**{'{:,}'.format(scenario_gold)}** instead!"
+                return f"You're maxed out on Arms! You earned :coin:**{scenario_gold}** instead!"
             elif rewarded in owned_arms:
-                return f"You already own {reward}! You earn :coin: **{'{:,}'.format(scenario_gold)}**."
+                return f"You already own {reward}! You earn :coin: **{cenario_gold}**."
             else:
                 response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': rewarded, 'DUR': 100}}})
-                return f"You earned _Arm:_ {reward} with ⚒️**{str(100)} Durability** and :coin: **{'{:,}'.format(scenario_gold)}**!"
+                return f"You earned _Arm:_ {reward} with ⚒️**{str(100)} Durability** and :coin: **{scenario_gold}**!"
         else:
             card = db.queryCard({"NAME": rewarded})
             u = await main.bot.fetch_user(str(ctx.author.id))
             response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
-            response = f"{response}\nYou earned :coin: **{'{:,}'.format(scenario_gold)}**!"
+            response = f"{response}\nYou earned :coin: **{scenario_gold}**!"
             if not response:
                 await crown_utilities.bless(15000, str(ctx.author.id))
-                return f"You earned :coin: **{'{:,}'.format(scenario_gold)}**!"
+                return f"You earned :coin: **{scenario_gold}**!"
             return response
 
     except Exception as ex:
