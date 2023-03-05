@@ -1860,7 +1860,7 @@ class Card:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Transformation: Mega Digivolution!!!")
                 else:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Transformation: Digivolve")
-
+            #Self Traits
             elif self.universe == "League Of Legends":                
                 _opponent_card.health = round(_opponent_card.health - (60 + battle_config.turn_total))
                 self.damage_dealth = self.damage_dealt + (60 + battle_config.turn_total)
@@ -1918,7 +1918,8 @@ class Card:
                 battle_config.next_turn()
                 battle_config.turn_total = battle_config.turn_total + 2
 
-            elif _opponent_card.universe == "One Punch Man" and self.universe != "Death Note":
+            #Opponent Traits
+            if _opponent_card.universe == "One Punch Man" and self.universe != "Death Note":
                 _opponent_card.health = round(_opponent_card.health + 100)
                 _opponent_card.max_health = round(_opponent_card.max_health + 100)
 
