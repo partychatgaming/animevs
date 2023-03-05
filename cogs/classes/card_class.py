@@ -2845,6 +2845,8 @@ class Card:
                             print(opponent_card.attack)
                             print(opponent_card.defense)
                             opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
+                            if opponent_card.health < 0:
+                                opponent_card.health = (800 * opponent_card.tier)
                             opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
                             print(opponent_card.health)
                             opponent_card.used_resolve = True
