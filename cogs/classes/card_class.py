@@ -139,8 +139,6 @@ class Card:
             self._tutorial_message = ""
             self.resolve_value = 60
             self.summon_resolve_message = ""
-            self.scheduled_death_sent = False
-            self.scheduled_death = 100 + (10 * self.tier)
 
             # Talisman Info
             self._talisman = "None"
@@ -505,7 +503,7 @@ class Card:
                     if trait['NAME'] == 'Pokemon':
                         mytrait = trait
             if mytrait:
-                self.traitmessage = f"{mytrait['EFFECT']}| {mytrait['TRAIT']}"
+                self.traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
             else:
                 self.traitmessage = ""
 
@@ -950,10 +948,10 @@ class Card:
 
 
     def set_deathnote_message(self, battle_config):
-        if battle_config.turn_total == 0 and not self.scheduled_death_sent:
-            self.scheduled_death_sent = True
+        if battle_config.turn_total == 0 and not battle_config.turn_zero_has_happened:
+            battle_config.turn_zero_has_happened = True
             if self.universe == "Death Note":
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {self.scheduled_death}**")
+                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓")
 
 
     def set_souls_trait(self):
@@ -1898,7 +1896,7 @@ class Card:
                 battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Death Note":
-                if battle_config.turn_total >= self.scheduled_death:
+                if battle_config.turn_total >= 250:
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{_opponent_card.name}** 🩸 had a heart attack and died")
                     
                     _opponent_card.health = 0
@@ -2518,14 +2516,6 @@ class Card:
 
     def use_block(self, battle_config, opponent_card, co_op_card=None):
         if self.stamina >= 20:
-            if self.universe == "Death Note":
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 **{self.name}** Loses {round(self.max_health * .05)} Max Health to Increase Turn Count by {3 + self.tier}!")
-                self.max_health = round(self.max_health  - (self.max_health * .05))
-                if self.health >= self.max_health:
-                    self.health = round(self.max_health)
-                self.stamina = 0
-                battle_config.next_turn()
-                battle_config.turn_total = battle_config.turn_total + self.tier + 3
             if self.universe == "Attack On Titan":
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Gained {(100 * self.tier)} Health & Max Health ❤️")
                 self.max_health = round(self.max_health + (100 * self.tier))
@@ -2908,7 +2898,7 @@ class Card:
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
                 self.stamina = 0
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (dmg['DMG']*10 + (dmg['DMG'] / (battle_config.turn_total + 1)))
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + ((dmg['DMG'] * .10) + (dmg['DMG'] / (battle_config.turn_total + 1)))
             self.used_block = True
             self.defense = round(self.defense * 2)
             battle_config.turn_total = battle_config.turn_total + 3

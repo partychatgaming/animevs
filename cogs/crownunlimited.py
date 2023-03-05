@@ -4383,7 +4383,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     #If any damage happened last turn that would kill
     battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
     burn_turn = player_card.set_burn_hit(opponent_card)
-    if burn_turn != "0":
+    if burn_turn != None:
         battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
     battle_config.add_battle_history_messsage(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
     player_card.damage_dealt = round(player_card.damage_dealt)
@@ -4392,7 +4392,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_healed = round(opponent_card.damage_healed)
     if player_card.health <= 0:
         if battle_config.is_co_op_mode:
-            if battle_config.is_turn == 0 or battle_config.ise_turn == 2:
+            if battle_config.is_turn == 0 or battle_config.is_turn == 2:
                 return battle_config.set_game_over(player_card,opponent_card, companion)
             else:
                 return battle_config.set_game_over(opponent_card,player_card, companion)
