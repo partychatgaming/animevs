@@ -2264,7 +2264,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         coop_buttons_action_row = manage_components.create_actionrow(*coop_buttons)
         msg = await ctx.send(f"{user2.mention} Do you accept the **Coop Invite**?", components=[coop_buttons_action_row])
         def check(button_ctx):
-            return button_ctx.author.id == p2.did
+            return button_ctx.author.id == user2
         try:
             button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[coop_buttons_action_row], timeout=120, check=check)
 
@@ -2275,6 +2275,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             
             if button_ctx.custom_id == "yes":
                 await button_ctx.defer(ignore=True)
+                continue
         
         except Exception as ex:
             trace = []
