@@ -20,6 +20,12 @@ import random
 import textwrap
 from collections import Counter
 from discord_slash import cog_ext, SlashContext
+from .classes.player_class import Player
+from .classes.card_class import Card
+from .classes.title_class import Title
+from .classes.arm_class import Arm
+from .classes.summon_class import Summon
+from .classes.battle_class  import Battle
 
 emojis = ['👍', '👎']
 
@@ -38,6 +44,12 @@ class Matches(commands.Cog):
     async def analysis(self, ctx, card: str):
         try:
             card_info = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
+            c = Card(card_info['NAME'], card_info['PATH'], card_info['PRICE'], card_info['EXCLUSIVE'], card_info['AVAILABLE'], card_info['IS_SKIN'], card_info['SKIN_FOR'], card_info['HLT'], card_info['HLT'], card_info['STAM'], card_info['STAM'], card_info['MOVESET'], card_info['ATK'], card_info['DEF'], card_info['TYPE'], card_info['PASS'][0], card_info['SPD'], card_info['UNIVERSE'], card_info['HAS_COLLECTION'], card_info['TIER'], card_info['COLLECTION'], card_info['WEAKNESS'], card_info['RESISTANT'], card_info['REPEL'], card_info['ABSORB'], card_info['IMMUNE'], card_info['GIF'], card_info['FPATH'], card_info['RNAME'], card_info['RPATH'], False)
+            c.set_affinity_message()
+            title = {'TITLE': 'CARD ANALYSIS'}
+            arm = {'ARM': 'CARD ANALYSIS'}
+            c.set_price_message_and_card_icon()
+            
             match_query = {"CARD": str(card_info['NAME'])}
             response = db.queryManyMatches(match_query)
             if response:
@@ -192,10 +204,6 @@ class Matches(commands.Cog):
                 card_exp = 150
                 
                 turn = 300
-                    
-                    
-                card_file = showcard("non-battle", card_info, "none", o_max_health, o_health, o_max_stamina, o_stamina, resolved, title, focused,
-                                o_attack, o_defense, turn, move1ap, move2ap, move3ap, move4ap, move4enh, 0, None)
                 
                 embedVar2 = discord.Embed(title=f":vs: {card_info['NAME']} | _Crown Analysis_".format(self), description=f"**Card Master**\n{card_main}", colour=0xe91e63) 
                 embedVar2.add_field(name=f":crown:Tales Stats", value=f"{tale_message}", inline=False)
@@ -203,7 +211,7 @@ class Matches(commands.Cog):
                 embedVar2.add_field(name=f"👹Boss Stats", value=f"{boss_message}", inline=False)
                 embedVar2.add_field(name=f"⚔️PVP Stats", value=f"{pvp_message}", inline=False)
                 embedVar2.set_footer(text=f"/player {card_main} - Lookup Card Master")
-                await ctx.send(embed=embedVar2, file=card_file)
+                await ctx.send(embed=embedVar2, file=c.showcard("non-battle","none".title,0,0))
                 
                 
             else:
