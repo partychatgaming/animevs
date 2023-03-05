@@ -160,7 +160,7 @@ class Lookup(commands.Cog):
                     guild_buff = team_info['ACTIVE_GUILD_BUFF']
                     guild_buff_active = team_info['GUILD_BUFF_ON']
                     if guild_buff == "Rift" and guild_buff_active:
-                        rift_message = "*🟢 On Guild Buff*"
+                        rift_message = "*🟢 Guild Buff On*"
                 
                 family = d['FAMILY'] 
                 family_info = db.queryFamily({"HEAD": str(family)})

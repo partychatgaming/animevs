@@ -3975,6 +3975,8 @@ class Profile(commands.Cog):
                 t2_acceptable = [3,4,5]
                 t3_acceptable = [5,6,7]
                 
+                
+                
                 t1_pre_list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_name), 'TIER': {'$in': t1_acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION']]
                 t1_card_message = (f"💵 {'{:,}'.format(adjusted_prices['C1'])} *🎴{len(t1_pre_list_of_cards)}*")
                 if not t1_pre_list_of_cards:

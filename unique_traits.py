@@ -65,7 +65,7 @@ traits = [{
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death',
-    'TRAIT': ' Your First Focus After 100 Turns You Win.'
+    'TRAIT': ' Your First Focus After 250 Turns You Win.'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',

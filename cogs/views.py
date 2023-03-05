@@ -231,7 +231,7 @@ async def viewtitle(self, ctx, title: str):
             t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
             t.set_type_message_and_price_message()
 
-            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[t.universe]} {t.name}\n{t.price_message}".format(self), colour=000000)
+            embedVar = discord.Embed(title=f"🎗️ | {t.name}\n{crown_utilities.crest_dict[t.universe]} | {t.universe}\n{t.price_message}".format(self), colour=000000)
             if t.universe != "Unbound":
                 embedVar.set_thumbnail(url=t.title_img)
             embedVar.add_field(name=f"**Unique Passive**", value=f"{t.set_title_embed_message()}", inline=False)
@@ -265,7 +265,7 @@ async def viewarm(self, ctx, arm: str):
             a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
             #a.set_element_emoji()
             #a.set_message_and_price_message()
-            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[a.universe]} {a.name}\n{a.price_message}".format(self), colour=000000)
+            embedVar = discord.Embed(title=f"🦾 | {a.name}\n{crown_utilities.crest_dict[a.universe]} | {a.universe}\n{a.price_message}".format(self), colour=000000)
             if a.universe != "Unbound":
                 embedVar.set_thumbnail(url=a.show_img)
 
