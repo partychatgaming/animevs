@@ -66,8 +66,8 @@ class Arm:
 
         if self.universe in crown_utilities.pokemon_universes:
             self.pokemon_arm = True
-        
-        self.element_ability = crown_utilities.element_mapping[self.element]
+        if self.element:
+            self.element_ability = crown_utilities.element_mapping[self.element]
 
 
 
