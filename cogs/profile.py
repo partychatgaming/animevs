@@ -3170,7 +3170,7 @@ class Profile(commands.Cog):
                                             currentopponent = universe['CROWN_TALES'].index(opp)
                                             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
                             player = db.queryUser({'DID': str(ctx.author.id)})
-                            p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+                            p = Player(player['AUTOSAVE'],player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
                             player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'],
                             player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
@@ -3975,6 +3975,8 @@ class Profile(commands.Cog):
                 t2_acceptable = [3,4,5]
                 t3_acceptable = [5,6,7]
                 
+                
+                
                 t1_pre_list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_name), 'TIER': {'$in': t1_acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION']]
                 t1_card_message = (f"💵 {'{:,}'.format(adjusted_prices['C1'])} *🎴{len(t1_pre_list_of_cards)}*")
                 if not t1_pre_list_of_cards:
@@ -4641,7 +4643,7 @@ class Profile(commands.Cog):
                             if trait['NAME'] == 'Pokemon':
                                 mytrait = trait
                     if mytrait:
-                        traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                        traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
 
 
                     embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
@@ -5965,7 +5967,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                         if trait['NAME'] == 'Pokemon':
                                             mytrait = trait
                                 if mytrait:
-                                    traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                                    traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
                                     
                                 skin_stats = showcard("non-battle", skins, "none", skins['HLT'],skins['HLT'], skins['STAM'],skins['STAM'], False, base_title, False, skins['ATK'], skins['DEF'], 0, move1ap, move2ap, move3ap, enhap, enh, 0, None )
                                 embedVar = discord.Embed(title= f"{skins['NAME']}", description=textwrap.dedent(f"""
@@ -6525,7 +6527,7 @@ async def menucards(self, ctx):
                         if trait['NAME'] == 'Pokemon':
                             mytrait = trait
                 if mytrait:
-                    traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                    traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
 
 
                 embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
@@ -9280,7 +9282,7 @@ async def quests(self, ctx):
                                         currentopponent = universe['CROWN_TALES'].index(opp)
                                         update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
                         player = db.queryUser({'DID': str(ctx.author.id)})
-                        p = Player(player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
+                        p = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
                         player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])
 
                         #print(currentopponent)

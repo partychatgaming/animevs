@@ -525,7 +525,7 @@ async def viewtitle(self, ctx, data):
             t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
             t.set_type_message_and_price_message()
 
-            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[t.universe]} {t.name}\n{t.price_message}".format(self), colour=000000)
+            embedVar = discord.Embed(title=f"🎗️ | {t.name}\n{crown_utilities.crest_dict[t.universe]} | {t.universe}\n{t.price_message}".format(self), colour=000000)
             if t.universe != "Unbound":
                 embedVar.set_thumbnail(url=t.title_img)
             embedVar.add_field(name=f"**Unique Passive**", value=f"{t.set_title_embed_message()}", inline=False)
@@ -556,13 +556,14 @@ async def viewarm(self, ctx, data):
     try:
         if arm:
             a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
-            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[a.universe]} {a.name}\n{a.price_message}".format(self), colour=000000)
-            if a.is_not_universe_unbound():
+            embedVar = discord.Embed(title=f"🦾 | {a.name}\n{crown_utilities.crest_dict[a.universe]} | {a.universe}\n{a.price_message}".format(self), colour=000000)
+            if a.universe != "Unbound":
                 embedVar.set_thumbnail(url=a.show_img)
 
             if a.is_move():
                 # embedVar.add_field(name=f"Arm Move Element", value=f"{element}", inline=False)
-                embedVar.add_field(name=f"{a.type_message} {a.element} Attack", value=f"{a.element_emoji} **{a.name}**: **{a.passive_value}**", inline=False)
+                embedVar.add_field(name=f"{a.type_message} {a.element.title()} Attack", value=f"{a.element_emoji} | **{a.name}**: **{a.passive_value}**\n *{a.element_ability}*", inline=False)
+                # embedVar.add_field(name=f":sunny: | Elemental Effect", value=f"*{a.element_ability}*", inline=False)
                 embedVar.set_footer(text=f"The new {a.type_message} attack will reflect on your card when equipped")
 
             else:
@@ -684,7 +685,7 @@ async def viewuniverse(self, ctx, data):
                     if trait['NAME'] == 'Pokemon':
                         mytrait = trait
             if mytrait:
-                traitmessage = f"**{mytrait['EFFECT']}**: {mytrait['TRAIT']}"
+                traitmessage = f"**{mytrait['EFFECT']}**| {mytrait['TRAIT']}"
                 
 
             embedVar = discord.Embed(title=f":earth_africa: | {universe_title} :crossed_swords: {fights} :fire: {dungeon_fights} ", description=textwrap.dedent(f"""
@@ -832,7 +833,7 @@ async def viewboss(self, ctx, boss : str):
                     if trait['NAME'] == 'Pokemon':
                         mytrait = trait
             if mytrait:
-                traitmessage = f"**{mytrait['EFFECT']}**: {mytrait['TRAIT']}"
+                traitmessage = f"**{mytrait['EFFECT']}**| {mytrait['TRAIT']}"
             
             embedVar = discord.Embed(title=f":japanese_ogre: | {uboss_name}\n:earth_africa: | {uboss_show} Boss", description=textwrap.dedent(f"""
             *{message}*

@@ -4,8 +4,10 @@ from discord.ext import commands
 import bot as main
 import crown_utilities
 import db
-import dataclasses as data
+import dataclasses as datac
+import classes as data
 import messages as m
+import asyncio
 import numpy as np
 import help_commands as h
 import textwrap

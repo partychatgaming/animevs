@@ -187,7 +187,8 @@ class Battle:
         
         self.blocking_traits = ['Attack On Titan',
                            'Bleach',
-                           'Black Clover'
+                           'Black Clover',
+                           'Death Note'
         ]
         self.focus_traits = ['Black Clover', 
                         'Dragon Ball Z',
@@ -875,14 +876,73 @@ class Battle:
     
 
     def get_battle_window_title_text(self, opponent_card, your_card, partner_card=None):
-        return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: ❤️{round(your_card.health)} 🌀{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
+        o_resolve = '🌀'
+        y_resolve = '🌀'
+        p_resolve = '🌀'
+        o_focus = '❤️'
+        y_focus = '❤️'
+        p_focus = '❤️'
+        
+        if opponent_card.used_focus:
+            o_focus = '💖'
+        if your_card.used_focus:
+            y_focus = '💖'
+        if opponent_card.used_resolve:
+            o_resolve = '⚡'
+        if your_card.used_resolve:
+            y_resolve = '⚡'
+            
+        if partner_card:
+            if partner_card.used_focus:
+                p_focus = '💓'
+            if partner_card.used_resolve:
+                p_resolve = '⚡'
+        #return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
+        if self.is_turn == 1:
+            if self.is_co_op_mode or self.is_duo_mode:
+                return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
+            else:
+                return f"{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}\n{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}"
+        elif self.is_turn ==3:
+            return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}"
+        elif self.is_turn ==0:
+            if self.is_co_op_mode or self.is_duo_mode:
+                return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
+            else:
+                return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
+        else:
+            return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}\n{partner_card.name}: {y_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}"
 
 
     def get_battle_footer_text(self, opponent_card, your_card, partner_card=None):
-        if not self.is_co_op_mode or not self.is_duo_mode:
-            return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}"
+        o_resolve = '🌀'
+        y_resolve = '🌀'
+        p_resolve = '🌀'
+        o_focus = '❤️'
+        y_focus = '❤️'
+        p_focus = '❤️'
+        
+        if opponent_card.used_focus:
+            o_focus = '💖'
+        if your_card.used_focus:
+            y_focus = '💖'
+        
+        if opponent_card.used_resolve:
+            o_resolve = '⚡'
+        if your_card.used_resolve:
+            y_resolve = '⚡'
+            
+        if partner_card:
+            if partner_card.used_focus:
+                p_focus = '💖'
+            if partner_card.used_resolve:
+                p_resolve = '⚡'
+            
+            
+        if self.is_co_op_mode or self.is_duo_mode:
+            return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
         else:
-            return f"{opponent_card.name}: ❤️{round(opponent_card.health)} 🌀{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{partner_card.name}: ❤️{round(partner_card.health)} 🌀{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}"
+            return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
 
 
     def ai_battle_command(self, your_card, opponent_card):
@@ -1270,7 +1330,7 @@ class Battle:
                     )
                 )
                 
-        if your_card.stamina >= 20 and self.is_co_op_mode:
+        if your_card.stamina >= 20 and self.is_co_op_mode and self.mode in crown_utilities.DUO_M:
             if your_card.stamina >= 20:
                 c_butts = [
                     manage_components.create_button(
@@ -1381,13 +1441,13 @@ class Battle:
         if not self.is_abyss_game_mode and not self.is_scenario_game_mode:
             if not self.is_tutorial_game_mode:
                 if self.is_pvp_game_mode:
-                    response = f"Your game timed out. Your channel has been closed"
+                    response = f"Your :vs: timed out. Your channel has been closed"
                 elif self.is_boss_game_mode:
-                    response = f"Your game timed out. Your channel has been closed."
+                    response = f"Your Boss Fight timed out. Your channel has been closed."
                 else:
-                    response = f"Your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
+                    response = f"Your Game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
             else:
-                response = f"Your game timed out. Your channel has been closed, restart the tutorial with **/solo**."
+                response = f"Your Game timed out. Your channel has been closed, restart the tutorial with **/solo**."
         else:
             response = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
         self.match_has_ended = True
@@ -1452,7 +1512,10 @@ class Battle:
             close_message = "Explore Battle"
             picon = ":milky_way:"
             f_message = f"💀 | Explore Battle Failed!"
-            # db_adjustment = 0
+        if self.is_scenario_game_mode:
+            close_message = "Scenario Battle"
+            picon = "📹"
+            f_message = f"💀 | Scenario Battle Ended."
             
             
 
@@ -1475,6 +1538,10 @@ class Battle:
             close_message = "Tutorial"
             icon2 = ":teacher:"
             f_message = f"🧠 | Tutorial will teach you about Game Mechanics and Card Abiltiies!"
+        if self.is_raid_game_mode:
+            close_message = "Raid"
+            icon2 = "🛡️"
+            f_message = f"⛩️ | Raid Associations to Claim the Bounty or Claim The Shield Title"
             
 
                 

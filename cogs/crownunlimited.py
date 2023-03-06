@@ -199,12 +199,12 @@ class CrownUnlimited(commands.Cog):
                                          description=textwrap.dedent(f"""\
                 **Bounty** **{selected_card.bounty_message}**
                 {selected_card.battle_message}
-
-                To turn off explore mode, use the command `/explore`
                 """), colour=0xf1c40f)
              
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.set_footer(text=f"Use /explore to exit Explore Mode",icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
+                
     
                 setchannel = discord.utils.get(channel_list, name=server_channel)
                 await setchannel.send(f":milky_way:{message.author.mention}") 
@@ -572,6 +572,8 @@ class CrownUnlimited(commands.Cog):
             universe_selection = await select_universe(self, ctx, p1, mode, p3)
             if not universe_selection:
                 return
+            battle.set_universe_selection_config(universe_selection)
+            battle.is_co_op_mode = True
 
             await battle_commands(self, ctx, battle, p1, None, None, p3)
         
@@ -2247,7 +2249,8 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
     await p.set_guild_data()
     
     if mode in crown_utilities.CO_OP_M and mode not in crown_utilities.DUO_M:
-        await ctx.send(f"{p.name} needs your help! React in server to join their Coop Tale!!")
+        user2 = await main.bot.fetch_user(p2.did)
+        opponent_ping = user2.mention
         coop_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.green,
@@ -2261,9 +2264,11 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
                     )
                 ]
         coop_buttons_action_row = manage_components.create_actionrow(*coop_buttons)
-        msg = await ctx.send(f"{p2.did.mention} Do you accept the **Coop Invite**?", components=[coop_buttons_action_row])
+        msg = await ctx.send(f"{user2.mention} Do you accept the **Coop Invite**?", components=[coop_buttons_action_row])
         def check(button_ctx):
-            return button_ctx.author.id == p2.did
+            print(button_ctx.author.id )
+            print(user2)
+            return button_ctx.author == user2
         try:
             button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[coop_buttons_action_row], timeout=120, check=check)
 
@@ -2345,7 +2350,6 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             if  mode in crown_utilities.DUNGEON_M:
                 buttons = [
                     manage_components.create_button(style=3, label=label_text, custom_id="start"),
-                    manage_components.create_button(style=2, label=scenario_text, custom_id="scenario"),
                 ]
         custom_action_row = manage_components.create_actionrow(*buttons)        
 
@@ -2353,9 +2357,6 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
                 if button_ctx.custom_id == "scenario":
-                    if button_ctx.label == "Universe Raid!":
-                        await ctx.send("Universe Raids Coming Soon...")
-                        return
                     await button_ctx.defer(ignore=True)
                     universe = str(button_ctx.origin_message.embeds[0].title)
                     await scenario(self, ctx, p, universe)
@@ -2797,9 +2798,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         tactics_damage_check(player2_card, battle_config)
                         tactics_regeneration_check(player2_card, battle_config)
                         tactics_stagger_check(player2_card, player1_card, battle_config)
+                        if battle_config.is_co_op_mode:
+                            pre_turn_zero = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config, player3_card)
+                        else:
+                            pre_turn_zero = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
                         
                         if battle_config.is_turn == 0:
-                            beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
 
                             player1_card.set_deathnote_message(battle_config)
                             player2_card.set_deathnote_message(battle_config)
@@ -2828,7 +2832,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 if battle_config.is_boss_game_mode:
                                     await private_channel.send(embed=battle_config._boss_embed_message)
                                 
-                                continue 
+                                #continue 
                             else:
                                 if battle_config.is_auto_battle_game_mode:                                    
                                     embedVar = await auto_battle_embed_and_starting_traits(ctx, player1_card, player2_card, battle_config, None)
@@ -2868,9 +2872,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     util_action_row = manage_components.create_actionrow(*battle_config.utility_buttons)
                                     
                                     if battle_config.is_co_op_mode:
-                                        coop_util_action_row = manage_components.create_actionrow(*battle_config.co_op_buttons)
                                         player3_card.set_battle_arm_messages(player2_card)
                                         if player1_card.stamina >= 20:
+                                            coop_util_action_row = manage_components.create_actionrow(*battle_config.co_op_buttons)
                                             components = [battle_action_row, coop_util_action_row, util_action_row]
                                         else:
                                             components = [battle_action_row, util_action_row]
@@ -2900,7 +2904,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
   
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
-                                    battle_msg = await private_channel.send(embed=embedVar, components=components, file=player1_card.showcard(battle_config.mode, player1_arm, player1_title, battle_config.turn_total, player2_card.defense))
+                                    if player1.performance:
+                                        embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player1_card.move1_emoji}{player1_card.move1ap}\n{player1_card.move2_emoji}{player1_card.move2ap}\n{player1_card.move3_emoji}{player1_card.move3ap}\n:microbe:{player1_card.move4enh} {player1_card.move4ap}")
+                                        battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                    else:
+                                        battle_msg = await private_channel.send(embed=embedVar, components=components, file=player1_card.showcard(battle_config.mode, player1_arm, player1_title, battle_config.turn_total, player2_card.defense))
 
                                     # Make sure user is responding with move
                                     def check(button_ctx):
@@ -3092,7 +3100,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 player3_card.use_companion_enhancer(battle_config, player2_card, player1_card)
 
                                             elif button_ctx.custom_id == "9":
-                                                player3_card.use_block(battle_config, player2_card, player3_card, player1_card)
+                                                player3_card.use_block(battle_config, player2_card, player1_card)
 
                                         if button_ctx.custom_id == "0":
                                             if battle_config.is_tutorial_game_mode and battle_config.tutorial_block==False:
@@ -3118,9 +3126,23 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     
                                     except asyncio.TimeoutError:
                                         await battle_msg.edit(components=[])
-                                        if not battle_config.is_abyss_game_mode and not battle_config.is_scenario_game_mode and not battle_config.is_explore_game_mode and not battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
+                                        if not any((battle_config.is_abyss_game_mode, 
+                                                    battle_config.is_scenario_game_mode, 
+                                                    battle_config.is_explore_game_mode, 
+                                                    battle_config.is_pvp_game_mode, 
+                                                    battle_config.is_tutorial_game_mode,
+                                                    battle_config.is_boss_game_mode)):
                                             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                                             await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                                        elif any((battle_config.is_pvp_game_mode, 
+                                                    battle_config.is_tutorial_game_mode
+                                                                )):
+                                            await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                                        else:
+                                            await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
+                                        # if not battle_config.is_abyss_game_mode and not battle_config.is_scenario_game_mode and not battle_config.is_explore_game_mode and not battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
+                                        #     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                        #     await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                         await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
                                         return
                                     except Exception as ex:
@@ -3141,11 +3163,20 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         guild = self.bot.get_guild(main.guild_id)
                                         channel = guild.get_channel(main.guild_channel)
                                         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+                        
+                        if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                            game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
+                        else:
+                            game_over_check = battle_config.set_game_over(player1_card, player2_card, None)
+                        if game_over_check:
+                            break
+                        if battle_config.is_co_op_mode:
+                            pre_turn_one = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config, player3_card)
+                        else:
+                            pre_turn_one = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
 
 
                         if battle_config.is_turn == 1:
-                            beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
-
                             player1_card.set_deathnote_message(battle_config)
                             player2_card.set_deathnote_message(battle_config)
                             if battle_config.is_co_op_mode:
@@ -3171,8 +3202,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     embedVar.add_field(name=f"A great aura starts to envelop **{player2_card.name}** ",
                                                     value=f"{battle_config._aura_boss_description}")
                                     embedVar.set_footer(text=f"{player2_card.name} Says: 'Now, are you ready for a real fight?'")
-                                    await private_channel.send(embed=embedVar)
-                                    # battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌀 **{player2_card.name}** focused")
+                                    await ctx.send(embed=embedVar)
                                     # await asyncio.sleep(2)
                                     if player2_card.universe == "Digimon" and player2_card.used_resolve is False:
                                         embedVar = discord.Embed(title=f"(**{battle_config.turn_total}**) :zap: **{player2_card.name}** Resolved!", description=f"{battle_config._rmessage_boss_description}",
@@ -3190,8 +3220,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 {battle_config.get_previous_moves_embed()}
                                 
                                 """), color=0xe74c3c)
+                                if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                    footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
+                                else:
+                                    footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                 embedVar.set_footer(
-                                    text=f"{battle_config.get_battle_window_title_text(player2_card, player1_card)}",
+                                    text=f"{footer_text}",
                                     icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
 
 
@@ -3213,12 +3247,20 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         embedVar.set_author(name=f"{player2_card._arm_message}\n{player2_card.summon_resolve_message}\n")
                                         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention} Select move below!")
                                         embedVar.set_image(url="attachment://image.png")
+                                        if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
+                                        else:
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                         embedVar.set_footer(
-                                            text=f"{battle_config.get_battle_footer_text(player1_card, player2_card)}",
+                                            text=f"{footer_text}",
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=1)
                                         await asyncio.sleep(1)
-                                        battle_msg = await private_channel.send(embed=embedVar, components=components, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
+                                        if player2.performance:
+                                            embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                            battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                        else:
+                                            battle_msg = await private_channel.send(embed=embedVar, components=components, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
 
                                         # Make sure user is responding with move
                                         def check(button_ctx):
@@ -3304,7 +3346,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         tembedVar.set_image(url="attachment://image.png")
                                         await battle_msg.delete(delay=2)
                                         await asyncio.sleep(2)
-                                        battle_msg = await private_channel.send(embed=tembedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
+                                        if player1.performance:
+                                            embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                            battle_msg = await private_channel.send(embed=tembedVar)
+                                        else:
+                                            battle_msg = await private_channel.send(embed=tembedVar,file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
                                         await asyncio.sleep(3)
                                         
                                         selected_move = battle_config.ai_battle_command(player2_card, player1_card)
@@ -3339,8 +3385,15 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     if not battle_config.is_auto_battle_game_mode:
                                         await battle_msg.delete(delay=2)
-                                        embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
-                                        battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
+                                        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                                            embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, player3_card)
+                                        else:
+                                            embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
+                                        if player1.performance:
+                                            embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                            battle_msg = await private_channel.send(embed=embedVar)
+                                        else:
+                                            battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
 
 
                                     selected_move = battle_config.ai_battle_command(player2_card, player1_card)
@@ -3414,9 +3467,17 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
+                            if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
+                            else:
+                                game_over_check = battle_config.set_game_over(player1_card, player2_card, None)
+                            if game_over_check:
+                                break
+                            if battle_config.is_co_op_mode:
+                                pre_turn_two = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config, player1_card)
+                            else:
+                                pre_turn_two = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
                             if battle_config.is_turn == 2:
-                                beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config)
-
                                 player2_card.set_deathnote_message(battle_config)
                                 player3_card.set_deathnote_message(battle_config)
 
@@ -3434,12 +3495,20 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!")
                                             # await asyncio.sleep(2)
                                             embedVar.set_image(url="attachment://image.png")
+                                            if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                                footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
+                                            else:
+                                                footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                             embedVar.set_footer(
-                                                text=f"{battle_config.get_battle_footer_text(player2_card, player3_card, player1_card)}",
+                                                text=f"{footer_text}",
                                                 icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
-                                            battle_msg = await private_channel.send(embed=embedVar, components=[], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
+                                            if player1.performance:
+                                                embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player3_card.move1_emoji}{player3_card.move1ap}\n{player3_card.move2_emoji}{player3_card.move2ap}\n{player3_card.move3_emoji}{player3_card.move3ap}\n:microbe:{player3_card.move4enh} {player3_card.move4ap}")
+                                                battle_msg = await private_channel.send(embed=embedVar)
+                                            else:
+                                                battle_msg = await private_channel.send(embed=embedVar, file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
                                             # Make sure user is responding with move
                                         else:
                                             embedVar = await auto_battle_embed_and_starting_traits(ctx, player3_card, player2_card, battle_config, player1_card)
@@ -3465,7 +3534,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if selected_move != 5 and selected_move != 6 and selected_move != 7 and selected_move != 8 and selected_move != 0:
                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card) 
-
                                     else:
                                         player3_card.set_battle_arm_messages(player2_card)
 
@@ -3488,15 +3556,23 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention} Select move below!")
                                         # await asyncio.sleep(2)
                                         embedVar.set_image(url="attachment://image.png")
+                                        if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
+                                        else:
+                                            footer_text = battle_config.get_battle_footer_text(player2_card, player1_card)
                                         embedVar.set_footer(
-                                            text=f"{battle_config.get_battle_footer_text(player2_card, player3_card)}",
+                                            text=f"{footer_text}",
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=2)
                                         await asyncio.sleep(2)
-                                        battle_msg = await private_channel.send(embed=embedVar, components=[battle_action_row, util_action_row, coop_util_action_row], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
+                                        if player3.performance:
+                                            embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player3_card.move1_emoji}{player3_card.move1ap}\n{player3_card.move2_emoji}{player3_card.move2ap}\n{player3_card.move3_emoji}{player3_card.move3ap}\n:microbe:{player3_card.move4enh} {player3_card.move4ap}")
+                                            battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                        else:
+                                            battle_msg = await private_channel.send(embed=embedVar, components=[battle_action_row, util_action_row, coop_util_action_row], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
                                         # Make sure user is responding with move
                                         def check(button_ctx):
-                                            return button_ctx.author == user2 and button_ctx.custom_id in options
+                                            return button_ctx.author == user2
 
                                         try:
                                             button_ctx: ComponentContext = await manage_components.wait_for_component(
@@ -3546,20 +3622,42 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     await asyncio.sleep(2)
                                                     await battle_msg.delete(delay=2)
                                             
+                                        
+                                                
+                                            elif button_ctx.custom_id == "0":
+                                                player3_card.use_block(battle_config, player2_card, player1_card)
+                                            
                                             elif button_ctx.custom_id == "7":
                                                 player3_card.use_companion_enhancer(battle_config, player2_card, player1_card)
 
-                                            
-                                            elif button_ctx.custom_id == "0":
-                                                player3_card.use_block(battle_config, player2_card)                                            
+                                            #Use Companion on yourself
+                                            elif button_ctx.custom_id == "8":
+                                                player1_card.use_companion_enhancer(battle_config, player2_card, player3_card)
+                                                    
+                                            elif button_ctx.custom_id == "9":
+                                                player1_card.use_block(battle_config, player2_card, player3_card)                                           
 
-                                            if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q" and button_ctx.custom_id in options:
+                                            if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "8" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                         except asyncio.TimeoutError:
                                             await battle_msg.delete()
                                             #await battle_msg.edit(components=[])
-                                            await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-                                            await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                                            if not any((battle_config.is_abyss_game_mode, 
+                                                        battle_config.is_scenario_game_mode, 
+                                                        battle_config.is_explore_game_mode, 
+                                                        battle_config.is_pvp_game_mode, 
+                                                        battle_config.is_tutorial_game_mode,
+                                                        battle_config.is_boss_game_mode)):
+                                                await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                                await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                                            elif any((battle_config.is_pvp_game_mode, 
+                                                        battle_config.is_tutorial_game_mode
+                                                                    )):
+                                                await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                                            else:
+                                                await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
+                                            # await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                            # await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                             await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             # await discord.TextChannel.delete(private_channel, reason=None)
@@ -3586,9 +3684,18 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
                             # Opponent Turn Start
-                            elif battle_config.is_turn == 3:
-                                beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
+                            if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
+                            else:
+                                game_over_check = battle_config.set_game_over(player1_card, player2_card, None)
+                            if game_over_check:
+                                break
+                            if battle_config.is_co_op_mode:
+                                pre_turn_three = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config, player1_card)
+                            else:
+                                pre_turn_three =beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config)
 
+                            if battle_config.is_turn == 3:
                                 player3_card.set_deathnote_message(battle_config)
                                 player2_card.set_deathnote_message(battle_config)
 
@@ -3604,7 +3711,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         value=f"{battle_config._aura_boss_description}")
                                         embedVar.set_footer(text=f"{player2_card.name} Says: 'Now, are you ready for a real fight?'")
                                         await ctx.send(embed=embedVar)
-                                        battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 🌀 **{player2_card.name}** focused")
                                         # await asyncio.sleep(2)
                                         if player2_card.universe == "Digimon" and player2_card.used_resolve is False:
                                             embedVar = discord.Embed(title=f"(**{battle_config.turn_total}**) :zap: **{player2_card.name}** Resolved!", description=f"{battle_config._rmessage_boss_description}",
@@ -3615,8 +3721,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 
                                 else:
                                     await battle_msg.delete(delay=2)
-                                    embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player3_card, battle_config, None)
-                                    battle_msg = await private_channel.send(embed=embedVar, file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player3_card.defense))
+                                    embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player3_card, battle_config, player1_card)
+                                    if player3.performance:
+                                        embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
+                                        battle_msg = await private_channel.send(embed=embedVar)
+                                    else:
+                                        battle_msg = await private_channel.send(embed=embedVar,file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player3_card.defense))
 
 
                                     selected_move = battle_config.ai_battle_command(player2_card, player3_card)
@@ -3815,11 +3925,25 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         battle_config.continue_fighting = True
                                 except asyncio.TimeoutError:
                                     battle_config.continue_fighting = False
-                                    if player1.autosave and battle_config.match_can_be_saved:
-                                        await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
+                                    if not any((battle_config.is_abyss_game_mode, 
+                                                battle_config.is_scenario_game_mode, 
+                                                battle_config.is_explore_game_mode, 
+                                                battle_config.is_pvp_game_mode, 
+                                                battle_config.is_tutorial_game_mode,
+                                                battle_config.is_boss_game_mode)):
+                                        await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                        await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                                    elif any((battle_config.is_pvp_game_mode, 
+                                                battle_config.is_tutorial_game_mode
+                                                            )):
+                                        await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
                                     else:
-                                        await button_ctx.send(embed = battle_config.close_pve_embed(player1_card, player2_card))
-                                    return
+                                        await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
+                                    # if player1.autosave and battle_config.match_can_be_saved:
+                                    #     await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
+                                    # else:
+                                    #     await button_ctx.send(embed = battle_config.close_pve_embed(player1_card, player2_card))
+                                    # return
 
                                 # else:
                                 #     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
@@ -3923,11 +4047,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             embedVar.add_field(name=f"🌀 | Focus Count",
                                                             value=f"**{player2_card.name}**: {player2_card.focus_count}\n**{player1_card.name}**: {player1_card.focus_count}\n**{player3_card.name}**: {player3_card.focus_count}")
                                             #Most Damage Dealth
-                                            d_message = battle_config.get_most_damage_dealt(player_card, player2_card, player3_card)
+                                            d_message = battle_config.get_most_damage_dealt(player1_card, player2_card, player3_card)
                                             embedVar.add_field(name=f":anger_right: | Damage Dealt",
                                                             value=f"**{player2_card.name}**: {player2_card.damage_dealt}\n**{player1_card.name}**: {player1_card.damage_dealt}\n**{player3_card.name}**: {player3_card.damage_dealt}")
                                             #Most Healed
-                                            h_message = battle_config.get_most_damage_healed(player_card, player2_card, player3_card)
+                                            h_message = battle_config.get_most_damage_healed(player1_card, player2_card, player3_card)
                                             embedVar.add_field(name=f":mending_heart: | Healing",
                                                             value=f"**{player2_card.name}**: {player2_card.damage_healed}\n**{player1_card.name}**: {player1_card.damage_healed}\n**{player3_card.name}**: {player3_card.damage_healed}")
 
@@ -4214,10 +4338,16 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             battle_config.is_scenario_game_mode, 
                             battle_config.is_explore_game_mode, 
                             battle_config.is_pvp_game_mode, 
-                            battle_config.is_tutorial_game_mode)):
+                            battle_config.is_tutorial_game_mode,
+                            battle_config.is_boss_game_mode)):
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                     await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
-                    
+                elif any((battle_config.is_pvp_game_mode, 
+                            battle_config.is_tutorial_game_mode
+                                        )):
+                    await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                else:
+                    await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
                 await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
             except Exception as ex:
                 trace = []
@@ -4247,9 +4377,16 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     battle_config.is_scenario_game_mode, 
                     battle_config.is_explore_game_mode, 
                     battle_config.is_pvp_game_mode, 
-                    battle_config.is_tutorial_game_mode)):
+                    battle_config.is_tutorial_game_mode,
+                    battle_config.is_boss_game_mode)):
             await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
             await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+        elif any((battle_config.is_pvp_game_mode, 
+                    battle_config.is_tutorial_game_mode
+                                )):
+            await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+        else:
+            await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
             
         await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
     except Exception as ex:
@@ -4422,20 +4559,39 @@ def tactics_almighty_will(boss_card, battle_config):
 
 
 def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config):
+def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config, companion = None):
+    #If any damage happened last turn that would kill
     player_card.reset_stats_to_limiter(opponent_card)
+    battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
+    burn_turn = player_card.set_burn_hit(opponent_card)
+    if burn_turn != None:
+        battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
+    battle_config.add_battle_history_messsage(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
+    player_card.damage_dealt = round(player_card.damage_dealt)
+    opponent_card.damage_dealt = round(opponent_card.damage_dealt)
+    player_card.damage_healed = round(player_card.damage_healed)
+    opponent_card.damage_healed = round(opponent_card.damage_healed)
+    # if player_card.health <= 0:
+    #     if battle_config.is_co_op_mode:
+    #         if battle_config.is_turn == 0 or battle_config.is_turn == 2:
+    #             return battle_config.set_game_over(player_card,opponent_card, companion)
+    #         else:
+    #             return battle_config.set_game_over(opponent_card,player_card, companion)
+    #     else:
+    #         if battle_config.is_turn == 0:
+    #             return battle_config.set_game_over(player_card,opponent_card)
+    #         else:
+    #             return battle_config.set_game_over(opponent_card,player_card)
+    #If contiune to play
     player_card.yuyu_hakusho_attack_increase()
     player_card.activate_chainsawman_trait(battle_config)
-    battle_config.add_battle_history_messsage(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
-    burn_turn = player_card.set_burn_hit(opponent_card)
-    if burn_turn != " ":
-        battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']
         battle_config.add_battle_history_messsage(new_turn['MESSAGE'])
-    opponent_card.freeze_enh = False
+        opponent_card.freeze_enh = False
         # return new_turn
-    battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
+    
     player_card.set_gravity_hit()
     if not opponent_card.wind_element_activated:
         player_title.activate_title_passive(battle_config, player_card, opponent_card)
@@ -4451,10 +4607,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     if player_card.used_defend == True:
         player_card.defense = int(player_card.defense / 2)
         player_card.used_defend = False
-    player_card.damage_dealt = round(player_card.damage_dealt)
-    opponent_card.damage_dealt = round(opponent_card.damage_dealt)
-    player_card.damage_healed = round(player_card.damage_healed)
-    opponent_card.damage_healed = round(opponent_card.damage_healed)
+    return False
 
 
 
@@ -4469,8 +4622,12 @@ async def auto_battle_embed_and_starting_traits(ctx, player_card, opponent_card,
     """), color=0xe74c3c)
     await asyncio.sleep(2)
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
+    if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+        footer_text = battle_config.get_battle_window_title_text(player_card,opponent_card, companion_card)
+    else:
+        footer_text = battle_config.get_battle_window_title_text(player_card,opponent_card)
     embedVar.set_footer(
-        text=f"{battle_config.get_battle_window_title_text(opponent_card, player_card)}",
+        text=f"{footer_text}",
         icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
 
     if not battle_config.is_auto_battle_game_mode:
@@ -4709,7 +4866,8 @@ async def scenario_drop(self, ctx, scenario, difficulty):
         vault_query = {'DID': str(ctx.author.id)}
         vault = db.queryVault(vault_query)
         scenario_level = scenario["ENEMY_LEVEL"]
-        scenario_gold = crown_utilities.scenario_gold_drop(scenario_level)
+        fight_count = len(scenario['ENEMIES'])
+        scenario_gold = crown_utilities.scenario_gold_drop(scenario_level,fight_count)
         # player_info = db.queryUser({'DID': str(vault['DID'])})
         
         owned_destinies = []
@@ -4740,7 +4898,7 @@ async def scenario_drop(self, ctx, scenario, difficulty):
             mode = "DUNGEON"
             scenario_gold = round(scenario_gold * 3)
         if len(rewards) > 1:
-            num_of_potential_rewards = len(rewards)
+            num_of_potential_rewards = (len(rewards) - 1)
             selection = round(random.randint(0, num_of_potential_rewards))
             rewarded = rewards[selection]
         else:
@@ -4758,20 +4916,20 @@ async def scenario_drop(self, ctx, scenario, difficulty):
             reward = f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** dmg"
 
             if len(vault['ARMS']) >= 25:
-                return f"You're maxed out on Arms! You earned :coin:**{'{:,}'.format(scenario_gold)}** instead!"
+                return f"You're maxed out on Arms! You earned :coin:**{scenario_gold}** instead!"
             elif rewarded in owned_arms:
-                return f"You already own {reward}! You earn :coin: **{'{:,}'.format(scenario_gold)}**."
+                return f"You already own {reward}! You earn :coin: **{scenario_gold}**."
             else:
                 response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': rewarded, 'DUR': 100}}})
-                return f"You earned _Arm:_ {reward} with ⚒️**{str(100)} Durability** and :coin: **{'{:,}'.format(scenario_gold)}**!"
+                return f"You earned _Arm:_ {reward} with ⚒️**{str(100)} Durability** and :coin: **{scenario_gold}**!"
         else:
             card = db.queryCard({"NAME": rewarded})
             u = await main.bot.fetch_user(str(ctx.author.id))
-            response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
-            response = f"{response}\nYou earned :coin: **{'{:,}'.format(scenario_gold)}**!"
+            response = await crown_utilities.store_drop_card(str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
+            response = f"{response}\nYou earned :coin: **{scenario_gold}**!"
             if not response:
                 await crown_utilities.bless(15000, str(ctx.author.id))
-                return f"You earned :coin: **{'{:,}'.format(scenario_gold)}**!"
+                return f"You earned :coin: **{scenario_gold}**!"
             return response
 
     except Exception as ex:

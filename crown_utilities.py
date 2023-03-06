@@ -1845,26 +1845,26 @@ title_enhancer_mapping = {'ATK': 'Increase Attack',
 'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
 
-
-element_mapping = {'PHYSICAL': 'If ST(stamina) greater than 80, Deals double Damage',
-'FIRE': 'Does 25% damage of previous attack over the next opponent turns, stacks',
-'ICE': 'After 2 uses opponent freezes and loses 1 turn',
-'WATER': 'Increases all water attack dmg by 40 Flat',
-'EARTH': 'Cannot be Parried. Increases Def by 25% AP',
-'ELECTRIC': 'Add 15% to Shock damage, added to each attack',
-'WIND': 'Cannot Miss, boost all wind damage by 15% DMG',
-'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 15% AP',
-'DEATH': 'Adds 20% opponent max health as damage',
-'LIFE': 'Heal for 20% AP',
-'LIGHT': 'Regain 50% Stamina Cost, Increase ATK by 20% DMG',
-'DARK': 'Penetrates shields & decrease opponent stamina by 15',
-'POISON': 'Penetrates shields, Opponent takes additional 30 damage each turn stacking up to 600',
-'RANGED': 'If ST(Stamina) > 30 deals 1.7x Damage',
-'SPIRIT': 'Has higher chance of Crit',
-'RECOIL': 'Deals 60% damage back to you, if damage would kill you reduce health to 1',
-'TIME': 'IF ST(Stamina) < 80 you Focus after attacking, You Block during your Focus',
-'BLEED': 'After 3 Attacks deal 10x turn count damage to opponent',
-'GRAVITY': 'Disables Opponent Block and Reduce opponent DEF by 25% AP'
+element_mapping = {
+'PHYSICAL': 'If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry',
+'FIRE': 'Does 50% damage of previous attack over the next opponent turns, stacks.',
+'ICE': 'Every 2 attacks, opponent freezes and loses 1 turn.',
+'WATER': 'Each strike increases all water move AP by 100.',
+'EARTH': 'Cannot be Parried. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG',
+'ELECTRIC': 'Add 35% DMG Dealt to Shock damage, added to all Move AP.',
+'WIND': 'On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.',
+'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits gain a Barrier',
+'DEATH': 'Deals 45% DMG to opponent max health. Gain Attack equal to that amount.',
+'LIFE': 'Create Max Health and Heal for 35% DMG.',
+'LIGHT': 'Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 50% of DMG.',
+'DARK': 'Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.',
+'POISON': 'Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).',
+'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%',
+'SPIRIT': 'Has higher 35% higher chance of Crit.',
+'RECOIL': 'Deals Incredible Bonus Damage, take 60% as recoil. If Recoil would kill you reduce HP to 1',
+'TIME': 'Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.',
+'BLEED': 'Every 2 Attacks deal 10x turn count damage to opponent.',
+'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.'
 }
 
 

@@ -896,7 +896,7 @@ async def register(ctx):
                         if trait['NAME'] == 'Pokemon':
                            mytrait = trait
                if mytrait:
-                  traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                  traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
                available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
                
                tales_list = ", ".join(uni['CROWN_TALES'])
@@ -1640,7 +1640,7 @@ async def rebirth(ctx):
                                              if trait['NAME'] == 'Pokemon':
                                                 mytrait = trait
                                     if mytrait:
-                                       traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
+                                       traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
                                     available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
                                     
                                     tales_list = ", ".join(uni['CROWN_TALES'])

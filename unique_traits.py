@@ -64,8 +64,8 @@ traits = [{
     'TRAIT': 'Combo Recognition : On opponent Focus, gain (60 + turn) ATK. Second Phase! : On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE.'
 },{
     'NAME': 'Death Note',
-    'EFFECT': 'Scheduled Death',
-    'TRAIT': ' Your First Focus After 100 Turns You Win.'
+    'EFFECT': 'Scheduled Death, Shinigami Eyes',
+    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death [24 + (24 * Card Tier)] Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to increase Turn by (3 + Card Tier) then Focus.'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',
@@ -81,7 +81,7 @@ traits = [{
 },{
     'NAME': 'One Piece',
     'EFFECT': 'Haki : Tier Based Trait',
-    'TRAIT': 'Observation: 1-7: Before Focus: 40% DMG Reduction. Armament: 4-7: 2x Focus Stacking.Conquerors: 6-7:Resolve, Decrease OPP AP by 125'
+    'TRAIT': 'Observation: 1-7: Before Focus: 40% DMG Reduction. Armament: 4-7: 2x Focus Stacking.Conquerors: 6-7:Resolve, Decrease OPP AP by 150'
 },{
     'NAME': 'Crown Rift Slayers',
     'EFFECT': 'Feint Attack, Spiritual Weapons',
