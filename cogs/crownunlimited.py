@@ -2861,6 +2861,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 
                                 else:
                                     player1_card.set_battle_arm_messages(player2_card)
+                                    player1_card.set_stat_icons()
 
                                     player1_card.activate_solo_leveling_trait(battle_config, player2_card)
 
@@ -2871,6 +2872,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     
                                     if battle_config.is_co_op_mode:
                                         player3_card.set_battle_arm_messages(player2_card)
+                                        player3_card.set_stat_icons()
                                         if player1_card.stamina >= 20:
                                             coop_util_action_row = manage_components.create_actionrow(*battle_config.co_op_buttons)
                                             components = [battle_action_row, coop_util_action_row, util_action_row]
@@ -3206,6 +3208,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                             else:
                                 player2_card.set_battle_arm_messages(player1_card)
+                                player2_card.set_stat_icons()
 
                                 player2_card.activate_solo_leveling_trait(battle_config, player1_card)
                                                                 
@@ -3231,6 +3234,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         util_action_row = manage_components.create_actionrow(*battle_config.utility_buttons)
 
                                         player2_card.set_battle_arm_messages(player2_card)
+                                        player2_card.set_stat_icons()
 
                                         components = [battle_action_row, util_action_row]
                                         embedVar = discord.Embed(title=f"", description=textwrap.dedent(f"""\
@@ -3332,6 +3336,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     # Play Bot
                                     else:
                                         player2_card.set_battle_arm_messages(player1_card)
+                                        player2_card.set_stat_icons()
 
                                         player2_card.activate_solo_leveling_trait(battle_config, player1_card)
 
@@ -3540,6 +3545,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card) 
                                     else:
                                         player3_card.set_battle_arm_messages(player2_card)
+                                        player3_card.set_stat_icons()
 
                                         player3_card.activate_solo_leveling_trait(battle_config, player2_card)
 
@@ -4475,6 +4481,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
 
 async def auto_battle_embed_and_starting_traits(ctx, player_card, opponent_card, battle_config, companion_card):
     player_card.set_battle_arm_messages(opponent_card)
+    player_card.set_stat_icons()
 
     player_card.activate_solo_leveling_trait(battle_config, opponent_card)
             
