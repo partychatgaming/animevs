@@ -4031,11 +4031,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             embedVar.add_field(name=f"🌀 | Focus Count",
                                                             value=f"**{player2_card.name}**: {player2_card.focus_count}\n**{player1_card.name}**: {player1_card.focus_count}\n**{player3_card.name}**: {player3_card.focus_count}")
                                             #Most Damage Dealth
-                                            d_message = battle_config.get_most_damage_dealt(player_card, player2_card, player3_card)
+                                            d_message = battle_config.get_most_damage_dealt(player1_card, player2_card, player3_card)
                                             embedVar.add_field(name=f":anger_right: | Damage Dealt",
                                                             value=f"**{player2_card.name}**: {player2_card.damage_dealt}\n**{player1_card.name}**: {player1_card.damage_dealt}\n**{player3_card.name}**: {player3_card.damage_dealt}")
                                             #Most Healed
-                                            h_message = battle_config.get_most_damage_healed(player_card, player2_card, player3_card)
+                                            h_message = battle_config.get_most_damage_healed(player1_card, player2_card, player3_card)
                                             embedVar.add_field(name=f":mending_heart: | Healing",
                                                             value=f"**{player2_card.name}**: {player2_card.damage_healed}\n**{player1_card.name}**: {player1_card.damage_healed}\n**{player3_card.name}**: {player3_card.damage_healed}")
 
