@@ -1902,7 +1902,7 @@ class Card:
                 if battle_config.turn_total >= (24 + (24 * self.tier)):
                     battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{_opponent_card.name}** 🩸 had a heart attack and died")
                     
-                    _opponent_card.health = 0
+                    _opponent_card.health = -1000
                     battle_config.next_turn()
                     battle_config.turn_total = battle_config.turn_total + 2
             
