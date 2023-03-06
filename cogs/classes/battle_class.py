@@ -740,10 +740,10 @@ class Battle:
                         self._ai_title = universe_data['DTITLE']
                         self._ai_arm = universe_data['DARM']
                         self._ai_summon = universe_data['DPET']
-                        if player1_card_level >= 500:
-                            self._ai_opponent_card_lvl = 500
+                        if player1_card_level >= 600:
+                            self._ai_opponent_card_lvl = 650
                         else:
-                            self._ai_opponent_card_lvl = min(max(350, player1_card_level), 500) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
+                            self._ai_opponent_card_lvl = 50 + min(max(350, player1_card_level), 600) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
                     
                     if self.mode in crown_utilities.TALE_M:
                         self._ai_title = universe_data['UTITLE']
