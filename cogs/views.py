@@ -24,6 +24,7 @@ from discord_slash import SlashCommand
 from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
 from dinteractions_Paginator import Paginator
+import re
 
 
 
@@ -65,11 +66,12 @@ class Views(commands.Cog):
 
     @cog_ext.cog_slash(description="Type a card name, title, arm, universe, house, hall, or boss to view it!", guild_ids=main.guild_ids)
     async def view(self, ctx, name):
+        await ctx.defer()
         if not await crown_utilities.player_check(ctx):
             return
 
         response = db.viewQuery(f"^{str(name)}$")
-        
+
         if response:
             source = list(response.keys())[0]
             data = list(response.values())[0]
@@ -96,31 +98,32 @@ class Views(commands.Cog):
             results = db.viewQuerySearch(f".*{str(name)}.*")
             list_of_results = []
             counter = 0
-            for result in results:
-                if result['TYPE'] == "CARDS":
-                    list_of_results.append({'TYPE': 'CARD', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the card 🎴 {result['DATA']['NAME']}?", 'DATA': result['DATA']})
+            if results:
+                for result in results:
+                    if result['TYPE'] == "CARDS":
+                        list_of_results.append({'TYPE': 'CARD', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the card 🎴 {result['DATA']['NAME']}?", 'DATA': result['DATA']})
+                    
+                    if result['TYPE'] == "TITLES":
+                        list_of_results.append({'TYPE': 'TITLE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the title 🎗️ {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
+                    
+                    if result['TYPE'] == "ARM":
+                        list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}", 'DATA': result['DATA']})
+                    
+                    if result['TYPE'] == "PET":
+                        list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🐦 {result['DATA']['PET']}", 'DATA': result['DATA']})
+                    
+                    if result['TYPE'] == "UNIVERSE":
+                        list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}", 'DATA': result['DATA']})
+                    
+                    if result['TYPE'] == "BOSS":
+                        list_of_results.append({'TYPE': 'BOSS', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the boss 👹 {result['DATA']['NAME']}", 'DATA': result['DATA']})
+                    
+                    if result['TYPE'] == "HALL":
+                        list_of_results.append({'TYPE': 'HALL', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the hall ⛩️ {result['DATA']['HALL']}", 'DATA': result['DATA']})
+                    
+                    if result['TYPE'] == "HOUSE":
+                        list_of_results.append({'TYPE': 'HOUSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the house 🏠 {result['DATA']['HOUSE']}", 'DATA': result['DATA']})
                 
-                if result['TYPE'] == "TITLES":
-                    list_of_results.append({'TYPE': 'TITLE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the title 🎗️ {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
-                
-                if result['TYPE'] == "ARM":
-                    list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}", 'DATA': result['DATA']})
-                
-                if result['TYPE'] == "PET":
-                    list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🐦 {result['DATA']['PET']}", 'DATA': result['DATA']})
-                
-                if result['TYPE'] == "UNIVERSE":
-                    list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}", 'DATA': result['DATA']})
-                
-                if result['TYPE'] == "BOSS":
-                    list_of_results.append({'TYPE': 'BOSS', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the boss 👹 {result['DATA']['NAME']}", 'DATA': result['DATA']})
-                
-                if result['TYPE'] == "HALL":
-                    list_of_results.append({'TYPE': 'HALL', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the hall ⛩️ {result['DATA']['HALL']}", 'DATA': result['DATA']})
-                
-                if result['TYPE'] == "HOUSE":
-                    list_of_results.append({'TYPE': 'HOUSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the house 🏠 {result['DATA']['HOUSE']}", 'DATA': result['DATA']})
-            
             if list_of_results:
                 message = [f"{result['TEXT']}\n\n" for result in list_of_results]
                 me = ''.join(message)
@@ -246,8 +249,24 @@ class Views(commands.Cog):
                     await ctx.send("You took too long to respond.", hidden=True)
                     return
             else:
-                await ctx.send("No results found.", hidden=True)
-                return
+                pass
+
+        regex_pattern = r'.*\belements\b.*'
+        
+        if re.match(regex_pattern, name):
+            print("Hello")
+            embedVar = discord.Embed(title= f"What does each element do?", description=h.ELEMENTS, colour=0x7289da)
+            embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+            await ctx.send(embed=embedVar)
+            return
+
+        if re.search(r"(manual|help|guide)", name):
+            await main.animevs(ctx)
+            return
+
+        if re.search(r"(enhancers|passives|talents)", name):
+            await main.enhancers(ctx)
+            return
 
         
         await ctx.send("No results found.", hidden=True)

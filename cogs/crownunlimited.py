@@ -4558,7 +4558,6 @@ def tactics_almighty_will(boss_card, battle_config):
             battle_config.add_battle_history_messsage(almighty_will_message)
 
 
-def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config):
 def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config, companion = None):
     #If any damage happened last turn that would kill
     player_card.reset_stats_to_limiter(opponent_card)
