@@ -407,7 +407,6 @@ class Views(commands.Cog):
         regex_pattern = r'.*\belements\b.*'
         
         if re.match(regex_pattern, name):
-            print("Hello")
             embedVar = discord.Embed(title= f"What does each element do?", description=h.ELEMENTS, colour=0x7289da)
             embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
             await ctx.send(embed=embedVar)
@@ -615,6 +614,9 @@ async def viewcard(self, ctx, data):
     card = data
     try:
         if card:
+            if "FPATH" not in card:
+                card['FPATH'] = card['PATH']
+
             c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
             title = {'TITLE': 'CARD PREVIEW'}
             arm = {'ARM': 'CARD PREVIEW'}
@@ -961,7 +963,7 @@ async def viewhall(self, ctx, data):
         await ctx.send(m.HALL_DOESNT_EXIST, delete_after=3)
 
 
-async def viewboss(self, ctx, boss : str):
+async def viewboss(self, ctx, data):
     try:
         uboss = data
         if uboss:
