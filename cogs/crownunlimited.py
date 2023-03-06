@@ -2875,7 +2875,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if player1_card.stamina >= 20:
                                             components = [battle_action_row, coop_util_action_row, util_action_row]
                                         else:
-                                            components = [battle_action_row, util_action_row]
+                                            components = [battle_action_row, coop_util_action_row util_action_row]
                                         companion_stats = f"\n{player3_card.name}: ❤️{round(player3_card.health)} 🌀{round(player3_card.stamina)} 🗡️{round(player3_card.attack)}/🛡️{round(player3_card.defense)} {player3_card._arm_message}"
 
                                     else:
