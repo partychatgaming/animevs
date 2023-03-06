@@ -122,7 +122,6 @@ class Views(commands.Cog):
                     list_of_results.append({'TYPE': 'HOUSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the house 🏠 {result['DATA']['HOUSE']}", 'DATA': result['DATA']})
             
             if list_of_results:
-                print("fdjkalds")
                 message = [f"{result['TEXT']}\n\n" for result in list_of_results]
                 me = ''.join(message)
                 embedVar = discord.Embed(title="Did you mean?...", description=textwrap.dedent(f"""\
@@ -141,7 +140,7 @@ class Views(commands.Cog):
                             )
                         )
                     
-                    if result['TYPE'] == "TITLES":
+                    if result['TYPE'] == "TITLE":
                         buttons.append(
                             manage_components.create_button(
                                 style=ButtonStyle.blue,
@@ -218,33 +217,15 @@ class Views(commands.Cog):
 
                 try:
                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[buttons_action_row, buttons], timeout=300, check=check)
-
-                    if button_ctx.custom_id == "0":
-                        if list_of_results["NUMBER"] == "0":
+                    
+                    for result in list_of_results:
+                        if button_ctx.custom_id == str(result['NUMBER']):
+                            await msg.edit(components=[])
                             await button_ctx.defer(ignore=True)
-                            await view_selection(ctx, list_of_results["DATA"])
-                            return
-                    if button_ctx.custom_id == "1":
-                        if list_of_results["NUMBER"] == "1":
-                            await button_ctx.defer(ignore=True)
-                            await view_selection(ctx, list_of_results["DATA"])
-                            return
-                    if button_ctx.custom_id == "2":
-                        if list_of_results["NUMBER"] == "2":
-                            await button_ctx.defer(ignore=True)
-                            await view_selection(ctx, list_of_results["DATA"])
-                            return
-                    if button_ctx.custom_id == "3":
-                        if list_of_results["NUMBER"] == "3":
-                            await button_ctx.defer(ignore=True)
-                            await view_selection(ctx, list_of_results["DATA"])
-                            return
-                    if button_ctx.custom_id == "4":
-                        if list_of_results["NUMBER"] == "4":
-                            await button_ctx.defer(ignore=True)
-                            await view_selection(ctx, list_of_results["DATA"])
-                            return
+                            await view_selection(self, ctx, result)
+                            return                 
                     if button_ctx.custom_id == "cancel":
+                        await msg.edit(components=[])
                         await button_ctx.defer(ignore=True)
                         return
                 except Exception as ex:
@@ -264,7 +245,9 @@ class Views(commands.Cog):
                     }))
                     await ctx.send("You took too long to respond.", hidden=True)
                     return
-
+            else:
+                await ctx.send("No results found.", hidden=True)
+                return
 
         
         await ctx.send("No results found.", hidden=True)
@@ -421,39 +404,38 @@ def setup(bot):
     bot.add_cog(Views(bot))
 
 
-async def view_selection(ctx, results):
-    for result in results:
-        if result['TYPE'] == "CARDS":
-            await viewcard(ctx, result['DATA'])
-            return
-        
-        if result['TYPE'] == "TITLES":
-            await viewtitle(ctx, result['DATA'])
-            return
-        
-        if result['TYPE'] == "ARM":
-            await viewarm(ctx, result['DATA'])
-            return
-        
-        if result['TYPE'] == "PET":
-            await viewpet(ctx, result['DATA'])
-            return
-        
-        if result['TYPE'] == "UNIVERSE":
-            await viewuniverse(ctx, result['DATA'])
-            return
-        
-        if result['TYPE'] == "BOSS":
-            await viewboss(ctx, result['DATA'])
-            return
-        
-        if result['TYPE'] == "HALL":
-            await viewhall(ctx, result['DATA'])
-            return
-        
-        if result['TYPE'] == "HOUSE":
-            await viewhouse(ctx, result['DATA'])
-            return
+async def view_selection(self, ctx, result):
+    if result['TYPE'] == "CARD":
+        await viewcard(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "TITLE":
+        await viewtitle(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "ARM":
+        await viewarm(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "PET":
+        await viewpet(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "UNIVERSE":
+        await viewuniverse(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "BOSS":
+        await viewboss(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "HALL":
+        await viewhall(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "HOUSE":
+        await viewhouse(self, ctx, result['DATA'])
+        return
 
 async def viewcard(self, ctx, data):
     query = {'DID': str(ctx.author.id)}
@@ -533,6 +515,7 @@ async def viewcard(self, ctx, data):
             'trace': trace
         }))
         return
+        await ctx.send("There was an issue with loading the card.", hidden=True)
 
 
 async def viewtitle(self, ctx, data):
@@ -573,8 +556,6 @@ async def viewarm(self, ctx, data):
     try:
         if arm:
             a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
-            a.set_element_emoji()
-            a.set_message_and_price_message()
             embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[a.universe]} {a.name}\n{a.price_message}".format(self), colour=000000)
             if a.is_not_universe_unbound():
                 embedVar.set_thumbnail(url=a.show_img)
