@@ -2870,12 +2870,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     util_action_row = manage_components.create_actionrow(*battle_config.utility_buttons)
                                     
                                     if battle_config.is_co_op_mode:
-                                        coop_util_action_row = manage_components.create_actionrow(*battle_config.co_op_buttons)
                                         player3_card.set_battle_arm_messages(player2_card)
                                         if player1_card.stamina >= 20:
+                                            coop_util_action_row = manage_components.create_actionrow(*battle_config.co_op_buttons)
                                             components = [battle_action_row, coop_util_action_row, util_action_row]
                                         else:
-                                            components = [battle_action_row, coop_util_action_row util_action_row]
+                                            components = [battle_action_row, util_action_row]
                                         companion_stats = f"\n{player3_card.name}: ❤️{round(player3_card.health)} 🌀{round(player3_card.stamina)} 🗡️{round(player3_card.attack)}/🛡️{round(player3_card.defense)} {player3_card._arm_message}"
 
                                     else:
