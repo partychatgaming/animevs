@@ -364,7 +364,7 @@ class Card:
         if mode == "Abyss" or mode == "SCENARIO" or mode == "RAID" or mode == "EXPLORE":
             self.card_lvl = ai_lvl_buff
         else:
-            self.card_lvl = self.get_ai_card_level(card_lvl, mode)
+            self.card_lvl = self.get_ai_card_level(self.card_lvl, mode)
         # print(self.card_lvl)
         # print(self.move1ap)
         self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
