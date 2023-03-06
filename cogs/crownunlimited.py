@@ -3098,7 +3098,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 player3_card.use_companion_enhancer(battle_config, player2_card, player1_card)
 
                                             elif button_ctx.custom_id == "9":
-                                                player3_card.use_block(battle_config, player2_card, player3_card, player1_card)
+                                                player3_card.use_block(battle_config, player2_card, player1_card)
 
                                         if button_ctx.custom_id == "0":
                                             if battle_config.is_tutorial_game_mode and battle_config.tutorial_block==False:
@@ -3611,17 +3611,22 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     await asyncio.sleep(2)
                                                     await battle_msg.delete(delay=2)
                                             
+                                        
+                                                
+                                            elif button_ctx.custom_id == "0":
+                                                player3_card.use_block(battle_config, player2_card, player1_card)
+                                            
                                             elif button_ctx.custom_id == "7":
                                                 player3_card.use_companion_enhancer(battle_config, player2_card, player1_card)
 
-                                            
-                                            elif button_ctx.custom_id == "0":
-                                                player3_card.use_block(battle_config, player2_card, player1_card)
-                                                  
+                                            #Use Companion on yourself
+                                            elif button_ctx.custom_id == "8":
+                                                player1_card.use_companion_enhancer(battle_config, player2_card, player3_card)
+                                                    
                                             elif button_ctx.custom_id == "9":
-                                                player3_card.use_block(battle_config, player2_card, player1_card)                                           
+                                                player1_card.use_block(battle_config, player2_card, player3_card)                                           
 
-                                            if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
+                                            if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id !- "8" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                         except asyncio.TimeoutError:
                                             await battle_msg.delete()
