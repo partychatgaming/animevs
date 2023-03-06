@@ -73,26 +73,179 @@ class Views(commands.Cog):
         response = db.viewQuery(f"^{str(name)}$")
 
         if response:
-            source = list(response.keys())[0]
-            data = list(response.values())[0]
+            if len(response) == 1:
+                if response[0]['TYPE'] == "CARDS":
+                    await viewcard(self, ctx, response[0]['DATA'])
+                if response[0]['TYPE'] == "TITLES":
+                    await viewtitle(self, ctx, response[0]['DATA'])
+                if response[0]['TYPE'] == "ARM":
+                    await viewarm(self, ctx, response[0]['DATA'])
+                if response[0]['TYPE'] == "PET":
+                    await viewsummon(self, ctx, response[0]['DATA'])
+                if response[0]['TYPE'] == "UNIVERSE":
+                    await viewuniverse(self, ctx, response[0]['DATA'])
+                if response[0]['TYPE'] == "BOSS":
+                    await viewboss(self, ctx, response[0]['DATA'])
+                if response[0]['TYPE'] == "HALL":
+                    await viewhall(self, ctx, response[0]['DATA'])
+                if response[0]['TYPE'] == "HOUSE":
+                    await viewhouse(self, ctx, response[0]['DATA'])
+                return
+            else:
+                list_of_results = []
+                counter = 0
+                if response:
+                    for result in response:
+                        if result['TYPE'] == "CARDS":
+                            list_of_results.append({'TYPE': 'CARD', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the card 🎴 {result['DATA']['NAME']}?", 'DATA': result['DATA']})
+                        
+                        if result['TYPE'] == "TITLES":
+                            list_of_results.append({'TYPE': 'TITLE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the title 🎗️ {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
+                        
+                        if result['TYPE'] == "ARM":
+                            list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}", 'DATA': result['DATA']})
+                        
+                        if result['TYPE'] == "PET":
+                            list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🐦 {result['DATA']['PET']}", 'DATA': result['DATA']})
+                        
+                        if result['TYPE'] == "UNIVERSE":
+                            list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}", 'DATA': result['DATA']})
+                        
+                        if result['TYPE'] == "BOSS":
+                            list_of_results.append({'TYPE': 'BOSS', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the boss 👹 {result['DATA']['NAME']}", 'DATA': result['DATA']})
+                        
+                        if result['TYPE'] == "HALL":
+                            list_of_results.append({'TYPE': 'HALL', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the hall ⛩️ {result['DATA']['HALL']}", 'DATA': result['DATA']})
+                        
+                        if result['TYPE'] == "HOUSE":
+                            list_of_results.append({'TYPE': 'HOUSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the house 🏠 {result['DATA']['HOUSE']}", 'DATA': result['DATA']})
+                    
+                if list_of_results:
+                    message = [f"{result['TEXT']}\n\n" for result in list_of_results]
+                    me = ''.join(message)
+                    embedVar = discord.Embed(title="Did you mean?...", description=textwrap.dedent(f"""\
+                    {me}
+                    """), colour=0xf1c40f)
 
-            if source == "CARDS":
-                await viewcard(self, ctx, data)
-            if source == "TITLES":
-                await viewtitle(self, ctx, data)
-            if source == "ARM":
-                await viewarm(self, ctx, data)
-            if source == "PET":
-                await viewsummon(self, ctx, data)
-            if source == "UNIVERSE":
-                await viewuniverse(self, ctx, data)
-            if source == "BOSS":
-                await viewboss(self, ctx, data)
-            if source == "HALL":
-                await viewhall(self, ctx, data)
-            if source == "HOUSE":
-                await viewhouse(self, ctx, data)
-            return
+                    buttons = []
+                    
+                    for result in list_of_results:
+                        if result['TYPE'] == "CARD":
+                            buttons.append(
+                                manage_components.create_button(
+                                    style=ButtonStyle.blue,
+                                    label=f"🎴 {result['DATA']['NAME']}",
+                                    custom_id=f"{str(result['NUMBER'])}"
+                                )
+                            )
+                        
+                        if result['TYPE'] == "TITLE":
+                            buttons.append(
+                                manage_components.create_button(
+                                    style=ButtonStyle.blue,
+                                    label=f"🎗️ {result['DATA']['TITLE']}",
+                                    custom_id=f"{str(result['NUMBER'])}"
+                                )
+                            )
+                        
+                        if result['TYPE'] == "ARM":
+                            buttons.append(
+                                manage_components.create_button(
+                                    style=ButtonStyle.blue,
+                                    label=f"🦾 {result['DATA']['ARM']}",
+                                    custom_id=f"{str(result['NUMBER'])}"
+                                )
+                            )
+                        
+                        if result['TYPE'] == "PET":
+                            buttons.append(
+                                manage_components.create_button(
+                                    style=ButtonStyle.blue,
+                                    label=f"🐦 {result['DATA']['PET']}",
+                                    custom_id=f"{str(result['NUMBER'])}"
+                                )
+                            )
+                        
+                        if result['TYPE'] == "UNIVERSE":
+                            buttons.append(
+                                manage_components.create_button(
+                                    style=ButtonStyle.blue,
+                                    label=f"🌍 {result['DATA']['TITLE']}",
+                                    custom_id=f"{str(result['NUMBER'])}"
+                                )
+                            )
+                        
+                        if result['TYPE'] == "BOSS":
+                            buttons.append(
+                                manage_components.create_button(
+                                    style=ButtonStyle.blue,
+                                    label=f"👹 {result['DATA']['NAME']}",
+                                    custom_id=f"{str(result['NUMBER'])}"
+                                )
+                            )
+                        
+                        if result['TYPE'] == "HALL":
+                            buttons.append(
+                                manage_components.create_button(
+                                    style=ButtonStyle.blue,
+                                    label=f"⛩️ {result['DATA']['HALL']}",
+                                    custom_id=f"{str(result['NUMBER'])}"
+                                )
+                            )
+                        
+                        if result['TYPE'] == "HOUSE":
+                            buttons.append(
+                                manage_components.create_button(
+                                    style=ButtonStyle.blue,
+                                    label=f"🏠 {result['DATA']['HOUSE']}",
+                                    custom_id=f"{str(result['NUMBER'])}"
+                                )
+                            )
+
+                    buttons.append(manage_components.create_button(
+                        style=ButtonStyle.red,
+                        label="❌ Cancel",
+                        custom_id="cancel"
+                    ))
+                    buttons_action_row = manage_components.create_actionrow(*buttons)
+
+                    msg = await ctx.send(embed=embedVar, components=[buttons_action_row])
+                    
+                    def check(button_ctx):
+                        return button_ctx.author == ctx.author
+
+                    try:
+                        button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[buttons_action_row, buttons], timeout=300, check=check)
+                        
+                        for result in list_of_results:
+                            if button_ctx.custom_id == str(result['NUMBER']):
+                                await msg.edit(components=[])
+                                await button_ctx.defer(ignore=True)
+                                await view_selection(self, ctx, result)
+                                return                 
+                        if button_ctx.custom_id == "cancel":
+                            await msg.edit(components=[])
+                            await button_ctx.defer(ignore=True)
+                            return
+                    except Exception as ex:
+                        trace = []
+                        tb = ex.__traceback__
+                        while tb is not None:
+                            trace.append({
+                                "filename": tb.tb_frame.f_code.co_filename,
+                                "name": tb.tb_frame.f_code.co_name,
+                                "lineno": tb.tb_lineno
+                            })
+                            tb = tb.tb_next
+                        print(str({
+                            'type': type(ex).__name__,
+                            'message': str(ex),
+                            'trace': trace
+                        }))
+                        await ctx.send("You took too long to respond.", hidden=True)
+                        return
+                else:
+                    pass
 
         if not response:
             results = db.viewQuerySearch(f".*{str(name)}.*")

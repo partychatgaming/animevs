@@ -62,12 +62,17 @@ def viewQuery(search_string):
         "PET": 'PET'
     }
 
-    results = {}
+    results = []
+    counter = 0
     for col_name, field in collections.items():
         col = db[col_name]
-        result = col.find_one({field: {"$regex": f"^{str(search_string)}$", "$options": "i"}})
+        result = col.find({field: {"$regex": f"^{str(search_string)}$", "$options": "i"}})
         if result:
-            results[col_name] = result
+            for r in result:
+                if counter == 4:
+                    break
+                results.append({"TYPE": col_name, "DATA": r, "INDEX": counter})
+                counter += 1
 
     # print(results)
     if results:
