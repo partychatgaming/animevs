@@ -3492,9 +3492,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await asyncio.sleep(2)
                                             if player1.performance:
                                                 embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player3_card.move1_emoji}{player3_card.move1ap}\n{player3_card.move2_emoji}{player3_card.move2ap}\n{player3_card.move3_emoji}{player3_card.move3ap}\n:microbe:{player3_card.move4enh} {player3_card.move4ap}")
-                                                battle_msg = await private_channel.send(embed=embedVar, components=components)
+                                                battle_msg = await private_channel.send(embed=embedVar)
                                             else:
-                                                battle_msg = await private_channel.send(embed=embedVar, components=[], file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
+                                                battle_msg = await private_channel.send(embed=embedVar, file=player3_card.showcard(battle_config.mode, player3_arm, player3_title, battle_config.turn_total, player2_card.defense))
                                             # Make sure user is responding with move
                                         else:
                                             embedVar = await auto_battle_embed_and_starting_traits(ctx, player3_card, player2_card, battle_config, player1_card)
