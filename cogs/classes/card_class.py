@@ -140,6 +140,9 @@ class Card:
             self.resolve_value = 60
             self.summon_resolve_message = ""
             self.scheduled_death_message = False
+            self.focus_icon = "❤️"
+            self.resolve_icon = "🌀"
+            
 
             # Talisman Info
             self._talisman = "None"
@@ -3244,8 +3247,16 @@ class Card:
                         self.max_health = self.max_health * 2
                         battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
                         
-
-def get_card(url, cardname, cardtype):
+    def get_stat_icons(self):
+        if self.used_focus:
+            self.focus_icon = '💓'
+        if self.used_resolve:
+            self.resolve_icon = '⚡'
+                
+    def get_performance_stats(self):
+        return f"{self.focus_icon} {self.health}/*{self.max_health}*\n{self.resolve_icon} {self.stamina}\n🩸 {self.passive_type} {self.passive_num}"
+        
+    def get_card(url, cardname, cardtype):
         try:
             im = Image.open(requests.get(url, stream=True).raw)
             return im   

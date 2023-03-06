@@ -24,6 +24,7 @@ class Title:
         self.title_message = f"⚠️ | {self.name} ~ INEFFECTIVE"
         if self.universe in crown_utilities.pokemon_universes:
             self.pokemon_title = True
+        self.title_icon = "⚠️"
 
     def set_title_image(self):
         if self.universe != 'Unbound':
@@ -164,6 +165,19 @@ class Title:
                     self.title_message = f"🎗️ | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
                 else:
                     self.title_message = f"🎗️ | {self.name}"
+                        
+        except:
+            print("error setting title message")
+            
+    def get_title_icon(self, card_universe):
+        try:
+            if self.universe == "Unbound" or (card_universe in crown_utilities.pokemon_universes) or card_universe == "Crown Rift Awakening":
+                return "👑" 
+
+            elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_title==True):
+                return "🎗️"
+            else:
+                return self.title_icon
                         
         except:
             print("error setting title message")

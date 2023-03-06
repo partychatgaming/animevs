@@ -749,7 +749,13 @@ class Battle:
                         self._ai_title = universe_data['UTITLE']
                         self._ai_arm = universe_data['UARM']
                         self._ai_summon = universe_data['UPET']
-                        self._ai_opponent_card_lvl = min(150, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
+                        if player1_card_level <= 20 and player1_card_level >=10:
+                            self._ai_opponent_card_lvl = 10
+                        elif player1_card_level >= 0 and player1_card_level <=10:
+                            self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl    
+                        else:
+                            self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl - 10
+                        #self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
 
                     if any((self.is_scenario_game_mode, self.is_explore_game_mode)):
                         if self._ai_opponent_card_lvl < 150:
