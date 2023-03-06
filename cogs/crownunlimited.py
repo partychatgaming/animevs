@@ -3162,6 +3162,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         channel = guild.get_channel(main.guild_channel)
                                         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
                         
+                        if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                            game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
+                        else:
+                            game_over_check = battle_config.set_game_over(player1_card, player2_card, None)
+                        if game_over_check:
+                            break
                         if battle_config.is_co_op_mode:
                             pre_turn_one = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config, player3_card)
                         else:
@@ -3447,6 +3453,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
+                            if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
+                            else:
+                                game_over_check = battle_config.set_game_over(player1_card, player2_card, None)
+                            if game_over_check:
+                                break
                             if battle_config.is_co_op_mode:
                                 pre_turn_two = beginning_of_turn_stat_trait_affects(player3_card, player3_title, player2_card, battle_config, player1_card)
                             else:
@@ -3653,6 +3665,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
 
                             # Opponent Turn Start
+                            if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
+                            else:
+                                game_over_check = battle_config.set_game_over(player1_card, player2_card, None)
+                            if game_over_check:
+                                break
                             if battle_config.is_co_op_mode:
                                 pre_turn_three = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player3_card, battle_config, player1_card)
                             else:
