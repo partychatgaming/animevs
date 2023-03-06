@@ -32,8 +32,8 @@ cards_col = db["CARDS"]
 titles_col = db["TITLES"]
 arm_col = db["ARM"]
 universe_col = db['UNIVERSE']
-house_col =db["HOUSE"]
-hall_col =db["HALL"]
+house_col = db["HOUSE"]
+hall_col = db["HALL"]
 boss_col = db['BOSS']
 pet_col = db['PET']
 vault_col =db["VAULT"]
@@ -69,10 +69,41 @@ def viewQuery(search_string):
         if result:
             results[col_name] = result
 
+    # print(results)
     if results:
         return results
     else:
         return False
+
+def viewQuerySearch(search_string):
+    collections = {
+        "CARDS": "NAME",
+        "TITLES": "TITLE",
+        "ARM": "ARM",
+        "UNIVERSE": "TITLE",
+        "HOUSE": "HOUSE",
+        "HALL": "HALL",
+        "BOSS": "NAME",
+        "PET": 'PET'
+    }
+
+    results = []
+    counter = 0
+    for col_name, field in collections.items():
+        col = db[col_name]
+        result = col.find({field: {"$regex": f"^{str(search_string)}$", "$options": "i"}})
+        if result:
+            for r in result:
+                if counter == 4:
+                    break
+                results.append({"TYPE": col_name, "DATA": r, "INDEX": counter})
+                counter += 1
+
+    if results:
+        return results
+    else:
+        return False
+
 
 
 '''Check if Collection Exists'''
