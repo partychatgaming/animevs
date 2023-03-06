@@ -1452,7 +1452,7 @@ class Card:
                 "ATK": lambda ap: round((ap / 100) * attack),
                 "DEF": lambda ap: round((ap / 100) * defense),
                 "STAM": lambda ap: ap,
-                "HLT": lambda ap: round(100 + ap + (.30 * health) + (.20 * (self.max_health - health))),
+                "HLT": lambda ap: round(100 + ap + (.15 * health) + (.20 * (self.max_health - health))),
                 "LIFE": lambda ap: round(ap + (.10 * _opponent_card.health)+ (.10 * (self.max_health - health))),
                 "DRAIN": lambda ap: round(ap),
                 "FLOG": lambda ap: round((ap / 100) * min(_opponent_card.attack, 2000)),
