@@ -1358,8 +1358,8 @@ class Card:
             return
 
     def damage_cal(self, selected_move, battle_config, _opponent_card):
-        if _opponent_card.defense <= 0:
-            _opponent_card.defense = 25
+        if self.defense <= 0:
+            self.defense = 25
         if self.attack <= 0:
             self.attack = 25
         if _opponent_card.defense <= 0:
@@ -1428,17 +1428,18 @@ class Card:
             move = self.summon_ability_name
 
 
-        if (self.stamina - move_stamina) < 0 and not summon_enhancer:
-            can_use_move_flag = False
-            response = {
-            "DMG": 0, 
-            "MESSAGE": "You do not have the stamina to use this move! Try another mvoe.", 
-            "CAN_USE_MOVE": can_use_move_flag, 
-            "ENHANCE": False, 
-            "REPEL": False, 
-            "ABSORB": False, 
-            "ELEMENT": move_element}
-            return response
+        if (self.stamina - move_stamina) < 0:
+            if not summon_enhancer:
+                can_use_move_flag = False
+                response = {
+                "DMG": 0, 
+                "MESSAGE": "You do not have the stamina to use this move! Try another mvoe.", 
+                "CAN_USE_MOVE": can_use_move_flag, 
+                "ENHANCE": False, 
+                "REPEL": False, 
+                "ABSORB": False, 
+                "ELEMENT": move_element}
+                return response
 
         if enhancer:
             tier = self.tier
@@ -2234,6 +2235,7 @@ class Card:
                 low = self.health - (self.health * .75)
                 high = self.health - (self.health * .66)
                 fortitude = round(random.randint(int(low), int(high)))
+                print(fortitude)
                 # Resolve Scaling
                 resolve_health = round(fortitude + (.5 * self.resolve_value))
                 resolve_attack_value = round(
@@ -3003,6 +3005,10 @@ class Card:
             opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .35)
             opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .35)
             opponent_card.health = opponent_card.health - dmg['DMG']
+            if opponent_card.defense <= 25:
+                opponent_card.defense = 25
+            if opponent_card.attack <= 25:
+                opponent_card.attack = 25
 
         elif dmg['ELEMENT'] == "FIRE":
             self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
@@ -3062,6 +3068,12 @@ class Card:
         
         if _opponent_card.card_lvl_ap_buff > 1000:
             _opponent_card.card_lvl_ap_buff = 1000
+            
+        if self.card_lvl_ap_buff < 0:
+            self.card_lvl_ap_buff = 1
+        
+        if _opponent_card.card_lvl_ap_buff < 0:
+            _opponent_card.card_lvl_ap_buff = 1
         
         if self.attack <= 25:
             self.attack = 25
@@ -3083,6 +3095,10 @@ class Card:
     
         if self.health >= self.max_health:
             self.health = self.max_health
+            
+        if _opponent_card.health >= _opponent_card.max_health:
+            _opponent_card.health = _opponent_card.max_health
+        
             
         if self.used_resolve and self.universe == "Souls":
             self.move1ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff)

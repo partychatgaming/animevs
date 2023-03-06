@@ -3171,7 +3171,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         if battle_config.is_co_op_mode:
                             pre_turn_one = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config, player3_card)
                         else:
-                            pre_turn_zero_one = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
+                            pre_turn_one = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
 
 
                         if battle_config.is_turn == 1:
