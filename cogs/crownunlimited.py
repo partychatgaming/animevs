@@ -3374,7 +3374,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     if not battle_config.is_auto_battle_game_mode:
                                         await battle_msg.delete(delay=2)
-                                        embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
+                                        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                                            embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, player3_card)
+                                        else:
+                                            embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
                                         if player1.performance:
                                             embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
                                             battle_msg = await private_channel.send(embed=embedVar)
@@ -3702,7 +3705,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 
                                 else:
                                     await battle_msg.delete(delay=2)
-                                    embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player3_card, battle_config, None)
+                                    embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player3_card, battle_config, player1_card)
                                     if player3.performance:
                                         embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.move1_emoji}{player2_card.move1ap}\n{player2_card.move2_emoji}{player2_card.move2ap}\n{player2_card.move3_emoji}{player2_card.move3ap}\n:microbe:{player2_card.move4enh} {player2_card.move4ap}")
                                         battle_msg = await private_channel.send(embed=embedVar)
@@ -4456,8 +4459,12 @@ async def auto_battle_embed_and_starting_traits(ctx, player_card, opponent_card,
     """), color=0xe74c3c)
     await asyncio.sleep(2)
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
+    if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+        footer_text = battle_config.get_battle_window_title_text(player_card,opponent_card, companion_card)
+    else:
+        footer_text = battle_config.get_battle_window_title_text(player_card,opponent_card)
     embedVar.set_footer(
-        text=f"{battle_config.get_battle_window_title_text(player_card,opponent_card)}",
+        text=f"{footer_text}",
         icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
 
     if not battle_config.is_auto_battle_game_mode:
