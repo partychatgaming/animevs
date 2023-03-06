@@ -186,7 +186,8 @@ class Battle:
         
         self.blocking_traits = ['Attack On Titan',
                            'Bleach',
-                           'Black Clover'
+                           'Black Clover',
+                           'Death Note'
         ]
         self.focus_traits = ['Black Clover', 
                         'Dragon Ball Z',
