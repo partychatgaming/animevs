@@ -3254,7 +3254,7 @@ class Card:
             self.resolve_icon = '⚡'
                 
     def get_performance_stats(self):
-        return f"{self.focus_icon} {self.health}/*{self.max_health}*\n{self.resolve_icon} {self.stamina}\n🩸 {self.passive_type} {self.passive_num}"
+        return f"**Current Stats**\n{self.focus_icon} {self.health}/*{self.max_health}*\n🩸 {self.passive_type} {self.passive_num}"
         
     def get_card(url, cardname, cardtype):
         try:
