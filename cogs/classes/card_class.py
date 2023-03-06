@@ -3258,7 +3258,7 @@ class Card:
             return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}\n🩸 | {self.passive_type} {self.passive_num}"
         return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}/*{round(self.max_health)}*\n🩸 | {self.passive_type} {self.passive_num}"
         
-    def get_card(url, cardname, cardtype):
+def get_card(url, cardname, cardtype):
         try:
             im = Image.open(requests.get(url, stream=True).raw)
             return im   
