@@ -3247,7 +3247,7 @@ class Card:
                         self.max_health = self.max_health * 2
                         battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
                         
-    def get_stat_icons(self):
+    def set_stat_icons(self):
         if self.used_focus:
             self.focus_icon = '💓'
         if self.used_resolve:
