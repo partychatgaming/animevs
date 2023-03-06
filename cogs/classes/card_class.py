@@ -3255,7 +3255,7 @@ class Card:
                 
     def get_performance_stats(self):
         if round(self.health) == round(self.max_health):
-            return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}\n🩸| {self.passive_type} {self.passive_num}"
+            return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}\n🩸 | {self.passive_type} {self.passive_num}"
         return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}/*{round(self.max_health)}*\n🩸 | {self.passive_type} {self.passive_num}"
         
     def get_card(url, cardname, cardtype):
