@@ -898,7 +898,7 @@ class Battle:
             
         if partner_card:
             if partner_card.used_focus:
-                p_focus = '💓'
+                p_focus = '💖'
             if partner_card.used_resolve:
                 p_resolve = '⚡'
         #return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"

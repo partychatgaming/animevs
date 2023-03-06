@@ -3249,14 +3249,14 @@ class Card:
                         
     def set_stat_icons(self):
         if self.used_focus:
-            self.focus_icon = '💓'
+            self.focus_icon = '💖'
         if self.used_resolve:
             self.resolve_icon = '⚡'
                 
     def get_performance_stats(self):
         if round(self.health) == round(self.max_health):
-            return f"**Current Stats**\n{self.focus_icon} {round(self.health)}\n🩸 {self.passive_type} {self.passive_num}"
-        return f"**Current Stats**\n{self.focus_icon} {round(self.health)}/*{round(self.max_health)}*\n🩸 {self.passive_type} {self.passive_num}"
+            return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}\n🩸| {self.passive_type} {self.passive_num}"
+        return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}/*{round(self.max_health)}*\n🩸 | {self.passive_type} {self.passive_num}"
         
     def get_card(url, cardname, cardtype):
         try:
