@@ -2458,8 +2458,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
-                if p.boss_fought:
-
+                if p.boss_fought or p.patron:
                     boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
                     __🗝️  How to get Arena Keys?__
                     Conquer any Universe Dungeon to gain a Boss Arena Key
@@ -4420,7 +4419,7 @@ def tactics_petrified_fear_check(boss_card, player_card, battle_config):
     if boss_card.petrified_fear and boss_card.petrified_fear_counter < boss_card.petrified_fear_turns:
         boss_card.petrified_fear_counter = boss_card.petrified_fear_counter + 1
         battle_config.is_turn = 1
-        petrified_fear_message = f"*{player_card.name} is petrified with fear and cannot move!*"
+        petrified_fear_message = f"*{player_card.name} is petrified with fear and cannot move for [{str((boss_card.petrified_fear_turns - boss_card.petrified_fear_counter) + 1)}] turns!*"
         battle_config.add_battle_history_messsage(petrified_fear_message)
 
 
@@ -4481,15 +4480,17 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
 def tactics_damage_check(boss_card, battle_config):
     if boss_card.damage_check:
         if not boss_card.damage_check_activated:
-            if boss_card.focus_count in [4, 16, 27, 40, 65, 80]:
+            if boss_card.focus_count in [1, 4, 16, 27, 40, 65, 80]:
                 boss_card.damage_check_activated = True
                 boss_card.damage_check_limit = boss_card.max_health * 0.05
                 boss_card.damage_check_turns = 5
-                damage_check_message = f"*{boss_card.name} is charging a fatal blow, damage it to stop the attack!*"
+                damage_check_message = f"*{boss_card.name} is charging a fatal blow, damage it to stop the attack!\nDeal [{str(boss_card.damage_check_limit)}] damage to stop it!*"
                 battle_config.add_battle_history_messsage(damage_check_message)
         if boss_card.damage_check_activated:
-            battle_config.add_battle_history_messsage(f"*{boss_card.name} is charging a fatal blow, damage it to stop the attack!*")
             battle_config.is_turn = 0
+            print("damage check activated")
+            battle_config.add_battle_history_messsage(f"*{boss_card.name} is charging a fatal blow, damage it to stop the attack!\n[{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str((boss_card.damage_check_turns - boss_card.damage_check_counter) + 1)}] turns to go!*")
+            print(battle_config.is_turn)
             if boss_card.damage_check_turns > 6:
                 battle_config.add_battle_history_messsage(f"*{boss_card.name} has dealt a fatal blow!*")
 
@@ -4554,7 +4555,7 @@ def tactics_almighty_will(boss_card, battle_config):
         if battle_config.is_turn in boss_card.almighty_will_turns:
             battle_config.is_turn = random.randint(3, 80)
             boss_card.focus_count = random.randint(3, 30)
-            almighty_will_message = f"*{boss_card.name} manipulated the flow of battle!*"
+            almighty_will_message = f"*{boss_card.name} manipulated the flow of battle!\nIt is now turn {str(battle_config.is_turn)}* and {boss_card.name} has focused {str(boss_card.focus_count)} times!"
             battle_config.add_battle_history_messsage(almighty_will_message)
 
 

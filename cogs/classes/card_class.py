@@ -1625,7 +1625,15 @@ class Card:
                 med_hit = 15
                 standard_hit = 19
                 high_hit = 20
-                hit_roll = round(random.randint(0, 20))
+                # hit_roll = round(random.randint(0, 20))
+                hit_roll = random.randint(1, 20)  # generate a random integer between 1 and 20 inclusive
+
+                if hit_roll <= 6:
+                    if random.random() < 0.25:  # adjust the probability of getting a number between 1 and 6
+                        hit_roll = random.randint(1, 6)
+                else:
+                    hit_roll = random.randint(7, 20)  # generate a new random number between 7 and 20 (inclusive)
+
 
                 if self.bloodlust_activated:
                     hit_roll = hit_roll + 3
@@ -3221,6 +3229,9 @@ class Card:
                 if "PETRIFIED_FEAR" in self.tactics:
                     self.petrified_fear = True
                     self.petrified_fear_turns = random.randint(2, 6)
+                if "DAMAGE_CHECK":
+                    self.damage_check = True
+                    self.damage_check_limit = round(random.randint(1500, 2500))
 
 
 
@@ -3324,7 +3335,7 @@ class Card:
             if self.passive_type in ['HLT','CREATION']:
                 self.damage_healed = self.damage_healed + ((value_for_passive / 100) * self.health )
             if self.passive_type in ['BLAST','WAVE','DESTRUCTION']:
-                self.damage_dealt = self.damage_dealt + {value_for_passive if self.passive_type in ['WAVE','BLAST'] else ((value_for_passive / 100) * player2_card.max_health)}
+                self.damage_dealt = self.damage_dealt + (value_for_passive if self.passive_type in ['WAVE','BLAST'] else ((value_for_passive / 100) * player2_card.max_health))
             if self.passive_type == "LIFE":
                 self.damage_dealt = self.damage_dealt + dmg
                 self.damage_healed = self.damage_healed + dmg
