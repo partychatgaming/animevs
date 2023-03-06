@@ -199,6 +199,8 @@ class Title:
                     player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player1_card.health))
                 else:
                     player1_card.health = round(player1_card.health + (player2_card.max_health - player2_card.health))
+                if player1_card.health >= player1_card.max_health:
+                    player1_card.health = player1_card.max_health
             if self.passive_type == "LIFE":
                 if player1_card.max_health > (player1_card.health + ((self.passive_value / 100) * player2_card.health)):
                     player2_card.health = round(player2_card.health - ((self.passive_value / 100) * player2_card.health))
@@ -208,6 +210,8 @@ class Title:
                 else:
                     player2_card.health = round(player2_card.health - (player2_card.max_health - player2_card.health))
                     player1_card.health = round(player1_card.health + (player2_card.max_health - player2_card.health))
+                    if player1_card.health >= player1_card.max_health:
+                        player1_card.health = player1_card.max_health
                     player1_card.damage_healed = round(player1_card.damage_healed + (player2_card.max_health - player2_card.health))
                     player1_card.damage_dealt = round(player1_card.damage_dealt + (player2_card.max_health - player2_card.health))
             if self.passive_type == "ATK":
@@ -247,6 +251,12 @@ class Title:
                 player2_card.defense = player2_card.defense - self.passive_value
                 player2_card.attack = player2_card.attack - self.passive_value
                 player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - self.passive_value
+                if player2_card.attack <= 25:
+                    player2_card.attack = 25
+                if player2_card.defense <= 25:
+                    player2_card.defense = 25
+                if player2_card.card_lvl_ap_buff <= 0:
+                    player2_card.card_lvl_ap_buff = 1
             if self.passive_type == "GROWTH":
                 player1_card.max_health = player1_card.max_health - (player1_card.max_health * .03)
                 if player1_card.health > player1_card.max_health:
