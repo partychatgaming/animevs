@@ -3345,7 +3345,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         await battle_msg.delete(delay=2)
                                         await asyncio.sleep(2) 
                                         if player1.performance:
-                                            embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_performance_stats()}\n{player2_title.get_title_icon(player2_card.universe)}{player2_title.passive_type} {player2_title.passive_value}")
+                                            embedVar.add_field(name=f"➡️ **Enemy Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_performance_stats()}\n{player2_title.get_title_icon(player2_card.universe)}{player2_title.passive_type} {player2_title.passive_value}")
                                             embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.resolve_icon} {player2_card.stamina} *Stamina*\n{player2_card.move1_emoji}{player2_card.move1ap} *-10 ST {player2_card.resolve_icon}*\n{player2_card.move2_emoji}{player2_card.move2ap} *-30 ST {player2_card.resolve_icon}*\n{player2_card.move3_emoji}{player2_card.move3ap} *-80 ST {player2_card.resolve_icon}*\n:microbe:{player2_card.move4enh} {player2_card.move4ap} *-20 ST {player2_card.resolve_icon}*")
                                             battle_msg = await private_channel.send(embed=tembedVar)
                                         else:
@@ -3389,7 +3389,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         else:
                                             embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
                                         if player1.performance:
-                                            embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_performance_stats()}\n{player2_title.get_title_icon(player2_card.universe)}{player2_title.passive_type} {player2_title.passive_value}")
+                                            embedVar.add_field(name=f"➡️ **Enemy Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_performance_stats()}\n{player2_title.get_title_icon(player2_card.universe)}{player2_title.passive_type} {player2_title.passive_value}")
                                             embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.resolve_icon} {player2_card.stamina} *Stamina*\n{player2_card.move1_emoji}{player2_card.move1ap} *-10 ST {player2_card.resolve_icon}*\n{player2_card.move2_emoji}{player2_card.move2ap} *-30 ST {player2_card.resolve_icon}*\n{player2_card.move3_emoji}{player2_card.move3ap} *-80 ST {player2_card.resolve_icon}*\n:microbe:{player2_card.move4enh} {player2_card.move4ap} *-20 ST {player2_card.resolve_icon}*")
                                             battle_msg = await private_channel.send(embed=embedVar)
                                         else:
@@ -3731,7 +3731,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     await battle_msg.delete(delay=2)
                                     embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player3_card, battle_config, player1_card)
                                     if player3.performance:
-                                        embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_performance_stats()}\n{player2_title.get_title_icon(player2_card.universe)}{player2_title.passive_type} {player2_title.passive_value}")
+                                        embedVar.add_field(name=f"➡️ **Enemy Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_performance_stats()}\n{player2_title.get_title_icon(player2_card.universe)}{player2_title.passive_type} {player2_title.passive_value}")
                                         embedVar.add_field(name=f":sunny: **Move Set**", value=f"{player2_card.resolve_icon} {player2_card.stamina} *Stamina*\n{player2_card.move1_emoji}{player2_card.move1ap} *-10 ST {player2_card.resolve_icon}*\n{player2_card.move2_emoji}{player2_card.move2ap} *-30 ST {player2_card.resolve_icon}*\n{player2_card.move3_emoji}{player2_card.move3ap} *-80 ST {player2_card.resolve_icon}*\n:microbe:{player2_card.move4enh} {player2_card.move4ap} *-20 ST {player2_card.resolve_icon}*")
                                         battle_msg = await private_channel.send(embed=embedVar)
                                     else:
