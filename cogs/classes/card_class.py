@@ -2096,7 +2096,7 @@ class Card:
                 self.usedsummon = False
                 health_boost = 100 * self.focus_count
                 self.health = self.health + health_boost
-                self.damage_healed = self.damage_healed + resolve_health + health_boosts
+                self.damage_healed = self.damage_healed + resolve_health + health_boost
 
                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
 
