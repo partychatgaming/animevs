@@ -628,6 +628,7 @@ class CrownUnlimited(commands.Cog):
                     ]
         , guild_ids=main.guild_ids)
     async def solo(self, ctx: SlashContext, mode: str):
+        await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -4464,7 +4465,7 @@ def tactics_petrified_fear_check(boss_card, player_card, battle_config):
 def tactics_bloodlust_check(boss_card, battle_config):
     if boss_card.bloodlust:
         if not boss_card.bloodlust_activated:
-            if boss_card.health <= (0.60 * boss_card.max_base_health):
+            if boss_card.health <= (0.75 * boss_card.max_base_health):
                 print("bloodlust check")
                 boss_card.bloodlust_activated = True
                 boss_card.attack = boss_card.attack + 3000
@@ -4475,7 +4476,7 @@ def tactics_bloodlust_check(boss_card, battle_config):
 def tactics_enrage_check(boss_card, battle_config):
     if boss_card.enraged:
         if not boss_card.enrage_activated:
-            if boss_card.health <= (0.30 * boss_card.max_base_health):
+            if boss_card.health <= (0.60 * boss_card.max_base_health):
                 print("enrage check")
                 boss_card.enrage_activated = True
                 boss_card.attack = boss_card.attack + 9999
@@ -4492,22 +4493,22 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
                 print("intimidation check")
                 boss_card.intimidation_activated = True
                 boss_card.intimidation_counter = boss_card.intimidation_counter + 1
-                boss_card.temporary_attack = boss_card.attack
-                boss_card.temporary_defense = boss_card.defense
-                boss_card.attack = 0
-                boss_card.defense = 0
+                player_card.temporary_attack = player_card.attack
+                player_card.temporary_defense = player_card.defense
+                player_card.attack = 0
+                player_card.defense = 0
                 intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name}!*"
                 battle_config.add_battle_history_message(intimidation_message)
         if boss_card.intimidation_activated:
             if boss_card.intimidation_counter < boss_card.intimidation_turns:
                 boss_card.intimidation_counter = boss_card.intimidation_counter + 1
-                boss_card.attack = 0
-                boss_card.defense = 0
+                player_card.attack = 0
+                player_card.defense = 0
                 intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name}!*"
                 battle_config.add_battle_history_message(intimidation_message)
             else:
-                boss_card.attack = boss_card.temporary_attack
-                boss_card.defense = boss_card.temporary_defense
+                player_card.attack = player_card.temporary_attack
+                player_card.defense = player_card.temporary_defense
                 boss_card.intimidation_activated = False
                 boss_card.intimidation = False
                 boss_card.intimidation_counter = 0
@@ -4518,7 +4519,7 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
 def tactics_damage_check(boss_card, battle_config):
     if boss_card.damage_check:
         if not boss_card.damage_check_activated:
-            if boss_card.focus_count in [5]:
+            if boss_card.focus_count in [2]:
                 boss_card.damage_check_activated = True
                 boss_card.damage_check_limit = round(boss_card.max_health * .20)
                 boss_card.damage_check_turns = 5
@@ -4542,8 +4543,13 @@ def tactics_regeneration_check(boss_card, battle_config):
 
 def tactics_death_blow_check(boss_card, player_card, battle_config):
     if boss_card.death_blow:
-        if battle_config.turn_total in [1, 29, 30, 59, 60, 89, 90, 119, 120, 149, 150]:
+        if battle_config.turn_total in [1, 30, 60, 90, 120, 150]:
             boss_card.death_blow_activated = True
+
+        if battle_config.turn_total in [0, 28, 29, 58, 59, 88, 89, 118, 119, 148, 149]:
+            warning_message = f"*{boss_card.name} is preparing a death blow! Protect yourself with shields, parries, or barriers!*"
+            battle_config.add_battle_history_message(warning_message)
+
         if boss_card.death_blow_activated:
             if any({player_card._shield_active, player_card._parry_active, player_card._barrier_active}):
                 player_card._shield_active = False
@@ -4552,6 +4558,7 @@ def tactics_death_blow_check(boss_card, player_card, battle_config):
                 player_card._shield_value = 0
                 player_card._parry_value = 0
                 player_card._barrier_value = 0
+                player_card._arm_message = ""
                 death_blow_message = f"*{boss_card.name} destroyed {player_card.name} protections with a destructive blow!*"
                 battle_config.add_battle_history_message(death_blow_message)
                 boss_card.death_blow_activated = False
