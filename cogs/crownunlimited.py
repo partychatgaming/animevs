@@ -2911,7 +2911,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
                                     if player1.performance:
-                                        embedVar.add_field(name=f":sunny: | **Move Set**", value=f"{player1_card.resolve_icon} | {player1_card.stamina} *Stamina*\n{player1_card.move1_emoji} | {player1_card.move1ap} *-10 ST {player1_card.resolve_icon}*\n{player3_card.move2_emoji} | {player1_card.move2ap} *-30 ST {player1_card.resolve_icon}*\n{player1_card.move3_emoji} | {player1_card.move3ap} *-80 ST {player1_card.resolve_icon}*\n:microbe: | {player1_card.move4enh} {player1_card.move4ap} *-20 ST {player1_card.resolve_icon}*")
+                                        embedVar.add_field(name=f":sunny: | **Move Set**", value=f"{player1_card.resolve_icon} | {player1_card.stamina} *Stamina*\n{player1_card.move1_emoji} | {player1_card.move1ap} *-10 ST {player1_card.resolve_icon}*\n{player1_card.move2_emoji} | {player1_card.move2ap} *-30 ST {player1_card.resolve_icon}*\n{player1_card.move3_emoji} | {player1_card.move3ap} *-80 ST {player1_card.resolve_icon}*\n:microbe: | {player1_card.move4enh} {player1_card.move4ap} *-20 ST {player1_card.resolve_icon}*")
                                         battle_msg = await private_channel.send(embed=embedVar, components=components)
                                     else:
                                         battle_msg = await private_channel.send(embed=embedVar, components=components, file=player1_card.showcard(battle_config.mode, player1_arm, player1_title, battle_config.turn_total, player2_card.defense))
