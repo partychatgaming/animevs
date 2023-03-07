@@ -2730,33 +2730,33 @@ class Card:
                 if self.move4enh in crown_utilities.Stamina_Enhancer_Check or self.move4enh in crown_utilities.Time_Enhancer_Check or self.move4enh in crown_utilities.Control_Enhancer_Check:
                     self.stamina = self.stamina
 
-                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: 🦠 {dmg['MESSAGE']}")
-                if opponent_card.health <= 0:
-                    if opponent_card._final_stand==True:
-                        if opponent_card.universe == "Dragon Ball Z":
-                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                                self._barrier_active = False
-                                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
-                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
-                            # print(opponent_card.attack)
-                            # print(opponent_card.defense)
-                            opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
-                            if opponent_card.health < 0:
-                                opponent_card.health = 100 + round(.75 * (opponent_card.base_attack + opponent_card.base_defense))
+                # battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}**: 🦠 {dmg['MESSAGE']}")
+                # if opponent_card.health <= 0:
+                #     if opponent_card._final_stand==True:
+                #         if opponent_card.universe == "Dragon Ball Z":
+                #             if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                #                 self._barrier_active = False
+                #                 battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                #             battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
+                #             # print(opponent_card.attack)
+                #             # print(opponent_card.defense)
+                #             opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
+                #             if opponent_card.health < 0:
+                #                 opponent_card.health = 100 + round(.75 * (opponent_card.base_attack + opponent_card.base_defense))
                 
-                            opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
-                            # print(opponent_card.health)
-                            opponent_card.used_resolve = True
-                            opponent_card.used_focus = True
-                            opponent_card._final_stand = False
-                            battle_config.turn_total = battle_config.turn_total + 1
-                            battle_config.next_turn()
-                    else:
-                        opponent_card.health = 0
-                        battle_config.turn_total = battle_config.turn_total + 1
-                else:
-                    battle_config.turn_total = battle_config.turn_total + 1
-                    battle_config.next_turn()
+                #             opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
+                #             # print(opponent_card.health)
+                #             opponent_card.used_resolve = True
+                #             opponent_card.used_focus = True
+                #             opponent_card._final_stand = False
+                #             battle_config.turn_total = battle_config.turn_total + 1
+                #             battle_config.next_turn()
+                #     else:
+                #         opponent_card.health = 0
+                #         battle_config.turn_total = battle_config.turn_total + 1
+                # else:
+                #     battle_config.turn_total = battle_config.turn_total + 1
+                #     battle_config.next_turn()
                 # battle_config.turn_total = battle_config.turn_total + 1
                 # battle_config.next_turn()
                 # await button_ctx.defer(ignore=True)
