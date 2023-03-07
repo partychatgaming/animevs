@@ -2967,7 +2967,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
                                             player1_card.health = 0
                                             battle_config.game_over = True
-                                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 💨 **{player1_card.name}** Fled...")
+                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 💨 **{player1_card.name}** Fled...")
                                             await battle_msg.delete(delay=1)
                                             await asyncio.sleep(1)
                                             battle_msg = await private_channel.send(content=f"{ctx.author.mention} has fled.")
@@ -3068,7 +3068,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             else:
                                                 emessage = m.CANNOT_USE_RESOLVE
                                                 embedVar = discord.Embed(title=emessage, colour=0xe91e63)
-                                                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) **{player1_card.name}** cannot resolve")
+                                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{player1_card.name}** cannot resolve")
                                                 await private_channel.defer(ignore=True)
                                                 battle_config.is_turn = battle_config._repeat_turn()
                                         
@@ -3457,7 +3457,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     await battle_msg.delete(delay=2)
 
                                         else:
-                                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
+                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
                                     elif int(selected_move) == 0:
                                         player2_card.use_block(battle_config, player1_card)                                            
                                     if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 0:
@@ -3604,7 +3604,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
                                                 player3_card.health = 0
                                                 battle_config.game_over = True
-                                                battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
+                                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                                 await asyncio.sleep(1)
                                                 await battle_msg.delete(delay=1)
                                                 battle_msg = await private_channel.send(content=f"{ctx.author.mention} has fled.")
@@ -3681,7 +3681,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             # await discord.TextChannel.delete(private_channel, reason=None)
-                                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
+                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                             # player3_card.health = 0
                                             # o_health = 0
                                         except Exception as ex:
@@ -3805,7 +3805,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     await battle_msg.delete(delay=2)
 
                                         else:
-                                            battle_config.add_battle_history_messsage(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
+                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
                                     elif int(selected_move) == 0:
                                         player2_card.use_block(battle_config, player3_card) 
                                     if int(selected_move) == 10:
@@ -4436,11 +4436,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config, companion = None):
     #If any damage happened last turn that would kill
     player_card.reset_stats_to_limiter(opponent_card)
-    battle_config.add_battle_history_messsage(player_card.set_poison_hit(opponent_card))
+    battle_config.add_battle_history_message(player_card.set_poison_hit(opponent_card))
     burn_turn = player_card.set_burn_hit(opponent_card)
     if burn_turn != None:
-        battle_config.add_battle_history_messsage(player_card.set_burn_hit(opponent_card))
-    battle_config.add_battle_history_messsage(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
+        battle_config.add_battle_history_message(player_card.set_burn_hit(opponent_card))
+    battle_config.add_battle_history_message(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
     player_card.damage_dealt = round(player_card.damage_dealt)
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
@@ -4462,7 +4462,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']
-        battle_config.add_battle_history_messsage(new_turn['MESSAGE'])
+        battle_config.add_battle_history_message(new_turn['MESSAGE'])
         opponent_card.freeze_enh = False
         # return new_turn
     

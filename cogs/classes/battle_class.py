@@ -1241,7 +1241,7 @@ class Battle:
         return aiMove
 
 
-    def add_battle_history_messsage(self, msg):
+    def add_battle_history_message(self, msg):
         if msg:
             self.previous_moves.append(msg)
 
