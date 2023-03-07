@@ -4517,13 +4517,13 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
 def tactics_damage_check(boss_card, battle_config):
     if boss_card.damage_check:
         if not boss_card.damage_check_activated:
-            if boss_card.focus_count in [5]:
+            if boss_card.focus_count in [3]:
                 boss_card.damage_check_activated = True
-                boss_card.damage_check_limit = round(boss_card.max_health * .20)
+                boss_card.damage_check_limit = round(boss_card.max_health * .30)
                 boss_card.damage_check_turns = 5
         if boss_card.damage_check_activated:
             battle_config.is_turn = 0
-            battle_config.add_battle_history_message(f"**[{boss_card.name} is charging fatal blow...\nDamage Dealt - [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]**")
+            battle_config.add_battle_history_message(f"**[{boss_card.name} Damage Check\nDamage Dealt [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]**")
 
 
 def tactics_regeneration_check(boss_card, battle_config):

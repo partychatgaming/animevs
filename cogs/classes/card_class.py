@@ -1681,7 +1681,7 @@ class Card:
                         self.defense = 0
                         self.attack = 0
 
-                if move_element == "SPIRIT" and hit_roll >= 13:
+                if (move_element == "SPIRIT" or self.stagger) and hit_roll >= 13:
                     hit_roll = hit_roll + 7
                     
                 if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
@@ -1770,7 +1770,10 @@ class Card:
                         does_absorb = True
 
                 self.stamina = self.stamina - move_stamina
-
+                
+                if _opponent_card.damage_check_activated:
+                    true_dmg = 5
+                    message = f"{_opponent_card.name} is in damage check mode"
 
 
                 response = {"DMG": true_dmg, "MESSAGE": message,
@@ -3276,7 +3279,7 @@ class Card:
                     self.stagger = True
                 if "INTIMIDATION" in self.tactics:
                     self.intimidation = True
-                    self.intimidation_turns = random.randint(3, 10)
+                    self.intimidation_turns = random.randint(4, 10)
                 if "BLOODLUST" in self.tactics:
                     self.bloodlust = True
                 if "PETRIFIED_FEAR" in self.tactics:
