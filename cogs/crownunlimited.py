@@ -3148,7 +3148,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         elif any((battle_config.is_pvp_game_mode, 
                                                     battle_config.is_tutorial_game_mode
                                                                 )):
-                                            await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                                            await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
                                         else:
                                             await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
                                         # if not battle_config.is_abyss_game_mode and not battle_config.is_scenario_game_mode and not battle_config.is_explore_game_mode and not battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
@@ -3691,7 +3691,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             elif any((battle_config.is_pvp_game_mode, 
                                                         battle_config.is_tutorial_game_mode
                                                                     )):
-                                                await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                                                await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
                                             else:
                                                 await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
                                             # await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
@@ -3975,7 +3975,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     elif any((battle_config.is_pvp_game_mode, 
                                                 battle_config.is_tutorial_game_mode
                                                             )):
-                                        await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                                        await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
                                     else:
                                         await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
                                     # if player1.autosave and battle_config.match_can_be_saved:
@@ -4384,7 +4384,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 elif any((battle_config.is_pvp_game_mode, 
                             battle_config.is_tutorial_game_mode
                                         )):
-                    await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+                    await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
                 else:
                     await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
                 await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
@@ -4423,7 +4423,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
         elif any((battle_config.is_pvp_game_mode, 
                     battle_config.is_tutorial_game_mode
                                 )):
-            await ctx.send(embed = battle_config.close_pvp_embed(player1_card,player2_card))
+            await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
         else:
             await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
             
