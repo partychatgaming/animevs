@@ -3001,7 +3001,7 @@ class Card:
                     elif opponent_card.regeneration:
                         print("Regeneration activated")
                         if not opponent_card.regeneration_activated:
-                            if battle_config.turn_total >= 49:
+                            if battle_config.turn_total >= 80:
                                 opponent_card.regeneration_activated = True
                                 opponent_card.health = opponent_card.max_base_health
                                 battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{opponent_card.name}** took a fatal blow but then miraculously [ Regeneration: Activated]!")
@@ -3258,7 +3258,7 @@ class Card:
                     self.bloodlust = True
                 if "PETRIFIED_FEAR" in self.tactics:
                     self.petrified_fear = True
-                    self.petrified_fear_turns = random.randint(2, 6)
+                    self.petrified_fear_turns = random.randint(2, 7)
                 if "DAMAGE_CHECK":
                     self.damage_check = True
                     self.damage_check_limit = round(random.randint(1500, 2500))
