@@ -10,8 +10,6 @@
 
 ✅ Stagger - When the boss lands a critical hit, the opponent is staggered and loses their turn.
 
-✅ Provoked - If the boss's health drops to 0 or below, it gains a temporary spike in health for 5 turns. If it kills the opponent during this time, the boss wins. Otherwise, the boss loses the fight.
-
 ✅ Intimidation - The boss has the ability to temporarily reduce the opponent's attack and defense stats to 0 for 3-10 turns.
 
 ✅ Petrified Fear - At the start of the match, the boss gains the ability to take 2 - 5 turns before you have a chance to act.
