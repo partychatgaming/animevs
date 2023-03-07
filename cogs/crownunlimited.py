@@ -1406,7 +1406,7 @@ async def abyss_level_up_message(did, floor, card, title, arm):
         
         if floor in abyss_floor_reward_list:
             u = await main.bot.fetch_user(did)
-            tresponse = await crown_utilities.store_drop_card(u, did, title_drop, title_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "titles")
+            tresponse = await crown_utilities.store_drop_card(did, title_drop, title_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "titles")
             # current_titles = vault['TITLES']
             # if len(current_titles) >=25:
             #     drop_message.append("You have max amount of Titles. You did not receive the **Floor Title**.")
@@ -1416,7 +1416,7 @@ async def abyss_level_up_message(did, floor, card, title, arm):
             #     db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title_drop)}}) 
             #     drop_message.append(f"🎗️ **{title_drop}**")
 
-            aresponse = await crown_utilities.store_drop_card(u, did, arm_arm, arm['UNIVERSE'], vault, durability, coin_drop, coin_drop, "Abyss", False, 0, "arms")
+            aresponse = await crown_utilities.store_drop_card(did, arm_arm, arm['UNIVERSE'], vault, durability, coin_drop, coin_drop, "Abyss", False, 0, "arms")
             # current_arms = []
             # for arm in vault['ARMS']:
             #     current_arms.append(arm['ARM'])
@@ -1428,7 +1428,7 @@ async def abyss_level_up_message(did, floor, card, title, arm):
             #     db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm_drop['ARM']), 'DUR': 25}}})
             #     drop_message.append(f"🦾 **{arm_drop['ARM']}**")
             
-            cresponse = await crown_utilities.store_drop_card(u, did, card_drop, card_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "cards")
+            cresponse = await crown_utilities.store_drop_card(did, card_drop, card_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "cards")
             drop_message.append(tresponse)
             drop_message.append(aresponse)
             drop_message.append(cresponse)
