@@ -66,7 +66,6 @@ class Card:
             self.death_blow = False
             self.almighty_will = False 
             self.stagger = False 
-            self.provoked = False 
             self.intimidation = False 
             self.loyal_servant = False 
             self.petrified_fear = False
@@ -87,9 +86,6 @@ class Card:
             self.bloodlust_activated = False
             self.enrage_activated = False
             self.regeneration_activated = False
-            self.provoked_activated = False
-            self.provoked_counter = 0
-            self.provoked_turns = 5
             self.stagger_activated = False
             self.death_blow_activated = False
             self.death_blow_had_protections = False
@@ -3255,8 +3251,6 @@ class Card:
                     self.almighty_will_turns = [1, 5, 9, 10, 14, 15, 19, 20, 24, 25, 40, 45, 53, 54, 55, 74, 75, 95, 98, 100, 101]
                 if "STAGGER" in self.tactics:
                     self.stagger = True
-                if "PROVOKED" in self.tactics:
-                    self.provoked = True
                 if "INTIMIDATION" in self.tactics:
                     self.intimidation = True
                     self.intimidation_turns = random.randint(3, 10)

@@ -2805,7 +2805,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         tactics_enrage_check(player2_card, battle_config)
                         tactics_damage_check(player2_card, battle_config)
                         tactics_stagger_check(player2_card, player1_card, battle_config)
-                        tactics_provoked_check(player2_card, battle_config)
                         tactics_almighty_will_check(player2_card, battle_config)
                         tactics_death_blow_check(player2_card, player1_card, battle_config)
                         tactics_intimidation_check(player2_card, player1_card, battle_config)
@@ -4579,24 +4578,6 @@ def tactics_stagger_check(boss_card, player_card, battle_config):
             boss_card.stagger_activated = False
 
 
-def tactics_provoked_check(boss_card, battle_config):
-    if boss_card.provoked:
-        if boss_card.provoked_counter == 0 and boss_card.health <=0:
-            boss_card.max_health = 2000
-            boss_card.health = 2000
-            boss_card.provoked_activated = True
-            provoked_message = f"*{boss_card.name} has been provoked! It will now fight with all its might!*"
-            battle_config.add_battle_history_message(provoked_message)
-        if boss_card.provoked_activated:
-            if boss_card.provoked_counter <= 5:
-                print("provoked check")
-                boss_card.provoked_counter = boss_card.provoked_counter + 1
-            if boss_card.provoked_count > 5:
-                boss_card.health = 0
-                boss_card.provoked = False
-                boss_card.provoked_activated = False
-                provoked_message = f"*{boss_card.name} has been perished from exhaust!*"
-
 
 def tactics_almighty_will_check(boss_card, battle_config):
     if boss_card.almighty_will:
@@ -4611,7 +4592,6 @@ def run_boss_tactics(player2_card, player1_card, battle_config):
     tactics_regeneration_check(player2_card, battle_config)
     tactics_death_blow_check(player2_card, player1_card, battle_config)
     tactics_stagger_check(player2_card, player1_card, battle_config)
-    tactics_provoked_check(player2_card, battle_config)
     tactics_almighty_will_check(player2_card, battle_config)
     tactics_bloodlust_check(player2_card, battle_config)
     tactics_petrified_fear_check(player2_card, player1_card, battle_config)
