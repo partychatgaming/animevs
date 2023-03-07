@@ -4461,7 +4461,7 @@ def tactics_petrified_fear_check(boss_card, player_card, battle_config):
     if boss_card.petrified_fear and boss_card.petrified_fear_counter < boss_card.petrified_fear_turns:
         boss_card.petrified_fear_counter = boss_card.petrified_fear_counter + 1
         battle_config.is_turn = 1
-        petrified_fear_message = f"*{player_card.name} is petrified with fear and cannot move for [{str((boss_card.petrified_fear_turns - boss_card.petrified_fear_counter) + 1)}] turns!*"
+        petrified_fear_message = f"**[{player_card.name} is petrified with fear and cannot move for [{str((boss_card.petrified_fear_turns - boss_card.petrified_fear_counter) + 1)}] turns]**"
         battle_config.add_battle_history_message(petrified_fear_message)
 
 
@@ -4472,20 +4472,21 @@ def tactics_bloodlust_check(boss_card, battle_config):
                 print("bloodlust check")
                 boss_card.bloodlust_activated = True
                 boss_card.attack = boss_card.attack + 3000
-                bloodlust_message = f"*{boss_card.name} is bloodlusted! Attacks will now lifesteal!*"
+                bloodlust_message = f"**[{boss_card.name} is bloodlusted! Attacks will now lifesteal]**"
                 battle_config.add_battle_history_message(bloodlust_message)
 
 
 def tactics_enrage_check(boss_card, battle_config):
     if boss_card.enraged:
         if not boss_card.enrage_activated:
-            if boss_card.health <= (0.60 * boss_card.max_base_health):
-                print("enrage check")
+            if boss_card.health <= (0.50 * boss_card.max_base_health):
                 boss_card.enrage_activated = True
                 boss_card.attack = boss_card.attack + 9999
-                boss_card.defense = boss_card.defense + 3000
+                boss_card.defense = boss_card.defense + 1000
                 boss_card.arbitrary_ap_buff = boss_card.arbitrary_ap_buff + 600
-                enrage_message = f"*{boss_card.name} is enraged! Attacks will now deal much more damage to the enemy!*"
+                boss_card.max_health = boss_card.max_health + 10000
+                boss_card.stamina = 260
+                enrage_message = f"**[{boss_card.name} is enraged! Attacks will now deal much more damage to the enemy]**"
                 battle_config.add_battle_history_message(enrage_message)
 
 
@@ -4493,20 +4494,17 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
     if boss_card.intimidation:
         if not boss_card.intimidation_activated:
             if boss_card.health <= (0.50 * boss_card.max_base_health):
-                print("intimidation check")
                 boss_card.intimidation_activated = True
                 player_card.temporary_attack = player_card.attack
                 player_card.temporary_defense = player_card.defense
                 player_card.attack = 0
                 player_card.defense = 0
-                intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns!*"
-                battle_config.add_battle_history_message(intimidation_message)
         if boss_card.intimidation_activated:
             if boss_card.intimidation_turns > 0:
                 boss_card.intimidation_turns = boss_card.intimidation_turns - 1
                 player_card.attack = 0
                 player_card.defense = 0
-                intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns!*"
+                intimidation_message = f"**[{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns\n{player_card.name}'s Attack and Defense are booth 0 out of fear]**"
                 battle_config.add_battle_history_message(intimidation_message)
             else:
                 player_card.attack = player_card.temporary_attack
@@ -4514,7 +4512,7 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
                 boss_card.intimidation_activated = False
                 boss_card.intimidation = False
                 boss_card.intimidation_counter = 0
-                intimidation_message = f"*{player_card.name} is no longer intimidated by {boss_card.name}!*"
+                intimidation_message = f"**[{player_card.name} is no longer intimidated by {boss_card.name}\n{player_card.name}'s Attack and Defense is restored]**"
                 battle_config.add_battle_history_message(intimidation_message)
 
 
@@ -4525,22 +4523,19 @@ def tactics_damage_check(boss_card, battle_config):
                 boss_card.damage_check_activated = True
                 boss_card.damage_check_limit = round(boss_card.max_health * .20)
                 boss_card.damage_check_turns = 5
-                damage_check_message = f"*{boss_card.name} is charging a fatal blow, damage it to stop the attack!\nDeal [{str(boss_card.damage_check_limit)}] damage to stop it!*"
-                battle_config.add_battle_history_message(damage_check_message)
         if boss_card.damage_check_activated:
             battle_config.is_turn = 0
-            battle_config.add_battle_history_message(f"*{boss_card.name} is charging a fatal blow, damage it to stop the attack!\n[{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go!*")
+            battle_config.add_battle_history_message(f"**[{boss_card.name} is charging fatal blow...\nDamage Dealt - [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]**")
 
 
 def tactics_regeneration_check(boss_card, battle_config):
     if boss_card.regeneration:
         if not boss_card.regeneration_activated:
             if battle_config.turn_total >= 50 and boss_card.health <= 0:
-                print("regeneration check")
                 battle_config.game_over_check = False
                 boss_card.regeneration_activated = True
                 boss_card.health = boss_card.max_base_health
-                regeneration_message = f"*{boss_card.name} has regenerated!*"
+                regeneration_message = f"**[{boss_card.name} has regenerated]**"
                 battle_config.add_battle_history_message(regeneration_message)
 
 
@@ -4550,11 +4545,11 @@ def tactics_death_blow_check(boss_card, player_card, battle_config):
             boss_card.death_blow_activated = True
 
         if battle_config.turn_total in [0, 28, 29, 58, 59, 88, 89, 118, 119, 148, 149]:
-            warning_message = f"*{boss_card.name} is preparing a death blow! Protect yourself with shields, parries, or barriers!*"
+            warning_message = f"**[{boss_card.name} is preparing a death blow! Protect yourself with shields, parries, barriers, or block]**"
             battle_config.add_battle_history_message(warning_message)
 
         if boss_card.death_blow_activated:
-            if any({player_card._shield_active, player_card._parry_active, player_card._barrier_active}):
+            if any({player_card._shield_active, player_card._parry_active, player_card._barrier_active, player_card.used_block}):
                 player_card._shield_active = False
                 player_card._parry_active = False
                 player_card._barrier_active = False
@@ -4562,12 +4557,16 @@ def tactics_death_blow_check(boss_card, player_card, battle_config):
                 player_card._parry_value = 0
                 player_card._barrier_value = 0
                 player_card._arm_message = ""
-                death_blow_message = f"*{boss_card.name} destroyed {player_card.name} protections with a destructive blow!*"
+                death_blow_message = f"**[{boss_card.name} destroyed {player_card.name} protections with a destructive blow!]**"
+                if player_card.used_block:
+                    player_card.used_block = False
+                    player_card.defense = player_card.defense - (player_card.defense * 0.25)
+                    death_blow_message = f"**[{player_card.name} blocked a destructive blow, but lost some defense in the process]**"
                 battle_config.add_battle_history_message(death_blow_message)
                 boss_card.death_blow_activated = False
             else:
                 player_card.health = 0
-                death_blow_message = f"*{boss_card.name} dealt a fatal blow to {player_card.name}!*"
+                death_blow_message = f"**[{boss_card.name} dealt a fatal blow to {player_card.name}]**"
                 battle_config.add_battle_history_message(death_blow_message)
                 boss_card.death_blow_activated = False
 
@@ -4576,7 +4575,7 @@ def tactics_stagger_check(boss_card, player_card, battle_config):
     if boss_card.stagger:
         if boss_card.stagger_activated:
             battle_config.is_turn = 1
-            stagger_message = f"*{player_card.name} is staggered and cannot move!*"
+            stagger_message = f"**[ {player_card.name} is staggered and cannot move! ]**"
             battle_config.add_battle_history_message(stagger_message)
             boss_card.stagger_activated = False
 
@@ -4587,19 +4586,8 @@ def tactics_almighty_will_check(boss_card, battle_config):
         if battle_config.turn_total in boss_card.almighty_will_turns:
             battle_config.is_turn = random.randint(3, 80)
             boss_card.focus_count = random.randint(3, 30)
-            almighty_will_message = f"*{boss_card.name} manipulated the flow of battle!\nIt is now turn {str(battle_config.is_turn)}* and {boss_card.name} has focused {str(boss_card.focus_count)} times!"
+            almighty_will_message = f"**[⏳ {boss_card.name} manipulated the flow of battle\nIt is now turn {str(battle_config.is_turn)} and {boss_card.name} has focused {str(boss_card.focus_count)} times]**"
             battle_config.add_battle_history_message(almighty_will_message)
-
-
-def run_boss_tactics(player2_card, player1_card, battle_config):
-    tactics_regeneration_check(player2_card, battle_config)
-    tactics_death_blow_check(player2_card, player1_card, battle_config)
-    tactics_stagger_check(player2_card, player1_card, battle_config)
-    tactics_almighty_will_check(player2_card, battle_config)
-    tactics_bloodlust_check(player2_card, battle_config)
-    tactics_petrified_fear_check(player2_card, player1_card, battle_config)
-    tactics_enrage_check(player2_card, battle_config)
-    tactics_intimidation_check(player2_card, player1_card, battle_config)
 
 
 def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config, companion = None):

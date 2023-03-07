@@ -1580,11 +1580,11 @@ class Card:
                 self.stamina = self.stamina - move_stamina
 
             if _opponent_card.damage_check_activated:
-                damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far!"
+                # damage_check_message = f"**[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]**"
                 battle_config.add_battle_history_message(damage_check_message)
                 _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
                 if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
-                    damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done! Damage Check has ended!"
+                    damage_check_message = f"✅ **[{self.name} passed the Damage Check]**"
                     battle_config.add_battle_history_message(damage_check_message)
                     _opponent_card.damage_check_activated = False
                     _opponent_card.damage_check_counter = 0
@@ -1600,7 +1600,7 @@ class Card:
                     self.health = 0
                     self.defense = 0
                     self.attack = 0
-                    damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done but it wasn't enough! A devastating blow will end your life!"
+                    damage_check_message = f"❌ **[{self.name} failed the Damage Check]**"
                     battle_config.add_battle_history_message(damage_check_message)
             
             response = {"DMG": enhancer_value, "MESSAGE": m,
