@@ -570,6 +570,9 @@ class Card:
         elif self.exclusive == False and self.available == False and self.has_collection == False:
             self.price_message = "Boss Only"
             self.card_icon = f"👹"
+        elif self.exclusive == True and self.available == False and self.has_collection == False:
+            self.price_message = "Scenario Only"
+            self.card_icon = f"🎞️"
         else:
             self.price_message = f"Shop & Drop"
             self.card_icon = f"🎴"
