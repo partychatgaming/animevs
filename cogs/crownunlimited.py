@@ -2780,8 +2780,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                     tactics_set_base_stats(player2_card)
                     game_over_check = False
+                    battle_config.turn_total = 50
+                    player2_card.health = 1000
                     while not game_over_check:
-                        tactics_regeneration_check(player2_card, battle_config)
                         if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                             game_over_check = battle_config.set_game_over(player1_card, player2_card, player3_card)
                         else:
@@ -4492,19 +4493,18 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
             if boss_card.health <= (0.50 * boss_card.max_base_health):
                 print("intimidation check")
                 boss_card.intimidation_activated = True
-                boss_card.intimidation_counter = boss_card.intimidation_counter + 1
                 player_card.temporary_attack = player_card.attack
                 player_card.temporary_defense = player_card.defense
                 player_card.attack = 0
                 player_card.defense = 0
-                intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name}!*"
+                intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns!*"
                 battle_config.add_battle_history_message(intimidation_message)
         if boss_card.intimidation_activated:
-            if boss_card.intimidation_counter < boss_card.intimidation_turns:
-                boss_card.intimidation_counter = boss_card.intimidation_counter + 1
+            if boss_card.intimidation_turns > 0:
+                boss_card.intimidation_turns = boss_card.intimidation_turns - 1
                 player_card.attack = 0
                 player_card.defense = 0
-                intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name}!*"
+                intimidation_message = f"*{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns!*"
                 battle_config.add_battle_history_message(intimidation_message)
             else:
                 player_card.attack = player_card.temporary_attack
@@ -4533,8 +4533,9 @@ def tactics_damage_check(boss_card, battle_config):
 def tactics_regeneration_check(boss_card, battle_config):
     if boss_card.regeneration:
         if not boss_card.regeneration_activated:
-            if battle_config.is_turn >= 50:
+            if battle_config.turn_total >= 50 and boss_card.health <= 0:
                 print("regeneration check")
+                battle_config.game_over_check = False
                 boss_card.regeneration_activated = True
                 boss_card.health = boss_card.max_base_health
                 regeneration_message = f"*{boss_card.name} has regenerated!*"

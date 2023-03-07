@@ -3002,6 +3002,15 @@ class Card:
                             opponent_card._final_stand = False
                             battle_config.turn_total = battle_config.turn_total + 1
                             battle_config.next_turn()
+                    elif opponent_card.regeneration:
+                        print("Regeneration activated")
+                        if not opponent_card.regeneration_activated:
+                            if battle_config.turn_total >= 49:
+                                opponent_card.regeneration_activated = True
+                                opponent_card.health = opponent_card.max_base_health
+                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{opponent_card.name}** took a fatal blow but then miraculously [ Regeneration: Activated]!")
+                                battle_config.turn_total = battle_config.turn_total + 1
+                                battle_config.next_turn()
                     else:
                         opponent_card.health = 0
                         battle_config.turn_total = battle_config.turn_total + 1
