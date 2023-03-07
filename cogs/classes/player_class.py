@@ -8,7 +8,7 @@ import random
 
 
 class Player:
-    def __init__(self, auto_save, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equippedsummon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location):
+    def __init__(self, auto_save, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equippedsummon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history):
         self.disname = disname
         self.did = did
         self.avatar = avatar
@@ -46,6 +46,7 @@ class Player:
         self._locked_feature_message = ""
         self.explore_location = explore_location
         self.autosave = auto_save
+        self.scenario_history = scenario_history
 
         self.owned_destinies = []
 
@@ -178,6 +179,7 @@ class Player:
             print("Error setting summon message")
             return "Error"
 
+    
     def set_explore(self, universe):
         
         if self.level < 25 and self.prestige == 0:             
@@ -194,6 +196,13 @@ class Player:
             return f":milky_way: | You are Exploring **{universe_selected['TITLE']}**"
 
     
+    def save_scenario(self, scenario):
+        if not scenario in self.scenario_history:
+            db.updateUserNoFilter({'DID': str(self.did)}, {'$addToSet': {'SCENARIO_HISTORY': scenario}})
+            return f"Scenario saved: {scenario}"
+        else:
+            return "Scenario already saved."
+
     def set_rift_on(self):
         if self.rift == 1:
             self.rift_on = True
