@@ -4519,7 +4519,7 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
 def tactics_damage_check(boss_card, battle_config):
     if boss_card.damage_check:
         if not boss_card.damage_check_activated:
-            if boss_card.focus_count in [2]:
+            if boss_card.focus_count in [5]:
                 boss_card.damage_check_activated = True
                 boss_card.damage_check_limit = round(boss_card.max_health * .20)
                 boss_card.damage_check_turns = 5
