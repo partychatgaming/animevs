@@ -335,7 +335,7 @@ class Profile(commands.Cog):
                         {player.summon_power_message}
                         {player.summon_lvl_message}
 
-                        🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
+                        🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num} {passive_enhancer_suffix_mapping[c.passive_type]}                
                         
                         {c.move1_emoji} | **{c.move1}:** {c.move1ap}
                         {c.move2_emoji} | **{c.move2}:** {c.move2ap}
@@ -6217,7 +6217,7 @@ async def menubuild(self, ctx):
                     {player.summon_power_message}
                     {player.summon_lvl_message}
 
-                    🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}                
+                    🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num} {passive_enhancer_suffix_mapping[c.passive_type]}                
                     
                     {c.move1_emoji} **{c.move1}:** {c.move1ap}
                     {c.move2_emoji} **{c.move2}:** {c.move2ap}
