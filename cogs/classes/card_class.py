@@ -1128,7 +1128,7 @@ class Card:
 
 
                 if arm != "none":
-                    arm_message = f"{arm.passive_type.title()} {arm.passive_value}"
+                    arm_message = f"{arm.passive_type.title()} | {arm.passive_value}"
                     if arm.passive_type in crown_utilities.ABILITY_ARMS:
                         arm_message = "Ability Arm"
                         #self.element = arm.element
@@ -1697,7 +1697,7 @@ class Card:
 
     def set_battle_arm_messages(self, opponent_card):
         if self.used_resolve:
-            self.summon_resolve_message = f"🧬 {str(crown_utilities.enhancer_mapping[self.summon_type])}"
+            self.summon_resolve_message = f"🧬 | {str(crown_utilities.enhancer_mapping[self.summon_type])}"
         
         weapon_emojis = {
             "barrier": "💠",
@@ -1713,7 +1713,7 @@ class Card:
             ("siphon", "💉", opponent_card._siphon_active, opponent_card._siphon_value)
         ]:
             if active:
-                opponent_card._arm_message = f"{emoji} {value} {weapon.capitalize()}"
+                opponent_card._arm_message = f"{emoji} | {value} {weapon.capitalize()}"
                 break
 
 
@@ -1724,7 +1724,7 @@ class Card:
             ("siphon", "💉", self._siphon_active, self._siphon_value)
         ]:
             if active:
-                self._arm_message = f"{emoji} {value} {weapon.capitalize()}"
+                self._arm_message = f"{emoji} | {value} {weapon.capitalize()}"
                 break
         
 
@@ -2731,6 +2731,32 @@ class Card:
                     self.stamina = self.stamina
 
                 battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}**: 🦠 {dmg['MESSAGE']}")
+                if opponent_card.health <= 0:
+                    if opponent_card._final_stand==True:
+                        if opponent_card.universe == "Dragon Ball Z":
+                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                                self._barrier_active = False
+                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
+                            # print(opponent_card.attack)
+                            # print(opponent_card.defense)
+                            opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
+                            if opponent_card.health < 0:
+                                opponent_card.health = 100 + round(.75 * (opponent_card.base_attack + opponent_card.base_defense))
+                
+                            opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
+                            # print(opponent_card.health)
+                            opponent_card.used_resolve = True
+                            opponent_card.used_focus = True
+                            opponent_card._final_stand = False
+                            battle_config.turn_total = battle_config.turn_total + 1
+                            battle_config.next_turn()
+                    else:
+                        opponent_card.health = 0
+                        battle_config.turn_total = battle_config.turn_total + 1
+                else:
+                    battle_config.turn_total = battle_config.turn_total + 1
+                    battle_config.next_turn()
             elif dmg['DMG'] == 0:
                 if self._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC"]:
                     self._barrier_active = False
@@ -2867,32 +2893,32 @@ class Card:
 
                     # battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}:** {dmg['MESSAGE']}")
                 
-            if opponent_card.health <= 0:
-                if opponent_card._final_stand==True:
-                    if opponent_card.universe == "Dragon Ball Z":
-                        if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                            self._barrier_active = False
-                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
-                        battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
-                        # print(opponent_card.attack)
-                        # print(opponent_card.defense)
-                        opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
-                        if opponent_card.health < 0:
-                            opponent_card.health = 100 + round(.75 * (opponent_card.base_attack + opponent_card.base_defense))
-            
-                        opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
-                        # print(opponent_card.health)
-                        opponent_card.used_resolve = True
-                        opponent_card.used_focus = True
-                        opponent_card._final_stand = False
+                if opponent_card.health <= 0:
+                    if opponent_card._final_stand==True:
+                        if opponent_card.universe == "Dragon Ball Z":
+                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                                self._barrier_active = False
+                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
+                            # print(opponent_card.attack)
+                            # print(opponent_card.defense)
+                            opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
+                            if opponent_card.health < 0:
+                                opponent_card.health = 100 + round(.75 * (opponent_card.base_attack + opponent_card.base_defense))
+                
+                            opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
+                            # print(opponent_card.health)
+                            opponent_card.used_resolve = True
+                            opponent_card.used_focus = True
+                            opponent_card._final_stand = False
+                            battle_config.turn_total = battle_config.turn_total + 1
+                            battle_config.next_turn()
+                    else:
+                        opponent_card.health = 0
                         battle_config.turn_total = battle_config.turn_total + 1
-                        battle_config.next_turn()
                 else:
-                    opponent_card.health = 0
                     battle_config.turn_total = battle_config.turn_total + 1
-            else:
-                battle_config.turn_total = battle_config.turn_total + 1
-                battle_config.next_turn()
+                    battle_config.next_turn()
                     
         else:
             print(f"End of damage_done")
@@ -3253,9 +3279,33 @@ class Card:
             self.resolve_icon = '⚡'
                 
     def get_performance_stats(self):
+        if len(self.passive_name) > 20:
+            self.passive_name = self.passive_name[:17] + "..."
         if round(self.health) == round(self.max_health):
-            return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}\n🩸 | {self.passive_type} {self.passive_num}"
-        return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}/*{round(self.max_health)}*\n🩸 | {self.passive_type} {self.passive_num}"
+            return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** *Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*\n🩸 | *{self.passive_name}* **{self.passive_type.title()} {self.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]}**"
+        return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** / *{round(self.max_health)} Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*\n🩸 | *{self.passive_name}* **{self.passive_type.title()} {self.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]}**"
+    
+    def get_perfomance_header(self, player_title):
+        if len(player_title.name) > 20:
+            player_title.name = player_title.name[:17] + "..."
+        if self._arm_message != "":
+            return f"{self.get_performance_stats()}\n{player_title.get_title_icon(self.universe)} | *{player_title.name}* **{player_title.passive_type.title()} {player_title.passive_value}{crown_utilities.title_enhancer_suffix_mapping[player_title.passive_type]}**\n**{self._arm_message}**"
+        else:
+            return f"{self.get_performance_stats()}\n{player_title.get_title_icon(self.universe)} | *{player_title.name}* **{player_title.passive_type.title()} {player_title.passive_value}{crown_utilities.title_enhancer_suffix_mapping[player_title.passive_type]}**"
+    
+    def get_performance_moveset(self):
+        if len(self.move1) > 20:
+            self.move1 = self.move1[:17] + "..."
+        if len(self.move2) > 20:
+            self.move2 = self.move2[:17] + "..."
+        if len(self.move3) > 20:
+            self.move3 = self.move3[:17] + "..."
+        if len(self.move4) > 20:
+            self.move4 = self.move4[:17] + "..."
+        if self.used_resolve:
+            return f"{self.move1_emoji} 10 | *{self.move1}* **{self.move1ap}**\n{self.move2_emoji} 30 | *{self.move2}* **{self.move2ap}**\n{self.move3_emoji} 80 | *{self.move3}* **{self.move3ap}**\n:microbe: 20 | *{self.move4}* **{self.move4enh.title()} {self.move4ap}**\n*{self.summon_resolve_message}*"
+        else:
+            return f"{self.move1_emoji} 10 | *{self.move1}* **{self.move1ap}**\n{self.move2_emoji} 30 | *{self.move2}* **{self.move2ap}**\n{self.move3_emoji} 80 | *{self.move3}* **{self.move3ap}**\n:microbe: 20 | *{self.move4}* **{self.move4enh.title()} {self.move4ap}**"
         
 def get_card(url, cardname, cardtype):
         try:
