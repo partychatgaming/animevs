@@ -185,6 +185,9 @@ class Card:
             self.resolve_value = 60
             self.summon_resolve_message = ""
             self.scheduled_death_message = False
+            self.focus_icon = "❤️"
+            self.resolve_icon = "🌀"
+            
 
             # Talisman Info
             self._talisman = "None"
@@ -409,7 +412,7 @@ class Card:
         if mode == "Abyss" or mode == "SCENARIO" or mode == "RAID" or mode == "EXPLORE":
             self.card_lvl = ai_lvl_buff
         else:
-            self.card_lvl = self.get_ai_card_level(self.card_lvl, mode)
+            self.card_lvl = self.get_ai_card_level(ai_lvl_buff, mode)
         # print(self.card_lvl)
         # print(self.move1ap)
         self.card_lvl_ap_buff = crown_utilities.level_sync_stats(self.card_lvl, "AP")
@@ -455,7 +458,7 @@ class Card:
                 else:
                     return card_lvl + 50
         elif mode == "DTales":
-            if card_lvl > 400:
+            if card_lvl < 400:
                 return 400
             else:
                 return card_lvl
@@ -1707,37 +1710,37 @@ class Card:
                 if hit_roll < miss_hit:
                     if self.universe == 'Crown Rift Slayers':
                         true_dmg = round(true_dmg * 2.5)
-                        message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits for **{true_dmg}**!! :boom: '
+                        message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits {_opponent_card.name} for **{true_dmg}**!! :boom: '
                     elif self.wind_element_activated:
                         true_dmg = round(true_dmg)
-                        message = f'🌪️ Wind Attack! {move} hits for **{true_dmg}**!'       
+                        message = f'🌪️ Wind Attack! {move} hits {_opponent_card.name} for **{true_dmg}**!'       
                     else:
                         true_dmg = 0
-                        message = f'{move_emoji} {move} misses! :dash:'
+                        message = f'{move_emoji} {move} misses {_opponent_card.name}! :dash:'
                 
                 elif hit_roll <= low_hit and hit_roll > miss_hit:
                     true_dmg = round(true_dmg * .70)
-                    message = f'{move_emoji} {move} used! Chips for **{true_dmg}**! :anger:'
+                    message = f'{move_emoji} {move} used! Chips {_opponent_card.name} for **{true_dmg}**! :anger:'
                 
                 elif hit_roll <= med_hit and hit_roll > low_hit:
                     true_dmg = round(true_dmg)
-                    message = f'{move_emoji} {move} used! Connects for **{true_dmg}**! :bangbang:'
+                    message = f'{move_emoji} {move} used! Connects with {_opponent_card.name} for **{true_dmg}**! :bangbang:'
                 
                 elif hit_roll <= standard_hit and hit_roll > med_hit:
                     true_dmg = round(true_dmg * 1.2)
-                    message = f'{move_emoji} {move} used! Hits for **{true_dmg}**! :anger_right:'
+                    message = f'{move_emoji} {move} used! Hits {_opponent_card.name} for **{true_dmg}**! :anger_right:'
                 
                 elif hit_roll >= 20:
                     if self.stagger:
                         self.stagger_activated = True
                     if self.universe =="Crown Rift Awakening":
                         true_dmg = round(true_dmg * 4)
-                        message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits for **{true_dmg}**!! :boom:"
+                        message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits {_opponent_card.name} for **{true_dmg}**!! :boom:"
                     else:
                         true_dmg = round(true_dmg * 2.5)
-                        message = f"{move_emoji} {move} used! Critically Hits for **{true_dmg}**!! :boom:"
+                        message = f"{move_emoji} {move} used! Critically Hits {_opponent_card.name} for **{true_dmg}**!! :boom:"
                 else:
-                    message = f"{move_emoji} {move} used! Dealt **{true_dmg}** dmg!"
+                    message = f"{move_emoji} {move} used! Dealt **{true_dmg}** dmg to {_opponent_card.name}!"
 
 
                 if self.universe == "YuYu Hakusho":
@@ -1750,24 +1753,24 @@ class Card:
 
                 if move_element in _opponent_card.weaknesses and not (hit_roll <= miss_hit):
                     true_dmg = round(true_dmg * 1.6)
-                    message = f"Opponent is weak to {move_emoji} {move_element.lower()}! Strong hit for **{true_dmg}**!"
+                    message = f"{_opponent_card.name} is weak to {move_emoji} {move_element.lower()}! Strong hit for **{true_dmg}**!"
 
                 #if not battle_config.is_ai_opponent:
                 
                 if not self._talisman == move_element and not self._is_boss:
                     if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) :
                         true_dmg = round(true_dmg * .45)
-                        message = f"Opponent is resistant to {move_emoji} {move_element.lower()}. Weak hit for **{true_dmg}**!"
+                        message = f"{_opponent_card.name} is resistant to {move_emoji} {move_element.lower()}. Weak hit for **{true_dmg}**!"
 
                     if move_element in _opponent_card.immunity and not (hit_roll <= miss_hit):
                         true_dmg = 0
-                        message = f"Opponent is immune to {move_emoji} {move_element.lower()}. **0** dmg dealt!"
+                        message = f"{_opponent_card.name} is immune to {move_emoji} {move_element.lower()}. **0** dmg dealt!"
 
                     if move_element in _opponent_card.repels and not (hit_roll <= miss_hit):
-                        message = f"Opponent repels {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
+                        message = f"{_opponent_card.name} repels {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
                         does_repel = True
                     if move_element in _opponent_card.absorbs and not (hit_roll <= miss_hit):
-                        message = f"Opponent absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
+                        message = f"{_opponent_card.name} absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
                         does_absorb = True
 
                 self.stamina = self.stamina - move_stamina
@@ -3388,7 +3391,17 @@ class Card:
                         self.max_health = self.max_health * 2
                         battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
                         
-
+    def set_stat_icons(self):
+        if self.used_focus:
+            self.focus_icon = '💖'
+        if self.used_resolve:
+            self.resolve_icon = '⚡'
+                
+    def get_performance_stats(self):
+        if round(self.health) == round(self.max_health):
+            return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}\n🩸 | {self.passive_type} {self.passive_num}"
+        return f"**Current Stats**\n{self.focus_icon} | {round(self.health)}/*{round(self.max_health)}*\n🩸 | {self.passive_type} {self.passive_num}"
+        
 def get_card(url, cardname, cardtype):
         try:
             im = Image.open(requests.get(url, stream=True).raw)

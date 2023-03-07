@@ -741,16 +741,22 @@ class Battle:
                         self._ai_title = universe_data['DTITLE']
                         self._ai_arm = universe_data['DARM']
                         self._ai_summon = universe_data['DPET']
-                        if player1_card_level >= 500:
-                            self._ai_opponent_card_lvl = 500
+                        if player1_card_level >= 600:
+                            self._ai_opponent_card_lvl = 650
                         else:
-                            self._ai_opponent_card_lvl = min(max(350, player1_card_level), 500) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
+                            self._ai_opponent_card_lvl = 50 + min(max(350, player1_card_level), 600) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
                     
                     if self.mode in crown_utilities.TALE_M:
                         self._ai_title = universe_data['UTITLE']
                         self._ai_arm = universe_data['UARM']
                         self._ai_summon = universe_data['UPET']
-                        self._ai_opponent_card_lvl = min(150, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
+                        if player1_card_level <= 20 and player1_card_level >=10:
+                            self._ai_opponent_card_lvl = 10
+                        elif player1_card_level >= 0 and player1_card_level <=10:
+                            self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl    
+                        else:
+                            self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl - 10
+                        #self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
 
                     if any((self.is_scenario_game_mode, self.is_explore_game_mode)):
                         if self._ai_opponent_card_lvl < 150:
@@ -894,7 +900,7 @@ class Battle:
             
         if partner_card:
             if partner_card.used_focus:
-                p_focus = '💓'
+                p_focus = '💖'
             if partner_card.used_resolve:
                 p_resolve = '⚡'
         #return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
