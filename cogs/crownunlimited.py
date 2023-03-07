@@ -2864,8 +2864,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     player1_card.set_stat_icons()
 
                                     player1_card.activate_solo_leveling_trait(battle_config, player2_card)
-
-                                    battle_config.set_battle_options(player1_card, player2_card)
+                                    if battle_config.is_co_op_mode:
+                                        battle_config.set_battle_options(player1_card, player2_card,player3_card)
+                                    else:
+                                        battle_config.set_battle_options(player1_card, player2_card)
 
                                     battle_action_row = manage_components.create_actionrow(*battle_config.battle_buttons)
                                     util_action_row = manage_components.create_actionrow(*battle_config.utility_buttons)
@@ -3549,7 +3551,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         player3_card.activate_solo_leveling_trait(battle_config, player2_card)
 
-                                        battle_config.set_battle_options(player3_card, player2_card)
+                                        #battle_config.set_battle_options(player3_card, player2_card)
+                                        if battle_config.is_co_op_mode:
+                                            battle_config.set_battle_options(player3_card, player2_card,player1_card)
+                                        else:
+                                            battle_config.set_battle_options(player3_card, player2_card)
 
                                         battle_action_row = manage_components.create_actionrow(*battle_config.battle_buttons)
                                         util_action_row = manage_components.create_actionrow(*battle_config.utility_buttons)
