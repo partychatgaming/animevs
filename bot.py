@@ -3313,6 +3313,8 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
          response = db.updateManyUsers({'$set': {new_field: field_type}})
       if collection == 'cards':
          response = db.updateManyCards({'$set': {new_field: field_type}})
+      elif collection == 'scenarios':
+         response = db.updateManyScenarios({'$set': {new_field: field_type}})
       elif collection == 'titles':
          response = db.updateManyTitles({'$set': {new_field: field_type}})
       elif collection == 'vault':

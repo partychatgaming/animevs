@@ -165,6 +165,11 @@ def createMenu(menu):
         return e
 
 
+def updateManyScenarios(new_value):
+    scenario_col.update_many({}, new_value)
+    return True
+
+
 def queryScenario(scenario):
     try:
         data = scenario_col.find_one(scenario)
