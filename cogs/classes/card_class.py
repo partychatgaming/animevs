@@ -2067,8 +2067,8 @@ class Card:
         if not self.used_resolve and self.used_focus:
             if self.overwhelming_power:
                 self._parry_active = True
-                self._parry_value = random.randint(10, 20)
-                battle_config.add_battle_history_message(f"[**Overwhelming Power!] **{self.name}** will parry the next several attacks with ease. ")
+                self._parry_value = round(random.randint(10, 20))
+                battle_config.add_battle_history_message(f"**[{self.name} is overwhemlingly powerful, parrying the next {str(self._parry_value)} attacks**")
 
             if self.universe == "My Hero Academia":  # My Hero Trait
                 # fortitude or luck is based on health
