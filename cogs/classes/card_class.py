@@ -3387,10 +3387,6 @@ class Card:
                 
             if self.passive_type in ['HLT','CREATION']:
                 self.damage_healed = self.damage_healed + ((value_for_passive / 100) * self.health )
-<<<<<<< HEAD
-
-=======
->>>>>>> ver2
             if self.passive_type in ['BLAST','WAVE','DESTRUCTION']:       
                 self.damage_dealt = self.damage_dealt + value_for_passive 
             if self.passive_type == "DESTRUCTION":
