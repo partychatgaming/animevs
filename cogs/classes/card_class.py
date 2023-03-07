@@ -1580,7 +1580,7 @@ class Card:
                 self.stamina = self.stamina - move_stamina
 
             if _opponent_card.damage_check_activated:
-                # damage_check_message = f"**[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]**"
+                damage_check_message = f"**[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]**"
                 battle_config.add_battle_history_message(damage_check_message)
                 _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
                 if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
