@@ -3000,7 +3000,7 @@ class Card:
                         self._barrier_active = False
                         self._barrier_value = 0
                         self._arm_message = ""
-                        battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
+                        battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
 
                     self.activate_element_check(battle_config, dmg, opponent_card)
 
@@ -3011,7 +3011,7 @@ class Card:
                         if opponent_card.universe == "Dragon Ball Z":
                             if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                                 self._barrier_active = False
-                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
+                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
                             battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
                             # print(opponent_card.attack)
                             # print(opponent_card.defense)
