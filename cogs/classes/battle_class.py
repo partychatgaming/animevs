@@ -467,7 +467,7 @@ class Battle:
             embed_list = []
             for scenario in scenarios:
                 must_complete = scenario['MUST_COMPLETE']
-                if not must_complete or any(scenario in self.player.scenario_history for scenario in must_complete):  
+                if (not must_complete or any(scenario in self.player.scenario_history for scenario in must_complete)) and scenario['TITLE'] not in self.player.scenario_history:  
                     if scenario['AVAILABLE']:
                         title = scenario['TITLE']
                         enemies = scenario['ENEMIES']
