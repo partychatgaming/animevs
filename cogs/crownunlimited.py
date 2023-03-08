@@ -4326,13 +4326,15 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             bless_amount = 50000
                                         else:
                                             response = "No drops this time!"
-                                            bless_amount = 100000
+                                            bless_amount = 200000
                                         save_scen = player1.save_scenario(battle_config.scenario_data['TITLE'])
+                                        unlock_message = battle_config.get_unlocked_scenario_text()
                                         await crown_utilities.bless(bless_amount, player1.did)
                                         embedVar = discord.Embed(title=f"Scenario Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
                                         Good luck on your next adventure!
 
                                         {save_scen}
+                                        {unlock_message}
                                         """),colour=0xe91e63)
 
                                         embedVar.set_author(name=f"{player2_card.name} lost!")

@@ -180,9 +180,29 @@ def queryScenario(scenario):
     except Exception as e:
         return e
 
+def queryUnlockedScenarios(title):
+    try:
+        data = scenario_col.find({'MUST_COMPLETE': title})
+        if data:
+            return data
+        else:
+            return False
+    except Exception as e:
+        return e
+
 def queryAllScenariosByUniverse(universe):
     try:
         data = scenario_col.find({'UNIVERSE': universe})
+        if data:
+            return data
+        else:
+            return False
+    except Exception as e:
+        return e
+
+def queryRaids(universe):
+    try:
+        data = scenario_col.find({'UNIVERSE': universe, 'IS_RAID': True})
         if data:
             return data
         else:

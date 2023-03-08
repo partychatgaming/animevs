@@ -449,79 +449,96 @@ class Battle:
                 'trace': trace
             }))
 
+
+    def get_unlocked_scenario_text(self):
+        response = db.queryUnlockedScenarios(self.scenario_data['TITLE'])
+        must_complete = []
+        message = " "
+        if response:
+            for mc in response['MUST_COMPLETE']:
+                if self.scenario_data['TITLE'] == mc:
+                    message = f"**{mc['TITLE']}** has been unlocked!"
+                if mc not in self.player.scenario_history:
+                    must_complete.append(mc)
+        if must_complete:
+            message = f"**{response['TITLE']}** is still locked. Complete the following scenarios to unlock it:\n"
+            for mc in must_complete:
+                message += f"**{mc['TITLE']}**\n"
+
     
     def set_scenario_selection(self):
         try:
             scenarios = db.queryAllScenariosByUniverse(str(self.selected_universe))
             embed_list = []
             for scenario in scenarios:
-                if scenario['AVAILABLE']:
-                    title = scenario['TITLE']
-                    enemies = scenario['ENEMIES']
-                    number_of_fights = len(enemies)
-                    enemy_level = scenario['ENEMY_LEVEL']
-                    scenario_gold = crown_utilities.scenario_gold_drop(enemy_level, number_of_fights)
-                    universe = scenario['UNIVERSE']
-                    scenario_image = scenario['IMAGE']
-                    reward_list = []
-                    if self.is_easy_difficulty:
-                        rewards = scenario['EASY_DROPS']
-                        scenario_gold = round(scenario_gold / 3)
-                    if self.is_normal_difficulty:
-                        rewards = scenario['NORMAL_DROPS']
-                    if self.is_hard_difficulty:
-                        rewards = scenario['HARD_DROPS']
-                        scenario_gold = round(scenario_gold * 3)
+                if not scenario['TITLE'] in self.player.scenario_history:
+                    if scenario['AVAILABLE']:
+                        title = scenario['TITLE']
+                        enemies = scenario['ENEMIES']
+                        number_of_fights = len(enemies)
+                        enemy_level = scenario['ENEMY_LEVEL']
+                        scenario_gold = crown_utilities.scenario_gold_drop(enemy_level, number_of_fights)
+                        universe = scenario['UNIVERSE']
+                        scenario_image = scenario['IMAGE']
+                        reward_list = []
+                        if self.is_easy_difficulty:
+                            rewards = scenario['EASY_DROPS']
+                            scenario_gold = round(scenario_gold / 3)
+                        if self.is_normal_difficulty:
+                            rewards = scenario['NORMAL_DROPS']
+                        if self.is_hard_difficulty:
+                            rewards = scenario['HARD_DROPS']
+                            scenario_gold = round(scenario_gold * 3)
 
-                    for reward in rewards:
-                        # Add Check for Cards and make Cards available in Easy Drops
-                        arm = db.queryArm({"ARM": reward})
-                        if arm:
-                            arm_name = arm['ARM']
-                            element_emoji = crown_utilities.set_emoji(arm['ELEMENT'])
-                            arm_passive = arm['ABILITIES'][0]
-                            arm_passive_type = list(arm_passive.keys())[0]
-                            arm_passive_value = list(arm_passive.values())[0]
-                            if arm_passive_type == "SHIELD":
-                                reward_list.append(f":globe_with_meridians: {arm_passive_type.title()} **{arm_name}** Shield: Absorbs **{arm_passive_value}** Damage.")
-                            elif arm_passive_type == "BARRIER":
-                                reward_list.append(f":diamond_shape_with_a_dot_inside:  {arm_passive_type.title()} **{arm_name}** Negates: **{arm_passive_value}** attacks.")
-                            elif arm_passive_type == "PARRY":
-                                reward_list.append(f":repeat: {arm_passive_type.title()} **{arm_name}** Parry: **{arm_passive_value}** attacks.")
-                            elif arm_passive_type == "SIPHON":
-                                reward_list.append(f":syringe: {arm_passive_type.title()} **{arm_name}** Siphon: **{arm_passive_value}** + 10% Health.")
-                            elif arm_passive_type == "MANA":
-                                reward_list.append(f"🦠 {arm_passive_type.title()} **{arm_name}** Mana: Multiply Enhancer by **{arm_passive_value}**%.")
-                            elif arm_passive_type == "ULTIMAX":
-                                reward_list.append(f"〽️ {arm_passive_type.title()} **{arm_name}** Ultimax: Increase all move AP by **{arm_passive_value}**.")
+                        for reward in rewards:
+                            # Add Check for Cards and make Cards available in Easy Drops
+                            arm = db.queryArm({"ARM": reward})
+                            if arm:
+                                arm_name = arm['ARM']
+                                element_emoji = crown_utilities.set_emoji(arm['ELEMENT'])
+                                arm_passive = arm['ABILITIES'][0]
+                                arm_passive_type = list(arm_passive.keys())[0]
+                                arm_passive_value = list(arm_passive.values())[0]
+                                if arm_passive_type == "SHIELD":
+                                    reward_list.append(f":globe_with_meridians: {arm_passive_type.title()} **{arm_name}** Shield: Absorbs **{arm_passive_value}** Damage.")
+                                elif arm_passive_type == "BARRIER":
+                                    reward_list.append(f":diamond_shape_with_a_dot_inside:  {arm_passive_type.title()} **{arm_name}** Negates: **{arm_passive_value}** attacks.")
+                                elif arm_passive_type == "PARRY":
+                                    reward_list.append(f":repeat: {arm_passive_type.title()} **{arm_name}** Parry: **{arm_passive_value}** attacks.")
+                                elif arm_passive_type == "SIPHON":
+                                    reward_list.append(f":syringe: {arm_passive_type.title()} **{arm_name}** Siphon: **{arm_passive_value}** + 10% Health.")
+                                elif arm_passive_type == "MANA":
+                                    reward_list.append(f"🦠 {arm_passive_type.title()} **{arm_name}** Mana: Multiply Enhancer by **{arm_passive_value}**%.")
+                                elif arm_passive_type == "ULTIMAX":
+                                    reward_list.append(f"〽️ {arm_passive_type.title()} **{arm_name}** Ultimax: Increase all move AP by **{arm_passive_value}**.")
+                                else:
+                                    reward_list.append(f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** Damage.")
                             else:
-                                reward_list.append(f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** Damage.")
-                        else:
-                            card = db.queryCard({"NAME": reward})
-                            moveset = card['MOVESET']
-                            move3 = moveset[2]
-                            move2 = moveset[1]
-                            move1 = moveset[0]
-                            basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
-                            super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
-                            ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
-                            reward_list.append(f":mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}")
-        
-                    reward_message = "\n\n".join(reward_list)
-                    embedVar = discord.Embed(title= f"{title}", description=textwrap.dedent(f"""
-                    📽️ **{universe} Scenario Battle!**
-                    🔱 **Enemy Level:** {enemy_level}
-                    :coin: **Reward** {'{:,}'.format(scenario_gold)}
+                                card = db.queryCard({"NAME": reward})
+                                moveset = card['MOVESET']
+                                move3 = moveset[2]
+                                move2 = moveset[1]
+                                move1 = moveset[0]
+                                basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
+                                super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
+                                ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
+                                reward_list.append(f":mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}")
+            
+                        reward_message = "\n\n".join(reward_list)
+                        embedVar = discord.Embed(title= f"{title}", description=textwrap.dedent(f"""
+                        📽️ **{universe} Scenario Battle!**
+                        🔱 **Enemy Level:** {enemy_level}
+                        :coin: **Reward** {'{:,}'.format(scenario_gold)}
 
-                    ⚙️ **Difficulty:** {self.difficulty.title()}
+                        ⚙️ **Difficulty:** {self.difficulty.title()}
 
-                    :crossed_swords: {str(number_of_fights)}
-                    """), 
-                    colour=0x7289da)
-                    embedVar.add_field(name="__**Potential Rewards**__", value=f"{reward_message}")
-                    embedVar.set_image(url=scenario_image)
-                    # embedVar.set_footer(text=f"")
-                    embed_list.append(embedVar)
+                        :crossed_swords: {str(number_of_fights)}
+                        """), 
+                        colour=0x7289da)
+                        embedVar.add_field(name="__**Potential Rewards**__", value=f"{reward_message}")
+                        embedVar.set_image(url=scenario_image)
+                        # embedVar.set_footer(text=f"")
+                        embed_list.append(embedVar)
 
             return embed_list
         except:
