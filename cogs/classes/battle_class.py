@@ -452,26 +452,22 @@ class Battle:
 
     def get_unlocked_scenario_text(self):
         response = db.queryUnlockedScenarios(self.scenario_data['TITLE'])
-        must_complete = []
+        must_complete_list = []
+        title = ""
         message = " "
         if response:
-            for mc in response['MUST_COMPLETE']:
-                if self.scenario_data['TITLE'] == mc:
-                    message = f"**{mc['TITLE']}** has been unlocked!"
-                if mc not in self.player.scenario_history:
-                    must_complete.append(mc)
-        if must_complete:
-            message = f"**{response['TITLE']}** is still locked. Complete the following scenarios to unlock it:\n"
-            for mc in must_complete:
-                message += f"**{mc['TITLE']}**\n"
-
+            for r in response:
+                title = r['TITLE']
+                message += f"**{r['TITLE']}** has been unlocked!\n"
+        return message
     
     def set_scenario_selection(self):
         try:
             scenarios = db.queryAllScenariosByUniverse(str(self.selected_universe))
             embed_list = []
             for scenario in scenarios:
-                if not scenario['TITLE'] in self.player.scenario_history:
+                must_complete = scenario['MUST_COMPLETE']
+                if not must_complete or any(scenario in self.player.scenario_history for scenario in must_complete):  
                     if scenario['AVAILABLE']:
                         title = scenario['TITLE']
                         enemies = scenario['ENEMIES']
@@ -557,12 +553,25 @@ class Battle:
             self.scenario_easy_drops = scenario_data['EASY_DROPS']
             self.scenario_normal_drops = scenario_data['NORMAL_DROPS']
             self.scenario_hard_drops = scenario_data['HARD_DROPS']
-            if any({self.scenario_easy_drops, self.scenario_normal_drops, self.scenario_hard_drops}): #if any of the drops are not empty
+            if any((self.scenario_easy_drops, self.scenario_normal_drops, self.scenario_hard_drops)):
                 self.scenario_has_drops = True
 
             self.starting_match_title = f"🎞️ Scenario Battle Confirm Start! ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
-        except:
-            print("unable to set scenario config")
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
 
 
     def set_tutorial(self, opponent_did):
