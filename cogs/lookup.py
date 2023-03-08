@@ -110,7 +110,9 @@ class Lookup(commands.Cog):
                 difficulty = d['DIFFICULTY']
                 games = d['GAMES']
                 abyss_level = d['LEVEL']
-                if abyss_level > 100:
+                if abyss_level <= 25:
+                    explore_message = f"*Unlock After Abyss 25*"
+                elif abyss_level > 100:
                     abyss_level = "**Conquered**"
                 retries = d['RETRIES']
                 card = d['CARD']
@@ -136,8 +138,6 @@ class Lookup(commands.Cog):
                     if explore_location != "NULL":
                         location = explore_location
                     explore_message = f"🟢 *Exploring {location}*"
-                if abyss_level <=25:
-                    explore_message = f"*Unlock After Abyss 25*"
                     
 
                     
