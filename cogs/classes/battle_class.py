@@ -1036,7 +1036,7 @@ class Battle:
                 aiMove = 0
             elif opponent_card._barrier_active and opponent_card.stamina <= 20 and your_card.universe == "Bleach":
                 aiMove = 0
-            elif your_card.universe == "Bleach" and (self.turn_total % 4 ==0)
+            elif your_card.universe == "Bleach" and (self.turn_total % 4 == 0):
                 aiMove = 0
             elif your_card.universe == "Death Note" and your_card.max_health >= 2000:
                 aiMove = 0
