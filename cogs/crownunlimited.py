@@ -4321,8 +4321,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         battle_config.continue_fighting = True
                                     
                                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
-                                        response = await scenario_drop(self, ctx, battle_config.scenario_data, battle_config.difficulty)
-                                        bless_amount = 50000
+                                        if battle_config.scenario_has_drops:
+                                            response = await scenario_drop(self, ctx, battle_config.scenario_data, battle_config.difficulty)
+                                            bless_amount = 50000
+                                        else:
+                                            response = "No drops this time!"
+                                            bless_amount = 100000
                                         save_scen = player1.save_scenario(battle_config.scenario_data['TITLE'])
                                         await crown_utilities.bless(bless_amount, player1.did)
                                         embedVar = discord.Embed(title=f"Scenario Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""

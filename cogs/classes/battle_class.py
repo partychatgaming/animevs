@@ -124,6 +124,7 @@ class Battle:
         self.scenario_easy_drops = []
         self.scenario_normal_drops = []
         self.scenario_hard_drops = []
+        self.scenario_has_drops = False
         self.explore_type = ""
         self.bounty = ""
 
@@ -539,6 +540,8 @@ class Battle:
             self.scenario_easy_drops = scenario_data['EASY_DROPS']
             self.scenario_normal_drops = scenario_data['NORMAL_DROPS']
             self.scenario_hard_drops = scenario_data['HARD_DROPS']
+            if any({self.scenario_easy_drops, self.scenario_normal_drops, self.scenario_hard_drops}): #if any of the drops are not empty
+                self.scenario_has_drops = True
 
             self.starting_match_title = f"🎞️ Scenario Battle Confirm Start! ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
         except:
