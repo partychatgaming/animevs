@@ -2649,7 +2649,6 @@ class Card:
                 self.max_health = round(self.max_health - (.10 * self.max_health))
                 if self.health >= self.max_health:
                     self.health = self.max_health
-                self.stamina = 0
                 battle_config.turn_total = battle_config.turn_total + self.tier
             
             if self.universe == "Attack On Titan":
