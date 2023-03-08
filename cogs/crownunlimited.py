@@ -2863,7 +2863,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         player1_card.usesummon(battle_config, player2_card)
 
                                     elif selected_move == 0:
-                                        player1_card.use_block(battle_config, damage_calculation_response, player2_card)                                
+                                        player1_card.use_block(battle_config, player2_card)                                
                                 
                                 else:
                                     player1_card.set_battle_arm_messages(player2_card)
@@ -3394,7 +3394,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             player2_card.usesummon(battle_config, player1_card)
                                         
                                         if selected_move == 0:
-                                            player2_card.use_block(battle_config, damage_calculation_response, player1_card)
+                                            player2_card.use_block(battle_config, player1_card)
 
                                         if selected_move != 5 and selected_move != 6 and selected_move != 0:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)                                        
