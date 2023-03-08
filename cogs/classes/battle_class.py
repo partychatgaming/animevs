@@ -265,6 +265,7 @@ class Battle:
             self.is_ai_opponent = True
             self.total_number_of_opponents = 1
             self.starting_match_title = f"Raid Battle!"
+            self.can_auto_battle = True
 
         if self.mode in crown_utilities.TALE_M:
             self.is_tales_game_mode = True
@@ -288,6 +289,7 @@ class Battle:
             self.ap_buff = self.ap_buff + 80
             self.bank_amount = 20000
             self.fam_reward_amount = 20000
+            self.can_auto_battle = True
 
 
         if self.mode in crown_utilities.BOSS_M:
@@ -308,11 +310,13 @@ class Battle:
         if self.mode == crown_utilities.ABYSS:
             self.is_abyss_game_mode = True
             self.is_ai_opponent = True
+            self.can_auto_battle = True
 
         
         if self.mode == crown_utilities.SCENARIO:
             self.is_scenario_game_mode = True
             self.is_ai_opponent = True
+            self.can_auto_battle = True
 
         
         if self.mode == crown_utilities.EXPLORE:
