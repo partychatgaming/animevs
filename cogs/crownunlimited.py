@@ -3863,7 +3863,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 await asyncio.sleep(2)
                                 battle_msg = await private_channel.send(embed=pvp_response)
                                 talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
-                                talisman_response = crown_utilities.inc_talisman(player2.did, player2.equipped_talisman)
+                                ctalisman_response = crown_utilities.inc_talisman(player2.did, player2.equipped_talisman)
+                                arm_durability_message = update_arm_durability(player1, player1_arm, player1_card)
+                                carm_durability_message = update_arm_durability(player2, player2_arm, player2_card)
                                 battle_config.continue_fighting = False
                                 return
                         
@@ -3916,9 +3918,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                 play_again_buttons_action_row = manage_components.create_actionrow(*play_again_buttons)
                                 talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
+                                arm_durability_message = update_arm_durability(player1, player1_arm, player1_card)
                                 if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                                     if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
-                                        talisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
+                                        ctalisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
+                                        carm_durability_message = update_arm_durability(player3, player3_arm, player3_card)
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
                                 else:
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
@@ -4037,6 +4041,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         petlogger = await crown_utilities.summonlevel(player1, player1_card)
                                         cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
                                         talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
+                                        arm_durability_message = update_arm_durability(player1, player1_arm, player1_card)
                             
 
                                     if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
@@ -4044,7 +4049,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             cdrop_response = await dungeondrops(self, user2, battle_config.selected_universe, battle_config.current_opponent_number)
                                         elif battle_config.is_tales_game_mode:
                                             cdrop_response = await drops(self, user2, battle_config.selected_universe, battle_config.current_opponent_number)
-                                        talisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
+                                        ctalisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
+                                        carm_durability_message = update_arm_durability(player3, player3_arm, player3_card)
 
                                         co_op_bonuses = battle_config.get_co_op_bonuses(player1, player3)
                                         p3_win_rewards = await battle_config.get_win_rewards(player3)
@@ -4726,68 +4732,71 @@ async def save_spot(self, player_id, universe, mode, currentopponent):
         return
 
         
-def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
+def update_arm_durability(self, player, player_arm, player_card):
     pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
     decrease_value = -1
     break_value = 1
     dismantle_amount = 5000
+    
+    arm_universe = player_arm.universe
+    arm_price = player_arm.price
+    card = player_card
 
     # Check if the difficulty is easy, return if so
-    player_info = db.queryUser({'DID': str(vault['DID'])})
-    if player_info['DIFFICULTY'] == "EASY":
+    if player.difficulty == "EASY":
         return
 
     # Set arm universe to card universe if it is part of the pokemon universes
-    if card['UNIVERSE'] in pokemon_universes:
-        arm_universe = card['UNIVERSE']
+    if player_card.universe in pokemon_universes and player_arm.universe in pokemon_universes:
+        arm_universe = player_card.universe
 
     # Increase decrease value and break value if arm universe doesn't match card universe
-    if arm_universe != card['UNIVERSE'] and arm_universe != "Unbound":
+    if arm_universe != player_card.universe and arm_universe != "Unbound":
         decrease_value = -5
         break_value = 5
 
     # Check if arm exists in the player's vault
-    for a in vault['ARMS']:
-        if a['ARM'] == str(arm['ARM']):
+    for a in player._arms:
+        if a['ARM'] == str(player_arm.name):
             current_durability = a['DUR']
             
             # Dismantle arm if its durability is 0 or below
             if current_durability <= 0:
-                selected_arm = arm['ARM']
-                arm_name = arm['ARM']
+                selected_arm = player_arm.name
+                arm_name = player_arm.name
                 selected_universe = arm_universe
-                current_gems = [gems['UNIVERSE'] for gems in vault['GEMS']]
+                current_gems = [player._gems['UNIVERSE'] for gems in player._gems]
 
                 # Update gems if selected universe exists in current gems
                 if selected_universe in current_gems:
-                    db.updateVault({'DID': str(vault['DID'])}, 
+                    db.updateVault({'DID': str(player.did)}, 
                                    {'$inc': {'GEMS.$[type].GEMS': dismantle_amount}},
                                    [{'type.UNIVERSE': selected_universe}])
                 else:
-                    db.updateVaultNoFilter({'DID': str(vault['DID'])},
+                    db.updateVaultNoFilter({'DID': str(player.did)},
                                            {'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 
                                                                   'GEMS': dismantle_amount, 
                                                                   'UNIVERSE_HEART': False, 
                                                                   'UNIVERSE_SOUL': False}}})
 
                 # Remove arm from player's vault
-                db.updateVaultNoFilter({'DID': str(vault['DID'])},
+                db.updateVaultNoFilter({'DID': str(player.did)},
                                        {'$pull': {'ARMS': {'ARM': str(arm['ARM'])}}})
 
                 # Update player's arm to "Stock"
-                db.updateUserNoFilter({'DID': str(vault['DID'])},
+                db.updateUserNoFilter({'DID': str(player.did)},
                                       {'$set': {'ARM': 'Stock'}})
 
-                return {"MESSAGE": f"**{arm['ARM']}** has been dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm will be **Stock** after your next match."}       
+                return {"MESSAGE": f"**{player_arm.name}** has been dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm will be **Stock** after your next match."}       
             else:                   
-                query = {'DID': str(vault['DID'])}
+                query = {'DID': str(player.did)}
                 update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}
                 filter_query = [{'type.' + "ARM": str(arm['ARM'])}]
                 resp = db.updateVault(query, update_query, filter_query)
                 if current_durability >= 15:
                     return {"MESSAGE": False}
                 else:
-                    return {"MESSAGE": f"**{arm['ARM']}** will lose all ⚒️ durability soon! Use **/blacksmith** to repair!"}
+                    return {"MESSAGE": f"**{player_arm.name}** will lose all ⚒️ durability soon! Use **/blacksmith** to repair!"}
 
 async def save_spot(self, player_id, universe, mode, currentopponent):
     try:
