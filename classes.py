@@ -46,7 +46,7 @@ class USER():
     SAVE_SPOT: list[str] = field(default_factory=lambda: [])
     PERFORMANCE: bool = field(default_factory=lambda: False)
     TRADING: bool = field(default_factory=lambda: False)
-    BOSS_FOUGHT: bool = field(default_factory=lambda: False)
+    BOSS_FOUGHT: bool = field(default_factory=lambda: True)
     AUTOSAVE: bool = field(default_factory=lambda: False)
     SERVER: str = field(default_factory=lambda: "N/A")
     DIFFICULTY: str = field(default_factory=lambda: "NORMAL")
