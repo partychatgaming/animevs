@@ -2037,7 +2037,8 @@ def ai_enhancer_moves(your_card, opponent_card):
     if your_card.barrier_active:
         if self.turn_total % 2 == 0:
             aiMove = 4
-        else aiMove = 0
+        else:
+             aiMove = 0
     elif your_card.move4enh in crown_utilities.Time_Enhancer_Check:
         if your_card.move4enh == "HASTE":
             if opponent_card.stamina <= your_card.stamina:

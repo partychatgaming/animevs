@@ -1224,12 +1224,8 @@ def arm_exists(data):
 
 def createArm(arm):
     try:
-        armexists = arm_exists({'ARM': arm['ARM']})
-        if armexists:
-            return "ARM already exists."
-        else:
-            arm_col.insert_one(arm)
-            return "New ARM created."
+        arm_col.insert_one(arm)
+        return "New ARM created."
     except:
         return "Cannot create ARM."
 
