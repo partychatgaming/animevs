@@ -4733,71 +4733,87 @@ async def save_spot(self, player_id, universe, mode, currentopponent):
 
         
 def update_arm_durability(self, player, player_arm, player_card):
-    pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
-    decrease_value = -1
-    break_value = 1
-    dismantle_amount = 5000
-    
-    arm_universe = player_arm.universe
-    arm_price = player_arm.price
-    card = player_card
+    try:
+        pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
+        decrease_value = -1
+        break_value = 1
+        dismantle_amount = 5000
 
-    # Check if the difficulty is easy, return if so
-    if player.difficulty == "EASY":
-        return
+        arm_universe = player_arm.universe
+        arm_price = player_arm.price
+        card = player_card
 
-    # Set arm universe to card universe if it is part of the pokemon universes
-    if player_card.universe in pokemon_universes and player_arm.universe in pokemon_universes:
-        arm_universe = player_card.universe
+        # Check if the difficulty is easy, return if so
+        if player.difficulty == "EASY":
+            return
 
-    # Increase decrease value and break value if arm universe doesn't match card universe
-    if arm_universe != player_card.universe and arm_universe != "Unbound":
-        decrease_value = -5
-        break_value = 5
+        # Set arm universe to card universe if it is part of the pokemon universes
+        if player_card.universe in pokemon_universes and player_arm.universe in pokemon_universes:
+            arm_universe = player_card.universe
 
-    # Check if arm exists in the player's vault
-    for a in player._arms:
-        if a['ARM'] == str(player_arm.name):
-            current_durability = a['DUR']
-            
-            # Dismantle arm if its durability is 0 or below
-            if current_durability <= 0:
-                selected_arm = player_arm.name
-                arm_name = player_arm.name
-                selected_universe = arm_universe
-                current_gems = [player._gems['UNIVERSE'] for gems in player._gems]
+        # Increase decrease value and break value if arm universe doesn't match card universe
+        if arm_universe != player_card.universe and arm_universe != "Unbound":
+            decrease_value = -5
+            break_value = 5
 
-                # Update gems if selected universe exists in current gems
-                if selected_universe in current_gems:
-                    db.updateVault({'DID': str(player.did)}, 
-                                   {'$inc': {'GEMS.$[type].GEMS': dismantle_amount}},
-                                   [{'type.UNIVERSE': selected_universe}])
-                else:
+        # Check if arm exists in the player's vault
+        for a in player._arms:
+            if a['ARM'] == str(player_arm.name):
+                current_durability = a['DUR']
+
+                # Dismantle arm if its durability is 0 or below
+                if current_durability <= 0:
+                    selected_arm = player_arm.name
+                    arm_name = player_arm.name
+                    selected_universe = arm_universe
+                    current_gems = [player._gems['UNIVERSE'] for gems in player._gems]
+
+                    # Update gems if selected universe exists in current gems
+                    if selected_universe in current_gems:
+                        db.updateVault({'DID': str(player.did)}, 
+                                       {'$inc': {'GEMS.$[type].GEMS': dismantle_amount}},
+                                       [{'type.UNIVERSE': selected_universe}])
+                    else:
+                        db.updateVaultNoFilter({'DID': str(player.did)},
+                                               {'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 
+                                                                      'GEMS': dismantle_amount, 
+                                                                      'UNIVERSE_HEART': False, 
+                                                                      'UNIVERSE_SOUL': False}}})
+
+                    # Remove arm from player's vault
                     db.updateVaultNoFilter({'DID': str(player.did)},
-                                           {'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 
-                                                                  'GEMS': dismantle_amount, 
-                                                                  'UNIVERSE_HEART': False, 
-                                                                  'UNIVERSE_SOUL': False}}})
+                                           {'$pull': {'ARMS': {'ARM': str(arm_name)}}})
 
-                # Remove arm from player's vault
-                db.updateVaultNoFilter({'DID': str(player.did)},
-                                       {'$pull': {'ARMS': {'ARM': str(arm['ARM'])}}})
+                    # Update player's arm to "Stock"
+                    db.updateUserNoFilter({'DID': str(player.did)},
+                                          {'$set': {'ARM': 'Stock'}})
 
-                # Update player's arm to "Stock"
-                db.updateUserNoFilter({'DID': str(player.did)},
-                                      {'$set': {'ARM': 'Stock'}})
-
-                return {"MESSAGE": f"**{player_arm.name}** has been dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm will be **Stock** after your next match."}       
-            else:                   
-                query = {'DID': str(player.did)}
-                update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}
-                filter_query = [{'type.' + "ARM": str(arm['ARM'])}]
-                resp = db.updateVault(query, update_query, filter_query)
-                if current_durability >= 15:
-                    return {"MESSAGE": False}
-                else:
-                    return {"MESSAGE": f"**{player_arm.name}** will lose all ⚒️ durability soon! Use **/blacksmith** to repair!"}
-
+                    return {"MESSAGE": f"**{player_arm.name}** has been dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm will be **Stock** after your next match."}       
+                else:                   
+                    query = {'DID': str(player.did)}
+                    update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}
+                    filter_query = [{'type.' + "ARM": str(arm_name)}]
+                    resp = db.updateVault(query, update_query, filter_query)
+                    if current_durability >= 15:
+                        return {"MESSAGE": False}
+                    else:
+                        return {"MESSAGE": f"**{player_arm.name}** will lose all ⚒️ durability soon! Use **/blacksmith** to repair!"}
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'PLAYER': str(ctx.author),
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
 async def save_spot(self, player_id, universe, mode, currentopponent):
     try:
         user = {"DID": str(player_id)}
