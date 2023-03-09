@@ -1040,7 +1040,7 @@ class Battle:
                 aiMove = 0
             elif your_card.universe == "Death Note" and your_card.max_health >= 2000:
                 aiMove = 0
-            elif your_card.barrier_active:
+            elif your_card._barrier_active:
                 aiMove = 4
             else:
                 aiMove = 1
@@ -2034,7 +2034,7 @@ class Battle:
 
 def ai_enhancer_moves(your_card, opponent_card):
     aiMove = 1
-    if your_card.barrier_active:
+    if your_card._barrier_active:
         if self.turn_total % 2 == 0:
             aiMove = 4
         else:
