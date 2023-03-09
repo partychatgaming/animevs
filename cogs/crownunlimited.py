@@ -2459,22 +2459,22 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
-                # if p.boss_fought:
+                if p.boss_fought or len(available_dungeons_list) <=0:
 
-                #     boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
-                #     __🗝️  How to get Arena Keys?__
-                #     Conquer any Universe Dungeon to gain a Boss Arena Key
+                    boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
+                    __🗝️  How to get Arena Keys?__
+                    Conquer any Universe Dungeon to gain a Boss Arena Key
                     
-                #     ☀️ | You also earn 1 Boss Key per /daily !
+                    ☀️ | You also earn 1 Boss Key per /daily !
 
-                #     __🌍 Available Universe Dungeons__
-                #     {available_dungeons_list}
-                #     """))
-                #     boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
-                #     # embedVar.set_footer(text="Use /tutorial")
-                #     await ctx.send(embed=boss_key_embed)
-                #     self.stop = True
-                #     return    
+                    __🌍 Available Universe Dungeons__
+                    {available_dungeons_list}
+                    """))
+                    boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
+                    # embedVar.set_footer(text="Use /tutorial")
+                    await ctx.send(embed=boss_key_embed)
+                    self.stop = True
+                    return    
                 await button_ctx.defer(ignore=True)
                 selected_universe = custom_function
                 custom_function.selected_universe = str(button_ctx.origin_message.embeds[0].title)
