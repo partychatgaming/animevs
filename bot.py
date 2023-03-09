@@ -3268,14 +3268,13 @@ async def code(ctx, code_input: str):
 async def addfield(ctx, collection, new_field, field_type, password, key):
    if ctx.author.guild_permissions.administrator == True:
       
-      if password != 'casper':  
+      elif password != 'casper':  
          return await ctx.send("Admin Only")
-      
-      if key != '513':
+      elif key != '513':
          return await ctx.send("Admin Only")
-      if field_type == "fix":
+      elif field_type == "fix":
          field_type = True
-      if field_type == 'string':
+      elif field_type == 'string':
          field_type = "NULL"
       elif field_type == 'int':
          field_type = 0
@@ -3306,12 +3305,12 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
          field_type = "NULL"
       elif field_type == 'blank_list':
          field_type = []
-       elif field_type == 'bool':
+      elif field_type == 'bool':
          field_type = False
          
       if collection == 'fix':
          response = db.updateManyUsers({'$set': {'BOSS_FOUGHT': True}})
-      if collection == 'cards':
+      elif collection == 'cards':
          response = db.updateManyCards({'$set': {new_field: field_type}})
       elif collection == 'scenarios':
          response = db.updateManyScenarios({'$set': {new_field: field_type}})
