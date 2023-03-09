@@ -4765,7 +4765,7 @@ def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
                                       {'$set': {'ARM': 'Stock'}})
 
                 return {"MESSAGE": f"**{arm['ARM']}** has been dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm will be **Stock** after your next match."}       
-              else:                   
+            else:                   
                 query = {'DID': str(vault['DID'])}
                 update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}
                 filter_query = [{'type.' + "ARM": str(arm['ARM'])}]
