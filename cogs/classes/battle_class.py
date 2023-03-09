@@ -2032,7 +2032,7 @@ class Battle:
                 'trace': trace
             }))
 
-def ai_enhancer_moves(your_card, opponent_card):
+def ai_enhancer_moves(self,your_card, opponent_card):
     aiMove = 1
     if your_card._barrier_active:
         if self.turn_total % 2 == 0:
