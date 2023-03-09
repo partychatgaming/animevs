@@ -278,6 +278,8 @@ class Player:
         if len(self.completed_dungeons) > 25:
             all_universes = random.sample(all_universes, min(len(all_universes), 25))
             #print(all_universes)
+        if not all_universes:
+            return False
         for uni in all_universes:
             if uni['TITLE'] in self.completed_dungeons:
                 if uni != "":
