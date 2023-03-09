@@ -2459,8 +2459,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
-                if p.boss_fought or len(available_dungeons_list) <=0:
-
+                if p.boss_fought:
                     boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
                     __🗝️  How to get Arena Keys?__
                     Conquer any Universe Dungeon to gain a Boss Arena Key
