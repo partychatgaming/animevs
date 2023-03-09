@@ -1044,7 +1044,7 @@ class CrownUnlimited(commands.Cog):
 
 async def tutorial(self, ctx, player, mode):
     try:
-        await ctx.defer()
+        #await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
