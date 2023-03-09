@@ -984,7 +984,7 @@ class Battle:
             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
 
 
-    def ai_battle_command(your_card, opponent_card):
+    def ai_battle_command(self, your_card, opponent_card):
         aiMove = 0
         
         if your_card.used_resolve and not your_card.usedsummon and your_card.stamina >= 30:
