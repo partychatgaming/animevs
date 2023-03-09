@@ -3268,11 +3268,12 @@ async def code(ctx, code_input: str):
 async def addfield(ctx, collection, new_field, field_type, password, key):
    if ctx.author.guild_permissions.administrator == True:
       
-      elif password != 'casper':  
+      if password != 'casper':  
          return await ctx.send("Admin Only")
-      elif key != '513':
+      if key != '513':
          return await ctx.send("Admin Only")
-      elif field_type == "fix":
+      
+      if field_type == "fix":
          field_type = True
       elif field_type == 'string':
          field_type = "NULL"
