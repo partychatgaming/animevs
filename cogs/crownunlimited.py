@@ -2448,7 +2448,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         for uni in p.completed_tales:
             if uni != "":
                 l.append(uni)
-        available_dungeons_list = "\n".join(l)
+        available_dungeons_list = "\n\n".join(l)
         if p.boss_fought:
             boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
             __🗝️  How to get Arena Keys?__
