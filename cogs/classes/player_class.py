@@ -430,6 +430,7 @@ class Player:
             universe_embed_list = []
             can_fight_message = ""
             for uni in selected_universes:
+                completed_message = f"**Completed**: 🔴"
                 save_spot_text = "No Save Data"
                 can_fight_message = f"🔥 Dungeon | {uni['TITLE']} : /universes to view all Dungeon Drops."
                 if uni[mode_check] == True:
