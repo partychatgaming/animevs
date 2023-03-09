@@ -996,7 +996,7 @@ class Battle:
                 aiMove = 1
         elif your_card._barrier_active: #Ai Barrier Checks
             if your_card.stamina >=20: #Stamina Check For Enhancer
-                aiMove = self.ai_enhancer_moves(your_card, opponent_card)
+                aiMove = ai_enhancer_moves(your_card, opponent_card)
             else:
                 aiMove = 1
         elif opponent_card.health <=350: #Killing Blow
@@ -1099,7 +1099,7 @@ class Battle:
             if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
                 aiMove = 1
             else:
-                aiMove = self.ai_enhancer_moves(your_card, opponent_card)
+                aiMove = ai_enhancer_moves(your_card, opponent_card)
         elif your_card.stamina >= 70:
             aiMove = 1
         elif your_card.stamina >= 60 and (your_card.health >= opponent_card.health):
@@ -1144,7 +1144,7 @@ class Battle:
             elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check:
                 aiMove = 2
             else:
-                aiMove = self.ai_enhancer_moves(your_card, opponent_card)
+                aiMove = ai_enhancer_moves(your_card, opponent_card)
         elif your_card.stamina >= 30:
             aiMove = 2
         elif your_card.stamina >= 20 and (your_card.health >= opponent_card.health):
@@ -2032,13 +2032,10 @@ class Battle:
                 'trace': trace
             }))
 
-def ai_enhancer_moves(self, your_card, opponent_card):
+def ai_enhancer_moves(your_card, opponent_card):
     aiMove = 1
     if your_card._barrier_active:
-        if self.turn_total % 2 == 0:
-            aiMove = 4
-        else:
-             aiMove = 0
+        aiMove = 4
     elif your_card.move4enh in crown_utilities.Time_Enhancer_Check:
         if your_card.move4enh == "HASTE":
             if opponent_card.stamina <= your_card.stamina:
