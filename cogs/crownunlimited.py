@@ -3863,8 +3863,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 battle_msg = await private_channel.send(embed=pvp_response)
                                 talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
                                 ctalisman_response = crown_utilities.inc_talisman(player2.did, player2.equipped_talisman)
-                                arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
-                                carm_durability_message = update_arm_durability(self, player2, player2_arm, player2_card)
+                                #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                #carm_durability_message = update_arm_durability(self, player2, player2_arm, player2_card)
                                 battle_config.continue_fighting = False
                                 return
                         
@@ -3917,11 +3917,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                 play_again_buttons_action_row = manage_components.create_actionrow(*play_again_buttons)
                                 talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
-                                arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
                                 if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                                     if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
                                         ctalisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
-                                        carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
+                                        #carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
                                 else:
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
@@ -4040,7 +4040,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         petlogger = await crown_utilities.summonlevel(player1, player1_card)
                                         cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
                                         talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
-                                        arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                        #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
                             
 
                                     if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
@@ -4049,7 +4049,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         elif battle_config.is_tales_game_mode:
                                             cdrop_response = await drops(self, user2, battle_config.selected_universe, battle_config.current_opponent_number)
                                         ctalisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
-                                        carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
+                                        #carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
 
                                         co_op_bonuses = battle_config.get_co_op_bonuses(player1, player3)
                                         p3_win_rewards = await battle_config.get_win_rewards(player3)
