@@ -3961,12 +3961,26 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         new_info = await crown_utilities.updateRetry(button_ctx.author.id, "U","DEC")
                                         battle_config.reset_game()
                                         battle_config.continue_fighting = True
+                                        player1.used_focus = False
+                                        player1.used_resolve = False
+                                        player2.used_focus = False
+                                        player2.used_resolve = False
+                                        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                                            player3.used_focus = False
+                                            player3.used_resolve = False
                                     
                                     if button_ctx.custom_id == "grematch":
                                         battle_config.reset_game()
                                         new_info = await crown_utilities.guild_buff_update_function(str(player1.guild.lower()))
                                         update_team_response = db.updateTeam(new_info['QUERY'], new_info['UPDATE_QUERY'])
                                         battle_config.continue_fighting = True
+                                        player1.used_focus = False
+                                        player1.used_resolve = False
+                                        player2.used_focus = False
+                                        player2.used_resolve = False
+                                        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                                            player3.used_focus = False
+                                            player3.used_resolve = False
                                 except asyncio.TimeoutError:
                                     battle_config.continue_fighting = False
                                     if not any((battle_config.is_abyss_game_mode, 
