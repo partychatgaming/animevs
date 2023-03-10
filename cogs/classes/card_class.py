@@ -2645,11 +2645,11 @@ class Card:
     def use_block(self, battle_config, opponent_card, co_op_card=None):
         if self.stamina >= 20:
             if self.universe == "Death Note":
-                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {self.tier}")
+                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {3 + self.tier}")
                 self.max_health = round(self.max_health - (.10 * self.max_health))
                 if self.health >= self.max_health:
                     self.health = self.max_health
-                battle_config.turn_total = battle_config.turn_total + self.tier
+                battle_config.turn_total = battle_config.turn_total + self.tier + 3
             
             if self.universe == "Attack On Titan":
                 battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Gained {(100 * self.tier)} Health & Max Health ❤️")
