@@ -1915,8 +1915,10 @@ class Card:
                     heal_message = f"**{_opponent_card.name}**'s blows don't appear to have any effect!"
                     self.health = self.max_health
                     message_number = 0
-            
-            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
+            if self.universe == "Crown Rift Madness" and not self.used_resolve:
+                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}** focused and {heal_message}\n*+:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+            else:
+                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
             if self.universe == "Crown Rift Madness" and self.used_resolve:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
@@ -1926,7 +1928,7 @@ class Card:
                     attack_calculation = attack_calculation + attack_calculation
                     defense_calculation = defense_calculation + defense_calculation
                     battle_config.add_battle_history_message(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}**  Gains 2x ATK and DEF\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
-                else:
+                elif self:universe != "Crown Rift Madness":
                     battle_config.add_battle_history_message(f"*(🌀) {self.name}\n+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
