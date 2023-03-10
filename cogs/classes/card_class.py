@@ -1928,7 +1928,7 @@ class Card:
                     attack_calculation = attack_calculation + attack_calculation
                     defense_calculation = defense_calculation + defense_calculation
                     battle_config.add_battle_history_message(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}**  Gains 2x ATK and DEF\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
-                elif self:universe != "Crown Rift Madness":
+                elif self.universe != "Crown Rift Madness":
                     battle_config.add_battle_history_message(f"*(🌀) {self.name}\n+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
