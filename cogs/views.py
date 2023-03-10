@@ -648,7 +648,7 @@ async def viewcard(self, ctx, data):
                 {c.move1_emoji} {c.move1}: {c.move1ap}
                 {c.move2_emoji} {c.move2}: {c.move2ap}
                 {c.move3_emoji} {c.move3}: {c.move3ap}
-                🦠 {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.passive_enhancer_suffix_mapping[c.move4enh]}   
+                🦠 {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.enhancer_suffix_mapping[c.move4enh]}   
 
                 ♾️ {c.set_trait_message()}
                 """), colour=000000)
