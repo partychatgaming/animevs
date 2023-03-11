@@ -833,10 +833,10 @@ class Card:
 
 
         if battle_config.is_hard_difficulty:
-            self.attack = self.attack + 1250
-            self.defense = self.defense + 1250
-            self.max_health = self.max_health + 3000
-            self.health = self.health + 3000
+            self.attack = self.attack + 1000 + (200 *self.tier)
+            self.defense = self.defense + 1000 + (200 * self.tier)
+            self.max_health = self.max_health + 1000 + (1000 * self.tier)
+            self.health = self.health + 1000 + (1000 * self.tier)
             random_mod = random.randint(0,1500000)
             self.bounty = self.bounty + (2000000 * self.tier) + random_mod
 
@@ -857,7 +857,7 @@ class Card:
 
 
         self.bounty_message = f"{bounty_icon} {'{:,}'.format(self.bounty)}"
-        self.battle_message = "\n:crown: | **Glory**: Earn the Card & 2x Bounty, But if you Lose, You lose gold!\n:coin: | **Gold**: Earn gold only!"
+        self.battle_message = "\n:crown: | **Glory**: Earn the Card & 2x Bounty, If you Lose, You lose gold!\n:coin: | **Gold**: Earn gold only!"
 
         self.set_card_level_buffs(None)
 
