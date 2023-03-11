@@ -3883,7 +3883,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
                                 ctalisman_response = crown_utilities.inc_talisman(player2.did, player2.equipped_talisman)
                                 arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
-                                if carm_durability_message != False:
+                                if arm_durability_message != False:
                                     await private_channel.send(f"{arm_durability_message}")
                                 carm_durability_message = update_arm_durability(self, player2, player2_arm, player2_card)
                                 if carm_durability_message != False:
