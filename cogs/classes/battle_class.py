@@ -786,9 +786,9 @@ class Battle:
                         if player1_card_level <= 20 and player1_card_level >=10:
                             self._ai_opponent_card_lvl = 10
                         elif player1_card_level >= 0 and player1_card_level <=10:
-                            self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl    
+                            self._ai_opponent_card_lvl = min(210, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl    
                         else:
-                            self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl - 10
+                            self._ai_opponent_card_lvl = min(210, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl - 10
                         #self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
 
                     if any((self.is_scenario_game_mode, self.is_explore_game_mode)):
@@ -996,7 +996,17 @@ class Battle:
                 aiMove = 1
         elif your_card._barrier_active: #Ai Barrier Checks
             if your_card.stamina >=20: #Stamina Check For Enhancer
-                aiMove = ai_enhancer_moves(your_card, opponent_card)
+                #Check if you have a psychic move for barrier
+                if your_card.stamina >= 80 and your_card.move3_element == "PSYCHIC":
+                    aiMove = 3
+                elif your_card.stamina >= 30 and your_card.move2_element == "PSYCHIC":
+                    aiMove = 2
+                elif your_card.stamina >= 10 and your_card.move1_element == "PSYCHIC":
+                    aiMove = 1
+                elif your_card.stamina >=20:
+                    aiMove = ai_enhancer_moves(your_card, opponent_card)
+                else:
+                    aiMove = 1
             else:
                 aiMove = 1
         elif opponent_card.health <=350: #Killing Blow
@@ -1536,6 +1546,7 @@ class Battle:
                                 value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n:flower_playing_cards: | **Opponent**: {opponent_card.name}")
         embedVar.set_footer(text=f"{self.get_battle_time()}")
         return embedVar
+    
     
     def close_pve_embed(self, player_card, opponent_card, companion_card = None):
         picon = ":crossed_swords:"

@@ -466,7 +466,7 @@ async def updateRetry(player_id, mode, math_calc):
         try:
             mode = mode
             math = math_calc
-            print("Got player info")
+        
             if math == "INC":
                 if player_info['RETRIES'] >=25:
                     return print('You already have 25 Retries...')
@@ -490,6 +490,7 @@ async def updateRetry(player_id, mode, math_calc):
                     return False
                     
             elif math == "DEC":
+                
                 if player_info['RETRIES'] >= 1:
                     update_query = {"DID": player_info['DID']}
                     new_value = {'$inc' : {"RETRIES": -1}}

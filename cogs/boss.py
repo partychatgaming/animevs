@@ -73,7 +73,7 @@ class Boss(commands.Cog):
                             #     await ctx.send(f"You can not use exchange on Destiny cards.")
                             #     return
                             u = await main.bot.fetch_user(str(ctx.author.id))
-                            response = await crown_utilities.store_drop_card(u, str(ctx.author.id), card_info['NAME'], card_show, vault, owned_destinies, 100000000, 100000000, "Ex", False, 0, "cards")
+                            response = await crown_utilities.store_drop_card(str(ctx.author.id), card_info['NAME'], card_show, vault, owned_destinies, 100000000, 100000000, "Ex", False, 0, "cards")
                             db.updateUserNoFilter({'DID' : str(ctx.author.id)}, {'$set' : {'LEVEL' : 0,}})
                             db.updateUserNoFilter({'DID' : str(ctx.author.id)}, {'$inc' : {'PRESTIGE' : 1}})
                             db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'BOSS_WINS': str(bossname)}})

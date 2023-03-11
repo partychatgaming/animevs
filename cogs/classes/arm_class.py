@@ -19,7 +19,8 @@ class Arm:
         self.price_message = ""
         self.message = ""
         self.type_message = ""
-        self.durability = "0"
+        self.durability = 0
+        self.durability_message = "⚒️ 100"
 
         self.arm_message = f"⚠️ |  {self.name}: {self.durability}"
 
@@ -84,9 +85,10 @@ class Arm:
             if a['ARM'] == equipped_arm and a['ARM'] in base_names:
                 self.durability = f""
             elif a['ARM'] == equipped_arm and a['ARM'] not in base_names:
-                self.durability = f"⚒️ {a['DUR']}"
+                self.durability_message = f"⚒️ {a['DUR']}"
+                self.durability = a['DUR']
         
-        return self.durability
+        return self.durability_message
 
 
     def set_arm_message(self, performance_mode, card_universe):
@@ -95,14 +97,14 @@ class Arm:
             if performance_mode:
                 self.arm_message = f'{arm_emoji} | {self.name}: {self.passive_type.title()} Attack: {self.passive_value} | {self.durability}'
             else:
-                self.arm_message = f'{arm_emoji} | {self.name}'
+                self.arm_message = f'{arm_emoji} | {self.name}: {self.durability}'
 
         if self.universe == "Unbound" or card_universe == "Crown Rift Slayers":
             armicon = "👑"
             if performance_mode:
                 self.arm_message = f'👑 | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
             else:
-                self.arm_message = f'👑 | {self.name}'
+                self.arm_message = f'👑 | {self.name}: {self.durability}'
 
         elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_arm==True):
             armicon = "🦾"

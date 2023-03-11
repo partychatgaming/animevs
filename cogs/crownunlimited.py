@@ -1142,7 +1142,10 @@ async def quest(player, opponent, mode):
         return
 
 
-async def destiny(player, opponent, mode):
+async def destiny(player, opponent, mode, craft_amount = None):
+    num_of_wins = 1
+    if craft_amount != None:
+        num_of_wins = craft_amount
     vault = db.queryVault({'DID': str(player.id)})
     user = db.queryUser({"DID": str(player.id)})
     vault_query = {'DID': str(player.id)}
@@ -1179,9 +1182,9 @@ async def destiny(player, opponent, mode):
                 if (user['CARD'] in destiny['USE_CARDS'] or skin_for in destiny['USE_CARDS']) and opponent == destiny['DEFEAT'] and mode == "Tales":
                     if destiny['WINS'] < destiny['REQUIRED']:
                         message = f"Secured a win toward **{destiny['NAME']}**. Keep it up!"
-                        completion = destiny['REQUIRED'] - (destiny['WINS'] + 1)
+                        completion = destiny['REQUIRED'] - (destiny['WINS'] + num_of_wins)
 
-                    if completion == 0:
+                    if completion <= 0:
                         try:
                             if destiny['EARN'] not in owned_card_levels_list:
                                 # Add the CARD_LEVELS for Destiny Card
@@ -1211,7 +1214,7 @@ async def destiny(player, opponent, mode):
                         return message
 
                     query = {'DID': str(player.id)}
-                    update_query = {'$inc': {'DESTINY.$[type].' + "WINS": 1}}
+                    update_query = {'$inc': {'DESTINY.$[type].' + "WINS": num_of_wins}}
                     filter_query = [{'type.' + "DEFEAT": opponent, 'type.' + 'USE_CARDS':user['CARD']}]
                     if user['CARD'] not in destiny['USE_CARDS']:
                         filter_query = [{'type.' + "DEFEAT": opponent, 'type.' + 'USE_CARDS':skin_for}]
@@ -3878,8 +3881,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 battle_msg = await private_channel.send(embed=pvp_response)
                                 talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
                                 ctalisman_response = crown_utilities.inc_talisman(player2.did, player2.equipped_talisman)
-                                #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
-                                #carm_durability_message = update_arm_durability(self, player2, player2_arm, player2_card)
+                                arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                if carm_durability_message != False:
+                                    await private_channel.send(f"{arm_durability_message}")
+                                carm_durability_message = update_arm_durability(self, player2, player2_arm, player2_card)
+                                if carm_durability_message != False:
+                                    await private_channel.send(f"{carm_durability_message}")
                                 battle_config.continue_fighting = False
                                 return
                         
@@ -3932,11 +3939,15 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                 play_again_buttons_action_row = manage_components.create_actionrow(*play_again_buttons)
                                 talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
-                                #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                if arm_durability_message != False:
+                                    await private_channel.send(f"{arm_durability_message}")
                                 if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                                     if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
                                         ctalisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
-                                        #carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
+                                        carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
+                                        if carm_durability_message != False:
+                                            await private_channel.send(f"{carm_durability_message}")
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
                                 else:
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
@@ -3977,6 +3988,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         
                                     if button_ctx.custom_id == "rematch":
                                         new_info = await crown_utilities.updateRetry(button_ctx.author.id, "U","DEC")
+                                        player1.retries = player1.retries - 1
                                         battle_config.reset_game()
                                         battle_config.continue_fighting = True
                                         player1_card.used_focus = False
@@ -4063,7 +4075,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         petlogger = await crown_utilities.summonlevel(player1, player1_card)
                                         cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
                                         talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
-                                        #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                        arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                        if arm_durability_message != False:
+                                            await private_channel.send(f"{arm_durability_message}")
                             
 
                                     if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
@@ -4072,8 +4086,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         elif battle_config.is_tales_game_mode:
                                             cdrop_response = await drops(self, user2, battle_config.selected_universe, battle_config.current_opponent_number)
                                         ctalisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
-                                        #carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
-
+                                        carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
+                                        if carm_durability_message != False:
+                                            await private_channel.send(f"{carm_durability_message}")
+                                            
                                         co_op_bonuses = battle_config.get_co_op_bonuses(player1, player3)
                                         p3_win_rewards = await battle_config.get_win_rewards(player3)
                                         p3_questlogger = await quest(user2, player2_card, battle_config.mode)
@@ -4159,6 +4175,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                                        if player1.autosave == True:
+                                            await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, 0)
                                         if battle_config.is_dungeon_game_mode:
                                             embedVar = discord.Embed(title=f":fire: DUNGEON CONQUERED",description=f"**{battle_config.selected_universe} Dungeon** has been conquered\n\n{drop_response}\n{corruption_message}",
                                                                     colour=0xe91e63)
@@ -4178,7 +4196,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             embedVar.set_footer(text="Visit the /shop for a huge discount!")
                                             if not battle_config.is_easy_difficulty:
                                                 upload_query = {'DID': str(ctx.author.id)}
-                                                new_upload_query = {'$addToSet': {'DUNGEONS': battle_config.selected_universe}}
+                                                new_upload_query = {'$addToSet': {'DUNGEONS': battle_config.selected_universe},
+                                                                    '$set' : {'BOSS_FOUGHT' : False}}
                                                 r = db.updateUserNoFilter(upload_query, new_upload_query)
                                             if battle_config.selected_universe in player1.completed_dungeons:
                                                 await crown_utilities.bless(300000, ctx.author.id)
@@ -4762,6 +4781,7 @@ def update_arm_durability(self, player, player_arm, player_card):
         dismantle_amount = 5000
 
         arm_universe = player_arm.universe
+        arm_name = player_arm.name
         arm_price = player_arm.price
         card = player_card
 
@@ -4777,18 +4797,22 @@ def update_arm_durability(self, player, player_arm, player_card):
         if arm_universe != player_card.universe and arm_universe != "Unbound":
             decrease_value = -5
             break_value = 5
-
+        #vault = db.queryVault({'DID': player.did})
         # Check if arm exists in the player's vault
         for a in player._arms:
             if a['ARM'] == str(player_arm.name):
                 current_durability = a['DUR']
+           
+            
 
                 # Dismantle arm if its durability is 0 or below
-                if current_durability <= 0:
-                    selected_arm = player_arm.name
+                new_durability = current_durability - abs(decrease_value)
+                if new_durability <= 0:
                     arm_name = player_arm.name
                     selected_universe = arm_universe
-                    current_gems = [player._gems['UNIVERSE'] for gems in player._gems]
+                    # for gems in player._gems:
+                    #     print(gems)
+                    current_gems = [gems['UNIVERSE'] for gems in player._gems]
 
                     # Update gems if selected universe exists in current gems
                     if selected_universe in current_gems:
@@ -4809,17 +4833,22 @@ def update_arm_durability(self, player, player_arm, player_card):
                     # Update player's arm to "Stock"
                     db.updateUserNoFilter({'DID': str(player.did)},
                                           {'$set': {'ARM': 'Stock'}})
-
-                    return {"MESSAGE": f"**{player_arm.name}** has been dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm will be **Stock** after your next match."}       
+                    player.equipped_arm = "Stock"
+                    return f"**{player_arm.name}** dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm is now **stock**"
                 else:                   
                     query = {'DID': str(player.did)}
                     update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}
                     filter_query = [{'type.' + "ARM": str(arm_name)}]
                     resp = db.updateVault(query, update_query, filter_query)
-                    if current_durability >= 15:
-                        return {"MESSAGE": False}
+                    player_arm.durability = player_arm.durability - abs(decrease_value)
+                    for arms in player._arms:
+                        if arms['ARM'] == str(player_arm.name):
+                            arms['DUR'] = arms['DUR'] - abs(decrease_value)
+                    if new_durability > 15:
+                        return False
                     else:
-                        return {"MESSAGE": f"**{player_arm.name}** will lose all ⚒️ durability soon! Use **/blacksmith** to repair!"}
+                        return f"⚒️ {new_durability} | **{player_arm.name}** will lose all durability soon! Use **/blacksmith** to repair!"
+                        
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -4831,7 +4860,7 @@ def update_arm_durability(self, player, player_arm, player_card):
             })
             tb = tb.tb_next
         print(str({
-            'PLAYER': str(ctx.author),
+            'PLAYER': str(player.disname),
             'type': type(ex).__name__,
             'message': str(ex),
             'trace': trace
@@ -5388,27 +5417,10 @@ async def dungeondrops(self, player, universe, matchcount):
             await crown_utilities.bless(bless_amount, player.id)
             return f"🆚  You have earned 3 Rematches and  :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > rematch_rate:
-            # if len(vault['TITLES']) >= 25:
-            #     await crown_utilities.bless(2500, player.id)
-            #     return f"You're maxed out on Titles! You earned :coin: 2500 instead!"
-            # if str(titles[rand_title]) in owned_titles:
-            #         await crown_utilities.bless(2000, player.id)
-            #         return f"You already own **{titles[rand_title]}**! You earn :coin: **2000**."
-            # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
-            # return f"You earned _Title:_ **{titles[rand_title]}**!"
             u = await main.bot.fetch_user(player.id)
             response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000,"mode", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
-            # if len(vault['ARMS']) >= 25:
-            #     await crown_utilities.bless(3000, player.id)
-            #     return f"You're maxed out on Arms! You earned :coin: 3000 instead!"
-            # if str(arms[rand_arm]) in owned_arms:
-            #     await crown_utilities.bless(2500, player.id)
-            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **2500**."
-            # else:
-            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-            #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
             u = await main.bot.fetch_user(player.id)
             response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 3000, 3000,"mode", False, 0, "arms")
             return response
@@ -5573,27 +5585,10 @@ async def bossdrops(self,player, universe):
             await crown_utilities.bless(bless_amount, player.id)
             return f"🆚  You have earned 10 Rematches and  :coin: **{bless_amount}**!"
         elif drop_rate <= title_drop and drop_rate > gold_drop:
-            # if len(vault['TITLES']) >= 25:
-            #     await crown_utilities.bless(500000, player.id)
-            #     return f"You're maxed out on Titles! You earned :coin: **500000** instead!"
-            # if str(titles[rand_title]) in owned_titles:
-            #         await crown_utilities.bless(30000, player.id)
-            #         return f"You already own **{titles[rand_title]}**! You earn :coin: **30000**."
-            # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(titles[rand_title])}})
-            # return f"You earned {titles[rand_title]}!"
             u = await main.bot.fetch_user(player.id)
             response = await crown_utilities.store_drop_card(player.id, titles[rand_title], universe, vault, owned_destinies, 30000, 30000, "Dungeon", False, 0, "titles")
             return response
         elif drop_rate <= arm_drop and drop_rate > title_drop:
-            # if len(vault['ARMS']) >= 25:
-            #     await crown_utilities.bless(40000, player.id)
-            #     return f"You're maxed out on Arms! You earned :coin: **40000** instead!"
-            # if str(arms[rand_arm]) in owned_arms:
-            #     await crown_utilities.bless(40000, player.id)
-            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **40000**."
-            # else:
-            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(arms[rand_arm]), 'DUR': durability}}})
-            #     return f"You earned _Arm:_ **{arms[rand_arm]}** with ⚒️**{str(durability)}**!"
             u = await main.bot.fetch_user(player.id)
             response = await crown_utilities.store_drop_card(player.id, arms[rand_arm], universe, vault, durability, 40000, 40000, "Dungeon", False, 0, "arms")
             return response
@@ -5616,24 +5611,10 @@ async def bossdrops(self,player, universe):
             response = await crown_utilities.store_drop_card(player.id, cards[rand_card], universe, vault, owned_destinies, 500000, 500000, "Dungeon", False, 0, "cards")
             return response
         elif drop_rate <= boss_title_drop and drop_rate > card_drop:
-            # if len(vault['TITLES']) >= 25:
-            #     await crown_utilities.bless(10000000, player.id)
-            #     return f"You're maxed out on Titles! You earned :coin: **10,000,000** instead!"
-            # response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'TITLES': str(boss_title)}})
-            # return f"You earned the Exclusive Boss Title: {boss_title}!"
             u = await main.bot.fetch_user(player.id)
             response = await crown_utilities.store_drop_card(player.id, boss_title, universe, vault, owned_destinies, 50000, 50000, "Boss", False, 0, "titles")
             return response
         elif drop_rate <= boss_arm_drop and drop_rate > boss_title_drop:
-            # if len(vault['ARMS']) >= 25:
-            #     await crown_utilities.bless(10000000, player.id)
-            #     return f"You're maxed out on Arms! You earned :coin: **10,000,000** instead!"
-            # if str(boss_arm) in owned_arms:
-            #     await crown_utilities.bless(9000000, player.id)
-            #     return f"You already own **{arms[rand_arm]}**! You earn :coin: **9,000,000**."
-            # else:
-            #     response = db.updateVaultNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': str(boss_arm), 'DUR': durability}}})
-            #     return f"You earned the Exclusive Boss Arm: **{str(boss_arm)}** with ⚒️**{str(durability)}**!"
             u = await main.bot.fetch_user(player.id)
             response = await crown_utilities.store_drop_card(player.id, boss_arm, universe, vault, durability, 9000000, 9000000, "Boss", False, 0, "arms")
             return response
@@ -5641,16 +5622,24 @@ async def bossdrops(self,player, universe):
             if len(vault['PETS']) >= 25:
                 await crown_utilities.bless(1500000, player.id)
                 return f"You're maxed out on Summons! You earned :coin: **15,000,000** instead!"
-            selected_pet = db.queryPet({'PET': boss['PET']})
-            pet_ability_name = list(selected_pet['ABILITIES'][0].keys())[0]
-            pet_ability_power = list(selected_pet['ABILITIES'][0].values())[0]
-            pet_ability_type = list(selected_pet['ABILITIES'][0].values())[1]
+            pet_owned = False
+            for p in vault['PETS']:
+                if p['NAME'] == selected_pet['PET']:
+                    pet_owned = True
+            if pet_owned:
+                await crown_utilities.bless(10000000, player.id)
+                return f"You own _Summon:_ **{selected_pet['PET']}**! Received extra + :coin: 10000000!"
+            else:
+                selected_pet = db.queryPet({'PET': boss['PET']})
+                pet_ability_name = list(selected_pet['ABILITIES'][0].keys())[0]
+                pet_ability_power = list(selected_pet['ABILITIES'][0].values())[0]
+                pet_ability_type = list(selected_pet['ABILITIES'][0].values())[1]
 
-            response = db.updateVaultNoFilter(vault_query, {'$addToSet': {
-                'PETS': {'NAME': selected_pet['PET'], 'LVL': 0, 'EXP': 0, pet_ability_name: int(pet_ability_power),
-                         'TYPE': pet_ability_type, 'BOND': 0, 'BONDEXP': 0, 'PATH': selected_pet['PATH']}}})
-            await crown_utilities.bless(10000000, player.id)
-            return f"You earned the Exclusive Boss Summon:  {boss['PET']} + :coin: **10,000,000**!"
+                response = db.updateVaultNoFilter(vault_query, {'$addToSet': {
+                    'PETS': {'NAME': selected_pet['PET'], 'LVL': 0, 'EXP': 0, pet_ability_name: int(pet_ability_power),
+                            'TYPE': pet_ability_type, 'BOND': 0, 'BONDEXP': 0, 'PATH': selected_pet['PATH']}}})
+                await crown_utilities.bless(10000000, player.id)
+                return f"You earned the Exclusive Boss Summon:  {boss['PET']} + :coin: **10,000,000**!"
         elif drop_rate <= boss_card_drop and drop_rate > boss_pet_drop:
             u = await main.bot.fetch_user(player.id)
             response = await crown_utilities.store_drop_card(player.id, boss_card, universe, vault, owned_destinies, 30000, 10000, "Boss", False, 0, "cards")
