@@ -1905,10 +1905,11 @@ class Battle:
         
         if self.player1_wins:
             if self.explore_type == "glory":
-                await crown_utilities.bless(self.bounty, winner.did)
+                bounty_amount = self.bounty * 2
+                await crown_utilities.bless(bounty_amount, winner.did)
                 drop_response = await crown_utilities.store_drop_card(winner.did, opponent_card.name, self.selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
             
-                message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
+                message = f"VICTORY\n:coin: {'{:,}'.format(bounty_amount)} Bounty Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
             if self.explore_type == "gold":
                 await crown_utilities.bless(self.bounty, winner.did)
                 message = f"VICTORY\n:coin: {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self.turn_total} rounds."
