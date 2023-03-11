@@ -3270,12 +3270,12 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       
       if password != 'casper':  
          return await ctx.send("Admin Only")
-      
       if key != '513':
          return await ctx.send("Admin Only")
+      
       if field_type == "fix":
-         field_type = 0
-      if field_type == 'string':
+         field_type = True
+      elif field_type == 'string':
          field_type = "NULL"
       elif field_type == 'int':
          field_type = 0
@@ -3306,12 +3306,12 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
          field_type = "NULL"
       elif field_type == 'blank_list':
          field_type = []
-
       elif field_type == 'bool':
          field_type = False
+         
       if collection == 'fix':
-         response = db.updateManyUsers({'$set': {new_field: field_type}})
-      if collection == 'cards':
+         response = db.updateManyUsers({'$set': {'BOSS_FOUGHT': True}})
+      elif collection == 'cards':
          response = db.updateManyCards({'$set': {new_field: field_type}})
       elif collection == 'scenarios':
          response = db.updateManyScenarios({'$set': {new_field: field_type}})
@@ -3347,7 +3347,84 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       print(m.ADMIN_ONLY_COMMAND)
 
 
+@slash.slash(description="update moves", guild_ids=guild_ids)
+@commands.check(validate_user)
+async def updatemoves(ctx, password, key):
+   await ctx.defer()
 
+   if password != 'casper':  
+      return await ctx.send("Admin Only")
+   
+   if key != '513':
+      return await ctx.send("Admin Only")
+
+   counter = 0
+
+   try:
+      for card in db.queryAllCards():
+      # Loop through all moves in the card's moveset
+         for move in card['MOVESET']:
+            # Check if the move has a STAM value of 10, 30, or 80
+            if move['STAM'] in [10, 30, 80]:
+                  # Create a new arm if the arm name doesn't already exist
+                  if not db.queryArm({'ARM': list(move.keys())[0]}):
+                     power = list(move.values())[0]
+                     exclusive = False
+                     # Determine the price and abilities of the arm based on the move's STAM value
+                     if move['STAM'] == 10:
+                        price = 10000
+                        ability = 'BASIC'
+                        if power > 250:
+                           exclusive = True
+                     elif move['STAM'] == 30:
+                        price = 30000
+                        ability = 'SPECIAL'
+                        if power > 325:
+                           exclusive = True
+                     elif move['STAM'] == 80:
+                        price = 80000
+                        ability = 'ULTIMATE'
+                        if power > 550:
+                           exclusive = True
+
+                     # Create the new arm document
+                     arm = {
+                        'ABILITIES': [{
+                           ability: power
+                        }],
+                        'ARM': list(move.keys())[0],
+                        'PRICE': price,
+                        'TOURNAMENT_REQUIREMENTS': 0,
+                        'UNIVERSE': card['UNIVERSE'],
+                        'COLLECTION': 'N/A',
+                        'STOCK': 99,
+                        'AVAILABLE': True,
+                        'EXCLUSIVE': exclusive,
+                        'TIMESTAMP': now,
+                        'ELEMENT': move['ELEMENT']
+                     }
+                     
+                     # Insert the new arm document into the ARMS collection
+                     db.createArm(arm)
+                     counter += 1
+
+      await ctx.send(f"Created {counter} new arms")
+   except Exception as ex:
+         trace = []
+         tb = ex.__traceback__
+         while tb is not None:
+            trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+         print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+         }))
+      
 # @slash.slash(description="Update Health of all characters by 1000", guild_ids=guild_ids)
 # @commands.check(validate_user)
 # async def updatehealth(ctx):

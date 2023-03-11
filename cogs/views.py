@@ -103,22 +103,22 @@ class Views(commands.Cog):
                             list_of_results.append({'TYPE': 'TITLE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the title 🎗️ {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
                         
                         if result['TYPE'] == "ARM":
-                            list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}", 'DATA': result['DATA']})
+                            list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}?", 'DATA': result['DATA']})
                         
                         if result['TYPE'] == "PET":
-                            list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🐦 {result['DATA']['PET']}", 'DATA': result['DATA']})
+                            list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon :dna: {result['DATA']['PET']}?", 'DATA': result['DATA']})
                         
                         if result['TYPE'] == "UNIVERSE":
-                            list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}", 'DATA': result['DATA']})
+                            list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
                         
                         if result['TYPE'] == "BOSS":
-                            list_of_results.append({'TYPE': 'BOSS', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the boss 👹 {result['DATA']['NAME']}", 'DATA': result['DATA']})
+                            list_of_results.append({'TYPE': 'BOSS', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the boss 👹 {result['DATA']['NAME']}?", 'DATA': result['DATA']})
                         
                         if result['TYPE'] == "HALL":
-                            list_of_results.append({'TYPE': 'HALL', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the hall ⛩️ {result['DATA']['HALL']}", 'DATA': result['DATA']})
+                            list_of_results.append({'TYPE': 'HALL', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the hall ⛩️ {result['DATA']['HALL']}?", 'DATA': result['DATA']})
                         
                         if result['TYPE'] == "HOUSE":
-                            list_of_results.append({'TYPE': 'HOUSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the house 🏠 {result['DATA']['HOUSE']}", 'DATA': result['DATA']})
+                            list_of_results.append({'TYPE': 'HOUSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the house 🏠 {result['DATA']['HOUSE']}?", 'DATA': result['DATA']})
                     
                 if list_of_results:
                     message = [f"{result['TEXT']}\n\n" for result in list_of_results]
@@ -648,7 +648,7 @@ async def viewcard(self, ctx, data):
                 {c.move1_emoji} {c.move1}: {c.move1ap}
                 {c.move2_emoji} {c.move2}: {c.move2ap}
                 {c.move3_emoji} {c.move3}: {c.move3ap}
-                🦠 {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.passive_enhancer_suffix_mapping[c.move4enh]}   
+                🦠 {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.enhancer_suffix_mapping[c.move4enh]}   
 
                 ♾️ {c.set_trait_message()}
                 """), colour=000000)

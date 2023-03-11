@@ -278,6 +278,8 @@ class Player:
         if len(self.completed_dungeons) > 25:
             all_universes = random.sample(all_universes, min(len(all_universes), 25))
             #print(all_universes)
+        if not all_universes:
+            return False
         for uni in all_universes:
             if uni['TITLE'] in self.completed_dungeons:
                 if uni != "":
@@ -430,6 +432,7 @@ class Player:
             universe_embed_list = []
             can_fight_message = ""
             for uni in selected_universes:
+                completed_message = f"**Completed**: 🔴"
                 save_spot_text = "No Save Data"
                 can_fight_message = f"🔥 Dungeon | {uni['TITLE']} : /universes to view all Dungeon Drops."
                 if uni[mode_check] == True:

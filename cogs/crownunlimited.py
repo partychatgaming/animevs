@@ -685,7 +685,7 @@ class CrownUnlimited(commands.Cog):
     @cog_ext.cog_slash(description="pvp battle against a friend or rival", guild_ids=main.guild_ids)
     async def pvp(self, ctx: SlashContext, opponent: User):
         try:
-            await ctx.defer()
+            #await ctx.defer()
 
             a_registered_player = await crown_utilities.player_check(ctx)
             if not a_registered_player:
@@ -1044,7 +1044,7 @@ class CrownUnlimited(commands.Cog):
 
 async def tutorial(self, ctx, player, mode):
     try:
-        await ctx.defer()
+        #await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -2449,6 +2449,21 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             if uni != "":
                 l.append(uni)
         available_dungeons_list = "\n".join(l)
+        if p.boss_fought:
+            boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
+            __🗝️  How to get Arena Keys?__
+            Conquer any Universe Dungeon to gain a Boss Arena Key
+
+            ☀️ | You also earn 1 Boss Key per /daily !
+
+            __🌍 Available Universe Dungeons__
+            {available_dungeons_list}
+            """))
+            boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
+            # embedVar.set_footer(text="Use /tutorial")
+            await ctx.send(embed=boss_key_embed)
+            self.stop = True
+            return  
         available_bosses = p.set_selectable_bosses(ctx, mode)
 
         if type(available_bosses) is not list:
@@ -2459,22 +2474,21 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 
         async def custom_function(self, button_ctx):
             if button_ctx.author == ctx.author:
-                # if p.boss_fought:
-
-                #     boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
-                #     __🗝️  How to get Arena Keys?__
-                #     Conquer any Universe Dungeon to gain a Boss Arena Key
+#                 if p.boss_fought:
+#                     boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
+#                     __🗝️  How to get Arena Keys?__
+#                     Conquer any Universe Dungeon to gain a Boss Arena Key
                     
-                #     ☀️ | You also earn 1 Boss Key per /daily !
+#                     ☀️ | You also earn 1 Boss Key per /daily !
 
-                #     __🌍 Available Universe Dungeons__
-                #     {available_dungeons_list}
-                #     """))
-                #     boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
-                #     # embedVar.set_footer(text="Use /tutorial")
-                #     await ctx.send(embed=boss_key_embed)
-                #     self.stop = True
-                #     return    
+#                     __🌍 Available Universe Dungeons__
+#                     {available_dungeons_list}
+#                     """))
+#                     boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
+#                     # embedVar.set_footer(text="Use /tutorial")
+#                     await ctx.send(embed=boss_key_embed)
+#                     self.stop = True
+#                     return    
                 await button_ctx.defer(ignore=True)
                 selected_universe = custom_function
                 custom_function.selected_universe = str(button_ctx.origin_message.embeds[0].title)
@@ -2863,7 +2877,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         player1_card.usesummon(battle_config, player2_card)
 
                                     elif selected_move == 0:
-                                        player1_card.use_block(battle_config, damage_calculation_response, player2_card)                                
+                                        player1_card.use_block(battle_config, player2_card)                                
                                 
                                 else:
                                     player1_card.set_battle_arm_messages(player2_card)
@@ -3394,7 +3408,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             player2_card.usesummon(battle_config, player1_card)
                                         
                                         if selected_move == 0:
-                                            player2_card.use_block(battle_config, damage_calculation_response, player1_card)
+                                            player2_card.use_block(battle_config, player1_card)
 
                                         if selected_move != 5 and selected_move != 6 and selected_move != 0:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)                                        
@@ -3862,6 +3876,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 await battle_msg.delete(delay=2)
                                 await asyncio.sleep(2)
                                 battle_msg = await private_channel.send(embed=pvp_response)
+                                talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
+                                ctalisman_response = crown_utilities.inc_talisman(player2.did, player2.equipped_talisman)
+                                #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
+                                #carm_durability_message = update_arm_durability(self, player2, player2_arm, player2_card)
                                 battle_config.continue_fighting = False
                                 return
                         
@@ -3913,7 +3931,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
 
                                 play_again_buttons_action_row = manage_components.create_actionrow(*play_again_buttons)
+                                talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
+                                #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
                                 if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                                    if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
+                                        ctalisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
+                                        #carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
                                 else:
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
@@ -3956,12 +3979,34 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         new_info = await crown_utilities.updateRetry(button_ctx.author.id, "U","DEC")
                                         battle_config.reset_game()
                                         battle_config.continue_fighting = True
+                                        player1_card.used_focus = False
+                                        player1_card.used_resolve = False
+                                        player1_card.resolved = False
+                                        player1_card.focused = False
+                                        player2_card.resolved = False
+                                        player2_card.focused = False
+                                        player2_card.used_focus = False
+                                        player2_card.used_resolve = False
+                                        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                                            player3.used_focus = False
+                                            player3.used_resolve = False
                                     
                                     if button_ctx.custom_id == "grematch":
                                         battle_config.reset_game()
                                         new_info = await crown_utilities.guild_buff_update_function(str(player1.guild.lower()))
                                         update_team_response = db.updateTeam(new_info['QUERY'], new_info['UPDATE_QUERY'])
                                         battle_config.continue_fighting = True
+                                        player1_card.used_focus = False
+                                        player1_card.used_resolve = False
+                                        player1_card.resolved = False
+                                        player1_card.focused = False
+                                        player2_card.resolved = False
+                                        player2_card.focused = False
+                                        player2_card.used_focus = False
+                                        player2_card.used_resolve = False
+                                        if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                                            player3.used_focus = False
+                                            player3.used_resolve = False
                                 except asyncio.TimeoutError:
                                     battle_config.continue_fighting = False
                                     if not any((battle_config.is_abyss_game_mode, 
@@ -4017,6 +4062,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         destinylogger = await destiny(user1, player2_card, battle_config.mode)
                                         petlogger = await crown_utilities.summonlevel(player1, player1_card)
                                         cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
+                                        talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
+                                        #arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
                             
 
                                     if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
@@ -4024,6 +4071,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             cdrop_response = await dungeondrops(self, user2, battle_config.selected_universe, battle_config.current_opponent_number)
                                         elif battle_config.is_tales_game_mode:
                                             cdrop_response = await drops(self, user2, battle_config.selected_universe, battle_config.current_opponent_number)
+                                        ctalisman_response = crown_utilities.inc_talisman(player3.did, player3.equipped_talisman)
+                                        #carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
 
                                         co_op_bonuses = battle_config.get_co_op_bonuses(player1, player3)
                                         p3_win_rewards = await battle_config.get_win_rewards(player3)
@@ -4321,14 +4370,20 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         battle_config.continue_fighting = True
                                     
                                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
-                                        response = await scenario_drop(self, ctx, battle_config.scenario_data, battle_config.difficulty)
-                                        bless_amount = 50000
+                                        if battle_config.scenario_has_drops:
+                                            response = await scenario_drop(self, ctx, battle_config.scenario_data, battle_config.difficulty)
+                                            bless_amount = 50000
+                                        else:
+                                            response = "No drops this time!"
+                                            bless_amount = 200000
                                         save_scen = player1.save_scenario(battle_config.scenario_data['TITLE'])
+                                        unlock_message = battle_config.get_unlocked_scenario_text()
                                         await crown_utilities.bless(bless_amount, player1.did)
                                         embedVar = discord.Embed(title=f"Scenario Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
                                         Good luck on your next adventure!
 
                                         {save_scen}
+                                        {unlock_message}
                                         """),colour=0xe91e63)
 
                                         embedVar.set_author(name=f"{player2_card.name} lost!")
@@ -4699,61 +4754,88 @@ async def save_spot(self, player_id, universe, mode, currentopponent):
         return
 
         
-def update_arm_durability(self, vault, arm, arm_universe, arm_price, card):
-    pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
-    decrease_value = -1
-    break_value = 1
-    dismantle_amount = 5000
+def update_arm_durability(self, player, player_arm, player_card):
+    try:
+        pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
+        decrease_value = -1
+        break_value = 1
+        dismantle_amount = 5000
 
-    # Check if the difficulty is easy, return if so
-    player_info = db.queryUser({'DID': str(vault['DID'])})
-    if player_info['DIFFICULTY'] == "EASY":
-        return
+        arm_universe = player_arm.universe
+        arm_price = player_arm.price
+        card = player_card
 
-    # Set arm universe to card universe if it is part of the pokemon universes
-    if card['UNIVERSE'] in pokemon_universes:
-        arm_universe = card['UNIVERSE']
+        # Check if the difficulty is easy, return if so
+        if player.difficulty == "EASY":
+            return
 
-    # Increase decrease value and break value if arm universe doesn't match card universe
-    if arm_universe != card['UNIVERSE'] and arm_universe != "Unbound":
-        decrease_value = -5
-        break_value = 5
+        # Set arm universe to card universe if it is part of the pokemon universes
+        if player_card.universe in pokemon_universes and player_arm.universe in pokemon_universes:
+            arm_universe = player_card.universe
 
-    # Check if arm exists in the player's vault
-    for a in vault['ARMS']:
-        if a['ARM'] == str(arm['ARM']):
-            current_durability = a['DUR']
-            
-            # Dismantle arm if its durability is 0 or below
-            if current_durability <= 0:
-                selected_arm = arm['ARM']
-                arm_name = arm['ARM']
-                selected_universe = arm_universe
-                current_gems = [gems['UNIVERSE'] for gems in vault['GEMS']]
+        # Increase decrease value and break value if arm universe doesn't match card universe
+        if arm_universe != player_card.universe and arm_universe != "Unbound":
+            decrease_value = -5
+            break_value = 5
 
-                # Update gems if selected universe exists in current gems
-                if selected_universe in current_gems:
-                    db.updateVault({'DID': str(vault['DID'])}, 
-                                   {'$inc': {'GEMS.$[type].GEMS': dismantle_amount}},
-                                   [{'type.UNIVERSE': selected_universe}])
-                else:
-                    db.updateVaultNoFilter({'DID': str(vault['DID'])},
-                                           {'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 
-                                                                  'GEMS': dismantle_amount, 
-                                                                  'UNIVERSE_HEART': False, 
-                                                                  'UNIVERSE_SOUL': False}}})
+        # Check if arm exists in the player's vault
+        for a in player._arms:
+            if a['ARM'] == str(player_arm.name):
+                current_durability = a['DUR']
 
-                # Remove arm from player's vault
-                db.updateVaultNoFilter({'DID': str(vault['DID'])},
-                                       {'$pull': {'ARMS': {'ARM': str(arm['ARM'])}}})
+                # Dismantle arm if its durability is 0 or below
+                if current_durability <= 0:
+                    selected_arm = player_arm.name
+                    arm_name = player_arm.name
+                    selected_universe = arm_universe
+                    current_gems = [player._gems['UNIVERSE'] for gems in player._gems]
 
-                # Update player's arm to "Stock"
-                db.updateUserNoFilter({'DID': str(vault['DID'])},
-                                      {'$set': {'ARM': 'Stock'}})
+                    # Update gems if selected universe exists in current gems
+                    if selected_universe in current_gems:
+                        db.updateVault({'DID': str(player.did)}, 
+                                       {'$inc': {'GEMS.$[type].GEMS': dismantle_amount}},
+                                       [{'type.UNIVERSE': selected_universe}])
+                    else:
+                        db.updateVaultNoFilter({'DID': str(player.did)},
+                                               {'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 
+                                                                      'GEMS': dismantle_amount, 
+                                                                      'UNIVERSE_HEART': False, 
+                                                                      'UNIVERSE_SOUL': False}}})
 
-                return {"MESSAGE": f"**{arm['ARM']}** has been dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm will be **Stock** after your next match."}       
+                    # Remove arm from player's vault
+                    db.updateVaultNoFilter({'DID': str(player.did)},
+                                           {'$pull': {'ARMS': {'ARM': str(arm_name)}}})
 
+                    # Update player's arm to "Stock"
+                    db.updateUserNoFilter({'DID': str(player.did)},
+                                          {'$set': {'ARM': 'Stock'}})
 
+                    return {"MESSAGE": f"**{player_arm.name}** has been dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm will be **Stock** after your next match."}       
+                else:                   
+                    query = {'DID': str(player.did)}
+                    update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}
+                    filter_query = [{'type.' + "ARM": str(arm_name)}]
+                    resp = db.updateVault(query, update_query, filter_query)
+                    if current_durability >= 15:
+                        return {"MESSAGE": False}
+                    else:
+                        return {"MESSAGE": f"**{player_arm.name}** will lose all ⚒️ durability soon! Use **/blacksmith** to repair!"}
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'PLAYER': str(ctx.author),
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
 async def save_spot(self, player_id, universe, mode, currentopponent):
     try:
         user = {"DID": str(player_id)}
