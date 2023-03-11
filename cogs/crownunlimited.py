@@ -643,6 +643,7 @@ class CrownUnlimited(commands.Cog):
                 return
 
             if mode == "Tutorial":
+                mode == "PVP"
                 await tutorial(self, ctx, p, mode)
                 return
 
@@ -1056,7 +1057,7 @@ async def tutorial(self, ctx, player, mode):
         battle.set_tutorial(tutorial_did)
         battle.mode = "PVP"
         opponent = db.queryUser({'DID': tutorial_did})
-        player2 = Player(opponent['AUTOSAVE'], opponent['DISNAME'], opponent['DID'], opponent['AVATAR'], opponent['GUILD'], opponent['TEAM'], opponent['FAMILY'], opponent['TITLE'], opponent['CARD'], opponent['ARM'],opponent['PET'], opponent['TALISMAN'], opponent['CROWN_TALES'], opponent['DUNGEONS'], opponent['BOSS_WINS'], opponent['RIFT'], opponent['REBIRTH'], opponent['LEVEL'], opponent['EXPLORE'], opponent['SAVE_SPOT'], opponent['PERFORMANCE'], opponent['TRADING'], opponent['BOSS_FOUGHT'], opponent['DIFFICULTY'], opponent['STORAGE_TYPE'], opponent['USED_CODES'], opponent['BATTLE_HISTORY'], opponent['PVP_WINS'], opponent['PVP_LOSS'], opponent['RETRIES'], opponent['PRESTIGE'], opponent['PATRON'], opponent['FAMILY_PET'], opponent['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])
+        player2 = Player(opponent['AUTOSAVE'], opponent['DISNAME'], opponent['DID'], opponent['AVATAR'], opponent['GUILD'], opponent['TEAM'], opponent['FAMILY'], opponent['TITLE'], opponent['CARD'], opponent['ARM'],opponent['PET'], opponent['TALISMAN'], opponent['CROWN_TALES'], opponent['DUNGEONS'], opponent['BOSS_WINS'], opponent['RIFT'], opponent['REBIRTH'], opponent['LEVEL'], opponent['EXPLORE'], opponent['SAVE_SPOT'], opponent['PERFORMANCE'], opponent['TRADING'], opponent['BOSS_FOUGHT'], opponent['DIFFICULTY'], opponent['STORAGE_TYPE'], opponent['USED_CODES'], opponent['BATTLE_HISTORY'], opponent['PVP_WINS'], opponent['PVP_LOSS'], opponent['RETRIES'], opponent['PRESTIGE'], opponent['PATRON'], opponent['FAMILY_PET'], opponent['EXPLORE_LOCATION'], opponent['SCENARIO_HISTORY'])
         
 
         await battle_commands(self, ctx, battle, player, None, player2, None)
