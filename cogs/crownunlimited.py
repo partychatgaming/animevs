@@ -4296,9 +4296,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             aicon = ":crown:"
                                         elif prestige >= 10:
                                             aicon = ":japanese_ogre:"
-                                        prestige_message = "Counquer the **Abyss** to unlock **Abyssal Rewards** and **New Game Modes.**"
+                                        prestige_message = "Conquer the **Abyss** to unlock **Abyssal Rewards** and **New Game Modes.**"
                                         if player1.prestige > 0:
-                                            prestige_message = f"{aicon} | Prestige Activated! Counquer the **Abyss** to unlock **Abyssal Rewards** and earn another **/exchange**"
+                                            prestige_message = f"{aicon} | Prestige Activated! Conquer the **Abyss** to unlock **Abyssal Rewards** and earn another **/exchange**"
                                         embedVar = discord.Embed(title=f"🌑 Floor **{battle_config.abyss_floor}** Cleared\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
                                         {prestige_message}
                                         
