@@ -1493,13 +1493,14 @@ class Card:
             defense = self.defense
             stamina = self.stamina
             health = self.health
+            max_health = self.max_health
 
             enhancement_types = {
                 "ATK": lambda ap: round((ap / 100) * attack),
                 "DEF": lambda ap: round((ap / 100) * defense),
                 "STAM": lambda ap: ap,
-                "HLT": lambda ap: round(100 + ap + (.15 * health) + (.20 * (self.max_health - health))),
-                "LIFE": lambda ap: round(ap + (.10 * _opponent_card.health)+ (.10 * (self.max_health - health))),
+                "HLT": lambda ap: 0 if health == max_health else round(100 + min(ap, max_health - health) + (.15 * health) + (.20 * (max_health - health))),
+                "Life": lambda ap: 0 if health >= max_health else round(min(ap, max_health - health) + (.10 * _opponent_card.health) + (.10 * (self.max_health - self.health)) if (ap + self.health) <= max_health else (max_health - health) + (.10 * _opponent_card.health) + (.10 * (self.max_health - self.health))),
                 "DRAIN": lambda ap: round(ap),
                 "FLOG": lambda ap: round((ap / 100) * min(_opponent_card.attack, 2000)),
                 "WITHER": lambda ap: round((ap / 100) * min(_opponent_card.defense, 2000)),
@@ -1519,8 +1520,9 @@ class Card:
                 "WAVE": lambda ap: ap if battle_config.is_turn == 0 else (ap if battle_config.turn_total % 10 == 0 else ap / battle_config.turn_total),
                 "BLAST": lambda ap: ap if battle_config.is_turn == 0 else min(round(ap * battle_config.turn_total), 100 * self.tier),
                 "CREATION": lambda ap: ap if battle_config.is_turn == 0 else (ap if battle_config.turn_total % 10 == 0 else (ap * 2 if battle_config.turn_total == round(random.randint(2, 50)) else ap / battle_config.turn_total)),
-                "DESTRUCTION": lambda ap: ap if battle_config.is_turn == 0 else min(round(ap * battle_config.turn_total), 100 * self.tier)
+                "DESTRUCTION": lambda ap: ap if battle_config.is_turn == 0 else min(round(ap * battle_config.turn_total)), 
             }
+
 
             enhancer_value = enhancement_types.get(enh, lambda ap: 0)(ap)
             
@@ -1551,6 +1553,9 @@ class Card:
                         if enh == 'LIFE' and enhancer_value == 0:
                             message = f"{move} used! Stealing {enhancer_value} Health... Your Health is full!"
                         else:
+                            if enh == "LIFE":
+                                if enhancer_value + self.health >= self.max_health:
+                                    enhancer_value = self.max_health - self.health
                             message = f"{move} used! Stealing {enhancer_value} {legend[enh]}!"
                     elif enh in ['RAGE', 'BRACE', 'BZRK', 'CRYSTAL']:
                         message = f"{move} used! Sacrificing {enhancer_value} {legend[enh]}, Increasing {legend[f'{enh}_INC']} by {enhancer_value}"
@@ -1570,6 +1575,8 @@ class Card:
                         if enh == 'HLT' and enhancer_value == 0:
                             message = f"{move} used! Healing for {enhancer_value} Health... Your Health is full!"
                         else:
+                            if enhancer_value + self.health >= self.max_health:
+                                enhancer_value = self.max_health - self.health
                             message = f"{move} used! {'Healing' if enh == 'HLT' else 'Sacrificing 10% Max Health to Decrease Opponent Attack, Defense and AP'} by {round(enhancer_value)}"
                     elif enh in ['SOULCHAIN', 'GAMBLE']:
                         message = f"{move} used! Synchronizing {'Stamina' if enh == 'SOULCHAIN' else 'Health'}  to {enhancer_value}"
@@ -2406,7 +2413,8 @@ class Card:
                 elif self.summon_type == 'HLT':
                     self.health = round(self.health + damage_calculation_response['DMG'])
                     if self.health > self.max_health:
-                        damage_calculation_response['DMG'] = self.max_health - self.health
+                        damage_calculation_response['DMG'] = (damage_calculation_response['DMG'] - (self.health - self.max_health))
+                        self.health = self.max_health
                 elif self.summon_type == 'LIFE':
                     if (self.health + damage_calculation_response['DMG']) < self.max_health:
                         self.health = round(self.health + damage_calculation_response['DMG'])
@@ -2553,8 +2561,13 @@ class Card:
                 companion_card.stamina = round(companion_card.stamina + dmg['DMG'])
             elif companion_card.move4enh == 'HLT':
                 companion_card.health = round(companion_card.health + dmg['DMG'])
+                if companion_card.health >= companion_card.max_health:
+                    dmg['DMG'] = dmg['DMG'] - (companion_card.health - companion_card.max_health)
+                    companion_card.health = companion_card.max_health
             elif companion_card.move4enh == 'LIFE':
                 companion_card.health = round(companion_card.health + dmg['DMG'])
+                if companion_card.health >= companion_card.max_health:
+                    dmg['DMG'] = dmg['DMG'] - (companion_card.health - companion_card.max_health)
                 opponent_card.health = round(self.health - dmg['DMG'])
             elif companion_card.move4enh == 'DRAIN':
                 companion_card.stamina = round(companion_card.stamina + dmg['DMG'])
