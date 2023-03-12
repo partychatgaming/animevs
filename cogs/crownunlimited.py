@@ -1377,6 +1377,8 @@ async def abyss_level_up_message(did, floor, card, title, arm):
         new_unlock = False
         vault_query = {'DID': did}
         vault = db.altQueryVault(vault_query)
+        player = db.queryUser(vault_query)
+        prestige = player['PRESTIGE']
         owned_destinies = []
         for destiny in vault['DESTINY']:
             owned_destinies.append(destiny['NAME'])
@@ -1410,123 +1412,54 @@ async def abyss_level_up_message(did, floor, card, title, arm):
         
         if floor in abyss_floor_reward_list:
             u = await main.bot.fetch_user(did)
+            #Drops
             tresponse = await crown_utilities.store_drop_card(did, title_drop, title_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "titles")
-            # current_titles = vault['TITLES']
-            # if len(current_titles) >=25:
-            #     drop_message.append("You have max amount of Titles. You did not receive the **Floor Title**.")
-            # elif title in current_titles:
-            #     maxed_out_messages.append(f"You already own {title_drop} so you did not receive it.")
-            # else:
-            #     db.updateVaultNoFilter(vault_query,{'$addToSet':{'TITLES': str(title_drop)}}) 
-            #     drop_message.append(f"🎗️ **{title_drop}**")
-
-            aresponse = await crown_utilities.store_drop_card(did, arm_arm, arm['UNIVERSE'], vault, durability, coin_drop, coin_drop, "Abyss", False, 0, "arms")
-            # current_arms = []
-            # for arm in vault['ARMS']:
-            #     current_arms.append(arm['ARM'])
-            # if len(current_arms) >=25:
-            #     maxed_out_messages.append("You have max amount of Arms. You did not receive the **Floor Arm**.")
-            # elif arm_arm in current_arms:
-            #     maxed_out_messages.append(f"You already own {arm_drop['ARM']} so you did not receive it.")
-            # else:
-            #     db.updateVaultNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm_drop['ARM']), 'DUR': 25}}})
-            #     drop_message.append(f"🦾 **{arm_drop['ARM']}**")
-            
+            aresponse = await crown_utilities.store_drop_card(did, arm_arm, arm['UNIVERSE'], vault, durability, coin_drop, coin_drop, "Abyss", False, 0, "arms")  
             cresponse = await crown_utilities.store_drop_card(did, card_drop, card_info['UNIVERSE'], vault, owned_destinies, coin_drop, coin_drop, "Abyss", False, 0, "cards")
             drop_message.append(tresponse)
             drop_message.append(aresponse)
             drop_message.append(cresponse)
-            # current_cards = vault['CARDS']
-            # if len(current_cards) >= 25:
-            #     maxed_out_messages.append("You have max amount of Cards. You did not earn receive **Floor Card**.")
-            # elif card in current_cards:
-            #     maxed_out_messages.append(f"You already own {card_drop} so you did not receive it.")
-            # else:
-            #     db.updateVaultNoFilter(vault_query,{'$addToSet': {'CARDS': str(card_drop)}})
-            #     drop_message.append(f"🎴 **{card_drop}**")
-
             
-            # owned_card_levels_list = []
-            # for c in vault['CARD_LEVELS']:
-            #     owned_card_levels_list.append(c['CARD'])
-
-            # owned_destinies = []
-            # for destiny in vault['DESTINY']:
-            #     owned_destinies.append(destiny['NAME'])
-            
-            # if card not in owned_card_levels_list:
-            #     update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': str(card), 'LVL': 0, 'TIER': 0, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
-            #     r = db.updateVaultNoFilter(vault_query, update_query)
-
-            # counter = 2
-            # for destiny in d.destiny:
-            #     if card in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
-            #         counter = counter - 1
-            #         db.updateVaultNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
-            #         if counter >=1:
-            #             drop_message.append(f"**DESTINY AWAITS!**")
         else:
             drop_message.append(f":coin: **{'{:,}'.format(coin_drop)}** has been added to your vault!")
+        if prestige < 1:
 
-        # if floor == 0:
-        #     message = "🎊 Congratulations! 🎊 You unlocked **Shop!**. Use the **/shop** command to purchase Cards, Titles and Arms!"
-        #     new_unlock = True
-        
-        # if floor == 2:
-        #     message = "🎊 Congratulations! 🎊 You unlocked **Tales! and Scenarios!**. Use the **/solo** command to battle through Universes to earn Cards, Titles, Arms, Summons, and Money!"
-        #     new_unlock = True
+            if floor == 3:
+                message = "🎊 Congratulations! 🎊 You unlocked **PVP and Guilds**. Use /pvp to battle another player or join together to form a Guild! Use /help to learn more.!"
+                new_unlock = True
 
-        # if floor == 8:
-        #     message = "🎊 Congratulations! 🎊 You unlocked **Crafting!**. Use the **/craft** command to craft Universe Items such as Universe Souls, or even Destiny Line Wins toward Destiny Cards!"
-        #     new_unlock = True
+            if floor == 30:
+                message = "🎊 Congratulations! 🎊 You unlocked **Marriage**. You're now able to join Families!Share summons and purchase houses.Use /help to learn more about  Family commands!"
+                new_unlock = True
+                
+            if floor == 10:
+                message = "🎊 Congratulations! 🎊 You unlocked **Trading**. Use the **/trade** command to Trade Cards, Titles and Arms with other players!"
+                new_unlock = True
 
-        if floor == 3:
-            message = "🎊 Congratulations! 🎊 You unlocked **PVP and Guilds**. Use /pvp to battle another player or join together to form a Guild! Use /help to learn more.!"
-            new_unlock = True
 
-        if floor == 31:
-            message = "🎊 Congratulations! 🎊 You unlocked **Marriage**. You're now able to join Families!Share summons and purchase houses.Use /help to learn more about  Family commands!"
-            new_unlock = True
+            if floor == 20:
+                message = "🎊 Congratulations! 🎊 You unlocked **Gifting**. Use the **/gift** command to gift players money!"
+                new_unlock = True
             
-        if floor == 10:
-            message = "🎊 Congratulations! 🎊 You unlocked **Trading**. Use the **/trade** command to Trade Cards, Titles and Arms with other players!"
-            new_unlock = True
+            if floor == 15:
+                message = "🎊 Congratulations! 🎊 You unlocked **Associations**. Use the **/oath** to create an association with another Guild Owner!"
+                new_unlock = True
 
-        # if floor == 3:
-        #     message = "🎊 Congratulations! 🎊 You unlocked **PVP**. \nUse the /**pvp** command to PVP against other players!"
-        #     new_unlock = True
+            if floor == 25:
+                message = "🎊 Congratulations! 🎊 You unlocked **Explore Mode**. Explore Mode allows for Cards to spawn randomly with Bounties! If you defeat the Card you will earn that Card + it's Bounty! Happy Hunting!"
+                new_unlock = True
 
-        if floor == 20:
-            message = "🎊 Congratulations! 🎊 You unlocked **Gifting**. Use the **/gift** command to gift players money!"
-            new_unlock = True
-        
-        # if floor == 3:
-        #     message = "🎊 Congratulations! 🎊 You unlocked **Co-Op**. Use the **/coop** to traverse Tales with other players!"
-        #     new_unlock = True
-            
-        if floor == 15:
-            message = "🎊 Congratulations! 🎊 You unlocked **Associations**. Use the **/oath** to create an association with another Guild Owner!"
-            new_unlock = True
+            if floor == 40:
+                message = "🎊 Congratulations! 🎊 You unlocked **Dungeons**. Use the **/solo** command and select Dungeons to battle through the Hard Mode of Universes to earn super rare Cards, Titles, and Arms!"
+                new_unlock = True
 
-        if floor == 25:
-            message = "🎊 Congratulations! 🎊 You unlocked **Explore Mode**. Explore Mode allows for Cards to spawn randomly with Bounties! If you defeat the Card you will earn that Card + it's Bounty! Happy Hunting!"
-            new_unlock = True
-
-        if floor == 40:
-            message = "🎊 Congratulations! 🎊 You unlocked **Dungeons**. Use the **/solo** command and select Dungeons to battle through the Hard Mode of Universes to earn super rare Cards, Titles, and Arms!"
-            new_unlock = True
-            
-        # if floor == 7:
-        #     message = "🎊 Congratulations! 🎊 You unlocked **Duo**. Use the **/duo** command and select a Difficulty and a Preset to bring into Tales with you!"
-        #     new_unlock = True
-
-        if floor == 60:
-            message = "🎊 Congratulations! 🎊 You unlocked **Bosses**. Use the **/solo** command and select Boss to battle Universe Bosses too earn ultra rare Cards, Titles, and Arms!"
-            new_unlock = True
-            
-        if floor == 100:
-            message = "🎊 Congratulations! 🎊 You unlocked **Soul Exchange**. Use the **/exchange** command and Exchange any boss souls for cards from their respective universe! This will Reset your Abyss Level!"
-            new_unlock = True
+            if floor == 60:
+                message = "🎊 Congratulations! 🎊 You unlocked **Bosses**. Use the **/solo** command and select Boss to battle Universe Bosses too earn ultra rare Cards, Titles, and Arms!"
+                new_unlock = True
+        if prestige < 10:
+            if floor == (100 - (10 * prestige)):
+                message = "🎊 Congratulations! 🎊 You unlocked **Soul Exchange**. Use the **/exchange** command and Exchange any boss souls for cards from their respective universe! This will Reset your Abyss Level!"
+                new_unlock = True
 
 
         return {"MESSAGE": message, "NEW_UNLOCK": new_unlock, "DROP_MESSAGE": drop_message}
@@ -4341,23 +4274,48 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         await battle_config.save_abyss_win(user1, player1, player1_card)
                                         abyss_message = await abyss_level_up_message(player1.did, battle_config.abyss_floor, player2_card.name, player2_title.name, player2_arm.name)
                                         abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
+                                        prestige = player1.prestige
+                                        aicon = ":new_moon:"
+                                        if prestige == 1:
+                                            aicon = ":waxing_crescent_moon:"
+                                        elif prestige == 2:
+                                            aicon = ":first_quarter_moon:"
+                                        elif prestige == 3:
+                                            aicon = ":waxing_gibbous_moon:"
+                                        elif prestige == 4:
+                                            aicon = ":full_moon:"
+                                        elif prestige == 5:
+                                            aicon = ":waning_gibbous_moon:"
+                                        elif prestige == 6:
+                                            aicon = ":last_quarter_moon:"
+                                        elif prestige == 7:
+                                            aicon = ":waning_crescent_moon:"
+                                        elif prestige == 8:
+                                            aicon = ":crescent_moon:"
+                                        elif prestige == 9:
+                                            aicon = ":crown:"
+                                        elif prestige >= 10:
+                                            aicon = ":japanese_ogre:"
+                                        prestige_message = "Counquer the **Abyss** to unlock **Abyssal Rewards** and **New Game Modes.**"
+                                        if player1.prestige > 0:
+                                            prestige_message = f"{aicon} | Prestige Activated! Counquer the **Abyss** to unlock **Abyssal Rewards** and earn another **/exchange**"
                                         embedVar = discord.Embed(title=f"🌑 Floor **{battle_config.abyss_floor}** Cleared\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
-                                        Counquer the **Abyss** to unlock **Abyssal Rewards** and **New Game Modes.**
+                                        {prestige_message}
                                         
                                         🎊**Abyss Floor Unlocks**
-                                        **3** - *PvP and Guilds*
-                                        **10** - *Trading*
-                                        **15** - *Associations and Raids*
-                                        **20** - *Gifting*
-                                        **25** - *Explore Mode*
-                                        **30** - *Marriage*
-                                        **40** - *Dungeons*
-                                        **60** - *Bosses*
-                                        **100** - *Boss Soul Exchange*
+                                        **{max(0, (3 - (3 * player1.prestige))) if max(0, (3 - (3 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *PvP and Guilds*
+                                        **{max(0, (10 - (10 * player1.prestige))) if max(0, (10 - (10 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Trading*
+                                        **{max(0, (15 - (15 * player1.prestige))) if max(0, (15 - (15 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Associations and Raids*
+                                        **{max(0, (20 - (20 * player1.prestige))) if max(0, (20 - (20 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Gifting*
+                                        **{max(0, (25 - (25 * player1.prestige))) if max(0, (25 - (25 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Explore Mode*
+                                        **{max(0, (30 - (30 * player1.prestige))) if max(0, (30 - (30 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Marriage*
+                                        **{max(0, (40 - (40 * player1.prestige))) if max(0, (40 - (40 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Dungeons*
+                                        **{max(0, (50 - (50 * player1.prestige))) if max(0, (50 - (50 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Bosses*
+                                        **{max(0, 100 - (10 * player1.prestige)) if max(0, 100 - (10 * player1.prestige)) > 0 else "Prestige Unlocked"}** - *Boss Soul Exchange*
                                         """),colour=0xe91e63)
 
                                         embedVar.set_author(name=f"{player2_card.name} lost!")
-                                        embedVar.set_footer(text=f"Traverse the **Abyss** in /solo to unlock new game modes and features!")
+                                        embedVar.set_footer(text=f"Traverse 🌑 The Abyss in /solo to unlock new game modes and features!")
                                         floor_list = [0,2,3,6,7,8,9,10,20,25,40,60,100]
                                         if battle_config.abyss_floor in floor_list:
                                             embedVar.add_field(
