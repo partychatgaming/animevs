@@ -122,7 +122,7 @@ class Player:
 
     def set_talisman_message(self):
         try:
-            print(self.equipped_talisman)
+            #print(self.equipped_talisman)
             if self.equipped_talisman != "NULL":
                 for t in self._talismans:
                     if t["TYPE"].upper() == self.equipped_talisman.upper():

@@ -1172,7 +1172,8 @@ class Card:
                 if arm != "none":
                     arm_message = f"{arm.passive_type.title()} | {arm.passive_value}"
                     if arm.passive_type in crown_utilities.ABILITY_ARMS:
-                        arm_message = "Ability Arm"
+                        arm_element_icon = crown_utilities.set_emoji(arm.element)
+                        arm_message = f"{arm_element_icon} {arm.passive_type.title()}"
                         #self.element = arm.element
                  
                 
@@ -1347,13 +1348,13 @@ class Card:
                 # attack_stat = f"🗡️{round(attack)}"
                 # defense_stat = f"🛡️{round(defense)}"
                 if type(title) is dict:
-                    title_message_on_card = f"🎗️ None 🦾 None"
+                    title_message_on_card = f"🎗️None 🦾None"
                 else:
                     title_suffix = crown_utilities.title_enhancer_suffix_mapping[title.passive_type]
                     if mode == "battle":
-                        title_message_on_card = f"🎗️ {title_message}{title_suffix}"
+                        title_message_on_card = f"🎗️{title_message}{title_suffix}"
                     else:
-                        title_message_on_card = f"🎗️ {title_message}{title_suffix}  🦾 {arm_message}"
+                        title_message_on_card = f"🎗️{title_message}{title_suffix}  🦾{arm_message}"
 
 
                 card_suffix = crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]
@@ -1361,7 +1362,7 @@ class Card:
                 with Pilmoji(im) as pilmoji:
                     pilmoji.text((602, 138), f"{title_message_on_card}", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
-                    pilmoji.text((602, 180), f"🩸 {card_message}{card_suffix} 🏃 {self.speed}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
+                    pilmoji.text((602, 180), f"🩸{card_message}{card_suffix}  🏃{self.speed}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
                     pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
                                 stroke_fill=(0, 0, 0))

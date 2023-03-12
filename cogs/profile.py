@@ -5270,7 +5270,7 @@ class Profile(commands.Cog):
                             for arms in astorage:
                                 if storage_arm['ARM'] == arms['ARM']:
                                     durability = arms['DUR']
-                                    print(durability)
+                                    #print(durability)
                             query = {'DID': str(ctx.author.id)}
                             update_storage_query = {
                                 '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
@@ -9403,7 +9403,7 @@ async def armory(self, ctx: SlashContext, mode:str, item:str):
                         for arms in astorage:
                             if storage_arm['ARM'] == arms['ARM']:
                                 durability = arms['DUR']
-                                print(durability)
+                                #print(durability)
                         if not item_owned:
                             transaction_message = f"{ctx.author} claimed 🦾 **{storage_arm['ARM']}**."
                             query = {'DID': str(ctx.author.id)}

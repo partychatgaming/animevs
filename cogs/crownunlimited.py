@@ -3881,13 +3881,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 await asyncio.sleep(2)
                                 battle_msg = await private_channel.send(embed=pvp_response)
                                 talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
-                                ctalisman_response = crown_utilities.inc_talisman(player2.did, player2.equipped_talisman)
                                 arm_durability_message = update_arm_durability(self, player1, player1_arm, player1_card)
                                 if arm_durability_message != False:
                                     await private_channel.send(f"{arm_durability_message}")
-                                carm_durability_message = update_arm_durability(self, player2, player2_arm, player2_card)
-                                if carm_durability_message != False:
-                                    await private_channel.send(f"{carm_durability_message}")
+                                if not battle_config.is_tutorial_game_mode:
+                                    ctalisman_response = crown_utilities.inc_talisman(player2.did, player2.equipped_talisman)
+                                    carm_durability_message = update_arm_durability(self, player2, player2_arm, player2_card)
+                                    if carm_durability_message != False:
+                                        await private_channel.send(f"{carm_durability_message}")
                                 battle_config.continue_fighting = False
                                 return
                         
@@ -4804,8 +4805,6 @@ def update_arm_durability(self, player, player_arm, player_card):
             if a['ARM'] == str(player_arm.name):
                 current_durability = a['DUR']
            
-            
-
                 # Dismantle arm if its durability is 0 or below
                 new_durability = current_durability - abs(decrease_value)
                 if new_durability <= 0:
@@ -4841,7 +4840,7 @@ def update_arm_durability(self, player, player_arm, player_card):
                     update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}
                     filter_query = [{'type.' + "ARM": str(arm_name)}]
                     resp = db.updateVault(query, update_query, filter_query)
-                    player_arm.durability = player_arm.durability - abs(decrease_value)
+                    player_arm.durability = new_durability
                     for arms in player._arms:
                         if arms['ARM'] == str(player_arm.name):
                             arms['DUR'] = arms['DUR'] - abs(decrease_value)
