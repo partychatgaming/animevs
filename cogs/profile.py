@@ -9549,7 +9549,7 @@ async def quests(self, ctx):
                 if guild_buff:
                     if guild_buff['Quest']:
                         if int(goal) > 1:
-                            embedVar.set_footer(text=f"🌑 | Conquer Abyss **{exchange}** and Prestige to reduce Quest Requirements!")
+                            embedVar.set_footer(text=f"🌑 | Conquer Abyss {exchange} and Prestige to reduce Quest Requirements!")
                         else:
                             embedVar.set_footer(text=f"☀️ | You can use /daily every 12 Hours for More Quest!")
                     else:
