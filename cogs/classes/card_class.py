@@ -2752,6 +2752,7 @@ class Card:
                     if self.health < self.max_health:
                         self.health = round(self.health + dmg['DMG'])
                         if self.health > self.max_health:
+                            dmg['DMG'] = dmg['DMG'] - (self.health - self.max_health)
                             self.health = self.max_health
                 elif self.move4enh == 'LIFE':
                     #self.max_health = round(self.max_health + dmg['DMG'])

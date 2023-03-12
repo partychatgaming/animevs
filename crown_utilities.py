@@ -899,23 +899,30 @@ async def cardlevel(user, card: str, player, mode: str, universe: str):
 
         lvl = cardinfo['LVL']
         new_lvl = lvl + 1
-        lvl_req = 150
+        x = 0.099
+        y = 1.25
+        lvl_req = round((float(lvl)/x)**y)
         exp = cardinfo['EXP']
         exp_gain = 0
         t_exp_gain = 25 + (rebirth_buff) + prestige_buff
         d_exp_gain = ((100 + prestige_buff) * (1 + rebirth_buff))
+        b_exp_gain = 50000 + ((100 + prestige_buff) * (1 + rebirth_buff))
         if has_universe_soul:
-            if mode == "Dungeon":
+            if mode in DUNGEON_M:
                 exp_gain = d_exp_gain * 4
-            if mode == "Tales":
+            if mode in TALE_M:
                 exp_gain = t_exp_gain * 4
+            if mode in BOSS_M:
+                exp_gain = b_exp_gain * 4
             if mode == "Purchase":
                 exp_gain = lvl_req
         else:
-            if mode == "Dungeon":
+            if mode in DUNGEON_M:
                 exp_gain = d_exp_gain
-            if mode == "Tales":
+            if mode in TALE_M:
                 exp_gain = t_exp_gain
+            if mode in BOSS_M:
+                exp_gain = b_exp_gain 
             if mode == "Purchase":
                 exp_gain = lvl_req
 
@@ -953,13 +960,25 @@ async def cardlevel(user, card: str, player, mode: str, universe: str):
                 filter_query = [{'type.' + "CARD": str(card)}]
                 response = db.updateVault(query, update_query, filter_query)
                 await user.send(f"**{card}** leveled up!")
+        
 
-        if lvl < 999 and lvl >= 200 and has_universe_heart:
+        if lvl < 500 and lvl >= 200 and has_universe_heart:
             if guild_buff:
                 if guild_buff['Level']:
-                    exp_gain = 150
+                    exp_gain = round(lvl_req)
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-
+        elif lvl < 700 and lvl >= 500 and has_universe_heart:
+            if guild_buff:
+                if guild_buff['Level']:
+                    exp_gain = round(lvl_req/2)
+                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+                    
+        elif lvl < 1000 and lvl >= 700 and has_universe_heart:
+            if guild_buff:
+                if guild_buff['Level']:
+                    exp_gain = round(lvl_req/3)
+                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+        if lvl > 200 and has_universe_heart:
             # Experience Code
             if exp < (lvl_req - 1):
                 query = {'DID': str(player)}
@@ -968,7 +987,7 @@ async def cardlevel(user, card: str, player, mode: str, universe: str):
                 response = db.updateVault(query, update_query, filter_query)
 
             # Level Up Code
-            if exp >= (lvl_req - exp_gain):
+            if exp >= (lvl_req - exp_gain) and lvl <1000:
                 if (lvl + 1) % 2 == 0:
                     atk_def_buff = 1
                 if (lvl + 1) % 3 == 0:
