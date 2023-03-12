@@ -347,9 +347,9 @@ class Profile(commands.Cog):
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                         embedVar.set_image(url="attachment://image.png")
                         if c.card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nVeterans Buff: {trebirth_message} | {drebirth_message}")
+                            embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}")
                         else:
-                            embedVar.set_footer(text=f"Max Level\nVeterans Buff: {trebirth_message} | {drebirth_message}")
+                            embedVar.set_footer(text=f"Max Level")
                         embedVar.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                         
                         await ctx.send(embed=embedVar)
@@ -372,9 +372,9 @@ class Profile(commands.Cog):
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
                         if c.card_lvl != 999:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nVeterans Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
+                            embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
                         else:
-                            embedVar.set_footer(text=f"Max Level\nVeterans Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
+                            embedVar.set_footer(text=f"Max Level\n♾️ | {c.set_trait_message()}")
                         
                         await ctx.send(file=card_file, embed=embedVar)
                 except Exception as ex:
@@ -6329,9 +6329,9 @@ async def menubuild(self, ctx):
                     embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_image(url="attachment://image.png")
                     if c.card_lvl != 999:
-                        embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nVeterans Buff: {trebirth_message} | {drebirth_message}")
+                        embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}")
                     else:
-                        embedVar.set_footer(text=f"Max Level\nVeterans Buff: {trebirth_message} | {drebirth_message}")
+                        embedVar.set_footer(text=f"Max Level")
                     embedVar.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                     
                     await ctx.send(embed=embedVar)
@@ -6354,9 +6354,9 @@ async def menubuild(self, ctx):
                     """))
                     embedVar.set_thumbnail(url=ctx.author.avatar_url)
                     if c.card_lvl != 999:
-                        embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nVeterans Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
+                        embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
                     else:
-                        embedVar.set_footer(text=f"Max Level\nVeterans Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
+                        embedVar.set_footer(text=f"Max Level\n♾️ | {c.set_trait_message()}")
                     
                     await ctx.send(file=card_file, embed=embedVar)
             except Exception as ex:
