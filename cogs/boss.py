@@ -41,7 +41,7 @@ class Boss(commands.Cog):
             userinfo = db.queryUser({"DID" : str(ctx.author.id)})
             prestige = int(userinfo['PRESTIGE'])
             prestigebonus = int(prestige) * 10
-            prestigemark = int(101 - int(prestigebonus))
+            prestigemark = int(100 - int(prestigebonus))
             prestige = prestige + 1
             
             
