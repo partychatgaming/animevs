@@ -2873,12 +2873,10 @@ class Card:
                 if self.move4enh in crown_utilities.Stamina_Enhancer_Check or self.move4enh in crown_utilities.Time_Enhancer_Check or self.move4enh in crown_utilities.Control_Enhancer_Check:
                     self.stamina = self.stamina
 
-                if self.move4enh in ['RAGE','BRACE','GROWTH']:
-                    if self.card_lvl_ap_buff >= 1000 + self.card_lvl:
-                        battle_config.add_battle_history_message(f"(**🦠**) **{self.name}**: reached their full power!")
-                elif self.move4enh in ['FEAR']:
-                    if opponent_card.card_lvl_ap_buff <= 0:
-                        battle_config.add_battle_history_message(f"(**🦠**) **{opponent_card.name}**: is at minimal power!")
+                if self.move4enh in ['RAGE','BRACE','GROWTH'] and self.card_lvl_ap_buff >= 1000 + self.card_lvl:
+                    battle_config.add_battle_history_message(f"(**🦠**) **{self.name}**: reached their full power!")
+                elif self.move4enh in ['FEAR'] and opponent_card.card_lvl_ap_buff <= 0:
+                    battle_config.add_battle_history_message(f"(**🦠**) **{opponent_card.name}**: is at minimal power!")
                 else:
                     battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}**: 🦠 {dmg['MESSAGE']}")
                 if opponent_card.health <= 0:
