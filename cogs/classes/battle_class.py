@@ -1572,6 +1572,10 @@ class Battle:
             close_message = "Scenario Battle"
             picon = "📹"
             f_message = f"💀 | Scenario Battle Ended."
+        if self.is_raid_game_mode:
+            close_message = "Raid Battle"
+            picon = "⛩️"
+            f_message = f"💀 | Unsuccessful Raid."
             
             
 
