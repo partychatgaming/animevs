@@ -1520,7 +1520,7 @@ class Card:
                 "WAVE": lambda ap: ap if battle_config.is_turn == 0 else (ap if battle_config.turn_total % 10 == 0 else ap / battle_config.turn_total),
                 "BLAST": lambda ap: ap if battle_config.is_turn == 0 else min(round(ap * battle_config.turn_total), 100 * self.tier),
                 "CREATION": lambda ap: ap if battle_config.is_turn == 0 else (ap if battle_config.turn_total % 10 == 0 else (ap * 2 if battle_config.turn_total == round(random.randint(2, 50)) else ap / battle_config.turn_total)),
-                "DESTRUCTION": lambda ap: ap if battle_config.is_turn == 0 else min(round(ap * battle_config.turn_total)), 
+                "DESTRUCTION": lambda ap: ap if battle_config.is_turn == 0 else min(round(ap * battle_config.turn_total), 100 * self.tier), 
             }
 
 
