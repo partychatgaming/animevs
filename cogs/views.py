@@ -638,7 +638,7 @@ async def viewcard(self, ctx, data):
             if d['PERFORMANCE']:
                 embedVar = discord.Embed(title=f"{c.card_icon} {c.price_message} {c.name}", description=textwrap.dedent(f"""\
                 :mahjong: {c.tier}
-                🥋 {c.card_class}
+                🥋 {c.class_message}
                 ❤️ {c.max_health}
                 🗡️ {c.attack}
                 🛡️ {c.defense}
@@ -666,7 +666,7 @@ async def viewcard(self, ctx, data):
                 {c.card_icon} {c.price_message}
                 
                 Passive & Universe Trait
-                🥋 {c.card_class}
+                🥋 {c.class_message}
                 🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
                 ♾️ {c.set_trait_message()}
                 🏃 {c.speed}
