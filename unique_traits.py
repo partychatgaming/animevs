@@ -69,7 +69,7 @@ traits = [{
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',
-    'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Spirit :  On focus, heal for opponent Stamina amount + turn count.'
+    'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Spirit :  On Focus, heal for opponent Stamina amount + turn count.'
 },{
     'NAME': 'Persona',
     'EFFECT': 'Summon Persona, Summoners Battle',
@@ -81,7 +81,7 @@ traits = [{
 },{
     'NAME': 'One Piece',
     'EFFECT': 'Haki : Tier Based Trait',
-    'TRAIT': 'Observation: 1-7: Before Focus: 40% DMG Reduction. Armament: 4-7: 2x Focus Stacking.Conquerors: 6-7:Resolve, Decrease OPP AP by 150'
+    'TRAIT': 'Observation: 1-7: 40% DMG Reduction. Armament: 4-7: 2x Focus. Conquerors: 6-7 Decrease OPP AP by 150'
 },{
     'NAME': 'Crown Rift Slayers',
     'EFFECT': 'Feint Attack, Spiritual Weapons',

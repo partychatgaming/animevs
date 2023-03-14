@@ -316,20 +316,31 @@ async def animevs(ctx):
    Buy and equip better Items to Conquer the Multiverse!
    """), colour=0x7289da)
    embedVar2.set_thumbnail(url=avatar)
+   
+   class_embed = discord.Embed(title= f"Cards", description=textwrap.dedent(f"""\
+   Players begin with 3 cards from the **Starter Universes**.
+   
+   The Title **Starter** and the Arm **Stock** are equipped.
+   
+   Your first Summon **Chick** will be joining as well!
+      
+   Play **Single Player** and **Multiplayer** Modes to earn :coin:
+   Buy and equip better Items to Conquer the Multiverse!
+   """), colour=0x7289da)
+   embedVar2.set_thumbnail(url=avatar)
 
    embedVar3 = discord.Embed(title= f"Card Mechanics", description=textwrap.dedent(f"""\
-   **Card Class**
-   Your Class determines how you enter the battle::
-   Assasin // First 3 Attack cost 0 Stamina
-   Fighter // Starts each fight with 3 Parrys
-   Mage // Increases elemental damage by 30%
-   Tank // Starts each fight with Rarity * 200 Shield
-   Ranger // Starts each fight with 3 barriers
-   Healer // Stores 20% of damage taken and heals for the total amount each focus   
-   
-      
    **Card Stats** 
    Health (**HLT**) Stamina (**STAM**) Attack (**ATK**) Defense(**DEF**)
+   
+   🥋 **Card Class**
+   Your Class determines how you enter the battle:
+   🥷 *Assasin* // First 3 Attack cost 0 Stamina
+   :person_fencing: *Fighter* // Starts each fight with 3 Parrys
+   :woman_mage: *Mage* // Increases elemental damage by 30%
+   :man_supervillain: *Tank* // Starts each fight with Rarity * 200 Shield
+   :woman_elf: *Ranger* // Starts each fight with 3 barriers
+   :woman_scientist: *Healer* // Stores 20% of damage taken and heals for the total amount each Focus   
 
    **Cards Have 5 Abilities** 
    3 Attack Moves
@@ -343,7 +354,7 @@ async def animevs(ctx):
    ☄️ Special Attack _uses 30 stamina_
    🏵️ Ultimate Attack _uses 80 stamina_
    
-   🔅**Elemeental Damage**
+   🔅**Elemental Damage**
    Attacks have bonus effects based on the 🔅**Element** Type
    Use /help to find information on **Elements**
    
@@ -359,7 +370,7 @@ async def animevs(ctx):
    
    embedVar11 = discord.Embed(title= f"Card Types", description=textwrap.dedent(f"""                                                                           
    🎴 **Universe Cards** - Purchasable in the **Shop** and Drops in **Tales**
-   🃏 **Card Skins** - in the **Craft**
+   🃏 **Card Skins** - Create in the **/craft**
    🔥 **Dungeon Cards** - Drops in **Dungeons**
    ✨ **Destiny Cards** - Earned via **Destinies**
    👹 **Boss Cards** - Exchange for **Boss Souls**
@@ -483,7 +494,7 @@ async def animevs(ctx):
    Once in **Focus State** players can **Resolve**!
    **Resolved Characters** transform to greatly increase attack and health while sacrificing defense.
    **Resolved Characters** can call on Summons to aid them in battle.
-   ⚡ Resolve _uses 1 turn_. You no longer stack focus Stats
+   ⚡ Resolve _uses 1 turn_. You no longer stack Focus Stats
 
    **Summon Assistance!**
    Summons Enhancers can either boost your stats or inflict status effects on your opponent. Summon moves do not end the player turn!
