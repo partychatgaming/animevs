@@ -1983,6 +1983,8 @@ class Card:
                     battle_config.add_battle_history_message(f"*(🌀) {self.name}\n+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
+            elif self.used_resolve and self.universe != "Crown Rift Madness":
+                battle_config.add_battle_history_message(f"*(🌀) {self.name}\n+:heart:{health_calculation}*")
                 
                 
 
