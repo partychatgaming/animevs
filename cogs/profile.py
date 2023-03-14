@@ -4656,8 +4656,9 @@ class Profile(commands.Cog):
                     embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
                     {icon} **[{index}]** 
                     {card_tier}: {lvl}
-                    :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{resp['SPD']}**
                     🥋 {resp["CLASS"].title()}
+                    :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{resp['SPD']}**
+                    
                     {move1_emoji} **{move1}:** {move1ap}
                     {move2_emoji} **{move2}:** {move2ap}
                     {move3_emoji} **{move3}:** {move3ap}
