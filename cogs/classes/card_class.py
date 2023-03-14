@@ -3175,7 +3175,7 @@ class Card:
             battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} reaped {str(round(dmg['DMG'] * .45))} Health from {opponent_card.name}*")
 
         elif dmg['ELEMENT'] == "LIGHT":
-            # self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
+            self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
             self.attack = self.attack + (dmg['DMG'] * .50)
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {round((dmg['DMG'] * .80))} ATK*")
