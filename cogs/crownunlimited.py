@@ -1868,7 +1868,7 @@ async def cardlist(self, ctx: SlashContext, universe: str):
             title=f":flower_playing_cards: {universe_data['TITLE']} Card List",
             description="\n".join(cards_broken_up[i]), colour=0x7289da)
         globals()['embedVar%s' % i].set_footer(
-            text=f"{total_cards} Total Cards\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔵 Destiny Line\n🟠 Scenario Drop\n⚪ Skin\n/view *Card Name* `🎴 It's A Card`")
+            text=f"{total_cards} Total Cards\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔵 Destiny Line\n🟠 Scenario Drop\n⚪ Skin\n/view [Card Name]")
         embed_list.append(globals()['embedVar%s' % i])
 
     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -1947,7 +1947,7 @@ async def titlelist(self, ctx: SlashContext, universe: str):
                                                     description="\n".join(titles_broken_up[i]), colour=0x7289da)
         # globals()['embedVar%s' % i].set_thumbnail(url={universe_data['PATH']})
         globals()['embedVar%s' % i].set_footer(
-            text=f"{total_titles} Total Titles\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n/view *Title Name* `🎗️ It's A Title` - View Title Details")
+            text=f"{total_titles} Total Titles\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n/view [Title Name]")
         embed_list.append(globals()['embedVar%s' % i])
 
     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -2034,7 +2034,7 @@ async def armlist(self, ctx: SlashContext, universe: str):
         globals()['embedVar%s' % i] = discord.Embed(title=f"🦾 {universe_data['TITLE']} Arms List",
                                                     description="\n".join(arms_broken_up[i]), colour=0x7289da)
         globals()['embedVar%s' % i].set_footer(
-            text=f"{total_arms} Total Arms\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n /view *Arm Name* `🦾Its' An Arm`")
+            text=f"{total_arms} Total Arms\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n /view [Arm Name]")
         embed_list.append(globals()['embedVar%s' % i])
 
     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -2169,7 +2169,7 @@ async def summonlist(self, ctx: SlashContext, universe: str):
         globals()['embedVar%s' % i] = discord.Embed(title=f"🧬 {universe_data['TITLE']} Summon List",
                                                     description="\n".join(pets_broken_up[i]), colour=0x7289da)
         globals()['embedVar%s' % i].set_footer(
-            text=f"{total_pets} Total Summons\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n/view *Summon Name* `:dna: It's A Summon`")
+            text=f"{total_pets} Total Summons\n🟢 Tale Drop\n🟣 Dungeon Drop\n🔴 Boss Drop\n/view [Summon Name]")
         embed_list.append(globals()['embedVar%s' % i])
 
     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
@@ -2388,13 +2388,11 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
         available_dungeons_list = "\n".join(l)
         if p.boss_fought:
             boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
-            __🗝️  How to get Arena Keys?__
-            Conquer any Universe Dungeon to gain a Boss Arena Key
-
-            ☀️ | You also earn 1 Boss Key per /daily !
-
-            __🌍 Available Universe Dungeons__
-            {available_dungeons_list}
+            \n__How to get Boss Arena Keys?__
+            \nConquer any Universe Dungeon to gain a Boss Arena Key
+            \n☀️ | You also earn 1 Boss Key per /daily !
+            \n__🌍 Available Universe Dungeons__
+            \n{available_dungeons_list}
             """))
             boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
             # embedVar.set_footer(text="Use /tutorial")
@@ -3045,13 +3043,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             summon_response = player1_card.usesummon(battle_config, player2_card)
                                             
                                             if not player1.performance and summon_response['CAN_USE_MOVE']:
-                                                await battle_msg.delete(delay=2)
-                                                tsummon_file = showsummon(player1_card.summon_image, player1_card.summon_name, summon_response['MESSAGE'], player1_card.summon_lvl, player1_card.summon_bond)
-                                                embedVar.set_image(url="attachment://pet.png")
-                                                await asyncio.sleep(2)
-                                                battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
-                                                await asyncio.sleep(2)
-                                                await battle_msg.delete(delay=2)
+                                                if not battle_config.is_auto_battle_game_mode:
+                                                    await battle_msg.delete(delay=2)
+                                                    tsummon_file = showsummon(player1_card.summon_image, player1_card.summon_name, summon_response['MESSAGE'], player1_card.summon_lvl, player1_card.summon_bond)
+                                                    embedVar.set_image(url="attachment://pet.png")
+                                                    await asyncio.sleep(2)
+                                                    battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                    await asyncio.sleep(2)
+                                                    await battle_msg.delete(delay=2)
 
                                         elif battle_config.is_co_op_mode:
                                             if button_ctx.custom_id == "7":
@@ -3102,9 +3101,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
                                         else:
                                             await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
-                                        # if not battle_config.is_abyss_game_mode and not battle_config.is_scenario_game_mode and not battle_config.is_explore_game_mode and not battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
-                                        #     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-                                        #     await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                         await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
                                         return
                                     except Exception as ex:
@@ -3353,6 +3349,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode:
                                     if battle_config.is_auto_battle_game_mode:
                                         embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
+                                        
                                         if battle_msg is None:
                                             # If the message does not exist, send a new message
                                             battle_msg = await private_channel.send(embed=embedVar, components=[])
@@ -3397,18 +3394,32 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if battle_config.is_co_op_mode:
                                                 if player3_card.used_defend == True:
                                                     summon_response = player2_card.usesummon(battle_config, player3_card)
-                                                    if not player1.performance and summon_response['CAN_USE_MOVE'] and not battle_config.is_auto_battle_game_mode:
-                                                        await battle_msg.delete(delay=2)
-                                                        tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
-                                                        embedVar.set_image(url="attachment://pet.png")
-                                                        await asyncio.sleep(2)
-                                                        battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
-                                                        await asyncio.sleep(2)
-                                                        await battle_msg.delete(delay=2)
+                                                    if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                        if not battle_config.is_auto_battle_game_mode:
+                                                            await battle_msg.delete(delay=2)
+                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            embedVar.set_image(url="attachment://pet.png")
+                                                            await asyncio.sleep(2)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            await asyncio.sleep(2)
+                                                            await battle_msg.delete(delay=2)
 
                                                 else:
                                                     summon_response = player2_card.usesummon(battle_config, player1_card)
                                                     if not player1.performance and summon_response['CAN_USE_MOVE'] and not battle_config.is_auto_battle_game_mode:
+                                                        if not battle_config.is_auto_battle_game_mode:
+                                                            await battle_msg.delete(delay=2)
+                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            embedVar.set_image(url="attachment://pet.png")
+                                                            await asyncio.sleep(2)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            await asyncio.sleep(2)
+                                                            await battle_msg.delete(delay=2)
+
+                                            else:
+                                                summon_response = player2_card.usesummon(battle_config, player1_card)
+                                                if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                    if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
                                                         tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                         embedVar.set_image(url="attachment://pet.png")
@@ -3416,17 +3427,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
-
-                                            else:
-                                                summon_response = player2_card.usesummon(battle_config, player1_card)
-                                                if not player1.performance and summon_response['CAN_USE_MOVE']:
-                                                    await battle_msg.delete(delay=2)
-                                                    tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
-                                                    embedVar.set_image(url="attachment://pet.png")
-                                                    await asyncio.sleep(2)
-                                                    battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
-                                                    await asyncio.sleep(2)
-                                                    await battle_msg.delete(delay=2)
 
                                         else:
                                             battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
@@ -3603,13 +3603,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 summon_response = player3_card.usesummon(battle_config, player2_card)
                                                 
                                                 if not player3.performance and summon_response['CAN_USE_MOVE']:
-                                                    await battle_msg.delete(delay=2)
-                                                    tsummon_file = showsummon(player3_card.summon_image, player3_card.summon_name, summon_response['MESSAGE'], player3_card.summon_lvl, player3_card.summon_bond)
-                                                    embedVar.set_image(url="attachment://pet.png")
-                                                    await asyncio.sleep(2)
-                                                    battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
-                                                    await asyncio.sleep(2)
-                                                    await battle_msg.delete(delay=2)
+                                                    if not battle_config.is_auto_battle_game_mode:
+                                                        await battle_msg.delete(delay=2)
+                                                        tsummon_file = showsummon(player3_card.summon_image, player3_card.summon_name, summon_response['MESSAGE'], player3_card.summon_lvl, player3_card.summon_bond)
+                                                        embedVar.set_image(url="attachment://pet.png")
+                                                        await asyncio.sleep(2)
+                                                        battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                        await asyncio.sleep(2)
+                                                        await battle_msg.delete(delay=2)
                                             
                                         
                                                 
@@ -3629,8 +3630,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "8" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                         except asyncio.TimeoutError:
+                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                             await battle_msg.delete()
-                                            #await battle_msg.edit(components=[])
                                             if not any((battle_config.is_abyss_game_mode, 
                                                         battle_config.is_scenario_game_mode, 
                                                         battle_config.is_explore_game_mode, 
@@ -3645,14 +3646,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
                                             else:
                                                 await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
-                                            # await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-                                            # await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                                             await ctx.author.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
                                             await ctx.send(f"{ctx.author.mention} your game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off.")
-                                            # await discord.TextChannel.delete(private_channel, reason=None)
-                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
-                                            # player3_card.health = 0
-                                            # o_health = 0
+                                            
                                         except Exception as ex:
                                             trace = []
                                             tb = ex.__traceback__
@@ -3743,17 +3739,31 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player3_card.used_defend == True:
                                                     summon_response = player2_card.usesummon(battle_config, player1_card)
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
-                                                        await battle_msg.delete(delay=2)
-                                                        tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
-                                                        embedVar.set_image(url="attachment://pet.png")
-                                                        await asyncio.sleep(2)
-                                                        battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
-                                                        await asyncio.sleep(2)
-                                                        await battle_msg.delete(delay=2)
+                                                        if not battle_config.is_auto_battle_game_mode:
+                                                            await battle_msg.delete(delay=2)
+                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            embedVar.set_image(url="attachment://pet.png")
+                                                            await asyncio.sleep(2)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            await asyncio.sleep(2)
+                                                            await battle_msg.delete(delay=2)
 
                                                 else:
                                                     summon_response = player2_card.usesummon(battle_config, player3_card)
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                        if not battle_config.is_auto_battle_game_mode:
+                                                            await battle_msg.delete(delay=2)
+                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            embedVar.set_image(url="attachment://pet.png")
+                                                            await asyncio.sleep(2)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            await asyncio.sleep(2)
+                                                            await battle_msg.delete(delay=2)
+
+                                            else:
+                                                summon_response = player2_card.usesummon(battle_config, player3_card)
+                                                if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                    if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
                                                         tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                         embedVar.set_image(url="attachment://pet.png")
@@ -3761,17 +3771,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
-
-                                            else:
-                                                summon_response = player2_card.usesummon(battle_config, player3_card)
-                                                if not player1.performance and summon_response['CAN_USE_MOVE']:
-                                                    await battle_msg.delete(delay=2)
-                                                    tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
-                                                    embedVar.set_image(url="attachment://pet.png")
-                                                    await asyncio.sleep(2)
-                                                    battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
-                                                    await asyncio.sleep(2)
-                                                    await battle_msg.delete(delay=2)
 
                                         else:
                                             battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
@@ -3970,22 +3969,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
                                     else:
                                         await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
-                                    # if player1.autosave and battle_config.match_can_be_saved:
-                                    #     await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
-                                    # else:
-                                    #     await button_ctx.send(embed = battle_config.close_pve_embed(player1_card, player2_card))
-                                    # return
-
-                                # else:
-                                #     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                                #         loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
-                                #     else:
-                                #         loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
-                                #     await battle_msg.delete(delay=2)
-                                #     await asyncio.sleep(2)
-                                #     battle_msg = await private_channel.send(embed=loss_response)
-                                #     battle_config.continue_fighting = False
-                                #     return
+                                    break
 
                             if battle_config.player1_wins and not battle_config.is_pvp_game_mode:
                                 if any((battle_config.is_tales_game_mode, battle_config.is_dungeon_game_mode, battle_config.is_boss_game_mode)):
@@ -4426,6 +4410,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 else:
                     await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
                 await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
+                break
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__

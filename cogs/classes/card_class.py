@@ -2691,7 +2691,7 @@ class Card:
 
             if self.universe == "Bleach":
                 dmg = self.damage_cal(1, battle_config, opponent_card)
-                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** Exerted their 🩸 Spiritual Pressure - {dmg['MESSAGE']}")
+                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** Exerted their 🩸 Spiritual Pressure Executing a Basic Attack!")
                 if self.universe == "One Piece" and (self.name_tier in crown_utilities.LOW_TIER_CARDS or self.name_tier in crown_utilities.MID_TIER_CARDS or self.name_tier in crown_utilities.HIGH_TIER_CARDS):
                     if self.focus_count == 0:
                         dmg['DMG'] = dmg['DMG'] * .6
@@ -3083,7 +3083,7 @@ class Card:
             battle_config.repeat_turn()
 
 
-    def activate_element_check(self, battle_config, dmg, opponent_card):
+    def activate_element_check(self, battle_config, dmg, opponent_card,):
         if dmg['REPEL']:
             self.health = self.health - dmg['DMG']
         elif dmg['ABSORB']:

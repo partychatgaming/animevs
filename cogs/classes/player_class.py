@@ -311,14 +311,12 @@ class Player:
 
         if not universe_embed_list:
             universe_embed_list = discord.Embed(title= f"👹 There are no available Bosses at this time.", description=textwrap.dedent(f"""
-            __👹 How to unlock Bosses?__
-            You unlock Bosses by completing the Universe Dungeon. Once a Dungeon has been completed the boss for that universe will be unlocked for you to fight!
-            
-            A Boss Key is required to Enter the Boss Arena.
-            Earn Boss Keys by completing any Universe Dungeon
-
-            __🌍 Available Universe Dungeons__
-            {available_dungeons_list}
+            \n__How to unlock Bosses?__
+            \nYou unlock Bosses by completing the Universe Dungeon. Once a Dungeon has been completed the boss for that universe will be unlocked for you to fight!
+            \n🗝️ | A Boss Key is required to Enter the Boss Arena.
+            \nEarn Boss Keys by completing any Universe Dungeon.
+            \n__🌍 Available Universe Dungeons__
+            \n{available_dungeons_list}
             """))
             # embedVar.set_image(url=boss_info['PATH'])
             universe_embed_list.set_thumbnail(url=ctx.author.avatar_url)
@@ -346,6 +344,13 @@ class Player:
             mode_check = "HAS_CROWN_TALES"
             completed_check = self.completed_tales
             all_universes = ""
+            if mode in crown_utilities.DUNGEON_M and self.level <= 40:
+                universe_embed_list = discord.Embed(title= f"🔥 Dungeon Locked.", description=textwrap.dedent(f"""
+                \n__How to unlock Dungeons?__
+                \nYou unlock Bosses by completing floor 40 of :new_moon: The Abyss. Once a Tale has been completed the Dungeon for that universe will be unlocked for you to fight!
+                \nDungeons offer rarer item drops and Summons.
+                \nAssoicatied players can earn Universe Crest by completing Dungeons granting their Assocaition additional Gold.
+                """))
             
             prestige_slider = 0
             p_message = ""
