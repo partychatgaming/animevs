@@ -521,6 +521,10 @@ class Card:
             if self.card_class == "HEALER":
                 self._heal_active = True
                 self._heal_value = 0
+            
+            if self.card_class == "ASSASsIN":
+                self._assassin_active = True
+
 
             
 
