@@ -4402,14 +4402,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             battle_config.is_tutorial_game_mode,
                             battle_config.is_boss_game_mode)):
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
-                    await ctx.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
+                    await private_channel.send(embed = battle_config.saved_game_embed(player1_card,player2_card))
                 elif any((battle_config.is_pvp_game_mode, 
                             battle_config.is_tutorial_game_mode
                                         )):
-                    await ctx.send(embed = battle_config.close_pvp_embed(player1,player2))
+                    await private_channel.send(embed = battle_config.close_pvp_embed(player1,player2))
                 else:
-                    await ctx.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
-                await ctx.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
+                    await private_channel.send(embed = battle_config.close_pve_embed(player1_card,player2_card))
+                await private_channel.send(f"{ctx.author.mention} {battle_config.error_end_match_message()}")
                 break
             except Exception as ex:
                 trace = []
