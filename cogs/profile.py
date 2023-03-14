@@ -323,7 +323,7 @@ class Profile(commands.Cog):
                     if player.performance:
                         embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                         :mahjong: | **{c.tier}**
-                        🥋 | **{c.card_class}**
+                        🥋 | **{c.class_message}**
                         ❤️ | **{c.max_health}**
                         🗡️ | **{c.attack}**
                         🛡️ | **{c.defense}**

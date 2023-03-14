@@ -192,6 +192,7 @@ class Card:
             self.scheduled_death_message = False
             self.focus_icon = "❤️"
             self.resolve_icon = "🌀"
+            self.class_message = self.card_class.title()
             
 
             # Talisman Info
@@ -513,7 +514,9 @@ class Card:
             
             if self.card_class == "TANK":
                 self._shield_active = True
-                self._shield_value = self._shield_value + (self.tier * 150)
+                self._shield_value = self._shield_value + (self.tier * 200)
+                if self.tier == 7:
+                    self._shield_value + 1500
             
             if self.card_class == "HEALER":
                 self._heal_active = True
