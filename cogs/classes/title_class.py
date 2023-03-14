@@ -20,6 +20,9 @@ class Title:
         self.type2_message = ""
         self.message = ""
         self.pokemon_title = False
+        self.active_message_sent = False
+        self.region_trait = False
+        self.title_active = False
 
         self.title_message = f"⚠️ | {self.name} ~ INEFFECTIVE"
         if self.universe in crown_utilities.pokemon_universes:
@@ -204,9 +207,30 @@ class Title:
             self.message = f"During Focus, **{self.type_message}** equal **{self.passive_value}**"
         
         return self.message
+    
+    def title_active_check(self, player_card):
+        if self.universe == "Unbound":
+            self.title_active = True
+        elif player_card.universe == "Crown Rift Awakening":
+            self.title_active = True
+        elif (self.universe in crown_utilities.pokemon_universes and player_card.universe in crown_utilities.pokemon_universes):
+            self.region_trait = True
+            self.title_active = True
+        elif self.universe == player_card.universe:
+            self.title_active = True
+        else:
+            self.title_active = False
+            
+             
 
 
     def activate_title_passive(self, battle, player1_card, player2_card, player3_card=None):
+        active = self.title_active_check(player1_card)
+        if not self.title_active:
+            if not self.active_message_sent:
+                self.active_message_sent = True
+                battle.add_battle_history_message(f"(**⚠️**) **Titleless** : {player1_card.name} cannot equip  **{self.name}**")
+            return
         if self.passive_type:
             if self.passive_type == "HLT":
                 if player1_card.max_health > player1_card.health + ((self.passive_value / 100) * player1_card.health):

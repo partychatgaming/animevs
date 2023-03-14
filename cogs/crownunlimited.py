@@ -4777,7 +4777,7 @@ def update_arm_durability(self, player, player_arm, player_card):
                     db.updateUserNoFilter({'DID': str(player.did)},
                                           {'$set': {'ARM': 'Stock'}})
                     player.equipped_arm = "Stock"
-                    return f"**{player_arm.name}** dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm is now **stock**"
+                    return f"**{player_arm.name}** dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm is now **Stock**"
                 else:                   
                     query = {'DID': str(player.did)}
                     update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}

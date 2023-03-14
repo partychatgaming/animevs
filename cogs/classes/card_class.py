@@ -108,6 +108,8 @@ class Card:
             self.temp_opp_parry_value = 0
             self.solo_leveling_trait_swapped = False
             self.solo_leveling_trait_active = False
+            self.haki_message = False
+            self.breathing_message = False
 
             # Elemental Effect Meters
             self.burn_dmg = 0
@@ -921,15 +923,17 @@ class Card:
 
 
     def activate_demon_slayer_trait(self, battle_config, opponent_card):
-        if self.universe == "Demon Slayer" and battle_config.turn_total == 0 and not battle_config.turn_zero_has_happened:
+        if self.universe == "Demon Slayer" and not self.breathing_message:
             battle_config.turn_zero_has_happened = True
+            self.breathing_message = True
             battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
             
     def activate_observation_haki_trait(self, battle_config, opponent_card):
-        if self.universe == "One Piece" and battle_config.turn_total == 0 and not battle_config.turn_zero_has_happened:
+        if self.universe == "One Piece" and not self.haki_message:
             battle_config.turn_zero_has_happened = True
+            self.haki_message = True
             battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Observation Haki: **40% Damage Reduction Until First Focus!**")
 
     
@@ -997,9 +1001,9 @@ class Card:
 
 
     def set_deathnote_message(self, battle_config):
-        if battle_config.turn_total == 0 and not self.scheduled_death_message:
-            battle_config.scheduled_death_message = True
+        if not self.scheduled_death_message:
             if self.universe == "Death Note":
+                self.scheduled_death_message = True
                 battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {24 + (self.tier * 24)}**")
 
 
