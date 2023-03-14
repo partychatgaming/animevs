@@ -1966,6 +1966,16 @@ BOSS_TACTICS = [
     'BLOODLUST'
 ]
 
+
+class_emojis = {
+    'TANK': '<:NewUI_Class_Guardian:1085080855174725682>',
+    'HEALER': '<:healer40:1085069588015874058>',
+    'FIGHTER': '<:NewUI_Class_Warrior:1085080858358198323>',
+    'ASSASSIN': '<:NewUI_Class_Assassin:1085080857225728020>',
+    'MAGE': '<:NewUI_Class_Mage:1085070773007421451>',
+    'RANGER': '<:NewUI_Class_Hunter:1085081189708210196>',
+}
+
 Healer_Enhancer_Check = ['HLT', 'LIFE']
 DPS_Enhancer_Check = ['FLOG', 'WITHER']
 INC_Enhancer_Check = ['ATK', 'DEF']

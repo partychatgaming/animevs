@@ -323,7 +323,7 @@ class Profile(commands.Cog):
                     if player.performance:
                         embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                         :mahjong: | **{c.tier}**
-                        🥋 | **{c.class_message}**
+                        {crown_utilities.class_emojis[c.card_class]} | **{c.class_message}**
                         ❤️ | **{c.max_health}**
                         🗡️ | **{c.attack}**
                         🛡️ | **{c.defense}**
@@ -360,6 +360,7 @@ class Profile(commands.Cog):
 
                         embedVar = discord.Embed(title=f"".format(self), colour=000000)
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
+                        embedVar.add_field(name="__Class__", value=f"{crown_utilities.class_emojis[c.card_class]} {c.class_message}", inline=False)
                         embedVar.set_image(url="attachment://image.png")
                         embedVar.set_author(name=textwrap.dedent(f"""\
                         __Equipment__
@@ -369,7 +370,6 @@ class Profile(commands.Cog):
                         {player.summon_power_message}
                         {player.summon_lvl_message}
                         __Passives__
-                        🥋 | {c.class_message}
                         🩸 | {c.passive_name}      
                         🏃 | {c.speed}
                         """))
@@ -6527,7 +6527,7 @@ async def menubuild(self, ctx):
                 if player.performance:
                     embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                     :mahjong: | **{c.tier}**
-                    🥋 | **{c.class_message}**
+                    {crown_utilities.class_emojis[c.card_class]} | **{c.class_message}**
                     ❤️ | **{c.max_health}**
                     🗡️ | **{c.attack}**
                     🛡️ | **{c.defense}**
@@ -6563,6 +6563,7 @@ async def menubuild(self, ctx):
                     card_file = c.showcard("non-battle", a, t, 0, 0)
 
                     embedVar = discord.Embed(title=f"".format(self), colour=000000)
+                    embedVar.add_field(name="__Class__", value=f"{crown_utilities.class_emojis[c.card_class]} {c.class_message}", inline=False)
                     embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_image(url="attachment://image.png")
                     embedVar.set_author(name=textwrap.dedent(f"""\
@@ -6573,7 +6574,6 @@ async def menubuild(self, ctx):
                     {player.summon_power_message}
                     {player.summon_lvl_message}
                     __Passives__
-                    🥋 | {c.class_message}
                     🩸 | {c.passive_name}      
                     🏃 | {c.speed}
                     """))

@@ -335,12 +335,12 @@ async def animevs(ctx):
    
    🥋 **Card Class**
    Your Class determines how you enter the battle:
-   🥷 *Assasin* // First 3 Attack cost 0 Stamina
-   :person_fencing: *Fighter* // Starts each fight with 3 Parrys
-   :woman_mage: *Mage* // Increases elemental damage by 30%
-   :man_supervillain: *Tank* // Starts each fight with Rarity * 200 Shield
-   :woman_elf: *Ranger* // Starts each fight with 3 barriers
-   :woman_scientist: *Healer* // Stores 20% of damage taken and heals for the total amount each Focus   
+   {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // First 3 Attack cost 0 Stamina
+   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with 3 Parrys
+   {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by 30%
+   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Rarity * 200 Shield
+   {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with 3 barriers
+   {crown_utilities.class_emojis['HEALER']} *Healer* // Stores 20% of damage taken and heals for the total amount each Focus   
 
    **Cards Have 5 Abilities** 
    3 Attack Moves

@@ -636,9 +636,9 @@ async def viewcard(self, ctx, data):
 
             
             if d['PERFORMANCE']:
-                embedVar = discord.Embed(title=f"{c.card_icon} {c.price_message} {c.name}", description=textwrap.dedent(f"""\
+                embedVar = discord.Embed(title=f"{c.card_icon} {c.price_message} {c.name} [{crown_utilities.class_emojis[c.card_class]}]", description=textwrap.dedent(f"""\
                 :mahjong: {c.tier}
-                🥋 {c.class_message}
+                {crown_utilities.class_emojis[c.card_class]} {c.class_message}
                 ❤️ {c.max_health}
                 🗡️ {c.attack}
                 🛡️ {c.defense}
@@ -660,13 +660,13 @@ async def viewcard(self, ctx, data):
             else:
                 embedVar = discord.Embed(title=f"", colour=000000)
                 embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
+                embedVar.add_field(name="__Class__", value=f"{crown_utilities.class_emojis[c.card_class]} {c.class_message}", inline=False)
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=c.set_universe_image())
                 embedVar.set_author(name=textwrap.dedent(f"""\
                 {c.card_icon} {c.price_message}
                 
                 Passive & Universe Trait
-                🥋 {c.class_message}
                 🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
                 ♾️ {c.set_trait_message()}
                 🏃 {c.speed}
