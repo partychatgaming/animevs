@@ -4656,7 +4656,6 @@ class Profile(commands.Cog):
                     embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
                     {icon} **[{index}]** 
                     {card_tier}: {lvl}
-                    🥋 {c.class_message}
                     :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{resp['SPD']}**
 
                     {move1_emoji} **{move1}:** {move1ap}
@@ -6857,7 +6856,6 @@ async def menucards(self, ctx):
                 embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
                 {icon} **[{index}]** 
                 {card_tier}: {lvl}
-                🥋 {c.class_message}
                 :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{resp['SPD']}**
 
                 {move1_emoji} **{move1}:** {move1ap}
