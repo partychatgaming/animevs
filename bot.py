@@ -318,6 +318,16 @@ async def animevs(ctx):
    embedVar2.set_thumbnail(url=avatar)
 
    embedVar3 = discord.Embed(title= f"Card Mechanics", description=textwrap.dedent(f"""\
+   **Card Class**
+   Your Class determines how you enter the battle::
+   Assasin // First 3 Attack cost 0 Stamina
+   Fighter // Starts each fight with 3 Parrys
+   Mage // Increases elemental damage by 30%
+   Tank // Starts each fight with Rarity * 200 Shield
+   Ranger // Starts each fight with 3 barriers
+   Healer // Stores 20% of damage taken and heals for the total amount each focus   
+   
+      
    **Card Stats** 
    Health (**HLT**) Stamina (**STAM**) Attack (**ATK**) Defense(**DEF**)
 

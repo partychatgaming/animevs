@@ -362,12 +362,14 @@ class Profile(commands.Cog):
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                         embedVar.set_image(url="attachment://image.png")
                         embedVar.set_author(name=textwrap.dedent(f"""\
-                        {player.summon_power_message}
-                        {player.summon_lvl_message}
+                        __Equipment__
                         {t.title_message}
                         {a.arm_message}
                         {player.talisman_message}
-                        🥋 | {c.card_class}
+                        {player.summon_power_message}
+                        {player.summon_lvl_message}
+                        __Passives__
+                        🥋 | {c.class_message}
                         🩸 | {c.passive_name}      
                         🏃 | {c.speed}
                         """))
@@ -6525,7 +6527,7 @@ async def menubuild(self, ctx):
                 if player.performance:
                     embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                     :mahjong: | **{c.tier}**
-                    🥋 | **{c.card_class}**
+                    🥋 | **{c.class_message}**
                     ❤️ | **{c.max_health}**
                     🗡️ | **{c.attack}**
                     🛡️ | **{c.defense}**
@@ -6564,12 +6566,14 @@ async def menubuild(self, ctx):
                     embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_image(url="attachment://image.png")
                     embedVar.set_author(name=textwrap.dedent(f"""\
-                    {player.summon_power_message}
-                    {player.summon_lvl_message}
+                    __Equipment__
                     {t.title_message}
                     {a.arm_message}
                     {player.talisman_message}
-                    🥋 | {c.card_class}
+                    {player.summon_power_message}
+                    {player.summon_lvl_message}
+                    __Passives__
+                    🥋 | {c.class_message}
                     🩸 | {c.passive_name}      
                     🏃 | {c.speed}
                     """))

@@ -95,30 +95,30 @@ class Arm:
         if self.passive_type in move_types:
             arm_emoji = crown_utilities.set_emoji(self.element)
             if performance_mode:
-                self.arm_message = f'{arm_emoji} | {self.name}: {self.passive_type.title()} Attack: {self.passive_value} | {self.durability}'
+                self.arm_message = f'{arm_emoji} | {self.name} {self.passive_type.title()} Attack: {self.passive_value} | {self.durability}'
             else:
-                self.arm_message = f'{arm_emoji} | {self.name}: {self.durability}'
+                self.arm_message = f'{arm_emoji} | {self.name} {self.durability}'
 
         if self.universe == "Unbound" or card_universe == "Crown Rift Slayers":
             armicon = "👑"
             if performance_mode:
-                self.arm_message = f'👑 | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
+                self.arm_message = f'👑 | {self.name} {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
             else:
-                self.arm_message = f'👑 | {self.name}: {self.durability}'
+                self.arm_message = f'👑 | {self.name} {self.durability}'
 
         elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_arm==True):
             armicon = "🦾"
             if performance_mode:
-                self.arm_message = f'🦾 | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
+                self.arm_message = f'🦾 | {self.name} {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
             else:
-                self.arm_message = f'🦾 | {self.name}: {self.durability}'
+                self.arm_message = f'🦾 | {self.name} {self.durability}'
                 
         else:
             armicon = "⚠️"
             if performance_mode:
-                self.arm_message = f'⚠️ | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
+                self.arm_message = f'⚠️ | {self.name} {self.passive_type} {self.passive_value}{crown_utilities.enhancer_suffix_mapping[self.passive_type]} {self.durability}'
             else:
-                self.arm_message = f'⚠️ | {self.name}: {self.durability}'
+                self.arm_message = f'⚠️ | {self.name} {self.durability}'
 
 
 move_types = ['BASIC', 'SPECIAL', 'ULTIMATE']

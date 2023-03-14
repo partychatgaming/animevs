@@ -52,6 +52,7 @@ LEGEND = textwrap.dedent(f"""\
 **Card Basics**
 🀄 - **Card Tier** *1-7*
 🔱 - **Card Level** *1-999*
+🥋 - **Card Class**
 ❤️ - **Card Health** (HLT)
 🌀 / ⚡ - **Card Stamina** (ST)
 🗡️ - **Attack (ATK)** Blue Crystal 🟦
