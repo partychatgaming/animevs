@@ -13,7 +13,7 @@ from io import BytesIO
 
 class Card:
     try:
-        def __init__(self, name, path, price, exclusive, available, is_skin, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, type, passive, speed, universe, has_collection, tier, collection, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss):
+        def __init__(self, name, path, price, exclusive, available, is_skin, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, type, passive, speed, universe, has_collection, tier, collection, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss, card_class):
             self.name = name
             self.fpath= fpath
             self.rpath = rpath
@@ -48,8 +48,15 @@ class Card:
             self.base_defense = defense
             self.base_health = health
             self.base_max_health = max_health
+            self.card_class = card_class
 
             # Tactics
+            self._magic_active = False
+            self._magic_value = 0
+            self._heal_active = True
+            self._heal_value = 0
+            self._assassin_active = False
+            self._assassin_value = 0
             self.tactics = []
             self.max_base_health = self.max_health
             self.temporary_max_health = self.max_health
@@ -490,6 +497,28 @@ class Card:
     # This method will set the level buffs & apply them
     def set_card_level_buffs(self, list_of_card_levels=None):
         try:
+            if self.card_class == "FIGHTER":
+                self._parry_active = True
+                self._parry_value = self._parry_value + 3
+            
+            if self.card_class == "MAGE":
+                self._magic_active = True
+                self._magic_value = .30
+            
+            if self.card_class == "RANGER":
+                self._barrier_active = True
+                self._barrier_value = self._barrier_value + 3
+            
+            if self.card_class == "TANK":
+                self._shield_active = True
+                self._shield_value = self._shield_value + (self.tier * 150)
+            
+            if self.card_class == "HEALER":
+                self._heal_active = True
+                self._heal_value = 0
+
+            
+
             if list_of_card_levels:
                 for x in list_of_card_levels:
                     if x.get('CARD') == self.name:
@@ -1665,31 +1694,21 @@ class Card:
                     self.health = self.health + (.35 * true_dmg)
 
                 if _opponent_card.damage_check_activated:
-                    hit_roll = hit_roll + 3
-                    _opponent_card.damage_check_counter = _opponent_card.damage_check_counter + true_dmg
+                    hit_roll += 3
+                    _opponent_card.damage_check_counter += true_dmg
                     damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far!"
                     battle_config.add_battle_history_message(damage_check_message)
-                    _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
+                    _opponent_card.damage_check_turns -= 1
                     if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
                         damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far! Damage Check has ended!"
                         battle_config.add_battle_history_message(damage_check_message)
-                        _opponent_card.damage_check_activated = False
-                        _opponent_card.damage_check = False
-                        _opponent_card.damage_check_counter = 0
-                        _opponent_card.damage_check_limit = 0
-                        _opponent_card.damage_check_turns = 0
+                        _opponent_card.reset_damage_check()
                     elif _opponent_card.damage_check_turns == 0:
-                        damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far! It wasn't enough! A devastating blow will end your life!"
+                        damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far! {self._end_damage_check_message}"
                         battle_config.add_battle_history_message(damage_check_message)
-                        _opponent_card.damage_check_activated = False
-                        _opponent_card.damage_check = False
-                        _opponent_card.damage_check_counter = 0
-                        _opponent_card.damage_check_limit = 0
-                        _opponent_card.damage_check_turns = 0
-                        self.health = 0
-                        self.defense = 0
-                        self.attack = 0
-
+                        _opponent_card.reset_damage_check()
+                        self.health, self.defense, self.attack = 0, 0, 0
+                        
                 if (move_element == "SPIRIT" or self.stagger) and hit_roll >= 13:
                     hit_roll = hit_roll + 7
                     
@@ -1778,11 +1797,22 @@ class Card:
                         message = f"{_opponent_card.name} absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
                         does_absorb = True
 
-                self.stamina = self.stamina - move_stamina
+                if self._assassin_active:
+                    self._assassin_value += 1
+                    if self._assassin_value == 3:
+                        self._assassin_value = False
+                else:
+                    self.stamina = self.stamina - move_stamina
                 
                 if _opponent_card.damage_check_activated:
                     true_dmg = 5
                     message = f"{_opponent_card.name} is in damage check mode"
+
+                if self._magic_active and move_element not in ['PHYSICAL', 'RANGED', 'RECOIL']:
+                    true_dmg = round(true_dmg + (true_dmg * .3))
+
+                if _opponent_card._heal_active:
+                    _opponent_card._heal_value = round(_opponent_card._heal_value + (true_dmg * .3))
 
 
                 response = {"DMG": true_dmg, "MESSAGE": message,
@@ -1857,6 +1887,9 @@ class Card:
 
             self.usedsummon = False
             self.focus_count = self.focus_count + 1
+            self.max_health = self.max_health + self._heal_value
+            self.health = self.health + self._heal_value
+            self._heal_value = 0
 
             if battle_config.is_boss_game_mode and battle_config.is_turn not in [1,3]:
                 embedVar = discord.Embed(title=f"{battle_config._punish_boss_description}")
@@ -3282,7 +3315,6 @@ class Card:
         if _opponent_card.health >= _opponent_card.max_health:
             _opponent_card.health = _opponent_card.max_health
         
-            
         if self.used_resolve and self.universe == "Souls":
             self.move1ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff)
             self.move2ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff)

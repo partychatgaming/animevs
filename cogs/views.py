@@ -617,7 +617,7 @@ async def viewcard(self, ctx, data):
             if "FPATH" not in card:
                 card['FPATH'] = card['PATH']
 
-            c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
+            c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False, card['CLASS'])
             title = {'TITLE': 'CARD PREVIEW'}
             arm = {'ARM': 'CARD PREVIEW'}
 
@@ -638,6 +638,7 @@ async def viewcard(self, ctx, data):
             if d['PERFORMANCE']:
                 embedVar = discord.Embed(title=f"{c.card_icon} {c.price_message} {c.name}", description=textwrap.dedent(f"""\
                 :mahjong: {c.tier}
+                🥋 {c.card_class}
                 ❤️ {c.max_health}
                 🗡️ {c.attack}
                 🛡️ {c.defense}
@@ -663,7 +664,9 @@ async def viewcard(self, ctx, data):
                 embedVar.set_thumbnail(url=c.set_universe_image())
                 embedVar.set_author(name=textwrap.dedent(f"""\
                 {c.card_icon} {c.price_message}
+                
                 Passive & Universe Trait
+                🥋 {c.card_class}
                 🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
                 ♾️ {c.set_trait_message()}
                 🏃 {c.speed}

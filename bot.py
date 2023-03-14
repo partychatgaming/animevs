@@ -3424,7 +3424,102 @@ async def updatemoves(ctx, password, key):
             'message': str(ex),
             'trace': trace
          }))
-      
+
+
+@slash.slash(description="update moves", guild_ids=guild_ids)
+@commands.check(validate_user)
+async def updateclass(ctx, password, key):
+   await ctx.defer()
+
+   if password != 'casper':  
+      return await ctx.send("Admin Only")
+   
+   if key != '513':
+      return await ctx.send("Admin Only")
+
+   counter = 0
+
+   fighter_list = [
+      'ATK',
+      'BZRK',
+      'STANCE',
+      'BLAST',
+      'DESTRUCTION',
+      'GROWTH',
+   ]
+
+   tank_list = [
+      'DEF',
+      'WITHER',
+      'CRYSTAL',
+      'GAMBLE'
+   ]
+
+   mage_list = [
+      'STAM',
+      'DRAIN',
+      'RAGE',
+      'BRACE',
+      'FEAR',
+      'CONFUSE',
+   ]
+
+   healer_list = [
+      'HLT',
+      'CREATION',
+      'HASTE'
+   ]
+
+   ranger_list = [
+      'SOULCHAIN',
+      'WAVE',
+      'SLOW'
+   ]
+
+   assassin_list = [
+      'FLOG',
+      'BLINK'
+      'STANCE',
+      'LIFE',
+
+   ]
+
+   try:
+      for card in db.queryAllCards():
+         if card['MOVESET'][3]['TYPE'] in fighter_list:
+            card_class = 'FIGHTER'
+         if card['MOVESET'][3]['TYPE'] in tank_list:
+            card_class = 'TANK'
+         if card['MOVESET'][3]['TYPE'] in mage_list:
+            card_class = 'MAGE'
+         if card['MOVESET'][3]['TYPE'] in healer_list:
+            card_class = 'HEALER'
+         if card['MOVESET'][3]['TYPE'] in ranger_list:
+            card_class = 'RANGER'
+         if card['MOVESET'][3]['TYPE'] in assassin_list:
+            card_class = 'ASSASSIN'
+
+         db.updateCard({'NAME': card['NAME']}, {'$set': {'CLASS': card_class}})
+         counter += 1
+         
+      await ctx.send(f"Updated {counter} cards")
+   except Exception as ex:
+         trace = []
+         tb = ex.__traceback__
+         while tb is not None:
+            trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+         print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+         }))
+
+
 # @slash.slash(description="Update Health of all characters by 1000", guild_ids=guild_ids)
 # @commands.check(validate_user)
 # async def updatehealth(ctx):

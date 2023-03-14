@@ -1829,7 +1829,8 @@ enhancer_mapping = {'ATK': 'Increase Attack %',
 }
 
 
-title_enhancer_mapping = {'ATK': 'Increase Attack',
+title_enhancer_mapping = {
+'ATK': 'Increase Attack',
 'DEF': 'Increase Defense',
 'STAM': 'Increase Stamina',
 'HLT': 'Heal for AP',

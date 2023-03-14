@@ -264,7 +264,7 @@ class Profile(commands.Cog):
 
             if card:
                 try:
-                    c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
+                    c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False, card['CLASS'])
                     t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                     a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
                     player = Player(d['AUTOSAVE'], d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'], d['SCENARIO_HISTORY'])                 
@@ -323,6 +323,7 @@ class Profile(commands.Cog):
                     if player.performance:
                         embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                         :mahjong: | **{c.tier}**
+                        🥋 | **{c.card_class}**
                         ❤️ | **{c.max_health}**
                         🗡️ | **{c.attack}**
                         🛡️ | **{c.defense}**
@@ -366,7 +367,7 @@ class Profile(commands.Cog):
                         {t.title_message}
                         {a.arm_message}
                         {player.talisman_message}
-
+                        🥋 | {c.card_class}
                         🩸 | {c.passive_name}      
                         🏃 | {c.speed}
                         """))
@@ -6468,7 +6469,7 @@ async def menubuild(self, ctx):
         if card:
             try:
                 #print(d['TALISMAN'])
-                c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False)
+                c = Card(card['NAME'], card['PATH'], card['PRICE'], card['EXCLUSIVE'], card['AVAILABLE'], card['IS_SKIN'], card['SKIN_FOR'], card['HLT'], card['HLT'], card['STAM'], card['STAM'], card['MOVESET'], card['ATK'], card['DEF'], card['TYPE'], card['PASS'][0], card['SPD'], card['UNIVERSE'], card['HAS_COLLECTION'], card['TIER'], card['COLLECTION'], card['WEAKNESS'], card['RESISTANT'], card['REPEL'], card['ABSORB'], card['IMMUNE'], card['GIF'], card['FPATH'], card['RNAME'], card['RPATH'], False, card['CLASS'])
                 t = Title(title['TITLE'], title['UNIVERSE'], title['PRICE'], title['EXCLUSIVE'], title['AVAILABLE'], title['ABILITIES'])            
                 a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
                 player = Player(d['AUTOSAVE'], d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'], d['SCENARIO_HISTORY'])                 
@@ -6526,6 +6527,7 @@ async def menubuild(self, ctx):
                 if player.performance:
                     embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                     :mahjong: | **{c.tier}**
+                    🥋 | **{c.card_class}**
                     ❤️ | **{c.max_health}**
                     🗡️ | **{c.attack}**
                     🛡️ | **{c.defense}**
@@ -6569,7 +6571,7 @@ async def menubuild(self, ctx):
                     {t.title_message}
                     {a.arm_message}
                     {player.talisman_message}
-
+                    🥋 | {c.card_class}
                     🩸 | {c.passive_name}      
                     🏃 | {c.speed}
                     """))
