@@ -3406,7 +3406,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                                 else:
                                                     summon_response = player2_card.usesummon(battle_config, player1_card)
-                                                    if not player1.performance and summon_response['CAN_USE_MOVE'] and not battle_config.is_auto_battle_game_mode:
+                                                    if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
                                                             tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
