@@ -51,6 +51,12 @@ class Card:
             self.card_class = card_class
 
             # Tactics & Classes
+            # Tactics
+            self._swordsman_active = False
+            self._critical_strike_count = 0
+            self._summoner_active = False
+            self._monstrosity_active = False
+            self._double_strike_count = 0
             self._magic_active = False
             self._magic_value = 0
             self._heal_active = True
@@ -526,6 +532,15 @@ class Card:
             
             if self.card_class == "ASSASSIN":
                 self._assassin_active = True
+                
+            if self.card_class == "SWORDSMEN":
+                self._swordsman_active = True
+                
+            if self.card_class == "SUMMONER":
+                self._summoner_active = True
+                
+            if self.card_class == "MONSTROSITY":
+                self._monstrosity_active = True
 
             if self.card_class == "SUMMONER":
                 self._summoner_active = True
@@ -1726,8 +1741,13 @@ class Card:
                 med_hit = 15
                 standard_hit = 19
                 high_hit = 20
-                hit_roll = round(random.randint(1, 20))
-
+                # hit_roll = round(random.randint(0, 20))
+                hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
+                if self._swordsman_active:
+                    if self._critical_strike_count < 3:
+                        self._critical_strike_count += 1
+                        hit_roll = 20
+                        
                 if self.bloodlust_activated:
                     hit_roll = hit_roll + 3
                     self.health = self.health + (.35 * true_dmg)
@@ -1936,9 +1956,8 @@ class Card:
 
             self.usedsummon = False
             self.focus_count = self.focus_count + 1
-            self.max_health = self.max_health + self._heal_value
-            self.health = self.health + self._heal_value
-            self._heal_value = 0
+            #self.max_health = self.max_health + self._heal_value
+            
 
             if battle_config.is_boss_game_mode and battle_config.is_turn not in [1,3]:
                 embedVar = discord.Embed(title=f"{battle_config._punish_boss_description}")
@@ -1958,6 +1977,11 @@ class Card:
 
             self.stamina = self.stamina_focus_recovery_amount
             health_calculation = round(fortitude)
+            if self._heal_active:
+                health_calculation = health_calculation + self._heal_value
+                if self.health >= self.max_health:
+                    self.health = self.max_health
+                self._heal_value = 0
             attack_calculation = round((fortitude * (self.tier / 10)) + (.05 * self.attack))
             defense_calculation = round((fortitude * (self.tier / 10)) + (.05 * self.defense))
             
@@ -2480,18 +2504,24 @@ class Card:
                     embedVar.set_footer(text=f"{opponent_card.name} this will not be easy...")
                     battle_config._boss_embed_message = embedVar
     
+            if self._monstrosity_active:
+                battle_config.add_battle_history_message(f"(**🥋**) **{self.name}**: gains 2 Double Strikes!")
+            if self._swordsman_active:
+                battle_config.add_battle_history_message(f"(**🥋**) **{self.name}**: gains 3 Critical Strikes!")
+            
+                
 
     def usesummon(self, battle_config, opponent_card):
         if (self.used_resolve or self._summoner_active) and not self.usedsummon:
             damage_calculation_response = self.damage_cal(6, battle_config, opponent_card)
             self.usedsummon = True
             if damage_calculation_response['CAN_USE_MOVE']:                
-                if self.universe == "Persona":
-                    petdmg = self.damage_cal(1, battle_config, opponent_card)
-                    opponent_card.health = opponent_card.health - petdmg['DMG']
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{petdmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
-                    opponent_card.usedsummon = True
-                    self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
+                # if self.universe == "Persona":
+                #     petdmg = self.damage_cal(1, battle_config, opponent_card)
+                #     opponent_card.health = opponent_card.health - petdmg['DMG']
+                #     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{petdmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
+                #     opponent_card.usedsummon = True
+                #     self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
                 battle_config.repeat_turn()
                 return damage_calculation_response
             else:

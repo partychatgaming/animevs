@@ -703,6 +703,10 @@ class Profile(commands.Cog):
                     basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
                     super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
                     ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
+                    
+                    class_info = card['CLASS']
+                    class_emoji = crown_utilities.class_emojis(class_info)
+                    class_message = class_info.title()
 
                     
                     universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
@@ -723,13 +727,13 @@ class Profile(commands.Cog):
                     available = ""
                     if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
                         dungeon_card_details.append(
-                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:fire: **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
                     elif not card['HAS_COLLECTION']:
                         tales_card_details.append(
-                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n🎴 **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
                     elif card['HAS_COLLECTION']:
                         destiny_card_details.append(
-                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                            f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n✨ **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
 
                 all_cards = []
                 if tales_card_details:

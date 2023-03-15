@@ -1803,7 +1803,10 @@ async def cardlist(self, ctx: SlashContext, universe: str):
         basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
         super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
         ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
-
+           
+        class_info = card['CLASS']
+        class_emoji = crown_utilities.class_emojis(class_info)
+        class_message = class_info.title()
 
         available = ""
         is_skin = ""
@@ -1817,15 +1820,16 @@ async def cardlist(self, ctx: SlashContext, universe: str):
             available = "🟠"
         if card['IS_SKIN']:
             is_skin = ":white_circle:"
+        
         if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
             dungeon_card_details.append(
-                f"{is_skin}{available}  :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                f"{is_skin}{available}  :mahjong: {card['TIER']} **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
         elif not card['HAS_COLLECTION']:
             tales_card_details.append(
-                f"{is_skin}{available} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                f"{is_skin}{available} :mahjong: {card['TIER']} **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
         elif card['HAS_COLLECTION']:
             destiny_card_details.append(
-                f"{is_skin}{available} :mahjong: {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                f"{is_skin}{available} :mahjong: {card['TIER']} **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
 
     all_cards = []
     if tales_card_details:
@@ -2804,6 +2808,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
                                         if selected_move != 7:
                                             player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                            if player1_card._monstrosity_active and player1_card.used_resolve:
+                                                if player1_card._double_strike_count < 2:
+                                                    player1_card._double_strike_count +=1
+                                                    battle_config.add_battle_history_message(f"(**🥋**) **{player1_card.name}**:  Double Strike!")
+                                                    #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
+                                                    player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
 
                                     if selected_move == 5:
                                         player1_card.resolving(battle_config, player2_card, player1)
@@ -3030,18 +3040,19 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         
                                         elif button_ctx.custom_id == "6":
                                             # Resolve Check and Calculation
-                                            if player1_card.used_resolve and player1_card.used_focus and not player1_card.usedsummon:
-                                                if battle_config.is_tutorial_game_mode and battle_config.tutorialsummon == False:
-                                                    battle_config.tutorialsummon = True
-                                                    embedVar = discord.Embed(title=f"{player1_card.name} Summoned 🧬 **{player1_card.summon_name}**",colour=0xe91e63)
-                                                    embedVar.add_field(name=f"🧬**Summon Enhancers**!",
-                                                                    value="You can use 🧬**Summons** once per Focus without losing a turn!")
-                                                    embedVar.add_field(name=f"Resting",
-                                                                    value="🧬**Summons** need to rest after using their ability! **Focus** to Replenish your 🧬**Summon**")
-                                                    embedVar.set_footer(
-                                                        text=f"🧬Summons will Level Up and build Bond as you win battles! Train up your 🧬summons to perform better in the field!")
-                                                    await private_channel.send(embed=embedVar)
-                                                    await asyncio.sleep(2)
+                                            if player1_card.used_resolve and player1_card.used_focus or player1_card._summoner_active:
+                                                if not player1_card.usedsummon:
+                                                    if battle_config.is_tutorial_game_mode and battle_config.tutorialsummon == False:
+                                                        battle_config.tutorialsummon = True
+                                                        embedVar = discord.Embed(title=f"{player1_card.name} Summoned 🧬 **{player1_card.summon_name}**",colour=0xe91e63)
+                                                        embedVar.add_field(name=f"🧬**Summon Enhancers**!",
+                                                                        value="You can use 🧬**Summons** once per Focus without losing a turn!")
+                                                        embedVar.add_field(name=f"Resting",
+                                                                        value="🧬**Summons** need to rest after using their ability! **Focus** to Replenish your 🧬**Summon**")
+                                                        embedVar.set_footer(
+                                                            text=f"🧬Summons will Level Up and build Bond as you win battles! Train up your 🧬summons to perform better in the field!")
+                                                        await private_channel.send(embed=embedVar)
+                                                        await asyncio.sleep(2)
                                             summon_response = player1_card.usesummon(battle_config, player2_card)
                                             
                                             if not player1.performance and summon_response['CAN_USE_MOVE']:
@@ -3086,6 +3097,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if button_ctx.custom_id in battle_config.main_battle_options:
                                             player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                            if player1_card._monstrosity_active and player1_card.used_resolve:
+                                                if player1_card._double_strike_count < 2:
+                                                    player1_card._double_strike_count +=1
+                                                    battle_config.add_battle_history_message(f"(**🥋**) **{player1_card.name}**:  Double Strike!")
+                                                    #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
+                                                    player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                     
                                     except asyncio.TimeoutError:
                                         await battle_msg.edit(components=[])
@@ -3285,6 +3302,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                             if button_ctx.custom_id in battle_config.main_battle_options:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                                if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                    if player2_card._double_strike_count < 2:
+                                                        player2_card._double_strike_count +=1
+                                                        battle_config.add_battle_history_message(f"(**🥋**) **{player2_card.name}**:  Double Strike!")
+                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                         
                                         except Exception as ex:
                                             trace = []
@@ -3346,7 +3369,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             player2_card.use_block(battle_config, player1_card)
 
                                         if selected_move != 5 and selected_move != 6 and selected_move != 0:
-                                            player2_card.damage_done(battle_config, damage_calculation_response, player1_card)                                        
+                                            player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                            if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                if player2_card._double_strike_count < 2:
+                                                    player2_card._double_strike_count +=1
+                                                    battle_config.add_battle_history_message(f"(**🥋**) **{player2_card.name}**:  Double Strike!")
+                                                    #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card)   
+                                                                                 
 
                                 if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode:
                                     if battle_config.is_auto_battle_game_mode:
@@ -3392,7 +3422,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     elif int(selected_move) == 6:
                                         # Resolve Check and Calculation
-                                        if player2_card.used_resolve and player2_card.used_focus and not player2_card.usedsummon:
+                                        if player2_card.used_resolve and player2_card.used_focus and not player2_card.usedsummon or (player2_card._summoner_active and not player2_card.usedsummon):
                                             if battle_config.is_co_op_mode:
                                                 if player3_card.used_defend == True:
                                                     summon_response = player2_card.usesummon(battle_config, player3_card)
@@ -3441,10 +3471,28 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if battle_config.is_co_op_mode:
                                             if player3_card.used_defend == True:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
+                                                if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                    if player2_card._double_strike_count < 2:
+                                                        player2_card._double_strike_count +=1
+                                                        battle_config.add_battle_history_message(f"(**🥋**) **{player2_card.name}**:  Double Strike!")
+                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                             else:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                                if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                    if player2_card._double_strike_count < 2:
+                                                        player2_card._double_strike_count +=1
+                                                        battle_config.add_battle_history_message(f"(**🥋**) **{player2_card.name}**:  Double Strike!")
+                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                         else:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                            if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                if player2_card._double_strike_count < 2:
+                                                    player2_card._double_strike_count +=1
+                                                    battle_config.add_battle_history_message(f"(**🥋**) **{player2_card.name}**:  Double Strike!")
+                                                    #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
 
 
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
@@ -3518,6 +3566,13 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if selected_move != 5 and selected_move != 6 and selected_move != 7 and selected_move != 8 and selected_move != 0:
                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card) 
+                                            if player3_card._monstrosity_active and player3_card.used_resolve:
+                                                if player3_card._double_strike_count < 2:
+                                                    player3_card._double_strike_count +=1
+                                                    battle_config.add_battle_history_message(f"(**🥋**) **{player3_card.name}**:  Double Strike!")
+                                                    #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
+                                                    player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                                
                                     else:
                                         player3_card.set_battle_arm_messages(player2_card)
                                         player3_card.set_stat_icons()
@@ -3631,6 +3686,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                             if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "8" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                                if player3_card._monstrosity_active and player3_card.used_resolve:
+                                                    if player3_card._double_strike_count < 2:
+                                                        player3_card._double_strike_count +=1
+                                                        battle_config.add_battle_history_message(f"(**🥋**) **{player3_card.name}**:  Double Strike!")
+                                                        #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
+                                                        player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                         except asyncio.TimeoutError:
                                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                             await battle_msg.delete()
@@ -3736,7 +3797,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     elif int(selected_move) == 6:
                                         # Resolve Check and Calculation
-                                        if player2_card.used_resolve and player2_card.used_focus and not player2_card.usedsummon:
+                                        if player2_card.used_resolve and player2_card.used_focus and not player2_card.usedsummon or (player2_card._summoner_active and not player2_card.usedsummon):
                                             if battle_config.is_co_op_mode:
                                                 if player3_card.used_defend == True:
                                                     summon_response = player2_card.usesummon(battle_config, player1_card)
@@ -3786,10 +3847,28 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if battle_config.is_co_op_mode:
                                             if player3_card.used_defend == True:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                                if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                    if player2_card._double_strike_count < 2:
+                                                        player2_card._double_strike_count +=1
+                                                        battle_config.add_battle_history_message(f"(**🥋**) **{player2_card.name}**:  Double Strike!")
+                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                             else:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
+                                                if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                    if player2_card._double_strike_count < 2:
+                                                        player2_card._double_strike_count +=1
+                                                        battle_config.add_battle_history_message(f"(**🥋**) **{player2_card.name}**:  Double Strike!")
+                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                         else:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
+                                            if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                if player2_card._double_strike_count < 2:
+                                                    player2_card._double_strike_count +=1
+                                                    battle_config.add_battle_history_message(f"(**🥋**) **{player2_card.name}**:  Double Strike!")
+                                                    #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
+                                                    player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                     
                     if game_over_check:
                         wintime = time.asctime()
