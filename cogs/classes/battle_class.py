@@ -1292,7 +1292,7 @@ class Battle:
         return aiMove
 
 
-    def add_battle_history_message(self, msg):
+    def add_to_battle_log(self, msg):
         if msg:
             self.previous_moves.append(msg)
 
@@ -1303,8 +1303,8 @@ class Battle:
         c_butts = []
         if self.is_turn == 3:
             options = ["q", "Q", "0", "1", "2", "3", "4", "7"]
-            if your_card.used_focus:
-                if your_card.used_resolve:
+            if your_card.used_focus or your_card._summoner_active:
+                if your_card.used_resolve or your_card._summoner_active:
                     options += [6]
                 else:
                     options += [5]
@@ -1315,8 +1315,8 @@ class Battle:
                 options += ["7", "8", "9", "s", "b"]
             else:
                 options += ["s"]
-            if your_card.used_focus:
-                if your_card.used_resolve:
+            if your_card.used_focus or your_card._summoner_active:
+                if your_card.used_resolve or your_card._summoner_active:
                     options += ['6']
                 else:
                     options += ['5']

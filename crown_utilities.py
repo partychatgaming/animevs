@@ -563,6 +563,12 @@ def set_emoji(element):
         emoji = "🪐"
     if element == "None" or element == "NULL":
         emoji = "📿"
+    if element == "SHIELD":
+        emoji = "🛡️"
+    if element == "PARRY":
+        emoji = "🔄"
+    if element == "BARRIER":
+        emoji = "💠"
         
 
     return emoji
@@ -620,27 +626,24 @@ def showsummon(url, summon, message, lvl, bond):
         card_details_font_size = ImageFont.truetype("destructobeambb_bold.ttf", 25)
         card_levels = ImageFont.truetype("destructobeambb_bold.ttf", 40)
 
-        # Pet Name
-        draw.text((600, 160), summon, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
-                    align="left")
+        draw.text((600, 160), summon, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
 
         # Level
         lvl_sizing = (89, 70)
         if int(lvl) > 9:
             lvl_sizing = (75, 70)
- 
-        draw.text(lvl_sizing, f"{lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
-                    align="center")
-        draw.text((1096, 65), f"{bond}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
-                    align="center")
+
+        draw.text(lvl_sizing, f"{lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
+        draw.text((1096, 65), f"{bond}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
 
         lines = textwrap.wrap(message, width=28)
         y_text = 330
+        pilmoji = Pilmoji(im)
         for line in lines:
-            font=moveset_font
+            font = moveset_font
             width, height = font.getsize(line)
-            with Pilmoji(im) as pilmoji:
-                pilmoji.text(((1730 - width) / 2, y_text), line, (255, 255, 255), font=font, stroke_width=2, stroke_fill=(0, 0, 0))
+            x_position = round((1730 - width) / 2)
+            pilmoji.text((x_position, y_text), line, (255, 255, 255), font=font, stroke_width=2, stroke_fill=(0, 0, 0))
             y_text += height
 
 
@@ -648,7 +651,7 @@ def showsummon(url, summon, message, lvl, bond):
             im.save(image_binary, "PNG")
             image_binary.seek(0)
             # await ctx.send(file=discord.File(fp=image_binary,filename="image.png"))
-            file = discord.File(fp=image_binary,filename="pet.png")
+            file = discord.File(fp=image_binary, filename="pet.png")
             return file
 
     except Exception as ex:

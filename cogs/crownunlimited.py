@@ -2756,6 +2756,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         tactics_death_blow_check(player2_card, player1_card, battle_config)
                         tactics_intimidation_check(player2_card, player1_card, battle_config)
                         if battle_config.is_turn == 0:
+                            player1_card.used_focus = True
+                            player1_card.used_resolve = True
                             if player1_card.health == 0:
                                 continue
                             player1_card.set_deathnote_message(battle_config)
@@ -2921,7 +2923,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
                                             player1_card.health = 0
                                             battle_config.game_over = True
-                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 💨 **{player1_card.name}** Fled...")
+                                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💨 **{player1_card.name}** Fled...")
                                             await battle_msg.delete(delay=1)
                                             await asyncio.sleep(1)
                                             battle_msg = await private_channel.send(content=f"{ctx.author.mention} has fled.")
@@ -3022,7 +3024,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             else:
                                                 emessage = m.CANNOT_USE_RESOLVE
                                                 embedVar = discord.Embed(title=emessage, colour=0xe91e63)
-                                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{player1_card.name}** cannot resolve")
+                                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player1_card.name}** cannot resolve")
                                                 await private_channel.defer(ignore=True)
                                                 battle_config.is_turn = battle_config._repeat_turn()
                                         
@@ -3045,10 +3047,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                 if not battle_config.is_auto_battle_game_mode:
                                                     await battle_msg.delete(delay=2)
-                                                    tsummon_file = showsummon(player1_card.summon_image, player1_card.summon_name, summon_response['MESSAGE'], player1_card.summon_lvl, player1_card.summon_bond)
+                                                    summon_file = crown_utilities.showsummon(player1_card.summon_image, player1_card.summon_name, summon_response['MESSAGE'], player1_card.summon_lvl, player1_card.summon_bond)
                                                     embedVar.set_image(url="attachment://pet.png")
                                                     await asyncio.sleep(2)
-                                                    battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                    battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                     await asyncio.sleep(2)
                                                     await battle_msg.delete(delay=2)
 
@@ -3429,7 +3431,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         await battle_msg.delete(delay=2)
 
                                         else:
-                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
+                                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
                                     elif int(selected_move) == 0:
                                         player2_card.use_block(battle_config, player1_card)                                            
                                     if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 0:
@@ -3573,7 +3575,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if button_ctx.custom_id == "q" or button_ctx.custom_id == "Q":
                                                 player3_card.health = 0
                                                 battle_config.game_over = True
-                                                battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
+                                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                                 await asyncio.sleep(1)
                                                 await battle_msg.delete(delay=1)
                                                 battle_msg = await private_channel.send(content=f"{ctx.author.mention} has fled.")
@@ -3630,7 +3632,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "8" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                         except asyncio.TimeoutError:
-                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
+                                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                             await battle_msg.delete()
                                             if not any((battle_config.is_abyss_game_mode, 
                                                         battle_config.is_scenario_game_mode, 
@@ -3773,7 +3775,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         await battle_msg.delete(delay=2)
 
                                         else:
-                                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
+                                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
                                     elif int(selected_move) == 0:
                                         player2_card.use_block(battle_config, player3_card) 
                                     if int(selected_move) == 10:
@@ -4483,7 +4485,7 @@ def tactics_petrified_fear_check(boss_card, player_card, battle_config):
         boss_card.petrified_fear_counter = boss_card.petrified_fear_counter + 1
         battle_config.is_turn = 1
         petrified_fear_message = f"**[{player_card.name} is petrified with fear and cannot move for [{str((boss_card.petrified_fear_turns - boss_card.petrified_fear_counter) + 1)}] turns]**"
-        battle_config.add_battle_history_message(petrified_fear_message)
+        battle_config.add_to_battle_log(petrified_fear_message)
 
 
 def tactics_bloodlust_check(boss_card, battle_config):
@@ -4494,7 +4496,7 @@ def tactics_bloodlust_check(boss_card, battle_config):
                 boss_card.bloodlust_activated = True
                 boss_card.attack = boss_card.attack + 3000
                 bloodlust_message = f"**[{boss_card.name} is bloodlusted. Attacks will now lifesteal]**"
-                battle_config.add_battle_history_message(bloodlust_message)
+                battle_config.add_to_battle_log(bloodlust_message)
 
 
 def tactics_enrage_check(boss_card, battle_config):
@@ -4508,7 +4510,7 @@ def tactics_enrage_check(boss_card, battle_config):
                 boss_card.max_health = boss_card.max_health + 10000
                 boss_card.stamina = 260
                 enrage_message = f"**[{boss_card.name} is enraged! Attacks will now deal much more damage to the enemy]**"
-                battle_config.add_battle_history_message(enrage_message)
+                battle_config.add_to_battle_log(enrage_message)
 
 
 def tactics_intimidation_check(boss_card, player_card, battle_config):
@@ -4526,7 +4528,7 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
                 player_card.attack = 0
                 player_card.defense = 0
                 intimidation_message = f"**[{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns\n{player_card.name}'s Attack and Defense are booth 0 out of fear]**"
-                battle_config.add_battle_history_message(intimidation_message)
+                battle_config.add_to_battle_log(intimidation_message)
             else:
                 player_card.attack = player_card.temporary_attack
                 player_card.defense = player_card.temporary_defense
@@ -4534,7 +4536,7 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
                 boss_card.intimidation = False
                 boss_card.intimidation_counter = 0
                 intimidation_message = f"**[{player_card.name} is no longer intimidated by {boss_card.name}\n{player_card.name}'s Attack and Defense is restored]**"
-                battle_config.add_battle_history_message(intimidation_message)
+                battle_config.add_to_battle_log(intimidation_message)
 
 
 def tactics_damage_check(boss_card, battle_config):
@@ -4546,7 +4548,7 @@ def tactics_damage_check(boss_card, battle_config):
                 boss_card.damage_check_turns = 5
         if boss_card.damage_check_activated:
             battle_config.is_turn = 0
-            battle_config.add_battle_history_message(f"**[{boss_card.name} Damage Check\nDamage Dealt [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]**")
+            battle_config.add_to_battle_log(f"**[{boss_card.name} Damage Check\nDamage Dealt [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]**")
 
 
 def tactics_regeneration_check(boss_card, battle_config):
@@ -4557,7 +4559,7 @@ def tactics_regeneration_check(boss_card, battle_config):
                 boss_card.regeneration_activated = True
                 boss_card.health = boss_card.max_base_health
                 regeneration_message = f"**[{boss_card.name} has regenerated]**"
-                battle_config.add_battle_history_message(regeneration_message)
+                battle_config.add_to_battle_log(regeneration_message)
 
 
 def tactics_death_blow_check(boss_card, player_card, battle_config):
@@ -4567,7 +4569,7 @@ def tactics_death_blow_check(boss_card, player_card, battle_config):
 
         if battle_config.turn_total in [0, 28, 29, 58, 59, 88, 89, 118, 119, 148, 149]:
             warning_message = f"**[{boss_card.name} is preparing a death blow! Protect yourself with shields, parries, barriers, or block]**"
-            battle_config.add_battle_history_message(warning_message)
+            battle_config.add_to_battle_log(warning_message)
 
         if boss_card.death_blow_activated:
             if any({player_card._shield_active, player_card._parry_active, player_card._barrier_active, player_card.used_block}):
@@ -4583,12 +4585,12 @@ def tactics_death_blow_check(boss_card, player_card, battle_config):
                     player_card.used_block = False
                     player_card.defense = player_card.defense - (player_card.defense * 0.25)
                     death_blow_message = f"**[{player_card.name} blocked a destructive blow, but lost some defense in the process]**"
-                battle_config.add_battle_history_message(death_blow_message)
+                battle_config.add_to_battle_log(death_blow_message)
                 boss_card.death_blow_activated = False
             else:
                 player_card.health = 0
                 death_blow_message = f"**[{boss_card.name} dealt a fatal blow to {player_card.name}]**"
-                battle_config.add_battle_history_message(death_blow_message)
+                battle_config.add_to_battle_log(death_blow_message)
                 boss_card.death_blow_activated = False
 
 
@@ -4597,7 +4599,7 @@ def tactics_stagger_check(boss_card, player_card, battle_config):
         if boss_card.stagger_activated:
             battle_config.is_turn = 1
             stagger_message = f"**[ {player_card.name} is staggered and cannot move! ]**"
-            battle_config.add_battle_history_message(stagger_message)
+            battle_config.add_to_battle_log(stagger_message)
             boss_card.stagger_activated = False
 
 
@@ -4608,17 +4610,17 @@ def tactics_almighty_will_check(boss_card, battle_config):
             battle_config.is_turn = random.randint(3, 80)
             boss_card.focus_count = random.randint(3, 30)
             almighty_will_message = f"**[⏳ {boss_card.name} manipulated the flow of battle\nIt is now turn {str(battle_config.is_turn)} and {boss_card.name} has focused {str(boss_card.focus_count)} times]**"
-            battle_config.add_battle_history_message(almighty_will_message)
+            battle_config.add_to_battle_log(almighty_will_message)
 
 
 def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config, companion = None):
     #If any damage happened last turn that would kill
     player_card.reset_stats_to_limiter(opponent_card)
-    battle_config.add_battle_history_message(player_card.set_poison_hit(opponent_card))
+    battle_config.add_to_battle_log(player_card.set_poison_hit(opponent_card))
     burn_turn = player_card.set_burn_hit(opponent_card)
     if burn_turn != None:
-        battle_config.add_battle_history_message(player_card.set_burn_hit(opponent_card))
-    battle_config.add_battle_history_message(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
+        battle_config.add_to_battle_log(player_card.set_burn_hit(opponent_card))
+    battle_config.add_to_battle_log(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
     player_card.damage_dealt = round(player_card.damage_dealt)
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
@@ -4640,7 +4642,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']
-        battle_config.add_battle_history_message(new_turn['MESSAGE'])
+        battle_config.add_to_battle_log(new_turn['MESSAGE'])
         opponent_card.freeze_enh = False
         # return new_turn
     

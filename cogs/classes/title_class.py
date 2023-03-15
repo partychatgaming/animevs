@@ -229,7 +229,7 @@ class Title:
         if not self.title_active:
             if not self.active_message_sent:
                 self.active_message_sent = True
-                battle.add_battle_history_message(f"(**⚠️**) **Titleless** : {player1_card.name} cannot equip  **{self.name}**")
+                battle.add_to_battle_log(f"(**⚠️**) **Titleless** : {player1_card.name} cannot equip  **{self.name}**")
             return
         if self.passive_type:
             if self.passive_type == "HLT":

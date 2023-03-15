@@ -576,6 +576,7 @@ class Player:
         _card.summon_power = self._equippedsummon_power
         _card.summon_lvl = self._equippedsummon_lvl
         _card.summon_type = self._equippedsummon_type
+        _card.summon_emoji = crown_utilities.set_emoji(self._equippedsummon_type)
         _card.summon_bond = self._equippedsummon_bond
         _card.summon_bondexp = self._equippedsummon_bondexp
         _card.summon_exp = self._equippedsummon_exp

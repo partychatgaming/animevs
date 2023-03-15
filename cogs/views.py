@@ -774,7 +774,7 @@ async def viewsummon(self, ctx, data):
     try:
         if pet:
             s = Summon(pet['PET'], pet['UNIVERSE'], pet['PATH'], pet['ABILITIES'], pet['AVAILABLE'], pet['EXCLUSIVE'])
-            s.set_messages()
+            # s.set_messages()
 
             summon_file = crown_utilities.showsummon(s.path, s.name, s.value, 0, 0)
             embedVar = discord.Embed(title=f"Summon".format(self), colour=000000)
