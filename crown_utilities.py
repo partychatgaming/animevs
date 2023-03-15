@@ -1974,6 +1974,9 @@ class_emojis = {
     'ASSASSIN': '<:NewUI_Class_Assassin:1085080857225728020>',
     'MAGE': '<:NewUI_Class_Mage:1085070773007421451>',
     'RANGER': '<:NewUI_Class_Hunter:1085081189708210196>',
+    'SUMMONER': '<:summon:1085347631108194314>',
+    'SWORDSMAN': '<:Gold_Sword:1085347570282405958>',
+    'MONSTROSITY': '<:monster:1085347567384154172>'
 }
 
 Healer_Enhancer_Check = ['HLT', 'LIFE']
