@@ -51,6 +51,11 @@ class Card:
             self.card_class = card_class
 
             # Tactics
+            self._swordsman_active = False
+            self._critical_strike_count = 0
+            self._summoner_active = False
+            self._monstrosity_active = False
+            self._double_strike_count = 0
             self._magic_active = False
             self._magic_value = 0
             self._heal_active = True
@@ -524,6 +529,15 @@ class Card:
             
             if self.card_class == "ASSASsIN":
                 self._assassin_active = True
+                
+            if self.card_class == "SWORDSMEN":
+                self._swordsman_active = True
+                
+            if self.card_class == "SUMMONER":
+                self._summoner_active = True
+                
+            if self.card_class == "MONSTROSITY":
+                self._monstrosity_active = True
 
 
             
@@ -1700,7 +1714,11 @@ class Card:
                 high_hit = 20
                 # hit_roll = round(random.randint(0, 20))
                 hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
-
+                if self._swordsman_active:
+                    if self._critical_strike_count < 3:
+                        self._critical_strike_count += 1
+                        hit_roll = 20
+                        
                 if self.bloodlust_activated:
                     hit_roll = hit_roll + 3
                     self.health = self.health + (.35 * true_dmg)
@@ -2443,141 +2461,151 @@ class Card:
                     embedVar.set_footer(text=f"{opponent_card.name} this will not be easy...")
                     battle_config._boss_embed_message = embedVar
     
+            if self._monstrosity_active:
+                battle_config.add_battle_history_message(f"(**🥋**) **{self.name}**: gains 2 Double Strikes!")
+            if self._swordsman_active:
+                battle_config.add_battle_history_message(f"(**🥋**) **{self.name}**: gains 3 Critical Strikes!")
+            
+                
 
     def usesummon(self, battle_config, opponent_card):
-        if self.used_resolve and self.used_focus and not self.usedsummon:
-            self.enhancer_used = True
-            damage_calculation_response = self.damage_cal(6, battle_config, opponent_card)
-            self.enhancer_used = False
-            self.usedsummon = True
-            if damage_calculation_response['CAN_USE_MOVE']:
-                if self.summon_type == 'ATK':
-                    self.attack = round(self.attack + damage_calculation_response['DMG'])
-                elif self.summon_type == 'DEF':
-                    self.defense = round(self.defense + damage_calculation_response['DMG'])
-                elif self.summon_type == 'STAM':
-                    self.stamina = round(self.stamina + damage_calculation_response['DMG'])
-                elif self.summon_type == 'HLT':
-                    self.health = round(self.health + damage_calculation_response['DMG'])
-                    if self.health > self.max_health:
-                        damage_calculation_response['DMG'] = (damage_calculation_response['DMG'] - (self.health - self.max_health))
-                        self.health = self.max_health
-                elif self.summon_type == 'LIFE':
-                    if (self.health + damage_calculation_response['DMG']) < self.max_health:
+        if (self.used_resolve and self.used_focus) or self._summoner_active:
+            if not self.usedsummon:
+                self.enhancer_used = True
+                damage_calculation_response = self.damage_cal(6, battle_config, opponent_card)
+                self.enhancer_used = False
+                self.usedsummon = True
+                if damage_calculation_response['CAN_USE_MOVE']:
+                    if self.summon_type == 'ATK':
+                        self.attack = round(self.attack + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'DEF':
+                        self.defense = round(self.defense + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'STAM':
+                        self.stamina = round(self.stamina + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'HLT':
                         self.health = round(self.health + damage_calculation_response['DMG'])
-                        opponent_card.health = opponent_card.health - damage_calculation_response['DMG']
-                    else:
-                        damage_calculation_response['DMG'] = self.max_health - self.health
-                        self.health = round(self.health + damage_calculation_response['DMG'])
-                        opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
-                elif self.summon_type == 'DRAIN':
-                    self.stamina = round(self.stamina + damage_calculation_response['DMG'])
-                    opponent_card.stamina = round(opponent_card.stamina - damage_calculation_response['DMG'])
-                elif self.summon_type == 'FLOG':
-                    self.attack = round(self.attack + damage_calculation_response['DMG'])
-                    opponent_card.attack = round(opponent_card.attack - damage_calculation_response['DMG'])
-                elif self.summon_type == 'WITHER':
-                    self.defense = round(self.defense + damage_calculation_response['DMG'])
-                    opponent_card.defense = round(opponent_card.defense - damage_calculation_response['DMG'])
-                elif self.summon_type == 'RAGE':
-                    self.defense = round(self.defense - damage_calculation_response['DMG'])
-                    self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + damage_calculation_response['DMG'])
-                elif self.summon_type == 'BRACE':
-                    self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + damage_calculation_response['DMG'])
-                    self.attack = round(self.attack - damage_calculation_response['DMG'])
-                elif self.summon_type == 'BZRK':
-                    self.health = round(self.health - damage_calculation_response['DMG'])
-                    self.attack = round(self.attack + damage_calculation_response['DMG'])
-                elif self.summon_type == 'CRYSTAL':
-                    self.health = round(self.health - damage_calculation_response['DMG'])
-                    self.defense = round(self.defense + damage_calculation_response['DMG'])
-                elif self.summon_type == 'GROWTH':
-                    self.max_health = round(self.max_health - (self.max_health * .10))
-                    if self.health > self.max_health:
-                        self.health = self.max_health
-                    self.defense = round(self.defense + damage_calculation_response['DMG'])
-                    self.attack= round(self.attack + damage_calculation_response['DMG'])
-                    self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + damage_calculation_response['DMG'])
-                elif self.summon_type == 'STANCE':
-                    tempattack = damage_calculation_response['DMG']
-                    self.attack = self.defense
-                    self.defense = tempattack
-                elif self.summon_type == 'CONFUSE':
-                    tempattack = damage_calculation_response['DMG']
-                    opponent_card.attack = opponent_card.defense
-                    opponent_card.defense = tempattack
-                elif self.summon_type == 'BLINK':
-                    self.stamina = round(self.stamina - damage_calculation_response['DMG'])
-                    opponent_card.stamina = round(opponent_card.stamina + damage_calculation_response['DMG'])
-                elif self.summon_type == 'SLOW':
-                    tempstam = round(opponent_card.stamina + damage_calculation_response['DMG'])
-                    self.stamina = round(self.stamina - damage_calculation_response['DMG'])
-                    opponent_card.stamina = self.stamina
-                    self.stamina = tempstam
-                elif self.summon_type == 'HASTE':
-                    tempstam = round(opponent_card.stamina - damage_calculation_response['DMG'])
-                    self.stamina = round(self.stamina + damage_calculation_response['DMG'])
-                    opponent_card.stamina = self.stamina
-                    self.stamina = tempstam
-                elif self.summon_type == 'SOULCHAIN':
-                    self.stamina = round(damage_calculation_response['DMG'])
-                    opponent_card.stamina = self.stamina
-                elif self.summon_type == 'GAMBLE':
-                    self.health = round(damage_calculation_response['DMG'])
-                    opponent_card.health = self.health
-                elif self.summon_type == 'FEAR':
-                    if self.universe != "Chainsawman":
+                        if self.health > self.max_health:
+                            damage_calculation_response['DMG'] = (damage_calculation_response['DMG'] - (self.health - self.max_health))
+                            self.health = self.max_health
+                    elif self.summon_type == 'LIFE':
+                        if (self.health + damage_calculation_response['DMG']) < self.max_health:
+                            self.health = round(self.health + damage_calculation_response['DMG'])
+                            opponent_card.health = opponent_card.health - damage_calculation_response['DMG']
+                        else:
+                            damage_calculation_response['DMG'] = self.max_health - self.health
+                            self.health = round(self.health + damage_calculation_response['DMG'])
+                            opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
+                    elif self.summon_type == 'DRAIN':
+                        self.stamina = round(self.stamina + damage_calculation_response['DMG'])
+                        opponent_card.stamina = round(opponent_card.stamina - damage_calculation_response['DMG'])
+                    elif self.summon_type == 'FLOG':
+                        self.attack = round(self.attack + damage_calculation_response['DMG'])
+                        opponent_card.attack = round(opponent_card.attack - damage_calculation_response['DMG'])
+                    elif self.summon_type == 'WITHER':
+                        self.defense = round(self.defense + damage_calculation_response['DMG'])
+                        opponent_card.defense = round(opponent_card.defense - damage_calculation_response['DMG'])
+                    elif self.summon_type == 'RAGE':
+                        self.defense = round(self.defense - damage_calculation_response['DMG'])
+                        self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'BRACE':
+                        self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + damage_calculation_response['DMG'])
+                        self.attack = round(self.attack - damage_calculation_response['DMG'])
+                    elif self.summon_type == 'BZRK':
+                        self.health = round(self.health - damage_calculation_response['DMG'])
+                        self.attack = round(self.attack + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'CRYSTAL':
+                        self.health = round(self.health - damage_calculation_response['DMG'])
+                        self.defense = round(self.defense + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'GROWTH':
                         self.max_health = round(self.max_health - (self.max_health * .10))
                         if self.health > self.max_health:
                             self.health = self.max_health
-                    opponent_card.defense = round(opponent_card.defense - damage_calculation_response['DMG'])
-                    opponent_card.attack= round(opponent_card.attack - damage_calculation_response['DMG'])
-                    if opponent_card.card_lvl_ap_buff > 0:
-                        opponent_card.card_lvl_ap_buff = round(opponent_card.card_lvl_ap_buff - damage_calculation_response['DMG'])
-                    if opponent_card.card_lvl_ap_buff <= 0:
-                        opponent_card.card_lvl_ap_buff = 1
-                elif self.summon_type == 'WAVE':
-                    opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
-                elif self.summon_type == 'BLAST':
-                    if damage_calculation_response['DMG'] >= (self.tier * 100):
-                        damage_calculation_response['DMG'] = (self.tier * 100)
-                    opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
-                elif self.summon_type == 'CREATION':
-                    self.max_health = round(self.max_health + damage_calculation_response['DMG'])
-                    self.health = round(self.health + damage_calculation_response['DMG'])
-                elif self.summon_type == 'DESTRUCTION':
-                    if damage_calculation_response['DMG'] >= (self.tier * 100):
-                        damage_calculation_response['DMG'] = (self.tier * 100)
-                    opponent_card.max_health = round(opponent_card.max_health - damage_calculation_response['DMG'])
-                    if opponent_card.max_health <=1:
-                        opponent_card.max_health = 1
-                if self.summon_type in ['HLT','LIFE','CREATION']:
-                    self.damage_healed = self.damage_healed + damage_calculation_response['DMG']
-                if self.summon_type in ['LIFE','BLAST','WAVE','DESTRUCTION']:
-                    self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
-                
-                if self.universe == "Persona":
-                    petdmg = self.damage_cal(1, battle_config, opponent_card)
-                    opponent_card.health = opponent_card.health - petdmg['DMG']
-                    battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{petdmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
-                    opponent_card.usedsummon = True
-                    self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
-                else:
-                    if self.summon_type in ['RAGE','BRACE','GROWTH']:
-                        if self.card_lvl_ap_buff >= 1000 + self.card_lvl:
-                            battle_config.add_battle_history_message(f"(**🦠**) **{self.name}**: reached their full power!")
-                    elif self.summon_type in ['FEAR']:
+                        self.defense = round(self.defense + damage_calculation_response['DMG'])
+                        self.attack= round(self.attack + damage_calculation_response['DMG'])
+                        self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'STANCE':
+                        tempattack = damage_calculation_response['DMG']
+                        self.attack = self.defense
+                        self.defense = tempattack
+                    elif self.summon_type == 'CONFUSE':
+                        tempattack = damage_calculation_response['DMG']
+                        opponent_card.attack = opponent_card.defense
+                        opponent_card.defense = tempattack
+                    elif self.summon_type == 'BLINK':
+                        self.stamina = round(self.stamina - damage_calculation_response['DMG'])
+                        opponent_card.stamina = round(opponent_card.stamina + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'SLOW':
+                        tempstam = round(opponent_card.stamina + damage_calculation_response['DMG'])
+                        self.stamina = round(self.stamina - damage_calculation_response['DMG'])
+                        opponent_card.stamina = self.stamina
+                        self.stamina = tempstam
+                    elif self.summon_type == 'HASTE':
+                        tempstam = round(opponent_card.stamina - damage_calculation_response['DMG'])
+                        self.stamina = round(self.stamina + damage_calculation_response['DMG'])
+                        opponent_card.stamina = self.stamina
+                        self.stamina = tempstam
+                    elif self.summon_type == 'SOULCHAIN':
+                        self.stamina = round(damage_calculation_response['DMG'])
+                        opponent_card.stamina = self.stamina
+                    elif self.summon_type == 'GAMBLE':
+                        self.health = round(damage_calculation_response['DMG'])
+                        opponent_card.health = self.health
+                    elif self.summon_type == 'FEAR':
+                        if self.universe != "Chainsawman":
+                            self.max_health = round(self.max_health - (self.max_health * .10))
+                            if self.health > self.max_health:
+                                self.health = self.max_health
+                        opponent_card.defense = round(opponent_card.defense - damage_calculation_response['DMG'])
+                        opponent_card.attack= round(opponent_card.attack - damage_calculation_response['DMG'])
+                        if opponent_card.card_lvl_ap_buff > 0:
+                            opponent_card.card_lvl_ap_buff = round(opponent_card.card_lvl_ap_buff - damage_calculation_response['DMG'])
                         if opponent_card.card_lvl_ap_buff <= 0:
-                            battle_config.add_battle_history_message(f"(**🦠**) **{opponent_card.name}**: is at minimal power!")
+                            opponent_card.card_lvl_ap_buff = 1
+                    elif self.summon_type == 'WAVE':
+                        opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
+                    elif self.summon_type == 'BLAST':
+                        if damage_calculation_response['DMG'] >= (self.tier * 100):
+                            damage_calculation_response['DMG'] = (self.tier * 100)
+                        opponent_card.health = round(opponent_card.health - damage_calculation_response['DMG'])
+                    elif self.summon_type == 'CREATION':
+                        self.max_health = round(self.max_health + damage_calculation_response['DMG'])
+                        self.health = round(self.health + damage_calculation_response['DMG'])
+                    elif self.summon_type == 'DESTRUCTION':
+                        if damage_calculation_response['DMG'] >= (self.tier * 100):
+                            damage_calculation_response['DMG'] = (self.tier * 100)
+                        opponent_card.max_health = round(opponent_card.max_health - damage_calculation_response['DMG'])
+                        if opponent_card.max_health <=1:
+                            opponent_card.max_health = 1
+                    if self.summon_type in ['HLT','LIFE','CREATION']:
+                        self.damage_healed = self.damage_healed + damage_calculation_response['DMG']
+                    if self.summon_type in ['LIFE','BLAST','WAVE','DESTRUCTION']:
+                        self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
+                    
+                    if self.universe == "Persona":
+                        petdmg = self.damage_cal(1, battle_config, opponent_card)
+                        opponent_card.health = opponent_card.health - petdmg['DMG']
+                        battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{petdmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
+                        opponent_card.usedsummon = True
+                        self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
                     else:
-                        battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** Summoned 🧬 **{self.summon_name}** against {opponent_card.name}: {damage_calculation_response['MESSAGE']}")
-                battle_config.repeat_turn()
-                return damage_calculation_response
+                        if self.summon_type in ['RAGE','BRACE','GROWTH']:
+                            if self.card_lvl_ap_buff >= 1000 + self.card_lvl:
+                                battle_config.add_battle_history_message(f"(**🦠**) **{self.name}**: reached their full power!")
+                        elif self.summon_type in ['FEAR']:
+                            if opponent_card.card_lvl_ap_buff <= 0:
+                                battle_config.add_battle_history_message(f"(**🦠**) **{opponent_card.name}**: is at minimal power!")
+                        else:
+                            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) **{self.name}** Summoned 🧬 **{self.summon_name}** against {opponent_card.name}: {damage_calculation_response['MESSAGE']}")
+                    battle_config.repeat_turn()
+                    return damage_calculation_response
+                else:
+                    battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 🧬 **{self.summon_name}** needs a turn to rest...")
+                    battle_config.repeat_turn()
             else:
                 battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 🧬 **{self.summon_name}** needs a turn to rest...")
                 battle_config.repeat_turn()
         else:
-            battle_config.add_battle_history_message(f"(**{battle_config.turn_total}**) 🧬 **{self.summon_name}** needs a turn to rest...")
+            battle_config.add_battle_history_message(f"R(**{battle_config.turn_total}**) 🧬 **{self.summon_name}** needs a turn to rest...")
             battle_config.repeat_turn()
 
     

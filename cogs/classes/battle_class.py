@@ -1420,15 +1420,15 @@ class Battle:
                     custom_id="7"
                 )
             ]
-
-        if your_card.used_focus and your_card.used_resolve and not your_card.usedsummon and not self.is_raid_game_mode:
-            u_butts.append(
-                manage_components.create_button(
-                    style=ButtonStyle.green,
-                    label="🧬",
-                    custom_id="6"
+        if not self.is_raid_game_mode:
+            if your_card.used_focus and your_card.used_resolve and not your_card.usedsummon or (your_card._summoner_active and not your_card.usedsummon):
+                u_butts.append(
+                    manage_components.create_button(
+                        style=ButtonStyle.green,
+                        label="🧬",
+                        custom_id="6"
+                    )
                 )
-            )
 
         if your_card.used_focus and not your_card.used_resolve:
             u_butts.append(
