@@ -1902,6 +1902,8 @@ class Card:
             #self.max_health = self.max_health + self._heal_value
             if self._heal_active:
                 self.health = self.health + self._heal_value
+                if self.health >= self.max_health:
+                    self.health = self.max_health
                 self._heal_value = 0
 
             if battle_config.is_boss_game_mode and battle_config.is_turn not in [1,3]:
