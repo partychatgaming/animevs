@@ -1551,7 +1551,7 @@ class Lookup(commands.Cog):
                                                             
                                                             class_info = card['CLASS']
                                                             class_emoji = crown_utilities.class_emoji(class_info)
-                                                            class_message = class.title()
+                                                            class_message = class_info.title()
                                                             universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
                                                             index = card_storage.index(card['NAME'])
                                                             level = ""
