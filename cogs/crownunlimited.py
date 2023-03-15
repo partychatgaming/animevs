@@ -1804,8 +1804,8 @@ async def cardlist(self, ctx: SlashContext, universe: str):
         super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
         ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
            
-        class = card['CLASS']
-        class_emoji = crown_utilities.class_emoji(class)
+        class_info = card['CLASS']
+        class_emoji = crown_utilities.class_emoji(class_info)
         class_message = class.title()
 
         available = ""
