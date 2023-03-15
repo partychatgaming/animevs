@@ -1899,9 +1899,10 @@ class Card:
 
             self.usedsummon = False
             self.focus_count = self.focus_count + 1
-            self.max_health = self.max_health + self._heal_value
-            self.health = self.health + self._heal_value
-            self._heal_value = 0
+            #self.max_health = self.max_health + self._heal_value
+            if self._heal_active:
+                self.health = self.health + self._heal_value
+                self._heal_value = 0
 
             if battle_config.is_boss_game_mode and battle_config.is_turn not in [1,3]:
                 embedVar = discord.Embed(title=f"{battle_config._punish_boss_description}")
