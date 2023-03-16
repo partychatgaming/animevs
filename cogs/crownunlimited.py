@@ -5647,11 +5647,11 @@ async def bossdrops(self,player, universe):
                 return f"You're maxed out on Summons! You earned :coin: **15,000,000** instead!"
             pet_owned = False
             for p in vault['PETS']:
-                if p['NAME'] == selected_pet['PET']:
+                if p['NAME'] == boss_pet:
                     pet_owned = True
             if pet_owned:
                 await crown_utilities.bless(10000000, player.id)
-                return f"You own _Summon:_ **{selected_pet['PET']}**! Received extra + :coin: 10000000!"
+                return f"You own _Summon:_ **{boss_pet}**! Received extra + :coin: 10000000!"
             else:
                 selected_pet = db.queryPet({'PET': boss['PET']})
                 pet_ability_name = list(selected_pet['ABILITIES'][0].keys())[0]
