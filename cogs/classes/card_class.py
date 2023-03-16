@@ -123,6 +123,9 @@ class Card:
             self.solo_leveling_trait_active = False
             self.haki_message = False
             self.breathing_message = False
+            self.yuyu_1ap_buff = 0
+            self.yuyu_2ap_buff = 0
+            self.yuyu_3ap_buff = 0
 
             # Elemental Effect Meters
             self.burn_dmg = 0
@@ -974,8 +977,9 @@ class Card:
         return {"MESSAGE" : f"❄️ **{self.name}** has been frozen for a turn...", "TURN": battle_config.is_turn}
 
 
-    def yuyu_hakusho_attack_increase(self):
-        self.attack = self.attack + self.stamina
+    def yuyu_hakusho_decrease_defense(self):
+        if self.used_resolve and self.universe == "YuYu Hakusho":
+            self.defense = 100
 
 
     def activate_demon_slayer_trait(self, battle_config, opponent_card):
@@ -1830,10 +1834,6 @@ class Card:
                 if self._magic_active and move_element not in ['PHYSICAL', 'RANGED', 'RECOIL']:
                     true_dmg = round(true_dmg + (true_dmg * .3))
 
-                if self.universe == "YuYu Hakusho":
-                    additional_dmg = self.stamina + battle_config.turn_total
-                    true_dmg = round(true_dmg + additional_dmg)
-
                 if is_physical_element:
                     if self.stamina > 80:
                         true_dmg = round(true_dmg * 1.5)
@@ -1869,7 +1869,7 @@ class Card:
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
                     if self._assassin_value == 3:
-                        self._assassin_value = False
+                        self._assassin_active = False
                 else:
                     self.stamina = self.stamina - move_stamina
                 
@@ -2215,6 +2215,35 @@ class Card:
                 self.usedsummon = False
                 
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: PLUS ULTRA!")
+
+                battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.repeat_turn()
+
+            elif self.universe == "YuYu Hakusho":  # My Hero Trait
+                # fortitude or luck is based on health
+                fortitude = 0.0
+                low = self.health - (self.health * .75)
+                high = self.health - (self.health * .66)
+                fortitude = round(random.randint(int(low), int(high)))
+                # Resolve Scaling
+                resolve_health = round(fortitude + (.5 * self.resolve_value))
+                resolve_attack_value = round(
+                    (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
+                resolve_defense_value = round(
+                    (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
+
+                self.stamina = 160
+                self.health = self.health + resolve_health
+                self.damage_healed = self.damage_healed + resolve_health
+                self.attack = round(self.attack * 2)
+                self.yuyu_1ap_buff = self.move1ap
+                self.yuyu_2ap_buff = self.move2ap
+                self.yuyu_3ap_buff = self.move3ap
+                self.defense = 100
+                self.used_resolve = True
+                self.usedsummon = False
+                
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Spirit Resolved!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.repeat_turn()
@@ -3288,13 +3317,13 @@ class Card:
             _opponent_card.health = _opponent_card.max_health
         
         if self.used_resolve and self.universe == "Souls":
-            self.move1ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff)
-            self.move2ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff)
-            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff)
+            self.move1ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff + self.yuyu_1ap_buff)
+            self.move2ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_2ap_buff)
+            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_3ap_buff)
         else:
-            self.move1ap = self.move1base + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff)
-            self.move2ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff)
-            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff)
+            self.move1ap = self.move1base + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff + self.yuyu_1ap_buff)
+            self.move2ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff + self.yuyu_2ap_buff)
+            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_3ap_buff)
         
         # _opponent_card.move1ap = _opponent_card.list(self.m1.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
         # _opponent_card.move2ap = _opponent_card.list(self.m2.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff

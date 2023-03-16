@@ -2125,6 +2125,7 @@ async def summonlist(self, ctx: SlashContext, universe: str):
         pet_ability = list(pet['ABILITIES'][0].keys())[0]
         pet_ability_power = list(pet['ABILITIES'][0].values())[0]
         pet_ability_type = list(pet['ABILITIES'][0].values())[1]
+        pet_emoji = crown_utilities.set_emoji(pet_ability_type)
         available = ""
         if pet['AVAILABLE'] and pet['EXCLUSIVE']:
             available = ":purple_circle:"
@@ -2134,10 +2135,10 @@ async def summonlist(self, ctx: SlashContext, universe: str):
             available = ":red_circle:"
         if pet['EXCLUSIVE']:
             dungeon_pets_details.append(
-                f"{available} 🧬 **{pet['PET']}**\n**{pet_ability}:** {pet_ability_power}\n**Type:** {pet_ability_type}\n")
+                f"{available} 🧬 **{pet['PET']}**\n**{pet_ability}:** {pet_ability_power}\n{pet_emoji} {pet_ability_type.capitalize()}\n")
         else:
             tales_pets_details.append(
-                f"{available} 🧬 **{pet['PET']}**\n**{pet_ability}:** {pet_ability_power}\n**Type:** {pet_ability_type}\n")
+                f"{available} 🧬 **{pet['PET']}**\n**{pet_ability}:** {pet_ability_power}\n{pet_emoji} {pet_ability_type.capitalize()}\n")
 
     all_pets = []
     if tales_pets_details:
@@ -4713,19 +4714,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
     opponent_card.damage_healed = round(opponent_card.damage_healed)
-    # if player_card.health <= 0:
-    #     if battle_config.is_co_op_mode:
-    #         if battle_config.is_turn == 0 or battle_config.is_turn == 2:
-    #             return battle_config.set_game_over(player_card,opponent_card, companion)
-    #         else:
-    #             return battle_config.set_game_over(opponent_card,player_card, companion)
-    #     else:
-    #         if battle_config.is_turn == 0:
-    #             return battle_config.set_game_over(player_card,opponent_card)
-    #         else:
-    #             return battle_config.set_game_over(opponent_card,player_card)
-    #If contiune to play
-    player_card.yuyu_hakusho_attack_increase()
+
+    player_card.yuyu_hakusho_decrease_defense()
     player_card.activate_chainsawman_trait(battle_config)
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)

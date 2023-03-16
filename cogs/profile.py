@@ -2641,6 +2641,7 @@ class Profile(commands.Cog):
                     
                     pet_ability = list(pet.keys())[3]
                     pet_ability_power = list(pet.values())[3]
+                    pet_emoji = crown_utilities.set_emoji(pet['TYPE'])
                     power = (pet['BOND'] * pet['LVL']) + pet_ability_power
                     pet_info = db.queryPet({'PET' : pet['NAME']})
                     if pet_info:
@@ -2657,11 +2658,12 @@ class Profile(commands.Cog):
                     {icon}
                     _Bond_ **{pet['BOND']}** | {bond_message}
                     _Level_ **{pet['LVL']}** | {lvl_message}
-                    :small_blue_diamond: **{pet_ability}:** {power}
-                    🦠 **Type:** {pet['TYPE']}"""), 
+
+                    {pet_emoji} {pet['TYPE'].capitalize()} Ability 
+                    **{pet_ability}:** {power}
+                    """), 
                     colour=0x7289da)
                     embedVar.set_thumbnail(url=avatar)
-                    embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
                     embed_list.append(embedVar)
                 
                 buttons = [

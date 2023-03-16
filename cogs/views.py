@@ -589,7 +589,7 @@ async def view_selection(self, ctx, result):
         return
     
     if result['TYPE'] == "PET":
-        await viewpet(self, ctx, result['DATA'])
+        await viewsummon(self, ctx, result['DATA'])
         return
     
     if result['TYPE'] == "UNIVERSE":
