@@ -3432,10 +3432,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
-                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                             embedVar.set_image(url="attachment://pet.png")
                                                             await asyncio.sleep(2)
-                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=2)
 
@@ -3444,10 +3444,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
-                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                             embedVar.set_image(url="attachment://pet.png")
                                                             await asyncio.sleep(2)
-                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=2)
 
@@ -3456,10 +3456,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
-                                                        tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                        summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                         embedVar.set_image(url="attachment://pet.png")
                                                         await asyncio.sleep(2)
-                                                        battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                        battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
 
@@ -3667,10 +3667,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if not player3.performance and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
-                                                        tsummon_file = showsummon(player3_card.summon_image, player3_card.summon_name, summon_response['MESSAGE'], player3_card.summon_lvl, player3_card.summon_bond)
+                                                        summon_file = crown_utilities.showsummon(player3_card.summon_image, player3_card.summon_name, summon_response['MESSAGE'], player3_card.summon_lvl, player3_card.summon_bond)
                                                         embedVar.set_image(url="attachment://pet.png")
                                                         await asyncio.sleep(2)
-                                                        battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                        battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
                                             
@@ -3810,10 +3810,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
-                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                             embedVar.set_image(url="attachment://pet.png")
                                                             await asyncio.sleep(2)
-                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=2)
 
@@ -3822,10 +3822,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
-                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                             embedVar.set_image(url="attachment://pet.png")
                                                             await asyncio.sleep(2)
-                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=2)
 

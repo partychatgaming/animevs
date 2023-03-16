@@ -168,9 +168,13 @@ class Player:
             else:
                 lvl_message = " "
 
-            summon_ability_power = (bond * lvl) + power
+            if s_type in ['BARRIER', 'PARRY']:
+                if bond == 3 and lvl == 10:
+                    summon_ability_power = power + 1 
+            else:    
+                summon_ability_power = (bond * lvl) + power
 
-            self.summon_power_message = f"🧬 | {self.equippedsummon}: {s_type.title()}: {summon_ability_power}{crown_utilities.enhancer_suffix_mapping[s_type]}"
+            self.summon_power_message = f"🧬 | {self.equippedsummon}: {crown_utilities.set_emoji(s_type)} {s_type.title()}: {summon_ability_power}"
 
 
             self.summon_lvl_message = f"🧬 | Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"

@@ -561,6 +561,12 @@ class Card:
             self.move1ap = self.move1ap + self.card_lvl_ap_buff
             self.move2ap = self.move2ap + self.card_lvl_ap_buff
             self.move3ap = self.move3ap + self.card_lvl_ap_buff
+
+            if self.summon_type in ['BARRIER', 'PARRY']:
+                if self.summon_bond == 3 and self.summon_lvl == 10:
+                    self.summon_power = self.summon_power + 1
+            else:
+                self.summon_power = (self.summon_bond * self.summon_lvl) + self.summon_power
         except:
             print("Error setting card levels")
             return False
