@@ -336,9 +336,9 @@ async def animevs(ctx):
    🥋 **Card Class**
    Your Class determines how you enter the battle:
    {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // First 3 Attack cost 0 Stamina
-   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with 3 Parrys
+   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with 3 Parries
    {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by 30%
-   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Rarity * 200 Shield
+   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 200 Shield
    {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with 3 barriers
    {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain 3 Critical Strikes
    {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle
