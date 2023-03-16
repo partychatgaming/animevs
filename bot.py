@@ -861,7 +861,16 @@ async def register(ctx):
    else:
       disname = str(ctx.author)
       name = disname.split("#",1)[0]
-      summon_info = {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0, 'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}
+      summon_info = {
+         "NAME": "Chick",
+         "LVL": 1,
+         "EXP": 0,
+         "Peck": 25,
+         "TYPE": "PHYSICAL",
+         "BOND": 0,
+         "BONDEXP": 0,
+         "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
+      }
       family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': summon_info}), str(disname))
       update_summon = db.updateFamily({'HEAD': str(disname)}, {'$set' : {'SUMMON': summon_info}})
       user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
@@ -3370,6 +3379,52 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
    else:
       print(m.ADMIN_ONLY_COMMAND)
 
+
+@slash.slash(description="admin only", guild_ids=guild_ids)
+@commands.check(validate_user)
+async def removesummons(ctx, password, key):
+   await ctx.defer()
+   if ctx.author.guild_permissions.administrator == True:
+      if password != 'casper':  
+         return await ctx.send("Admin Only")
+      if key != '513':
+         return await ctx.send("Admin Only")
+
+      try:
+         update_query = {
+            "NAME": "Chick",
+            "LVL": 1,
+            "EXP": 0,
+            "Peck": 25,
+            "TYPE": "PHYSICAL",
+            "BOND": 0,
+            "BONDEXP": 0,
+            "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
+         }
+
+         all_vaults = db.queryAllVault()
+         counter = 0
+         for vault in all_vaults:
+            query = {"DID": vault['DID']}
+            db.updateVaultNoFilter(query, {"$set": {"PETS": update_query}})
+            counter += 1
+            
+         await ctx.send(f"Updated {counter} vaults.")
+      except Exception as ex:
+         trace = []
+         tb = ex.__traceback__
+         while tb is not None:
+            trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+         print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+         }))  
 
 @slash.slash(description="update moves", guild_ids=guild_ids)
 @commands.check(validate_user)
