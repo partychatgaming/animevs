@@ -340,8 +340,11 @@ async def animevs(ctx):
    {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by 30%
    {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Rarity * 200 Shield
    {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with 3 barriers
-   {crown_utilities.class_emojis['HEALER']} *Healer* // Stores 20% of damage taken and heals for the total amount each Focus   
-
+   {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain 3 Critical Strikes   
+   {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle 
+   {crown_utilities.class_emojis['MONSTROSITY']} *Monstrosity* // On Resolve gain 2 Double Strikes
+   {crown_utilities.class_emojis['HEALER']} *Healer* // Stores 20% of damage taken and heals for the total amount each Focus 
+   
    **Cards Have 5 Abilities** 
    3 Attack Moves
    1 Enhancer

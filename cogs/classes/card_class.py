@@ -63,7 +63,6 @@ class Card:
             self._heal_value = 0
             self._assassin_active = False
             self._assassin_value = 0
-            self._summoner_active = False
             self.tactics = []
             self.max_base_health = self.max_health
             self.temporary_max_health = self.max_health
@@ -533,7 +532,7 @@ class Card:
             if self.card_class == "ASSASSIN":
                 self._assassin_active = True
                 
-            if self.card_class == "SWORDSMEN":
+            if self.card_class == "SWORDSMAN":
                 self._swordsman_active = True
                 
             if self.card_class == "SUMMONER":
@@ -541,12 +540,7 @@ class Card:
                 
             if self.card_class == "MONSTROSITY":
                 self._monstrosity_active = True
-
-            if self.card_class == "SUMMONER":
-                self._summoner_active = True
-
-
-            
+           
 
             if list_of_card_levels:
                 for x in list_of_card_levels:
@@ -1743,10 +1737,11 @@ class Card:
                 high_hit = 20
                 # hit_roll = round(random.randint(0, 20))
                 hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
-                if self._swordsman_active:
+                if self._swordsman_active and self.used_resolve:
                     if self._critical_strike_count < 3:
                         self._critical_strike_count += 1
                         hit_roll = 20
+                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{3 - self._critical_strike_count} Left!*")
                         
                 if self.bloodlust_activated:
                     hit_roll = hit_roll + 3
@@ -2505,9 +2500,9 @@ class Card:
                     battle_config._boss_embed_message = embedVar
     
             if self._monstrosity_active:
-                battle_config.add_battle_history_message(f"(**🥋**) **{self.name}**: gains 2 Double Strikes!")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.name}**: gains 2 Double Strikes!")
             if self._swordsman_active:
-                battle_config.add_battle_history_message(f"(**🥋**) **{self.name}**: gains 3 Critical Strikes!")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**: gains 3 Critical Strikes!")
             
                 
 

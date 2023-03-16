@@ -1478,7 +1478,7 @@ class Battle:
                 emoji = "⚜️"
             elif lvl >=200:
                 emoji = "🔱"
-            return f"{emoji} *{lvl} {card.name}*"
+            return f"[{crown_utilities.class_emojis[card.card_class]}] {emoji} *{lvl} {card.name}*"
 
         p1_msg = get_player_message(your_card)
         p2_msg = get_player_message(opponent_card)
