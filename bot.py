@@ -3391,7 +3391,7 @@ async def removesummons(ctx, password, key):
          return await ctx.send("Admin Only")
 
       try:
-         update_query = {
+         update_query = [{
             "NAME": "Chick",
             "LVL": 1,
             "EXP": 0,
@@ -3400,7 +3400,7 @@ async def removesummons(ctx, password, key):
             "BOND": 0,
             "BONDEXP": 0,
             "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
-         }
+         }]
 
          all_vaults = db.queryAllVault()
          counter = 0
