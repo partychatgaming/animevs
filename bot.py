@@ -3391,25 +3391,9 @@ async def removesummons(ctx, password, key):
          return await ctx.send("Admin Only")
 
       try:
-         update_query = {
-            "NAME": "Chick",
-            "LVL": 1,
-            "EXP": 0,
-            "Peck": 25,
-            "TYPE": "PHYSICAL",
-            "BOND": 0,
-            "BONDEXP": 0,
-            "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
-         }
-
-         all_vaults = db.queryAllVault()
-         counter = 0
-         for vault in all_vaults:
-            query = {"DID": vault['DID']}
-            db.updateVaultNoFilter(query, {"$set": {"PETS": update_query}})
-            counter += 1
+         db.updateManyUsers({'$set': {'PET': 'Chick'}})
             
-         await ctx.send(f"Updated {counter} vaults.")
+         await ctx.send(f"Users have been updated.")
       except Exception as ex:
          trace = []
          tb = ex.__traceback__
