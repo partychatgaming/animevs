@@ -120,24 +120,24 @@ class Lookup(commands.Cog):
                 team = d['TEAM']
                 guild = d['GUILD']
                 patreon = d['PATRON']
-                autosave_message = "🔴 Off"
+                autosave_message = crown_utilities.utility_emojis['OFF']
                 autosave = d['AUTOSAVE']
                 if autosave:
-                    autosave_message = "*🟢 On*"
+                    autosave_message = crown_utilities.utility_emojis['ON']
                     
-                performance_message = "🔴 Off"
+                performance_message = crown_utilities.utility_emojis['OFF']
                 performance = d['PERFORMANCE']
                 if performance:
-                    performance_message = "*🟢 On*"
+                    performance_message = crown_utilities.utility_emojis['ON']
                     
-                explore_message = "🔴 Off"
+                explore_message = crown_utilities.utility_emojis['OFF']
                 explore = d['EXPLORE']
                 if explore:
                     explore_location = d['EXPLORE_LOCATION']
                     location = "All"
                     if explore_location != "NULL":
                         location = explore_location
-                    explore_message = f"🟢 *Exploring {location}*"
+                    explore_message = f"{crown_utilities.utility_emojis['ON']} *Exploring {location}*"
                     
 
                     
@@ -150,17 +150,17 @@ class Lookup(commands.Cog):
                 if patreon == True:
                     patreon_message = "**💞 | Patreon Supporter**"
                 
-                rift_message = "*🔴 Closed*"
+                rift_message = crown_utilities.utility_emojis['OFF']
                 rift = d['RIFT']
                 if rift == 1:
-                    rift_message = "*🟢 On*"
+                    rift_message = crown_utilities.utility_emojis['ON']
                 if team != "PCG":
                     team_info = db.queryTeam({'TEAM_NAME' : str(team.lower())})
                     guild = team_info['GUILD']
                     guild_buff = team_info['ACTIVE_GUILD_BUFF']
                     guild_buff_active = team_info['GUILD_BUFF_ON']
                     if guild_buff == "Rift" and guild_buff_active:
-                        rift_message = "*🟢 Guild Buff On*"
+                        rift_message = f"*{crown_utilities.utility_emojis['ON']} Guild Buff On*"
                 
                 family = d['FAMILY'] 
                 family_info = db.queryFamily({"HEAD": str(family)})

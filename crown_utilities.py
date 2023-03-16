@@ -1982,6 +1982,11 @@ class_emojis = {
     'MONSTROSITY': '<:monster:1085347567384154172>'
 }
 
+utility_emojis = {
+    'OFF': '<:toggle_off:1085611427143897088>',
+    'ON': '<:toggle_on:1085611434207105115>'
+}
+
 Healer_Enhancer_Check = ['HLT', 'LIFE']
 DPS_Enhancer_Check = ['FLOG', 'WITHER']
 INC_Enhancer_Check = ['ATK', 'DEF']

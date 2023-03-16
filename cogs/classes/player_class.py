@@ -295,9 +295,9 @@ class Player:
                         boss_info = db.queryBoss({"NAME": uni['UNIVERSE_BOSS']})
                         if boss_info:
                             if boss_info['NAME'] in self.boss_wins:
-                                completed = "🟢"
+                                completed = crown_utilities.utility_emojis['ON']
                             else:
-                                completed = "🔴"
+                                completed = crown_utilities.utility_emojis['OFF']
                             embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                             {crown_utilities.crest_dict[uni['TITLE']]} **Boss**: :japanese_ogre: **{boss_info['NAME']}**
                             🎗️ **Boss Title**: {boss_info['TITLE']}
@@ -333,7 +333,7 @@ class Player:
     def set_selectable_universes(self, ctx, mode, fight_number = None):
         try:
             
-            completed_message = f"**Completed**: 🔴"
+            completed_message = f"**Completed**: {crown_utilities.utility_emojis['OFF']}"
             save_spot_text = "No Save Data"
             corruption_message = "📢 Not Corrupted"
             title = "UTITLE"
@@ -441,12 +441,12 @@ class Player:
             universe_embed_list = []
             can_fight_message = ""
             for uni in selected_universes:
-                completed_message = f"**Completed**: 🔴"
+                completed_message = f"**Completed**: {crown_utilities.utility_emojis['OFF']}"
                 save_spot_text = "No Save Data"
                 can_fight_message = f"🔥 Dungeon | {uni['TITLE']} : /universes to view all Dungeon Drops."
                 if uni[mode_check] == True:
                     if uni['TITLE'] in completed_check:
-                        completed_message = f"**Completed**: 🟢"
+                        completed_message = f"**Completed**: {crown_utilities.utility_emojis['ON']}"
                         can_fight_message = f"🔥 Dungeon | Conquer {uni['TITLE']} Dungeon again for a Boss Key and Minor Reward."
 
                     if self.difficulty != "EASY":
