@@ -1768,7 +1768,7 @@ class Card:
                         damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far! Damage Check has ended!"
                         battle_config.add_to_battle_log(damage_check_message)
                         _opponent_card.reset_damage_check()
-                    elif _opponent_card.damage_check_turns == 0:
+                    elif _opponent_card.damage_check_turns <= 0:
                         damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far! {self._end_damage_check_message}"
                         battle_config.add_to_battle_log(damage_check_message)
                         _opponent_card.reset_damage_check()
