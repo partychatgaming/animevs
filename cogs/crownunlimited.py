@@ -3047,7 +3047,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if battle_config.is_tutorial_game_mode and battle_config.tutorialsummon == False:
                                                         battle_config.tutorialsummon = True
                                                         embedVar = discord.Embed(title=f"{player1_card.name} Summoned 🧬 **{player1_card.summon_name}**",colour=0xe91e63)
-                                                        embedVar.add_field(name=f"🧬**Summon Enhancers**!",
+                                                        embedVar.add_field(name=f"🧬**Summon Assitance**!",
                                                                         value="You can use 🧬**Summons** once per Focus without losing a turn!")
                                                         embedVar.add_field(name=f"Resting",
                                                                         value="🧬**Summons** need to rest after using their ability! **Focus** to Replenish your 🧬**Summon**")
@@ -3057,7 +3057,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         await asyncio.sleep(2)
                                             summon_response = player1_card.usesummon(battle_config, player2_card)
                                             damage_calculation_response = summon_response
-
                                             if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                 if not battle_config.is_auto_battle_game_mode:
                                                     await battle_msg.delete(delay=2)
@@ -3466,12 +3465,13 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
+                                            damage_calculation_response = summon_response
 
                                         else:
                                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
                                     elif int(selected_move) == 0:
                                         player2_card.use_block(battle_config, player1_card)                                            
-                                    if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 0:
+                                    if int(selected_move) != 5 and int(selected_move) != 0:
 
                                         # If you have enough stamina for move, use it
                                         # if c used block
@@ -3693,7 +3693,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             elif button_ctx.custom_id == "9":
                                                 player1_card.use_block(battle_config, player2_card, player3_card)                                           
 
-                                            if button_ctx.custom_id != "5" and button_ctx.custom_id != "6" and button_ctx.custom_id != "7" and button_ctx.custom_id != "8" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
+                                            if button_ctx.custom_id != "5" and button_ctx.custom_id != "7" and button_ctx.custom_id != "8" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                 if player3_card._monstrosity_active and player3_card.used_resolve:
                                                     if player3_card._double_strike_count < 2:
@@ -3847,7 +3847,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
-
+                                            damage_calculation_response = summon_response
                                         else:
                                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
                                     elif int(selected_move) == 0:
@@ -3855,7 +3855,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     if int(selected_move) == 10:
                                         player2_card.use_boost(battle_config)     
                                                                                  
-                                    if int(selected_move) != 5 and int(selected_move) != 6 and int(selected_move) != 0 and int(selected_move) != 10:
+                                    if int(selected_move) != 5 and int(selected_move) != 0 and int(selected_move) != 10:
                                         damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                         if battle_config.is_co_op_mode:
                                             if player3_card.used_defend == True:

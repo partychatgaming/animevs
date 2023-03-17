@@ -467,7 +467,7 @@ async def animevs(ctx):
    **Buff**: **Universe Buff** + 200 **HLT**, 20 **ATK** and 20 **DEF**.
 
    🧬 **Summons**
-   Can assist during battle with an **Enhancer**.
+   Can assist during battle with an **Elemntal Attack** or **Defensive Boost**.
    Earn **Summons** through Tales, Dungeon and Boss **Drops** or through trade with other Players!
    Battle with your **Summon** to gain **EXP** to increase Summon **Ability Power**. 
 
@@ -500,7 +500,7 @@ async def animevs(ctx):
    ⚡ Resolve _uses 1 turn_. You no longer stack Focus Stats
 
    **Summon Assistance!**
-   Summons Enhancers can either boost your stats or inflict status effects on your opponent. Summon moves do not end the player turn!
+   Summons Enhancers either use an Elemental Attack or Grant the player a Defensive Arm. Summon moves do not end the player turn!
    🧬 Summon _uses 15 stamina_.
 
    """) ,colour=0x7289da)
