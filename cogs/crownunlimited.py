@@ -3055,6 +3055,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         await private_channel.send(embed=embedVar)
                                                         await asyncio.sleep(2)
                                             summon_response = player1_card.usesummon(battle_config, player2_card)
+                                            damage_calculation_response = summon_response
                                             
                                             if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                 if not battle_config.is_auto_battle_game_mode:
