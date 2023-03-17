@@ -81,7 +81,6 @@ class CrownUnlimited(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         try:
-            print(message.content)
             if message.author == main.bot.user:
                 return #
             level_ratelimit = self.get_lvl_ratelimit(message)
@@ -3057,7 +3056,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         await private_channel.send(embed=embedVar)
                                                         await asyncio.sleep(2)
                                             summon_response = player1_card.usesummon(battle_config, player2_card)
-                                            
+                                            damage_calculation_response = summon_response
+
                                             if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                 if not battle_config.is_auto_battle_game_mode:
                                                     await battle_msg.delete(delay=2)
@@ -3104,7 +3104,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player1_card._double_strike_count < 2:
                                                     player1_card._double_strike_count +=1
                                                     battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{2 - player1_card._double_strike_count} Left!*")
-                                                    #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                     battle_config.next_turn()
                                                     
@@ -3431,6 +3430,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if battle_config.is_co_op_mode:
                                                 if player3_card.used_defend == True:
                                                     summon_response = player2_card.usesummon(battle_config, player3_card)
+                                                    damage_calculation_response = summon_response
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
@@ -3443,6 +3443,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                                 else:
                                                     summon_response = player2_card.usesummon(battle_config, player1_card)
+                                                    damage_calculation_response = summon_response
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
@@ -3455,6 +3456,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                             else:
                                                 summon_response = player2_card.usesummon(battle_config, player1_card)
+                                                damage_calculation_response = summon_response
                                                 if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
@@ -3665,7 +3667,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             
                                             elif button_ctx.custom_id == "6":
                                                 summon_response = player3_card.usesummon(battle_config, player2_card)
-                                                
+                                                damage_calculation_response = summon_response
                                                 if not player3.performance and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
@@ -3809,6 +3811,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if battle_config.is_co_op_mode:
                                                 if player3_card.used_defend == True:
                                                     summon_response = player2_card.usesummon(battle_config, player1_card)
+                                                    damage_calculation_response = summon_response
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
@@ -3821,6 +3824,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                                 else:
                                                     summon_response = player2_card.usesummon(battle_config, player3_card)
+                                                    damage_calculation_response = summon_response
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
@@ -3833,6 +3837,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                             else:
                                                 summon_response = player2_card.usesummon(battle_config, player3_card)
+                                                damage_calculation_response = summon_response
                                                 if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
