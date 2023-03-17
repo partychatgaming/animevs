@@ -1805,7 +1805,7 @@ async def cardlist(self, ctx: SlashContext, universe: str):
         ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
            
         class_info = card['CLASS']
-        class_emoji = crown_utilities.class_emojis(class_info)
+        class_emoji = crown_utilities.class_emojis[class_info]
         class_message = class_info.title()
 
         available = ""
@@ -1823,13 +1823,13 @@ async def cardlist(self, ctx: SlashContext, universe: str):
         
         if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
             dungeon_card_details.append(
-                f"{is_skin}{available}  :mahjong: {card['TIER']} **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                f"{is_skin}{available}  :mahjong: {card['TIER']} **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
         elif not card['HAS_COLLECTION']:
             tales_card_details.append(
-                f"{is_skin}{available} :mahjong: {card['TIER']} **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                f"{is_skin}{available} :mahjong: {card['TIER']} **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
         elif card['HAS_COLLECTION']:
             destiny_card_details.append(
-                f"{is_skin}{available} :mahjong: {card['TIER']} **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                f"{is_skin}{available} :mahjong: {card['TIER']} **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
 
     all_cards = []
     if tales_card_details:
@@ -2125,6 +2125,7 @@ async def summonlist(self, ctx: SlashContext, universe: str):
         pet_ability = list(pet['ABILITIES'][0].keys())[0]
         pet_ability_power = list(pet['ABILITIES'][0].values())[0]
         pet_ability_type = list(pet['ABILITIES'][0].values())[1]
+        pet_emoji = crown_utilities.set_emoji(pet_ability_type)
         available = ""
         if pet['AVAILABLE'] and pet['EXCLUSIVE']:
             available = ":purple_circle:"
@@ -2134,10 +2135,10 @@ async def summonlist(self, ctx: SlashContext, universe: str):
             available = ":red_circle:"
         if pet['EXCLUSIVE']:
             dungeon_pets_details.append(
-                f"{available} 🧬 **{pet['PET']}**\n**{pet_ability}:** {pet_ability_power}\n**Type:** {pet_ability_type}\n")
+                f"{available} 🧬 **{pet['PET']}**\n**{pet_ability}:** {pet_ability_power}\n{pet_emoji} {pet_ability_type.capitalize()}\n")
         else:
             tales_pets_details.append(
-                f"{available} 🧬 **{pet['PET']}**\n**{pet_ability}:** {pet_ability_power}\n**Type:** {pet_ability_type}\n")
+                f"{available} 🧬 **{pet['PET']}**\n**{pet_ability}:** {pet_ability_power}\n{pet_emoji} {pet_ability_type.capitalize()}\n")
 
     all_pets = []
     if tales_pets_details:
@@ -2530,7 +2531,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
             if battle_config.mode in crown_utilities.PVP_M:
                 player2 = player2
                 player2.get_battle_ready()
-                player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'], battle_config._ai_is_boss)
+                player2_card = Card(player2._equipped_card_data['NAME'], player2._equipped_card_data['PATH'], player2._equipped_card_data['PRICE'], player2._equipped_card_data['EXCLUSIVE'], player2._equipped_card_data['AVAILABLE'], player2._equipped_card_data['IS_SKIN'], player2._equipped_card_data['SKIN_FOR'], player2._equipped_card_data['HLT'], player2._equipped_card_data['HLT'], player2._equipped_card_data['STAM'], player2._equipped_card_data['STAM'], player2._equipped_card_data['MOVESET'], player2._equipped_card_data['ATK'], player2._equipped_card_data['DEF'], player2._equipped_card_data['TYPE'], player2._equipped_card_data['PASS'][0], player2._equipped_card_data['SPD'], player2._equipped_card_data['UNIVERSE'], player2._equipped_card_data['HAS_COLLECTION'], player2._equipped_card_data['TIER'], player2._equipped_card_data['COLLECTION'], player2._equipped_card_data['WEAKNESS'], player2._equipped_card_data['RESISTANT'], player2._equipped_card_data['REPEL'], player2._equipped_card_data['ABSORB'], player2._equipped_card_data['IMMUNE'], player2._equipped_card_data['GIF'], player2._equipped_card_data['FPATH'], player2._equipped_card_data['RNAME'], player2._equipped_card_data['RPATH'], battle_config._ai_is_boss, player2._equipped_card_data['CLASS'])
                 player2_title = Title(player2._equipped_title_data['TITLE'], player2._equipped_title_data['UNIVERSE'], player2._equipped_title_data['PRICE'], player2._equipped_title_data['EXCLUSIVE'], player2._equipped_title_data['AVAILABLE'], player2._equipped_title_data['ABILITIES'])            
                 player2_arm = Arm(player2._equipped_arm_data['ARM'], player2._equipped_arm_data['UNIVERSE'], player2._equipped_arm_data['PRICE'], player2._equipped_arm_data['ABILITIES'], player2._equipped_arm_data['EXCLUSIVE'], player2._equipped_arm_data['AVAILABLE'], player2._equipped_arm_data['ELEMENT'])
                 opponent_talisman_emoji = crown_utilities.set_emoji(player2.equipped_talisman)
@@ -3433,10 +3434,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
-                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                             embedVar.set_image(url="attachment://pet.png")
                                                             await asyncio.sleep(2)
-                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=2)
 
@@ -3445,10 +3446,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
-                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                             embedVar.set_image(url="attachment://pet.png")
                                                             await asyncio.sleep(2)
-                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=2)
 
@@ -3457,10 +3458,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
-                                                        tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                        summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                         embedVar.set_image(url="attachment://pet.png")
                                                         await asyncio.sleep(2)
-                                                        battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                        battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
                                             damage_calculation_response = summon_response
@@ -3669,10 +3670,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if not player3.performance and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
-                                                        tsummon_file = showsummon(player3_card.summon_image, player3_card.summon_name, summon_response['MESSAGE'], player3_card.summon_lvl, player3_card.summon_bond)
+                                                        summon_file = crown_utilities.showsummon(player3_card.summon_image, player3_card.summon_name, summon_response['MESSAGE'], player3_card.summon_lvl, player3_card.summon_bond)
                                                         embedVar.set_image(url="attachment://pet.png")
                                                         await asyncio.sleep(2)
-                                                        battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                        battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
                                             
@@ -3812,10 +3813,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
-                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                             embedVar.set_image(url="attachment://pet.png")
                                                             await asyncio.sleep(2)
-                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=2)
 
@@ -3824,10 +3825,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if not player1.performance and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
-                                                            tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
+                                                            summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
                                                             embedVar.set_image(url="attachment://pet.png")
                                                             await asyncio.sleep(2)
-                                                            battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
+                                                            battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                             await asyncio.sleep(2)
                                                             await battle_msg.delete(delay=2)
 
@@ -4715,19 +4716,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
     opponent_card.damage_healed = round(opponent_card.damage_healed)
-    # if player_card.health <= 0:
-    #     if battle_config.is_co_op_mode:
-    #         if battle_config.is_turn == 0 or battle_config.is_turn == 2:
-    #             return battle_config.set_game_over(player_card,opponent_card, companion)
-    #         else:
-    #             return battle_config.set_game_over(opponent_card,player_card, companion)
-    #     else:
-    #         if battle_config.is_turn == 0:
-    #             return battle_config.set_game_over(player_card,opponent_card)
-    #         else:
-    #             return battle_config.set_game_over(opponent_card,player_card)
-    #If contiune to play
-    player_card.yuyu_hakusho_attack_increase()
+
+    player_card.yuyu_hakusho_decrease_defense()
     player_card.activate_chainsawman_trait(battle_config)
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
@@ -5659,11 +5649,11 @@ async def bossdrops(self,player, universe):
                 return f"You're maxed out on Summons! You earned :coin: **15,000,000** instead!"
             pet_owned = False
             for p in vault['PETS']:
-                if p['NAME'] == selected_pet['PET']:
+                if p['NAME'] == boss_pet:
                     pet_owned = True
             if pet_owned:
                 await crown_utilities.bless(10000000, player.id)
-                return f"You own _Summon:_ **{selected_pet['PET']}**! Received extra + :coin: 10000000!"
+                return f"You own _Summon:_ **{boss_pet}**! Received extra + :coin: 10000000!"
             else:
                 selected_pet = db.queryPet({'PET': boss['PET']})
                 pet_ability_name = list(selected_pet['ABILITIES'][0].keys())[0]

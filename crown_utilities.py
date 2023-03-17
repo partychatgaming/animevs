@@ -410,20 +410,22 @@ async def summonlevel(player, player_card):
         if familysummon['NAME'] == str(player.equippedsummon):
             return False
     try:
+        protections = ['BARRIER', 'PARRY']
+        query = {'DID': str(player.did)}
         lvl_req = player_card.summon_lvl * 10
         bond_req = ((player_card.summon_power * 5) * (player_card.summon_bond + 1))
+        summon_type = player_card.summon_type
+
 
         if player_card.summon_lvl < 10:
             # Non Level Up Code
             if player_card.summon_exp < (lvl_req - 1):
-                query = {'DID': str(player.did)}
                 update_query = {'$inc': {'PETS.$[type].' + "EXP": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateVault(query, update_query, filter_query)
 
             # Level Up Code
             if player_card.summon_exp >= (lvl_req - 1):
-                query = {'DID': str(player.did)}
                 update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_exp)}]
                 response = db.updateVault(query, update_query, filter_query)
@@ -431,14 +433,12 @@ async def summonlevel(player, player_card):
         if player_card.summon_bond < 3:
             # Non Bond Level Up Code
             if player_card.summon_bondexp < (bond_req - 1):
-                query = {'DID': str(player.did)}
                 update_query = {'$inc': {'PETS.$[type].' + "BONDEXP": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateVault(query, update_query, filter_query)
 
             # Bond Level Up Code
             if player_card.summon_bondexp >= (bond_req - 1):
-                query = {'DID': str(player.did)}
                 update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateVault(query, update_query, filter_query)
@@ -1980,6 +1980,11 @@ class_emojis = {
     'SUMMONER': '<:summon:1085347631108194314>',
     'SWORDSMAN': '<:Gold_Sword:1085347570282405958>',
     'MONSTROSITY': '<:monster:1085347567384154172>'
+}
+
+utility_emojis = {
+    'OFF': '<:toggle_off:1085611427143897088>',
+    'ON': '<:toggle_on:1085611434207105115>'
 }
 
 Healer_Enhancer_Check = ['HLT', 'LIFE']

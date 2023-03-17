@@ -76,8 +76,8 @@ traits = [{
     'TRAIT': 'Summon Persona : Summon also deals Damage equal to your Basic Attack. Summoners Battle : Summoning disables Opp summon. '
 },{
     'NAME': 'YuYu Hakusho',
-    'EFFECT': 'Spirit Energy, Demon Energy ',
-    'TRAIT': 'Spirit Energy : Stamina + Turn Count added to each Attack. Demon Energy :  Attack increased by Stamina each turn.'
+    'EFFECT': 'Spirit Resolved!',
+    'TRAIT': 'Spirit Resolved : Upon Resolve, Gain 2x ATK and all AP is doubled, but defense remains at 100 for remainder of the match.'
 },{
     'NAME': 'One Piece',
     'EFFECT': 'Haki : Tier Based Trait',
