@@ -3047,7 +3047,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if battle_config.is_tutorial_game_mode and battle_config.tutorialsummon == False:
                                                         battle_config.tutorialsummon = True
                                                         embedVar = discord.Embed(title=f"{player1_card.name} Summoned 🧬 **{player1_card.summon_name}**",colour=0xe91e63)
-                                                        embedVar.add_field(name=f"🧬**Summon Enhancers**!",
+                                                        embedVar.add_field(name=f"🧬**Summon Assitance**!",
                                                                         value="You can use 🧬**Summons** once per Focus without losing a turn!")
                                                         embedVar.add_field(name=f"Resting",
                                                                         value="🧬**Summons** need to rest after using their ability! **Focus** to Replenish your 🧬**Summon**")
