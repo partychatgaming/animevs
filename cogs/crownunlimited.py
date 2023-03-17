@@ -81,6 +81,7 @@ class CrownUnlimited(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         try:
+            print(message.content)
             if message.author == main.bot.user:
                 return #
             level_ratelimit = self.get_lvl_ratelimit(message)

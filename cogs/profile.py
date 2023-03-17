@@ -1904,6 +1904,7 @@ class Profile(commands.Cog):
                                     ]
                             storage_buttons_action_row = manage_components.create_actionrow(*storage_buttons)
                             msg = await ctx.send(f"Would you like to Swap Arms or Add Arm to Storage", components=[storage_buttons_action_row])
+                            
                             def check(button_ctx):
                                 return button_ctx.author == ctx.author
                             try:
@@ -1912,14 +1913,19 @@ class Profile(commands.Cog):
                                 if button_ctx.custom_id == "swap":
                                     await button_ctx.defer(ignore=True)
                                     await msg.delete()
-                                    await ctx.send(f"{ctx.author.mention}, Which arm number would you like to swap with in storage?")
+                                    msg = await ctx.send(f"{ctx.author.mention}, Which arm number would you like to swap with in storage?")
+                                    
                                     def check(msg):
                                         return msg.author == ctx.author
 
                                     try:
                                         msg = await self.bot.wait_for('message', check=check, timeout=30)
+                                        print(msg)
                                         author = msg.author
                                         content = msg.content
+                                        selection = 0
+                                        if int(content) != 0:
+                                            selection = int(content)
                                         # print("Author: " + str(author))
                                         # print("Content: " + str(content))
                                         # print(msg)
@@ -1927,7 +1933,7 @@ class Profile(commands.Cog):
                                         for names in storage:
                                             if names['ARM'] == selected_arm:
                                                 durability = names['DUR']
-                                        if storage[int(msg.content)]:
+                                        if storage[selection]:
                                             swap_with = storage[int(msg.content)]
                                             query = {'DID': str(msg.author.id)}
                                             update_storage_query = {
