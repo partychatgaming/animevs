@@ -2692,7 +2692,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     if battle_config.is_tutorial_game_mode:
                         return button_ctx.author == ctx.author
                     else:
-                        return button_ctx.author == player2.did
+                        return button_ctx.author == user2
                 elif battle_config.is_co_op_mode:
                     return button_ctx.author == ctx.author
                 else:
@@ -2746,12 +2746,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             battle_config.previous_moves_len = len(battle_config.previous_moves)
                             if battle_config.previous_moves_len >= player1.battle_history:
                                 battle_config.previous_moves = battle_config.previous_moves[-player1.battle_history:]
-
-                        if battle_config.is_co_op_mode:
-                            pre_turn_zero = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config, player3_card)
-                        else:
-                            pre_turn_zero = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
-                        
+                                
                         tactics_petrified_fear_check(player2_card, player1_card, battle_config)
                         tactics_bloodlust_check(player2_card, battle_config)
                         tactics_enrage_check(player2_card, battle_config)
@@ -2760,6 +2755,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         tactics_almighty_will_check(player2_card, battle_config)
                         tactics_death_blow_check(player2_card, player1_card, battle_config)
                         tactics_intimidation_check(player2_card, player1_card, battle_config)
+
+                        if battle_config.is_co_op_mode:
+                            pre_turn_zero = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config, player3_card)
+                        else:
+                            pre_turn_zero = beginning_of_turn_stat_trait_affects(player1_card, player1_title, player2_card, battle_config)
+                        
                         if battle_config.is_turn == 0:
                             # player1_card.used_focus = True
                             # player1_card.used_resolve = True

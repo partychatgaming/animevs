@@ -1495,7 +1495,7 @@ class Card:
                 'trace': trace
             }))
             return
-
+    
     def damage_cal(self, selected_move, battle_config, _opponent_card):
         if self.defense <= 0:
             self.defense = 25
@@ -1793,8 +1793,8 @@ class Card:
                 if _opponent_card.damage_check_activated:
                     hit_roll += 3
                     _opponent_card.damage_check_counter += true_dmg
-                    damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far!"
-                    battle_config.add_to_battle_log(damage_check_message)
+                    # damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far!"
+                    # battle_config.add_to_battle_log(damage_check_message)
                     if not summon_used:
                         _opponent_card.damage_check_turns -= 1
                     if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
