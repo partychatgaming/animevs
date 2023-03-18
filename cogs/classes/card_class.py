@@ -62,6 +62,7 @@ class Card:
             self._magic_value = 0
             self._heal_active = True
             self._heal_value = 0
+            self._heal_buff = .25
             self._assassin_active = False
             self._assassin_value = 0
             self.tactics = []
@@ -511,17 +512,31 @@ class Card:
     # This method will set the level buffs & apply them
     def set_card_level_buffs(self, list_of_card_levels=None):
         try:
+            value = 0
+            mage_buff = .30
+            heal_buff = .25
+            if self.tier in [1, 2, 3]:
+                value = 1
+            elif self.tier in [4, 5]:
+                value = 2
+                mage_buff = .40
+                heal_buff = .30
+            elif self.tier in [6, 7]:
+                value = 3
+                mage_buff = .50
+                heal_buff = .35
+
             if self.card_class == "FIGHTER":
                 self._parry_active = True
-                self._parry_value = self._parry_value + 3
+                self._parry_value = self._parry_value + value
             
             if self.card_class == "MAGE":
                 self._magic_active = True
-                self._magic_value = .30
+                self._magic_value = mage_buff
             
             if self.card_class == "RANGER":
                 self._barrier_active = True
-                self._barrier_value = self._barrier_value + 3
+                self._barrier_value = self._barrier_value + value
             
             if self.card_class == "TANK":
                 self._shield_active = True
@@ -532,6 +547,7 @@ class Card:
             if self.card_class == "HEALER":
                 self._heal_active = True
                 self._heal_value = 0
+                self._heal_buff = heal_buff
             
             if self.card_class == "ASSASSIN":
                 self._assassin_active = True
@@ -1712,7 +1728,7 @@ class Card:
                 battle_config.add_to_battle_log(damage_check_message)
             
             response = {"DMG": enhancer_value, "MESSAGE": m,
-                        "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh, "ENHANCE": True, "STAMINA_USED": move_stamina}
+                        "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh, "ENHANCE": True, "STAMINA_USED": move_stamina, "SUMMON_USED": False}
             return response
 
         else:
@@ -1904,7 +1920,7 @@ class Card:
                     message = f"{_opponent_card.name} is in damage check mode"
 
                 if _opponent_card._heal_active:
-                    _opponent_card._heal_value = round(_opponent_card._heal_value + (true_dmg * .3))
+                    _opponent_card._heal_value = round(_opponent_card._heal_value + (true_dmg * _opponent_card._heal_buff))
 
                         
                 response = {"DMG": true_dmg, "MESSAGE": message,

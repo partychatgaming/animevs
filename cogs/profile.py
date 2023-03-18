@@ -374,13 +374,14 @@ class Profile(commands.Cog):
                         embedVar.add_field(name="__Class__", value=f"{crown_utilities.class_emojis[c.card_class]} {c.class_message}", inline=False)
                         embedVar.set_image(url="attachment://image.png")
                         embedVar.set_author(name=textwrap.dedent(f"""\
-                        __Equipment__
+                        Equipment
                         {t.title_message}
                         {a.arm_message}
                         {player.talisman_message}
                         {player.summon_power_message}
                         {player.summon_lvl_message}
-                        __Passives__
+                        
+                        Passives
                         🩸 | {c.passive_name}      
                         🏃 | {evasion_message}
                         """))

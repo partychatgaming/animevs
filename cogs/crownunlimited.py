@@ -2875,7 +2875,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     if player1.performance:
                                         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{ctx.author.mention}'s move!\n{player1_card.get_perfomance_header(player1_title)}")
                                     else:
-                                        embedVar.set_author(name=f"{player1_card._arm_message}\n{player1_card.summon_resolve_message}\n")
+                                        embedVar.set_author(name=f"{player1_card.summon_resolve_message}\n")
                                         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{ctx.author.mention} Select move below!")
                                     embedVar.set_image(url="attachment://image.png")
                                     embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -3242,7 +3242,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if player2.performance:
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention}'s move!\n{player2_card.get_perfomance_header(player2_title)}")
                                         else:
-                                            embedVar.set_author(name=f"{player2_card._arm_message}\n{player2_card.summon_resolve_message}\n")
+                                            embedVar.set_author(name=f"{player2_card.summon_resolve_message}\n")
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention} Select move below!")
                           
                                         embedVar.set_image(url="attachment://image.png")
@@ -3541,7 +3541,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             if player1.performance:
                                                 embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!\n{player3_card.get_perfomance_header()}")
                                             else:
-                                                embedVar.set_author(name=f"{player3_card._arm_message}\n{player3_card.summon_resolve_message}\n")
+                                                embedVar.set_author(name=f"{player3_card.summon_resolve_message}\n")
                                                 embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!")
                                             # await asyncio.sleep(2)
                                             embedVar.set_image(url="attachment://image.png")
@@ -3619,7 +3619,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if player3.performance:
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention}'s move!\n{player2_card.get_perfomance_header(player3_title)}")
                                         else:
-                                            embedVar.set_author(name=f"{player3_card._arm_message}\n{player3_card.summon_resolve_message}\n")
+                                            embedVar.set_author(name=f"{player3_card.summon_resolve_message}\n")
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention} Select move below!")
                                         embedVar.set_image(url="attachment://image.png")
                                         if battle_config.is_duo_mode or battle_config.is_co_op_mode:
