@@ -626,6 +626,19 @@ async def viewcard(self, ctx, data):
                 return
             c.set_price_message_and_card_icon()
             c.set_tip_and_view_card_message()
+            evasion = c.get_evasion()
+            evasion_message = f"{c.speed}"
+            if c.speed >= 70 or c.speed <=30:
+                if c.speed >= 70:     
+                    if d['PERFORMANCE']:
+                        evasion_message = f"{c.speed} - *{round(c.evasion /2)}% evasion*"
+                    else:
+                        evasion_message = f"{c.speed} - {round(c.evasion /2)}% evasion"
+                elif c.speed <= 30:
+                    if d['PERFORMANCE']:
+                        evasion_message = f"{c.speed} - *{c.evasion}% evasion*"
+                    else:
+                        evasion_message = f"{c.speed} - {c.evasion}% evasion"
             att = 0
             defe = 0
             turn = 0
@@ -637,21 +650,20 @@ async def viewcard(self, ctx, data):
             
             if d['PERFORMANCE']:
                 embedVar = discord.Embed(title=f"{c.card_icon} {c.price_message} {c.name} [{crown_utilities.class_emojis[c.card_class]}]", description=textwrap.dedent(f"""\
-                :mahjong: {c.tier}
-                {crown_utilities.class_emojis[c.card_class]} {c.class_message}
-                ❤️ {c.max_health}
-                🗡️ {c.attack}
-                🛡️ {c.defense}
-                🏃 {c.speed}
+                {crown_utilities.class_emojis[c.card_class]} | {c.class_message}
+                :mahjong: | {c.tier}
+                ❤️ | {c.max_health}
+                🗡️ | {c.attack}
+                🛡️ | {c.defense}
+                🏃 | {evasion_message}
 
-                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}                
+                {c.move1_emoji} | {c.move1}: {c.move1ap}
+                {c.move2_emoji} | {c.move2}: {c.move2ap}
+                {c.move3_emoji} | {c.move3}: {c.move3ap}
+                🦠 | {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.enhancer_suffix_mapping[c.move4enh]}
 
-                {c.move1_emoji} {c.move1}: {c.move1ap}
-                {c.move2_emoji} {c.move2}: {c.move2ap}
-                {c.move3_emoji} {c.move3}: {c.move3ap}
-                🦠 {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.enhancer_suffix_mapping[c.move4enh]}   
-
-                ♾️ {c.set_trait_message()}
+                🩸 | {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
+                ♾️ | {c.set_trait_message()}
                 """), colour=000000)
                 embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
                 embedVar.set_footer(text=f"{c.tip}")
@@ -669,7 +681,7 @@ async def viewcard(self, ctx, data):
                 Passive & Universe Trait
                 🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
                 ♾️ {c.set_trait_message()}
-                🏃 {c.speed}
+                🏃 {evasion_message}
                 """))
                 embedVar.set_footer(text=f"{c.tip}")
 

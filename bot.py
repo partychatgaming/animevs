@@ -105,6 +105,10 @@ bot.remove_command("help")
                                     value="legend",
                                 ),
                                 create_choice(
+                                    name="🥋 What are classes?",
+                                    value="classes",
+                                ),
+                                create_choice(
                                     name="🦠 What are enhancers?",
                                     value="enhancers",
                                 ),
@@ -177,6 +181,10 @@ async def help(ctx: SlashContext, selection):
       embedVar.set_thumbnail(url=avatar)
       embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
+      return
+
+   if selection == "classes":
+      await classes(ctx)
       return
 
    if selection == "enhancers":
@@ -289,6 +297,34 @@ async def enhancers(ctx):
             }))
             await ctx.send("Hmm something ain't right. Check with support.", hidden=True)
             return
+         
+async def classes(ctx):
+   avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
+   embedVar3 = discord.Embed(title= f"Classes", description=textwrap.dedent(f"""\
+   🥋 **Card Class**
+   Your Class determines how you enter the battle:
+   
+   {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // First 3 Attack cost 0 Stamina
+   
+   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with 3 Parries
+   
+   {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by 30%
+   
+   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 200 Shield
+   
+   {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with 3 barriers
+   
+   {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain 3 Critical Strikes
+   
+   {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle
+   
+   {crown_utilities.class_emojis['MONSTROSITY']} *Monstrosity* // On Resolve gain 2 Double Strikes
+   
+   {crown_utilities.class_emojis['HEALER']} *Healer* // Stores 20% of damage taken and heals for the total amount each Focus 
+   """), colour=0x7289da)
+   embedVar3.set_thumbnail(url=avatar)
+   
+   await ctx.send(embed=embedVar3)
 
 
 # @slash.slash(description="Anime VS+ Manual", guild_ids=guild_ids)

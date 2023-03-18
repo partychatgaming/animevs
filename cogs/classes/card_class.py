@@ -1091,9 +1091,9 @@ class Card:
         
     def get_evasion(self):
         if self.speed <=30:
-            self.evasion = crown_utilities.calculate_speed_modifier(self.speed) * 5
+            self.evasion = -1 * (crown_utilities.calculate_speed_modifier(self.speed) * 5)
         elif self.speed >=70:
-            self.evasion = crown_utilities.calculate_speed_modifier(self.speed) * 10
+            self.evasion = -1 * (crown_utilities.calculate_speed_modifier(self.speed) * 10)
 
     def showcard(self, mode, arm, title, turn_total, opponent_card_defense):
     # Card Name can be 16 Characters before going off Card
