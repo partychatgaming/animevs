@@ -1532,15 +1532,15 @@ class Card:
                     if move_element == "BARRIER":
                         self._barrier_active = True
                         self._barrier_value = self._barrier_value + ap
-                        message = f"{move} was used! has activated a barrier of {self.summon_emoji} {ap}!"
+                        message = f"{move} was used! {self.name} received {self.summon_emoji} {ap} barrier"
                     if move_element == "SHIELD":
                         self._shield_active = True
                         self._shield_value = self._shield_value + ap
-                        message = f"{move} was used! has activated a shield of {self.summon_emoji} {ap}!"
+                        message = f"{move} was used! {Self.name} received {self.summon_emoji} {ap} shield!"
                     if move_element == "PARRY":
                         self._parry_active = True
                         self._parry_value = self._parry_value + ap
-                        message = f"{move} was used! has activated a parry of {self.summon_emoji} {ap}!"
+                        message = f"{move} was used! {self.name} receive {self.summon_emoji} {ap} parry!"
                     battle_config.add_to_battle_log(message)
                     response = {
                     "DMG": 0,
@@ -1563,7 +1563,7 @@ class Card:
 
         if (self.stamina - move_stamina) < 0:
             print("Not enough stamina to use this move!")   
-            if not summon_enhancer:
+            if not summon_used:
                 can_use_move_flag = False
                 response = {
                 "DMG": 0, 
@@ -1698,7 +1698,7 @@ class Card:
                     self.defense = 0
                     self.attack = 0
                     damage_check_message = f"❌ **[{self.name} failed the Damage Check]**"
-                    battle_config.add_to_battle_log(damage_check_message)
+                battle_config.add_to_battle_log(damage_check_message)
             
             response = {"DMG": enhancer_value, "MESSAGE": m,
                         "CAN_USE_MOVE": can_use_move_flag, "ENHANCED_TYPE": enh, "ENHANCE": True, "STAMINA_USED": move_stamina}
