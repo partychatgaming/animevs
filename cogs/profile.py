@@ -275,6 +275,10 @@ class Profile(commands.Cog):
                     c.set_affinity_message()
                     c.set_arm_config(a.passive_type, a.name, a.passive_value, a.element)
                     # c.set_passive_values()
+                    evasion = c.get_evasion()
+                    evasion_message = f"{c.speed}"
+                    if c.speed >= 70 or c.speed <=30:
+                        evasion_message = f"{c.speed} *{c.evasion}%*"
                     
                     x = 0.0999
                     y = 1.25
@@ -327,7 +331,7 @@ class Profile(commands.Cog):
                         ❤️ | **{c.max_health}**
                         🗡️ | **{c.attack}**
                         🛡️ | **{c.defense}**
-                        🏃 | **{c.speed}**
+                        🏃 | **{evasion_message}**
 
 
                         **{t.title_message}**
@@ -371,7 +375,7 @@ class Profile(commands.Cog):
                         {player.summon_lvl_message}
                         __Passives__
                         🩸 | {c.passive_name}      
-                        🏃 | {c.speed}
+                        🏃 | {evasion_message}
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
                         if c.card_lvl < 1000:

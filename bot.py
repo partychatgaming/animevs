@@ -432,8 +432,15 @@ async def animevs(ctx):
    The Engagement is a factor of Attack + Move Ap vs Opponent Defense
    When your attack is higher than your oppoenents defense you will deal more damage
    
+   🏃**Evasion**
+   Your cards speed determines your evasion stat.
+   **Fast** Cards SPD [70-100] increase their evasion by 10% every 10 Speed STAT i.e SPD 80 = 20% Evasion
+   **Slow** Cards SPD [0-30] decrease their evasion by 5% i.e SPD 10 = -15% Evasion
+   **Nuetral** Cards SPD [31-69] do not modify evasion
+   
    🧮**Strike Calculation** Strike calcalation adds variance and balance to Engagements.
    Your ability also deals damage based on the type of **Strike**
+   Strike is determined by your Move Accuracy vs Opponent Evasion
    :palm_down_hand: **Miss** - You completely miss... No Damage
    :anger: **Chip** - You barely strike. 30% Damage Reduction
    :bangbang: **Connects** - Your ability strikes. No Reduction

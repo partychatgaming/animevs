@@ -401,6 +401,23 @@ async def route_to_storage(user, player, card_name, current_cards, card_owned, p
             'message': str(ex),
             'trace': trace
         }))
+        
+
+def calculate_speed_modifier(speed):
+    if speed <= 10:
+        return 1
+    elif speed <= 20:
+        return 2
+    elif speed <= 30:
+        return 3
+    elif speed >= 90:
+        return -6
+    elif speed >= 80:
+        return -4
+    elif speed >= 70:
+        return -2
+    else:
+        return 0
 
 
 async def summonlevel(player, player_card):    

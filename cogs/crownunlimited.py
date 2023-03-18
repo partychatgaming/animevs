@@ -2823,7 +2823,16 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             await button_ctx.send(embed=battle_config._boss_embed_message)
 
                                     elif selected_move == 6:
-                                        player1_card.usesummon(battle_config, player2_card)
+                                        summon_response = player1_card.usesummon(battle_config, player2_card)
+                                        damage_calculation_response = summon_response
+                                        player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                        if player1_card._monstrosity_active and player1_card.used_resolve:
+                                            if player1_card._double_strike_count < 2:
+                                                player1_card._double_strike_count +=1
+                                                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{2 - player1_card._double_strike_count} Left!*")
+                                                #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
+                                                player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                                battle_config.next_turn()
 
                                     elif selected_move == 0:
                                         player1_card.use_block(battle_config, player2_card)                                
@@ -3297,7 +3306,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 player2_card.resolving(battle_config, player1_card)
                                             
                                             elif button_ctx.custom_id == "6" and not battle_config.is_raid_game_mode:
-                                                player2_card.usesummon(battle_config, player1_card)
+                                                summon_response = player2_card.usesummon(battle_config, player1_card)
+                                                damage_calculation_response = summon_response
                                             
                                             elif button_ctx.custom_id == "0":
                                                 player2_card.use_block(battle_config, player1_card)                                            
@@ -3366,12 +3376,13 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         elif selected_move == 6:
                                             # Resolve Check and Calculation
-                                            player2_card.usesummon(battle_config, player1_card)
+                                            summon_response = player2_card.usesummon(battle_config, player1_card)
+                                            damage_calculation_response = summon_response
                                         
                                         if selected_move == 0:
                                             player2_card.use_block(battle_config, player1_card)
 
-                                        if selected_move != 5 and selected_move != 6 and selected_move != 0:
+                                        if selected_move != 5 and selected_move != 0:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                             if player2_card._monstrosity_active and player2_card.used_resolve:
                                                 if player2_card._double_strike_count < 2:
@@ -3465,7 +3476,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_msg = await private_channel.send(embed=embedVar, file=summon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
-                                            damage_calculation_response = summon_response
+                                            #damage_calculation_response = summon_response
 
                                         else:
                                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
@@ -3565,7 +3576,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             player3_card.resolving(battle_config, player2_card, player3)
                                         
                                         if selected_move == 6:
-                                            player3_card.usesummon(battle_config, player2_card)                                        
+                                            summon_response = player3_card.usesummon(battle_config, player2_card)
+                                            damage_calculation_response = summon_response
+                                 
                                         
                                         elif selected_move == 8:
                                             player3_card.use_companion_enhancer(battle_config, player2_card, player1_card)
@@ -3573,7 +3586,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         elif selected_move == 0:
                                             player3_card.use_defend(battle_config, player1_card)
 
-                                        if selected_move != 5 and selected_move != 6 and selected_move != 7 and selected_move != 8 and selected_move != 0:
+                                        if selected_move != 5 and selected_move != 7 and selected_move != 8 and selected_move != 0:
                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card) 
                                             if player3_card._monstrosity_active and player3_card.used_resolve:
                                                 if player3_card._double_strike_count < 2:
@@ -3847,7 +3860,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_msg = await private_channel.send(embed=embedVar, file=tsummon_file)
                                                         await asyncio.sleep(2)
                                                         await battle_msg.delete(delay=2)
-                                            damage_calculation_response = summon_response
+                                            #damage_calculation_response = summon_response
                                         else:
                                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {player2_card.name} Could not summon 🧬 **{player2_card.name}**. Needs rest")
                                     elif int(selected_move) == 0:

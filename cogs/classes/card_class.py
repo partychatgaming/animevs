@@ -35,6 +35,7 @@ class Card:
             self.type = type
             self.passive = passive
             self.speed = speed
+            self.evasion = 0
             self.universe = universe
             self.has_collection = has_collection
             self.tier = tier
@@ -953,17 +954,16 @@ class Card:
 
     def set_burn_hit(self, opponent_card):
         burn_message = None
-        if opponent_card.burn_dmg > 3:
+        if opponent_card.burn_dmg > 10:
             self.health = self.health - opponent_card.burn_dmg
             burn_message =  f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
+            self.damage_recieved = self.damage_recieved + round(opponent_card.burn_dmg)
+            opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.burn_dmg)
             if self.health < 0:
                 self.health = 0
 
-        if opponent_card.burn_dmg >= 2:
+        if opponent_card.burn_dmg >= 25:
             opponent_card.burn_dmg = round(opponent_card.burn_dmg / 2)
-        
-        self.damage_recieved = self.damage_recieved + round(opponent_card.burn_dmg)
-        opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.burn_dmg)
         
         return burn_message
 
@@ -1088,7 +1088,12 @@ class Card:
             return self.index
         except:
             return 0
-
+        
+    def get_evasion(self):
+        if self.speed <=30:
+            self.evasion = crown_utilities.calculate_speed_modifier(self.speed) * 5
+        elif self.speed >=70:
+            self.evasion = crown_utilities.calculate_speed_modifier(self.speed) * 10
 
     def showcard(self, mode, arm, title, turn_total, opponent_card_defense):
     # Card Name can be 16 Characters before going off Card
@@ -1147,6 +1152,12 @@ class Card:
 
                 self.set_passive_num(self.passive_num)
                 card_message = f"{self.passive_type.title()} {self.passive_num}"
+                
+                #Evasion
+                evasion = self.get_evasion()
+                evasion_message = f"{self.speed}"
+                if self.speed >= 70 or self.speed <=30:
+                    evasion_message = f"{self.speed} *{self.evasion}%*"
                     
                 #Moveset Emojis
                     
@@ -1536,7 +1547,7 @@ class Card:
                     if move_element == "SHIELD":
                         self._shield_active = True
                         self._shield_value = self._shield_value + ap
-                        message = f"{move} was used! {Self.name} received {self.summon_emoji} {ap} shield!"
+                        message = f"{move} was used! {self.name} received {self.summon_emoji} {ap} shield!"
                     if move_element == "PARRY":
                         self._parry_active = True
                         self._parry_value = self._parry_value + ap
@@ -1706,7 +1717,6 @@ class Card:
 
         else:
             # Calculate Damage
-
             # dmg = ((int(ap) + int(atk)) / (op_defense + 2) * (.20 * int(ap)))
             try:
                 defensepower = _opponent_card.defense - self.attack
@@ -1747,6 +1757,11 @@ class Card:
                 high_hit = 20
                 # hit_roll = round(random.randint(0, 20))
                 hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
+                evasion = crown_utilities.calculate_speed_modifier(self.speed)
+                hit_roll += evasion
+                
+                #Evasion Modifier
+                
                 if self._swordsman_active and self.used_resolve:
                     if self._critical_strike_count < 3:
                         self._critical_strike_count += 1
@@ -1841,28 +1856,39 @@ class Card:
 
                 if move_element in _opponent_card.weaknesses and not (hit_roll <= miss_hit):
                     true_dmg = round(true_dmg * 1.6)
-                    message = f"{_opponent_card.name} is weak to {move_emoji} {move_element.lower()}! Strong hit for **{true_dmg}**!"
+                    if summon_used:
+                        message = f"{_opponent_card.name} is weak to {move_emoji} {move_element.lower()}! Strong hit for {true_dmg}!"
+                    else:
+                        message = f"{_opponent_card.name} is weak to {move_emoji} {move_element.lower()}! Strong hit for **{true_dmg}**!"
 
                 #if not battle_config.is_ai_opponent:
                 
                 if not self._talisman == move_element and not self._is_boss:
                     if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) :
                         true_dmg = round(true_dmg * .45)
-                        message = f"{_opponent_card.name} is resistant to {move_emoji} {move_element.lower()}. Weak hit for **{true_dmg}**!"
-
+                        if summon_used:
+                            message = f"{_opponent_card.name} is resistant to {move_emoji} {move_element.lower()}. Weak hit for {true_dmg}!"
+                        else:
+                            message = f"{_opponent_card.name} is resistant to {move_emoji} {move_element.lower()}. Weak hit for **{true_dmg}**!"
                     if move_element in _opponent_card.immunity and not (hit_roll <= miss_hit):
                         true_dmg = 0
-                        message = f"{_opponent_card.name} is immune to {move_emoji} {move_element.lower()}. **0** dmg dealt!"
-
+                        if summon_used:
+                            message = f"{_opponent_card.name} is immune to {move_emoji} {move_element.lower()}. 0 dmg dealt!"
+                        else:
+                            message = f"{_opponent_card.name} is immune to {move_emoji} {move_element.lower()}. **0** dmg dealt!"
                     if move_element in _opponent_card.repels and not (hit_roll <= miss_hit):
-                        message = f"{_opponent_card.name} repels {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
                         if summon_used:
                             self.health = self.health - true_dmg
+                            message = f"{_opponent_card.name} repels {move_emoji} {move_element.lower()} for {true_dmg} dmg!"
+                        else:
+                            message = f"{_opponent_card.name} repels {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
                         does_repel = True
                     if move_element in _opponent_card.absorbs and not (hit_roll <= miss_hit):
-                        message = f"{_opponent_card.name} absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
                         if summon_used:
                             _opponent_card.health = _opponent_card.health + true_dmg
+                            message = f"{_opponent_card.name} absorbs {move_emoji} {move_element.lower()} for {true_dmg} dmg!"
+                        else:
+                            message = f"{_opponent_card.name} absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
                         does_absorb = True
                         
 
@@ -2931,24 +2957,31 @@ class Card:
                     battle_config.next_turn()
             elif dmg['DMG'] == 0:
                 if self._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC"]:
-                    self._barrier_active = False
-                    self._barrier_value = 0
-                    self._arm_message = ""
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
+                    if not dmg['SUMMON_USED']:
+                        self._barrier_active = False
+                        self._barrier_value = 0
+                        self._arm_message = ""
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
                 battle_config.turn_total = battle_config.turn_total + 1
-                battle_config.next_turn()             
+                if not dmg['SUMMON_USED']:
+                    battle_config.next_turn()            
             else:
+                if dmg['SUMMON_USED']:
+                    name = f"🧬 {self.name} summoned **{self.summon_name}**\n"
+                else:
+                    name = f" **{self.name}:**"
                 if opponent_card.universe == "Naruto" and opponent_card.stamina < 10:
                     stored_damage = round(dmg['DMG'])
                     opponent_card.naruto_heal_buff = opponent_card.naruto_heal_buff + stored_damage
                     opponent_card.health = opponent_card.health 
 
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                        self._barrier_active = False
-                        self._barrier_value = 0
-                        self._arm_message = ""
-                        battle_config.add_to_battle_log(f"(💠) **{self.name}** disengaged their barrier to engage with an attack")
+                        if not dmg['SUMMON_USED']:
+                            self._barrier_active = False
+                            self._barrier_value = 0
+                            self._arm_message = ""
+                            battle_config.add_to_battle_log(f"(💠) **{self.name}** disengaged their barrier to engage with an attack")
 
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
                     if not opponent_card.used_resolve:
@@ -2956,10 +2989,11 @@ class Card:
                 
                 elif opponent_card._shield_active and dmg['ELEMENT'] not in  ["DARK"]:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                        self._barrier_active = False
-                        self._barrier_value = 0
-                        self._arm_message = ""
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
+                        if not dmg['SUMMON_USED']:
+                            self._barrier_active = False
+                            self._barrier_value = 0
+                            self._arm_message = ""
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
 
                     if dmg['ELEMENT'] == "POISON": #Poison Update
                         if self.poison_dmg <= (150 * self.tier):
@@ -2978,31 +3012,32 @@ class Card:
                                 opponent_card._barrier_active = False
                                 opponent_card._barrier_value = 0
                                 opponent_card._arm_message = ""
-                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
+                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
                         else:
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** strikes **{opponent_card.name}**'s Shield 🌐\n**{opponent_card._shield_value} Shield** Left!")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} strikes **{opponent_card.name}**'s Shield 🌐\n**{opponent_card._shield_value} Shield** Left!")
                             if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                                 opponent_card._barrier_active = False
                                 opponent_card._barrier_value = 0
-                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** destroyed **{opponent_card.name}**'s 💠 Barrier! No Barriers remain!")
+                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroyed **{opponent_card.name}**'s 💠 Barrier! No Barriers remain!")
 
                 elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK"]:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                        self._barrier_active = False
-                        self._barrier_value = 0
-                        self._arm_message = ""
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
+                        if not dmg['SUMMON_USED']:
+                            self._barrier_active = False
+                            self._barrier_value = 0
+                            self._arm_message = ""
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
 
                     if opponent_card._barrier_value > 1:
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** hits **{opponent_card.name}** Barrier 💠 blocking the attack\n{opponent_card._barrier_value - 1} Barriers remain")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} hits **{opponent_card.name}** Barrier 💠 blocking the attack\n{opponent_card._barrier_value - 1} Barriers remain")
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                     elif opponent_card._barrier_value == 1:
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                         opponent_card._barrier_active = False
                         opponent_card._barrier_value = 0
@@ -3010,10 +3045,11 @@ class Card:
                 
                 elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC"]:                    
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                        self._barrier_active = False
-                        self._barrier_value = 0
-                        self._arm_message = ""
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
+                        if not dmg['SUMMON_USED']:
+                            self._barrier_active = False
+                            self._barrier_value = 0
+                            self._arm_message = ""
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
                     
                     if opponent_card._parry_value > 1:
                         parry_damage = round(dmg['DMG'])
@@ -3021,24 +3057,24 @@ class Card:
                         self.health = round(self.health - (parry_damage * .40))
                         self.damage_dealt = self.damage_dealt +  (parry_damage * .75)
                         opponent_card._parry_value = opponent_card._parry_value - 1
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Parried 🔄 **{self.name}**'s attack\nAfter dealing **{round(parry_damage * .75)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Parried 🔄 {name}'s attack\nAfter dealing **{round(parry_damage * .75)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain!")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
                         
                     elif opponent_card._parry_value == 1:
                         parry_damage = round(dmg['DMG'])
                         opponent_card.health = round(opponent_card.health - (parry_damage * .75))
                         self.health = round(self.health - (parry_damage * .40))
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing **{round(parry_damage * .75)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing **{round(parry_damage * .75)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
                         opponent_card._parry_value = opponent_card._parry_value - 1
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier\n0 Barriers remain")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
                         opponent_card._parry_active = False
                         opponent_card._parry_value = 0
                         opponent_card._arm_message = ""
@@ -3059,10 +3095,11 @@ class Card:
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
                     
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                        self._barrier_active = False
-                        self._barrier_value = 0
-                        self._arm_message = ""
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
+                        if not dmg['SUMMON_USED']:
+                            self._barrier_active = False
+                            self._barrier_value = 0
+                            self._arm_message = ""
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
 
                     self.activate_element_check(battle_config, dmg, opponent_card)
 
@@ -3072,8 +3109,9 @@ class Card:
                     if opponent_card._final_stand==True:
                         if opponent_card.universe == "Dragon Ball Z":
                             if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                                self._barrier_active = False
-                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
+                                if not dmg['SUMMON_USED']:
+                                    self._barrier_active = False
+                                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
                             # print(opponent_card.attack)
                             # print(opponent_card.defense)
@@ -3102,7 +3140,8 @@ class Card:
                         battle_config.turn_total = battle_config.turn_total + 1
                 else:
                     battle_config.turn_total = battle_config.turn_total + 1
-                    battle_config.next_turn()
+                    if not dmg['SUMMON_USED']:
+                        battle_config.next_turn()
                     
         else:
             print(f"End of damage_done")
@@ -3117,9 +3156,9 @@ class Card:
             opponent_card.health = opponent_card.health + dmg['DMG']
 
         if dmg['SUMMON_USED']:
-            name = f"🧬 **{self.summon_name} was summoned...**\n"
+            name = f"🧬 {self.name} summoned **{self.summon_name}**\n"
         else:
-            name = f"(**{battle_config.turn_total}**) **{self.name}:** "
+            name = f"(**{battle_config.turn_total}**) **{self.name}:**"
 
         if dmg['ELEMENT'] == "WATER":
             if self.move1_element == "WATER":
@@ -3129,7 +3168,7 @@ class Card:
             if self.move3_element == "WATER":
                 self.ultimate_water_buff = self.ultimate_water_buff + 100
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*The Tide Stirs +{self.basic_water_buff}")
         
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
