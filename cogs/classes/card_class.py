@@ -3168,7 +3168,7 @@ class Card:
             if self.move3_element == "WATER":
                 self.ultimate_water_buff = self.ultimate_water_buff + 100
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*The Tide Stirs +{self.basic_water_buff}")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*The Tide Stirs +{self.basic_water_buff}*")
         
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
