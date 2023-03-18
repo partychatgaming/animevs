@@ -970,15 +970,17 @@ class Card:
 
     def set_burn_hit(self, opponent_card):
         burn_message = None
-        if opponent_card.burn_dmg > 10:
+        if opponent_card.burn_dmg > 15:
             self.health = self.health - opponent_card.burn_dmg
             burn_message =  f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
             self.damage_recieved = self.damage_recieved + round(opponent_card.burn_dmg)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.burn_dmg)
             if self.health < 0:
                 self.health = 0
+        else:
+            opponent_card.bun_dmg = 0
 
-        if opponent_card.burn_dmg >= 25:
+        if opponent_card.burn_dmg >= 30:
             opponent_card.burn_dmg = round(opponent_card.burn_dmg / 2)
         
         return burn_message
@@ -2031,9 +2033,7 @@ class Card:
                 battle_config._tutorial_message = embedVar
 
             self.usedsummon = False
-            self.focus_count = self.focus_count + 1
-            #self.max_health = self.max_health + self._heal_value
-            
+            self.focus_count = self.focus_count + 1            
 
             if battle_config.is_boss_game_mode and battle_config.is_turn not in [1,3]:
                 embedVar = discord.Embed(title=f"{battle_config._punish_boss_description}")
@@ -2046,6 +2046,7 @@ class Card:
                                 value=f"{battle_config._aura_boss_description}")
                 embedVar.set_footer(text=f"{self.name} Says: 'Now, are you ready for a real fight?'")   
                 battle_config._boss_embed_message = embedVar
+            
             # fortitude or luck is based on health
             fortitude = round(self.health * .1)
             if fortitude <= 50:
@@ -2072,11 +2073,6 @@ class Card:
                 if _opponent_title.passive_type == "GAMBLE":
                     health_calculation = _opponent_title.passive_value
             
-            # if battle_config.is_co_op_mode:
-            #     if _co_op_title.passive_type:
-            #         if _co_op_title.passive_type == "GAMBLE":
-            #             health_calculation = _co_op_title.passive_value
-
             new_health_value = 0
             heal_message = ""
             message_number = 0
@@ -2103,6 +2099,7 @@ class Card:
                     heal_message = f"**{_opponent_card.name}**'s blows don't appear to have any effect!"
                     self.health = self.max_health
                     message_number = 0
+            
             if self.universe == "Crown Rift Madness" and not self.used_resolve:
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}** focused and {heal_message}\n*+:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
             else:
@@ -2139,8 +2136,6 @@ class Card:
                     embedVar.set_footer(
                         text=f"You can only enter ⚡Resolve once per match! Use the Heal Wisely!!!")
                     battle_config.tutorial_message = embedVar
-                # battle_config.next_turn()
-                # battle_config.turn_total = battle_config.turn_total + 2
 
                 
                 # fortitude or luck is based on health
@@ -2162,7 +2157,7 @@ class Card:
                 self.defense = round(self.defense * 1.5)
                 self.used_resolve = True
                 self.usedsummon = False
-                if battle_config.turn_total <=5:
+                if battle_config.turn_total <= 5:
                     self.attack = round(self.attack * 2)
                     self.defense = round(self.defense * 2 )
                     self.health = self.health + 500
@@ -2176,37 +2171,27 @@ class Card:
                 _opponent_card.health = round(_opponent_card.health - (60 + battle_config.turn_total))
                 self.damage_dealth = self.damage_dealt + (60 + battle_config.turn_total)
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{60 + battle_config.turn_total}** Damage 💥")
-                # battle_config.next_turn()
-                # battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Dragon Ball Z":
                 self.health = self.health + _opponent_card.stamina + battle_config.turn_total
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + battle_config.turn_total}** ❤️")
-                # battle_config.next_turn()
-                # battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Solo Leveling":
                 _opponent_card.defense = round(_opponent_card.defense - (30 + battle_config.turn_total))
                 
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Ruler's Authority... Opponent loses **{30 + battle_config.turn_total}** 🛡️ 🔻")
-                # battle_config.next_turn()
-                # battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Black Clover":                
                 self.stamina = 100
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50 + battle_config.turn_total
 
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
-                # battle_config.next_turn()
-                # battle_config.turn_total = battle_config.turn_total + 2
 
             elif self.universe == "Death Note":
                 if battle_config.turn_total >= (24 + (24 * self.tier)):
                     battle_config.add_to_battle_log(f"(**🌀**) **{_opponent_card.name}** 🩸 had a heart attack and died")
                     
                     _opponent_card.health = -1000
-                    # battle_config.next_turn()
-                    # battle_config.turn_total = battle_config.turn_total + 2
             
             elif self.universe == "One Punch Man":
                 low_tier_cards = [1,2]
@@ -2226,8 +2211,6 @@ class Card:
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + ap_boost
                 
                 battle_config.add_to_battle_log(f"(**🌀**)  🩸{rank} Rank Hero : **{self.name}** increased AP by **{ap_boost}** :sunny:!")
-                # battle_config.next_turn()
-                # battle_config.turn_total = battle_config.turn_total + 2
 
             #Opponent Traits
             if _opponent_card.universe == "One Punch Man":
@@ -2235,25 +2218,20 @@ class Card:
                 _opponent_card.max_health = round(_opponent_card.max_health + 100)
 
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Hero Reinforcements! **{_opponent_card.name}**  Increased Health & Max Health ❤️")
-                # battle_config.next_turn()
-                # battle_config.turn_total = battle_config.turn_total + 2
 
             elif _opponent_card.universe == "7ds":
                 _opponent_card.stamina = _opponent_card.stamina + 60
                 _opponent_card.usedsummon = False
                 
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina 🌀")
-                # battle_config.next_turn()
-                # battle_config.turn_total = battle_config.turn_total + 2
 
             elif _opponent_card.universe == "Souls":
                 _opponent_card.attack = round(_opponent_card.attack + (60 + battle_config.turn_total))
 
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{60 + battle_config.turn_total}** 🔺")
-                # battle_config.next_turn()
-            #battle_config.turn_total = battle_config.turn_total + 2
 
-            battle_config.turn_total = battle_config.turn_total + 2
+            battle_config.turn_total = battle_config.turn_total + 1
+            
             if self.universe != "Crown Rift Madness":
                 battle_config.next_turn()
             else:
