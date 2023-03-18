@@ -275,7 +275,19 @@ class Profile(commands.Cog):
                     c.set_affinity_message()
                     c.set_arm_config(a.passive_type, a.name, a.passive_value, a.element)
                     # c.set_passive_values()
-                    
+                    evasion = c.get_evasion()
+                    evasion_message = f"{c.speed}"
+                    if c.speed >= 70 or c.speed <=30:
+                        if c.speed >= 70:     
+                            if player.performance:
+                                evasion_message = f"{c.speed} - *{round(c.evasion /2)}% evasion*"
+                            else:
+                                evasion_message = f"{c.speed} - {round(c.evasion /2)}% evasion"
+                        elif c.speed <= 30:
+                            if player.performance:
+                                evasion_message = f"{c.speed} - *{c.evasion}% evasion*"
+                            else:
+                                evasion_message = f"{c.speed} - {c.evasion}% evasion"
                     x = 0.0999
                     y = 1.25
                     lvl_req = round((float(c.card_lvl)/x)**y)
@@ -322,12 +334,12 @@ class Profile(commands.Cog):
 
                     if player.performance:
                         embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
-                        :mahjong: | **{c.tier}**
                         {crown_utilities.class_emojis[c.card_class]} | **{c.class_message}**
+                        :mahjong: | **{c.tier}**
                         ❤️ | **{c.max_health}**
                         🗡️ | **{c.attack}**
                         🛡️ | **{c.defense}**
-                        🏃 | **{c.speed}**
+                        🏃 | **{evasion_message}**
 
 
                         **{t.title_message}**
@@ -336,13 +348,12 @@ class Profile(commands.Cog):
                         {player.summon_power_message}
                         {player.summon_lvl_message}
 
-                        🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num} {passive_enhancer_suffix_mapping[c.passive_type]}                
-                        
                         {c.move1_emoji} | **{c.move1}:** {c.move1ap}
                         {c.move2_emoji} | **{c.move2}:** {c.move2ap}
                         {c.move3_emoji} | **{c.move3}:** {c.move3ap}
                         🦠 | **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
 
+                        🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num} {passive_enhancer_suffix_mapping[c.passive_type]}                
                         ♾️ | {c.set_trait_message()}
                         """),colour=000000)
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
@@ -371,7 +382,7 @@ class Profile(commands.Cog):
                         {player.summon_lvl_message}
                         __Passives__
                         🩸 | {c.passive_name}      
-                        🏃 | {c.speed}
+                        🏃 | {evasion_message}
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
                         if c.card_lvl < 1000:
@@ -4493,6 +4504,7 @@ class Profile(commands.Cog):
         d = db.queryUser(query)#Storage Update
         storage_type = d['STORAGE_TYPE']
         vault = db.queryVault({'DID': d['DID']})
+        player = Player(d['AUTOSAVE'], d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'], d['SCENARIO_HISTORY'])
         try: 
             if vault:
                 name = d['DISNAME'].split("#",1)[0]
@@ -4520,6 +4532,22 @@ class Profile(commands.Cog):
                 for card in cards_list:
                     index = cards_list.index(card)
                     resp = db.queryCard({"NAME": str(card)})
+                    c = Card(resp['NAME'], resp['PATH'], resp['PRICE'], resp['EXCLUSIVE'], resp['AVAILABLE'], resp['IS_SKIN'], resp['SKIN_FOR'], resp['HLT'], resp['HLT'], resp['STAM'], resp['STAM'], resp['MOVESET'], resp['ATK'], resp['DEF'], resp['TYPE'], resp['PASS'][0], resp['SPD'], resp['UNIVERSE'], resp['HAS_COLLECTION'], resp['TIER'], resp['COLLECTION'], resp['WEAKNESS'], resp['RESISTANT'], resp['REPEL'], resp['ABSORB'], resp['IMMUNE'], resp['GIF'], resp['FPATH'], resp['RNAME'], resp['RPATH'], False, resp['CLASS'])
+                    c.set_card_level_buffs(player._card_levels)
+                    c.set_affinity_message()
+                    evasion = c.get_evasion()
+                    evasion_message = f"{c.speed}"
+                    if c.speed >= 70 or c.speed <=30:
+                        if c.speed >= 70:     
+                            if player.performance:
+                                evasion_message = f"{c.speed} - *{round(c.evasion /2)}% evasion*"
+                            else:
+                                evasion_message = f"{c.speed} - {round(c.evasion /2)}% evasion"
+                        elif c.speed <= 30:
+                            if player.performance:
+                                evasion_message = f"{c.speed} - *{c.evasion}% evasion*"
+                            else:
+                                evasion_message = f"{c.speed} - {c.evasion}% evasion"
                     card_tier = 0
                     lvl = ""
                     tier = ""
@@ -4666,10 +4694,10 @@ class Profile(commands.Cog):
 
 
                     embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
+                    {crown_utilities.class_emojis[resp['CLASS']]} {resp["CLASS"].title()}
                     {icon} **[{index}]** 
                     {card_tier}: {lvl}
-                    🥋 {resp["CLASS"].title()}
-                    :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{resp['SPD']}**
+                    :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{evasion_message}**
                     
                     {move1_emoji} **{move1}:** {move1ap}
                     {move2_emoji} **{move2}:** {move2ap}

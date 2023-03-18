@@ -44,7 +44,7 @@ class Battle:
         self.max_turns_allowed = 250
         self.previous_moves = ["Match has started"]
         self.previous_moves_len = 0
-        self.main_battle_options = ["1", "2", "3", "4"]
+        self.main_battle_options = ["1", "2", "3", "4", "6"]
         self.battle_options = ["1", "2", "3", "4"]
         self.battle_buttons = []
         self.co_op_buttons = []
