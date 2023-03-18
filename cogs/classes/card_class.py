@@ -1903,6 +1903,39 @@ class Card:
                 }))
 
 
+    # def set_battle_arm_messages(self, opponent_card):
+    #     if self.used_resolve:
+    #         self.summon_resolve_message = f"🧬 | {crown_utilities.set_emoji(self.summon_type)} {self.summon_type.capitalize()}"
+        
+    #     weapon_emojis = {
+    #         "barrier": "💠",
+    #         "shield": "🌐",
+    #         "parry": "🔄",
+    #         "siphon": "💉"
+    #     }
+
+    #     for weapon, emoji, active, value in [
+    #         ("barrier", "💠", opponent_card._barrier_active, opponent_card._barrier_value),
+    #         ("shield", "🌐", opponent_card._shield_active, opponent_card._shield_value),
+    #         ("parry", "🔄", opponent_card._parry_active, opponent_card._parry_value),
+    #         ("siphon", "💉", opponent_card._siphon_active, opponent_card._siphon_value)
+    #     ]:
+    #         if active:
+    #             opponent_card._arm_message = f"{emoji} | {value} {weapon.capitalize()}"
+    #             break
+
+
+    #     for weapon, emoji, active, value in [
+    #         ("barrier", "💠", self._barrier_active, self._barrier_value),
+    #         ("shield", "🌐", self._shield_active, self._shield_value),
+    #         ("parry", "🔄", self._parry_active, self._parry_value),
+    #         ("siphon", "💉", self._siphon_active, self._siphon_value)
+    #     ]:
+    #         if active:
+    #             self._arm_message = f"{emoji} | {value} {weapon.capitalize()}"
+    #             break
+        
+
     def set_battle_arm_messages(self, opponent_card):
         if self.used_resolve:
             self.summon_resolve_message = f"🧬 | {crown_utilities.set_emoji(self.summon_type)} {self.summon_type.capitalize()}"
@@ -1914,27 +1947,31 @@ class Card:
             "siphon": "💉"
         }
 
-        for weapon, emoji, active, value in [
-            ("barrier", "💠", opponent_card._barrier_active, opponent_card._barrier_value),
-            ("shield", "🌐", opponent_card._shield_active, opponent_card._shield_value),
-            ("parry", "🔄", opponent_card._parry_active, opponent_card._parry_value),
-            ("siphon", "💉", opponent_card._siphon_active, opponent_card._siphon_value)
-        ]:
-            if active:
-                opponent_card._arm_message = f"{emoji} | {value} {weapon.capitalize()}"
-                break
-
-
-        for weapon, emoji, active, value in [
-            ("barrier", "💠", self._barrier_active, self._barrier_value),
-            ("shield", "🌐", self._shield_active, self._shield_value),
-            ("parry", "🔄", self._parry_active, self._parry_value),
-            ("siphon", "💉", self._siphon_active, self._siphon_value)
-        ]:
-            if active:
-                self._arm_message = f"{emoji} | {value} {weapon.capitalize()}"
-                break
+        self._arm_message = ""
+        opponent_card._arm_message = ""
+        if opponent_card._barrier_active:
+            opponent_card._arm_message += f"{weapon_emojis['barrier']} | {opponent_card._barrier_value} Barrier\n"
+        if opponent_card._shield_active:
+            opponent_card._arm_message += f"{weapon_emojis['shield']} | {opponent_card._shield_value} Shield\n"
+        if opponent_card._parry_active:
+            opponent_card._arm_message += f"{weapon_emojis['parry']} | {opponent_card._parry_value} Parry\n"
+        if opponent_card._siphon_active:
+            opponent_card._arm_message += f"{weapon_emojis['siphon']} | {opponent_card._siphon_value} Siphon\n"
         
+        if len(opponent_card._arm_message) > 0:
+            opponent_card._arm_message = "\n" + opponent_card._arm_message
+
+        if self._barrier_active:
+            self._arm_message += f"{weapon_emojis['barrier']} | {self._barrier_value} Barrier\n"
+        if self._shield_active:
+            self._arm_message += f"{weapon_emojis['shield']} | {self._shield_value} Shield\n"
+        if self._parry_active:
+            self._arm_message += f"{weapon_emojis['parry']} | {self._parry_value} Parry\n"
+        if self._siphon_active:
+            self._arm_message += f"{weapon_emojis['siphon']} | {self._siphon_value} Siphon\n"
+        
+        if len(self._arm_message) > 0:
+            self._arm_message = "\n" + self._arm_message
 
     def focusing(self, _title, _opponent_title, _opponent_card, battle_config, _co_op_card=None, _co_op_title=None ):
         if self.stamina < self.stamina_required_to_focus:

@@ -2780,7 +2780,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     await private_channel.send(embed=embedVar)
                                     await asyncio.sleep(2)
 
-                                
                             if player1_card.stamina < 10:
                                 player1_card.focusing(player1_title, player2_title, player2_card, battle_config)
                                 
@@ -2792,7 +2791,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 if battle_config.is_boss_game_mode:
                                     await private_channel.send(embed=battle_config._boss_embed_message)
                                 
-                                #continue 
                             else:
                                 if battle_config.is_auto_battle_game_mode:                                    
                                     embedVar = await auto_battle_embed_and_starting_traits(ctx, player1_card, player2_card, battle_config, None)
