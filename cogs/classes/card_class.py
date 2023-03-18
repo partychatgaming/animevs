@@ -540,9 +540,7 @@ class Card:
             
             if self.card_class == "TANK":
                 self._shield_active = True
-                self._shield_value = self._shield_value + (self.tier * 200)
-                if self.tier == 7:
-                    self._shield_value + 1500
+                self._shield_value = self._shield_value + (self.tier * 300)
             
             if self.card_class == "HEALER":
                 self._heal_active = True
@@ -1717,7 +1715,7 @@ class Card:
                     _opponent_card.damage_check_limit = 0
                     _opponent_card.damage_check_turns = 0
                     _opponent_card.damage_check = False
-                if _opponent_card.damage_check_turns <= 0:
+                elif _opponent_card.damage_check_turns <= 0:
                     _opponent_card.damage_check_activated = False
                     _opponent_card.damage_check_counter = 0
                     _opponent_card.damage_check_limit = 0
@@ -1768,7 +1766,7 @@ class Card:
 
                 message = ""            
 
-                miss_hit = 2
+                miss_hit = 1
                 low_hit = 6
                 med_hit = 15
                 standard_hit = 19
@@ -1781,7 +1779,7 @@ class Card:
                 #Evasion Modifier
                 
                 if self._swordsman_active and self.used_resolve:
-                    if self._critical_strike_count < 3:
+                    if self._critical_strike_count < 2:
                         self._critical_strike_count += 1
                         hit_roll = 20
                         battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{3 - self._critical_strike_count} Left!*")
@@ -1793,25 +1791,37 @@ class Card:
                 if _opponent_card.damage_check_activated:
                     hit_roll += 3
                     _opponent_card.damage_check_counter += true_dmg
-                    # damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far!"
-                    # battle_config.add_to_battle_log(damage_check_message)
                     if not summon_used:
                         _opponent_card.damage_check_turns -= 1
-                    if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
-                        damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far! Damage Check has ended!"
+                    if _opponent_card.damage_check_activated:
+                        damage_check_message = f"(:blueveri:)**[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]**"
                         battle_config.add_to_battle_log(damage_check_message)
-                        _opponent_card.reset_damage_check()
-                    elif _opponent_card.damage_check_turns <= 0:
-                        damage_check_message = f"[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far! {self._end_damage_check_message}"
-                        battle_config.add_to_battle_log(damage_check_message)
-                        _opponent_card.reset_damage_check()
-                        self.health, self.defense, self.attack = 0, 0, 0
+                        _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
+                        if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
+                            damage_check_message = f"✅ **[{self.name} passed the Damage Check]**"
+                            battle_config.add_to_battle_log(damage_check_message)
+                            _opponent_card.damage_check_activated = False
+                            _opponent_card.damage_check_counter = 0
+                            _opponent_card.damage_check_limit = 0
+                            _opponent_card.damage_check_turns = 0
+                            _opponent_card.damage_check = False
+                        elif _opponent_card.damage_check_turns <= 0:
+                            _opponent_card.damage_check_activated = False
+                            _opponent_card.damage_check_counter = 0
+                            _opponent_card.damage_check_limit = 0
+                            _opponent_card.damage_check_turns = 0
+                            _opponent_card.damage_check = False
+                            self.health = 0
+                            self.defense = 0
+                            self.attack = 0
+                            damage_check_message = f"❌ **[{self.name} failed the Damage Check]**"
+                            battle_config.add_to_battle_log(damage_check_message)
                         
                 if (move_element == "SPIRIT" or self.stagger) and hit_roll >= 13:
                     hit_roll = hit_roll + 7
                     
                 if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
-                    hit_roll = hit_roll + 2
+                    hit_roll = hit_roll + 3
                 
                 if self.universe == "Crown Rift Slayers" and hit_roll <=low_hit:
                     hit_roll = hit_roll - 3
@@ -1946,6 +1956,7 @@ class Card:
                     'trace': trace
                 }))
 
+        
 
     # def set_battle_arm_messages(self, opponent_card):
     #     if self.used_resolve:
@@ -3418,12 +3429,12 @@ class Card:
                     self.stagger = True
                 if "INTIMIDATION" in self.tactics:
                     self.intimidation = True
-                    self.intimidation_turns = random.randint(4, 10)
+                    self.intimidation_turns = random.randint(1, 5)
                 if "BLOODLUST" in self.tactics:
                     self.bloodlust = True
                 if "PETRIFIED_FEAR" in self.tactics:
                     self.petrified_fear = True
-                    self.petrified_fear_turns = random.randint(2, 7)
+                    self.petrified_fear_turns = random.randint(1, 5)
                 if "DAMAGE_CHECK":
                     self.damage_check = True
                     self.damage_check_limit = round(random.randint(1500, 2500))
