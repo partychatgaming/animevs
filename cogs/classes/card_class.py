@@ -1688,7 +1688,7 @@ class Card:
                     _opponent_card.damage_check_limit = 0
                     _opponent_card.damage_check_turns = 0
                     _opponent_card.damage_check = False
-                elif _opponent_card.damage_check_turns == 0:
+                if _opponent_card.damage_check_turns <= 0:
                     _opponent_card.damage_check_activated = False
                     _opponent_card.damage_check_counter = 0
                     _opponent_card.damage_check_limit = 0
@@ -1883,10 +1883,6 @@ class Card:
                         
                 response = {"DMG": true_dmg, "MESSAGE": message,
                             "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element, "STAMINA_USED": move_stamina, "SUMMON_USED": summon_used}
-
-                if summon_used:
-                    if not does_absorb and not does_repel:
-                        self.activate_element_check(battle_config, response, _opponent_card)
 
                 return response
 
@@ -2936,6 +2932,8 @@ class Card:
             elif dmg['DMG'] == 0:
                 if self._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC"]:
                     self._barrier_active = False
+                    self._barrier_value = 0
+                    self._arm_message = ""
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
                 battle_config.turn_total = battle_config.turn_total + 1
@@ -2949,6 +2947,7 @@ class Card:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         self._barrier_active = False
                         self._barrier_value = 0
+                        self._arm_message = ""
                         battle_config.add_to_battle_log(f"(💠) **{self.name}** disengaged their barrier to engage with an attack")
 
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
@@ -3232,9 +3231,9 @@ class Card:
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
 
         elif dmg['ELEMENT'] == "ELECTRIC":
-            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .20)
+            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .10)
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .35))} AP*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .10))} AP*")
 
         elif dmg['ELEMENT'] == "POISON":
             if self.poison_dmg <= (150 * self.tier):

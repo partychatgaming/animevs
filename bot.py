@@ -201,8 +201,10 @@ async def validate_user(ctx):
 @bot.event
 async def on_ready():
    print('Bot is ready!')
-   for server in bot.guilds:
-        print(server.name)
+   server_count = len(bot.guilds)
+   await bot.change_presence(activity=discord.Game(name=f'in {server_count} servers!'))
+   # for server in bot.guilds:
+   #      print(server.name)
 
 
 # @slash.slash(name="Enhancers", description="List of Enhancers", guild_ids=guild_ids)
