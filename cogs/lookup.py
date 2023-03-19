@@ -889,24 +889,24 @@ class Lookup(commands.Cog):
                         blade_count = blade_count + 1
                         total_blade_count = total_blade_count + 1
                         if blades in officers:
-                            formatted_name = f"**🅾️ [{str(index)}{str(bindex)}]** {blades}"
+                            formatted_name = f"__🅾️ [{str(index)}{str(bindex)}] {blades}__"
                             sword_member_list.append(formatted_name)
                         elif blades in captains:
-                            formatted_name = f"**🇨 [{str(index)}{str(bindex)}** {blades}"
+                            formatted_name = f"🇨 [{str(index)}{str(bindex)}] {blades}"
                             sword_member_list.append(formatted_name)
                         elif blades == owner:
-                            formatted_name = f"**👑 [{str(index)}{str(bindex)}] {blades}**"
+                            formatted_name = f"\n🪖 | {swords_name}\n**👑 [{str(index)}{str(bindex)}] {blades}**"
                             formatted_owner = formatted_name
                             sword_member_list.append(formatted_owner)
                         elif blades not in officers and blades not in captains and blades != owner:
-                            formatted_name = f"**🔰 [{str(index)}{str(bindex)}]** *{blades}*"
+                            formatted_name = f"*🔰 [{str(index)}{str(bindex)}] {blades}*"
                             sword_member_list.append(formatted_name)
                         #sword_member_list.append(f":knife: [{str(index)}{str(bindex)}] **{blades}**")
                     sword_bank = sword_team['BANK']
                     sword_list.append(f"~ {swords_name} ~ W**{dubs}** / L**{els}**\n:coin: | **Bank: **{'{:,}'.format(sword_bank)}\n:knife: | **Members: **{blade_count}\n_______________________")
                     
                 guild_owner_list_joined = "\n".join(owner_name_list)
-                members_list_joined =  " | ".join(sword_member_list)
+                members_list_joined =  "\n".join(sword_member_list)
                 crest_list = []
                 for c in crest:
                     crest_list.append(f"{crown_utilities.crest_dict[c]} | {c}")
@@ -998,20 +998,13 @@ class Lookup(commands.Cog):
                 """), colour=0x7289da)
                 
                 ghost_page = discord.Embed(title=f"Guild Owners", description=textwrap.dedent(f"""
-                👑 **Guild Leaders** | *Guilds Sworn To {guild['GNAME']}*
-                {guild_owner_list_joined}
-               
+                \n👑 **Guild Leaders** | *Guilds Sworn To {guild['GNAME']}*
+                \n{guild_owner_list_joined}
                 """), colour=0x7289da)
                 ghost_page.set_footer(text=f"/player - Lookup Guild Owners")
 
                 blades_page = discord.Embed(title=f"Association Members List", description=textwrap.dedent(f"""
-                👑 **Owner** | Guild Owner
-                🇨  **Captains** | Guild Captains
-                🅾️ **Officers** | Guild Officers
-                🔰 **Members** | Guild Members
-    
-                {members_list_joined}
-               
+                \n🪖 **Guild** | Guild Name\n👑 **Owner** | Guild Owner\n🅾️ **Officers** | Guild Officers\n🇨  **Captains** | Guild Captains\n🔰 **Members** | Guild Members\n{members_list_joined}
                 """), colour=0x7289da)
                 blades_page.set_footer(text=f"/player - Lookup Guild Members")
                 
