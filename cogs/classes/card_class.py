@@ -189,6 +189,7 @@ class Card:
             self.usedsummon = False
             self.used_block = False
             self.used_defend = False
+            self.used_boost = False
             self.focus_count = 0
             self.damage_recieved = 0
             self.damage_dealt = 0
@@ -2595,8 +2596,8 @@ class Card:
                 battle_config.next_turn()
 
             if battle_config.is_boss_game_mode:
-                if (battle_config.is_turn != 1 or battle_config.is_turn !=3):
-                    embedVar = discord.Embed(title=f"{opponent_card.name}'s Rebuke\n{battle_config._rebuke_boss_description}")
+                if (battle_config.is_turn == 0 or battle_config.is_turn == 2):
+                    embedVar = discord.Embed(title=f"{opponent_card.name} Rebukes You!\n{battle_config._rebuke_boss_description}")
                     embedVar.set_footer(text=f"{self.name} this is your chance!")
                     battle_config._boss_embed_message = embedVar
                 else:
