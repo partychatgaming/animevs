@@ -643,7 +643,6 @@ class CrownUnlimited(commands.Cog):
                 return
 
             if mode == "Tutorial":
-                mode == "PVP"
                 await tutorial(self, ctx, p, mode)
                 return
 
@@ -3186,6 +3185,15 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     embedVar.set_footer(text=f"{player2_card.name} waits for you to strike....")
                                     await private_channel.send(embed=embedVar)
                                     await asyncio.sleep(2)
+                                if battle_config.is_tutorial_game_mode:
+                                    embedVar = discord.Embed(title=f"Welcome to **Anime VS+**!",
+                                                            description=f"Follow the instructions to learn how to play the Game!",
+                                                            colour=0xe91e63)
+                                    embedVar.add_field(name=f"**{player1_card.name}'s Class**",value=f"The {player1_card.class_message} Class\n{crown_utilities.class_emojis[player1_card.card_class]} {crown_utilities.class_mapping[player1_card.card_class]}")
+                                    embedVar.add_field(name="**Moveset**",value=f"{player1_card.move1_emoji} - **Basic Attack** *10 :zap:ST*\n{player1_card.move2_emoji} - **Special Attack** *30 :zap:ST*\n{player1_card.move3_emoji} - **Ultimate Move** *80 :zap:ST*\n🦠 - **Enhancer** *20 :zap:ST*\n🛡️ - **Block** *20 :zap:ST*\n:zap: - **Resolve** : Heal and Activate Resolve\n:dna: - **Summon** : {player1.equippedsummon}")
+                                    embedVar.set_footer(text="Focus State : When Stamina = 0, You will focus to Heal and gain ATK and DEF ")
+                                    await private_channel.send(embed=embedVar)
+                                    await asyncio.sleep(2)
                             
                             # Focus
                             if player2_card.stamina < 10:
@@ -3918,7 +3926,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     pvp_response = await battle_config.pvp_victory_embed(player1, player1_card, player1_arm, player1_title, player2, player2_card)
 
                                 else:
-                                    pvp_response = await battle_config.pvp_victory_embed(player2, player2_card, player2_arm, player2_title, player1, player1_card)
+                                    if battle_config.is_tutorial_game_mode:
+                                        pvp_response = battle_config.you_lose_embed(player1_card, player2_card, companion_card = None)
+                                    else:
+                                        pvp_response = await battle_config.pvp_victory_embed(player2, player2_card, player2_arm, player2_title, player1, player1_card)
 
                                 await battle_msg.delete(delay=2)
                                 await asyncio.sleep(2)

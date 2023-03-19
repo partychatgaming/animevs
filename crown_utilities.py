@@ -1909,7 +1909,7 @@ element_mapping = {
 }
 
 class_mapping = {
-'ASSASION' : 'First [1-3] Attack cost 0 Stamina',  
+'ASSASSIN' : 'First [1-3] Attack cost 0 Stamina',  
 'FIGHTER' : 'Starts each fight with up to 3 additional Parries',
 'MAGE' : 'Increases Elemental Damage up to 30%',
 'TANK' : ' Starts each fight with 300 * Card Tier Shield',
@@ -1917,7 +1917,7 @@ class_mapping = {
 'SWORDSMAN' : 'On Resolve, Gain up to 3 Critical Strikes',
 'SUMMONER' : 'Starts each fight with summons available',
 'MONSTROSITY' : 'On Resolve, Gain up to 3 Double Strikes',
-'HEALER' : 'Stores up to 35% Damage recieved and increases healing on focus by that amount',
+'HEALER' : 'Stores up to 35% Damage recieved and increases healing on focus by that amount'
 }
 
 

@@ -1744,10 +1744,6 @@ class Battle:
 
         match = await crown_utilities.savematch(winner.did, winner_card.name, winner_card.path, winner_title.name,
                                 winner_arm.name, "N/A", "PVP", False)
-        embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
-        {self.get_previous_moves_embed()}
-        
-        """),colour=0xe91e63)
         if self.is_raid_game_mode:
             embedVar = discord.Embed(
                 title=f"{self._raid_end_message}\n\nYou have defeated the {self._association_name} SHIELD!\nMatch concluded in {self.turn_total} turns",
@@ -1758,9 +1754,20 @@ class Battle:
         victory_message = f":zap: {winner_card.name} WINS!"
         victory_description = f"Match concluded in {self.turn_total} turns."
         if self.is_tutorial_game_mode:
-            victory_message = f":zap: TUTORIAL VICTORY"
-            victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self.turn_total} turns."
-        
+            if tutorial_loss:
+                victory_message = f":zap: TUTORIAL VICTORY"
+                victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self.turn_total} turns."
+                embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
+                {self.get_previous_moves_embed()}
+                
+                """),colour=0xe91e63)
+            else:
+                victory_message = f":zap: TUTORIAL VICTORY"
+                victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self.turn_total} turns."
+                embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
+                {self.get_previous_moves_embed()}
+                
+                """),colour=0xe91e63)
         # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
         
         if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:

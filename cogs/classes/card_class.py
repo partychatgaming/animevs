@@ -3288,11 +3288,11 @@ class Card:
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .35))} Health*")
 
         elif dmg['ELEMENT'] == "RECOIL":
-            self.health = self.health - (dmg['DMG'] * .55)
+            self.health = self.health - (dmg['DMG'] * .40)
             if self.health <= 0:
                 self.health = 1
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} took {str(round(dmg['DMG'] * .55))} Recoil Damage*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} took {str(round(dmg['DMG'] * .40))} Recoil Damage*")
 
         elif dmg['ELEMENT'] == "PSYCHIC":
             self.barrier_meter = self.barrier_meter + 1
