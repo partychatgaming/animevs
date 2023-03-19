@@ -3464,7 +3464,7 @@ class Card:
                     self.petrified_fear_turns = random.randint(1, 5)
                 if "DAMAGE_CHECK":
                     self.damage_check = True
-                    self.damage_check_limit = round(random.randint(1500, 2500))
+                    self.damage_check_limit = round(random.randint(1000, 2500))
 
 
 
