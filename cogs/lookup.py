@@ -1412,7 +1412,7 @@ class Lookup(commands.Cog):
                                                         #self.stop = True
                                                         return
                                                     elif hall_name in guild['ESTATES']:
-                                                        await crown_utilities.blessGuild(cost, guild['GNAME'])
+                                                        await crown_utilities.blessguild(cost, guild['GNAME'])
                                                         transaction_message = f":coin: | {ctx.author} sold the Association Hall: **{str(hall_name)}**."
                                                         response = db.updateGuildAlt(guild_query,{'$pull':{'ESTATES': str(hall_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f"{guild['GNAME']} sold their **{hall_name}** for **{formatted_cost}**")
