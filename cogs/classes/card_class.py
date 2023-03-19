@@ -1815,7 +1815,7 @@ class Card:
                     if not summon_used:
                         _opponent_card.damage_check_turns -= 1
                     if _opponent_card.damage_check_activated:
-                        damage_check_message = f"(:blueveri:)**[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]**"
+                        damage_check_message = f"(:vs:)**[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]**"
                         battle_config.add_to_battle_log(damage_check_message)
                         _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
                         if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
