@@ -1607,10 +1607,10 @@ class Battle:
         icon1 = "1️⃣"
         icon2 = "2️⃣"
         close_message = "PVP"
-        f_message = f":people_hugging: | Try Co-Op Battle and Conquer The Multiverse Together!"
+        f_message = f"🫂 | Try Co-Op Battle and Conquer The Multiverse Together!"
         if self.is_tutorial_game_mode:
             close_message = "Tutorial"
-            icon2 = ":teacher:"
+            icon2 = "🧑‍🏫"
             f_message = f"🧠 | Tutorial will teach you about Game Mechanics and Card Abiltiies!"
         if self.is_raid_game_mode:
             close_message = "Raid"
