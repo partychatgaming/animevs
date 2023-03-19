@@ -2607,6 +2607,7 @@ class Card:
                     dmg = self.damage_cal(1, battle_config, opponent_card)
                     opponent_card.health = opponent_card.health - dmg['DMG']
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{dmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
+                    self.activate_element_check(battle_config, dmg, opponent_card)
                     opponent_card.usedsummon = True
                     self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']               
                 battle_config.repeat_turn()
