@@ -1556,13 +1556,11 @@ class Lookup(commands.Cog):
                                                             index = card_storage.index(card['NAME'])
                                                             level = ""
                                                             level_icon = "🔰"
+                                                            card_lvl = 0
                                                             for c in guild['S_CARD_LEVELS']:
                                                                 if card['NAME'] == c['CARD']:
                                                                     level = str(c['LVL'])
                                                                     card_lvl = int(c['LVL'])
-                                                                else:
-                                                                    level = str(0)
-                                                                    card_lvl = int(0)
                                                             if card_lvl >= 200:
                                                                 level_icon = "🔱"
                                                             if card_lvl >= 700:

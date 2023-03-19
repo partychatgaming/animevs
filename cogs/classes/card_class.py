@@ -1093,7 +1093,7 @@ class Card:
         if not self.scheduled_death_message:
             if self.universe == "Death Note":
                 self.scheduled_death_message = True
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {200}**")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {150}**")
 
 
     def set_souls_trait(self):
@@ -2186,7 +2186,7 @@ class Card:
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
 
             elif self.universe == "Death Note":
-                if battle_config.turn_total >= (200):
+                if battle_config.turn_total >= (150):
                     battle_config.add_to_battle_log(f"(**🌀**) **{_opponent_card.name}** 🩸 had a heart attack and died")
                     
                     _opponent_card.health = -1000
@@ -2583,12 +2583,12 @@ class Card:
 
             if battle_config.is_boss_game_mode:
                 if (battle_config.is_turn == 0 or battle_config.is_turn == 2):
-                    embedVar = discord.Embed(title=f"{opponent_card.name} Rebukes You!\n{battle_config._rebuke_boss_description}")
-                    embedVar.set_footer(text=f"{self.name} this is your chance!")
-                    battle_config._boss_embed_message = embedVar
-                else:
                     embedVar = discord.Embed(title=f"{battle_config._rmessage_boss_description}")
                     embedVar.set_footer(text=f"{opponent_card.name} this will not be easy...")
+                    battle_config._boss_embed_message = embedVar
+                else:
+                    embedVar = discord.Embed(title=f"{opponent_card.name} Rebukes You!\n{battle_config._rebuke_boss_description}")
+                    embedVar.set_footer(text=f"{self.name} this is your chance!")
                     battle_config._boss_embed_message = embedVar
     
             if self._monstrosity_active:

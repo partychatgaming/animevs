@@ -3568,7 +3568,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             
                                             """), color=0xe74c3c)
                                             if player1.performance:
-                                                embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!\n{player3_card.get_perfomance_header()}")
+                                                embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!\n{player3_card.get_perfomance_header(player3_title)}")
                                             else:
                                                 embedVar.set_author(name=f"{player3_card.summon_resolve_message}\n")
                                                 embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!")
