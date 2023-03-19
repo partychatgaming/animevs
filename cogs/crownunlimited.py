@@ -3602,7 +3602,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if selected_move in [1, 2, 3, 4]:
                                             damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
-                                                                                    if int(selected_move) == 3:
                                             if selected_move == 3:
                                                 player3_card.activate_persona_trait(battle_config, player2_card)
                                         if selected_move == 5:
