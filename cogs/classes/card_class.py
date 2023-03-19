@@ -474,14 +474,6 @@ class Card:
             self._monstrosity_active = True
             self._monstrosity_value = value
 
-        # if self.summon_type in ['BARRIER', 'PARRY']:
-        #     if self.summon_bond == 3 and self.summon_lvl == 10:
-        #         self.summon_power = self.summon_power + 1
-        # else:
-        #     self.summon_power = (self.summon_bond * self.summon_lvl) + self.summon_power
-
-
-
 
     # AI ONLY BUFFS
     def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff, prestige_level, rebirth_level, mode):
@@ -600,7 +592,12 @@ class Card:
             self.move1ap = self.move1ap + self.card_lvl_ap_buff
             self.move2ap = self.move2ap + self.card_lvl_ap_buff
             self.move3ap = self.move3ap + self.card_lvl_ap_buff
-
+            
+            if self.summon_type in ['BARRIER', 'PARRY']:
+                if self.summon_bond == 3 and self.summon_lvl == 10:
+                    self.summon_power = self.summon_power + 1
+            else:
+                self.summon_power = (self.summon_bond * self.summon_lvl) + self.summon_power
         except:
             print("Error setting card levels")
             return False
