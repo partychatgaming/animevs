@@ -3157,7 +3157,25 @@ class Card:
                     self.activate_element_check(battle_config, dmg, opponent_card)
 
                     # battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}:** {dmg['MESSAGE']}")
+                if self.health <= 0:
+                    if self._final_stand==True:
+                        if self.universe == "Dragon Ball Z":
+                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                                if not dmg['SUMMON_USED']:
+                                    self._barrier_active = False
+                                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Transformation: Last Stand!!!")
+                            # print(opponent_card.attack)
+                            # print(opponent_card.defense)
+                            self.health = 1 + round(.75 * (self.attack + self.defense))
+                            if self.health < 0:
+                                self.health = 100 + round(.75 * (self.base_attack + self.base_defense))
                 
+                            self.damage_healed = self.damage_healed + self.health
+                            # print(opponent_card.health)
+                            self.used_resolve = True
+                            self.used_focus = True
+                            self._final_stand = False
                 if opponent_card.health <= 0:
                     if opponent_card._final_stand==True:
                         if opponent_card.universe == "Dragon Ball Z":
