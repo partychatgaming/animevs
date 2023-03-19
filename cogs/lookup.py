@@ -1148,7 +1148,7 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                                 balance_message = '{:,}'.format(guild['BANK'])
                                 if is_founder:
-                                    real_estate_message = "\nWelcome Great Founder!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\n Welcome Great Founder!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy/Sell Halls", custom_id="buy"),
@@ -1157,7 +1157,7 @@ class Lookup(commands.Cog):
                                     
                                 ]
                                 elif is_sworn:
-                                    real_estate_message = "\nWelcome Holy Sworn!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\n Welcome Holy Sworn!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=3, label="Buy/Sell Halls", custom_id="buy"),
@@ -1165,14 +1165,14 @@ class Lookup(commands.Cog):
                                     manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
                                 ]
                                 elif is_shield:
-                                    real_estate_message = "\nWelcome Noble Shield!\n**View Property** - View Owned Properties or make a Move!\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\n Welcome Noble Shield!\n**View Property** - View Owned Properties or make a Move!\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="Owned Properties", custom_id="equip"),
                                     manage_components.create_button(style=1, label="Browse Hall Catalog", custom_id="browse"),
                                     manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
                                 ]
                                 elif is_guild_leader:
-                                    real_estate_message = "\nWelcome Oathsworn!\n**View Property** - View Owned Properties\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\n Welcome Oathsworn!\n**View Property** - View Owned Properties\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
                                     manage_components.create_button(style=1, label="View Properties", custom_id="view"),
                                     manage_components.create_button(style=1, label="Browse Hall Catalog", custom_id="browse"),
@@ -1445,7 +1445,7 @@ class Lookup(commands.Cog):
                                 armory_buttons = []
                                 balance_message = '{:,}'.format(guild['BANK'])
                                 if is_founder:
-                                    armory_message = "\nnWelcome Great Founder!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n nWelcome Great Founder!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
@@ -1453,14 +1453,14 @@ class Lookup(commands.Cog):
                                     
                                 ]
                                 elif is_sworn:
-                                    armory_message = "\nWelcome Holy Sword!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n Welcome Holy Sword!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
                                     manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
                                 ]
                                 elif is_shield:
-                                    armory_message = "\nWelcome Noble Shield!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n Welcome Noble Shield!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
@@ -1468,14 +1468,14 @@ class Lookup(commands.Cog):
                                     
                                 ]
                                 elif is_guild_leader:
-                                    armory_message = "\nWelcome Oathsworn!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n Welcome Oathsworn!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
                                     
                                 ]
                                 elif member:
-                                    armory_message = "\nWelcome Member!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n Welcome Member!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
                                     manage_components.create_button(style=2, label="View Armory", custom_id="view"),
                                     manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
@@ -1550,7 +1550,7 @@ class Lookup(commands.Cog):
 
                                                             
                                                             class_info = card['CLASS']
-                                                            class_emoji = crown_utilities.class_emojis(class_info)
+                                                            class_emoji = crown_utilities.class_emojis[class_info]
                                                             class_message = class_info.title()
                                                             universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
                                                             index = card_storage.index(card['NAME'])
