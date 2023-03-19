@@ -2791,13 +2791,13 @@ class Card:
     def use_block(self, battle_config, opponent_card, co_op_card=None):
         if self.stamina >= 20:
             if self.universe == "Death Note":
-                value = 0
-                if self.tier in [1, 2, 3]:
-                    value = 1
-                elif self.tier in [4, 5]:
-                    value = 2
-                elif self.tier in [6, 7]:
-                    value = 3
+                value = 3
+                # if self.tier in [1, 2, 3]:
+                #     value = 1
+                # elif self.tier in [4, 5]:
+                #     value = 2
+                # elif self.tier in [6, 7]:
+                #     value = 3
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {value + self.tier}")
                 self.max_health = round(self.max_health - (.10 * self.max_health))
                 if self.health >= self.max_health:
