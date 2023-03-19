@@ -5,7 +5,7 @@ traits = [{
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot, Pentakill',
-    'TRAIT': 'Turret Shot: On Focus you deal (60 + Turn Count) DMG. Pentakill: On Resolve, you deal (60 x Total Focus Count) Damage.'
+    'TRAIT': 'Turret Shot: On Focus you deal (60 + Turn Count) DMG. Pentakill: On Resolve, you deal (150 x Total Focus Count) Damage.'
 },{
     'NAME': 'Pokemon',
     'EFFECT': 'Regions, Evolutions',

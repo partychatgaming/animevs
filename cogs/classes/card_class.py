@@ -2583,9 +2583,9 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
                 if self.universe == "League Of Legends":
-                    opponent_card.health = opponent_card.health - (60 * (self.focus_count + opponent_card.focus_count))
-                    self.damage_dealth = self.damage_dealt + (60 * (self.focus_count + opponent_card.focus_count))
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(60 * (self.focus_count + opponent_card.focus_count))} damage.")
+                    opponent_card.health = opponent_card.health - (150 * (self.focus_count + opponent_card.focus_count))
+                    self.damage_dealth = self.damage_dealt + (150 * (self.focus_count + opponent_card.focus_count))
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(150 * (self.focus_count + opponent_card.focus_count))} damage.")
                 elif self.universe == "Souls":
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
                     self.set_souls_trait()
