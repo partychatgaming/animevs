@@ -298,9 +298,9 @@ class Battle:
             self._ai_opponentsummon_lvl = 15
             self._ai_opponentsummon_bond = 4
             self._ai_opponent_card_lvl = 1000
-            self.health_buff = self.health_buff + 5000
-            self.stat_buff = self.stat_buff + 250
-            self.ap_buff = self.ap_buff + 250
+            self.health_buff = self.health_buff + 2500
+            self.stat_buff = self.stat_buff + 200
+            self.ap_buff = self.ap_buff + 150
             self.total_number_of_opponents = 1
             self.starting_match_title = "👿 BOSS BATTLE!"
             self.bank_amount = 5000000

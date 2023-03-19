@@ -2784,11 +2784,18 @@ class Card:
     def use_block(self, battle_config, opponent_card, co_op_card=None):
         if self.stamina >= 20:
             if self.universe == "Death Note":
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {3 + self.tier}")
+                value = 0
+                if self.tier in [1, 2, 3]:
+                    value = 1
+                elif self.tier in [4, 5]:
+                    value = 2
+                elif self.tier in [6, 7]:
+                    value = 3
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {value + self.tier}")
                 self.max_health = round(self.max_health - (.10 * self.max_health))
                 if self.health >= self.max_health:
                     self.health = self.max_health
-                battle_config.turn_total = battle_config.turn_total + self.tier + 3
+                battle_config.turn_total = battle_config.turn_total + self.tier + value
             
             if self.universe == "Attack On Titan":
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Gained {(100 * self.tier)} Health & Max Health ❤️")
@@ -3244,26 +3251,27 @@ class Card:
 
         elif dmg['ELEMENT'] == "EARTH":
             self._shield_active = True
-            self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
             if self._shield_value <= 0:
                 self._shield_value = 0
+            self.defense = self.defense + (dmg['DMG'] * .25)
+            self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} formed a 🌐 {str(self._shield_value)} Shield*")
             # battle_config.add_to_battle_log(f"*{self.name} erected a 🌐 {str(self._shield_value)} Shield*")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "DEATH":
-            self.attack = self.attack + (dmg['DMG'] * .45)
-            opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * .45)
+            self.attack = self.attack + (dmg['DMG'] * .25)
+            opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * .25)
             if opponent_card.health > opponent_card.max_health:
                 opponent_card.health = opponent_card.max_health
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} reaped {str(round(dmg['DMG'] * .45))} Health from {opponent_card.name}*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} reaped {str(round(dmg['DMG'] * .25))} Health from {opponent_card.name}*")
 
         elif dmg['ELEMENT'] == "LIGHT":
             self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
-            self.attack = self.attack + (dmg['DMG'] * .50)
+            self.attack = self.attack + (dmg['DMG'] * .25)
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {round((dmg['DMG'] * .80))} ATK*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {round((dmg['DMG'] * .25))} ATK*")
 
         elif dmg['ELEMENT'] == "DARK":
             opponent_card.stamina = opponent_card.stamina - 15
@@ -3317,8 +3325,8 @@ class Card:
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
                 # battle_config.add_to_battle_log(f"*{self.name} projects a Barrier 💠 to block next attack*")
 
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .35)
-            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .35)
+            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .15)
+            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .15)
             opponent_card.health = opponent_card.health - dmg['DMG']
             if opponent_card.defense <= 25:
                 opponent_card.defense = 25
@@ -3365,7 +3373,7 @@ class Card:
                 battle_config.turn_total = 0
             self.gravity_hit = True
             opponent_card.health = opponent_card.health - dmg['DMG']
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .50)
+            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .30)
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} has slowed down time -3 turns*")
         
         else:

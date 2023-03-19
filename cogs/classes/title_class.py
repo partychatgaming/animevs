@@ -211,13 +211,17 @@ class Title:
     def title_active_check(self, player_card):
         if self.universe == "Unbound":
             self.title_active = True
+            return True
         elif player_card.universe == "Crown Rift Awakening":
             self.title_active = True
+            return True
         elif (self.universe in crown_utilities.pokemon_universes and player_card.universe in crown_utilities.pokemon_universes):
             self.region_trait = True
             self.title_active = True
+            return True
         elif self.universe == player_card.universe:
             self.title_active = True
+            return True
         else:
             self.title_active = False
             
@@ -226,7 +230,7 @@ class Title:
 
     def activate_title_passive(self, battle, player1_card, player2_card, player3_card=None):
         active = self.title_active_check(player1_card)
-        if not self.title_active:
+        if not active:
             if not self.active_message_sent:
                 self.active_message_sent = True
                 battle.add_to_battle_log(f"(**⚠️**) **Titleless** : {player1_card.name} cannot equip  **{self.name}**")
