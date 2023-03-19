@@ -1774,6 +1774,13 @@ class Battle:
             {self.get_previous_moves_embed()}
             
             """),colour=0xe91e63)
+        if self.is_pvp_game_mode:
+            victory_message = f":zap: {winner_card.name} WINS!"
+            victory_description = f"Match concluded in {self.turn_total} turns."
+            embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
+            {self.get_previous_moves_embed()}
+            
+            """),colour=0xe91e63)
         # embedVar.set_author(name=f"{t_card} says\n{t_lose_description}")
         
         if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
