@@ -341,7 +341,6 @@ class Profile(commands.Cog):
                         🛡️ | **{c.defense}**
                         🏃 | **{evasion_message}**
 
-
                         **{t.title_message}**
                         **{a.arm_message}**
                         **{player.talisman_message}**

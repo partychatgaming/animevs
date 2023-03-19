@@ -1921,7 +1921,7 @@ class_mapping = {
 }
 
 
-pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnon Region','Kalos Region','Alola Region','Galar Region']
+pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnoh Region','Kalos Region','Alola Region','Galar Region']
 
 
 crest_dict = { 'Unbound': ':ideograph_advantage:',

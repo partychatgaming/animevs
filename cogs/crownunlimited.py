@@ -3330,7 +3330,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         battle_config.next_turn()
-                                                        
+                                          
                                         except Exception as ex:
                                             trace = []
                                             tb = ex.__traceback__
