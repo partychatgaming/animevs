@@ -302,25 +302,37 @@ async def classes(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
    embedVar3 = discord.Embed(title= f"Classes", description=textwrap.dedent(f"""\
    🥋 **Card Class**
-   Your Class determines how you enter the battle:
-   
-   {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // First 3 Attack cost 0 Stamina
-   
-   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with 3 Parries
-   
-   {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by 30%
-   
-   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 300 Shield
-   
-   {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with 3 barriers
-   
-   {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain 2 Critical Strikes
+   Your Class grants you a boost when you enter the battle
+   The **Boost** is determined by your Card Tier Range
+   Common : [1 - 3]
+   Rare : [4 - 5]
+   Legendary : [6 - 7]
    
    {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle
    
-   {crown_utilities.class_emojis['MONSTROSITY']} *Monstrosity* // On Resolve gain 2 Double Strikes
+   {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // Initial Attacks cost 0 Stamina
+   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
    
-   {crown_utilities.class_emojis['HEALER']} *Healer* // Stores 20% of damage taken and heals for the total amount each Focus 
+   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with up to 3 Parries
+   *Common - 1 Parry, Rare - 2 Parries, Legendary - 3 Parries*
+   
+   {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with up to 3 barriers
+   *Common - 1 Barrier, Rare - 2 Barriers, Legendary - 3 Barriers*
+   
+   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 300 Shield
+   *Common - 300/600/900 Shield, Rare - 1200/1500, Legendary - 1800/2100*
+   
+   {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain up to 3 Critical Strikes
+   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
+   
+   {crown_utilities.class_emojis['MONSTROSITY']} *Monstrosity* // On Resolve gain up to 3 Double Strikes
+   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
+
+   {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by up to 50%
+   *Common - 30%, Rare - 2 40%, Legendary - 3 50%*
+   
+   {crown_utilities.class_emojis['HEALER']} *Healer* // Stores up to 40% of damage taken and heals for the total amount each Focus 
+   *Common - 20%, Rare - 30%, Legendary - 40%*
    """), colour=0x7289da)
    embedVar3.set_thumbnail(url=avatar)
    
@@ -372,16 +384,8 @@ async def animevs(ctx):
    Health (**HLT**) Stamina (**STAM**) Attack (**ATK**) Defense(**DEF**)
    
    🥋 **Card Class**
-   Your Class determines how you enter the battle:
-   {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // First 3 Attack cost 0 Stamina
-   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with 3 Parries
-   {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by 30%
-   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 200 Shield
-   {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with 3 barriers
-   {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain 3 Critical Strikes
-   {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle
-   {crown_utilities.class_emojis['MONSTROSITY']} *Monstrosity* // On Resolve gain 2 Double Strikes
-   {crown_utilities.class_emojis['HEALER']} *Healer* // Stores 20% of damage taken and heals for the total amount each Focus 
+   Your Class determines how you enter the battle
+   Use /help to find information on **Classes**
    
    **Cards Have 5 Abilities** 
    3 Attack Moves
@@ -427,6 +431,9 @@ async def animevs(ctx):
    
    🀄 **Card Tier**
    Card Tier Determines Base Stats and Enhancer Types/Values.
+   Common : Tier 1 - 3
+   Rare : Tier 4 - 5
+   Legendary : Tier 6 - 7
    
    🔅 **Affinities**
    Affinities determine how you card reacts to **Damage types**

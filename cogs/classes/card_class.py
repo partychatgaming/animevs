@@ -54,6 +54,8 @@ class Card:
             # Tactics & Classes
             # Tactics
             self._swordsman_active = False
+            self._swordsman_value = 0
+            self._monstrosity_value = 0
             self._critical_strike_count = 0
             self._summoner_active = False
             self._monstrosity_active = False
@@ -65,6 +67,7 @@ class Card:
             self._heal_buff = .25
             self._assassin_active = False
             self._assassin_value = 0
+            self._assassin_attack = 0
             self.tactics = []
             self.max_base_health = self.max_health
             self.temporary_max_health = self.max_health
@@ -514,7 +517,7 @@ class Card:
         try:
             value = 0
             mage_buff = .30
-            heal_buff = .25
+            heal_buff = .20
             if self.tier in [1, 2, 3]:
                 value = 1
             elif self.tier in [4, 5]:
@@ -524,7 +527,7 @@ class Card:
             elif self.tier in [6, 7]:
                 value = 3
                 mage_buff = .50
-                heal_buff = .35
+                heal_buff = .40
 
             if self.card_class == "FIGHTER":
                 self._parry_active = True
@@ -549,15 +552,18 @@ class Card:
             
             if self.card_class == "ASSASSIN":
                 self._assassin_active = True
+                self._assassin_attack = value
                 
             if self.card_class == "SWORDSMAN":
                 self._swordsman_active = True
+                self._swordsman_value = value
                 
             if self.card_class == "SUMMONER":
                 self._summoner_active = True
                 
             if self.card_class == "MONSTROSITY":
                 self._monstrosity_active = True
+                self._monstrosity_value = value
            
 
             if list_of_card_levels:
@@ -1779,7 +1785,7 @@ class Card:
                 #Evasion Modifier
                 
                 if self._swordsman_active and self.used_resolve:
-                    if self._critical_strike_count < 2:
+                    if self._critical_strike_count < self._swordsman_value:
                         self._critical_strike_count += 1
                         hit_roll = 20
                         battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{3 - self._critical_strike_count} Left!*")
@@ -1922,7 +1928,7 @@ class Card:
 
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
-                    if self._assassin_value == 3:
+                    if self._assassin_value == self._assassin_attack:
                         self._assassin_active = False
                 else:
                     self.stamina = self.stamina - move_stamina
