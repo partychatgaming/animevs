@@ -2602,7 +2602,13 @@ class Card:
         if (self.used_resolve or self._summoner_active) and not self.usedsummon:
             damage_calculation_response = self.damage_cal(6, battle_config, opponent_card)
             self.usedsummon = True
-            if damage_calculation_response['CAN_USE_MOVE']:                
+            if damage_calculation_response['CAN_USE_MOVE']:
+                if self.universe == "Persona":
+                    dmg = self.damage_cal(1, battle_config, opponent_card)
+                    opponent_card.health = opponent_card.health - dmg['DMG']
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{dmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
+                    opponent_card.usedsummon = True
+                    self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']               
                 battle_config.repeat_turn()
                 return damage_calculation_response
             else:

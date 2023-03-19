@@ -73,7 +73,7 @@ traits = [{
 },{
     'NAME': 'Persona',
     'EFFECT': 'Summon Persona, Summoners Battle',
-    'TRAIT': 'Summon Persona : After resolve, if you use ultimate attack your summon will be used as well.'
+    'TRAIT': 'Summon Persona : Summon also deals Damage equal to your Basic Attack. Summoners Battle : Summoning disables Opp summon. '
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Spirit Resolved!',
