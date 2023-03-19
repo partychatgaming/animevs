@@ -1573,13 +1573,13 @@ class Lookup(commands.Cog):
                                                             available = ""
                                                             if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
                                                                 dungeon_card_details.append(
-                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:fire: **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n:fire: **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
                                                             elif not card['HAS_COLLECTION']:
                                                                 tales_card_details.append(
-                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n🎴 **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n🎴 **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
                                                             elif card['HAS_COLLECTION']:
                                                                 destiny_card_details.append(
-                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [class_emoji] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n✨ **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n✨ **{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
 
                                                         all_cards = []
                                                         if tales_card_details:
