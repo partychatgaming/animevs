@@ -280,9 +280,9 @@ class Profile(commands.Cog):
                     if c.speed >= 70 or c.speed <=30:
                         if c.speed >= 70:     
                             if player.performance:
-                                evasion_message = f"{c.speed} - *{round(c.evasion /2)}% evasion*"
+                                evasion_message = f"{c.speed} - *{round(c.evasion)}% evasion*"
                             else:
-                                evasion_message = f"{c.speed} - {round(c.evasion /2)}% evasion"
+                                evasion_message = f"{c.speed} - {round(c.evasion)}% evasion"
                         elif c.speed <= 30:
                             if player.performance:
                                 evasion_message = f"{c.speed} - *{c.evasion}% evasion*"
@@ -4540,9 +4540,9 @@ class Profile(commands.Cog):
                     if c.speed >= 70 or c.speed <=30:
                         if c.speed >= 70:     
                             if player.performance:
-                                evasion_message = f"{c.speed}: *{round(c.evasion /2)}% evasion*"
+                                evasion_message = f"{c.speed}: *{round(c.evasion)}% evasion*"
                             else:
-                                evasion_message = f"{c.speed}: {round(c.evasion /2)}% evasion"
+                                evasion_message = f"{c.speed}: {round(c.evasion)}% evasion"
                         elif c.speed <= 30:
                             if player.performance:
                                 evasion_message = f"{c.speed}: *{c.evasion}% evasion*"

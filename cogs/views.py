@@ -631,9 +631,9 @@ async def viewcard(self, ctx, data):
             if c.speed >= 70 or c.speed <=30:
                 if c.speed >= 70:     
                     if d['PERFORMANCE']:
-                        evasion_message = f"{c.speed}: *{round(c.evasion /2)}% evasion*"
+                        evasion_message = f"{c.speed}: *{round(c.evasion)}% evasion*"
                     else:
-                        evasion_message = f"{c.speed}: {round(c.evasion /2)}% evasion"
+                        evasion_message = f"{c.speed}: {round(c.evasion)}% evasion"
                 elif c.speed <= 30:
                     if d['PERFORMANCE']:
                         evasion_message = f"{c.speed}: *{c.evasion}% evasion*"
