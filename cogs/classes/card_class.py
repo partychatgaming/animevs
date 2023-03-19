@@ -2603,12 +2603,6 @@ class Card:
             damage_calculation_response = self.damage_cal(6, battle_config, opponent_card)
             self.usedsummon = True
             if damage_calculation_response['CAN_USE_MOVE']:                
-                # if self.universe == "Persona":
-                #     petdmg = self.damage_cal(1, battle_config, opponent_card)
-                #     opponent_card.health = opponent_card.health - petdmg['DMG']
-                #     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{petdmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
-                #     opponent_card.usedsummon = True
-                #     self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
                 battle_config.repeat_turn()
                 return damage_calculation_response
             else:
@@ -2619,6 +2613,12 @@ class Card:
             battle_config.repeat_turn()
 
     
+    def activate_persona_trait(self, battle_config, opponent_card):
+        if self.universe == "Persona" and self.used_resolve:
+            summon_response = self.usesummon(battle_config, opponent_card)
+            self.activate_element_check(battle_config, summon_response, opponent_card)
+
+
     def set_talisman(self, battle_config):
         # if normal, apply talisman for basic attack
         # if hard, apply talisman for ultimate attack
