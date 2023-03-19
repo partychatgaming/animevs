@@ -4693,8 +4693,6 @@ def tactics_damage_check(boss_card, battle_config):
             if boss_card.focus_count in [3]:
                 boss_card.damage_check_activated = True
                 boss_card.damage_check_limit = round(boss_card.max_health * .10)
-                if boss_card.damage_check_limit > 5000:
-                    boss_card.damage_check_limit = 5000:
                 boss_card.damage_check_turns = round(random.randint(3, 6))
         if boss_card.damage_check_activated:
             battle_config.is_turn = 0
