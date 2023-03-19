@@ -985,12 +985,13 @@ class Card:
             burn_message =  f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
             self.damage_recieved = self.damage_recieved + round(opponent_card.burn_dmg)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.burn_dmg)
-            if self.health < 0:
+            if self.health <= 0:
                 self.health = 0
-        else:
-            opponent_card.bun_dmg = 0
+                burn_message = f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg and died..."
+                opponent_card.burn_dmg = 0
 
-        if opponent_card.burn_dmg >= 30:
+
+        if opponent_card.burn_dmg >= 30 and self.health > 0:
             opponent_card.burn_dmg = round(opponent_card.burn_dmg / 2)
         
         return burn_message
@@ -2207,9 +2208,9 @@ class Card:
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + battle_config.turn_total}** ❤️")
 
             elif self.universe == "Solo Leveling":
-                _opponent_card.defense = round(_opponent_card.defense - (30 + battle_config.turn_total))
+                _opponent_card.defense = round(_opponent_card.defense - (50 + battle_config.turn_total))
                 
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Ruler's Authority... Opponent loses **{30 + battle_config.turn_total}** 🛡️ 🔻")
+                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Ruler's Authority... Opponent loses **{50 + battle_config.turn_total}** 🛡️ 🔻")
 
             elif self.universe == "Black Clover":                
                 self.stamina = 100
