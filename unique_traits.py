@@ -65,7 +65,7 @@ traits = [{
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death, Shinigami Eyes',
-    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death [210 - (10 * Card Tier)] Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to Increase Turn by (3 + Card Tier).'
+    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death 200 Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to Increase Turn by (3 + Card Tier).'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',
