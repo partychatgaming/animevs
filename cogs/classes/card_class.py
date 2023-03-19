@@ -1093,7 +1093,7 @@ class Card:
         if not self.scheduled_death_message:
             if self.universe == "Death Note":
                 self.scheduled_death_message = True
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {24 + (self.tier * 24)}**")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {210 - (self.tier * 10)}**")
 
 
     def set_souls_trait(self):
@@ -2219,7 +2219,7 @@ class Card:
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
 
             elif self.universe == "Death Note":
-                if battle_config.turn_total >= (24 + (24 * self.tier)):
+                if battle_config.turn_total >= (210 - (10 * self.tier)):
                     battle_config.add_to_battle_log(f"(**🌀**) **{_opponent_card.name}** 🩸 had a heart attack and died")
                     
                     _opponent_card.health = -1000
