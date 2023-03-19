@@ -1688,13 +1688,13 @@ class Profile(commands.Cog):
                             arm_data = db.queryArm({'ARM': selected_arm})
                             arm_name = arm_data['ARM']
                             element = arm_data['ELEMENT']
-                            essence_amount = 100
+                            essence_amount = 1000
                             arm_passive = arm_data['ABILITIES'][0]
                             arm_passive_type = list(arm_passive.keys())[0]
                             arm_passive_value = list(arm_passive.values())[0]
                             move_types = ["BASIC", "SPECIAL", "ULTIMATE"]
                             if arm_data["EXCLUSIVE"]:
-                                essence_amount = 250
+                                essence_amount = 2000
                             selected_universe = arm_data['UNIVERSE']
                             dismantle_amount = 10000
                             if arm_name == current_arm:
@@ -4828,7 +4828,7 @@ class Profile(commands.Cog):
                                     o_moveset = card_data['MOVESET']
                                     o_3 = o_moveset[2]
                                     element = list(o_3.values())[2]
-                                    essence_amount = (200 * card_tier)
+                                    essence_amount = (1000 * card_tier)
                                     o_enhancer = o_moveset[3]
 
                                     dismantle_amount = (10000 * card_tier) + card_health
@@ -5337,7 +5337,7 @@ class Profile(commands.Cog):
                     o_moveset = card_data['MOVESET']
                     o_3 = o_moveset[2]
                     element = list(o_3.values())[2]
-                    essence_amount = (200 * card_tier)
+                    essence_amount = (1000 * card_tier)
                     o_enhancer = o_moveset[3]
 
                     dismantle_amount = (10000 * card_tier) + card_health
@@ -5467,13 +5467,13 @@ class Profile(commands.Cog):
                     arm_data = storage_arm
                     arm_name = arm_data['ARM']
                     element = arm_data['ELEMENT']
-                    essence_amount = 100
+                    essence_amount = 1000
                     arm_passive = arm_data['ABILITIES'][0]
                     arm_passive_type = list(arm_passive.keys())[0]
                     arm_passive_value = list(arm_passive.values())[0]
                     move_types = ["BASIC", "SPECIAL", "ULTIMATE"]
                     if arm_data["EXCLUSIVE"]:
-                        essence_amount = 250
+                        essence_amount = 2000
                     selected_universe = arm_data['UNIVERSE']
                     dismantle_amount = 10000
                     storage_arm_names = []
@@ -7029,7 +7029,7 @@ async def menucards(self, ctx):
                                 o_moveset = card_data['MOVESET']
                                 o_3 = o_moveset[2]
                                 element = list(o_3.values())[2]
-                                essence_amount = (200 * card_tier)
+                                essence_amount = (1000 * card_tier)
                                 o_enhancer = o_moveset[3]
 
                                 dismantle_amount = (10000 * card_tier) + card_health
@@ -8135,13 +8135,13 @@ async def menuarms(self, ctx):
                         arm_data = db.queryArm({'ARM': selected_arm})
                         arm_name = arm_data['ARM']
                         element = arm_data['ELEMENT']
-                        essence_amount = 100
+                        essence_amount = 1000
                         arm_passive = arm_data['ABILITIES'][0]
                         arm_passive_type = list(arm_passive.keys())[0]
                         arm_passive_value = list(arm_passive.values())[0]
                         move_types = ["BASIC", "SPECIAL", "ULTIMATE"]
                         if arm_data["EXCLUSIVE"]:
-                            essence_amount = 250
+                            essence_amount = 2000
                         selected_universe = arm_data['UNIVERSE']
                         dismantle_amount = 10000
                         if arm_name == current_arm:

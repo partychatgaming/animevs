@@ -1520,8 +1520,8 @@ def dismantle_talisman(element, did):
         resp = db.updateVaultNoFilter(query, update_query)
         user_update_query = {'$set': {'TALISMAN': 'NULL'}}
         db.updateUserNoFilter(query, user_update_query)
-        response = inc_essence(did, element, 150)
-        msg = f"{response} **{element.title()} Talisman** has been dismantled into **150 {response} {element.title()} Essence**"
+        response = inc_essence(did, element, 500)
+        msg = f"{response} **{element.title()} Talisman** has been dismantled into **500 {response} {element.title()} Essence**"
         return msg
     except Exception as ex:
         trace = []
