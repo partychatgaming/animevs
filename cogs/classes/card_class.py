@@ -425,22 +425,26 @@ class Card:
 
     def set_class_buffs(self):
         value = 0
+        p_value = 0
         mage_buff = .30
         heal_buff = .20
         if self.tier in [1, 2, 3]:
             value = 1
+            p_value = 2
         elif self.tier in [4, 5]:
             value = 2
+            p_value = 4
             mage_buff = .40
             heal_buff = .30
         elif self.tier in [6, 7]:
             value = 3
+            p_value = 6
             mage_buff = .50
             heal_buff = .40
 
         if self.card_class == "FIGHTER":
             self._parry_active = True
-            self._parry_value = self._parry_value + value
+            self._parry_value = self._parry_value + p_value 
         
         if self.card_class == "MAGE":
             self._magic_active = True
@@ -452,7 +456,7 @@ class Card:
         
         if self.card_class == "TANK":
             self._shield_active = True
-            self._shield_value = self._shield_value + (self.tier * 300)
+            self._shield_value = self._shield_value + (self.tier * 500)
         
         if self.card_class == "HEALER":
             self._heal_active = True

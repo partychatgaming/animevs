@@ -314,13 +314,13 @@ async def classes(ctx):
    *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
    
    {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with up to 3 Parries
-   *Common - 1 Parry, Rare - 2 Parries, Legendary - 3 Parries*
+   *Common - 2 Parry, Rare - 4 Parries, Legendary - 6 Parries*
    
    {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with up to 3 barriers
    *Common - 1 Barrier, Rare - 2 Barriers, Legendary - 3 Barriers*
    
-   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 300 Shield
-   *Common - 300/600/900 Shield, Rare - 1200/1500, Legendary - 1800/2100*
+   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 500 Shield
+   *Common - 500/1000/1500 Shield, Rare - 2000/2500, Legendary - 3000/3500*
    
    {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain up to 3 Critical Strikes
    *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
