@@ -2714,7 +2714,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     return
 
                 if button_ctx.custom_id == "save_tales_yes":
-                    await button_ctx.defer()
+                    # await button_ctx.defer()
                     await battle_msg.edit(components=[])
                     await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                     await button_ctx.send(embed = battle_config.saved_game_embed(player1_card, player2_card))
@@ -2724,7 +2724,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     if battle_config.match_can_be_saved and player1.autosave == True:
                         await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                     if button_ctx.custom_id == "start_auto_tales":
-                        await button_ctx.defer()
+                        # await button_ctx.defer()
                         battle_config.is_auto_battle_game_mode = True
                         embedVar = discord.Embed(title=f"Auto Battle has started", color=0xe74c3c)
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -2762,9 +2762,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             tactics_death_blow_check(player2_card, player1_card, battle_config) 
                             tactics_intimidation_check(player2_card, player1_card, battle_config)
                         if battle_config.is_turn == 0:
-                            # player1_card.used_focus = True
-                            # player1_card.used_resolve = True
-                            if player1_card.health == 0:
+                            if player1_card.health <= 0:
+                                continue
+                            if player2_card.health <= 0:
                                 continue
                             player1_card.set_deathnote_message(battle_config)
                             player2_card.set_deathnote_message(battle_config)
@@ -2807,6 +2807,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     if selected_move in [1, 2, 3, 4, 7]:
                                         damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
+                                        if selected_move == 3:
+                                            player1_card.activate_persona_trait(battle_config, player2_card)
                                         if selected_move != 7:
                                             player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                             if player1_card._monstrosity_active and player1_card.used_resolve:
@@ -2998,6 +3000,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 await asyncio.sleep(2)
                                            
                                             damage_calculation_response = player1_card.damage_cal(int(button_ctx.custom_id), battle_config, player2_card)
+                                            player1_card.activate_persona_trait(battle_config, player2_card)
+                                            
                                             if player1_card.gif != "N/A" and not player1.performance:
                                                 # await button_ctx.defer(ignore=True)
                                                 await battle_msg.delete(delay=None)
@@ -3165,7 +3169,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                         
                         if battle_config.is_turn == 1:
                             tactics_death_blow_check(player2_card, player1_card, battle_config)              
-                            if player1_card.health == 0:
+                            if player1_card.health <= 0:
+                                continue
+                            if player2_card.health <= 0:
                                 continue
                             if(player2_card.damage_check_activated):
                                 battle_config.is_turn = 0
@@ -3237,11 +3243,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     battle_config.set_battle_options(player2_card, player1_card)
                                     # Check If Playing Bot
                                     if not battle_config.is_ai_opponent:
-
                                         battle_action_row = manage_components.create_actionrow(*battle_config.battle_buttons)
                                         util_action_row = manage_components.create_actionrow(*battle_config.utility_buttons)
 
-                                        player2_card.set_battle_arm_messages(player2_card)
+                                        player2_card.set_battle_arm_messages(player1_card)
                                         player2_card.set_stat_icons()
 
                                         components = [battle_action_row, util_action_row]
@@ -3255,8 +3260,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         else:
                                             embedVar.set_author(name=f"{player2_card.summon_resolve_message}\n")
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention} Select move below!")
-                          
-                                        embedVar.set_image(url="attachment://image.png")
+                        
+                                            embedVar.set_image(url="attachment://image.png")
                                         if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                                             footer_text = battle_config.get_battle_footer_text(player2_card, player1_card, player3_card)
                                         else:
@@ -3274,13 +3279,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         # Make sure user is responding with move
                                         def check(button_ctx):
-                                            return button_ctx.author == user2 and button_ctx.custom_id in options
+                                            return button_ctx.author == user2 and button_ctx.custom_id in battle_config.battle_options
 
                                         try:
                                             button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot,
-                                                                                                                    components=[
-                                                                                                                        battle_action_row,
-                                                                                                                        util_action_row],
+                                                                                                                    components=[components],
                                                                                                                     timeout=300,
                                                                                                                     check=check)
 
@@ -3299,8 +3302,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 damage_calculation_response = player2_card.damage_cal(int(button_ctx.custom_id), battle_config, player1_card)
                                             
                                             elif button_ctx.custom_id == "3":
-
                                                 damage_calculation_response = player2_card.damage_cal(int(button_ctx.custom_id), battle_config, player1_card)
+                                                player2_card.activate_persona_trait(battle_config, player1_card)
                                                 if player2_card.gif != "N/A" and not player1.performance:
                                                     # await button_ctx.defer(ignore=True)
                                                     await battle_msg.delete(delay=None)
@@ -3448,6 +3451,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                                         
                                     if int(selected_move) in [1, 2, 3, 4]:
                                         damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)                                    
+                                        if int(selected_move) == 3:
+                                            player2_card.activate_persona_trait(battle_config, player1_card)
                                         if not battle_config.is_auto_battle_game_mode and int(selected_move) == 3:
                                             if player2_card.gif != "N/A"  and not player1.performance:
                                                 await battle_msg.delete(delay=2)
@@ -3597,7 +3602,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if selected_move in [1, 2, 3, 4]:
                                             damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
-                                        
+                                            if selected_move == 3:
+                                                player3_card.activate_persona_trait(battle_config, player2_card)
                                         if selected_move == 5:
                                             player3_card.resolving(battle_config, player2_card, player3)
                                         
@@ -3691,6 +3697,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             
                                             elif button_ctx.custom_id == "3":
                                                 damage_calculation_response = player3_card.damage_cal(int(button_ctx.custom_id), battle_config, player2_card)
+                                                player3_card.activate_persona_trait(battle_config, player2_card)
                                                 if player3_card.gif != "N/A" and not player3.performance:
                                                     # await button_ctx.defer(ignore=True)
                                                     await battle_msg.delete(delay=None)
@@ -3831,8 +3838,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     
                                     
                                     if int(selected_move) == 3:                                    
-
                                         if battle_config.is_auto_battle_game_mode:
+                                            if int(selected_move) == 3:
+                                                player2_card.activate_persona_trait(battle_config, player3_card)
                                             if player2_card.gif != "N/A"  and not player1.performance:
                                                 await battle_msg.delete(delay=2)
                                                 await asyncio.sleep(2)

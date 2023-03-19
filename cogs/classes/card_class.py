@@ -1978,39 +1978,6 @@ class Card:
 
         
 
-    # def set_battle_arm_messages(self, opponent_card):
-    #     if self.used_resolve:
-    #         self.summon_resolve_message = f"🧬 | {crown_utilities.set_emoji(self.summon_type)} {self.summon_type.capitalize()}"
-        
-    #     weapon_emojis = {
-    #         "barrier": "💠",
-    #         "shield": "🌐",
-    #         "parry": "🔄",
-    #         "siphon": "💉"
-    #     }
-
-    #     for weapon, emoji, active, value in [
-    #         ("barrier", "💠", opponent_card._barrier_active, opponent_card._barrier_value),
-    #         ("shield", "🌐", opponent_card._shield_active, opponent_card._shield_value),
-    #         ("parry", "🔄", opponent_card._parry_active, opponent_card._parry_value),
-    #         ("siphon", "💉", opponent_card._siphon_active, opponent_card._siphon_value)
-    #     ]:
-    #         if active:
-    #             opponent_card._arm_message = f"{emoji} | {value} {weapon.capitalize()}"
-    #             break
-
-
-    #     for weapon, emoji, active, value in [
-    #         ("barrier", "💠", self._barrier_active, self._barrier_value),
-    #         ("shield", "🌐", self._shield_active, self._shield_value),
-    #         ("parry", "🔄", self._parry_active, self._parry_value),
-    #         ("siphon", "💉", self._siphon_active, self._siphon_value)
-    #     ]:
-    #         if active:
-    #             self._arm_message = f"{emoji} | {value} {weapon.capitalize()}"
-    #             break
-        
-
     def set_battle_arm_messages(self, opponent_card):
         if self.used_resolve:
             self.summon_resolve_message = f"🧬 | {crown_utilities.set_emoji(self.summon_type)} {self.summon_type.capitalize()}"
@@ -2636,12 +2603,6 @@ class Card:
             damage_calculation_response = self.damage_cal(6, battle_config, opponent_card)
             self.usedsummon = True
             if damage_calculation_response['CAN_USE_MOVE']:                
-                # if self.universe == "Persona":
-                #     petdmg = self.damage_cal(1, battle_config, opponent_card)
-                #     opponent_card.health = opponent_card.health - petdmg['DMG']
-                #     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{petdmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
-                #     opponent_card.usedsummon = True
-                #     self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
                 battle_config.repeat_turn()
                 return damage_calculation_response
             else:
@@ -2652,6 +2613,12 @@ class Card:
             battle_config.repeat_turn()
 
     
+    def activate_persona_trait(self, battle_config, opponent_card):
+        if self.universe == "Persona" and self.used_resolve:
+            summon_response = self.usesummon(battle_config, opponent_card)
+            self.activate_element_check(battle_config, summon_response, opponent_card)
+
+
     def set_talisman(self, battle_config):
         # if normal, apply talisman for basic attack
         # if hard, apply talisman for ultimate attack
