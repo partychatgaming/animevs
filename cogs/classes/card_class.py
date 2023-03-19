@@ -1121,7 +1121,7 @@ class Card:
         if self.speed <=30:
             self.evasion = -1 * (crown_utilities.calculate_speed_modifier(self.speed) * 5)
         elif self.speed >=70:
-            self.evasion = -1 * (crown_utilities.calculate_speed_modifier(self.speed) * 10)
+            self.evasion = -1 * (crown_utilities.calculate_speed_modifier(self.speed) * 5)
 
     def showcard(self, mode, arm, title, turn_total, opponent_card_defense):
     # Card Name can be 16 Characters before going off Card
@@ -1785,10 +1785,17 @@ class Card:
                 high_hit = 20
                 # hit_roll = round(random.randint(0, 20))
                 hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
-                evasion = crown_utilities.calculate_speed_modifier(self.speed)
+                evasion = crown_utilities.calculate_speed_modifier(_opponent_card.speed)
+                accuracy = _opponent_card.speed - self.speed
+                if accuracy <= 0 :
+                    accuracy = 0
+                if accuracy >=
                 hit_roll += evasion
                 
                 #Evasion Modifier
+                
+                if self.universe == "Crown Rift Slayers" and hit_roll <=low_hit:
+                    hit_roll = hit_roll - 3
                 
                 if self._swordsman_active and self.used_resolve:
                     if self._critical_strike_count < self._swordsman_value:
@@ -1835,8 +1842,6 @@ class Card:
                 if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
                     hit_roll = hit_roll + 3
                 
-                if self.universe == "Crown Rift Slayers" and hit_roll <=low_hit:
-                    hit_roll = hit_roll - 3
 
                 if ranged_attack:
                     true_dmg = round(true_dmg * 1.7)

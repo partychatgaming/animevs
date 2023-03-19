@@ -329,7 +329,7 @@ async def classes(ctx):
    *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
 
    {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by up to 50%
-   *Common - 30%, Rare - 2 40%, Legendary - 3 50%*
+   *Common - 30%, Rare - 40%, Legendary - 50%*
    
    {crown_utilities.class_emojis['HEALER']} *Healer* // Stores up to 40% of damage taken and heals for the total amount each Focus 
    *Common - 20%, Rare - 30%, Legendary - 40%*
@@ -477,7 +477,7 @@ async def animevs(ctx):
    
    🏃**Evasion**
    Your cards speed determines your evasion stat.
-   **Fast** Cards SPD [70-100] increase their evasion by 10% every 10 Speed STAT i.e SPD 80 = 20% Evasion
+   **Fast** Cards SPD [70-100] increase their evasion by 5% every 10 Speed STAT i.e SPD 80 = 10% Evasion
    **Slow** Cards SPD [0-30] decrease their evasion by 5% i.e SPD 10 = -15% Evasion
    **Nuetral** Cards SPD [31-69] do not modify evasion
    

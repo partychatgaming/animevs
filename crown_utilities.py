@@ -411,11 +411,11 @@ def calculate_speed_modifier(speed):
     elif speed <= 30:
         return 3
     elif speed >= 90:
-        return -6
+        return -3
     elif speed >= 80:
-        return -4
-    elif speed >= 70:
         return -2
+    elif speed >= 70:
+        return -1
     else:
         return 0
 
