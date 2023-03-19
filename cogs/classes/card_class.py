@@ -1588,7 +1588,8 @@ class Card:
                     "ENHANCE": False,
                     "REPEL": False,
                     "ABSORB": False,
-                    "ELEMENT": move_element
+                    "ELEMENT": move_element,
+                    "SUMMON_USED" : True
                     }
                     return response            
 
@@ -1786,11 +1787,11 @@ class Card:
                 # hit_roll = round(random.randint(0, 20))
                 hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
                 evasion = crown_utilities.calculate_speed_modifier(_opponent_card.speed)
-                accuracy = _opponent_card.speed - self.speed
+                accuracy = self.speed - _opponent_card.speed
                 if accuracy <= 0 :
                     accuracy = 0
-                if accuracy >= 5:
-                    accuracy = 5
+                if accuracy >= 3:
+                    accuracy = 3
                 hit_roll += evasion + accuracy
                 
                 #Evasion Modifier
