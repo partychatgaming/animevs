@@ -2270,6 +2270,10 @@ class Card:
 
     
     def resolving(self, battle_config, opponent_card, player=None, opponent=None):
+        if self.defense <= 0:
+            self.defense = 25
+        if self.attack <= 0:
+            self.attack = 25
         if not self.used_resolve and self.used_focus:
             if self.overwhelming_power:
                 self._parry_active = True
@@ -2582,6 +2586,8 @@ class Card:
                 fortitude = round(random.randint(int(low), int(high)))
                 #print(fortitude)
                 # Resolve Scaling
+                if self.defense <= 0:
+                    self.defense = 25
                 resolve_health = round(fortitude + (.5 * self.resolve_value))
                 resolve_attack_value = round(
                     (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
