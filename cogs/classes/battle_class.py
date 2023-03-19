@@ -1607,10 +1607,10 @@ class Battle:
         icon1 = "1️⃣"
         icon2 = "2️⃣"
         close_message = "PVP"
-        f_message = f":people_hugging: | Try Co-Op Battle and Conquer The Multiverse Together!"
+        f_message = f"🫂 | Try Co-Op Battle and Conquer The Multiverse Together!"
         if self.is_tutorial_game_mode:
             close_message = "Tutorial"
-            icon2 = ":teacher:"
+            icon2 = "🧑‍🏫"
             f_message = f"🧠 | Tutorial will teach you about Game Mechanics and Card Abiltiies!"
         if self.is_raid_game_mode:
             close_message = "Raid"
@@ -1770,6 +1770,13 @@ class Battle:
         if self.is_tutorial_game_mode:
             victory_message = f":zap: TUTORIAL VICTORY"
             victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self.turn_total} turns."
+            embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
+            {self.get_previous_moves_embed()}
+            
+            """),colour=0xe91e63)
+        if self.is_pvp_game_mode:
+            victory_message = f":zap: {winner_card.name} WINS!"
+            victory_description = f"Match concluded in {self.turn_total} turns."
             embedVar = discord.Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
             {self.get_previous_moves_embed()}
             

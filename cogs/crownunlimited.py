@@ -3326,7 +3326,24 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         battle_config.next_turn()
-                                                        
+                                        except asyncio.TimeoutError:
+                                            await battle_msg.edit(components=[])
+                                            if not any((battle_config.is_abyss_game_mode, 
+                                                        battle_config.is_scenario_game_mode, 
+                                                        battle_config.is_explore_game_mode, 
+                                                        battle_config.is_pvp_game_mode, 
+                                                        battle_config.is_tutorial_game_mode,
+                                                        battle_config.is_boss_game_mode)):
+                                                await save_spot(self, player1.did, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                                                await ctx.send(embed = battle_config.saved_game_embed(player2_card,player1_card))
+                                            elif any((battle_config.is_pvp_game_mode, 
+                                                        battle_config.is_tutorial_game_mode
+                                                                    )):
+                                                await ctx.send(embed = battle_config.close_pvp_embed(player2,player1))
+                                            else:
+                                                await ctx.send(embed = battle_config.close_pve_embed(player2_card,player1_card))
+                                            await ctx.send(f"{user2.mention} {battle_config.error_end_match_message()}")
+                                            return  
                                         except Exception as ex:
                                             trace = []
                                             tb = ex.__traceback__

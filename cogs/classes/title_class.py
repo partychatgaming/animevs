@@ -224,6 +224,7 @@ class Title:
             return True
         else:
             self.title_active = False
+            return False
             
              
 
