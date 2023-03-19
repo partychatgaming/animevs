@@ -1087,10 +1087,10 @@ class Lookup(commands.Cog):
                 # print(is_sworn)
                 # print(is_guild_leader)
                 if is_visitor:
-                    buttons.append(
+                    buttons = [
                         manage_components.create_button(style=3, label="Say Hello", custom_id="hello"),
                         manage_components.create_button(style=3, label="Raid!", custom_id="raid")
-                    )
+                    ]
                     
                 if is_founder or is_sworn:
                     buttons = [
