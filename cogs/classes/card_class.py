@@ -1789,8 +1789,9 @@ class Card:
                 accuracy = _opponent_card.speed - self.speed
                 if accuracy <= 0 :
                     accuracy = 0
-                if accuracy >=
-                hit_roll += evasion
+                if accuracy >= 5:
+                    accuracy = 5
+                hit_roll += evasion + accuracy
                 
                 #Evasion Modifier
                 
