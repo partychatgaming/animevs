@@ -422,10 +422,63 @@ class Card:
             self.passive_num = self.passive_num
         if passive_type == "GAMBLE":
             self.passive_num = self.passive_num
+
+    def set_class_buffs(self):
+        value = 0
+        mage_buff = .30
+        heal_buff = .20
+        if self.tier in [1, 2, 3]:
+            value = 1
+        elif self.tier in [4, 5]:
+            value = 2
+            mage_buff = .40
+            heal_buff = .30
+        elif self.tier in [6, 7]:
+            value = 3
+            mage_buff = .50
+            heal_buff = .40
+
+        if self.card_class == "FIGHTER":
+            self._parry_active = True
+            self._parry_value = self._parry_value + value
+        
+        if self.card_class == "MAGE":
+            self._magic_active = True
+            self._magic_value = mage_buff
+        
+        if self.card_class == "RANGER":
+            self._barrier_active = True
+            self._barrier_value = self._barrier_value + value
+        
+        if self.card_class == "TANK":
+            self._shield_active = True
+            self._shield_value = self._shield_value + (self.tier * 300)
+        
+        if self.card_class == "HEALER":
+            self._heal_active = True
+            self._heal_value = 0
+            self._heal_buff = heal_buff
+        
+        if self.card_class == "ASSASSIN":
+            self._assassin_active = True
+            self._assassin_attack = value
             
+        if self.card_class == "SWORDSMAN":
+            self._swordsman_active = True
+            self._swordsman_value = value
+            
+        if self.card_class == "SUMMONER":
+            self._summoner_active = True
+            
+        if self.card_class == "MONSTROSITY":
+            self._monstrosity_active = True
+            self._monstrosity_value = value
+
 
     # AI ONLY BUFFS
     def set_ai_card_buffs(self, ai_lvl_buff, ai_stat_buff, ai_stat_debuff, ai_health_buff, ai_health_debuff, ai_ap_buff, ai_ap_debuff, prestige_level, rebirth_level, mode):
+        self.set_class_buffs()
+
         if rebirth_level > 0 or prestige_level > 0: 
             self.prestige_difficulty = ((((prestige_level + 1) * (10 + rebirth_level)) /100)) 
         else:
@@ -509,6 +562,8 @@ class Card:
             return 1000
         elif mode == "CBoss":
             return 1000
+    
+    
     def set_raid_defense_buff(self, hall_defense):
         self.defense = round(self.defense * hall_defense)
         
@@ -516,56 +571,7 @@ class Card:
     # This method will set the level buffs & apply them
     def set_card_level_buffs(self, list_of_card_levels=None):
         try:
-            value = 0
-            mage_buff = .30
-            heal_buff = .20
-            if self.tier in [1, 2, 3]:
-                value = 1
-            elif self.tier in [4, 5]:
-                value = 2
-                mage_buff = .40
-                heal_buff = .30
-            elif self.tier in [6, 7]:
-                value = 3
-                mage_buff = .50
-                heal_buff = .40
-
-            if self.card_class == "FIGHTER":
-                self._parry_active = True
-                self._parry_value = self._parry_value + value
-            
-            if self.card_class == "MAGE":
-                self._magic_active = True
-                self._magic_value = mage_buff
-            
-            if self.card_class == "RANGER":
-                self._barrier_active = True
-                self._barrier_value = self._barrier_value + value
-            
-            if self.card_class == "TANK":
-                self._shield_active = True
-                self._shield_value = self._shield_value + (self.tier * 300)
-            
-            if self.card_class == "HEALER":
-                self._heal_active = True
-                self._heal_value = 0
-                self._heal_buff = heal_buff
-            
-            if self.card_class == "ASSASSIN":
-                self._assassin_active = True
-                self._assassin_attack = value
-                
-            if self.card_class == "SWORDSMAN":
-                self._swordsman_active = True
-                self._swordsman_value = value
-                
-            if self.card_class == "SUMMONER":
-                self._summoner_active = True
-                
-            if self.card_class == "MONSTROSITY":
-                self._monstrosity_active = True
-                self._monstrosity_value = value
-           
+            self.set_class_buffs()
 
             if list_of_card_levels:
                 for x in list_of_card_levels:
@@ -586,7 +592,7 @@ class Card:
             self.move1ap = self.move1ap + self.card_lvl_ap_buff
             self.move2ap = self.move2ap + self.card_lvl_ap_buff
             self.move3ap = self.move3ap + self.card_lvl_ap_buff
-
+            
             if self.summon_type in ['BARRIER', 'PARRY']:
                 if self.summon_bond == 3 and self.summon_lvl == 10:
                     self.summon_power = self.summon_power + 1
@@ -595,7 +601,6 @@ class Card:
         except:
             print("Error setting card levels")
             return False
-
 
     async def set_guild_stat_level_buffs(self, guild_name):
         try:
