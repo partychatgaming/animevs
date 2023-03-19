@@ -4705,10 +4705,10 @@ def tactics_regeneration_check(boss_card, battle_config):
 
 def tactics_death_blow_check(boss_card, player_card, battle_config):
     if boss_card.death_blow:
-        if battle_config.turn_total in [1, 30, 60, 90, 120, 150, 180, 200, 220, 240, 250]:
+        if battle_config.turn_total in [10,30, 60, 90, 120, 150, 180, 200, 220, 240, 250]:
             boss_card.death_blow_activated = True
 
-        if battle_config.turn_total in [0, 1, 29,30, 59,60, 89, 90, 119, 120, 149, 150, 179, 180,  199, 200, 219, 220, 239, 240,  249, 250]:
+        if battle_config.turn_total in [9,10,29,30, 59,60, 89, 90, 119, 120, 149, 150, 179, 180,  199, 200, 219, 220, 239, 240,  249, 250]:
             #sif battle_config.is_turn in [0,2]:
             warning_message = f"(:vs:)**[{boss_card.name} is preparing a death blow! Protect yourself with shields, parries, barriers, or block]**"
             battle_config.add_to_battle_log(warning_message)
