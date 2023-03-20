@@ -596,7 +596,7 @@ class Card:
             self.move1ap = self.move1ap + self.card_lvl_ap_buff
             self.move2ap = self.move2ap + self.card_lvl_ap_buff
             self.move3ap = self.move3ap + self.card_lvl_ap_buff
-            
+
             if self.summon_type in ['BARRIER', 'PARRY']:
                 if self.summon_bond == 3 and self.summon_lvl == 10:
                     self.summon_power = self.summon_power + 1
@@ -1575,14 +1575,20 @@ class Card:
                 if move_element in protections:
                     if move_element == "BARRIER":
                         self._barrier_active = True
+                        if self._barrier_value < 0:
+                            self._barrier_value = 0
                         self._barrier_value = self._barrier_value + ap
                         message = f"{move} was used! {self.name} received {self.summon_emoji} {ap} barrier"
                     if move_element == "SHIELD":
                         self._shield_active = True
+                        if self._shield_value < 0:
+                            self._shield_value = 0
                         self._shield_value = self._shield_value + ap
                         message = f"{move} was used! {self.name} received {self.summon_emoji} {ap} shield!"
                     if move_element == "PARRY":
                         self._parry_active = True
+                        if self._parry_value < 0:
+                            self._parry_value = 0
                         self._parry_value = self._parry_value + ap
                         message = f"{move} was used! {self.name} receive {self.summon_emoji} {ap} parry!"
                     battle_config.add_to_battle_log(message)
@@ -3246,7 +3252,7 @@ class Card:
                 self.stamina = 0
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + (dmg['DMG'] / (1 + battle_config.turn_total))
             self.used_block = True
-            self.defense = round(self.defense * 2)
+            self.defense = round(self.defense * 4)
             battle_config.turn_total = battle_config.turn_total + 3
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*Time speeds forward +3 turns!*")
             # battle_config.add_to_battle_log(f"**{self.name}** moved time forward +3 turns!")
@@ -3256,25 +3262,25 @@ class Card:
             self._shield_active = True
             if self._shield_value <= 0:
                 self._shield_value = 0
-            self.defense = self.defense + (dmg['DMG'] * .25)
+            self.defense = self.defense + (dmg['DMG'] * .30)
             self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} formed a 🌐 {str(self._shield_value)} Shield*")
             # battle_config.add_to_battle_log(f"*{self.name} erected a 🌐 {str(self._shield_value)} Shield*")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "DEATH":
-            self.attack = self.attack + (dmg['DMG'] * .25)
-            opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * .25)
+            self.attack = self.attack + (dmg['DMG'] * .30)
+            opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * .30)
             if opponent_card.health > opponent_card.max_health:
                 opponent_card.health = opponent_card.max_health
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} reaped {str(round(dmg['DMG'] * .25))} Health from {opponent_card.name}*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} reaped {str(round(dmg['DMG'] * .30))} Health from {opponent_card.name}*")
 
         elif dmg['ELEMENT'] == "LIGHT":
             self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
-            self.attack = self.attack + (dmg['DMG'] * .25)
+            self.attack = self.attack + (dmg['DMG'] * .30)
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {round((dmg['DMG'] * .25))} ATK*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {round((dmg['DMG'] * .30))} ATK*")
 
         elif dmg['ELEMENT'] == "DARK":
             opponent_card.stamina = opponent_card.stamina - 15
@@ -3294,7 +3300,7 @@ class Card:
             
         elif dmg['ELEMENT'] == "RANGED":
             self.ranged_meter = self.ranged_meter + 1
-            if self.ranged_meter ==3:
+            if self.ranged_meter == 3:
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} takes aim...*")
             elif self.ranged_meter == 4:
                 self.ranged_meter = 0

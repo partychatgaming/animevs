@@ -85,7 +85,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 💧 Water - Increases all water move AP by 100 Flat.
 
-⛰️ Earth - Cannot be Parried. Increases Def by 25% AP. Grants Shield - Increase shield by 50% DMG
+⛰️ Earth - Cannot be Parried. Increases Def by 30% AP. Grants Shield - Increase shield by 50% DMG
 
 ⚡️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.
 
@@ -93,11 +93,11 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier
 
-☠️ Death - Deals 25% DMG to opponent max health. Gain Attack equal to that amount.
+☠️ Death - Deals 30% DMG to opponent max health. Gain Attack equal to that amount.
 
 ❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.
 
-🌕 Light - Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 25% of DMG.
+🌕 Light - Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 30% of DMG.
 
 🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.
 
@@ -109,7 +109,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
 
-⌛ Time - Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn. 
+⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn. 
 
 🅱️ Bleed - Every 2 Attacks deal 10x turn count damage to opponent.
 
