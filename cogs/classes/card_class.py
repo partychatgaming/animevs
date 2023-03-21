@@ -1688,7 +1688,7 @@ class Card:
                         else:
                             if enh == "LIFE":
                                 if enhancer_value + self.health >= self.max_health:
-                                    enhancer_value = self.max_health - self.health
+                                    enhancer_value = round(self.max_health - self.health)
                             message = f"{move} used! Stealing {enhancer_value} {legend[enh]}!"
                     elif enh in ['RAGE', 'BRACE', 'BZRK', 'CRYSTAL']:
                         message = f"{move} used! Sacrificing {enhancer_value} {legend[enh]}, Increasing {legend[f'{enh}_INC']} by {enhancer_value}"
@@ -2663,7 +2663,7 @@ class Card:
             elif companion_card.move4enh == 'LIFE':
                 companion_card.health = round(companion_card.health + dmg['DMG'])
                 if companion_card.health >= companion_card.max_health:
-                    dmg['DMG'] = dmg['DMG'] - (companion_card.health - companion_card.max_health)
+                    dmg['DMG'] = dmg['DMG'] - round(companion_card.health - companion_card.max_health)
                 opponent_card.health = round(self.health - dmg['DMG'])
             elif companion_card.move4enh == 'DRAIN':
                 companion_card.stamina = round(companion_card.stamina + dmg['DMG'])
@@ -2874,9 +2874,9 @@ class Card:
                     #self.max_health = round(self.max_health + dmg['DMG'])
                     if (self.health + dmg['DMG']) < self.max_health:
                         self.health = round(self.health + dmg['DMG'])
-                        opponent_card.health = opponent_card.health - dmg['DMG']
+                        opponent_card.health = round(opponent_card.health - dmg['DMG'])
                     else:
-                        dmg['DMG'] = self.max_health - self.health
+                        dmg['DMG'] = round(self.max_health - self.health)
                         self.health = round(self.health + dmg['DMG'])
                         opponent_card.health = round(opponent_card.health - dmg['DMG'])
                 elif self.move4enh == 'DRAIN':
@@ -3244,7 +3244,7 @@ class Card:
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
                 self.stamina = 0
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (dmg['DMG'] / (1 + battle_config.turn_total))
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + round(dmg['DMG'] / (1 + battle_config.turn_total))
             self.used_block = True
             self.defense = round(self.defense * 2)
             battle_config.turn_total = battle_config.turn_total + 3
@@ -3256,8 +3256,10 @@ class Card:
             self._shield_active = True
             if self._shield_value <= 0:
                 self._shield_value = 0
-            self.defense = self.defense + (dmg['DMG'] * .25)
+            self.defense = self.defense + round(dmg['DMG'] * .25)
             self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
+            if self._shield_value <= 0:
+                self._shield_value = 0
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} formed a 🌐 {str(self._shield_value)} Shield*")
             # battle_config.add_to_battle_log(f"*{self.name} erected a 🌐 {str(self._shield_value)} Shield*")
             opponent_card.health = opponent_card.health - dmg['DMG']
@@ -3305,8 +3307,8 @@ class Card:
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "LIFE":
-            self.max_health = self.max_health + (dmg['DMG'] * .35)
-            self.health = self.health + (dmg['DMG'] * .35)
+            self.max_health = self.max_health + round(dmg['DMG'] * .35)
+            self.health = self.health + round((dmg['DMG'] * .35))
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .35))} Health*")
 
@@ -3490,7 +3492,7 @@ class Card:
                     self.health = round(self.health + dmg)
                     player2_card.health = player2_card.health - dmg
                 else:
-                    dmg = self.max_health - self.health
+                    dmg = round(self.max_health - self.health)
                     self.health = round(self.health + dmg)
                     player2_card.health = player2_card.health - dmg
             if self.passive_type == "ATK":

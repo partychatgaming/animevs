@@ -917,7 +917,7 @@ async def register(ctx):
          "NAME": "Chick",
          "LVL": 1,
          "EXP": 0,
-         "Peck": 25,
+         "Peck": 100,
          "TYPE": "PHYSICAL",
          "BOND": 0,
          "BONDEXP": 0,
@@ -1092,8 +1092,8 @@ async def register(ctx):
                         if cresponse:
                            if card_name not in cardname_list:
                               update_query = {'$addToSet': {
-                                    'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 0, 'TIER': int(tier),
-                                                   'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
+                                    'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 30, 'TIER': int(tier),
+                                                   'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36}}}
                               r = db.updateVaultNoFilter(vault_query, update_query)
                            cardname_list.append(card_name)
                            card_message.append(f"**{card_name}**!")

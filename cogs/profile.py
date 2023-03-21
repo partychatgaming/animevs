@@ -3914,9 +3914,9 @@ class Profile(commands.Cog):
                 guild_info = db.queryTeam({"TEAM_NAME": str(user["TEAM"].lower())})
                 guild_buff = guild_info["ACTIVE_GUILD_BUFF"]
 
-            if user['LEVEL'] < 1 and user['PRESTIGE'] < 1:
-                await ctx.send("🔓 Unlock the Shop by completing Floor 0 of the 🌑 Abyss! Use /solo to enter the abyss.")
-                return
+            # if user['LEVEL'] < 1 and user['PRESTIGE'] < 1:
+            #     await ctx.send("🔓 Unlock the Shop by completing Floor 0 of the 🌑 Abyss! Use /solo to enter the abyss.")
+            #     return
 
             completed_tales = user['CROWN_TALES']
             completed_dungeons = user['DUNGEONS']

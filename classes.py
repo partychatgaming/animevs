@@ -49,7 +49,7 @@ class USER():
     BOSS_FOUGHT: bool = field(default_factory=lambda: True)
     AUTOSAVE: bool = field(default_factory=lambda: False)
     SERVER: str = field(default_factory=lambda: "N/A")
-    DIFFICULTY: str = field(default_factory=lambda: "NORMAL")
+    DIFFICULTY: str = field(default_factory=lambda: "EASY")
     STORAGE_TYPE: int = field(default_factory=lambda: 1)
     CREATOR: bool = field(default_factory=lambda: False)
     VOTED: bool = field(default_factory=lambda: False)
@@ -478,7 +478,7 @@ class VAULT():
         {"ELEMENT": "GRAVITY", "ESSENCE": 5000}
     ])
     PETS: list[str] = field(default_factory=lambda: [
-        {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
+        {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Peck': 100, 'TYPE': 'PHYSICAL', 'BOND': 0, 'BONDEXP': 0,
          'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}])
     DECK: list[str] = field(
         default_factory=lambda: [{'CARD': 'Eevee', 'TITLE': 'Pokemon Trainer', 'ARM': 'Poke Ball', 'PET': 'Chick', 'TALISMAN': 'NULL'},
@@ -486,9 +486,9 @@ class VAULT():
                                   'PET': 'Chick', 'TALISMAN': 'NULL'},
                                  {'CARD': 'Garen', 'TITLE': 'Iron 4', 'ARM': 'Dorans Shield', 'PET': 'Chick', 'TALISMAN': 'NULL'}])
     CARD_LEVELS: list[str] = field(default_factory=lambda: [
-        {'CARD': 'Eevee', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0},
-        {'CARD': 'Ochaco Uraraka', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0},
-        {'CARD': 'Garen', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}])
+        {'CARD': 'Eevee', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Ochaco Uraraka', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Garen', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36}])
     QUESTS: list[str] = field(default_factory=lambda: [])
     DESTINY: list[str] = field(default_factory=lambda: [])
     GEMS: list[str] = field(default_factory=lambda: [])
