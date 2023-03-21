@@ -2587,6 +2587,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 else:
                     battle_config.get_ai_battle_ready(player1_card.card_lvl)
                     player2_card = Card(battle_config._ai_opponent_card_data['NAME'], battle_config._ai_opponent_card_data['PATH'], battle_config._ai_opponent_card_data['PRICE'], battle_config._ai_opponent_card_data['EXCLUSIVE'], battle_config._ai_opponent_card_data['AVAILABLE'], battle_config._ai_opponent_card_data['IS_SKIN'], battle_config._ai_opponent_card_data['SKIN_FOR'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['MOVESET'], battle_config._ai_opponent_card_data['ATK'], battle_config._ai_opponent_card_data['DEF'], battle_config._ai_opponent_card_data['TYPE'], battle_config._ai_opponent_card_data['PASS'][0], battle_config._ai_opponent_card_data['SPD'], battle_config._ai_opponent_card_data['UNIVERSE'], battle_config._ai_opponent_card_data['HAS_COLLECTION'], battle_config._ai_opponent_card_data['TIER'], battle_config._ai_opponent_card_data['COLLECTION'], battle_config._ai_opponent_card_data['WEAKNESS'], battle_config._ai_opponent_card_data['RESISTANT'], battle_config._ai_opponent_card_data['REPEL'], battle_config._ai_opponent_card_data['ABSORB'], battle_config._ai_opponent_card_data['IMMUNE'], battle_config._ai_opponent_card_data['GIF'], battle_config._ai_opponent_card_data['FPATH'], battle_config._ai_opponent_card_data['RNAME'], battle_config._ai_opponent_card_data['RPATH'], battle_config._ai_is_boss, battle_config._ai_opponent_card_data['CLASS'])
+                    battle_config.get_aisummon_ready(player2_card)
                     player2_card.set_ai_card_buffs(battle_config._ai_opponent_card_lvl, battle_config.stat_buff, battle_config.stat_debuff, battle_config.health_buff, battle_config.health_debuff, battle_config.ap_buff, battle_config.ap_debuff, _player.prestige, _player.rebirth, battle_config.mode)
                 if battle_config.abyss_player_card_tier_is_banned:
                     await ctx.send(f"Tier {str(player1_card.tier)} cards are banned on Floor {str(battle_config.abyss_floor)} of the abyss. Please try again with another card.")
@@ -2601,7 +2602,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player2_card.set_affinity_message()
                 player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
-                battle_config.get_aisummon_ready(player2_card)
                 player2_card.get_boss_tactics(battle_config)
 
                 if battle_config.mode in crown_utilities.CO_OP_M:

@@ -1317,11 +1317,13 @@ class Battle:
         c_butts = []
         if self.is_turn == 3:
             options = ["q", "Q", "0", "1", "2", "3", "4", "7"]
-            if your_card.used_focus or your_card._summoner_active:
-                if your_card.used_resolve or your_card._summoner_active:
+            if your_card.used_focus:
+                if your_card.used_resolve:
                     options += [6]
                 else:
                     options += [5]
+            if your_card._summoner_active:
+                options += ['6']
             self.battle_options = options
         else:
             options = ["q", "Q", "0", "1", "2", "3", "4"]
@@ -1329,11 +1331,13 @@ class Battle:
                 options += ["7", "8", "9", "s", "b"]
             else:
                 options += ["s"]
-            if your_card.used_focus or your_card._summoner_active:
-                if your_card.used_resolve or your_card._summoner_active:
+            if your_card.used_focus:
+                if your_card.used_resolve:
                     options += ['6']
                 else:
                     options += ['5']
+            if your_card._summoner_active:
+                options += ['6']
             self.battle_options = options
 
         if your_card.stamina >= 10:
