@@ -52,7 +52,6 @@ class Card:
             self.card_class = card_class
 
             # Tactics & Classes
-            # Tactics
             self._swordsman_active = False
             self._swordsman_value = 0
             self._monstrosity_value = 0
@@ -131,6 +130,8 @@ class Card:
             self.yuyu_1ap_buff = 0
             self.yuyu_2ap_buff = 0
             self.yuyu_3ap_buff = 0
+            self.my_hero_academia_buff_counter = 0
+            self.my_hero_academia_buff = 0
 
             # Elemental Effect Meters
             self.burn_dmg = 0
@@ -603,7 +604,7 @@ class Card:
             else:
                 self.summon_power = (self.summon_bond * self.summon_lvl) + self.summon_power
         except:
-            print("Error setting card levels")
+            # print("Error setting card levels")
             return False
 
     async def set_guild_stat_level_buffs(self, guild_name):
@@ -1122,11 +1123,21 @@ class Card:
         except:
             return 0
         
+
     def get_evasion(self):
         if self.speed <=30:
             self.evasion = -1 * (crown_utilities.calculate_speed_modifier(self.speed) * 5)
         elif self.speed >=70:
             self.evasion = -1 * (crown_utilities.calculate_speed_modifier(self.speed) * 5)
+
+
+    def activate_my_hero_academia_trait(self):
+        if self.universe == "My Hero Academia" and not self.used_resolve:
+            self.my_hero_academia_buff_counter += 10
+        
+        if self.universe == "My Hero Academia" and self.used_resolve and self.my_hero_academia_buff > 50:
+            self.my_hero_academia_buff -= 50
+
 
     def showcard(self, mode, arm, title, turn_total, opponent_card_defense):
     # Card Name can be 16 Characters before going off Card
@@ -1511,6 +1522,7 @@ class Card:
             }))
             return
     
+
     def damage_cal(self, selected_move, battle_config, _opponent_card):
         if self.defense <= 0:
             self.defense = 25
@@ -1799,67 +1811,14 @@ class Card:
                 hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
                 evasion = crown_utilities.calculate_speed_modifier(_opponent_card.speed)
                 accuracy = self.speed - _opponent_card.speed
-                if accuracy <= 0 :
+                if accuracy <= 0:
                     accuracy = 0
                 if accuracy >= 3:
                     accuracy = 3
                 hit_roll += evasion + accuracy
                 
                 #Evasion Modifier
-                
-                if self.universe == "Crown Rift Slayers" and hit_roll <=low_hit:
-                    hit_roll = hit_roll - 3
-                
-                if self._swordsman_active and self.used_resolve:
-                    if self._critical_strike_count < self._swordsman_value:
-                        self._critical_strike_count += 1
-                        hit_roll = 20
-                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{3 - self._critical_strike_count} Left!*")
-                        
-                if self.bloodlust_activated:
-                    hit_roll = hit_roll + 3
-                    self.health = self.health + (.35 * true_dmg)
-
-                if _opponent_card.damage_check_activated:
-                    hit_roll += 3
-                    _opponent_card.damage_check_counter += true_dmg
-                    if not summon_used:
-                        _opponent_card.damage_check_turns -= 1
-                    if _opponent_card.damage_check_activated:
-                        damage_check_message = f"(:vs:)**[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]**"
-                        battle_config.add_to_battle_log(damage_check_message)
-                        _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
-                        if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
-                            damage_check_message = f"✅ **[{self.name} passed the Damage Check]**"
-                            battle_config.add_to_battle_log(damage_check_message)
-                            _opponent_card.damage_check_activated = False
-                            _opponent_card.damage_check_counter = 0
-                            _opponent_card.damage_check_limit = 0
-                            _opponent_card.damage_check_turns = 0
-                            _opponent_card.damage_check = False
-                        elif _opponent_card.damage_check_turns <= 0:
-                            _opponent_card.damage_check_activated = False
-                            _opponent_card.damage_check_counter = 0
-                            _opponent_card.damage_check_limit = 0
-                            _opponent_card.damage_check_turns = 0
-                            _opponent_card.damage_check = False
-                            self.health = 0
-                            self.defense = 0
-                            self.attack = 0
-                            damage_check_message = f"❌ **[{self.name} failed the Damage Check]**"
-                            battle_config.add_to_battle_log(damage_check_message)
-                        
-                if (move_element == "SPIRIT" or self.stagger) and hit_roll >= 13:
-                    hit_roll = hit_roll + 7
-                    
-                if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
-                    hit_roll = hit_roll + 3
-                
-
-                if ranged_attack:
-                    true_dmg = round(true_dmg * 1.7)
-                    if self.ranged_meter >= 4:
-                        hit_roll = hit_roll + self.ranged_hit_bonus
+                hit_roll = self.adjust_hit_roll(hit_roll, _opponent_card, summon_used, true_dmg, move_element, battle_config, low_hit, med_hit, standard_hit, high_hit, miss_hit)
 
                 if move_element == "RECOIL" and hit_roll > miss_hit:
                     true_dmg = round(true_dmg * 3)
@@ -1918,8 +1877,6 @@ class Card:
                         message = f"{_opponent_card.name} is weak to {move_emoji} {move_element.lower()}! Strong hit for {true_dmg}!"
                     else:
                         message = f"{_opponent_card.name} is weak to {move_emoji} {move_element.lower()}! Strong hit for **{true_dmg}**!"
-
-                #if not battle_config.is_ai_opponent:
                 
                 if not self._talisman == move_element and not self._is_boss:
                     if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) :
@@ -1986,7 +1943,61 @@ class Card:
                     'trace': trace
                 }))
 
+
+    def adjust_hit_roll(self, hit_roll, _opponent_card, summon_used, true_dmg, move_element, battle_config, low_hit, med_hit, standard_hit, high_hit, miss_hit):
+        if _opponent_card.damage_check_activated:
+            hit_roll += 3
+            _opponent_card.damage_check_counter += true_dmg
+            if not summon_used:
+                _opponent_card.damage_check_turns -= 1
+            if _opponent_card.damage_check_activated:
+                damage_check_message = f"(:vs:)**[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]**"
+                battle_config.add_to_battle_log(damage_check_message)
+                _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
+                if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
+                    damage_check_message = f"✅ **[{self.name} passed the Damage Check]**"
+                    battle_config.add_to_battle_log(damage_check_message)
+                    _opponent_card.damage_check_activated = False
+                    _opponent_card.damage_check_counter = 0
+                    _opponent_card.damage_check_limit = 0
+                    _opponent_card.damage_check_turns = 0
+                    _opponent_card.damage_check = False
+                elif _opponent_card.damage_check_turns <= 0:
+                    _opponent_card.damage_check_activated = False
+                    _opponent_card.damage_check_counter = 0
+                    _opponent_card.damage_check_limit = 0
+                    _opponent_card.damage_check_turns = 0
+                    _opponent_card.damage_check = False
+                    self.health = 0
+                    self.defense = 0
+                    self.attack = 0
+                    damage_check_message = f"❌ **[{self.name} failed the Damage Check]**"
+                    battle_config.add_to_battle_log(damage_check_message)
+
+        if self.universe == "Crown Rift Slayers" and hit_roll <= low_hit:
+            hit_roll = hit_roll - 3
+
+        if self._swordsman_active and self.used_resolve:
+            if self._critical_strike_count < self._swordsman_value:
+                self._critical_strike_count += 1
+                hit_roll = 20
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{3 - self._critical_strike_count} Left!*")
+
+        if self.bloodlust_activated:
+            hit_roll = hit_roll + 3
+            self.health = self.health + (.35 * true_dmg)
+
+        if (move_element == "SPIRIT" or self.stagger) and hit_roll >= 13:
+            hit_roll = hit_roll + 7
+
+        if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
+            hit_roll = hit_roll + 3
         
+        if (_opponent_card.used_block or _opponent_card.used_defend) and hit_roll >= 20:
+            hit_roll = 19
+
+        return hit_roll
+
 
     def set_battle_arm_messages(self, opponent_card):
         if self.used_resolve:
@@ -2024,6 +2035,7 @@ class Card:
         
         if len(self._arm_message) > 0:
             self._arm_message = "\n" + self._arm_message
+
 
     def focusing(self, _title, _opponent_title, _opponent_card, battle_config, _co_op_card=None, _co_op_title=None ):
         if self.stamina < self.stamina_required_to_focus:
@@ -2269,8 +2281,8 @@ class Card:
                     (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
                 resolve_defense_value = round(
                     (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 200 + battle_config.turn_total
 
+                self.my_hero_academia_buff = self.my_hero_academia_buff_counter * self.focus_count
                 self.stamina = 160
                 self.health = self.health + resolve_health
                 self.damage_healed = self.damage_healed + resolve_health
@@ -2279,7 +2291,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
                 
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: PLUS ULTRA!")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Quirk Awakening! Ap has been increased by **{self.my_hero_academia_buff}** 🔺")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.repeat_turn()
@@ -2607,7 +2619,6 @@ class Card:
                 battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**: gains 3 Critical Strikes!")
             
                 
-
     def usesummon(self, battle_config, opponent_card):
         if (self.used_resolve or self._summoner_active) and not self.usedsummon:
             damage_calculation_response = self.damage_cal(6, battle_config, opponent_card)
@@ -2770,43 +2781,68 @@ class Card:
         else:
             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {companion_card.name} doesn't have enough Stamina to use this move")
             battle_config.repeat_turn()
+    
+    
+    def activate_death_note_block_ability(self, battle_config):
+        if self.universe == "Death Note":
+            value = 3
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {value + self.tier}")
+            self.max_health = round(self.max_health - (.10 * self.max_health))
+            if self.health >= self.max_health:
+                self.health = self.max_health
+            battle_config.turn_total = battle_config.turn_total + self.tier + value
+
+
+    def activate_aot_block_ability(self, battle_config):
+        if self.universe == "Attack On Titan":
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Gained {(100 * self.tier)} Health & Max Health ❤️")
+            self.max_health = round(self.max_health + (100 * self.tier))
+            self.health = self.health + (100 * self.tier)
+
+
+    def activate_black_clover_block_ability(self, battle_config):
+        if self.universe == "Black Clover":                
+            self.stamina = self.stamina + 70
+            self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Charged their stamina, increasing their stamina & ap by 50")
+
+
+    def activate_bleach_block_ability(self, battle_config, opponent_card):
+        if self.universe == "Bleach":
+            dmg = self.damage_cal(1, battle_config, opponent_card)
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** Exerted their 🩸 Spiritual Pressure Executing a Basic Attack!")
+            if self.universe == "One Piece" and (self.name_tier in crown_utilities.LOW_TIER_CARDS or self.name_tier in crown_utilities.MID_TIER_CARDS or self.name_tier in crown_utilities.HIGH_TIER_CARDS):
+                if self.focus_count == 0:
+                    dmg['DMG'] = dmg['DMG'] * .6
+            
+            self.activate_element_check(battle_config, dmg, opponent_card)
+
+    def activate_my_hero_block_ability(self, battle_config):
+        if self.universe == "My Hero Academia" and not self.used_block:
+            self.my_hero_academia_buff_counter += 20
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 went Plus Ultra, increasing their dormant ap to {self.my_hero_academia_buff_counter}")
+
+    def activate_yuyu_hakusho_block_ability(self, battle_config):
+        if self.universe == "Yu Yu Hakusho" and not self.used_resolve:
+            defense_increase = 100 * self.tier
+            self.defense = self.defense + defense_increase
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 went into a state of meditation, increasing their defense by {defense_increase}")
 
 
     def use_block(self, battle_config, opponent_card, co_op_card=None):
         if self.stamina >= 20:
-            if self.universe == "Death Note":
-                value = 3
-                # if self.tier in [1, 2, 3]:
-                #     value = 1
-                # elif self.tier in [4, 5]:
-                #     value = 2
-                # elif self.tier in [6, 7]:
-                #     value = 3
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {value + self.tier}")
-                self.max_health = round(self.max_health - (.10 * self.max_health))
-                if self.health >= self.max_health:
-                    self.health = self.max_health
-                battle_config.turn_total = battle_config.turn_total + self.tier + value
+            self.activate_death_note_block_ability(battle_config)
             
-            if self.universe == "Attack On Titan":
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Gained {(100 * self.tier)} Health & Max Health ❤️")
-                self.max_health = round(self.max_health + (100 * self.tier))
-                self.health = self.health + (100 * self.tier)
+            self.activate_aot_block_ability(battle_config)
 
-            if self.universe == "Black Clover":                
-                self.stamina = self.stamina + 70
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Charged their stamina, increasing their stamina & ap by 50")
+            self.activate_black_clover_block_ability(battle_config)
 
-            if self.universe == "Bleach":
-                dmg = self.damage_cal(1, battle_config, opponent_card)
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** Exerted their 🩸 Spiritual Pressure Executing a Basic Attack!")
-                if self.universe == "One Piece" and (self.name_tier in crown_utilities.LOW_TIER_CARDS or self.name_tier in crown_utilities.MID_TIER_CARDS or self.name_tier in crown_utilities.HIGH_TIER_CARDS):
-                    if self.focus_count == 0:
-                        dmg['DMG'] = dmg['DMG'] * .6
-                
-                self.activate_element_check(battle_config, dmg, opponent_card)
+            self.activate_bleach_block_ability(battle_config, opponent_card)
 
+            self.activate_my_hero_block_ability(battle_config)
+
+            self.activate_yuyu_hakusho_block_ability(battle_config)
+            
             if battle_config.is_co_op_mode and not (battle_config.is_turn == 1 or battle_config.is_turn == 3):
                 block_message = f"**{self.name}**: Defended 🛡️ **{co_op_card.name}**"
                 self.used_defend = True
@@ -3014,7 +3050,7 @@ class Card:
                 else:
                     battle_config.turn_total = battle_config.turn_total + 1
                     battle_config.next_turn()
-            elif dmg['DMG'] == 0:
+            elif dmg['DMG'] == 0 and not dmg['REPEL'] and not dmg['ABSORB']:
                 if self._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC"]:
                     if not dmg['SUMMON_USED']:
                         self._barrier_active = False
@@ -3025,7 +3061,7 @@ class Card:
                 battle_config.turn_total = battle_config.turn_total + 1
                 if not dmg['SUMMON_USED']:
                     battle_config.next_turn()            
-            else:
+            elif not dmg['REPEL'] and not dmg['ABSORB']:
                 if dmg['SUMMON_USED']:
                     name = f"🧬 {self.name} summoned **{self.summon_name}**\n"
                 else:
@@ -3182,6 +3218,7 @@ class Card:
                             self.used_resolve = True
                             self.used_focus = True
                             self._final_stand = False
+                
                 if opponent_card.health <= 0:
                     if opponent_card._final_stand==True:
                         if opponent_card.universe == "Dragon Ball Z":
@@ -3215,11 +3252,13 @@ class Card:
                     else:
                         opponent_card.health = 0
                         battle_config.turn_total = battle_config.turn_total + 1
+                
                 else:
                     battle_config.turn_total = battle_config.turn_total + 1
                     if not dmg['SUMMON_USED']:
                         battle_config.next_turn()
-                    
+            else:
+                pass
         else:
             print(f"End of damage_done")
             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: Not enough Stamina to use this ability.")
@@ -3435,13 +3474,13 @@ class Card:
             _opponent_card.health = _opponent_card.max_health
         
         if self.used_resolve and self.universe == "Souls":
-            self.move1ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff + self.yuyu_1ap_buff)
-            self.move2ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_2ap_buff)
-            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_3ap_buff)
+            self.move1ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff + self.yuyu_1ap_buff + self.my_hero_academia_buff)
+            self.move2ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_2ap_buff + self.my_hero_academia_buff)
+            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_3ap_buff + self.my_hero_academia_buff)
         else:
-            self.move1ap = self.move1base + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff + self.yuyu_1ap_buff)
-            self.move2ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff + self.yuyu_2ap_buff)
-            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_3ap_buff)
+            self.move1ap = self.move1base + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff + self.yuyu_1ap_buff + self.my_hero_academia_buff)
+            self.move2ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff + self.yuyu_2ap_buff + self.my_hero_academia_buff)
+            self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_3ap_buff + self.my_hero_academia_buff)
         
         # _opponent_card.move1ap = _opponent_card.list(self.m1.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
         # _opponent_card.move2ap = _opponent_card.list(self.m2.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
