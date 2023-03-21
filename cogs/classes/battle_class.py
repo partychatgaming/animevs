@@ -644,7 +644,7 @@ class Battle:
                 update_shielding = {'$set': {'SHIELDING': True}}
                 add_shield = db.updateTeam({'TEAM_NAME': str(self._player_guild)}, update_shielding)
         else:
-            transaction_message = f":vs: {self.player.name} defeated {self._shield_name}! They claimed the :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)} Bounty!"
+            transaction_message = f":vs: {self.player.disname} defeated {self._shield_name}! They claimed the :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)} Bounty!"
             update_query = {'$push': {'TRANSACTIONS': transaction_message}}
             response = db.updateGuildAlt(guild_query, update_query)
             guildloss = db.updateGuild(guild_query, {'$set': {'BOUNTY': fee, 'STREAK': 0}})
