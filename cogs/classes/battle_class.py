@@ -623,7 +623,7 @@ class Battle:
         self._raid_end_message = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)}"
         hall_info = db.queryHall({"HALL":self._raid_hall})
         fee = hall_info['FEE']
-        transaction_message = f":shield: {self._shield_name} loss to {self.player.name}!"
+        transaction_message = f":shield: {self._shield_name} loss to {self.player.disname}!"
         update_query = {'$push': {'TRANSACTIONS': transaction_message}}
         response = db.updateGuildAlt(guild_query, update_query)
         if self._is_title_match:
