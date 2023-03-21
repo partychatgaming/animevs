@@ -1055,7 +1055,10 @@ class Battle:
             aiMove = 5
         elif your_card.universe in self.blocking_traits and your_card.stamina ==20:
             if opponent_card.attack >= your_card.defense and opponent_card.attack <= (your_card.defense * 2):
-                aiMove = 0
+                if your_card.used_focus:
+                    aiMove = 0
+                else:
+                    aiMove = 4
             elif your_card.universe == "Attack On Titan" and your_card.health <= (your_card.max_health * .50):
                 aiMove = 0
             elif opponent_card._barrier_active and opponent_card.stamina <= 20 and your_card.universe == "Bleach":
