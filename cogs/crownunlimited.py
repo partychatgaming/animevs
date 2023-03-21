@@ -3700,7 +3700,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     
                                                     await asyncio.sleep(2)
                                             elif button_ctx.custom_id == "4":
-                                                damage_calculation_response = player1_card.damage_cal(int(button_ctx.custom_id), battle_config, player2_card)
+                                                damage_calculation_response = player3_card.damage_cal(int(button_ctx.custom_id), battle_config, player2_card)
                                             
                                             elif button_ctx.custom_id == "5":
                                                 player3_card.resolving(battle_config, player2_card, player3)

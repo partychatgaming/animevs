@@ -1430,7 +1430,7 @@ class Battle:
                         custom_id="b"
                     )]
         
-        elif self.is_co_op_mode and self.mode not in crown_utilities.DUO_M and your_card.stamina >= 20:
+        elif (self.is_co_op_mode and self.mode not in crown_utilities.DUO_M) and your_card.stamina >= 20:
             c_butts = [
                 manage_components.create_button(
                     style=ButtonStyle.blue,

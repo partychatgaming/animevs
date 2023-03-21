@@ -968,6 +968,7 @@ class Card:
 
         if self.move3_element == "WATER":
             self.ultimate_water_buff = self.ultimate_water_buff + num
+        
 
 
     def set_bleed_hit(self, turn_total, opponent_card):
@@ -2477,7 +2478,7 @@ class Card:
                 if self._gow_resolve:
                     self.damage_healed = self.damage_healed + (self.max_health - self.health)
                     self.health = self.max_health
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Resolved: Ascension!")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Ascension!")
                 elif not self._gow_resolve:
                     self.health = round(self.health + (self.max_health / 2))
                     self.damage_healed = self.damage_healed + (self.max_health / 2)
