@@ -1,7 +1,7 @@
 traits = [{
     'NAME': 'My Hero Academia',
-    'EFFECT': 'Plus Ultra!',
-    'TRAIT': 'You do not lose a turn after you Resolve. AP of all abilities is increased by 300 + Turn Count.',
+    'EFFECT': 'Quirk Awakening, Plus Ultra',
+    'TRAIT': 'You gain 10ap each turn. On Resolve, you gain stored ap multiplied by focus count in ap, but you lose 50 ap each turn.',
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot, Pentakill',

@@ -109,7 +109,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
 
-⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn. 
+⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.
 
 🅱️ Bleed - Every 2 Attacks deal 10x turn count damage to opponent.
 

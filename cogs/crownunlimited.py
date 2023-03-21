@@ -564,8 +564,8 @@ class CrownUnlimited(commands.Cog):
         try:
             player = db.queryUser({'DID': str(ctx.author.id)})
             player3 = db.queryUser({'DID': str(user.id)})
-            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'])    
-            p3 = Player(player3['AUTOSAVE'], player3['DISNAME'], player3['DID'], player3['AVATAR'], player3['GUILD'], player3['TEAM'], player3['FAMILY'], player3['TITLE'], player3['CARD'], player3['ARM'], player3['PET'], player3['TALISMAN'], player3['CROWN_TALES'], player3['DUNGEONS'], player3['BOSS_WINS'], player3['RIFT'], player3['REBIRTH'], player3['LEVEL'], player3['EXPLORE'], player3['SAVE_SPOT'], player3['PERFORMANCE'], player3['TRADING'], player3['BOSS_FOUGHT'], player3['DIFFICULTY'], player3['STORAGE_TYPE'], player3['USED_CODES'], player3['BATTLE_HISTORY'], player3['PVP_WINS'], player3['PVP_LOSS'], player3['RETRIES'], player3['PRESTIGE'], player3['PATRON'], player3['FAMILY_PET'], player3['EXPLORE_LOCATION'])    
+            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])
+            p3 = Player(player3['AUTOSAVE'], player3['DISNAME'], player3['DID'], player3['AVATAR'], player3['GUILD'], player3['TEAM'], player3['FAMILY'], player3['TITLE'], player3['CARD'], player3['ARM'], player3['PET'], player3['TALISMAN'], player3['CROWN_TALES'], player3['DUNGEONS'], player3['BOSS_WINS'], player3['RIFT'], player3['REBIRTH'], player3['LEVEL'], player3['EXPLORE'], player3['SAVE_SPOT'], player3['PERFORMANCE'], player3['TRADING'], player3['BOSS_FOUGHT'], player3['DIFFICULTY'], player3['STORAGE_TYPE'], player3['USED_CODES'], player3['BATTLE_HISTORY'], player3['PVP_WINS'], player3['PVP_LOSS'], player3['RETRIES'], player3['PRESTIGE'], player3['PATRON'], player3['FAMILY_PET'], player3['EXPLORE_LOCATION'], player3['SCENARIO_HISTORY'])
             battle = Battle(mode, p1)
 
 
@@ -4745,7 +4745,6 @@ def tactics_stagger_check(boss_card, player_card, battle_config):
             boss_card.stagger_activated = False
 
 
-
 def tactics_almighty_will_check(boss_card, battle_config):
     if boss_card.almighty_will:
         if battle_config.turn_total in boss_card.almighty_will_turns:
@@ -4767,6 +4766,9 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
     opponent_card.damage_healed = round(opponent_card.damage_healed)
+    player_card.activate_my_hero_academia_trait()
+    opponent_card.activate_my_hero_academia_trait()
+
 
     player_card.yuyu_hakusho_decrease_defense()
     player_card.activate_chainsawman_trait(battle_config)
@@ -4786,6 +4788,21 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.activate_demon_slayer_trait(battle_config, player_card)
     player_card.activate_observation_haki_trait(battle_config, opponent_card)
     opponent_card.activate_observation_haki_trait(battle_config, player_card)
+    if companion:
+        companion.activate_my_hero_academia_trait()
+        companion.reset_stats_to_limiter(opponent_card)
+        companion.activate_chainsawman_trait(battle_config)
+        companion.activate_demon_slayer_trait(battle_config, opponent_card)
+        companion.activate_observation_haki_trait(battle_config, opponent_card)
+        companion.activate_yuyu_hakusho_trait()
+        if companion.used_block == True:
+            companion.defense = int(companion.defense / 2)
+            companion.used_block = False
+        if companion.used_defend == True:
+            companion.defense = int(companion.defense / 2)
+            companion.used_defend = False
+        
+
     if player_card.used_block == True:
         player_card.defense = int(player_card.defense / 2)
         player_card.used_block = False
@@ -4793,7 +4810,6 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         player_card.defense = int(player_card.defense / 2)
         player_card.used_defend = False
     return False
-
 
 
 async def auto_battle_embed_and_starting_traits(ctx, player_card, opponent_card, battle_config, companion_card):

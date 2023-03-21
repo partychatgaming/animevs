@@ -623,7 +623,7 @@ class Battle:
         self._raid_end_message = f":yen: SHIELD BOUNTY CLAIMED :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)}"
         hall_info = db.queryHall({"HALL":self._raid_hall})
         fee = hall_info['FEE']
-        transaction_message = f":shield: {self._shield_name} loss to {self.player.name}!"
+        transaction_message = f":shield: {self._shield_name} loss to {self.player.disname}!"
         update_query = {'$push': {'TRANSACTIONS': transaction_message}}
         response = db.updateGuildAlt(guild_query, update_query)
         if self._is_title_match:
@@ -644,7 +644,7 @@ class Battle:
                 update_shielding = {'$set': {'SHIELDING': True}}
                 add_shield = db.updateTeam({'TEAM_NAME': str(self._player_guild)}, update_shielding)
         else:
-            transaction_message = f":vs: {self.player.name} defeated {self._shield_name}! They claimed the :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)} Bounty!"
+            transaction_message = f":vs: {self.player.disname} defeated {self._shield_name}! They claimed the :coin: {'{:,}'.format(self._raid_bounty_plus_bonus)} Bounty!"
             update_query = {'$push': {'TRANSACTIONS': transaction_message}}
             response = db.updateGuildAlt(guild_query, update_query)
             guildloss = db.updateGuild(guild_query, {'$set': {'BOUNTY': fee, 'STREAK': 0}})
@@ -1055,7 +1055,10 @@ class Battle:
             aiMove = 5
         elif your_card.universe in self.blocking_traits and your_card.stamina ==20:
             if opponent_card.attack >= your_card.defense and opponent_card.attack <= (your_card.defense * 2):
-                aiMove = 0
+                if your_card.used_focus:
+                    aiMove = 0
+                else:
+                    aiMove = 4
             elif your_card.universe == "Attack On Titan" and your_card.health <= (your_card.max_health * .50):
                 aiMove = 0
             elif opponent_card._barrier_active and opponent_card.stamina <= 20 and your_card.universe == "Bleach":
