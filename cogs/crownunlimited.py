@@ -4745,7 +4745,6 @@ def tactics_stagger_check(boss_card, player_card, battle_config):
             boss_card.stagger_activated = False
 
 
-
 def tactics_almighty_will_check(boss_card, battle_config):
     if boss_card.almighty_will:
         if battle_config.turn_total in boss_card.almighty_will_turns:
@@ -4767,6 +4766,9 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
     opponent_card.damage_healed = round(opponent_card.damage_healed)
+    player_card.activate_my_hero_academia_trait()
+    opponent_card.activate_my_hero_academia_trait()
+
 
     player_card.yuyu_hakusho_decrease_defense()
     player_card.activate_chainsawman_trait(battle_config)
@@ -4786,6 +4788,21 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.activate_demon_slayer_trait(battle_config, player_card)
     player_card.activate_observation_haki_trait(battle_config, opponent_card)
     opponent_card.activate_observation_haki_trait(battle_config, player_card)
+    if companion:
+        companion.activate_my_hero_academia_trait()
+        companion.reset_stats_to_limiter(opponent_card)
+        companion.activate_chainsawman_trait(battle_config)
+        companion.activate_demon_slayer_trait(battle_config, opponent_card)
+        companion.activate_observation_haki_trait(battle_config, opponent_card)
+        companion.activate_yuyu_hakusho_trait()
+        if companion.used_block == True:
+            companion.defense = int(companion.defense / 2)
+            companion.used_block = False
+        if companion.used_defend == True:
+            companion.defense = int(companion.defense / 2)
+            companion.used_defend = False
+        
+
     if player_card.used_block == True:
         player_card.defense = int(player_card.defense / 2)
         player_card.used_block = False
@@ -4793,7 +4810,6 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         player_card.defense = int(player_card.defense / 2)
         player_card.used_defend = False
     return False
-
 
 
 async def auto_battle_embed_and_starting_traits(ctx, player_card, opponent_card, battle_config, companion_card):
