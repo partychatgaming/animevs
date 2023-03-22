@@ -2063,7 +2063,7 @@ async def daily(ctx):
       q5_win = check_quest_wins(3, prestige)
       q6_win = check_quest_wins(3, prestige)
       q7_win = check_quest_wins(4, prestige)
-      q8_win = check_quest_wins(4, prestige) #casper
+      q8_win = check_quest_wins(4, prestige) #casperjayden
       q9_win = check_quest_wins(5, prestige)
       q10_win = check_quest_wins(10, prestige)
       
@@ -2136,7 +2136,7 @@ async def daily(ctx):
       return
    
 def check_quest_wins(win_value, prestige_level):
-   check = win_value - prestige_level#casper
+   check = win_value - prestige_level#casperjayden
    if check <= 0:
       return 1
    else:
@@ -3355,9 +3355,9 @@ async def code(ctx, code_input: str):
 async def addfield(ctx, collection, new_field, field_type, password, key):
    if ctx.author.guild_permissions.administrator == True:
       
-      if password != 'casper':  
+      if password != 'casperjayden':  
          return await ctx.send("Admin Only")
-      if key != '513':
+      if key != '937':
          return await ctx.send("Admin Only")
       
       if field_type == "fix":
@@ -3440,9 +3440,9 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
 async def updateName(ctx, collection, name, new_name, password, key):
    await ctx.defer()
    if ctx.author.guild_permissions.administrator == True:
-      if password != 'casper':  
+      if password != 'casperjayden':  
          return await ctx.send("Admin Only")
-      if key != '513':
+      if key != '937':
          return await ctx.send("Admin Only")
       try:
          if collection == 'cards':
@@ -3641,7 +3641,7 @@ async def updateName(ctx, collection, name, new_name, password, key):
             'message': str(ex),
             'trace': trace
          }))
-         await ctx.send("Issue with command. Please contact Casper#0001")
+         await ctx.send("Issue with command. Please contact casperjayden#0001")
 
 # @slash.slash(description="admin only", guild_ids=guild_ids)
 # @commands.check(validate_user)
@@ -3649,9 +3649,9 @@ async def updateName(ctx, collection, name, new_name, password, key):
 # async def removesummons(ctx, password, key):
 #    await ctx.defer()
 #    if ctx.author.guild_permissions.administrator == True:
-#       if password != 'casper':  
+#       if password != 'casperjayden':  
 #          return await ctx.send("Admin Only")
-#       if key != '513':
+#       if key != '937':
 #          return await ctx.send("Admin Only")
 
 #       try:
@@ -3696,10 +3696,10 @@ async def updateName(ctx, collection, name, new_name, password, key):
 async def updatemoves(ctx, password, key):
    await ctx.defer()
 
-   if password != 'casper':  
+   if password != 'casperjayden':  
       return await ctx.send("Admin Only")
    
-   if key != '513':
+   if key != '937':
       return await ctx.send("Admin Only")
 
    counter = 0
@@ -3775,10 +3775,10 @@ async def updatemoves(ctx, password, key):
 async def updateclass(ctx, password, key):
    await ctx.defer()
 
-   if password != 'casper':  
+   if password != 'casperjayden':  
       return await ctx.send("Admin Only")
    
-   if key != '513':
+   if key != '937':
       return await ctx.send("Admin Only")
 
    counter = 0
