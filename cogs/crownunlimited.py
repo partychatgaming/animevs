@@ -2558,11 +2558,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player2_arm.set_durability(player2.equipped_arm, player2._arms)
                 player2_card.set_card_level_buffs(player2._card_levels)
                 player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
-                player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
+                # player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player2_card.set_affinity_message()
                 player2_card.set_raid_defense_buff(battle_config._hall_defense)
                 player2.get_talisman_ready(player2_card)
-                player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
+                # player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
 
             if battle_config.mode in crown_utilities.CO_OP_M or battle_config.is_duo_mode:
                 player3.get_battle_ready()
@@ -2575,7 +2575,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 player3_arm.set_durability(player3.equipped_arm, player3._arms)
                 player3_card.set_card_level_buffs(player3._card_levels)
                 player3_card.set_arm_config(player3_arm.passive_type, player3_arm.name, player3_arm.passive_value, player3_arm.element)
-                player3_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
+                # player3_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
                 player3_card.set_affinity_message()
                 player3.get_talisman_ready(player3_card)
             
@@ -2600,12 +2600,12 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                 opponent_talisman_emoji = ""
                 player2_card.set_arm_config(player2_arm.passive_type, player2_arm.name, player2_arm.passive_value, player2_arm.element)
                 player2_card.set_affinity_message()
-                player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
-                player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
+                # player2_card.set_solo_leveling_config(player1_card._shield_active, player1_card._shield_value, player1_card._barrier_active, player1_card._barrier_value, player1_card._parry_active, player1_card._parry_value)
+                # player1_card.set_solo_leveling_config(player2_card._shield_active, player2_card._shield_value, player2_card._barrier_active, player2_card._barrier_value, player2_card._parry_active, player2_card._parry_value)
                 player2_card.get_boss_tactics(battle_config)
 
-                if battle_config.mode in crown_utilities.CO_OP_M:
-                    player2_card.set_solo_leveling_config(player3_card._shield_active, player3_card._shield_value, player3_card._barrier_active, player3_card._barrier_value, player3_card._parry_active, player3_card._parry_value)
+                # if battle_config.mode in crown_utilities.CO_OP_M:
+                #     player2_card.set_solo_leveling_config(player3_card._shield_active, player3_card._shield_value, player3_card._barrier_active, player3_card._barrier_value, player3_card._parry_active, player3_card._parry_value)
             
             options = [1, 2, 3, 4, 5, 0]
 
@@ -2762,6 +2762,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             tactics_death_blow_check(player2_card, player1_card, battle_config) 
                             tactics_intimidation_check(player2_card, player1_card, battle_config)
                         if battle_config.is_turn == 0:
+                            print(player2_card.summon_name)
                             if player1_card.health <= 0:
                                 continue
                             if player2_card.health <= 0:
@@ -4788,6 +4789,9 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.activate_demon_slayer_trait(battle_config, player_card)
     player_card.activate_observation_haki_trait(battle_config, opponent_card)
     opponent_card.activate_observation_haki_trait(battle_config, player_card)
+    player_card.set_solo_leveling_config(opponent_card._shield_active, opponent_card._shield_value, opponent_card._barrier_active, opponent_card._barrier_value, opponent_card._parry_active, opponent_card._parry_value)
+    opponent_card.set_solo_leveling_config(player_card._shield_active, player_card._shield_value, player_card._barrier_active, player_card._barrier_value, player_card._parry_active, player_card._parry_value)
+
     if companion:
         companion.activate_my_hero_academia_trait()
         companion.reset_stats_to_limiter(opponent_card)

@@ -1745,7 +1745,7 @@ class Battle:
         
         talisman_response = crown_utilities.inc_talisman(winner.did, winner.equipped_talisman)
         
-        self.set_pvp_win_loss(winner.did, loser.did)
+        await self.set_pvp_win_loss(winner.did, loser.did)
 
         if winner.association != "PCG":
             await crown_utilities.blessguild(250, winner.association)
