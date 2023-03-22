@@ -677,7 +677,7 @@ async def viewcard(self, ctx, data):
                 embedVar.set_author(name=textwrap.dedent(f"""\
                 {c.card_icon} {c.price_message}
                 
-                Passive & Universe Trait
+                Passive
                 🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
                 🏃 {evasion_message}
                 """))
