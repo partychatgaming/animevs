@@ -1834,7 +1834,7 @@ destiny = [
         "WINS": 0,
         "REQUIRED": 8,
         "DEFEAT": "Itachi",
-        "USE_CARDS": ["Mangekyo Sasuke"],
+        "USE_CARDS": ["EMS Sasuke"],
         "EARN": "Awakened Itachi",
         "COMPLETED": False,
         "UNIVERSE": "Naruto"
@@ -1843,9 +1843,9 @@ destiny = [
         "NAME": "The Avenger",
         "WINS": 0,
         "REQUIRED": 5,
-        "DEFEAT": "Mangekyo Sasuke",
+        "DEFEAT": "EMS Sasuke",
         "USE_CARDS": ["Sasuke"],
-        "EARN": "Mangekyo Sasuke",
+        "EARN": "EMS Sasuke",
         "COMPLETED": False,
         "UNIVERSE": "Naruto"
     },

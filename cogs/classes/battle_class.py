@@ -489,12 +489,12 @@ class Battle:
                         reward_list = []
                         if self.is_easy_difficulty:
                             rewards = scenario['EASY_DROPS']
-                            scenario_gold = round(scenario_gold / 3)
+                            scenario_gold = round(scenario_gold / 5)
                         if self.is_normal_difficulty:
                             rewards = scenario['NORMAL_DROPS']
                         if self.is_hard_difficulty:
                             rewards = scenario['HARD_DROPS']
-                            scenario_gold = round(scenario_gold * 3)
+                            scenario_gold = round(scenario_gold * 1.5)
 
                         for reward in rewards:
                             # Add Check for Cards and make Cards available in Easy Drops
