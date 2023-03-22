@@ -1051,16 +1051,82 @@ class Card:
     def set_solo_leveling_config(self, opponent_shield_active, opponent_shield_value, opponent_barrier_active, opponent_barrier_value, opponent_parry_active, opponent_parry_value):
         if self.universe == "Solo Leveling":
             self.solo_leveling_trait_active = True 
-            self.temp_opp_arm_shield_active = opponent_shield_active
-            self.temp_opp_shield_value = opponent_shield_value
-            self.temp_opp_arm_barrier_active = opponent_barrier_active
-            self.temp_opp_barrier_value = opponent_barrier_value
-            self.temp_opp_arm_parry_active = opponent_parry_active
-            self.temp_opp_parry_value = opponent_parry_value
+            if opponent_shield_active and self.temp_opp_shield_value <= 0:
+                self.temp_opp_arm_shield_active = True
+                self.temp_opp_shield_value += opponent_shield_value
+            
+            if opponent_barrier_active and self.temp_opp_barrier_value <= 0:
+                self.temp_opp_arm_barrier_active = True
+                self.temp_opp_barrier_value += opponent_barrier_value
+            
+            if opponent_parry_active and self.temp_opp_parry_value <= 0:
+                self.temp_opp_arm_parry_active = True
+                self.temp_opp_parry_value += opponent_parry_value
+
+
+    def add_solo_leveling_temp_values(self, protection, opponent_card):
+        if opponent_card.universe == "Solo Leveling":
+            if protection == "BARRIER":
+                opponent_card.temp_opp_arm_barrier_active = True
+                opponent_card.temp_opp_barrier_value += self._barrier_value
+
+            if protection == "SHIELD":
+                opponent_card.temp_opp_arm_shield_active = True
+                opponent_card.temp_opp_shield_value += self._shield_value
+            
+            if protection == "PARRY":
+                opponent_card.temp_opp_arm_parry_active = True
+                opponent_card.temp_opp_parry_value += self._parry_value
+
+    def decrease_solo_leveling_temp_values(self, protection, opponent_card, battle_config):
+        if opponent_card.universe == "Solo Leveling":
+            if protection == "BARRIER":
+                opponent_card._barrier_active = True
+                opponent_card._barrier_value = opponent_card.temp_opp_barrier_value
+                opponent_card.temp_opp_arm_barrier_active = False
+                opponent_card.temp_opp_barrier_value = 0
+
+            if protection == "SHIELD":
+                opponent_card._shield_active = True
+                opponent_card._shield_value = opponent_card.temp_opp_shield_value
+                opponent_card.temp_opp_arm_shield_active = False
+                opponent_card.temp_opp_shield_value = 0
+            
+            if protection == "PARRY":
+                opponent_card._parry_active = True
+                opponent_card._parry_value = opponent_card.temp_opp_parry_value
+                opponent_card.temp_opp_arm_parry_active = True
+                seopponent_cardlf.temp_opp_parry_value = 0
+
+            battle_config.add_to_battle_log(f"🩸 **ARISE!** *{opponent_card.name}* has gained your lost protections...")
+
+    def decrease_solo_leveling_temp_values_self(self, protection, battle_config):
+        if self.universe == "Solo Leveling":
+            if protection == "BARRIER":
+                self._barrier_active = True
+                self._barrier_value = self.temp_opp_barrier_value
+                self.temp_opp_arm_barrier_active = False
+                self.temp_opp_barrier_value = 0
+
+            if protection == "SHIELD":
+                self._shield_active = True
+                self._shield_value = self.temp_opp_shield_value
+                self.temp_opp_arm_shield_active = False
+                self.temp_opp_shield_value = 0
+            
+            if protection == "PARRY":
+                self._parry_active = True
+                self._parry_value = self.temp_opp_parry_value
+                self.temp_opp_arm_parry_active = True
+                self.temp_opp_parry_value = 0
+
+            battle_config.add_to_battle_log(f"🩸 **ARISE!** *{self.name}* has gained your lost protections...")
+
 
 
     def activate_solo_leveling_trait(self, battle_config, opponent_card):
-        if self.universe == "Solo Leveling" and not self.solo_leveling_trait_swapped:
+        # Make sure that if opponent shield, barrier, or parry breaks you gain that temp value
+        if self.universe == "Solo Leveling":
             if opponent_card.temp_opp_arm_shield_active and not opponent_card._shield_active:
                 if self._shield_active:
                     self._shield_value = self._shield_value + opponent_card._shield_value
@@ -1591,18 +1657,21 @@ class Card:
                         if self._barrier_value < 0:
                             self._barrier_value = 0
                         self._barrier_value = self._barrier_value + ap
+                        self.add_solo_leveling_temp_values('BARRIER', _opponent_card)
                         message = f"{move} was used! {self.name} received {self.summon_emoji} {ap} barrier"
                     if move_element == "SHIELD":
                         self._shield_active = True
                         if self._shield_value < 0:
                             self._shield_value = 0
                         self._shield_value = self._shield_value + ap
+                        self.add_solo_leveling_temp_values('SHIELD', _opponent_card)
                         message = f"{move} was used! {self.name} received {self.summon_emoji} {ap} shield!"
                     if move_element == "PARRY":
                         self._parry_active = True
                         if self._parry_value < 0:
                             self._parry_value = 0
                         self._parry_value = self._parry_value + ap
+                        self.add_solo_leveling_temp_values('PARRY', _opponent_card)
                         message = f"{move} was used! {self.name} receive {self.summon_emoji} {ap} parry!"
                     battle_config.add_to_battle_log(message)
                     response = {
@@ -3058,6 +3127,7 @@ class Card:
                         self._barrier_value = 0
                         self._arm_message = ""
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
+                        self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
                 battle_config.turn_total = battle_config.turn_total + 1
                 if not dmg['SUMMON_USED']:
@@ -3067,6 +3137,7 @@ class Card:
                     name = f"🧬 {self.name} summoned **{self.summon_name}**\n"
                 else:
                     name = f" **{self.name}:**"
+                
                 if opponent_card.universe == "Naruto" and opponent_card.stamina < 10:
                     stored_damage = round(dmg['DMG'])
                     opponent_card.naruto_heal_buff = opponent_card.naruto_heal_buff + stored_damage
@@ -3078,7 +3149,7 @@ class Card:
                             self._barrier_value = 0
                             self._arm_message = ""
                             battle_config.add_to_battle_log(f"(💠) **{self.name}** disengaged their barrier to engage with an attack")
-
+                            self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
                     if not opponent_card.used_resolve:
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card.naruto_heal_buff}** total stored.")
@@ -3090,7 +3161,7 @@ class Card:
                             self._barrier_value = 0
                             self._arm_message = ""
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
-
+                            self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     if dmg['ELEMENT'] == "POISON": #Poison Update
                         if self.poison_dmg <= (150 * self.tier):
                             self.poison_dmg = self.poison_dmg + 30
@@ -3102,6 +3173,7 @@ class Card:
                             opponent_card._arm_message = ""
                             residue_damage = abs(opponent_card._shield_value)
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌐 **{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG**")
+                            self.decrease_solo_leveling_temp_values_self('SHIELD', battle_config)
                             opponent_card.health = opponent_card.health - residue_damage
                             self.damage_dealt = self.damage_dealt +  residue_damage
                             if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
@@ -3109,13 +3181,15 @@ class Card:
                                 opponent_card._barrier_value = 0
                                 opponent_card._arm_message = ""
                                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
+                                self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                         else:
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} strikes **{opponent_card.name}**'s Shield 🌐\n**{opponent_card._shield_value} Shield** Left!")
                             if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                                 opponent_card._barrier_active = False
                                 opponent_card._barrier_value = 0
                                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroyed **{opponent_card.name}**'s 💠 Barrier! No Barriers remain!")
-
+                                self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
+                
                 elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK"]:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         if not dmg['SUMMON_USED']:
@@ -3123,7 +3197,7 @@ class Card:
                             self._barrier_value = 0
                             self._arm_message = ""
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
-
+                            self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     if opponent_card._barrier_value > 1:
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} hits **{opponent_card.name}** Barrier 💠 blocking the attack\n{opponent_card._barrier_value - 1} Barriers remain")
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
@@ -3131,6 +3205,7 @@ class Card:
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
+                            self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                         opponent_card._barrier_value = opponent_card._barrier_value - 1
                     elif opponent_card._barrier_value == 1:
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
@@ -3138,7 +3213,7 @@ class Card:
                         opponent_card._barrier_active = False
                         opponent_card._barrier_value = 0
                         opponent_card._arm_message = ""
-                
+                        self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC"]:                    
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         if not dmg['SUMMON_USED']:
@@ -3146,7 +3221,7 @@ class Card:
                             self._barrier_value = 0
                             self._arm_message = ""
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
-                    
+                            self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     if opponent_card._parry_value > 1:
                         parry_damage = round(dmg['DMG'])
                         opponent_card.health = round(opponent_card.health - (parry_damage * .75))
@@ -3159,7 +3234,7 @@ class Card:
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
-                        
+                            self.decrease_solo_leveling_temp_values_self('PARRY', battle_config)
                     elif opponent_card._parry_value == 1:
                         parry_damage = round(dmg['DMG'])
                         opponent_card.health = round(opponent_card.health - (parry_damage * .75))
@@ -3171,9 +3246,11 @@ class Card:
                             opponent_card._barrier_value = 0
                             opponent_card._arm_message = ""
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
+                            self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                         opponent_card._parry_active = False
                         opponent_card._parry_value = 0
                         opponent_card._arm_message = ""
+                        self.decrease_solo_leveling_temp_values_self('PARRY', battle_config)
                 
                 else:
                     if self.universe == "One Piece" and (self.tier in crown_utilities.LOW_TIER_CARDS or self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
@@ -3304,6 +3381,7 @@ class Card:
                 self._shield_value = 0
             self.defense = self.defense + (dmg['DMG'] * .30)
             self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
+            self.add_solo_leveling_temp_values('SHIELD', opponent_card)
             if self._shield_value <= 0:
                 self._shield_value = 0
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} formed a 🌐 {str(self._shield_value)} Shield*")
@@ -3334,6 +3412,7 @@ class Card:
             if self.physical_meter == 2:
                 self._parry_active = True
                 self._parry_value = self._parry_value + 1
+                self.add_solo_leveling_temp_values('PARRY', opponent_card)
                 self.physical_meter = 0
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} prepares to Parry 🔄 the next attack*")
             else:
@@ -3370,6 +3449,7 @@ class Card:
             if self.barrier_meter == 3:
                 self._barrier_active = True
                 self._barrier_value = self._barrier_value + 1
+                self.add_solo_leveling_temp_values('BARRIER', opponent_card)
                 self.barrier_meter = 0
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} projects a Barrier 💠 to block next attack*")
             else:    
