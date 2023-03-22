@@ -2645,6 +2645,10 @@ class Profile(commands.Cog):
                     petmove_ap = list(pet.values())[3] 
                     bond_req = ((petmove_ap * 5) * (pet_bond + 1))
                     lvl_req = int(pet_level) * 10
+                    if lvl_req <= 0:
+                        lvl_req = 2
+                    if bond_req <= 0:
+                        bond_req = 5
                     
                     lvl_message = f"*{pet_exp}/{lvl_req}*"
                     bond_message = f"*{bond_exp}/{bond_req}*"
@@ -9010,6 +9014,10 @@ async def menusummons(self, ctx):
                 petmove_ap = list(pet.values())[3] 
                 bond_req = ((petmove_ap * 5) * (pet_bond + 1))
                 lvl_req = int(pet_level) * 10
+                if lvl_req <= 0:
+                    lvl_req = 2
+                if bond_req <= 0:
+                    bond_req = 5
                 
                 bond_message = f"*{pet_exp}/{lvl_req}*"
                 lvl_message = f"*{bond_exp}/{bond_req}*"

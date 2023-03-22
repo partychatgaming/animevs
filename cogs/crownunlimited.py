@@ -1285,82 +1285,6 @@ async def destiny(player, opponent, mode, craft_amount = None):
             "There's an issue with your Destiny. Alert support.")
         return
 
-
-async def summonlevel(pet, player):
-    vault = db.queryVault({'DID': str(player.id)})
-    player_info = db.queryUser({'DID': str(player.id)})
-    family_name = player_info['FAMILY']
-    
-    if family_name != 'PCG':
-        family_info = db.queryFamily({'HEAD':str(family_name)})
-        familysummon = family_info['SUMMON']
-        if familysummon['NAME'] == str(pet):
-            return False
-    petinfo = {}
-    try:
-        for x in vault['PETS']:
-            if x['NAME'] == str(pet):
-                petinfo = x
-
-        lvl = petinfo['LVL']  # To Level Up -(lvl * 10 = xp required)
-        lvl_req = lvl * 10
-        exp = petinfo['EXP']
-        petmove_text = list(petinfo.keys())[3]  # Name of the ability
-        petmove_ap = list(petinfo.values())[3]  # Ability Power
-        petmove_type = petinfo['TYPE']
-        bond = petinfo['BOND']
-        bondexp = petinfo['BONDEXP']
-        bond_req = ((petmove_ap * 5) * (bond + 1))
-
-        if lvl < 10:
-            # Non Level Up Code
-            if exp < (lvl_req - 1):
-                query = {'DID': str(player.id)}
-                update_query = {'$inc': {'PETS.$[type].' + "EXP": 1}}
-                filter_query = [{'type.' + "NAME": str(pet)}]
-                response = db.updateVault(query, update_query, filter_query)
-
-            # Level Up Code
-            if exp >= (lvl_req - 1):
-                query = {'DID': str(player.id)}
-                update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
-                filter_query = [{'type.' + "NAME": str(pet)}]
-                response = db.updateVault(query, update_query, filter_query)
-
-        if bond < 3:
-            # Non Bond Level Up Code
-            if bondexp < (bond_req - 1):
-                query = {'DID': str(player.id)}
-                update_query = {'$inc': {'PETS.$[type].' + "BONDEXP": 1}}
-                filter_query = [{'type.' + "NAME": str(pet)}]
-                response = db.updateVault(query, update_query, filter_query)
-
-            # Bond Level Up Code
-            if bondexp >= (bond_req - 1):
-                query = {'DID': str(player.id)}
-                update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
-                filter_query = [{'type.' + "NAME": str(pet)}]
-                response = db.updateVault(query, update_query, filter_query)
-    except Exception as ex:
-        trace = []
-        tb = ex.__traceback__
-        while tb is not None:
-            trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-        print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-        }))
-        await ctx.send(
-            "There's an issue with leveling your Summon. Alert support.")
-        return
-
-
 async def savematch(player, card, path, title, arm, universe, universe_type, exclusive):
     matchquery = {'PLAYER': player, 'CARD': card, 'PATH': path, 'TITLE': title, 'ARM': arm, 'UNIVERSE': universe,
                   'UNIVERSE_TYPE': universe_type, 'EXCLUSIVE': exclusive}
@@ -4125,9 +4049,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     p1_win_rewards = await battle_config.get_win_rewards(player1)
                                     corruption_message = await battle_config.get_corruption_message(ctx)
                                     questlogger = await quest(user1, player2_card, battle_config.mode)
-                                    destinylogger = await destiny(user1, player2_card, battle_config.mode)
-                                    petlogger = await crown_utilities.summonlevel(player1, player1_card)
-                                    cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
+                                    #destinylogger = await destiny(user1, player2_card, battle_config.mode)
+                                    #petlogger = await crown_utilities.summonlevel(player1, player1_card)
+                                    #cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
 
                                     if not battle_config.is_easy_difficulty:
                                         questlogger = await quest(user1, player2_card, battle_config.mode)
