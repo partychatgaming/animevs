@@ -20,6 +20,7 @@ from discord_slash import SlashCommand
 from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
 import textwrap
+from discord.ext.commands import has_permissions
 from discord_slash import cog_ext, SlashContext
 from dinteractions_Paginator import Paginator
 from discord_slash.utils.manage_commands import create_option, create_choice
@@ -3350,6 +3351,7 @@ async def code(ctx, code_input: str):
 
 @slash.slash(description="admin only", guild_ids=guild_ids)
 @commands.check(validate_user)
+@has_permissions(administrator=True)
 async def addfield(ctx, collection, new_field, field_type, password, key):
    if ctx.author.guild_permissions.administrator == True:
       
@@ -3434,34 +3436,196 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
 
 @slash.slash(description="admin only", guild_ids=guild_ids)
 @commands.check(validate_user)
-async def removesummons(ctx, password, key):
+@has_permissions(administrator=True)
+async def updateName(ctx, collection, name, new_name, password, key):
    await ctx.defer()
    if ctx.author.guild_permissions.administrator == True:
       if password != 'casper':  
          return await ctx.send("Admin Only")
       if key != '513':
          return await ctx.send("Admin Only")
-
       try:
-         update_query = [{
-            "NAME": "Chick",
-            "LVL": 1,
-            "EXP": 0,
-            "Peck": 25,
-            "TYPE": "PHYSICAL",
-            "BOND": 0,
-            "BONDEXP": 0,
-            "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
-         }]
-
-         all_vaults = db.queryAllVault()
-         counter = 0
-         for vault in all_vaults:
-            query = {"DID": vault['DID']}
-            db.updateVaultNoFilter(query, {"$set": {"PETS": update_query}})
-            counter += 1
+         if collection == 'cards':
+            # find if card exists
+            card = db.queryCard({'NAME': name})
             
-         await ctx.send(f"Updated {counter} vaults.")
+            if card:
+               # update cards collection
+               response = db.updateCard({'NAME': name}, {'$set': {'NAME': new_name}})
+
+               # update vaults collection
+               all_vaults = db.queryAllVault()
+               for vault in all_vaults:
+                  update_vault = False
+                  if 'CARDS' in vault:
+                     for i, card in enumerate(vault['CARDS']):
+                           if card == name:
+                              vault['CARDS'][i] = new_name
+                              update_vault = True
+                  if 'CARD_LEVELS' in vault:
+                     for card in vault['CARD_LEVELS']:
+                           if card['CARD'] == name:
+                              card['CARD'] = new_name
+                              update_vault = True
+                  if 'DECK' in vault:
+                     for card in vault['DECK']:
+                           if card['CARD'] == name:
+                              card['CARD'] = new_name
+                              update_vault = True
+                  if 'QUESTS' in vault:
+                     for card in vault['QUESTS']:
+                           if card['OPPONENT'] == name:
+                              card['OPPONENT'] = new_name
+                              update_vault = True
+                  if 'DESTINY' in vault:
+                     for card in vault['DESTINY']:
+                           if card['DEFEAT'] == name:
+                              card['DEFEAT'] = new_name
+                              update_vault = True
+                           if card['EARN'] == name:
+                              card['EARN'] = new_name
+                              update_vault = True
+                           if 'USE_CARDS' in card:
+                              if isinstance(card['USE_CARDS'], list):
+                                 for i, subcard in enumerate(card['USE_CARDS']):
+                                       if subcard == name:
+                                          card['USE_CARDS'][i] = new_name
+                                          update_vault = True
+                              elif isinstance(card['USE_CARDS'], dict):
+                                 for subcard in card['USE_CARDS'].values():
+                                       if subcard == name:
+                                          card['USE_CARDS'][subcard] = new_name
+                                          update_vault = True
+                              else:
+                                 # Convert the string to a list or a dictionary as appropriate
+                                 if ',' in card['USE_CARDS']:
+                                       card['USE_CARDS'] = card['USE_CARDS'].split(',')
+                                 else:
+                                       card['USE_CARDS'] = [card['USE_CARDS']]
+                                 # Update the list as before
+                                 for i, subcard in enumerate(card['USE_CARDS']):
+                                       if subcard == name:
+                                          card['USE_CARDS'][i] = new_name
+                                          update_vault = True
+                  if 'STORAGE' in vault:
+                     for i, card in enumerate(vault['STORAGE']):
+                           if card == name:
+                              vault['STORAGE'][i] = new_name
+                              update_vault = True
+                  if update_vault:
+                     db.updateVaultNoFilter({'DID': vault['DID']}, {'$set': {'CARDS': vault.get('CARDS', []), 'CARD_LEVELS': vault.get('CARD_LEVELS', []), 'DECK': vault.get('DECK', []), 'QUESTS': vault.get('QUESTS', []), 'DESTINY': vault.get('DESTINY', []), 'STORAGE': vault.get('STORAGE', [])}})            
+               
+               # update users collection
+               all_users = db.queryAllUsers()
+               for user in all_users:
+                  update_user = False
+                  if 'CARD' in user and user['CARD'] == name:
+                     user['CARD'] = new_name
+                     update_user = True
+                  if 'BOSS_WINS' in user:
+                     for i, boss in enumerate(user['BOSS_WINS']):
+                           if boss == name:
+                              user['BOSS_WINS'][i] = new_name
+                              update_user = True
+                  if update_user:
+                     db.updateUserNoFilter({'DID': user['DID']}, {'$set': {'CARD': user.get('CARD', ''), 'BOSS_WINS': user.get('BOSS_WINS', [])}})               
+
+               # update universe collection
+               all_universes = db.queryAllUniverse()
+               for universe in all_universes:
+                  update_universe = False
+                  if 'CROWN_TALES' in universe:
+                     for i, card in enumerate(universe['CROWN_TALES']):
+                           if card == name:
+                              universe['CROWN_TALES'][i] = new_name
+                              update_universe = True
+                  if 'UNIVERSE_BOSS' in universe and universe['UNIVERSE_BOSS'] == name:
+                     universe['UNIVERSE_BOSS'] = new_name
+                     update_universe = True
+                  if 'DUNGEONS' in universe:
+                     for i, card in enumerate(universe['DUNGEONS']):
+                           if card == name:
+                              universe['DUNGEONS'][i] = new_name
+                              update_universe = True
+                  if update_universe:
+                     db.updateUniverse({'TITLE': universe['TITLE']}, {'$set': {'CROWN_TALES': universe.get('CROWN_TALES', []), 'UNIVERSE_BOSS': universe.get('UNIVERSE_BOSS', ''), 'DUNGEONS': universe.get('DUNGEONS', [])}})               
+               
+               # update scenarios collection
+               all_scenarios = db.queryAllScenarios()
+               for scenario in all_scenarios:
+                  update_scenario = False
+                  if 'ENEMIES' in scenario:
+                     for i, card in enumerate(scenario['ENEMIES']):
+                           if card == name:
+                              scenario['ENEMIES'][i] = new_name
+                              update_scenario = True
+                  if 'NORMAL_DROPS' in scenario:
+                     for i, card in enumerate(scenario['NORMAL_DROPS']):
+                           if card == name:
+                              scenario['NORMAL_DROPS'][i] = new_name
+                              update_scenario = True
+                  if 'EASY_DROPS' in scenario:
+                     for i, card in enumerate(scenario['EASY_DROPS']):
+                           if card == name:
+                              scenario['EASY_DROPS'][i] = new_name
+                              update_scenario = True
+                  if 'HARD_DROPS' in scenario:
+                     for i, card in enumerate(scenario['HARD_DROPS']):
+                           if card == name:
+                              scenario['HARD_DROPS'][i] = new_name
+                              update_scenario = True
+                  if update_scenario:
+                     db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'ENEMIES': scenario.get('ENEMIES', []), 'NORMAL_DROPS': scenario.get('NORMAL_DROPS', []), 'EASY_DROPS': scenario.get('EASY_DROPS', []), 'HARD_DROPS': scenario.get('HARD_DROPS', [])}})
+
+               
+               # update guild collections
+               all_guilds = db.queryAllGuild()
+               for guild in all_guilds:
+                  update_guild = False
+                  if 'S_CARD_LEVELS' in guild:
+                     for card in guild['S_CARD_LEVELS']:
+                           if card['CARD'] == name:
+                              card['CARD'] = new_name
+                              update_guild = True
+                  if 'CSTORAGE' in guild:
+                     for i, card in enumerate(guild['CSTORAGE']):
+                           if card == name:
+                              guild['CSTORAGE'][i] = new_name
+                              update_guild = True
+                  if update_guild:
+                     db.updateGuild({'GNAME': guild['GNAME']}, {'$set': {'S_CARD_LEVELS': guild.get('S_CARD_LEVELS', []), 'CSTORAGE': guild.get('CSTORAGE', [])}})
+
+               # update boss collection
+               all_bosses = db.queryAllBosses()
+               for boss in all_bosses:
+                  if 'NAME' in boss and boss['NAME'] == name:
+                     boss['NAME'] = new_name
+                     db.updateBoss({'NAME': name}, {'$set': {'NAME': new_name}})
+
+
+               # update abyss collection
+               all_abyss = db.queryAllAbyss()
+               for abyss in all_abyss:
+                  update_abyss = False
+                  if 'ENEMIES' in abyss:
+                     for i, card in enumerate(abyss['ENEMIES']):
+                           if card == name:
+                              abyss['ENEMIES'][i] = new_name
+                              update_abyss = True
+                  if 'BANNED_CARDS' in abyss:
+                     for i, card in enumerate(abyss['BANNED_CARDS']):
+                           if card == name:
+                              abyss['BANNED_CARDS'][i] = new_name
+                              update_abyss = True
+                  if update_abyss:
+                     db.updateAbyss({'FLOOR': abyss['FLOOR']}, {'$set': {'ENEMIES': abyss.get('ENEMIES', []), 'BANNED_CARDS': abyss.get('BANNED_CARDS', [])}})
+
+
+               return await ctx.send(f"Card **{name}** has been renamed to **{new_name}**.")
+            else:
+               return await ctx.send("This card does not exist.")
+         else:
+            return await ctx.send("You do not have permissions to run this command.")
       except Exception as ex:
          trace = []
          tb = ex.__traceback__
@@ -3476,10 +3640,59 @@ async def removesummons(ctx, password, key):
             'type': type(ex).__name__,
             'message': str(ex),
             'trace': trace
-         }))  
+         }))
+         await ctx.send("Issue with command. Please contact Casper#0001")
+
+# @slash.slash(description="admin only", guild_ids=guild_ids)
+# @commands.check(validate_user)
+# @has_permissions(administrator=True)
+# async def removesummons(ctx, password, key):
+#    await ctx.defer()
+#    if ctx.author.guild_permissions.administrator == True:
+#       if password != 'casper':  
+#          return await ctx.send("Admin Only")
+#       if key != '513':
+#          return await ctx.send("Admin Only")
+
+#       try:
+#          update_query = [{
+#             "NAME": "Chick",
+#             "LVL": 1,
+#             "EXP": 0,
+#             "Peck": 25,
+#             "TYPE": "PHYSICAL",
+#             "BOND": 0,
+#             "BONDEXP": 0,
+#             "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
+#          }]
+
+#          all_vaults = db.queryAllVault()
+#          counter = 0
+#          for vault in all_vaults:
+#             query = {"DID": vault['DID']}
+#             db.updateVaultNoFilter(query, {"$set": {"PETS": update_query}})
+#             counter += 1
+            
+#          await ctx.send(f"Updated {counter} vaults.")
+#       except Exception as ex:
+#          trace = []
+#          tb = ex.__traceback__
+#          while tb is not None:
+#             trace.append({
+#                "filename": tb.tb_frame.f_code.co_filename,
+#                "name": tb.tb_frame.f_code.co_name,
+#                "lineno": tb.tb_lineno
+#             })
+#             tb = tb.tb_next
+#          print(str({
+#             'type': type(ex).__name__,
+#             'message': str(ex),
+#             'trace': trace
+#          }))  
 
 @slash.slash(description="update moves", guild_ids=guild_ids)
 @commands.check(validate_user)
+@has_permissions(administrator=True)
 async def updatemoves(ctx, password, key):
    await ctx.defer()
 
