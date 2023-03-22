@@ -2686,7 +2686,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             tactics_death_blow_check(player2_card, player1_card, battle_config) 
                             tactics_intimidation_check(player2_card, player1_card, battle_config)
                         if battle_config.is_turn == 0:
-                            print(player2_card.summon_name)
                             if player1_card.health <= 0:
                                 continue
                             if player2_card.health <= 0:
