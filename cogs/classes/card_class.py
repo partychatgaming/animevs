@@ -924,12 +924,17 @@ class Card:
             self.card_lvl = random.randint(850, 1500)
             self.bounty = self.bounty * 150
 
+        if self.tier == 7:
+            self.card_lvl = random.randint(1000, 1800)
+        if self.tier == 6:
+            self.card_lvl = random.randint(900, 1500)
+
 
         if battle_config.is_hard_difficulty:
             self.attack = self.attack + 1000 + (200 *self.tier)
             self.defense = self.defense + 1000 + (200 * self.tier)
-            self.max_health = self.max_health + 1000 + (1000 * self.tier)
-            self.health = self.health + 1000 + (1000 * self.tier)
+            self.max_health = self.max_health + (1000 * self.tier)
+            self.health = self.health + (1000 * self.tier)
             random_mod = random.randint(0,1500000)
             self.bounty = self.bounty + (2000000 * self.tier) + random_mod
 
