@@ -679,7 +679,6 @@ async def viewcard(self, ctx, data):
                 
                 Passive & Universe Trait
                 🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
-                ♾️ {c.set_trait_message()}
                 🏃 {evasion_message}
                 """))
                 embedVar.set_footer(text=f"{c.tip}")
