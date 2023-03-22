@@ -147,12 +147,31 @@ class Player:
             print("Error setting talisman message.")
             return self.talisman_message
         
-
+    def get_family_summon(self):
+        family_info = db.queryFamily({'HEAD':str(self.family)})
+        summon_object = family_info['SUMMON']
+        summon_name = summon_object['NAME']
+        summon_ability_power = list(summon_object.values())[3]
+        summon_ability = list(summon_object.keys())[3]
+        summon_type = summon_object['TYPE']
+        summon_lvl = summon_object['LVL']
+        summon_exp = summon_object['EXP']
+        summon_bond = summon_object['BOND']
+        summon_bond_exp = summon_object['BONDEXP']
+        bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
+        lvl_req = int(summon_lvl) * 10
+        
+        power = (summon_bond * summon_lvl) + int(summon_ability_power)
+        summon_path = summon_object['PATH']
+        return summon_object
     def setsummon_messages(self):
         try:
+            
             for summon in self.summons:
                 if summon['NAME'] == self.equippedsummon:
                     activesummon = summon
+            if self.family_pet:
+                activesummon = self.get_family_summon()
 
             power = list(activesummon.values())[3]
             bond = activesummon['BOND']

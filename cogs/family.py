@@ -335,6 +335,9 @@ class Family(commands.Cog):
                 kid_count = 0
                 for kids in family['KIDS']:
                     kid_count = kid_count + 1
+                    if kids == kid_profile['DISNAME']:
+                        await ctx.send("Member already in family")
+                        return
                 if kid_count >= 2:
                     await ctx.send(m.MAX_CHILDREN, delete_after=3)
                     return

@@ -713,6 +713,17 @@ def queryFamilyAlt(family):
     except:
         print("Find family failed.")
 
+def updateFamilyWithFilter(query, new_value, arrayFilters):
+    try:
+        exists = family_exists({'HEAD': query['HEAD']})
+        if exists:
+            data = family_col.update_one(query, new_value, array_filters=arrayFilters)
+            return data
+        else:
+            return False
+    except:
+        return False
+
 def updateFamily(query, new_value):
     try:
         exists = family_exists({'HEAD': query['HEAD']})

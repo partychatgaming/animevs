@@ -2589,102 +2589,27 @@ class Lookup(commands.Cog):
                     else:
                         transactions_embed = "\n".join(transactions)
                 
-                        
+                
                 summon_object = family['SUMMON']
-                summon = list(summon_object.values())[0]
-                head_vault = db.queryVault({'DID' : head_data['DID']})
-                pet_name = ""
-                summon_bond = 0
-                summon_lvl = 0
-                summon_type = "Unbound"
-                power = 0
-                path = "N/A"
-                found_summon_in_vault = False
-                if head_vault:
-                    vault_summons = head_vault['PETS']
-                    for l in vault_summons:
-                        if summon == l['NAME']:
-                            found_summon_in_vault = True
-                            level = l['LVL']
-                            xp = l['EXP']
-                            pet_ability = list(l.keys())[3]
-                            pet_ability_power = list(l.values())[3]
-                            pet_ability_name = list(l.keys())[3]
-                            power = (l['BOND'] * l['LVL']) + pet_ability_power
-                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                            summon_img = pet_info['PATH']
-                            pet_name = pet_info["NAME"]
-                            summon_bond = l["BOND"]
-                            summon_lvl = level
-                            summon_type = pet_info["TYPE"]
-                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                            path = pet_info["PATH"]
-                            summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], crown_utilities.element_mapping[summon_type], pet_info['LVL'], pet_info['BOND'])
-                    if found_summon_in_vault == False:
-                        pet_info = db.queryPet({'PET': summon})
-                        summon_img = pet_info['PATH']
-                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                        pet_ability = list(pet_info['ABILITIES'])[0]
-                        pet_ability_name = list(pet_info['ABILITIES'][0].keys())[0]
-                        summon_type = pet_ability['TYPE']
-                        summon_bond = 0
-                        pet_name = pet_info["PET"]
-                        summon_lvl = 0
-                        summon_img = pet_info['PATH']
-                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                        path = pet_info["PATH"]
-                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], crown_utilities.element_mapping[summon_type], 0, 0)
-                else:
-                    partnervault =  db.queryVault({'DID' : partner_data['DID']})
-                    if partnervault:
-                        vault_summons = partnervault['PETS']
-                        for l in vault_summons:
-                            if summon == l['NAME']:
-                                found_summon_in_vault = True
-                                level = l['LVL']
-                                xp = l['EXP']
-                                pet_ability = list(l.keys())[3]
-                                pet_ability_power = list(l.values())[3]
-                                pet_ability_name = list(l.keys())[3]
-                                power = (l['BOND'] * l['LVL']) + pet_ability_power
-                                pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                                summon_img = pet_info['PATH']
-                                summon_type = pet_info["TYPE"]
-                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], crown_utilities.element_mapping[summon_type], pet_info['LVL'], pet_info['BOND'])
-                                pet_name = pet_info["NAME"]
-                                summon_bond = pet_info["BOND"]
-                                summon_lvl = level
-                                power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                path = pet_info["PATH"]
-                        if found_summon_in_vault == False:
-                            pet_info = db.queryPet({'PET': summon})
-                            summon_img = pet_info['PATH']
-                            pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                            pet_ability = list(pet_info['ABILITIES'])[0]
-                            pet_ability_name = list(pet_info['ABILITIES'][0].keys())[0]
-                            summon_type = pet_ability['TYPE']
-                            summon_bond = 0
-                            pet_name = pet_info["PET"]
-                            summon_lvl = 0
-                            summon_img = pet_info['PATH']
-                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                            path = pet_info["PATH"]
-                            summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], crown_utilities.element_mapping[summon_type], 0, 0)
-                                
-                    else:
-                        pet_info = db.queryPet({'PET': summon})
-                        summon_img = pet_info['PATH']
-                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                        pet_ability = list(pet_info['ABILITIES'])[0]
-                        pet_ability_name = list(pet_info['ABILITIES'][0].keys())[0]
-                        summon_type = pet_ability['TYPE']
-                        summon_bond = 0
-                        pet_name = pet_info["PET"]
-                        summon_lvl = 0
-                        summon_img = pet_info['PATH']
-                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                        path = pet_info["PATH"]
-                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], crown_utilities.element_mapping[summon_type], 0, 0)
+                summon_name = summon_object['NAME']
+                summon_ability_power = list(summon_object.values())[3]
+                summon_ability = list(summon_object.keys())[3]
+                summon_type = summon_object['TYPE']
+                summon_lvl = summon_object['LVL']
+                summon_exp = summon_object['EXP']
+                summon_bond = summon_object['BOND']
+                summon_bond_exp = summon_object['BONDEXP']
+                bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
+                lvl_req = int(summon_lvl) * 10
+
+                lvl_message = f"*{summon_exp}/{lvl_req}*"
+                bond_message = f"*{summon_bond_exp}/{bond_req}*"
+                
+                power = (summon_bond * summon_lvl) + int(summon_ability_power)
+                summon_path = summon_object['PATH']
+                summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+                summon_file = crown_utilities.showsummon(summon_path, summon_name, crown_utilities.element_mapping[summon_type], summon_lvl, summon_bond)
+
                 universe = family['UNIVERSE']
                 universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']
@@ -2732,13 +2657,13 @@ class Lookup(commands.Cog):
                 """), colour=0x7289da)
                 
                 summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
-                🧬**{pet_name}**
-                *Bond* **{summon_bond}**
-                *Level* **{summon_lvl}**
-                {crown_utilities.set_emoji(summon_type)} {pet_ability_name} **{summon_type.title()}** ~ **{power}**
+                🧬**{summon_name}**
+                _Bond_ **{summon_bond}** | {bond_message}
+                _Level_ **{summon_lvl}** | {lvl_message}
+                {crown_utilities.set_emoji(summon_type)} **{summon_type.capitalize()}** | {summon_ability} ~ **{power}**
                 :sunny:  : **{crown_utilities.element_mapping[summon_type]}**
                 """), colour=0x7289da)
-                summon_page.set_image(url=path)
+                summon_page.set_image(url=summon_path)
                 
                 
                 
@@ -2752,7 +2677,8 @@ class Lookup(commands.Cog):
                 - **Houses**: Give Coin Multipliers in all game modes towards Family Earnings
                 - **Home Universe**: Earn Extra gold in Home Universe,
                 - **Real Estate**: Own multiple houses, swap your current house buy and sell real estate
-                - **Family Summon**: Each family member has access and can equip the family summon
+                - **Family Summon**: Each family member has access and can equip the family summon 
+                - **Summon XP Boost**: The Family Summon gains an additional 100 AP and gains 2x XP and 5x Bond EXP
                 
 
                 **Family Position Explanations**
@@ -3048,94 +2974,24 @@ class Lookup(commands.Cog):
                                 await button_ctx.defer(ignore=True)
                                 summon_object = family['SUMMON']
                                 summon = list(summon_object.values())[0]
-                                head_vault = db.queryVault({'DID' : head_data['DID']})
-                                pet_name = ""
-                                summon_bond = 0
-                                summon_lvl = 0
-                                summon_type = "Unbound"
-                                power = 0
-                                path = "N/A"
-                                found_summon_in_vault = False
-                                if head_vault:
-                                    vault_summons = head_vault['PETS']
-                                    for l in vault_summons:
-                                        if summon == l['NAME']:
-                                            found_summon_in_vault = True
-                                            level = l['LVL']
-                                            xp = l['EXP']
-                                            pet_ability = list(l.keys())[3]
-                                            pet_ability_power = list(l.values())[3]
-                                            power = (l['BOND'] * l['LVL']) + pet_ability_power
-                                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                                            summon_img = pet_info['PATH']
-                                            pet_name = pet_info["NAME"]
-                                            summon_bond = l["BOND"]
-                                            summon_lvl = level
-                                            summon_type = pet_info["TYPE"]
-                                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                            path = pet_info["PATH"]
-                                            summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
-                                    if found_summon_in_vault == False:
-                                        pet_info = db.queryPet({'PET': summon})
-                                        summon_img = pet_info['PATH']
-                                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                                        pet_ability = list(pet_info['ABILITIES'])[0]
-                                        summon_type = pet_ability['TYPE']
-                                        summon_bond = 0
-                                        pet_name = pet_info["PET"]
-                                        summon_lvl = 0
-                                        summon_img = pet_info['PATH']
-                                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                        path = pet_info["PATH"]
-                                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
-                                else:
-                                    partnervault =  db.queryVault({'DID' : partner_data['DID']})
-                                    if partnervault:
-                                        vault_summons = partnervault['PETS']
-                                        for l in vault_summons:
-                                            if summon == l['NAME']:
-                                                found_summon_in_vault = True
-                                                level = l['LVL']
-                                                xp = l['EXP']
-                                                pet_ability = list(l.keys())[3]
-                                                pet_ability_power = list(l.values())[3]
-                                                power = (l['BOND'] * l['LVL']) + pet_ability_power
-                                                pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                                                summon_img = pet_info['PATH']
-                                                summon_type = pet_info["TYPE"]
-                                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
-                                                pet_name = pet_info["NAME"]
-                                                summon_bond = pet_info["BOND"]
-                                                summon_lvl = level
-                                                power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                                path = pet_info["PATH"]
-                                        if found_summon_in_vault == False:
-                                            pet_info = db.queryPet({'PET': summon})
-                                            summon_img = pet_info['PATH']
-                                            pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                                            pet_ability = list(pet_info['ABILITIES'])[0]
-                                            summon_type = pet_ability['TYPE']
-                                            summon_bond = 0
-                                            pet_name = pet_info["PET"]
-                                            summon_lvl = 0
-                                            summon_img = pet_info['PATH']
-                                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                            path = pet_info["PATH"]
-                                            summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
+                                summon_name = summon_object['NAME']
+                                summon_ability_power = list(summon_object.values())[3]
+                                summon_ability = list(summon_object.keys())[3]
+                                summon_type = summon_object['TYPE']
+                                summon_lvl = summon_object['LVL']
+                                summon_exp = summon_object['EXP']
+                                summon_bond = summon_object['BOND']
+                                summon_bond_exp = summon_object['BONDEXP']
+                                bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
+                                lvl_req = int(summon_lvl) * 10
 
-                                    else:
-                                        pet_info = db.queryPet({'PET': summon})
-                                        summon_img = pet_info['PATH']
-                                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                                        pet_ability = list(pet_info['ABILITIES'])[0]
-                                        summon_type = pet_ability['TYPE']
-                                        summon_bond = 0
-                                        pet_name = pet_info["PET"]
-                                        summon_lvl = 0
-                                        summon_img = pet_info['PATH']
-                                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                        path = pet_info["PATH"]
-                                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
+                                lvl_message = f"*{summon_exp}/{lvl_req}*"
+                                bond_message = f"*{summon_bond_exp}/{bond_req}*"
+                                
+                                power = (summon_bond * summon_lvl) + int(summon_ability_power)
+                                summon_path = summon_object['PATH']
+                                head_vault = db.queryVault({'DID' : head_data['DID']})
+                                
                                 summon_buttons = []
                                 if is_head:
                                     summon_message = "Welcome Head of Household! Equip or Change Family Summon Here!"
@@ -3158,13 +3014,13 @@ class Lookup(commands.Cog):
                                 summon_action_row = manage_components.create_actionrow(*summon_buttons)
                                 summon_screen = discord.Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
                                 {summon_message}
-                                :dna: : **{pet_name}**
-                                *Bond* **{summon_bond}**
-                                *Level* **{summon_lvl}**
-                                :small_blue_diamond: **{summon_type}** ~ **{power}**{enhancer_suffix_mapping[summon_type]}
-                                🦠 : **{enhancer_mapping[summon_type]}**
+                                🧬**{summon_name}**
+                                _Bond_ **{summon_bond}** | {bond_message}
+                                _Level_ **{summon_lvl}** | {lvl_message}
+                                {crown_utilities.set_emoji(summon_type)} **{summon_type.capitalize()}** | {summon_ability} ~ **{power}**
+                                :sunny:  : **{crown_utilities.element_mapping[summon_type]}**
                                 """), color=0xe74c3c)
-                                summon_screen.set_image(url=path)
+                                summon_screen.set_image(url=summon_path)
                                 
                                 msg = await ctx.send(embed=summon_screen, components=[summon_action_row])
                                 def check(button_ctx):
@@ -3199,9 +3055,28 @@ class Lookup(commands.Cog):
                                                 if pet['LVL'] == 10:
                                                     lvl_message = ":star:"
                                                 
+                                                pet_bond = pet['BOND']
+                                                bond_exp = pet['BONDEXP']
+                                                pet_level = pet['LVL']
+                                                pet_exp = pet['EXP']
+                                                
+                                                petmove_ap = list(pet.values())[3] 
+                                                bond_req = ((petmove_ap * 5) * (pet_bond + 1))
+                                                lvl_req = int(pet_level) * 10
+                                                if lvl_req <= 0:
+                                                    lvl_req = 2
+                                                if bond_req <= 0:
+                                                    bond_req = 5
+                                                
+                                                lvl_message = f"*{pet_exp}/{lvl_req}*"
+                                                bond_message = f"*{bond_exp}/{bond_req}*"
+                                                
                                                 pet_ability = list(pet.keys())[3]
                                                 pet_ability_power = list(pet.values())[3]
                                                 power = (pet['BOND'] * pet['LVL']) + pet_ability_power
+                                                can_change_summon = True
+                                                if pet['NAME'] == summon_name:
+                                                    can_change_sumon = False
                                                 dash_pet_info = db.queryPet({'PET' : pet['NAME']})
                                                 if dash_pet_info:
                                                     pet_available = dash_pet_info['AVAILABLE']
@@ -3215,13 +3090,14 @@ class Lookup(commands.Cog):
 
                                                 embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
                                                 {icon}
-                                                _Bond_ **{pet['BOND']}** {bond_message}
-                                                _Level_ **{pet['LVL']} {lvl_message}**
-                                                :small_blue_diamond: **{pet_ability}:** {power}{enhancer_suffix_mapping[pet['TYPE']]}
-                                                🦠 **Type:** {pet['TYPE']}"""), 
+                                                _Bond_ **{pet['BOND']}** | {bond_message}
+                                                _Level_ **{pet['LVL']}** | {lvl_message}
+                                                {crown_utilities.set_emoji(pet['TYPE'])} *{pet['TYPE'].capitalize()} Ability*
+                                                **{pet_ability}:** {power} *+100 Family Bonus*
+                                                """), 
                                                 colour=0x7289da)
                                                 embedVar.set_thumbnail(url=avatar)
-                                                embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
+                                                #embedVar.set_footer(text=f"{pet['TYPE']}: {crown_utilities.element_mapping[pet['TYPE']]}")
                                                 embed_list.append(embedVar)
                                             
                                             buttons = [
@@ -3234,6 +3110,9 @@ class Lookup(commands.Cog):
                                                     updated_vault = db.queryVault({'DID': d['DID']})
                                                     sell_price = 0
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
+                                                    if selected_summon == summon_name:
+                                                        await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is already the {family_name} **Summon**.")
+                                                        return 
                                                     user_query = {'DID': str(ctx.author.id)}
                                                     user_vault = db.queryVault(user_query)
 
@@ -3243,13 +3122,14 @@ class Lookup(commands.Cog):
                                                             level = l['LVL']
                                                             xp = l['EXP']
                                                             pet_ability = list(l.keys())[3]
-                                                            pet_ability_power = list(l.values())[3]
-                                                            power = (l['BOND'] * l['LVL']) + pet_ability_power
+                                                            pet_ability_power = list(l.values())[3] + 100
+                                                            power = (l['BOND'] * l['LVL']) + pet_ability_power + 100
                                                             pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                                     if button_ctx.custom_id == "share":
                                                         #update_query = {'$set': {'SUMMON': }}
                                                         #filter_query = [{'type.' + "NAME": str(pet)}]
                                                         #response = db.updateVault(query, update_query, filter_query)
+                                                
                                                         transaction_message = f":dna: | {ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                         response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': pet_info}, '$push': {'TRANSACTIONS': transaction_message}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
@@ -3265,10 +3145,10 @@ class Lookup(commands.Cog):
                                     elif button_ctx.custom_id == "equip":
                                         try:
                                             await button_ctx.defer(ignore=True)
-                                            transaction_message = f"{ctx.author} equipped the family summon : **{str(pet_info['NAME'])}**."
-                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': pet_info['NAME'], 'FAMILY_PET': True}})
+                                            transaction_message = f"{ctx.author} equipped the family summon : **{str(summon_name)}**."
+                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': summon_name, 'FAMILY_PET': True}})
                                             response2 = db.updateFamily({'HEAD': family['HEAD']}, {'$push': {'TRANSACTIONS': transaction_message}})
-                                            await button_ctx.send(f"🧬 **{str(pet_info['NAME'])}** is now your **Summon**.")
+                                            await button_ctx.send(f"🧬 **{str(summon_name)}** is now your **Summon**.")
                                             self.stop = True
                                             return
                                         except Exception as ex:
