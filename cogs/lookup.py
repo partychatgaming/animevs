@@ -895,7 +895,14 @@ class Lookup(commands.Cog):
                             formatted_name = f"🇨 [{str(index)}{str(bindex)}] {blades}"
                             sword_member_list.append(formatted_name)
                         elif blades == owner:
-                            formatted_name = f"\n🪖 | {swords_name}\n**👑 [{str(index)}{str(bindex)}] {blades}**"
+                            if blades == founder_name:
+                                formatted_name = f"\n🪖 | {swords_name}\n**🪆 | [{str(index)}] {owner}**"
+                            elif blades == sworn_name:
+                                formatted_name = f"\n🪖 | {swords_name}\n**🎎 | [{str(index)}] {owner}**"
+                            elif blades == shield_name:
+                                formatted_name = f"\n🪖 | {swords_name}\n**👺 | [{str(index)}] {owner}**"
+                            else:
+                                formatted_name = f"\n🪖 | {swords_name}\n**👑 [{str(index)}{str(bindex)}] {blades}**"
                             formatted_owner = formatted_name
                             sword_member_list.append(formatted_owner)
                         elif blades not in officers and blades not in captains and blades != owner:
@@ -998,20 +1005,18 @@ class Lookup(commands.Cog):
                 """), colour=0x7289da)
                 
                 ghost_page = discord.Embed(title=f"Guild Owners", description=textwrap.dedent(f"""
-                \n👑 **Guild Leaders** | *Guilds Sworn To {guild['GNAME']}*
                 \n{guild_owner_list_joined}
                 """), colour=0x7289da)
-                ghost_page.set_footer(text=f"/player - Lookup Guild Owners")
+                ghost_page.set_footer(text=f"🪆 | {guild['GNAME']} Founder\n🎎 | {guild['GNAME']} Sworn\n👺 | {guild['GNAME']} Shield\n👑 | Guilds Owners Sworn To {guild['GNAME']}\n👤 | /player - Lookup Guild Owners")
 
                 blades_page = discord.Embed(title=f"Association Members List", description=textwrap.dedent(f"""
-                \n🪖 **Guild** | Guild Name\n👑 **Owner** | Guild Owner\n🅾️ **Officers** | Guild Officers\n🇨  **Captains** | Guild Captains\n🔰 **Members** | Guild Members\n{members_list_joined}
+                \n{members_list_joined}
                 """), colour=0x7289da)
-                blades_page.set_footer(text=f"/player - Lookup Guild Members")
+                blades_page.set_footer(text=f"🪆 | Association Founder\n🎎 | Association Sworn\n👺 | Association Shield\n🪖 | Guild Name\n👑 | Guild Owner\n🅾️ | Guild Officer\n🇨  | Guild Captain\n🔰 | Guild Member\n👤 | /player - Lookup Guild Members")
                 
                 estates_page = discord.Embed(title=f"Halls", description=textwrap.dedent(f"""
                 ⛩️ | **Halls**
                 {estates_list_joined}
-               
                 """), colour=0x7289da)
                 estates_page.set_footer(text=f"/halls - View Hall List")
                 
@@ -1022,7 +1027,6 @@ class Lookup(commands.Cog):
 
                 **Wars Won**
                 0
-               
                 """), colour=0x7289da)
                 war_embed.set_footer(text=f"Association Wars Coming Soon")
                 
@@ -1032,7 +1036,6 @@ class Lookup(commands.Cog):
 
                 **Completed Association Missions**
                 0
-               
                 """), colour=0x7289da)
                 association_mission_page.set_footer(text=f"Association Missions Coming Soon")
                 
@@ -1173,9 +1176,9 @@ class Lookup(commands.Cog):
                                 ]
                                 property_action_row = manage_components.create_actionrow(*property_buttons)
                                 real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
-                                {real_estate_message}
-                                *Current Association Bank*:
-                                :coin: **{balance_message}**
+                                \n{real_estate_message}
+                                \n*Current Association Bank*:
+                                \n:coin: **{balance_message}**
                                 """), color=0xe74c3c)
                                 real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
                                 
@@ -1477,12 +1480,12 @@ class Lookup(commands.Cog):
                                 ]
                                 armory_action_row = manage_components.create_actionrow(*armory_buttons)
                                 armory_screen = discord.Embed(title=f"{guild['GNAME']} Armory!", description=textwrap.dedent(f"""\
-                                {armory_message}
+                                \n{armory_message}
                                  
-                                🕋 **Armory Inventory** | 300
-                                🎴 **Cards** |  {len(guild['CSTORAGE'])}
-                                🎗️ **Titles** |  {len(guild['TSTORAGE'])}
-                                🦾 **Arms** |  {len(guild['ASTORAGE'])}
+                                \n🕋 **Armory Inventory** | 300
+                                \n🎴 **Cards** |  {len(guild['CSTORAGE'])}
+                                \n🎗️ **Titles** |  {len(guild['TSTORAGE'])}
+                                \n🦾 **Arms** |  {len(guild['ASTORAGE'])}
                                 """), color=0xe74c3c)
                                 armory_screen.set_image(url="https://cdnb.artstation.com/p/assets/images/images/036/549/141/original/jonathan-dodd-mdz2-large-warehouse-port.gif?1617957276")
                                 

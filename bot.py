@@ -313,7 +313,7 @@ async def classes(ctx):
    {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // Initial Attacks cost 0 Stamina
    *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
    
-   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with up to 3 Parries
+   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with up to 6 Parries
    *Common - 2 Parry, Rare - 4 Parries, Legendary - 6 Parries*
    
    {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with up to 3 barriers
