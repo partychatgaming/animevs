@@ -417,20 +417,26 @@ class Battle:
             self._ai_summon = abyss['PET']
             self.abyss_banned_card_tiers = abyss['BANNED_TIERS']
             self.abyss_banned_tier_conversion_to_string = [str(tier) for tier in self.abyss_banned_card_tiers]
-
+            licon = "🔰"
+            if self._ai_opponent_card_lvl>= 200:
+                licon ="🔱"
+            if self._ai_opponent_card_lvl>= 700:
+                licon ="⚜️"
+            if self._ai_opponent_card_lvl >= 999:
+                licon = "🏅"
             if self.abyss_floor in crown_utilities.ABYSS_REWARD_FLOORS:
                 unlockable_message = f"⭐ Drops on this Floor\nUnlockable Card: **{card_to_earn}**\nUnlockable Title: **{self._ai_title}**\nUnlockable Arm: **{self._ai_arm}**\n"
             else:
                 unlockable_message = ""
 
-            if checks['TIER'] in self.abyss_banned_card_tiers:
+            if checks['TIER'] in self.abyss_banned_card_tiers and self.abyss_floor >49:
                 self.abyss_player_card_tier_is_banned = True
 
 
             embedVar = discord.Embed(title=f":new_moon: Abyss Floor {str(self.abyss_floor)}  ⚔️{len(self.list_of_opponents_by_name)}", description=textwrap.dedent(f"""
-            {unlockable_message}
+            \n{unlockable_message}\n{licon} | **Floor Level** {self._ai_opponent_card_lvl}\n:reminder_ribbon: | **Floor Title** {self._ai_title}\n:mechanical_arm: | **Floor Arm** {self._ai_arm}\n🧬 | **Floor Summon** {self._ai_summon}
             """))
-            if self.abyss_banned_card_tiers:
+            if self.abyss_banned_card_tiers and self.abyss_floor > 49:
                 embedVar.add_field(name="🀄 Banned Card Tiers", value="\n".join(self.abyss_banned_tier_conversion_to_string),
                                 inline=True)
             embedVar.set_footer(text="Each floor must be completed all the way through to advance to the next floor.")
