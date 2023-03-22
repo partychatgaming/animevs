@@ -186,8 +186,8 @@ class Player:
     
     def set_explore(self, universe):
         
-        if self.level < 25 and self.prestige == 0:             
-            return "🔓 Unlock the Explore Mode by completing Floor 25 of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss."
+        # if self.level < 25 and self.prestige == 0:             
+        #     return "🔓 Unlock the Explore Mode by completing Floor 25 of the 🌑 Abyss! Use **Abyss** in /solo to enter the abyss."
         
         if universe.lower() == "all":
             db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True, 'EXPLORE_LOCATION': 'NULL'}})
