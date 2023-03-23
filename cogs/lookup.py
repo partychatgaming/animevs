@@ -1067,21 +1067,8 @@ class Lookup(commands.Cog):
                 #     embed3.set_image(url=logo)
                 
                 embed_list = [main_page, arena_page, crest_page, guilds_page, ghost_page, blades_page, estates_page, association_mission_page, war_embed, activity_page, association_explanations]
-                # paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
-                # paginator.add_reaction('⏮️', "first")
-                # paginator.add_reaction('⬅️', "back")
-                # paginator.add_reaction('🔐', "lock")
-                # paginator.add_reaction('➡️', "next")
-                # paginator.add_reaction('⏭️', "last")
-                # embeds = [embed1,embed2, embed3]
-                # await paginator.run(embeds)
                 
                 buttons = [] 
-                # print(member)
-                # print(is_visitor)
-                # print(is_founder)
-                # print(is_sworn)
-                # print(is_guild_leader)
                 if is_visitor:
                     buttons = [
                         manage_components.create_button(style=3, label="Say Hello", custom_id="hello"),
@@ -1094,10 +1081,6 @@ class Lookup(commands.Cog):
                         manage_components.create_button(style=3, label="View/Update Armory", custom_id="armory"),
                         manage_components.create_button(style=3, label="Test Shield Defenses", custom_id="raid")
                     ]
-                # elif is_sworn:
-                #     buttons = [
-                #         manage_components.create_button(style=3, label="Check Properties", custom_id="property"),
-                #     ]
                     
                 elif is_shield:
                     buttons = [
@@ -1106,7 +1089,7 @@ class Lookup(commands.Cog):
                         manage_components.create_button(style=3, label="Shield Training", custom_id="raid")
                     ]
                     
-                elif is_guild_leader:
+                elif is_guild_leader or member:
                     buttons = [
                         manage_components.create_button(style=3, label="View Properties", custom_id="property"),
                         manage_components.create_button(style=3, label="View Armory", custom_id="armory"),
