@@ -222,7 +222,7 @@ class Player:
     def save_scenario(self, scenario):
         if not scenario in self.scenario_history:
             db.updateUserNoFilter({'DID': str(self.did)}, {'$addToSet': {'SCENARIO_HISTORY': scenario}})
-            return f"Scenario saved: {scenario}"
+            return f"\nScenario saved: {scenario}"
         else:
             return "Scenario already saved."
 

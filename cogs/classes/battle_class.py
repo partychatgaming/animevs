@@ -274,8 +274,8 @@ class Battle:
             self._ai_opponentsummon_bond = 1
             self._ai_opponent_card_lvl = 30
             self.can_auto_battle = True
-            self.bank_amount = 5000
-            self.fam_reward_amount = 5000
+            self.bank_amount = 50000
+            self.fam_reward_amount = 500000
 
         
         if self.mode in crown_utilities.DUNGEON_M:
@@ -283,12 +283,12 @@ class Battle:
             self.is_ai_opponent = True
             self._ai_opponentsummon_lvl = 10
             self._ai_opponentsummon_bond = 3
-            self._ai_opponent_card_lvl = 400
-            self.health_buff = self.health_buff + 2000
+            self._ai_opponent_card_lvl = 450
+            self.health_buff = self.health_buff + 1000
             self.stat_buff = self.stat_buff + 100
             self.ap_buff = self.ap_buff + 80
-            self.bank_amount = 20000
-            self.fam_reward_amount = 20000
+            self.bank_amount = 500000
+            self.fam_reward_amount = 2000000
             self.can_auto_battle = True
 
 
@@ -298,13 +298,13 @@ class Battle:
             self._ai_opponentsummon_lvl = 15
             self._ai_opponentsummon_bond = 4
             self._ai_opponent_card_lvl = 1000
-            self.health_buff = self.health_buff + 2500
-            self.stat_buff = self.stat_buff + 200
-            self.ap_buff = self.ap_buff + 150
+            self.health_buff = self.health_buff + 3500
+            self.stat_buff = self.stat_buff + 100
+            self.ap_buff = self.ap_buff + 350
             self.total_number_of_opponents = 1
             self.starting_match_title = "👿 BOSS BATTLE!"
-            self.bank_amount = 5000000
-            self.fam_reward_amount = 5000000
+            self.bank_amount = 25000000
+            self.fam_reward_amount = 50000000
 
 
         if self.mode == crown_utilities.ABYSS:
@@ -468,7 +468,7 @@ class Battle:
         if response:
             for r in response:
                 title = r['TITLE']
-                message += f"**{r['TITLE']}** has been unlocked!\n"
+                message += f"\n📽️ **{r['TITLE']}** has been unlocked!\n"
         return message
     
     def set_scenario_selection(self):
@@ -477,7 +477,7 @@ class Battle:
             embed_list = []
             for scenario in scenarios:
                 must_complete = scenario['MUST_COMPLETE']
-                if (not must_complete or any(scenario in self.player.scenario_history for scenario in must_complete)) and scenario['TITLE'] not in self.player.scenario_history:  
+                if any(scenario in self.player.scenario_history for scenario in must_complete) or (scenario['TITLE'] in self.player.scenario_history) or not must_complete:  
                     if scenario['AVAILABLE']:
                         title = scenario['TITLE']
                         enemies = scenario['ENEMIES']
