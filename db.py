@@ -130,6 +130,14 @@ def queryAllAbyss():
         return False
 
 
+def updateAbyss(query, new_value):
+    try:
+        data = abyss_col.update_one(query, new_value)
+        return data
+    except:
+        return False
+
+
 def queryAbyss(query):
     try:
         data = abyss_col.find_one(query)
@@ -179,6 +187,29 @@ def queryScenario(scenario):
             return False
     except Exception as e:
         return e
+
+
+def updateScenario(scenario, new_value):
+    try:
+        data = scenario_col.update_many(scenario, new_value)
+        if data:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return e
+
+
+def queryAllScenarios():
+    try:
+        data = scenario_col.find()
+        if data:
+            return data
+        else:
+            return False
+    except Exception as e:
+        return e
+
 
 def queryUnlockedScenarios(title):
     try:
@@ -333,14 +364,11 @@ def queryGuildAlt(guild):
 
 def updateGuild(query, new_value):
     try:
-        exists = guild_exists({'FDID': query['FDID']})
-        if exists:
-            data = guild_col.update_one(query, new_value)
-            return data
-        else:
-           return False
+        data = guild_col.update_one(query, new_value)
+        return data
     except:
         print("Find Association failed.")
+        return False
         
 def updateGuildAlt(query, new_value):
     try:
@@ -353,7 +381,7 @@ def updateGuildAlt(query, new_value):
     except:
         print("Find Association failed.")
 
-def queryAllGuild(guild):
+def queryAllGuild():
     data = guild_col.find()
     return data
 
@@ -1629,12 +1657,8 @@ def createBoss(boss):
 
 def updateBoss(query, new_value):
     try:
-        bossexists = boss_exists({'NAME': query['NAME']})
-        if bossexists:
-            boss_col.update_one(query, new_value)
-            return True
-        else:
-            return False
+        boss_col.update_one(query, new_value)
+        return True
     except:
         return False
 

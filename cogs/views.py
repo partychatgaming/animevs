@@ -647,7 +647,7 @@ async def viewcard(self, ctx, data):
             pet_ability_power = 0
             card_exp = 150
 
-            
+            # Temporarily removed ♾️ {c.set_trait_message()}
             if d['PERFORMANCE']:
                 embedVar = discord.Embed(title=f"{c.card_icon} {c.price_message} {c.name} [{crown_utilities.class_emojis[c.card_class]}]", description=textwrap.dedent(f"""\
                 {crown_utilities.class_emojis[c.card_class]} | {c.class_message}
@@ -663,7 +663,6 @@ async def viewcard(self, ctx, data):
                 🦠 | {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.enhancer_suffix_mapping[c.move4enh]}
 
                 🩸 | {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
-                ♾️ | {c.set_trait_message()}
                 """), colour=000000)
                 embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
                 embedVar.set_footer(text=f"{c.tip}")
@@ -678,9 +677,8 @@ async def viewcard(self, ctx, data):
                 embedVar.set_author(name=textwrap.dedent(f"""\
                 {c.card_icon} {c.price_message}
                 
-                Passive & Universe Trait
+                Passive
                 🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
-                ♾️ {c.set_trait_message()}
                 🏃 {evasion_message}
                 """))
                 embedVar.set_footer(text=f"{c.tip}")

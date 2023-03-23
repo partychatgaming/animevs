@@ -489,12 +489,12 @@ class Battle:
                         reward_list = []
                         if self.is_easy_difficulty:
                             rewards = scenario['EASY_DROPS']
-                            scenario_gold = round(scenario_gold / 3)
+                            scenario_gold = round(scenario_gold / 5)
                         if self.is_normal_difficulty:
                             rewards = scenario['NORMAL_DROPS']
                         if self.is_hard_difficulty:
                             rewards = scenario['HARD_DROPS']
-                            scenario_gold = round(scenario_gold * 3)
+                            scenario_gold = round(scenario_gold * 1.5)
 
                         for reward in rewards:
                             # Add Check for Cards and make Cards available in Easy Drops
@@ -547,8 +547,21 @@ class Battle:
                         embed_list.append(embedVar)
 
             return embed_list
-        except:
-            print("Error setting scenario selection config")
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
 
 
     def set_scenario_config(self, scenario_data):

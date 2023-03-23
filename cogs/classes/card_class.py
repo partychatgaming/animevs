@@ -924,12 +924,17 @@ class Card:
             self.card_lvl = random.randint(850, 1500)
             self.bounty = self.bounty * 150
 
+        if self.tier == 7:
+            self.card_lvl = random.randint(1000, 1800)
+        if self.tier == 6:
+            self.card_lvl = random.randint(900, 1500)
+
 
         if battle_config.is_hard_difficulty:
             self.attack = self.attack + 1000 + (200 *self.tier)
             self.defense = self.defense + 1000 + (200 * self.tier)
-            self.max_health = self.max_health + 1000 + (1000 * self.tier)
-            self.health = self.health + 1000 + (1000 * self.tier)
+            self.max_health = self.max_health + (1000 * self.tier)
+            self.health = self.health + (1000 * self.tier)
             random_mod = random.randint(0,1500000)
             self.bounty = self.bounty + (2000000 * self.tier) + random_mod
 
@@ -2364,7 +2369,7 @@ class Card:
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Quirk Awakening! Ap has been increased by **{self.my_hero_academia_buff}** 🔺")
 
                 battle_config.turn_total = battle_config.turn_total + 1
-                battle_config.repeat_turn()
+                battle_config.next_turn()
 
             elif self.universe == "YuYu Hakusho":  # My Hero Trait
                 # fortitude or luck is based on health
@@ -2393,7 +2398,7 @@ class Card:
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Spirit Resolved!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
-                battle_config.repeat_turn()
+                battle_config.next_turn()
 
             elif self.universe == "One Piece" and (self.tier in crown_utilities.HIGH_TIER_CARDS):
                 # fortitude or luck is based on health
@@ -3214,6 +3219,7 @@ class Card:
                         opponent_card._barrier_value = 0
                         opponent_card._arm_message = ""
                         self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
+                
                 elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC"]:                    
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         if not dmg['SUMMON_USED']:
@@ -3260,9 +3266,9 @@ class Card:
                     if self._siphon_active:
                         siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
                         self.damage_healed = self.damage_healed + (dmg['DMG'] * .15) + self._siphon_value
-                        self.max_health = round(self.max_health + siphon_damage)
-                        if self.max_health >= self.max_health:
-                            self.max_health = self.max_health
+                        self.health = round(self.health + siphon_damage)
+                        if self.health >= self.max_health:
+                            self.health = self.max_health
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **Full Health!**")
                         else:
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
