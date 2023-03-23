@@ -2398,7 +2398,7 @@ class Card:
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Spirit Resolved!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
-                battle_config.repeat_turn()
+                battle_config.next_turn()
 
             elif self.universe == "One Piece" and (self.tier in crown_utilities.HIGH_TIER_CARDS):
                 # fortitude or luck is based on health
