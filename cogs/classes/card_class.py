@@ -3219,6 +3219,7 @@ class Card:
                         opponent_card._barrier_value = 0
                         opponent_card._arm_message = ""
                         self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
+                
                 elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC"]:                    
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         if not dmg['SUMMON_USED']:
@@ -3265,9 +3266,9 @@ class Card:
                     if self._siphon_active:
                         siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
                         self.damage_healed = self.damage_healed + (dmg['DMG'] * .15) + self._siphon_value
-                        self.max_health = round(self.max_health + siphon_damage)
-                        if self.max_health >= self.max_health:
-                            self.max_health = self.max_health
+                        self.health = round(self.health + siphon_damage)
+                        if self.health >= self.max_health:
+                            self.health = self.max_health
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **Full Health!**")
                         else:
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
