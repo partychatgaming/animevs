@@ -2672,9 +2672,14 @@ class Profile(commands.Cog):
                     
                          
                     
-                    pet_ability = list(pet.keys())[3]
-                    pet_ability_power = list(pet.values())[3]
+                    pet_ability = ""
                     pet_emoji = crown_utilities.set_emoji(pet['TYPE'])
+                    pet_ability_power = 0
+                    for key in pet:
+                        if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+                            pet_ability_power = pet[key]
+                            pet_ability = key
+
                     power = (pet['BOND'] * pet['LVL']) + pet_ability_power
                     pet_info = db.queryPet({'PET' : pet['NAME']})
                     if pet_info:
