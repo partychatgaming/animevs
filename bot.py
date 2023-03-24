@@ -3407,7 +3407,7 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       elif collection == 'titles':
          response = db.updateManyTitles({'$set': {new_field: field_type}})
       elif collection == 'vault':
-         response = db .updateVaultNoFilter({'DID' : str(ctx.author.id)}, {new_field: field_type})
+         # response = db .updateVaultNoFilter({'DID' : str(ctx.author.id)}, {new_field: field_type})
          print(response)
          response = db.updateManyVaults({'$set': {new_field: field_type}})
       elif collection == 'users':

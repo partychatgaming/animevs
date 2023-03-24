@@ -3057,6 +3057,9 @@ class Lookup(commands.Cog):
                                                 pet_ability_power = list(pet.values())[3]
                                                 power = (pet['BOND'] * pet['LVL']) + pet_ability_power
                                                 can_change_summon = True
+                                                bonus_message = ""
+                                                if pet['TYPE'] not in ['BARRIER','PARRY']:
+                                                    bonus_message = '+100 Family Bonus'
                                                 if pet['NAME'] == summon_name:
                                                     can_change_sumon = False
                                                 dash_pet_info = db.queryPet({'PET' : pet['NAME']})
@@ -3075,7 +3078,7 @@ class Lookup(commands.Cog):
                                                 _Bond_ **{pet['BOND']}** | {bond_message}
                                                 _Level_ **{pet['LVL']}** | {lvl_message}
                                                 {crown_utilities.set_emoji(pet['TYPE'])} *{pet['TYPE'].capitalize()} Ability*
-                                                **{pet_ability}:** {power} *+100 Family Bonus*
+                                                **{pet_ability}:** {power} *{bonus_message}*
                                                 """), 
                                                 colour=0x7289da)
                                                 embedVar.set_thumbnail(url=avatar)
@@ -3104,8 +3107,11 @@ class Lookup(commands.Cog):
                                                             level = l['LVL']
                                                             xp = l['EXP']
                                                             pet_ability = list(l.keys())[3]
-                                                            pet_ability_power = list(l.values())[3] + 100
-                                                            power = (l['BOND'] * l['LVL']) + pet_ability_power + 100
+                                                            bonus = 0
+                                                            if pet_ability not in ['PARRY','BARRIER']:
+                                                                bonus = 100
+                                                            pet_ability_power = list(l.values())[3] + bonus
+                                                            power = (l['BOND'] * l['LVL']) + pet_ability_power + bonus
                                                             pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                                     if button_ctx.custom_id == "share":
                                                         #update_query = {'$set': {'SUMMON': }}
