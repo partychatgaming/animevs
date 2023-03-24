@@ -109,11 +109,11 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
 
-⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.
+⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and lower opponent protections and goes through parry.
 
 🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.
 
-🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 30% DMG, Decrease Turn Count By 3.
+🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 30% DMG, Decrease Turn Count By 3, goes through barrier and parry.
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)

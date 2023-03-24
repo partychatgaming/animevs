@@ -3176,6 +3176,8 @@ class Card:
                         if self.poison_dmg <= (150 * self.tier):
                             self.poison_dmg = self.poison_dmg + 30
                     if opponent_card._shield_value > 0:
+                        if dmg['ELEMENT'] == "FIRE":
+                            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
                         opponent_card._shield_value = opponent_card._shield_value - dmg['DMG']
                         # opponent_card.health = opponent_card.health 
                         if opponent_card._shield_value <= 0:
@@ -3200,7 +3202,7 @@ class Card:
                                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroyed **{opponent_card.name}**'s 💠 Barrier! No Barriers remain!")
                                 self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
-                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK"]:
+                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
@@ -3225,7 +3227,7 @@ class Card:
                         opponent_card._arm_message = ""
                         self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
-                elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC"]:                    
+                elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:                    
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
