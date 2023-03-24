@@ -2846,7 +2846,7 @@ class Profile(commands.Cog):
                             summon_data = db.queryPet({'PET' : selectedsummon})
                             summon_name = summon_data['PET']
                             if summon_name == currentsummon:
-                                await button_ctx.send("You cannot dismanetle equipped summonss.")
+                                await button_ctx.send("You cannot dismantle equipped summonss.")
                                 return
                             dismantle_price = 10000   
                             level = int(pet['LVL'])
@@ -9211,7 +9211,7 @@ async def menusummons(self, ctx):
                         summon_data = db.queryPet({'PET' : selectedsummon})
                         summon_name = summon_data['PET']
                         if summon_name == currentsummon:
-                            await button_ctx.send("You cannot dismanetle equipped summonss.")
+                            await button_ctx.send("You cannot dismantle equipped summonss.")
                             return
                         dismantle_price = 5000   
                         level = int(pet['LVL'])

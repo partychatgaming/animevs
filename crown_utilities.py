@@ -1441,6 +1441,38 @@ async def blessguild(amount, guild):
             'trace': trace
         }))
 
+async def blessguild_Alt(amount, guild):
+    try:
+        blessAmount = amount
+        posBlessAmount = 0 + abs(int(blessAmount))
+        query = {'GNAME': str(guild)}
+        guild_data = db.queryGuildAlt(query)
+        if guild_data:
+            hall = guild_data['HALL']
+            hall_data = db.queryHall({'HALL': hall})
+            multiplier = hall_data['MULT']
+            posBlessAmount = posBlessAmount
+            query = {'GNAME': str(guild_data['GNAME'])}
+            update_query = {"$inc": {'BANK': int(posBlessAmount)}}
+            db.updateGuildAlt(query, update_query)
+        else:
+            print("Cannot find Association")
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+
 
 async def curseguild(amount, guild):
     try:

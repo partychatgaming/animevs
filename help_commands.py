@@ -111,7 +111,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.
 
-🅱️ Bleed - Every 2 Attacks deal 10x turn count damage to opponent.
+🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.
 
 🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 30% DMG, Decrease Turn Count By 3.
 

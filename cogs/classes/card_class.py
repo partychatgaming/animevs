@@ -146,6 +146,7 @@ class Card:
             self.basic_water_buff = 0
             self.special_water_buff = 0
             self.ultimate_water_buff = 0
+            self.total_water_buff = 0
             self.gravity_hit = False
             self.physical_meter = 0
             self.barrier_meter = 0
@@ -974,6 +975,9 @@ class Card:
 
         if self.move3_element == "WATER":
             self.ultimate_water_buff = self.ultimate_water_buff + num
+            
+        if self.summon_type == "WATER":
+            self.basic_water_buff = self.basic_water_buff + num
         
 
 
@@ -981,12 +985,13 @@ class Card:
         if opponent_card.bleed_hit:
             opponent_card.bleed_hit = False
             bleed_hit_local = 10 * turn_total
-            self.health = self.health - bleed_hit_local
+            bleed_hit_modified = bleed_hit_local + (self.health * .05)
+            self.health = self.health - bleed_hit_modified
             if self.health < 0:
                 self.health = 0
-            self.damage_recieved = self.damage_recieved + round(bleed_hit_local)
-            opponent_card.damage_dealt = opponent_card.damage_dealt + round(bleed_hit_local)
-            return f"🩸 **{self.name}** shredded for **{round(bleed_hit_local)}** bleed dmg..."
+            self.damage_recieved = self.damage_recieved + round(bleed_hit_modified)
+            opponent_card.damage_dealt = opponent_card.damage_dealt + round(bleed_hit_modified)
+            return f"🩸 **{self.name}** shredded for **{round(bleed_hit_modified)}** bleed dmg..."
 
 
     def set_burn_hit(self, opponent_card):
@@ -3367,8 +3372,9 @@ class Card:
                 self.special_water_buff = self.special_water_buff + 100
             if self.move3_element == "WATER":
                 self.ultimate_water_buff = self.ultimate_water_buff + 100
+            self.water_buff = self.water_buff + 100
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*The Tide Stirs +{self.basic_water_buff}*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*The Tide Stirs +{self.water_buff}*")
         
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:

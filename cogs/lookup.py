@@ -470,10 +470,10 @@ class Lookup(commands.Cog):
                         formatted_name = f"👑 [{str(index)}] **{member}**"
                         formatted_owner = formatted_name
                     elif member not in officers and member not in captains and member != owner:
-                        formatted_name = f"🔰 [{str(index)}] **{member}**"
+                        formatted_name = f"\n🔰 [{str(index)}] **{member}**"
                         formatted_list_of_members.append(formatted_name)
 
-                members_list_joined = ", ".join(formatted_list_of_members)
+                members_list_joined = "".join(formatted_list_of_members)
                 captains_list_joined = ", ".join(formatted_list_of_captains)
                 officers_list_joined = ", ".join(formatted_list_of_officers)
                 if user['DISNAME'] in officers:
@@ -597,9 +597,7 @@ class Lookup(commands.Cog):
                 # first_page.set_footer(text=f"")
                 
                 membership_pages = discord.Embed(title=f"Members", description=textwrap.dedent(f"""
-                🔰 **Members**
-                {members_list_joined}
-               
+                🔰 **Members**\n{members_list_joined}
                 """), colour=0x7289da)
 
                 
@@ -639,6 +637,7 @@ class Lookup(commands.Cog):
                 - **Stat Buff**: Add 50 ATK & DEF, 30 AP, and 100 HLT
                 - **Rift Buff**: Rifts will always be available
                 - **Rematch Buff**: Unlimited Rematches
+                
                 **Guild Position Explanations**
                 - **Owner**:  All operations */guildoperations*
                 - **Officer**:  Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
@@ -1392,7 +1391,7 @@ class Lookup(commands.Cog):
                                                         return
                                                     elif hall_name in guild['ESTATES']:
                                                         guild_query = {'GNAME': guild['GNAME']}
-                                                        await crown_utilities.blessguild(cost, guild['GNAME'])
+                                                        await crown_utilities.blessguild_Alt(cost, guild['GNAME'])
                                                         transaction_message = f":coin: | {ctx.author} sold the Association Hall: **{str(hall_name)}**."
                                                         response = db.updateGuildAlt(guild_query,{'$pull':{'ESTATES': str(hall_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f"{guild['GNAME']} sold their **{hall_name}** for **{formatted_cost}**")
@@ -2926,7 +2925,7 @@ class Lookup(commands.Cog):
                                                         #self.stop = True
                                                         return
                                                     elif house_name in family['ESTATES']:
-                                                        await crown_utilities.blessfamily(cost, family['HEAD'])
+                                                        await crown_utilities.blessfamily_Alt(cost, family['HEAD'])
                                                         transaction_message = f":coin: | {ctx.author} sold the family home: **{str(house_name)}**."
                                                         response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f'{family_name} sold their **{house_name}** for **{formatted_cost}**')

@@ -566,7 +566,7 @@ class Player:
 
 
     def get_battle_ready(self):
-        try:
+        try:                
             if self._deck_card:
                 self._equipped_card_data = self._deck_card
                 self._equipped_title_data = self._deck_title
@@ -578,19 +578,32 @@ class Player:
                 self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
                 self._equipped_arm_data = db.queryArm({'ARM': self.equipped_arm})
 
-            for summon in self.summons:
-                if summon['NAME'] == self.equippedsummon:
-                    activesummon = summon
-            self._equippedsummon_ability_name = list(activesummon.keys())[3]
-            self._equippedsummon_power = list(activesummon.values())[3]
-            self._equippedsummon_bond = activesummon['BOND']
-            self._equippedsummon_bondexp = activesummon['BONDEXP']
-            self._equippedsummon_lvl = activesummon['LVL']
-            self._equippedsummon_type = activesummon['TYPE']
-            self._equippedsummon_name = activesummon['NAME']
-            self._equippedsummon_image = activesummon['PATH']
-            self._equippedsummon_exp = activesummon['EXP']
-            self._equippedsummon_universe = db.queryPet({'PET': activesummon['NAME']})['UNIVERSE']
+            if self.family_pet:
+                summon_object = self.get_family_summon()
+                self._equippedsummon_ability_name = list(summon_object.keys())[3]
+                self._equippedsummon_power = list(summon_object.values())[3]
+                self._equippedsummon_bond = summon_object['BOND']
+                self._equippedsummon_bondexp = summon_object['BONDEXP']
+                self._equippedsummon_lvl = summon_object['LVL']
+                self._equippedsummon_type = summon_object['TYPE']
+                self._equippedsummon_name = summon_object['NAME']
+                self._equippedsummon_image = summon_object['PATH']
+                self._equippedsummon_exp = summon_object['EXP']
+                self._equippedsummon_universe = db.queryPet({'PET': summon_object['NAME']})['UNIVERSE']
+            else:
+                for summon in self.summons:
+                    if summon['NAME'] == self.equippedsummon:
+                        activesummon = summon
+                self._equippedsummon_ability_name = list(activesummon.keys())[3]
+                self._equippedsummon_power = list(activesummon.values())[3]
+                self._equippedsummon_bond = activesummon['BOND']
+                self._equippedsummon_bondexp = activesummon['BONDEXP']
+                self._equippedsummon_lvl = activesummon['LVL']
+                self._equippedsummon_type = activesummon['TYPE']
+                self._equippedsummon_name = activesummon['NAME']
+                self._equippedsummon_image = activesummon['PATH']
+                self._equippedsummon_exp = activesummon['EXP']
+                self._equippedsummon_universe = db.queryPet({'PET': activesummon['NAME']})['UNIVERSE']
         except:
             print("Failed to get battle ready")
 

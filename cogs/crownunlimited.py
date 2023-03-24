@@ -4048,9 +4048,9 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     p1_win_rewards = await battle_config.get_win_rewards(player1)
                                     corruption_message = await battle_config.get_corruption_message(ctx)
                                     questlogger = await quest(user1, player2_card, battle_config.mode)
-                                    #destinylogger = await destiny(user1, player2_card, battle_config.mode)
-                                    #petlogger = await crown_utilities.summonlevel(player1, player1_card)
-                                    #cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
+                                    destinylogger = await destiny(user1, player2_card, battle_config.mode)
+                                    petlogger = await crown_utilities.summonlevel(player1, player1_card)
+                                    cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
 
                                     if not battle_config.is_easy_difficulty:
                                         questlogger = await quest(user1, player2_card, battle_config.mode)
