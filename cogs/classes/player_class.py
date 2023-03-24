@@ -484,9 +484,6 @@ class Player:
 
                     embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                     {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: {fight_emoji} **{len(uni[list_of_opponents])}**
-                    🎗️ **{title_message}**: {uni[title]}
-                    🦾 **{arm_message}**: {uni[arm]}
-                    🧬 **{summon_message}**: {uni[summon]}
 
                     **Saved Game**: :crossed_swords: *{save_spot_text}*
                     **Difficulty**: ⚙️ {self.difficulty.lower().capitalize()} {p_message}

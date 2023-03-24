@@ -3,6 +3,7 @@ import certifi
 import messages as m
 from decouple import config
 import re
+import random
 
 if config('ENV') == "production":
     # PRODUCTION
@@ -1223,6 +1224,18 @@ def queryAllTitles():
     data = titles_col.find()
     return data
 
+def get_random_title(query):
+    try:
+        projection = {"_id": 0, "TITLE": 1}
+        title_count = titles_col.count_documents(query)
+        random_index = random.randint(0, title_count - 1)
+        
+        # Execute the query and return a random title
+        title = titles_col.find(query, projection).limit(1).skip(random_index).next()["TITLE"]
+        return title
+    except:
+        return False
+
 def queryAllTitlesBasedOnUniverses(query):
     data = titles_col.find(query)
     return data
@@ -1316,7 +1329,14 @@ def queryArm(query):
     else:
         return data
 
-
+def get_random_arm(query):    
+    projection = {"_id": 0, "ARM": 1}
+    arm_count = arm_col.count_documents(query)
+    random_index = random.randint(0, arm_count - 1)
+    
+    # Execute the query and return a random arm
+    arm = arm_col.find(query, projection).limit(1).skip(random_index).next()["ARM"]
+    return arm
 
 def queryDropArms(args):
     data = arm_col.find({'UNIVERSE': args, 'EXCLUSIVE': False, 'AVAILABLE': True})
@@ -1516,6 +1536,15 @@ def queryAllPets():
 def queryPet(query):
     data = pet_col.find_one(query)
     return data
+
+def get_random_pet_name(query):
+    projection = {"_id": 0, "PET": 1}
+    pet_count = pet_col.count_documents(query)
+    random_index = random.randint(0, pet_count - 1)
+    
+    # Execute the query and return a random pet name
+    pet_name = pet_col.find(query, projection).limit(1).skip(random_index).next()["PET"]
+    return pet_name
 
 def queryDropPets(args):
     data = pet_col.find({'UNIVERSE': args,  'EXCLUSIVE': False,  'AVAILABLE': True})

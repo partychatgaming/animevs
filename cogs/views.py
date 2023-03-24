@@ -878,17 +878,6 @@ async def viewuniverse(self, ctx, data):
             embedVar = discord.Embed(title=f":earth_africa: | {universe_title} :crossed_swords: {fights} :fire: {dungeon_fights} ", description=textwrap.dedent(f"""
             {crest} | **{ownermessage}**
             
-            🗒️ | **Details**
-            :crown: | **Tales Build** 
-            :reminder_ribbon: | **Title** - {ttitle}
-            :mechanical_arm: | **Arm** - {tarm}
-            🧬 | **Universe Summon ** - {upet}
-            
-            :fire: | **Dungeon Build**
-            :reminder_ribbon: | **Title** - {dtitle}
-            :mechanical_arm: | **Arm** - {darm}
-            🧬 | **Dungeon Summon ** - {dpet}
-            
             :japanese_ogre: | **Universe Boss**
             :flower_playing_cards: | **Card** - {boss}
             {bossmessage}

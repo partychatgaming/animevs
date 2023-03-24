@@ -30,6 +30,7 @@ class Battle:
         self.is_co_op_mode = False
         self.is_duo_mode = False
         self.is_ai_opponent = False
+        self.is_raid_scenario = False
 
         self.is_auto_battle_game_mode = False
         self.can_auto_battle = False
@@ -474,10 +475,12 @@ class Battle:
     def set_scenario_selection(self):
         try:
             scenarios = db.queryAllScenariosByUniverse(str(self.selected_universe))
+            is_corrupted = db.queryUniverse({'TITLE': self.selected_universe})['CORRUPTED']
+            print(is_corrupted)
             embed_list = []
             for scenario in scenarios:
                 must_complete = scenario['MUST_COMPLETE']
-                if any(scenario in self.player.scenario_history for scenario in must_complete) or (scenario['TITLE'] in self.player.scenario_history) or not must_complete:  
+                if (any(scenario in self.player.scenario_history for scenario in must_complete) and not scenario['IS_RAID']) or (scenario['IS_RAID'] and is_corrupted and self.is_hard_difficulty) or ((scenario['TITLE'] in self.player.scenario_history and not scenario['IS_RAID']) or not must_complete and not scenario['IS_RAID']):  
                     if scenario['AVAILABLE']:
                         title = scenario['TITLE']
                         enemies = scenario['ENEMIES']
@@ -487,6 +490,10 @@ class Battle:
                         universe = scenario['UNIVERSE']
                         scenario_image = scenario['IMAGE']
                         reward_list = []
+                        type_of_battle = f"📽️ **{universe} Scenario Battle!**"
+                        type_of_enemy_lvl = f"🔱 **Enemy Level:** {enemy_level}"
+                        type_of_reward = f":coin: **Reward** {'{:,}'.format(scenario_gold)}"
+                        type_of_difficulty = f"⚙️ **Difficulty:** {self.difficulty.title()}"
                         if self.is_easy_difficulty:
                             rewards = scenario['EASY_DROPS']
                             scenario_gold = round(scenario_gold / 5)
@@ -495,6 +502,11 @@ class Battle:
                         if self.is_hard_difficulty:
                             rewards = scenario['HARD_DROPS']
                             scenario_gold = round(scenario_gold * 1.5)
+                        if scenario['IS_RAID']:
+                            type_of_battle = f"<:Raid_Emblem:1088707240917221399> **{universe} RAID BATTLE!**"
+                            type_of_enemy_lvl = f"👹 **NEMESIS LEVEL:** {enemy_level}"
+                            type_of_reward = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
+                            type_of_difficulty = f"<a:Fire:777975890172837898> **DIFFICULTY:** {self.difficulty.title()}"
 
                         for reward in rewards:
                             # Add Check for Cards and make Cards available in Easy Drops
@@ -532,11 +544,11 @@ class Battle:
             
                         reward_message = "\n\n".join(reward_list)
                         embedVar = discord.Embed(title= f"{title}", description=textwrap.dedent(f"""
-                        📽️ **{universe} Scenario Battle!**
-                        🔱 **Enemy Level:** {enemy_level}
-                        :coin: **Reward** {'{:,}'.format(scenario_gold)}
+                        {type_of_battle}
+                        {type_of_enemy_lvl}
+                        {type_of_reward}
 
-                        ⚙️ **Difficulty:** {self.difficulty.title()}
+                        {type_of_difficulty}
 
                         :crossed_swords: {str(number_of_fights)}
                         """), 
@@ -568,6 +580,9 @@ class Battle:
         try:
             self.scenario_data = scenario_data
             self.is_scenario_game_mode = True
+            if scenario_data['IS_RAID']:
+                self.is_raid_scenario = True
+                self._boss_tactics = ['DAMAGE_CHECK', 'BLOODLUST', 'INTIMIDATION']
             self.list_of_opponents_by_name = scenario_data['ENEMIES']
             self.total_number_of_opponents = len(self.list_of_opponents_by_name)
             self._ai_opponent_card_lvl = int(scenario_data['ENEMY_LEVEL'])
@@ -722,13 +737,11 @@ class Battle:
     def set_corruption_config(self):
         if self.selected_universe_full_data['CORRUPTED']:
             self.is_corrupted = True
-            self.ap_buff = 30
-            self.stat_buff = 50
-            self.health_buff = 300
+            self.ap_buff = 150
+            self.health_buff = 500
             if self.difficulty == "HARD":
-                self.ap_buff = 60
-                self.stat_buff = 100
-                self.health_buff = 1300
+                self.ap_buff = 200
+                self.health_buff = 1500
 
     # def get_tutorial_message(self, card, option):
     #     traits = ut.traits
@@ -788,20 +801,21 @@ class Battle:
                 if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self. is_explore_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode)):
                     self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
                     universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
-
+                    dungeon_query = {'UNIVERSE': universe_data['TITLE'], 'EXCLUSIVE': True}
+                    tales_query = {'UNIVERSE': universe_data['TITLE'], 'EXCLUSIVE': False}
                     if self.mode in crown_utilities.DUNGEON_M:
-                        self._ai_title = universe_data['DTITLE']
-                        self._ai_arm = universe_data['DARM']
-                        self._ai_summon = universe_data['DPET']
+                        self._ai_title = db.get_random_title(dungeon_query)
+                        self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'EXCLUSIVE': True, 'ELEMENT': ""})
+                        self._ai_summon = db.get_random_pet_name(dungeon_query)
                         if player1_card_level >= 600:
                             self._ai_opponent_card_lvl = 650
                         else:
                             self._ai_opponent_card_lvl = 50 + min(max(350, player1_card_level), 600) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
                     
                     if self.mode in crown_utilities.TALE_M:
-                        self._ai_title = universe_data['UTITLE']
-                        self._ai_arm = universe_data['UARM']
-                        self._ai_summon = universe_data['UPET']
+                        self._ai_title = db.get_random_title(tales_query)
+                        self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'EXCLUSIVE': False, 'ELEMENT': ""})
+                        self._ai_summon = db.get_random_pet_name(tales_query)
                         if player1_card_level <= 20 and player1_card_level >=10:
                             self._ai_opponent_card_lvl = 10
                         elif player1_card_level >= 0 and player1_card_level <=10:

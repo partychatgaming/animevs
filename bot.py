@@ -1979,6 +1979,8 @@ async def called_once_a_day():
 
    During Corruption Hour defeat cards in solo, duo, or coop battle to earn 💎150,000 Craftable Gems!
    Earn 💎300,000 when playing on Hard difficulty!
+
+   <:Raid_Emblem:1088707240917221399> *RAIDS ARE NOW AVAILABLE DURING CORRUPTION HOUR!*
    """))
 
    await message_channel.send(embed=embedVar)

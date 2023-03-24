@@ -883,9 +883,6 @@ class CrownUnlimited(commands.Cog):
 
                     embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
                     {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
-                    🎗️ **Universe Title**: {uni['UTITLE']}
-                    🦾 **Universe Arm**: {uni['UARM']}
-                    🧬 **Universe Summon**: {uni['UPET']}
 
                     :crossed_swords: **Tales Order**: {tales_list}
                     """))
