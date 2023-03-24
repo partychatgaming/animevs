@@ -2574,7 +2574,10 @@ class Lookup(commands.Cog):
                 
                 summon_object = family['SUMMON']
                 summon_name = summon_object['NAME']
-                summon_ability_power = list(summon_object.values())[3]
+                summon_ability_power = None
+                for key in summon_object:
+                    if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+                        summon_ability_power = summon_object[key]
                 summon_ability = list(summon_object.keys())[3]
                 summon_type = summon_object['TYPE']
                 summon_lvl = summon_object['LVL']

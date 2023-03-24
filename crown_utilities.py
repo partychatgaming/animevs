@@ -429,7 +429,6 @@ async def summonlevel(player, player_card):
         if familysummon['NAME'] == str(player.equippedsummon):
             xp_inc = 2
             bxp_inc = 5
-            #print("I'm leveling")
             summon_object = familysummon
             summon_name = summon_object['NAME']
             summon_ability_power = list(summon_object.values())[3]

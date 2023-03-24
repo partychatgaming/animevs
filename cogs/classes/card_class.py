@@ -317,8 +317,8 @@ class Card:
             self.universe_crest = crown_utilities.crest_dict[self.universe]
             self.index = ""
             if self.passive_type:
-                value_for_passive = self.tier * .5
-                flat_for_passive = round(10 * (self.tier * .5))
+                value_for_passive = self.tier * .9
+                flat_for_passive = round(10 * self.tier)
                 stam_for_passive = 5 * (self.tier * .5)
                 if self.passive_type == "HLT":
                     self.passive_num = value_for_passive * 2
@@ -357,9 +357,9 @@ class Card:
                 if self.passive_type == "HASTE":
                     self.passive_num = self.passive_num
                 if self.passive_type == "STANCE":
-                    self.passive_num = flat_for_passive
+                    self.passive_num = flat_for_passive * 2
                 if self.passive_type == "CONFUSE":
-                    self.passive_num = flat_for_passive
+                    self.passive_num = flat_for_passive * 2
                 if self.passive_type == "BLINK":
                     self.passive_num = stam_for_passive
                 if self.passive_type == "SOULCHAIN":
@@ -1021,10 +1021,6 @@ class Card:
 
         return {"MESSAGE" : f"❄️ **{self.name}** has been frozen for a turn...", "TURN": battle_config.is_turn}
 
-
-    def yuyu_hakusho_decrease_defense(self):
-        if self.used_resolve and self.universe == "YuYu Hakusho":
-            self.defense = 100
 
 
     def activate_demon_slayer_trait(self, battle_config, opponent_card):
@@ -2388,19 +2384,27 @@ class Card:
                     (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
                 resolve_defense_value = round(
                     (.30 * self.defense) * (self.resolve_value / (.50 * self.defense)))
+                
+                boost = 0
+                if self.health >= 0.8 * self.base_max_health:
+                    boost = 0.5
+                elif self.health <= 0.4 * self.base_max_health:
+                    boost = 1
+                else:
+                    boost = .75
 
                 self.stamina = 160
                 self.health = self.health + resolve_health
                 self.damage_healed = self.damage_healed + resolve_health
                 self.attack = round(self.attack * 2)
-                self.yuyu_1ap_buff = self.move1ap
-                self.yuyu_2ap_buff = self.move2ap
-                self.yuyu_3ap_buff = self.move3ap
+                self.yuyu_1ap_buff = round(self.move1ap * boost)
+                self.yuyu_2ap_buff = round(self.move2ap * boost)
+                self.yuyu_3ap_buff = round(self.move3ap * boost)
                 self.defense = 100
                 self.used_resolve = True
                 self.usedsummon = False
                 
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Spirit Resolved!")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Spirit Resolved! Ap has been increased by **{round(boost)}** 🔺")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2698,7 +2702,7 @@ class Card:
             if self._swordsman_active:
                 battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**: gains 3 Critical Strikes!")
             
-                
+
     def usesummon(self, battle_config, opponent_card):
         if (self.used_resolve or self._summoner_active) and not self.usedsummon:
             damage_calculation_response = self.damage_cal(6, battle_config, opponent_card)
@@ -3616,8 +3620,10 @@ class Card:
 
     def activate_card_passive(self, player2_card, battle_config):
         if self.passive_type:
-            value_for_passive = self.tier * .5
-            flat_value_for_passive = 10 * (self.tier * .5)
+            value_for_passive = self.tier * .9
+            flat_value_for_passive = 10 * self.tier
+            if self.passive_type in ["FEAR", "GROWTH"]:
+                flat_value_for_passive = 8 * self.tier
             stam_for_passive = 5 * (self.tier * .5)
             if self.passive_type == "HLT":
                 if self.max_health > self.health:

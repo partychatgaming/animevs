@@ -329,7 +329,7 @@ class Profile(commands.Cog):
                     level_up_message = lvl_req - c.card_exp
                     if lvl_req - c.card_exp <= 0:
                         level_up_message = "🎆 Battle To Level Up!"
-                    if c.card_lvl >= 1000:
+                    if c.card_lvl >= 2999:
                         level_up_message = "👑 | Max Level!!"
 
                     if player.performance:
@@ -2278,9 +2278,9 @@ class Profile(commands.Cog):
             
 
             
-            hundred_levels = 650000
-            thirty_levels = 220000
-            ten_levels = 80000
+            hundred_levels = 5000000
+            thirty_levels = 1600000
+            ten_levels = 500000
             
             licon = "🔰"
             if lvl>= 200:
@@ -2310,18 +2310,26 @@ class Profile(commands.Cog):
                 hundred_levels = 300000000
                 thirty_levels = 200000000
                 ten_levels = 100000000
-            elif lvl >= 700 and lvl <= 800:
+            elif lvl >= 700 and lvl <= 799:
                 hundred_levels = 750000000
                 thirty_levels = 500000000
                 ten_levels = 250000000
-            elif lvl >= 800 and lvl <= 900:
+            elif lvl >= 800 and lvl <= 899:
                 hundred_levels = 1000000000
                 thirty_levels = 800000000
                 ten_levels = 500000000
-            elif lvl >= 900 and lvl <= 1000:
+            elif lvl >= 900 and lvl <= 999:
                 hundred_levels = 5000000000
                 thirty_levels = 2500000000
                 ten_levels = 1000000000
+            elif lvl >= 1000 and lvl <= 1999:
+                hundred_levels = 20000000000
+                thirty_levels = 5000000000
+                ten_levels = 5000000000
+            elif lvl >= 2000 and lvl <= 2999:
+                hundred_levels = 80000000000
+                thirty_levels = 13000000000
+                ten_levels = 9000000000
             sell_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.green,
@@ -2437,7 +2445,7 @@ class Profile(commands.Cog):
                             card_info = level
 
                     lvl = card_info['LVL']
-                    max_lvl = 700
+                    max_lvl = 2999
                     if lvl >= max_lvl:
                         await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
                         await msg.edit(components=[])
@@ -4709,7 +4717,6 @@ class Profile(commands.Cog):
                     🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
 
                     🩸 **{passive_name}:** {passive_type.title()} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
-                    ♾️ {traitmessage}
                     """), colour=0x7289da)
                     embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
                     embedVar.set_thumbnail(url=show_img)

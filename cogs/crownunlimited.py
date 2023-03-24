@@ -4690,8 +4690,6 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     player_card.activate_my_hero_academia_trait()
     opponent_card.activate_my_hero_academia_trait()
 
-
-    player_card.yuyu_hakusho_decrease_defense()
     player_card.activate_chainsawman_trait(battle_config)
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
@@ -4718,7 +4716,6 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         companion.activate_chainsawman_trait(battle_config)
         companion.activate_demon_slayer_trait(battle_config, opponent_card)
         companion.activate_observation_haki_trait(battle_config, opponent_card)
-        companion.activate_yuyu_hakusho_trait()
         if companion.used_block == True:
             companion.defense = int(companion.defense / 2)
             companion.used_block = False
