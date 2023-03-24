@@ -737,11 +737,11 @@ class Battle:
     def set_corruption_config(self):
         if self.selected_universe_full_data['CORRUPTED']:
             self.is_corrupted = True
-            self.ap_buff = 150
-            self.health_buff = 500
-            if self.difficulty == "HARD":
-                self.ap_buff = 200
-                self.health_buff = 1500
+            # self.ap_buff = 150
+            # self.health_buff = 500
+            # if self.difficulty == "HARD":
+            #     self.ap_buff = 200
+            #     self.health_buff = 1500
 
     # def get_tutorial_message(self, card, option):
     #     traits = ut.traits

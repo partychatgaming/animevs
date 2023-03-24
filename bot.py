@@ -1981,6 +1981,7 @@ async def called_once_a_day():
    Earn 💎300,000 when playing on Hard difficulty!
 
    <:Raid_Emblem:1088707240917221399> *RAIDS ARE NOW AVAILABLE DURING CORRUPTION HOUR!*
+   *For Scenario Raids, use /solo*
    """))
 
    await message_channel.send(embed=embedVar)
