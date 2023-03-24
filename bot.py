@@ -1969,10 +1969,12 @@ async def called_once_a_day():
       update_query = {'$set': {'CORRUPTED': False, 'CORRUPTION_LEVEL': 0}}
       db.updateManyUniverses(update_query)
       message = "Corruption Hour has ended..."
+      raid_message = f"<:Raid_Emblem:1088707240917221399> *Raid are no longer available*"
    else:
       update_query = {'$set': {'CORRUPTED': True, 'CORRUPTION_LEVEL': 1}}
       db.updateManyUniverses(update_query)
       message = "Corruption Hour has started!"
+      raid_message = f"<:Raid_Emblem:1088707240917221399> *RAIDS ARE NOW AVAILABLE DURING CORRUPTION HOUR!*"
    
    embedVar = discord.Embed(title= f"👾 {message}", description=textwrap.dedent(f"""
    👾 Corruption Hour
@@ -1980,8 +1982,7 @@ async def called_once_a_day():
    During Corruption Hour defeat cards in solo, duo, or coop battle to earn 💎150,000 Craftable Gems!
    Earn 💎300,000 when playing on Hard difficulty!
 
-   <:Raid_Emblem:1088707240917221399> *RAIDS ARE NOW AVAILABLE DURING CORRUPTION HOUR!*
-   *For Scenario Raids, use /solo*
+   {raid_message}
    """))
 
    await message_channel.send(embed=embedVar)
