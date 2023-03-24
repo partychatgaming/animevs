@@ -329,7 +329,7 @@ class Profile(commands.Cog):
                     level_up_message = lvl_req - c.card_exp
                     if lvl_req - c.card_exp <= 0:
                         level_up_message = "🎆 Battle To Level Up!"
-                    if c.card_lvl >= 2999:
+                    if c.card_lvl >= 1000:
                         level_up_message = "👑 | Max Level!!"
 
                     if player.performance:
@@ -2445,7 +2445,7 @@ class Profile(commands.Cog):
                             card_info = level
 
                     lvl = card_info['LVL']
-                    max_lvl = 2999
+                    max_lvl = 1000
                     if lvl >= max_lvl:
                         await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
                         await msg.edit(components=[])

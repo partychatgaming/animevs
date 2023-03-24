@@ -1951,7 +1951,7 @@ async def on_command_error(ctx, error):
       await ctx.send(f"Anime VS+ has been Rate Limited")
 
 
-@tasks.loop(hours=1)
+@tasks.loop(hours=3)
 async def called_once_a_day():
    guild = bot.get_guild(guild_id)
    channel = guild.get_channel(966810770987966484)

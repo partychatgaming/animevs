@@ -4395,7 +4395,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     
                                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                                         if battle_config.scenario_has_drops:
-                                            response = await scenario_drop(self, ctx, battle_config.scenario_data, battle_config.difficulty)
+                                            response = await scenario_drop(self, ctx, player1, battle_config.scenario_data, battle_config.difficulty)
                                             bless_amount = 50000
                                         else:
                                             response = "No drops this time!"
@@ -5019,7 +5019,7 @@ async def movecrest(universe, guild):
         print("Association not found: Crest")
 
 
-async def scenario_drop(self, ctx, scenario, difficulty):
+async def scenario_drop(self, ctx, player, scenario, difficulty):
     try:
         vault_query = {'DID': str(ctx.author.id)}
         vault = db.queryVault(vault_query)
@@ -5061,6 +5061,9 @@ async def scenario_drop(self, ctx, scenario, difficulty):
             rewarded = rewards[selection]
         else:
             rewarded = rewards[0]
+
+        if scenario['TITLE'] in player.scenario_history:
+            scenario_gold = round(scenario_gold / 2)
         
         await crown_utilities.bless(scenario_gold, ctx.author.id)
         # Add Card Check
