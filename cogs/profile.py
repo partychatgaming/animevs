@@ -2650,7 +2650,11 @@ class Profile(commands.Cog):
                     pet_level = pet['LVL']
                     pet_exp = pet['EXP']
                     
-                    petmove_ap = list(pet.values())[3] 
+                    # petmove_ap = list(pet.values())[3] 
+                    petmove_ap = 0
+                    for key in pet:
+                        if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+                            petmove_ap = pet[key]
                     bond_req = ((petmove_ap * 5) * (pet_bond + 1))
                     lvl_req = int(pet_level) * 10
                     if lvl_req <= 0:

@@ -591,8 +591,13 @@ class Player:
                 for summon in self.summons:
                     if summon['NAME'] == self.equippedsummon:
                         activesummon = summon
-                self._equippedsummon_ability_name = list(activesummon.keys())[3]
-                self._equippedsummon_power = list(activesummon.values())[3]
+                self._equippedsummon_ability_name = ""
+                self._equippedsummon_power = 0
+                for key in activesummon:
+                    if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+                        self._equippedsummon_power = activesummon[key]
+                        self._equippedsummon_ability_name = key
+
                 self._equippedsummon_bond = activesummon['BOND']
                 self._equippedsummon_bondexp = activesummon['BONDEXP']
                 self._equippedsummon_lvl = activesummon['LVL']

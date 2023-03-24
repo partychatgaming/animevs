@@ -431,8 +431,12 @@ async def summonlevel(player, player_card):
             bxp_inc = 5
             summon_object = familysummon
             summon_name = summon_object['NAME']
-            summon_ability_power = list(summon_object.values())[3]
-            summon_ability = list(summon_object.keys())[3]
+            summon_ability = ""
+            summon_ability_power = 0
+            for key in summon_object:
+                if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+                    summon_ability_power = summon_object[key]
+                    summon_ability = key
             summon_type = summon_object['TYPE']
             summon_lvl = summon_object['LVL']
             summon_exp = summon_object['EXP']
