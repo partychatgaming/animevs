@@ -3428,7 +3428,7 @@ class Card:
             if self._shield_value <= 0:
                 self._shield_value = 0
             self.defense = self.defense + (dmg['DMG'] * .30)
-            self._shield_value = self._shield_value + round(dmg['DMG'] * .50)
+            self._shield_value = self._shield_value + round(dmg['DMG'] * .30)
             self.add_solo_leveling_temp_values('SHIELD', opponent_card)
             if self._shield_value <= 0:
                 self._shield_value = 0
