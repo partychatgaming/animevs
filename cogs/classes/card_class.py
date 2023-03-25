@@ -2387,11 +2387,11 @@ class Card:
                 
                 boost = 0
                 if self.health >= 0.8 * self.base_max_health:
-                    boost = 0.5
+                    boost = 0.15
                 elif self.health <= 0.4 * self.base_max_health:
                     boost = 1
                 else:
-                    boost = .75
+                    boost = .30
 
                 self.stamina = 160
                 self.health = self.health + resolve_health
