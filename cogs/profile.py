@@ -352,7 +352,7 @@ class Profile(commands.Cog):
                         {c.move3_emoji} | **{c.move3}:** {c.move3ap}
                         🦠 | **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
 
-                        🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num} {passive_enhancer_suffix_mapping[c.passive_type]}         
+                        🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num} {passive_enhancer_suffix_mapping[c.passive_type]}
                         ♾️ | {c.set_trait_message()}
                         """),colour=000000)
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
