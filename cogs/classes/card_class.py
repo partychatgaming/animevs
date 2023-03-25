@@ -1988,7 +1988,8 @@ class Card:
                     if self._assassin_value == self._assassin_attack:
                         self._assassin_active = False
                 else:
-                    self.stamina = self.stamina - move_stamina
+                    if not self.used_block:
+                        self.stamina = self.stamina - move_stamina
                 
                 if _opponent_card.damage_check_activated:
                     true_dmg = 5
