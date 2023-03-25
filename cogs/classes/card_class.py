@@ -2916,6 +2916,7 @@ class Card:
 
     def use_block(self, battle_config, opponent_card, co_op_card=None):
         if self.stamina >= 20:
+            self.used_block = True
             self.activate_death_note_block_ability(battle_config)
             
             self.activate_aot_block_ability(battle_config)
@@ -2935,7 +2936,7 @@ class Card:
                 block_message = f"**{self.name}** Blocked 🛡️"
                 self.used_block = True
             self.stamina = self.stamina - 20
-            self.defense = round(self.defense * 2)
+            self.defense = round(self.defense * 3)
 
             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {block_message}")
             battle_config.turn_total = battle_config.turn_total + 1
