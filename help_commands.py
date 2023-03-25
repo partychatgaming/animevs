@@ -85,7 +85,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 💧 Water - Increases all water move AP by 100 Flat.
 
-⛰️ Earth - Cannot be Parried. Increases Def by 30% AP. Grants Shield - Increase shield by 50% DMG
+⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 30% AP.
 
 🌩️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.
 
