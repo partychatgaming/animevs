@@ -1058,7 +1058,6 @@ class Lookup(commands.Cog):
                 - **Founder**:  All operations.
                 - **Sworn**:  All operations
                 - **Shield**: Can set Raid Bounty, Swap Hideouts, and Knight other Blades
-                - **Kids**:  Can equip family summon.
                 """), colour=0x7289da)
                 association_explanations.set_footer(text=f"/help for more information on Associations")
                 
