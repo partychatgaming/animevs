@@ -315,12 +315,12 @@ async def classes(ctx):
    *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
    
    {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with up to 6 Parries
-   *Common - 2 Parry, Rare - 4 Parries, Legendary - 6 Parries*
+   *Common - 3 Parry, Rare - 5 Parries, Legendary - 6 Parries*
    
-   {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with up to 3 barriers
-   *Common - 1 Barrier, Rare - 2 Barriers, Legendary - 3 Barriers*
+   {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with up to 3 barriers, can attack through barrier
+   *Common - 2 Barrier, Rare - 3 Barriers, Legendary - 4 Barriers*
    
-   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 500 Shield
+   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 500 Shield, gain same shield on resolve
    *Common - 500/1000/1500 Shield, Rare - 2000/2500, Legendary - 3000/3500*
    
    {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain up to 3 Critical Strikes
@@ -330,10 +330,10 @@ async def classes(ctx):
    *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
 
    {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by up to 50%
-   *Common - 30%, Rare - 40%, Legendary - 50%*
+   *Common - 35%, Rare - 45%, Legendary - 50%*
    
    {crown_utilities.class_emojis['HEALER']} *Healer* // Stores up to 40% of damage taken and heals for the total amount each Focus 
-   *Common - 20%, Rare - 30%, Legendary - 40%*
+   *Common - 25%, Rare - 35%, Legendary - 45%*
    """), colour=0x7289da)
    embedVar3.set_thumbnail(url=avatar)
    

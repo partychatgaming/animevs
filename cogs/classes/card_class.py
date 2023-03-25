@@ -50,6 +50,15 @@ class Card:
             self.base_health = health
             self.base_max_health = max_health
             self.card_class = card_class
+            self.is_fighter = False
+            self.is_mage = False
+            self.is_ranger = False
+            self.is_tank = False
+            self.is_healer = False
+            self.is_assassin = False
+            self.is_swordsman = False
+            self.is_summoner = False
+            self.is_monstrosity = False
 
             # Tactics & Classes
             self._swordsman_active = False
@@ -88,6 +97,7 @@ class Card:
             self.petrified_fear = False
             self.regeneration = False
             self.bloodlust = False
+
 
             self.almighty_will_turn = []
             self.damage_check_counter = 0
@@ -428,55 +438,64 @@ class Card:
     def set_class_buffs(self):
         value = 0
         p_value = 0
-        mage_buff = .30
-        heal_buff = .20
+        mage_buff = .35
+        heal_buff = .25
         if self.tier in [1, 2, 3]:
-            value = 1
-            p_value = 2
-        elif self.tier in [4, 5]:
             value = 2
-            p_value = 4
-            mage_buff = .40
-            heal_buff = .30
-        elif self.tier in [6, 7]:
+            p_value = 3
+        elif self.tier in [4, 5]:
             value = 3
+            p_value = 5
+            mage_buff = .45
+            heal_buff = .35
+        elif self.tier in [6, 7]:
+            value = 4
             p_value = 6
             mage_buff = .50
-            heal_buff = .40
+            heal_buff = .45
 
         if self.card_class == "FIGHTER":
+            self.is_fighter = True
             self._parry_active = True
             self._parry_value = self._parry_value + p_value 
         
         if self.card_class == "MAGE":
+            self.is_mage = True
             self._magic_active = True
             self._magic_value = mage_buff
         
         if self.card_class == "RANGER":
+            self.is_ranger = True
             self._barrier_active = True
             self._barrier_value = self._barrier_value + value
         
         if self.card_class == "TANK":
+            self.is_tank = True
             self._shield_active = True
             self._shield_value = self._shield_value + (self.tier * 500)
         
         if self.card_class == "HEALER":
+            self.is_healer = True
             self._heal_active = True
             self._heal_value = 0
             self._heal_buff = heal_buff
         
         if self.card_class == "ASSASSIN":
+            self.is_assassin = True
             self._assassin_active = True
             self._assassin_attack = value
             
         if self.card_class == "SWORDSMAN":
+            self.is_swordsman = True
             self._swordsman_active = True
             self._swordsman_value = value
             
         if self.card_class == "SUMMONER":
+            self.is_summoner = True
             self._summoner_active = True
             
         if self.card_class == "MONSTROSITY":
+            self.is_monstrosity = True
             self._monstrosity_active = True
             self._monstrosity_value = value
 
@@ -1940,7 +1959,7 @@ class Card:
                     message = f"{move_emoji} {move} used! Dealt {true_dmg} dmg to {_opponent_card.name}!"
 
                 if self._magic_active and move_element not in ['PHYSICAL', 'RANGED', 'RECOIL']:
-                    true_dmg = round(true_dmg + (true_dmg * .3))
+                    true_dmg = round(true_dmg + (true_dmg * .40))
 
                 if is_physical_element:
                     if self.stamina > 80:
@@ -2165,10 +2184,16 @@ class Card:
                     health_calculation = _title.passive_value
                 if _title.passive_type == "BLAST":
                     _opponent_card.health = _opponent_card.health - (_title.passive_value * battle_config.turn_total)
+                if _title.passive_type == "SOULCHAIN":
+                    self.stamina = self.stamina - _title.passive_value
 
             if _opponent_title.passive_type:
                 if _opponent_title.passive_type == "GAMBLE":
                     health_calculation = _opponent_title.passive_value
+                if _opponent_title.passive_type == "BLAST":
+                    self.health = self.health - (_opponent_title.passive_value * battle_config.turn_total)
+                if _opponent_title.passive_type == "SOULCHAIN":
+                    self.stamina = self.stamina - _opponent_title.passive_value
             
             new_health_value = 0
             heal_message = ""
@@ -2341,6 +2366,9 @@ class Card:
         if self.attack <= 0:
             self.attack = 25
         if not self.used_resolve and self.used_focus:
+            if self.is_tank:
+                self._shield_value = self._shield_value + (self.tier * 500)
+
             if self.overwhelming_power:
                 self._parry_active = True
                 self._parry_value = round(random.randint(10, 20))
@@ -3023,10 +3051,10 @@ class Card:
                     self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + dmg['DMG'])
                     self.attack = round(self.attack - dmg['DMG'])
                 elif self.move4enh == 'BZRK':
-                    self.max_health = round(self.max_health - dmg['DMG'])
+                    self.health = round(self.health - dmg['DMG'])
                     self.attack = round(self.attack + dmg['DMG'])
                 elif self.move4enh == 'CRYSTAL':
-                    self.max_health = round(self.max_health - dmg['DMG'])
+                    self.health = round(self.health - dmg['DMG'])
                     self.defense = round(self.defense + dmg['DMG'])
                 elif self.move4enh == 'GROWTH':
                     self.max_health = round(self.max_health - (self.max_health * .10))
@@ -3208,7 +3236,7 @@ class Card:
                                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroyed **{opponent_card.name}**'s 💠 Barrier! No Barriers remain!")
                                 self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
-                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
+                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"] and not self.is_ranger:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
