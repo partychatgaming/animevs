@@ -2424,7 +2424,6 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 async def battle_commands(self, ctx, battle_config, _player, _custom_explore_card, player2=None, player3=None):
     private_channel = ctx.channel
 
-
     try:
         starttime = time.asctime()
         h_gametime = starttime[11:13]
@@ -2705,7 +2704,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                             if player1_card.stamina < 10:
                                 player1_card.focusing(player1_title, player2_title, player2_card, battle_config)
-                                
+                                await asyncio.sleep(1)
                                 if battle_config.is_tutorial_game_mode and not battle_config.tutorial_focus:
                                     await private_channel.send(embed=battle_config._tutorial_message)
                                     battle_config.tutorial_focus = True
@@ -2713,6 +2712,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                 if battle_config.is_boss_game_mode:
                                     await private_channel.send(embed=battle_config._boss_embed_message)
+                                    await asyncio.sleep(2)
                                 
                             else:
                                 if battle_config.is_auto_battle_game_mode:                                    

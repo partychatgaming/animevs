@@ -1026,8 +1026,9 @@ class Card:
                 opponent_card.burn_dmg = 0
 
 
-        if opponent_card.burn_dmg >= 30 and self.health > 0:
-            opponent_card.burn_dmg = round(opponent_card.burn_dmg / 2)
+        if opponent_card.burn_dmg <= 14 and self.health > 0:
+            opponent_card.burn_dmg = 0
+            burn_message = None
         
         return burn_message
 
@@ -1526,7 +1527,7 @@ class Card:
 
                 # Health & Stamina
                 rift_universes = ['Crown Rift Awakening']
-                if self.universe in rift_universes:
+                if self.universe in rift_universes or self.is_skin:
                     draw.text((730, 417), health_bar, (0, 0, 0), font=health_and_stamina_font, align="left")
                     draw.text((730, 457), f"{round(self.stamina)}", (0, 0, 0), font=health_and_stamina_font, align="left")
                 else:
@@ -1717,7 +1718,6 @@ class Card:
             ap = self.move4ap
             move_stamina = self.move4_stamina
             move = self.move4
-
 
         if (self.stamina - move_stamina) < 0:
             print("Not enough stamina to use this move!")   
@@ -1955,6 +1955,7 @@ class Card:
                     else:
                         true_dmg = round(true_dmg * 2.5)
                         message = f"{move_emoji} {move} used! Critically Hits {_opponent_card.name} for {true_dmg}!! 💥"
+                
                 else:
                     message = f"{move_emoji} {move} used! Dealt {true_dmg} dmg to {_opponent_card.name}!"
 
@@ -2001,7 +2002,6 @@ class Card:
                             message = f"{_opponent_card.name} absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
                         does_absorb = True
                         
-
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
                     if self._assassin_value == self._assassin_attack:
@@ -3198,7 +3198,7 @@ class Card:
                     if not opponent_card.used_resolve:
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card.naruto_heal_buff}** total stored.")
                 
-                elif opponent_card._shield_active and dmg['ELEMENT'] not in  ["DARK"]:
+                elif opponent_card._shield_active and dmg['ELEMENT'] not in ["DARK"]:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
@@ -3209,9 +3209,9 @@ class Card:
                     if dmg['ELEMENT'] == "POISON": #Poison Update
                         if self.poison_dmg <= (150 * self.tier):
                             self.poison_dmg = self.poison_dmg + 30
+                    if dmg['ELEMENT'] == "FIRE":
+                        self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
                     if opponent_card._shield_value > 0:
-                        if dmg['ELEMENT'] == "FIRE":
-                            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
                         opponent_card._shield_value = opponent_card._shield_value - dmg['DMG']
                         # opponent_card.health = opponent_card.health 
                         if opponent_card._shield_value <= 0:
