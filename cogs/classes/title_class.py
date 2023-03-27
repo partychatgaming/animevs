@@ -317,7 +317,7 @@ class Title:
                 player2_card.attack = player2_card.defense
                 player2_card.defense = tempattack
             if self.passive_type == "BLINK":
-                self.stamina = self.stamina - self.passive_value
+                player1_card.stamina = player1_card.stamina - player1_card.passive_value
                 if player2_card.stamina >=10:
                     player2_card.stamina = player2_card.stamina + self.passive_value
             if self.passive_type == "CREATION":
