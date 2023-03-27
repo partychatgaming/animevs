@@ -857,6 +857,7 @@ class CrownUnlimited(commands.Cog):
 
     @cog_ext.cog_slash(description="View all available Universes and their cards, summons, destinies, and accessories", guild_ids=main.guild_ids)
     async def universes(self, ctx: SlashContext):
+        await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -2682,6 +2683,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             tactics_death_blow_check(player2_card, player1_card, battle_config) 
                             tactics_intimidation_check(player2_card, player1_card, battle_config)
                         if battle_config.is_turn == 0:
+                            await asyncio.sleep(1)
                             if player1_card.health <= 0:
                                 continue
                             if player2_card.health <= 0:
@@ -3087,12 +3089,13 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                             pre_turn_one = beginning_of_turn_stat_trait_affects(player2_card, player2_title, player1_card, battle_config)
                         
                         if battle_config.is_turn == 1:
+                            await asyncio.sleep(1)
                             tactics_death_blow_check(player2_card, player1_card, battle_config)              
                             if player1_card.health <= 0:
                                 continue
                             if player2_card.health <= 0:
                                 continue
-                            if(player2_card.damage_check_activated):
+                            if player2_card.damage_check_activated:
                                 battle_config.is_turn = 0
                                 continue
 
@@ -3310,7 +3313,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             battle_msg = await private_channel.send(embed=tembedVar)
                                         else:
                                             battle_msg = await private_channel.send(embed=tembedVar,file=player2_card.showcard(battle_config.mode, player2_arm, player2_title, battle_config.turn_total, player1_card.defense))
-                                        await asyncio.sleep(3)
+                                        await asyncio.sleep(2)
                                         
                                         selected_move = battle_config.ai_battle_command(player2_card, player1_card)
 
@@ -4723,7 +4726,6 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
             companion.defense = int(companion.defense / 2)
             companion.used_defend = False
         
-
     if player_card.used_block == True:
         player_card.defense = int(player_card.defense / 2)
         player_card.used_block = False

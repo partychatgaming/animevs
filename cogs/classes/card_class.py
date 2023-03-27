@@ -3653,7 +3653,9 @@ class Card:
             value_for_passive = self.tier * .9
             flat_value_for_passive = 10 * self.tier
             if self.passive_type in ["FEAR", "GROWTH"]:
-                flat_value_for_passive = 8 * self.tier
+                flat_value_for_passive = 7 * self.tier
+            if self.passive_type in ['ATK', 'DEF']:
+                value_for_passive = value_for_passive * 2
             stam_for_passive = 5 * (self.tier * .5)
             if self.passive_type == "HLT":
                 if self.max_health > self.health:
