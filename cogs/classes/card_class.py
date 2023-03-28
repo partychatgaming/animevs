@@ -3833,20 +3833,20 @@ class Card:
     def activate_chainsawman_trait(self, battle_config):
         if self.universe == "Chainsawman":
             if self.health <= (self.max_health * .25):
-                if self._chainsawman_activated == True:
+                if self._chainsawman_activated == False:
                     if self._atk_chainsawman_buff == False:
                         self._atk_chainsawman_buff = True
-                        self._chainsawman_activated = False
+                        self._chainsawman_activated = True
                         self.defense = self.defense * 2
                         self.attack = self.attack * 2
                         self.max_health = self.max_health * 2
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
 
             elif self.health <= (self.max_health * .50):
-                if self._chainsawman_activated == True:
+                if self._chainsawman_activated == False:
                     if self._atk_chainsawman_buff == False:
                         self._atk_chainsawman_buff = True
-                        self._chainsawman_activated = False
+                        self._chainsawman_activated = True
                         self.defense = self.defense * 2
                         self.attack = self.attack * 2
                         self.max_health = self.max_health * 2
