@@ -2184,7 +2184,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 
         if not available_universes:
             if mode in crown_utilities.DUNGEON_M:
-                if p.level < 41:
+                if p.level < 41 and p.prestige <= 40:
                     abyss_lock_embed = discord.Embed(title= f":fire: Dungeon Locked.", description=textwrap.dedent(f"""
                     __:fire: How to unlock Dungeons?__
                     
@@ -2329,10 +2329,19 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             if uni != "":
                 l.append(uni)
         available_dungeons_list = "\n".join(l)
-        if p.boss_fought or p.level < 60:
+        if p.level < 60 and p.presige <= 0:
+            boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Locked!", description=textwrap.dedent(f"""
+            \n__How to unlock The Boss Arena?__
+            \n:new_moon: | Conquer Abyss Level 60 to unlock Bosses!
+            """))
+            boss_key_embed.set_thumbnail(url=ctx.author.avatar_url)
+            # embedVar.set_footer(text="Use /tutorial")
+            await ctx.send(embed=boss_key_embed)
+            self.stop = True
+            return  
+        if p.boss_fought
             boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
             \n__How to get Boss Arena Keys?__
-            \n:new_moon: | Conquer Abyss Level 60 to unlock Bosses!
             \nConquer any Universe Dungeon to gain a Boss Arena Key
             \n☀️ | You also earn 1 Boss Key per /daily !
             \n__🌍 Available Universe Dungeons__
