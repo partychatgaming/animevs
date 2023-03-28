@@ -2409,7 +2409,7 @@ class Card:
                 
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina and Power Level 🌀")
 
-            elif _opponent_card.universe == "Souls":
+            elif _opponent_card.universe == "Souls" and not _opponent_card.used_resolve:
                 _opponent_card.attack = round(_opponent_card.attack + (100 + battle_config.turn_total))
 
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
@@ -3231,7 +3231,7 @@ class Card:
                     battle_config.turn_total = battle_config.turn_total + 1
                     battle_config.next_turn()
             elif dmg['DMG'] == 0 and not dmg['REPEL'] and not dmg['ABSORB']:
-                if self._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC"]:
+                if self._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC"] and not self.is_ranger:
                     if not dmg['SUMMON_USED']:
                         self._barrier_active = False
                         self._barrier_value = 0
@@ -3253,7 +3253,7 @@ class Card:
                     opponent_card.naruto_heal_buff = opponent_card.naruto_heal_buff + stored_damage
                     opponent_card.health = opponent_card.health 
 
-                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
                             self._barrier_value = 0
@@ -3265,7 +3265,7 @@ class Card:
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card.naruto_heal_buff}** total stored.")
                 
                 elif opponent_card._shield_active and dmg['ELEMENT'] not in ["DARK"]:
-                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
                             self._barrier_value = 0
@@ -3302,8 +3302,8 @@ class Card:
                                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroyed **{opponent_card.name}**'s 💠 Barrier! No Barriers remain!")
                                 self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
-                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"] and not self.is_ranger:
-                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
+                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
                             self._barrier_value = 0
@@ -3328,7 +3328,7 @@ class Card:
                         self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
                 elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:                    
-                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
                             self._barrier_value = 0
@@ -3380,7 +3380,7 @@ class Card:
                         else:
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
                     
-                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
                             self._barrier_value = 0
@@ -3393,7 +3393,7 @@ class Card:
                 if self.health <= 0:
                     if self._final_stand==True:
                         if self.universe == "Dragon Ball Z":
-                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                                 if not dmg['SUMMON_USED']:
                                     self._barrier_active = False
                                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
@@ -3413,7 +3413,7 @@ class Card:
                 if opponent_card.health <= 0:
                     if opponent_card._final_stand==True:
                         if opponent_card.universe == "Dragon Ball Z":
-                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
+                            if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                                 if not dmg['SUMMON_USED']:
                                     self._barrier_active = False
                                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")

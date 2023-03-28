@@ -692,7 +692,7 @@ class Battle:
             
     # def set_hall(self, hall_info):
         
-
+    
 
     def set_explore_config(self, universe_data, card_data):
         try:
