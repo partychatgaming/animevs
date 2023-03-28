@@ -2329,7 +2329,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             if uni != "":
                 l.append(uni)
         available_dungeons_list = "\n".join(l)
-        if p.level < 60 and p.presige <= 0:
+        if p.level < 60 and p.prestige <= 0:
             boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Locked!", description=textwrap.dedent(f"""
             \n__How to unlock The Boss Arena?__
             \n:new_moon: | Conquer Abyss Level 60 to unlock Bosses!
