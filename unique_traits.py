@@ -5,7 +5,7 @@ traits = [{
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot, Pentakill',
-    'TRAIT': 'Turret Shot: On Focus you deal (60 + Turn Count) DMG. Pentakill: On Resolve, you deal (150 x Total Focus Count) Damage.'
+    'TRAIT': 'Turret Shot: On Focus you deal up to 15% Damage + Turn Count based on Opponent Health. Pentakill: On Resolve, you deal (200 x Total Focus Count) Damage.'
 },{
     'NAME': 'Pokemon',
     'EFFECT': 'Regions, Evolutions',
@@ -49,7 +49,7 @@ traits = [{
 },{
     'NAME': '7ds',
     'EFFECT': 'Increase Power, Power Of Friendship',
-    'TRAIT': 'Increase Power : On Opp Focus gain 60 Stamina. Power Of Friendship : On Opp Focus gain Summon Rest.'
+    'TRAIT': 'Increase Power : On Opp Focus gain 60 Stamina. Power Of Friendship : On Opp Focus, Gain Focus Stacks and Summon Rest.'
 },{
     'NAME': 'One Punch Man',
     'EFFECT': 'Hero Reinforcement, Hero Rankings',
@@ -57,19 +57,19 @@ traits = [{
 },{
     'NAME': 'Solo Leveling',
     'EFFECT': 'Rulers Authority, Arise!',
-    'TRAIT': 'Rulers Authority : On Focus, opponent loses (30 + turn) Defense. Arise! : When Opponent Arm Breaks it revives as your Arm.'
+    'TRAIT': 'Rulers Authority : On Focus, opponent loses (50 + turn) Defense Your Summon gain Ap eqal to value. Arise! : When Opponent Arm Breaks it revives as your Arm.'
 },{
     'NAME': 'Souls',
     'EFFECT': 'Combo Recognition, Second Phase!',
-    'TRAIT': 'Combo Recognition : On opponent Focus, gain (60 + turn) ATK. Second Phase! : On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE.'
+    'TRAIT': 'Combo Recognition : On opponent Focus, gain (100 + turn) ATK. Second Phase! : On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE, Double Strike with Basic Attack'
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death, Shinigami Eyes',
-    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death 150 Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to Increase Turn by (3 + Card Tier).'
+    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death (130 + (10 * Tier)) Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to Increase Turn by (3 + Card Tier).'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',
-    'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Spirit :  On Focus, heal for opponent Stamina amount + turn count.'
+    'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Spirit :  On Focus, heal for (5 * Opponent Stamina) + turn count.'
 },{
     'NAME': 'Persona',
     'EFFECT': 'Summon Persona, Summoners Battle',

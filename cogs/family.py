@@ -44,12 +44,12 @@ class Family(commands.Cog):
         try:
             head_profile = db.queryUser({'DID': str(ctx.author.id)})
             partner_profile = db.queryUser({'DID': str(player.id)})
-            if head_profile['LEVEL'] < 31:
-                await ctx.send(f"🔓 {ctx.author.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
-                return
-            if partner_profile['LEVEL'] < 31:
-                await ctx.send(f"🔓 {player.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
-                return
+            # if head_profile['LEVEL'] < 31:
+            #     await ctx.send(f"🔓 {ctx.author.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
+            #     return
+            # if partner_profile['LEVEL'] < 31:
+            #     await ctx.send(f"🔓 {player.mention} Unlock Family by completing Floor 30 of the 🌑 Abyss! Use /solo to enter the abyss.")
+            #     return
 
             if head_profile['DISNAME'] == partner_profile['DISNAME']:
                 await ctx.send("You cannot **Marry** yourself", delete_after=8)

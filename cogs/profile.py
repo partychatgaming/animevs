@@ -6742,6 +6742,7 @@ async def menucards(self, ctx):
     d = db.queryUser(query)#Storage Update
     storage_type = d['STORAGE_TYPE']
     vault = db.queryVault({'DID': d['DID']})
+    player = Player(d['AUTOSAVE'], d['DISNAME'], d['DID'], d['AVATAR'], d['GUILD'], d['TEAM'], d['FAMILY'], d['TITLE'], d['CARD'], d['ARM'], d['PET'], d['TALISMAN'], d['CROWN_TALES'], d['DUNGEONS'], d['BOSS_WINS'], d['RIFT'], d['REBIRTH'], d['LEVEL'], d['EXPLORE'], d['SAVE_SPOT'], d['PERFORMANCE'], d['TRADING'], d['BOSS_FOUGHT'], d['DIFFICULTY'], d['STORAGE_TYPE'], d['USED_CODES'], d['BATTLE_HISTORY'], d['PVP_WINS'], d['PVP_LOSS'], d['RETRIES'], d['PRESTIGE'], d['PATRON'], d['FAMILY_PET'], d['EXPLORE_LOCATION'], d['SCENARIO_HISTORY'])
     try: 
         if vault:
             name = d['DISNAME'].split("#",1)[0]
@@ -6769,6 +6770,22 @@ async def menucards(self, ctx):
             for card in cards_list:
                 index = cards_list.index(card)
                 resp = db.queryCard({"NAME": str(card)})
+                c = Card(resp['NAME'], resp['PATH'], resp['PRICE'], resp['EXCLUSIVE'], resp['AVAILABLE'], resp['IS_SKIN'], resp['SKIN_FOR'], resp['HLT'], resp['HLT'], resp['STAM'], resp['STAM'], resp['MOVESET'], resp['ATK'], resp['DEF'], resp['TYPE'], resp['PASS'][0], resp['SPD'], resp['UNIVERSE'], resp['HAS_COLLECTION'], resp['TIER'], resp['COLLECTION'], resp['WEAKNESS'], resp['RESISTANT'], resp['REPEL'], resp['ABSORB'], resp['IMMUNE'], resp['GIF'], resp['FPATH'], resp['RNAME'], resp['RPATH'], False, resp['CLASS'])
+                c.set_card_level_buffs(player._card_levels)
+                c.set_affinity_message()
+                evasion = c.get_evasion()
+                evasion_message = f"{c.speed}"
+                if c.speed >= 70 or c.speed <=30:
+                    if c.speed >= 70:     
+                        if player.performance:
+                            evasion_message = f"{c.speed}: *{round(c.evasion)}% evasion*"
+                        else:
+                            evasion_message = f"{c.speed}: {round(c.evasion)}% evasion"
+                    elif c.speed <= 30:
+                        if player.performance:
+                            evasion_message = f"{c.speed}: *{c.evasion}% evasion*"
+                        else:
+                            evasion_message = f"{c.speed}: {c.evasion}% evasion"
                 card_tier = 0
                 lvl = ""
                 tier = ""
@@ -6797,6 +6814,7 @@ async def menucards(self, ctx):
 
                 for cl in card_levels:
                     if card == cl['CARD']:
+                        
                         licon = "🔰"
                         if cl['LVL'] >= 200:
                             licon ="🔱"
@@ -6804,7 +6822,6 @@ async def menucards(self, ctx):
                             licon ="⚜️"
                         if cl['LVL'] >= 999:
                             licon = "🏅"
-                        
                         lvl = f"{licon} **{cl['LVL']}**"
                         card_lvl = cl['LVL']
                         card_exp = cl['EXP']
@@ -6915,18 +6932,17 @@ async def menucards(self, ctx):
 
 
                 embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
+                {crown_utilities.class_emojis[resp['CLASS']]} {resp["CLASS"].title()}
                 {icon} **[{index}]** 
                 {card_tier}: {lvl}
-                🥋 {resp["CLASS"].title()}
-                :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{resp['SPD']}**
-
+                :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{evasion_message}**
+                
                 {move1_emoji} **{move1}:** {move1ap}
                 {move2_emoji} **{move2}:** {move2ap}
                 {move3_emoji} **{move3}:** {move3ap}
                 🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
 
                 🩸 **{passive_name}:** {passive_type.title()} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
-                ♾️ {traitmessage}
                 """), colour=0x7289da)
                 embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
                 embedVar.set_thumbnail(url=show_img)
@@ -7293,7 +7309,7 @@ async def menucards(self, ctx):
                             if button_ctx.custom_id == "swap":
                                 await button_ctx.defer(ignore=True)
                                 await msg.delete()
-                                await ctx.send(f"{ctx.author.mention}, Which card number would you like to swap with in storage?\n*Discord has changed their policy on message intents..while we troubleshoot this issue please use this command in DMS.\nIt will not work in server...*")
+                                await ctx.send(f"{ctx.author.mention}, Which card number would you like to swap with in storage?")
                                 def check(msg):
                                     return msg.author == ctx.author
 
@@ -7303,6 +7319,7 @@ async def menucards(self, ctx):
                                     content = msg.content
                                     # print("Author: " + str(author))
                                     # print("Content: " + str(content))
+                                    # print(msg)
                                     if storage[int(msg.content)]:
                                         swap_with = storage[int(msg.content)]
                                         query = {'DID': str(msg.author.id)}
@@ -7394,7 +7411,7 @@ async def menucards(self, ctx):
         }))
         await ctx.send("There's an issue with loading your cards. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
         return
-    
+
 async def menustorage(self, ctx):
     a_registered_player = await crown_utilities.player_check(ctx)
     if not a_registered_player:
@@ -9027,7 +9044,11 @@ async def menusummons(self, ctx):
                 pet_level = pet['LVL']
                 pet_exp = pet['EXP']
                 
-                petmove_ap = list(pet.values())[3] 
+                # petmove_ap = list(pet.values())[3] 
+                petmove_ap = 0
+                for key in pet:
+                    if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+                        petmove_ap = pet[key]
                 bond_req = ((petmove_ap * 5) * (pet_bond + 1))
                 lvl_req = int(pet_level) * 10
                 if lvl_req <= 0:
@@ -9035,16 +9056,24 @@ async def menusummons(self, ctx):
                 if bond_req <= 0:
                     bond_req = 5
                 
-                bond_message = f"*{pet_exp}/{lvl_req}*"
-                lvl_message = f"*{bond_exp}/{bond_req}*"
+                lvl_message = f"*{pet_exp}/{lvl_req}*"
+                bond_message = f"*{bond_exp}/{bond_req}*"
                 
                 if pet['BOND'] == 3:
                     bond_message = ":star2:"
                 if pet['LVL'] == 10:
                     lvl_message = ":star:"
                 
-                pet_ability = list(pet.keys())[3]
-                pet_ability_power = list(pet.values())[3]
+                        
+                
+                pet_ability = ""
+                pet_emoji = crown_utilities.set_emoji(pet['TYPE'])
+                pet_ability_power = 0
+                for key in pet:
+                    if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+                        pet_ability_power = pet[key]
+                        pet_ability = key
+
                 power = (pet['BOND'] * pet['LVL']) + pet_ability_power
                 pet_info = db.queryPet({'PET' : pet['NAME']})
                 if pet_info:
@@ -9059,13 +9088,14 @@ async def menusummons(self, ctx):
 
                 embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
                 {icon}
-                _Bond_ **{pet['BOND']}** {bond_message}
-                _Level_ **{pet['LVL']} {lvl_message}**
-                :small_blue_diamond: **{pet_ability}:** {power}
-                🦠 **Type:** {pet['TYPE']}"""), 
+                _Bond_ **{pet['BOND']}** | {bond_message}
+                _Level_ **{pet['LVL']}** | {lvl_message}
+
+                {pet_emoji} {pet['TYPE'].capitalize()} Ability 
+                **{pet_ability}:** {power}
+                """), 
                 colour=0x7289da)
                 embedVar.set_thumbnail(url=avatar)
-                embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
                 embed_list.append(embedVar)
             
             buttons = [
@@ -9229,10 +9259,10 @@ async def menusummons(self, ctx):
                         if summon_name == currentsummon:
                             await button_ctx.send("You cannot dismantle equipped summonss.")
                             return
-                        dismantle_price = 5000   
+                        dismantle_price = 10000   
                         level = int(pet['LVL'])
                         bond = int(pet['BOND'])
-                        dismantle_amount = round((1000* level) + (dismantle_price * bond))
+                        dismantle_amount = round((1000* level) + (dismantle_price * bond) + dismantle_price)
                         dismantle_buttons = [
                             manage_components.create_button(
                                 style=ButtonStyle.green,
@@ -9267,7 +9297,6 @@ async def menusummons(self, ctx):
                                         if summon_name == family_info['SUMMON']:
                                             update_query = {'$set' : {'SUMMON': d['PET']}}
                                             family_update = db.updateFamily(family_query,update_query)
-                                    query = {'DID': str(ctx.author.id)}
                                     update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
                                     filter_query = [{'type.' + "UNIVERSE": pet_universe}]
                                     response = db.updateVault(query, update_query, filter_query)

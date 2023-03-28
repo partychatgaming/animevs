@@ -257,6 +257,12 @@ class Card:
             self.move1_emoji = crown_utilities.set_emoji(self.move1_element)
             self.move1base = self.move1ap
             
+            self.move_souls = self.move1
+            self.move_souls_ap = self.move1ap
+            self.move_souls_stamina = 0
+            self.move_souls_element = self.move1_element
+            self.move_souls_emoji = self.move1_emoji
+            
 
             # Move 2
             self.move2 = list(self.m2.keys())[0]
@@ -1024,8 +1030,8 @@ class Card:
                 self.health = 0
                 burn_message = f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg and died..."
                 opponent_card.burn_dmg = 0
-
-
+        
+        opponent_card.burn_dmg = opponent_card.burn_dmg / 2
         if opponent_card.burn_dmg <= 14 and self.health > 0:
             opponent_card.burn_dmg = 0
             burn_message = None
@@ -1191,11 +1197,17 @@ class Card:
         if not self.scheduled_death_message:
             if self.universe == "Death Note":
                 self.scheduled_death_message = True
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {150}**")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {130 + (10 * self.tier)}**")
 
 
     def set_souls_trait(self):
         if self.used_resolve and self.universe == "Souls":
+            self.move_souls = self.move1
+            self.move_souls_ap = self.move1ap
+            self.move_souls_stamina = 0
+            self.move_souls_element = self.move1_element
+            self.move_souls_emoji = self.move1_emoji
+            
             self.move1 = self.move2
             self.move1ap = self.move2ap
             self.move1_stamina = self.move1_stamina
@@ -1633,8 +1645,29 @@ class Card:
 
         ENHANCERS = [4]
         MOVES = [1,2,3,6]
+        
+        if selected_move == "Souls":
+            does_repel = False
+            does_absorb = False
+            self.wind_element_activated = False
+            is_physical_element = False
+            ranged_attack = False
+            wind_buff = 0
 
-        if selected_move in MOVES:
+            move = self.move_souls
+            ap = self.move_souls_ap
+            move_stamina = 0
+            move_element = self.move_souls_element
+            
+            if move_element == "WIND":
+                self.wind_element_activated = True
+            if move_element == "RANGED" and move_stamina >= 30:
+                ranged_attack = True
+            if move_element == "PHYSICAL" and move_stamina >= 80:
+                is_physical_element = True
+            move_emoji = crown_utilities.set_emoji(move_element)
+
+        elif selected_move in MOVES:
             does_repel = False
             does_absorb = False
             self.wind_element_activated = False
@@ -2152,16 +2185,20 @@ class Card:
             self.focus_count = self.focus_count + 1            
 
             if battle_config.is_boss_game_mode and battle_config.is_turn not in [1,3]:
-                embedVar = discord.Embed(title=f"{battle_config._punish_boss_description}")
-                embedVar.add_field(name=f"{battle_config._arena_boss_description}", value=f"{battle_config._world_boss_description}", inline=False)
-                embedVar.set_footer(text=f"{battle_config._assault_boss_description}")
-                battle_config._boss_embed_message = embedVar
+                if battle_config._boss_player_focus_message == False:
+                    embedVar = discord.Embed(title=f"{battle_config._punish_boss_description}")
+                    embedVar.add_field(name=f"{battle_config._arena_boss_description}", value=f"{battle_config._world_boss_description}", inline=False)
+                    embedVar.set_footer(text=f"{battle_config._assault_boss_description}")
+                    battle_config._boss_embed_message = embedVar
+                    battle_config._boss_player_focus_message = True
             elif battle_config.is_boss_game_mode and battle_config.is_turn in [1,3]:
-                embedVar = discord.Embed(title=f"{battle_config._powerup_boss_description}", colour=0xe91e63)
-                embedVar.add_field(name=f"A great aura starts to envelop **{self.name}** ",
-                                value=f"{battle_config._aura_boss_description}")
-                embedVar.set_footer(text=f"{self.name} Says: 'Now, are you ready for a real fight?'")   
-                battle_config._boss_embed_message = embedVar
+                if battle_config._boss_focus_message == False:
+                    embedVar = discord.Embed(title=f"{battle_config._powerup_boss_description}", colour=0xe91e63)
+                    embedVar.add_field(name=f"A great aura starts to envelop **{self.name}** ",
+                                    value=f"{battle_config._aura_boss_description}")
+                    embedVar.set_footer(text=f"{self.name} Says: 'Now, are you ready for a real fight?'")   
+                    battle_config._boss_embed_message = embedVar
+                    battle_config._boss_focus_message = True
             
             # fortitude or luck is based on health
             fortitude = round(self.health * .1)
@@ -2232,8 +2269,8 @@ class Card:
                 battle_config.add_to_battle_log(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
             elif not self.used_resolve:
                 if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
-                    attack_calculation = attack_calculation + attack_calculation
-                    defense_calculation = defense_calculation + defense_calculation
+                    attack_calculation = attack_calculation + round(attack_calculation / 2)
+                    defense_calculation = defense_calculation + round(defense_calculation / 2)
                     battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}**  Gains 2x ATK and DEF\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 elif self.universe != "Crown Rift Madness":
                     battle_config.add_to_battle_log(f"*(🌀) {self.name}\n+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
@@ -2290,18 +2327,32 @@ class Card:
                     battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Transformation: Digivolve")
             #Self Traits
             if self.universe == "League Of Legends":                
-                _opponent_card.health = round(_opponent_card.health - (60 + battle_config.turn_total))
-                self.damage_dealth = self.damage_dealt + (60 + battle_config.turn_total)
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{60 + battle_config.turn_total}** Damage 💥")
+                if _opponent_card.health <= (_opponent_card.max_health * .90):
+                    turret_shot =  round(_opponent_card.health - ((_opponent_card.health * .05) + battle_config.turn_total))
+                elif _opponent_card.health <= (_opponent_card.max_health * .75):
+                    turret_shot = round(_opponent_card.health - ((_opponent_card.health * .10) + battle_config.turn_total))
+                elif _opponent_card.health <= (_opponent_card.max_health * .50):
+                    turret_shot = round(_opponent_card.health - ((_opponent_card.health * .15) + battle_config.turn_total))
+                self.damage_dealt = self.damage_dealt + turret_shot
+                _opponent_card.health = _opponent_card.health - turret_shot
+                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{(turret_shot + battle_config.turn_total)}** Damage 💥")
 
             elif self.universe == "Dragon Ball Z":
-                self.health = self.health + _opponent_card.stamina + battle_config.turn_total
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Saiyan Spirit... You heal for **{_opponent_card.stamina + battle_config.turn_total}** ❤️")
+                self.health = self.health + (_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total
+                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Saiyan Spirit... You heal for **{(_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total}** ❤️")
 
             elif self.universe == "Solo Leveling":
                 _opponent_card.defense = round(_opponent_card.defense - (50 + battle_config.turn_total))
-                
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Ruler's Authority... Opponent loses **{50 + battle_config.turn_total}** 🛡️ 🔻")
+                summon_increase = 1
+                summon_msg = ""
+                if self.summon_type not in ['PARRY', 'BARRIER']:
+                    summon_increase = (50 + battle_config.turn_total)
+                    summon_msg = "Ability Power!"
+                    if self.summon_type == "SHIELD":
+                        summon_msg = ""
+                    
+                self.summon_power = self.summon_power + summon_increase
+                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Ruler's Authority... Opponent loses **{50 + battle_config.turn_total}** 🛡️ 🔻 Summon gained {summon_increase} {self.summon_type.capitalize()} {summon_msg}")
 
             elif self.universe == "Black Clover":                
                 self.stamina = 100
@@ -2310,7 +2361,7 @@ class Card:
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
 
             elif self.universe == "Death Note":
-                if battle_config.turn_total >= (150):
+                if battle_config.turn_total >= (130 + (10 * self.tier)):
                     battle_config.add_to_battle_log(f"(**🌀**) **{_opponent_card.name}** 🩸 had a heart attack and died")
                     
                     _opponent_card.health = -1000
@@ -2343,14 +2394,25 @@ class Card:
 
             elif _opponent_card.universe == "7ds":
                 _opponent_card.stamina = _opponent_card.stamina + 60
+                fortitude = round(_opponent_card.health * .1)
+                if fortitude <= 50:
+                    fortitude = 50
+                health_calculation = round(fortitude)
+                if _opponent_card._heal_active:
+                    health_calculation = health_calculation + _opponent_card._heal_value
+                    if _opponent_card.health >= _opponent_card.max_health:
+                        _opponent_card.health = _opponent_card.max_health
+                    _opponent_card._heal_value = 0
+                attack_calculation = round((fortitude * (_opponent_card.tier / 10)) + (.05 * _opponent_card.attack))
+                defense_calculation = round((fortitude * (_opponent_card.tier / 10)) + (.05 * _opponent_card.defense))
                 _opponent_card.usedsummon = False
                 
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina 🌀")
+                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina and Power Level 🌀")
 
             elif _opponent_card.universe == "Souls":
-                _opponent_card.attack = round(_opponent_card.attack + (60 + battle_config.turn_total))
+                _opponent_card.attack = round(_opponent_card.attack + (100 + battle_config.turn_total))
 
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{60 + battle_config.turn_total}** 🔺")
+                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
 
             battle_config.turn_total = battle_config.turn_total + 1
             
@@ -2635,7 +2697,7 @@ class Card:
                 
                 damage_calculation_response = self.damage_cal(3, battle_config, opponent_card, )
                 opponent_card.health = opponent_card.health - damage_calculation_response['DMG']
-                self.damage_dealth = self.damage_dealt + damage_calculation_response['DMG']
+                self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Command Seal!")
 
                 # self.stamina = 0
@@ -2704,9 +2766,9 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
                 if self.universe == "League Of Legends":
-                    opponent_card.health = opponent_card.health - (150 * (self.focus_count + opponent_card.focus_count))
-                    self.damage_dealth = self.damage_dealt + (150 * (self.focus_count + opponent_card.focus_count))
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(150 * (self.focus_count + opponent_card.focus_count))} damage.")
+                    opponent_card.health = opponent_card.health - (200 * (self.focus_count + opponent_card.focus_count))
+                    self.damage_dealt = self.damage_dealt + (200 * (self.focus_count + opponent_card.focus_count))
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(200 * (self.focus_count + opponent_card.focus_count))} damage.")
                 elif self.universe == "Souls":
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
                     self.set_souls_trait()
@@ -2718,13 +2780,17 @@ class Card:
 
             if battle_config.is_boss_game_mode:
                 if (battle_config.is_turn == 0 or battle_config.is_turn == 2):
-                    embedVar = discord.Embed(title=f"{battle_config._rmessage_boss_description}")
-                    embedVar.set_footer(text=f"{opponent_card.name} this will not be easy...")
-                    battle_config._boss_embed_message = embedVar
+                    if battle_config._boss_resolve_message == False:
+                        embedVar = discord.Embed(title=f"{battle_config._rmessage_boss_description}")
+                        embedVar.set_footer(text=f"{opponent_card.name} this will not be easy...")
+                        battle_config._boss_embed_message = embedVar
+                        battle_config._boss_resolve_message = True
                 else:
-                    embedVar = discord.Embed(title=f"{opponent_card.name} Rebukes You!\n{battle_config._rebuke_boss_description}")
-                    embedVar.set_footer(text=f"{self.name} this is your chance!")
-                    battle_config._boss_embed_message = embedVar
+                    if battle_config._boss_player_resolve_message == False:
+                        embedVar = discord.Embed(title=f"{opponent_card.name} Rebukes You!\n{battle_config._rebuke_boss_description}")
+                        embedVar.set_footer(text=f"{self.name} this is your chance!")
+                        battle_config._boss_embed_message = embedVar
+                        battle_config._boss_player_resolve_message = True
     
             if self._monstrosity_active:
                 battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.name}**: gains 2 Double Strikes!")

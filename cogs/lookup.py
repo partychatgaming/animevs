@@ -366,7 +366,7 @@ class Lookup(commands.Cog):
                 embed6.set_image(url=avi)
                 embed6.set_footer(text=f"{birthday}")
                 if crown_list:
-                    embed4 = discord.Embed(title=f"{name}'s Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=discord.Color.gold())
+                    embed4 = discord.Embed(title=f"{name}'s Tales Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=discord.Color.gold())
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name=":medal: | " + "Completed Tales" , value="\n".join(crown_list))
                     if dungeon_list:

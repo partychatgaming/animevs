@@ -924,7 +924,7 @@ async def register(ctx):
          "BONDEXP": 0,
          "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
       }
-      family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': summon_info}), str(disname))
+      family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': summon_info, 'HDID' : str(ctx.author.id)}), str(disname))
       update_summon = db.updateFamily({'HEAD': str(disname)}, {'$set' : {'SUMMON': summon_info}})
       user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
       r_response = db.createUsers(data.newUser(user))

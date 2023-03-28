@@ -197,6 +197,10 @@ class FAMILY():
     TRANSACTIONS: list[str] = field(default_factory=lambda: [])
     SUMMON: list[str] = field(default_factory=lambda: ['N/A'])
     UNIVERSE: str = field(default_factory=lambda: 'Unbound')
+    HDID : str = field(default_factory=lambda: '')
+    PDID : str = field(default_factory=lambda: '')
+    K1DID : str = field(default_factory=lambda: '')
+    K2DID : str = field(default_factory=lambda: '')
     TIMESTAMP: str = now
 
 

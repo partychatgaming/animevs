@@ -1097,10 +1097,10 @@ async def quest(player, opponent, mode):
             if str(mode) == "Dungeon" and completion >= 0:
                 message = "Quest progressed!"
                 if completion == 0:
-                    await crown_utilities.bless(reward, player.id)
+                    await crown_utilities.bless(reward, str(player.id))
                     message = f"Quest Completed! :coin:{reward} has been added to your balance."
 
-                query = {'DID': str(player.id)}
+                query = {'DID': str(player.did)}
                 update_query = {'$inc': {'QUESTS.$[type].' + "WINS": 2}}
                 filter_query = [{'type.' + "OPPONENT": opponent}]
                 resp = db.updateVault(query, update_query, filter_query)
@@ -1109,7 +1109,7 @@ async def quest(player, opponent, mode):
             elif str(mode) == "Tales" and completion >= 0:
                 message = "Quest progressed!"
                 if completion == 0:
-                    await crown_utilities.bless(reward, player.id)
+                    await crown_utilities.bless(reward, str(player.id))
                     message = f"Quest Completed! :coin:{reward} has been added to your balance."
 
                 query = {'DID': str(player.id)}
@@ -1144,12 +1144,14 @@ async def destiny(player, opponent, mode, craft_amount = None):
     num_of_wins = 1
     if craft_amount != None:
         num_of_wins = craft_amount
+  #  print(num_of_wins)
     vault = db.queryVault({'DID': str(player.id)})
     user = db.queryUser({"DID": str(player.id)})
     vault_query = {'DID': str(player.id)}
     card_info = db.queryCard({"NAME": str(user['CARD'])})
     skin_for = card_info['SKIN_FOR']
     
+   # print(player.id)
     hand_limit = 25
     storage_allowed_amount = user['STORAGE_TYPE'] * 15
     storage_amount = len(vault['STORAGE'])
@@ -1175,9 +1177,11 @@ async def destiny(player, opponent, mode, craft_amount = None):
     completion = 1
     try:
         if vault['DESTINY']:
+          #  print(mode)
             # TALES
             for destiny in vault['DESTINY']:
                 if (user['CARD'] in destiny['USE_CARDS'] or skin_for in destiny['USE_CARDS']) and opponent == destiny['DEFEAT'] and mode == "Tales":
+                   # print("HERE")
                     if destiny['WINS'] < destiny['REQUIRED']:
                         message = f"Secured a win toward **{destiny['NAME']}**. Keep it up!"
                         completion = destiny['REQUIRED'] - (destiny['WINS'] + num_of_wins)
@@ -1379,7 +1383,7 @@ async def abyss_level_up_message(did, floor, card, title, arm):
                 new_unlock = True
         if prestige < 10:
             if floor == (100 - (10 * prestige)):
-                message = "🎊 Congratulations! 🎊 You unlocked **Soul Exchange**. Use the **/exchange** command and Exchange any boss souls for cards from their respective universe! This will Reset your Abyss Level!"
+                message = "🎊 Congratulations! 🎊 You unlocked **Soul Exchange**. Use the **/exchange** command and Exchange any boss Souls for cards from their respective universe! This will Reset your Abyss Level!"
                 new_unlock = True
 
 
@@ -2180,14 +2184,27 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
 
         if not available_universes:
             if mode in crown_utilities.DUNGEON_M:
-                universe_embed_list = discord.Embed(title= f":fire: There are no available Dungeons at this time.", description=textwrap.dedent(f"""
-                __:fire: How to unlock Dungeons?__
-                You unlock Dungeons by Completing the Universe Tale. Once a Dungeon is unlocked you can enter it forever.
-                
-                Conquer Dungeons for High Tier Loot Drops and Increased Gold!
-                """))
-                await ctx.send(embed=universe_embed_list)
-                return
+                if p.level < 41:
+                    abyss_lock_embed = discord.Embed(title= f":fire: Dungeon Locked.", description=textwrap.dedent(f"""
+                    __:fire: How to unlock Dungeons?__
+                    
+                    Conquer Level 40 in the Abyss to Unlock Dungeons!
+                    
+                    You unlock Dungeons by Completing the Universe Tale. Once a Dungeon is unlocked you can enter it forever.
+                    
+                    Conquer Dungeons for High Tier Loot Drops and Increased Gold!
+                    """))
+                    await ctx.send(embed=abyss_lock_embed)
+                    return
+                else:
+                    universe_embed_list = discord.Embed(title= f":fire: There are no available Dungeons at this time.", description=textwrap.dedent(f"""
+                    __:fire: How to unlock Dungeons?__
+                    You unlock Dungeons by Completing the Universe Tale. Once a Dungeon is unlocked you can enter it forever.
+                    
+                    Conquer Dungeons for High Tier Loot Drops and Increased Gold!
+                    """))
+                    await ctx.send(embed=universe_embed_list)
+                    return
         label_text = "Start Battle!"
         scenario_text = "View Available Scenario Battles!"
         if mode in crown_utilities.CO_OP_M:
@@ -2312,9 +2329,10 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             if uni != "":
                 l.append(uni)
         available_dungeons_list = "\n".join(l)
-        if p.boss_fought:
+        if p.boss_fought or p.level < 60:
             boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
             \n__How to get Boss Arena Keys?__
+            \n:new_moon: | Conquer Abyss Level 60 to unlock Bosses!
             \nConquer any Universe Dungeon to gain a Boss Arena Key
             \n☀️ | You also earn 1 Boss Key per /daily !
             \n__🌍 Available Universe Dungeons__
@@ -2740,7 +2758,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                     battle_config.next_turn()
-
+                                                if player1_card.universe == "Souls" and player1_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
+                                                    player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                     if selected_move == 5:
                                         player1_card.resolving(battle_config, player2_card, player1)
                                         if battle_config.is_boss_game_mode:
@@ -2757,6 +2778,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
                                                 player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                 battle_config.next_turn()
+                                            if player1_card.universe == "Souls" and player1_card.used_resolve:
+                                                battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
+                                                player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                            
 
                                     elif selected_move == 0:
                                         player1_card.use_block(battle_config, player2_card)                                
@@ -3039,6 +3065,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{2 - player1_card._double_strike_count} Left!*")
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                     battle_config.next_turn()
+                                                if player1_card.universe == "Souls" and player1_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
+                                                    player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                                
                                                     
                                     except asyncio.TimeoutError:
                                         await battle_msg.edit(components=[])
@@ -3254,6 +3285,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                         except asyncio.TimeoutError:
                                             await battle_msg.edit(components=[])
                                             if not any((battle_config.is_abyss_game_mode, 
@@ -3340,7 +3375,11 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
                                                     #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player1_card)   
-                                                    battle_config.next_turn()                     
+                                                    battle_config.next_turn()     
+                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
+                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card)                
 
                                 if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode:
                                     if battle_config.is_auto_battle_game_mode:
@@ -3447,6 +3486,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                         battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                             else:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                 if player2_card._monstrosity_active and player2_card.used_resolve:
@@ -3456,6 +3499,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                         else:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                             if player2_card._monstrosity_active and player2_card.used_resolve:
@@ -3465,6 +3512,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                     battle_config.next_turn()
+                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
+                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
 
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
                             if battle_config.is_duo_mode or battle_config.is_co_op_mode:
@@ -3546,6 +3597,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
                                                     player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                     battle_config.next_turn()
+                                                if player3_card.universe == "Souls" and player3_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
+                                                    player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                     else:
                                         player3_card.set_battle_arm_messages(player2_card)
                                         player3_card.set_stat_icons()
@@ -3666,6 +3721,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
                                                         player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                         battle_config.next_turn()
+                                                    if player3_card.universe == "Souls" and player3_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
+                                                        player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                         except asyncio.TimeoutError:
                                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                             await battle_msg.delete()
@@ -3831,6 +3890,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                             else:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                 if player2_card._monstrosity_active and player2_card.used_resolve:
@@ -3840,6 +3903,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                         battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                         else:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                             if player2_card._monstrosity_active and player2_card.used_resolve:
@@ -3849,6 +3916,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                     battle_config.next_turn()
+                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
+                                                    player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                     
                     if game_over_check:
                         wintime = time.asctime()
@@ -4047,14 +4118,14 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     p1_win_rewards = await battle_config.get_win_rewards(player1)
                                     corruption_message = await battle_config.get_corruption_message(ctx)
-                                    questlogger = await quest(user1, player2_card, battle_config.mode)
-                                    destinylogger = await destiny(user1, player2_card, battle_config.mode)
-                                    petlogger = await crown_utilities.summonlevel(player1, player1_card)
-                                    cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
+                                    # questlogger = await quest(user1, player2_card.name, battle_config.mode)
+                                    # destinylogger = await destiny(user1, player2_card.name, battle_config.mode, None)
+                                    # petlogger = await crown_utilities.summonlevel(player1, player1_card)
+                                    # cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
 
                                     if not battle_config.is_easy_difficulty:
-                                        questlogger = await quest(user1, player2_card, battle_config.mode)
-                                        destinylogger = await destiny(user1, player2_card, battle_config.mode)
+                                        questlogger = await quest(user1, player2_card.name, battle_config.mode)
+                                        destinylogger = await destiny(user1, player2_card.name, battle_config.mode, None)
                                         petlogger = await crown_utilities.summonlevel(player1, player1_card)
                                         cardlogger = await crown_utilities.cardlevel(user1, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
                                         talisman_response = crown_utilities.inc_talisman(player1.did, player1.equipped_talisman)
@@ -4075,8 +4146,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             
                                         co_op_bonuses = battle_config.get_co_op_bonuses(player1, player3)
                                         p3_win_rewards = await battle_config.get_win_rewards(player3)
-                                        p3_questlogger = await quest(user2, player2_card, battle_config.mode)
-                                        p3_destinylogger = await destiny(user2, player2_card, battle_config.mode)
+                                        p3_questlogger = await quest(user2, player2_card.name, battle_config.mode)
+                                        p3_destinylogger = await destiny(user2, player2_card.name, battle_config.mode, None)
                                         p3_petlogger = await crown_utilities.summonlevel(player3, player3_card)
                                         p3_cardlogger = await crown_utilities.cardlevel(user2, player1_card.name, player1.did, battle_config.mode, battle_config.selected_universe)
                                         p3_co_op_bonuses = battle_config.get_co_op_bonuses(player3, player1)

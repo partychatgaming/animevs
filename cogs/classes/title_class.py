@@ -114,6 +114,18 @@ class Title:
             elif self.passive_type == 'GAMBLE':
                 self.type_message = "Health Regen "
                 message=f"{self.name} is a GAMBLE title" 
+            elif self.passive_type == 'CREATION':
+                self.type_message = "Increase Max Health"
+                message=f"{self.name} is a GAMBLE title" 
+            elif self.passive_type == 'DESTRUCTION':
+                self.type_message = "Decrease Opponent Max Health "
+                message=f"{self.name} is a DESTRUCTION title" 
+            elif self.passive_type == 'BLAST':
+                self.type_message = "Deal True Damage "
+                message=f"{self.name} is a BLAST title" 
+            elif self.passive_type == 'WAVE':
+                self.type_message = "Deal True Damage"
+                message=f"{self.name} is a WAVE title" 
 
 
     def set_title_suffix(self):
@@ -205,6 +217,12 @@ class Title:
         
         elif self.passive_type == "SOULCHAIN" or self.passive_type == "GAMBLE":
             self.message = f"During Focus, **{self.type_message}** equal **{self.passive_value}**"
+            
+        elif self.passive_type == "BLAST" or self.passive_type == "WAVE":
+            self.message = f"On your turn, **{self.type_message}** equal to **{self.passive_value}**"
+            
+        elif self.passive_type == "CREATION" or self.passive_type == "DESTRUCTION":
+            self.message = f"On your turn, **{self.type_message}** by **{self.passive_value}{self.set_title_suffix()}**"
         
         return self.message
     
