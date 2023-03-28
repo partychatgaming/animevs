@@ -2339,7 +2339,7 @@ async def select_universe(self, ctx, p: object, mode: str, p2: None):
             await ctx.send(embed=boss_key_embed)
             self.stop = True
             return  
-        if p.boss_fought
+        if p.boss_fought:
             boss_key_embed = discord.Embed(title= f"🗝️  Boss Arena Key Required!", description=textwrap.dedent(f"""
             \n__How to get Boss Arena Keys?__
             \nConquer any Universe Dungeon to gain a Boss Arena Key
