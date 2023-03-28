@@ -2328,11 +2328,13 @@ class Card:
             #Self Traits
             if self.universe == "League Of Legends":                
                 if _opponent_card.health <= (_opponent_card.max_health * .90):
-                    turret_shot =  round(_opponent_card.health - ((_opponent_card.health * .05) + battle_config.turn_total))
+                    turret_shot =  round(_opponent_card.health - ((_opponent_card.health * .10) + battle_config.turn_total))
                 elif _opponent_card.health <= (_opponent_card.max_health * .75):
-                    turret_shot = round(_opponent_card.health - ((_opponent_card.health * .10) + battle_config.turn_total))
-                elif _opponent_card.health <= (_opponent_card.max_health * .50):
                     turret_shot = round(_opponent_card.health - ((_opponent_card.health * .15) + battle_config.turn_total))
+                elif _opponent_card.health <= (_opponent_card.max_health * .50):
+                    turret_shot = round(_opponent_card.health - ((_opponent_card.health * .20) + battle_config.turn_total))
+                else:
+                    turret_shot = round(_opponent_card.health - ((_opponent_card.health * .05) + battle_config.turn_total))
                 self.damage_dealt = self.damage_dealt + turret_shot
                 _opponent_card.health = _opponent_card.health - turret_shot
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{(turret_shot + battle_config.turn_total)}** Damage 💥")
