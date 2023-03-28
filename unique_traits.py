@@ -61,15 +61,15 @@ traits = [{
 },{
     'NAME': 'Souls',
     'EFFECT': 'Combo Recognition, Second Phase!',
-    'TRAIT': 'Combo Recognition : :First Phase! : On opponent Focus, gain (100 + turn) ATK. Second Phase! : On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE, Double Strike with Basic Attack'
+    'TRAIT': 'Combo Recognition : :First Phase! : On opponent Focus, gain (100 + turn) ATK. Second Phase! : On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE, Dbl Strike with Basic Attack'
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death, Shinigami Eyes',
-    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death (130 + (10 * Tier)) Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to Increase Turn by (3 + Card Tier).'
+    'TRAIT': 'Scheduled Death :First Focus After (130 + (10 * Tier)) Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to Increase Turn by (3 + Card Tier).'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Spirit',
-    'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Spirit :  On Focus, heal for (5 * Opponent Stamina) + turn count.'
+    'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Spirit :  On Focus, Create for (5 * Opponent Stamina) + turn count Health.'
 },{
     'NAME': 'Persona',
     'EFFECT': 'Summon Persona, Summoners Battle',

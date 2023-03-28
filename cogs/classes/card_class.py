@@ -2339,6 +2339,7 @@ class Card:
 
             elif self.universe == "Dragon Ball Z":
                 self.health = self.health + (_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total
+                self.max_health = self.max_health + (_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Saiyan Spirit... You heal for **{(_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total}** ❤️")
 
             elif self.universe == "Solo Leveling":
