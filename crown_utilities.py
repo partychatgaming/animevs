@@ -2067,7 +2067,7 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'Crown Rift Awakening': ':u7a7a:',
               'Crown Rift Slayers': ':sa:',
               'Crown Rift Madness': ':m:',
-              'Persona': '<a:Persona:1085623179629838419>',
+              'Persona': '<:persona:1090238487028047913>',
               'YuYu Hakusho': '<:yusuke:1088702663861993503>',
               'One Piece': '<:one_piece:1088702665581670451>'
 }
