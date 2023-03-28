@@ -2059,7 +2059,7 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'Hoenn Region': '<:pokemon:1088966251541450752>',
               'Digimon': '<:digimon_sparkle:1088702667703988316>',
               'Fate': ':u6e80:',
-              'Solo Leveling': '<:jin:1090240014891352114>'
+              'Solo Leveling': '<:jin:1090240014891352114>',
               'Souls': '<:dark_souls_icon:1088702666688966726>',
               'Dragon Ball Z': '<:dbz:1088698675338952774>',
               'Sinnoh Region': '<:pokemon:1088966251541450752>',
