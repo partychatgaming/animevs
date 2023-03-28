@@ -302,7 +302,21 @@ class Player:
             all_universes = random.sample(all_universes, min(len(all_universes), 25))
             #print(all_universes)
         if not all_universes:
-            return False
+            universe_embed_list = discord.Embed(title= f"👹 There are no available Bosses at this time.", description=textwrap.dedent(f"""
+            \n__How to unlock Bosses?__
+            \nYou unlock Bosses by completing the Universe Dungeon. Once a Dungeon has been completed the boss for that universe will be unlocked for you to fight!
+            \n🗝️ | A Boss Key is required to Enter the Boss Arena.
+            \nEarn Boss Keys by completing any Universe Dungeon.
+            \n__🌍 Available Universe Dungeons__
+            \n{available_dungeons_list}
+            """))
+            # embedVar.set_image(url=boss_info['PATH'])
+            universe_embed_list.set_thumbnail(url=ctx.author.avatar_url)
+            # embedVar.set_footer(text="Use /tutorial")
+
+
+            return universe_embed_list
+            #return False
         for uni in all_universes:
             if uni['TITLE'] in self.completed_dungeons:
                 if uni != "":
