@@ -375,17 +375,17 @@ class Lookup(commands.Cog):
                     embed4 = discord.Embed(title=f"{name}'s Tales Achievements".format(self), description=textwrap.dedent(f"""\
                     """), colour=discord.Color.gold())
                     embed4.set_thumbnail(url=avatar)
-                    embed4.add_field(name=":medal: | " + "Completed Tales" , value="\n".join(crown_list))
+                    embed4.add_field(name=":medal: | " + "Completed Tales" , value=" ".join(crown_list))
                     if dungeon_list:
                         embed5 = discord.Embed(title=f"{name}'s Dungeon Achievements".format(self), description=textwrap.dedent(f"""\
                         """), colour=discord.Color.gold())
                         embed5.set_thumbnail(url=avatar)
-                        embed5.add_field(name=":fire: | " + "Completed Dungeons", value="\n".join(dungeon_list))
+                        embed5.add_field(name=":fire: | " + "Completed Dungeons", value=" ".join(dungeon_list))
                         if boss_list:
                             embed6 = discord.Embed(title=f"{name}'s Boss Achievements".format(self), description=textwrap.dedent(f"""\
                             """), colour=discord.Color.gold())
                             embed6.set_thumbnail(url=avatar)
-                            embed6.add_field(name=":japanese_ogre: | " + "Boss Souls",value="\n".join(boss_list))
+                            embed6.add_field(name=":japanese_ogre: | " + "Boss Souls",value=" ".join(boss_list))
                         else:
                             embed6 = discord.Embed(title=f"{name}'s Boss Achievements".format(self), description=textwrap.dedent(f"""\
                             """), colour=discord.Color.gold())
