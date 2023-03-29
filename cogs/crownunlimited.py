@@ -4906,10 +4906,23 @@ def update_arm_durability(self, player, player_arm, player_card):
         arm_name = player_arm.name
         arm_price = player_arm.price
         card = player_card
+        
+        rebirth = player.rebirth
+        rebirth_arm = "Stock"
+        if rebirth >= 5:
+            rebirth_arm = "Legendary Weapon"
+        if rebirth == 4:
+            rebirth_arm = "Kings Glaive"
+        if rebirth == 3:
+            rebirth_arm = "Glaive"
+        if rebirth == 2:
+            rebirth_arm = "Deadgun"
+        if rebirth == 1:
+            rebirth_arm = "Reborn Stock"
 
         # Check if the difficulty is easy, return if so
         if player.difficulty == "EASY":
-            return
+            return False
 
         # Set arm universe to card universe if it is part of the pokemon universes
         if player_card.universe in pokemon_universes and player_arm.universe in pokemon_universes:
@@ -4952,9 +4965,9 @@ def update_arm_durability(self, player, player_arm, player_card):
 
                     # Update player's arm to "Stock"
                     db.updateUserNoFilter({'DID': str(player.did)},
-                                          {'$set': {'ARM': 'Stock'}})
-                    player.equipped_arm = "Stock"
-                    return f"**{player_arm.name}** dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm is now **Stock**"
+                                          {'$set': {'ARM': str(rebirth_arm)}})
+                    player.equipped_arm = rebirth_arm
+                    return f"**{player_arm.name}** dismantled after losing all ⚒️ durability, you earn 💎 {str(dismantle_amount)}. Your arm is now **{rebirth_arm}**"
                 else:                   
                     query = {'DID': str(player.did)}
                     update_query = {'$inc': {'ARMS.$[type].' + 'DUR': decrease_value}}

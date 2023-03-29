@@ -869,7 +869,7 @@ class Card:
                 self._siphon_value = self._siphon_value + arm_value
 
             if arm_type == "MANA":
-                self.move4ap = round(self.move4ap * (arm_value / 100))
+                self.move4ap = round(self.move4ap + (self.move4ap * (arm_value / 100)))
 
         except:
             print("Error")
@@ -2231,6 +2231,12 @@ class Card:
                     self.health = self.health - (_opponent_title.passive_value * battle_config.turn_total)
                 if _opponent_title.passive_type == "SOULCHAIN":
                     self.stamina = self.stamina - _opponent_title.passive_value
+                    
+            if self.passive_type == "GAMBLE":
+                health_calculation = self.passive_num
+            if _opponent_card.passive_type == "GAMBLE":
+                health_calculation = _opponent_card.passive_num
+                    
             
             new_health_value = 0
             heal_message = ""
@@ -2328,13 +2334,13 @@ class Card:
             #Self Traits
             if self.universe == "League Of Legends":                
                 if _opponent_card.health <= (_opponent_card.max_health * .90):
-                    turret_shot =  round(_opponent_card.health - ((_opponent_card.health * .10) + battle_config.turn_total))
+                    turret_shot =  round((_opponent_card.health * .10) + battle_config.turn_total)
                 elif _opponent_card.health <= (_opponent_card.max_health * .75):
-                    turret_shot = round(_opponent_card.health - ((_opponent_card.health * .15) + battle_config.turn_total))
+                    turret_shot = round((_opponent_card.health * .15) + battle_config.turn_total)
                 elif _opponent_card.health <= (_opponent_card.max_health * .50):
-                    turret_shot = round(_opponent_card.health - ((_opponent_card.health * .20) + battle_config.turn_total))
+                    turret_shot = round((_opponent_card.health * .20) + battle_config.turn_total)
                 else:
-                    turret_shot = round(_opponent_card.health - ((_opponent_card.health * .05) + battle_config.turn_total))
+                    turret_shot = round((_opponent_card.health * .05) + battle_config.turn_total)
                 self.damage_dealt = self.damage_dealt + turret_shot
                 _opponent_card.health = _opponent_card.health - turret_shot
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{(turret_shot + battle_config.turn_total)}** Damage 💥")
@@ -2408,9 +2414,24 @@ class Card:
                     _opponent_card._heal_value = 0
                 attack_calculation = round((fortitude * (_opponent_card.tier / 10)) + (.05 * _opponent_card.attack))
                 defense_calculation = round((fortitude * (_opponent_card.tier / 10)) + (.05 * _opponent_card.defense))
+                _opponent_card.attack = _opponent_card.attack + attack_calculation
+                _opponent_card.defense = _opponent_card.defense + defense_calculation
+                if _opponent_card.health <= _opponent_card.max_health:
+                    new_health_value = _opponent_card.health + health_calculation
+                    if new_health_value > _opponent_card.max_health:
+                        health_calculation = round(_opponent_card.max_health - _opponent_card.health)
+                        _opponent_card.damage_healed = round(_opponent_card.damage_healed + health_calculation)
+                        _opponent_card.health = _opponent_card.max_health       
+                    else:
+                        _opponent_card.damage_healed = round(_opponent_card.damage_healed + health_calculation)
+                        _opponent_card.health = new_health_value
+                else:
+                    _opponent_card.health = _opponent_card.max_health
                 _opponent_card.usedsummon = False
-                
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Power Of Friendship! 🧬 {_opponent_card.name} Summon Rested, **{_opponent_card.name}** Increased Stamina and Power Level 🌀")
+                if _opponent_card.used_resolve:
+                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Power Of Friendship! 🧬 {_opponent_card.summon_name} Rested, **{_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                else:
+                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Increase Power!** {_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
 
             elif _opponent_card.universe == "Souls" and not _opponent_card.used_resolve:
                 _opponent_card.attack = round(_opponent_card.attack + (100 + battle_config.turn_total))
@@ -3832,25 +3853,15 @@ class Card:
             
     def activate_chainsawman_trait(self, battle_config):
         if self.universe == "Chainsawman":
-            if self.health <= (self.max_health * .25):
+            if self.health <= (self.max_health * .50):
                 if self._chainsawman_activated == False:
-                    if self._atk_chainsawman_buff == False:
-                        self._atk_chainsawman_buff = True
-                        self._chainsawman_activated = True
-                        self.defense = self.defense * 2
-                        self.attack = self.attack * 2
-                        self.max_health = self.max_health * 2
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
+                    self._chainsawman_activated = True
+                    self.defense = self.defense * 2
+                    self.attack = self.attack * 2
+                    self.max_health = self.max_health * 2
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
 
-            elif self.health <= (self.max_health * .50):
-                if self._chainsawman_activated == False:
-                    if self._atk_chainsawman_buff == False:
-                        self._atk_chainsawman_buff = True
-                        self._chainsawman_activated = True
-                        self.defense = self.defense * 2
-                        self.attack = self.attack * 2
-                        self.max_health = self.max_health * 2
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
+
                         
     def set_stat_icons(self):
         if self.used_focus:

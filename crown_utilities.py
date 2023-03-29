@@ -451,16 +451,7 @@ async def summonlevel(player, player_card):
             
             power = (summon_bond * summon_lvl) + int(summon_ability_power)
             summon_path = summon_object['PATH']
-            # lvl = familysummon['LVL']  # To Level Up -(lvl * 10 = xp required)
-            # lvl_req = lvl * 10
-            # exp = familysummon['EXP']
-            # summon_name
-            # petmove_text = list(familysummon.keys())[3]  # Name of the ability
-            # petmove_ap = list(familysummon.values())[3]  # Ability Power
-            # petmove_type = familysummon['TYPE']
-            # bond = familysummon['BOND']
-            # bondexp = familysummon['BONDEXP']
-            # bond_req = ((petmove_ap * 5) * (bond + 1))
+
             summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
             query = {'HEAD':str(family_info['HEAD'])}
             
@@ -1851,6 +1842,15 @@ enhancer_suffix_mapping = {'ATK': '%',
     'SIPHON': ' Healing 💉'
 }
 
+rebirth_arms = [
+    "Stock",
+    "Reborn Stock",
+    "Deadgun",
+    "Glaive",
+    "Kings Glaive",
+    "Legendary Weapon"
+]
+
 
 title_enhancer_suffix_mapping = {'ATK': '',
     'DEF': '',
@@ -2051,18 +2051,18 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'God Of War': '<:kratos:1088701141753274408>',
               'Chainsawman': '<:denji:1088701139886817311>',
               'One Punch Man': '<:pngaaa:1085072765587030027>',
-              'Johto Region': '<:pokemon:1088966251541450752>',
+              'Johto Region': '<:johto:1090448443723501729>',
               'Black Clover': '<:Black_Clover:1088699058262114314>',
               'Demon Slayer': '<:Demon_Slayer:1088702009709973565>',
               'Attack On Titan': '<:AOT:1088702007717658674>',
               '7ds': '<:7ds:1088702006581006377>',
-              'Hoenn Region': '<:pokemon:1088966251541450752>',
+              'Hoenn Region': '<:hoenn:1090448753233756292>',
               'Digimon': '<:digimon_sparkle:1088702667703988316>',
               'Fate': ':u6e80:',
               'Solo Leveling': '<:jin:1090240014891352114>',
               'Souls': '<:dark_souls_icon:1088702666688966726>',
               'Dragon Ball Z': '<:dbz:1088698675338952774>',
-              'Sinnoh Region': '<:pokemon:1088966251541450752>',
+              'Sinnoh Region': '<:sinnoh:1090448834435481650>',
               'Death Note': '<:death_note:1088702980682956800>',
               'Crown Rift Awakening': ':u7a7a:',
               'Crown Rift Slayers': ':sa:',

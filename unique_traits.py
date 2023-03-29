@@ -49,7 +49,7 @@ traits = [{
 },{
     'NAME': '7ds',
     'EFFECT': 'Increase Power, Power Of Friendship',
-    'TRAIT': 'Increase Power : On Opp Focus gain 60 Stamina. Power Of Friendship : On Opp Focus, Gain Focus Stacks and Summon Rest.'
+    'TRAIT': 'Increase Power : On Opp Focus gain 60 Stamina and Focus. Power Of Friendship : On Opp Focus, Gain Summon Rest.'
 },{
     'NAME': 'One Punch Man',
     'EFFECT': 'Hero Reinforcement, Hero Rankings',

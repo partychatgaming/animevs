@@ -179,6 +179,7 @@ class Lookup(commands.Cog):
                 crown_tales = d['CROWN_TALES']
                 dungeons = d['DUNGEONS']
                 bosses = d['BOSS_WINS']
+                scenarios = d['SCENARIO_HISTORY']
                 pvp_wins = d['PVP_WINS']
                 pvp_loss = d['PVP_LOSS']
                 pet = d['PET']
@@ -298,6 +299,10 @@ class Lookup(commands.Cog):
                         boss_info = db.queryBoss({'NAME': str(boss)})
                         uni = boss_info['UNIVERSE']
                         boss_list.append(f"**{crest_dict[uni]} |** {boss}")
+                scenario_list = []
+                for scenario in scenarios:
+                    if scenario != "":
+                        scenario_list.append(f"**{scenario}**")
 
                 matches_to_string = dict(ChainMap(*matches))
                 ign_to_string = dict(ChainMap(*ign))
@@ -335,7 +340,7 @@ class Lookup(commands.Cog):
                 """), colour=discord.Color.darker_grey())
                 embed2.set_thumbnail(url=avatar)
                 
-                embed5 = discord.Embed(title=f"{name}'s Stats".format(self), description=textwrap.dedent(f"""\
+                embed9 = discord.Embed(title=f"{name}'s Stats".format(self), description=textwrap.dedent(f"""\
                 ⚔️ | **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                 🔥 | **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
                 👹 | **Bosses Played: **{'{:,}'.format(len(boss_matches))}
@@ -343,7 +348,7 @@ class Lookup(commands.Cog):
                 🆚 | **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
                 📊 | **Pvp Record: ** :regional_indicator_w: **{pvp_wins}** / :regional_indicator_l: **{pvp_loss}**
                 """), colour=discord.Color.red())
-                embed5.set_thumbnail(url=avatar)
+                embed9.set_thumbnail(url=avatar)
                 
                 embed3 = discord.Embed(title=f"{name}'s Vault".format(self), description=textwrap.dedent(f"""\
                 **Balance** | {bal_message}
@@ -356,36 +361,61 @@ class Lookup(commands.Cog):
                 """), colour=discord.Color.dark_purple())
                 embed3.set_thumbnail(url=avatar)
                 
-                embed6 = discord.Embed(title=f"{name}'s Avatar".format(self), description=textwrap.dedent(f"""\
+                embed8 = discord.Embed(title=f"{name}'s Avatar".format(self), description=textwrap.dedent(f"""\
                     **:bust_in_silhouette: | User:** {user.mention}
                     {aicon} | {prestige_message}
                     :military_medal: | {most_played_card_message}
                     :earth_africa: | {most_played_universe_message}
                     {patreon_message}
                 """), colour=000000)
-                embed6.set_image(url=avi)
-                embed6.set_footer(text=f"{birthday}")
+                embed8.set_image(url=avi)
+                embed8.set_footer(text=f"{birthday}")
+                
                 if crown_list:
-                    embed4 = discord.Embed(title=f"{name}'s Tales Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=discord.Color.gold())
+                    embed4 = discord.Embed(title=f"{name}'s Tales Achievements".format(self), description=textwrap.dedent(f"""\
+                    """), colour=discord.Color.gold())
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name=":medal: | " + "Completed Tales" , value="\n".join(crown_list))
                     if dungeon_list:
-                        embed4.add_field(name=":fire: | " + "Completed Dungeons", value="\n".join(dungeon_list))
+                        embed5 = discord.Embed(title=f"{name}'s Dungeon Achievements".format(self), description=textwrap.dedent(f"""\
+                        """), colour=discord.Color.gold())
+                        embed5.set_thumbnail(url=avatar)
+                        embed5.add_field(name=":fire: | " + "Completed Dungeons", value="\n".join(dungeon_list))
                         if boss_list:
-                            embed4.add_field(name=":japanese_ogre: | " + "Boss Souls",value="\n".join(boss_list))
+                            embed6 = discord.Embed(title=f"{name}'s Boss Achievements".format(self), description=textwrap.dedent(f"""\
+                            """), colour=discord.Color.gold())
+                            embed6.set_thumbnail(url=avatar)
+                            embed6.add_field(name=":japanese_ogre: | " + "Boss Souls",value="\n".join(boss_list))
                         else:
-                            embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
+                            embed6 = discord.Embed(title=f"{name}'s Boss Achievements".format(self), description=textwrap.dedent(f"""\
+                            """), colour=discord.Color.gold())
+                            embed6.set_thumbnail(url=avatar)
+                            embed6.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                     else:
-                        embed4.add_field(name=":fire: | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
-                        embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
+                        embed5 = discord.Embed(title=f"{name}'s Dungeon Achievements".format(self), description=textwrap.dedent(f"""\
+                        """), colour=discord.Color.gold())
+                        embed5.set_thumbnail(url=avatar)
+                        embed5.add_field(name=":fire: | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
+                        embed6 = discord.Embed(title=f"{name}'s Boss Achievements".format(self), description=textwrap.dedent(f"""\
+                        """), colour=discord.Color.gold())
+                        embed6.set_thumbnail(url=avatar)
+                        embed6.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                 else:
-                    embed4 = discord.Embed(title=f"{name}'s Achievements".format(self), description=":bank: Party Chat Gaming Database™️", colour=discord.Color.gold())
+                    embed4 = discord.Embed(title=f"{name}'s Tales Achievements".format(self), description=textwrap.dedent(f"""\
+                    """), colour=discord.Color.gold())
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name="Completed Tales" + " :medal:", value="No Completed Tales, yet!")
-                    embed4.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")
-                    embed4.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
+                    embed5 = discord.Embed(title=f"{name}'s Dungeon Achievements".format(self), description=textwrap.dedent(f"""\
+                    """), colour=discord.Color.gold())
+                    embed5.set_thumbnail(url=avatar)
+                    embed5.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")
+                    embed6 = discord.Embed(title=f"{name}'s Boss Achievements".format(self), description=textwrap.dedent(f"""\
+                    """), colour=discord.Color.gold())
+                    embed6.set_thumbnail(url=avatar)
+                    embed6.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
+                
 
-                embeds = [embed6, embed1, embed5, embed3, embed2, embed4]
+                embeds = [embed8, embed1, embed9, embed3, embed2, embed4, embed5, embed6]
                 await Paginator(bot=self.bot, ctx=ctx, pages=embeds, timeout=60).run()
             else:
                 await ctx.send(m.USER_NOT_REGISTERED)
@@ -915,7 +945,8 @@ class Lookup(commands.Cog):
                 members_list_joined =  "\n".join(sword_member_list)
                 crest_list = []
                 for c in crest:
-                    crest_list.append(f"{crown_utilities.crest_dict[c]} | {c}")
+                    if c != "Unbound":
+                        crest_list.append(f"{crown_utilities.crest_dict[c]}")
                 
                 # print(ctx.author.id)
                 # print(f_DID)
@@ -995,9 +1026,9 @@ class Lookup(commands.Cog):
                 guilds_page.add_field(name=f":military_helmet: Guilds | **:ninja: ~ {sword_count}/:knife: {total_blade_count}**", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
                 guilds_page.set_footer(text=f"/guild - View Association Guild")
                 
-                crest_page = discord.Embed(title=f"Universe Crest".format(self), description=f":flags: |  {guild_name} **Universe Crest**\n:bank: |  Party Chat Gaming Database", colour=000000)
-                crest_page.add_field(name=f":secret: | **OWNED**", value="\n".join(f'**{c}**'.format(self) for c in crest_list), inline=False)
-                crest_page.set_footer(text=f"Earn Universe Crest in Dungeons and Boss Fights!")
+                crest_page = discord.Embed(title=f"Universe Crest".format(self), description=f"", colour=000000)
+                crest_page.add_field(name=f":flags: |  {guild_name} **Universe Crest**", value=" ".join(f'**{c}**'.format(self) for c in crest_list), inline=False)
+                crest_page.set_footer(text=f"Earn Crest in Dungeons and Boss!")
                 
                 activity_page = discord.Embed(title="Recent Association Activity", description=textwrap.dedent(f"""
                 {transactions_embed}

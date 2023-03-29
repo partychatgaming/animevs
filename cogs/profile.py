@@ -1633,6 +1633,8 @@ class Profile(commands.Cog):
                                 sell_price = 10000000
                             if arm_name == current_arm:
                                 await button_ctx.send("You cannot resell equipped arms.")
+                            if arm_name in crown_utilities.rebirth_arms:
+                                await button_ctx.send("You cannot resell Stock arms.")
                             elif arm_name in updated_vault:
                                 sell_buttons = [
                                     manage_components.create_button(
@@ -1699,7 +1701,7 @@ class Profile(commands.Cog):
                             dismantle_amount = 10000
                             if arm_name == current_arm:
                                 await button_ctx.send("You cannot dismantle equipped arms.")
-                            elif arm_name == "Stock" or arm_name == "Reborn Stock" or arm_name == "Deadgun" or arm_name == "Glaive" or arm_name == "Kings Glaive" or arm_name == "Legendary Weapon":
+                            if arm_name in crown_utilities.rebirth_arms:
                                 await button_ctx.send("You cannot dismantle Stock arms.")
                             elif arm_name in updated_vault:
                                 dismantle_buttons = [
