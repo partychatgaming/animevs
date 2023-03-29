@@ -285,12 +285,12 @@ class Lookup(commands.Cog):
                 crown_list = []
                 for crown in crown_tales:
                     if crown != "":
-                        crown_list.append(f"**{crest_dict[crown]} |** {crown}")
+                        crown_list.append(f"**{crest_dict[crown]}")
                 
                 dungeon_list = []
                 for dungeon in dungeons:
                     if dungeon != "":
-                        dungeon_list.append(f"**{crest_dict[dungeon]} |** {dungeon}")
+                        dungeon_list.append(f"**{crest_dict[dungeon]}")
 
                 boss_list =[]
                 uni = "Unbound"
@@ -298,7 +298,7 @@ class Lookup(commands.Cog):
                     if boss != "":
                         boss_info = db.queryBoss({'NAME': str(boss)})
                         uni = boss_info['UNIVERSE']
-                        boss_list.append(f"**{crest_dict[uni]} |** {boss}")
+                        boss_list.append(f"**{crest_dict[uni]}**{boss}")
                 scenario_list = []
                 for scenario in scenarios:
                     if scenario != "":
