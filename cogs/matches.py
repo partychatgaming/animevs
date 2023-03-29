@@ -44,11 +44,13 @@ class Matches(commands.Cog):
     async def analysis(self, ctx, card: str):
         try:
             card_info = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
-            c = Card(card_info['NAME'], card_info['PATH'], card_info['PRICE'], card_info['EXCLUSIVE'], card_info['AVAILABLE'], card_info['IS_SKIN'], card_info['SKIN_FOR'], card_info['HLT'], card_info['HLT'], card_info['STAM'], card_info['STAM'], card_info['MOVESET'], card_info['ATK'], card_info['DEF'], card_info['TYPE'], card_info['PASS'][0], card_info['SPD'], card_info['UNIVERSE'], card_info['HAS_COLLECTION'], card_info['TIER'], card_info['COLLECTION'], card_info['WEAKNESS'], card_info['RESISTANT'], card_info['REPEL'], card_info['ABSORB'], card_info['IMMUNE'], card_info['GIF'], card_info['FPATH'], card_info['RNAME'], card_info['RPATH'], False)
+            c = Card(card_info['NAME'], card_info['PATH'], card_info['PRICE'], card_info['EXCLUSIVE'], card_info['AVAILABLE'], card_info['IS_SKIN'], card_info['SKIN_FOR'], card_info['HLT'], card_info['HLT'], card_info['STAM'], card_info['STAM'], card_info['MOVESET'], card_info['ATK'], card_info['DEF'], card_info['TYPE'], card_info['PASS'][0], card_info['SPD'], card_info['UNIVERSE'], card_info['HAS_COLLECTION'], card_info['TIER'], card_info['COLLECTION'], card_info['WEAKNESS'], card_info['RESISTANT'], card_info['REPEL'], card_info['ABSORB'], card_info['IMMUNE'], card_info['GIF'], card_info['FPATH'], card_info['RNAME'], card_info['RPATH'], False, card_info['CLASS'])
             c.set_affinity_message()
             title = {'TITLE': 'CARD ANALYSIS'}
             arm = {'ARM': 'CARD ANALYSIS'}
             c.set_price_message_and_card_icon()
+            c.used_resolve = True
+            c.used_focus = True
             
             match_query = {"CARD": str(card_info['NAME'])}
             response = db.queryManyMatches(match_query)
@@ -148,7 +150,7 @@ class Matches(commands.Cog):
                 embedVar2.add_field(name=f"👹Boss Stats", value=f"{boss_message}", inline=False)
                 embedVar2.add_field(name=f"⚔️PVP Stats", value=f"{pvp_message}", inline=False)
                 embedVar2.set_footer(text=f"/player {card_main} - Lookup Card Master")
-                await ctx.send(embed=embedVar2, file=c.showcard("non-battle","none".title,0,0))
+                await ctx.send(embed=embedVar2, file=c.showcard("non-battle","none",title,0,0))
                 
                 
             else:
@@ -165,7 +167,7 @@ class Matches(commands.Cog):
                 })
                 tb = tb.tb_next
             print(str({
-                'player': str(player),
+                'player': str(ctx.author),
                 'type': type(ex).__name__,
                 'message': str(ex),
                 'trace': trace
