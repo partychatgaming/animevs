@@ -2773,8 +2773,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
                                                     damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                    if not player1_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                    battle_config.next_turn()
                                     if selected_move == 5:
                                         player1_card.resolving(battle_config, player2_card, player1)
                                         if battle_config.is_boss_game_mode:
@@ -3071,8 +3070,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
                                                     damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                    if not player1_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                    #if not player1_card._monstrosity_active:
+                                                    battle_config.next_turn()
                                                 
                                                     
                                     except asyncio.TimeoutError:
@@ -3294,8 +3293,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                        if not player2_card._monstrosity_active:
-                                                            battle_config.next_turn()
+                                                        #if not player2_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                         except asyncio.TimeoutError:
                                             await battle_msg.edit(components=[])
                                             if not any((battle_config.is_abyss_game_mode, 
@@ -3388,8 +3387,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
                                                     damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player1_card) 
-                                                    if not player2_card._monstrosity_active:
-                                                        battle_config.next_turn()               
+                                                    #if not player2_card._monstrosity_active:
+                                                    battle_config.next_turn()               
 
                                 if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode:
                                     if battle_config.is_auto_battle_game_mode:
@@ -3501,8 +3500,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                                        if not player2_card._monstrosity_active:
-                                                            battle_config.next_turn()
+                                                        #if not player2_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                             else:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                 if selected_move != 6 and selected_move != 7:
@@ -3517,8 +3516,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                        if not player2_card._monstrosity_active:
-                                                            battle_config.next_turn()
+                                                        #if not player2_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                         else:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                             if selected_move != 6 and selected_move != 7:
@@ -3533,8 +3532,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
                                                     damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                    if not player2_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                    #if not player2_card._monstrosity_active:
+                                                    battle_config.next_turn()
 
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
                             if battle_config.is_duo_mode or battle_config.is_co_op_mode:
@@ -3621,8 +3620,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 2: Enhanced Aggression!")
                                                     damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
                                                     player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                    if not player3_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                    #if not player3_card._monstrosity_active:
+                                                    battle_config.next_turn()
                                     else:
                                         player3_card.set_battle_arm_messages(player2_card)
                                         player3_card.set_stat_icons()
@@ -3748,8 +3747,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 2: Enhanced Aggression!")
                                                         damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
                                                         player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                        if not player3_card._monstrosity_active:
-                                                            battle_config.next_turn()
+                                                        #if not player3_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                         except asyncio.TimeoutError:
                                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                             await battle_msg.delete()
@@ -3920,8 +3919,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                        if not player2_card._monstrosity_active:
-                                                            battle_config.next_turn()
+                                                        #if not player2_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                             else:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                 if selected_move != 6 and selected_move != 7:
@@ -3936,8 +3935,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                                        if not player2_card._monstrosity_active:
-                                                            battle_config.next_turn()
+                                                        #if not player2_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                         else:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                             if selected_move != 6 and selected_move != 7:
@@ -3952,8 +3951,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
                                                     damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                                    if not player2_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                    #if not player2_card._monstrosity_active:
+                                                    battle_config.next_turn()
                     
                     if game_over_check:
                         wintime = time.asctime()
@@ -5883,21 +5882,21 @@ element_mapping = {
 'FIRE': 'Does 50% damage of previous attack over the next opponent turns, stacks.',
 'ICE': 'Every 2 attacks, opponent freezes and loses 1 turn.',
 'WATER': 'Increases all water move AP by 100 Flat.',
-'EARTH': 'Cannot be Parried. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG',
-'ELECTRIC': 'Add 35% DMG Dealt to Shock damage, added to all Move AP.',
+'EARTH': 'Cannot be Parried. Increases Def and Shield by 30% AP',
+'ELECTRIC': 'Add 15% DMG Dealt to Shock damage, added to all Move AP.',
 'WIND': 'On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.',
-'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits Gain a Barrier',
-'DEATH': 'Deals 45% DMG to opponent max health. Gain Attack equal to that amount.',
+'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier',
+'DEATH': 'Deals 30% DMG to opponent max health. Gain Attack equal to that amount.',
 'LIFE': 'Create Max Health and Heal for 35% DMG.',
-'LIGHT': 'Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 50% of DMG.',
+'LIGHT': 'Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 30% of DMG.',
 'DARK': 'Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.',
 'POISON': 'Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).',
-'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%',
+'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. After 4 Strikes Increase Hit Chance by 5%',
 'SPIRIT': 'Has higher 35% higher chance of Crit.',
-'RECOIL': 'Deals Incredible Bonus Damage, take 60% as recoil. If Recoil would kill you reduce HP to 1',
+'RECOIL': 'Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1',
 'TIME': 'Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.',
 'BLEED': 'Every 2 Attacks deal 10x turn count damage to opponent.',
-'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.'
+'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 30% DMG, Decrease Turn Count By 3.'
 }
 
 

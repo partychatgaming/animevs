@@ -1717,21 +1717,21 @@ class Card:
                             self._barrier_value = 0
                         self._barrier_value = self._barrier_value + ap
                         self.add_solo_leveling_temp_values('BARRIER', _opponent_card)
-                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n{move} was used! {self.name} received {self.summon_emoji} {ap} barrier"
+                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n💠 {move} was used! {self.name} received {self.summon_emoji} {ap} barrier"
                     if move_element == "SHIELD":
                         self._shield_active = True
                         if self._shield_value < 0:
                             self._shield_value = 0
                         self._shield_value = self._shield_value + ap
                         self.add_solo_leveling_temp_values('SHIELD', _opponent_card)
-                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n{move} was used! {self.name} received {self.summon_emoji} {ap} shield!"
+                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n🌐 {move} was used! {self.name} received {self.summon_emoji} {ap} shield!"
                     if move_element == "PARRY":
                         self._parry_active = True
                         if self._parry_value < 0:
                             self._parry_value = 0
                         self._parry_value = self._parry_value + ap
                         self.add_solo_leveling_temp_values('PARRY', _opponent_card)
-                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n{move} was used! {self.name} receive {self.summon_emoji} {ap} parry!"
+                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n🔄 {move} was used! {self.name} receive {self.summon_emoji} {ap} parry!"
                     battle_config.add_to_battle_log(message)
                     response = {
                     "DMG": 0,
@@ -3505,7 +3505,7 @@ class Card:
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
                 self.stamina = 0
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + round(dmg['DMG'] / (1 + battle_config.turn_total))
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (4 * battle_config.turn_total)
             self.used_block = True
             self.defense = round(self.defense * 4)
             battle_config.turn_total = battle_config.turn_total + 3
@@ -3608,7 +3608,7 @@ class Card:
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
 
         elif dmg['ELEMENT'] == "ELECTRIC":
-            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .10)
+            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .15)
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .10))} AP*")
 
