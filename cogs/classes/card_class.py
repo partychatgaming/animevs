@@ -447,15 +447,15 @@ class Card:
         mage_buff = .35
         heal_buff = .25
         if self.tier in [1, 2, 3]:
-            value = 2
+            value = 1
             p_value = 3
         elif self.tier in [4, 5]:
-            value = 3
+            value = 2
             p_value = 5
             mage_buff = .45
             heal_buff = .35
         elif self.tier in [6, 7]:
-            value = 4
+            value = 3
             p_value = 6
             mage_buff = .50
             heal_buff = .45
@@ -489,7 +489,7 @@ class Card:
         if self.card_class == "ASSASSIN":
             self.is_assassin = True
             self._assassin_active = True
-            self._assassin_attack = value
+            self._assassin_attack = value + 1
             
         if self.card_class == "SWORDSMAN":
             self.is_swordsman = True
@@ -2106,11 +2106,11 @@ class Card:
         if self.universe == "Crown Rift Slayers" and hit_roll <= low_hit:
             hit_roll = hit_roll - 3
 
-        if self._swordsman_active and self.used_resolve:
+        if self._swordsman_active and self.used_resolve and not summon_used:
             if self._critical_strike_count < self._swordsman_value:
                 self._critical_strike_count += 1
                 hit_roll = 20
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{3 - self._critical_strike_count} Left!*")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{self._swordsman_value - self._critical_strike_count} Left!*")
 
         if self.bloodlust_activated:
             hit_roll = hit_roll + 3

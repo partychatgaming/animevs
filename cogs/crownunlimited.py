@@ -2757,35 +2757,24 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     if selected_move in [1, 2, 3, 4, 7]:
                                         damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
-                                        if player1_card._monstrosity_active and player1_card.used_resolve:
-                                            if player1_card._double_strike_count < player1_card._monstrosity_value:
-                                                player1_card._double_strike_count +=1
-                                                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{2 - player1_card._double_strike_count} Left!*")
-                                                #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
-                                                player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                battle_config.next_turn()
-                                        if player1_card.universe == "Souls" and player1_card.used_resolve:
-                                            battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
-                                            damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
-                                            player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                            if not player1_card._monstrosity_active:
-                                                battle_config.next_turn()
+
 
                                         if selected_move != 7:
                                             player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                            if player1_card._monstrosity_active and player1_card.used_resolve:
-                                                if player1_card._double_strike_count < player1_card._monstrosity_value:
-                                                    player1_card._double_strike_count +=1
-                                                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{2 - player1_card._double_strike_count} Left!*")
-                                                    #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
+                                            if selected_move != 6:
+                                                if player1_card._monstrosity_active and player1_card.used_resolve:
+                                                    if player1_card._double_strike_count < player1_card._monstrosity_value:
+                                                        player1_card._double_strike_count +=1
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{player1_card._monstrosity_value - player1_card._double_strike_count} Left!*")
+                                                        #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
+                                                        player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                                        battle_config.next_turn()
+                                                if player1_card.universe == "Souls" and player1_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                    battle_config.next_turn()
-                                            if player1_card.universe == "Souls" and player1_card.used_resolve:
-                                                battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
-                                                damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
-                                                player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                if not player1_card._monstrosity_active:
-                                                    battle_config.next_turn()
+                                                    if not player1_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                     if selected_move == 5:
                                         player1_card.resolving(battle_config, player2_card, player1)
                                         if battle_config.is_boss_game_mode:
@@ -2794,21 +2783,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     elif selected_move == 6:
                                         summon_response = player1_card.usesummon(battle_config, player2_card)
                                         damage_calculation_response = summon_response
-                                        player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                        if player1_card._monstrosity_active and player1_card.used_resolve:
-                                            if player1_card._double_strike_count < player1_card._monstrosity_value:
-                                                player1_card._double_strike_count +=1
-                                                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{2 - player1_card._double_strike_count} Left!*")
-                                                #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
-                                                player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                battle_config.next_turn()
-                                        if player1_card.universe == "Souls" and player1_card.used_resolve:
-                                            battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
-                                            damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
-                                            player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                            if not player1_card._monstrosity_active:
-                                                battle_config.next_turn()
-                                            
+                                        player1_card.damage_done(battle_config, damage_calculation_response, player2_card)                                            
 
                                     elif selected_move == 0:
                                         player1_card.use_block(battle_config, player2_card)                                
@@ -3085,18 +3060,19 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if button_ctx.custom_id in battle_config.main_battle_options:
                                             player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                            if player1_card._monstrosity_active and player1_card.used_resolve:
-                                                if player1_card._double_strike_count < player1_card._monstrosity_value:
-                                                    player1_card._double_strike_count +=1
-                                                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{2 - player1_card._double_strike_count} Left!*")
+                                            if button_ctx.custom_id != "6" and button_ctx.custom_id != "7":
+                                                if player1_card._monstrosity_active and player1_card.used_resolve:
+                                                    if player1_card._double_strike_count < player1_card._monstrosity_value:
+                                                        player1_card._double_strike_count +=1
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{player1_card._monstrosity_value - player1_card._double_strike_count} Left!*")
+                                                        player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                                        battle_config.next_turn()
+                                                if player1_card.universe == "Souls" and player1_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                    battle_config.next_turn()
-                                            if player1_card.universe == "Souls" and player1_card.used_resolve:
-                                                battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
-                                                damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
-                                                player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                if not player1_card._monstrosity_active:
-                                                    battle_config.next_turn()
+                                                    if not player1_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                                 
                                                     
                                     except asyncio.TimeoutError:
@@ -3306,19 +3282,20 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                             if button_ctx.custom_id in battle_config.main_battle_options:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                if player2_card._monstrosity_active and player2_card.used_resolve:
-                                                    if player2_card._double_strike_count < player2_card._monstrosity_value:
-                                                        player2_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
-                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                if button_ctx.custom_id != "6" and button_ctx.custom_id != "7":
+                                                    if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                        if player2_card._double_strike_count < player2_card._monstrosity_value:
+                                                            player2_card._double_strike_count +=1
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                            player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                                            battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                        battle_config.next_turn()
-                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
-                                                    damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
-                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                    if not player2_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                        if not player2_card._monstrosity_active:
+                                                            battle_config.next_turn()
                                         except asyncio.TimeoutError:
                                             await battle_msg.edit(components=[])
                                             if not any((battle_config.is_abyss_game_mode, 
@@ -3399,19 +3376,20 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if selected_move != 5 and selected_move != 0:
                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                            if player2_card._monstrosity_active and player2_card.used_resolve:
-                                                if player2_card._double_strike_count < player2_card._monstrosity_value:
-                                                    player2_card._double_strike_count +=1
-                                                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
-                                                    #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
-                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card)   
-                                                    battle_config.next_turn()     
-                                            if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
-                                                damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
-                                                player2_card.damage_done(battle_config, damage_calculation_response, player1_card) 
-                                                if not player2_card._monstrosity_active:
-                                                    battle_config.next_turn()               
+                                            if selected_move != 6 and selected_move != 7:
+                                                if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                    if player2_card._double_strike_count < player2_card._monstrosity_value:
+                                                        player2_card._double_strike_count +=1
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player1_card)   
+                                                        battle_config.next_turn()     
+                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
+                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card) 
+                                                    if not player2_card._monstrosity_active:
+                                                        battle_config.next_turn()               
 
                                 if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode:
                                     if battle_config.is_auto_battle_game_mode:
@@ -3511,25 +3489,43 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if battle_config.is_co_op_mode:
                                             if player3_card.used_defend == True:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                                if player2_card._monstrosity_active and player2_card.used_resolve:
-                                                    if player2_card._double_strike_count < player2_card._monstrosity_value:
-                                                        player2_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
-                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
+                                                if selected_move != 6 and selected_move != 7:
+                                                    if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                        if player2_card._double_strike_count < player2_card._monstrosity_value:
+                                                            player2_card._double_strike_count +=1
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
+                                                            player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
+                                                            battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                                        battle_config.next_turn()
-                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
-                                                    damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
-                                                    player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                                    if not player2_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                        if not player2_card._monstrosity_active:
+                                                            battle_config.next_turn()
                                             else:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                                if selected_move != 6 and selected_move != 7:
+                                                    if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                        if player2_card._double_strike_count < player2_card._monstrosity_value:
+                                                            player2_card._double_strike_count +=1
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                            player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                                            battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                                        if not player2_card._monstrosity_active:
+                                                            battle_config.next_turn()
+                                        else:
+                                            player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                            if selected_move != 6 and selected_move != 7:
                                                 if player2_card._monstrosity_active and player2_card.used_resolve:
                                                     if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                         player2_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         battle_config.next_turn()
@@ -3539,21 +3535,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                     if not player2_card._monstrosity_active:
                                                         battle_config.next_turn()
-                                        else:
-                                            player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                            if player2_card._monstrosity_active and player2_card.used_resolve:
-                                                if player2_card._double_strike_count < player2_card._monstrosity_value:
-                                                    player2_card._double_strike_count +=1
-                                                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
-                                                    #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
-                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                    battle_config.next_turn()
-                                            if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
-                                                damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
-                                                player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                if not player2_card._monstrosity_active:
-                                                    battle_config.next_turn()
 
                         elif battle_config.is_co_op_mode and battle_config.is_turn != (0 or 1):
                             if battle_config.is_duo_mode or battle_config.is_co_op_mode:
@@ -3628,19 +3609,20 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if selected_move != 5 and selected_move != 7 and selected_move != 8 and selected_move != 0:
                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card) 
-                                            if player3_card._monstrosity_active and player3_card.used_resolve:
-                                                if player3_card._double_strike_count < player3_card._monstrosity_value:
-                                                    player3_card._double_strike_count +=1
-                                                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player3_card.name}**:  Double Strike!\n*{2 - player3_card._double_strike_count} Left!*")
-                                                    #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
+                                            if selected_move != 6:
+                                                if player3_card._monstrosity_active and player3_card.used_resolve:
+                                                    if player3_card._double_strike_count < player3_card._monstrosity_value:
+                                                        player3_card._double_strike_count +=1
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player3_card.name}**:  Double Strike!\n*{player3_card._monstrosity_value - player3_card._double_strike_count} Left!*")
+                                                        #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
+                                                        player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                                        battle_config.next_turn()
+                                                if player3_card.universe == "Souls" and player3_card.used_resolve:
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 2: Enhanced Aggression!")
+                                                    damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
                                                     player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                    battle_config.next_turn()
-                                            if player3_card.universe == "Souls" and player3_card.used_resolve:
-                                                battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 2: Enhanced Aggression!")
-                                                damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
-                                                player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                if not player3_card._monstrosity_active:
-                                                    battle_config.next_turn()
+                                                    if not player3_card._monstrosity_active:
+                                                        battle_config.next_turn()
                                     else:
                                         player3_card.set_battle_arm_messages(player2_card)
                                         player3_card.set_stat_icons()
@@ -3754,19 +3736,20 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                             if button_ctx.custom_id != "5" and button_ctx.custom_id != "7" and button_ctx.custom_id != "8" and button_ctx.custom_id != "0" and button_ctx.custom_id != "q":
                                                 player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                if player3_card._monstrosity_active and player3_card.used_resolve:
-                                                    if player3_card._double_strike_count < player3_card._monstrosity_value:
-                                                        player3_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player3_card.name}**:  Double Strike!\n*{2 - player3_card._double_strike_count} Left!*")
-                                                        #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
+                                                if button_ctx.custom_id != "6":
+                                                    if player3_card._monstrosity_active and player3_card.used_resolve:
+                                                        if player3_card._double_strike_count < player3_card._monstrosity_value:
+                                                            player3_card._double_strike_count +=1
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player3_card.name}**:  Double Strike!\n*{player3_card._monstrosity_value - player3_card._double_strike_count} Left!*")
+                                                            #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
+                                                            player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
+                                                            battle_config.next_turn()
+                                                    if player3_card.universe == "Souls" and player3_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
                                                         player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                        battle_config.next_turn()
-                                                if player3_card.universe == "Souls" and player3_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 2: Enhanced Aggression!")
-                                                    damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
-                                                    player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
-                                                    if not player3_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                        if not player3_card._monstrosity_active:
+                                                            battle_config.next_turn()
                                         except asyncio.TimeoutError:
                                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💨 **{player3_card.name}** Fled...")
                                             await battle_msg.delete()
@@ -3925,25 +3908,43 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         if battle_config.is_co_op_mode:
                                             if player3_card.used_defend == True:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                if player2_card._monstrosity_active and player2_card.used_resolve:
-                                                    if player2_card._double_strike_count < player2_card._monstrosity_value:
-                                                        player2_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
-                                                        #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                if selected_move != 6 and selected_move != 7:
+                                                    if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                        if player2_card._double_strike_count < player2_card._monstrosity_value:
+                                                            player2_card._double_strike_count +=1
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
+                                                            player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
+                                                            battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                        battle_config.next_turn()
-                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
-                                                    damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
-                                                    player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
-                                                    if not player2_card._monstrosity_active:
-                                                        battle_config.next_turn()
+                                                        if not player2_card._monstrosity_active:
+                                                            battle_config.next_turn()
                                             else:
                                                 player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
+                                                if selected_move != 6 and selected_move != 7:
+                                                    if player2_card._monstrosity_active and player2_card.used_resolve:
+                                                        if player2_card._double_strike_count < player2_card._monstrosity_value:
+                                                            player2_card._double_strike_count +=1
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
+                                                            player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
+                                                            battle_config.next_turn()
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                        damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
+                                                        player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
+                                                        if not player2_card._monstrosity_active:
+                                                            battle_config.next_turn()
+                                        else:
+                                            player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
+                                            if selected_move != 6 and selected_move != 7:
                                                 if player2_card._monstrosity_active and player2_card.used_resolve:
                                                     if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                         player2_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                         battle_config.next_turn()
@@ -3953,21 +3954,6 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                     if not player2_card._monstrosity_active:
                                                         battle_config.next_turn()
-                                        else:
-                                            player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                            if player2_card._monstrosity_active and player2_card.used_resolve:
-                                                if player2_card._double_strike_count < player2_card._monstrosity_value:
-                                                    player2_card._double_strike_count +=1
-                                                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{2 - player2_card._double_strike_count} Left!*")
-                                                    #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
-                                                    player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                                    battle_config.next_turn()
-                                            if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
-                                                damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
-                                                player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
-                                                if not player2_card._monstrosity_active:
-                                                    battle_config.next_turn()
                     
                     if game_over_check:
                         wintime = time.asctime()
@@ -4729,7 +4715,7 @@ def tactics_damage_check(boss_card, battle_config):
             if boss_card.focus_count in [3]:
                 boss_card.damage_check_activated = True
                 boss_card.damage_check_limit = round(boss_card.max_health * .10)
-                boss_card.damage_check_turns = round(random.randint(3, 6))
+                boss_card.damage_check_turns = round(random.randint(5, 10))
         if boss_card.damage_check_activated:
             battle_config.is_turn = 0
             battle_config.add_to_battle_log(f"(:vs:)**[{boss_card.name} Damage Check\nDamage Dealt [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]**")
