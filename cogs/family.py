@@ -621,7 +621,7 @@ class Family(commands.Cog):
                         new_value_query = {'$pull': {'KIDS': str(ctx.author)}}
                         response = db.deleteFamilyMemberAlt(family_query, new_value_query, str(ctx.author))
                         await ctx.send(response)
-                        user_update = {'$set' : {'FAMILY': str(kid_profile['DISNAME'], 'FAMILY_DID' : str(kid_profile['DID']))}}
+                        user_update = {'$set' : {'FAMILY': str(kid_profile['DISNAME']), 'FAMILY_DID' : str(kid_profile['DID'])}}
                         user_query = {'DID' : kid_profile['DID']}
                         user_update = db.updateUserNoFilter(user_query, user_update)
                     except:
