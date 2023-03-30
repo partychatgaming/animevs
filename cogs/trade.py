@@ -237,12 +237,12 @@ class Trade(commands.Cog):
                                 m_cards = trade_check['MCARDS']
                                 m_titles = trade_check['MTITLES']
                                 m_arms = trade_check['MARMS']
-                                msummons = trade_check['MSUMMONS']
+                                msummons = ", ".join(trade_check['MSUMMONS'])
                                 m_coins = trade_check['MCOIN']
                                 b_cards = trade_check['BCARDS']
                                 b_titles = trade_check['BTITLES']
                                 b_arms = trade_check['BARMS']
-                                bsummons = trade_check['BSUMMONS']
+                                bsummons = ", ".join(trade_check['BSUMMONS'])
                                 b_coins = trade_check['BCOIN']
                                 tax = trade_check['TAX']
                                 tax_split = tax/2
