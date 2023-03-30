@@ -10,6 +10,7 @@ class USER():
     DISNAME: str
     NAME: str
     DID: str
+    FAMILY_DID: str
     AVATAR: list[str] = field(default_factory=lambda: [''])
     IGN: list[str] = field(default_factory=lambda: [{'DEFAULT': 'PCG'}])
     GAMES: list[str] = field(default_factory=lambda: ['Crown Unlimited'])

@@ -119,7 +119,7 @@ class Family(commands.Cog):
                                     #await ctx.send(response)
                                     newvalue = {'$set': {'PARTNER': str(player)}}
                                     nextresponse = db.addFamilyMember(family_query, newvalue, str(ctx.author), str(player))
-                                    update_player = {'$set': {'FAMILY': str(ctx.author)}}
+                                    update_player = {'$set': {'FAMILY': str(ctx.author), 'FAMILY_DID' : head_profile['DID']}}
                                     player_response = db.updateUserNoFilter(update_player)
                                     await ctx.send(nextresponse)
                                 except:
@@ -254,7 +254,7 @@ class Family(commands.Cog):
                                         response = db.deleteFamilyMember(family_query, new_value_query, str(partner), str(ctx.author))
                                         user_query = {'DISNAME':str(partner)}
                                         user_info = db.queryUser(user_query)
-                                        old_family = db.updateUserNoFilter({'FAMILY':user_info['DISNAME']})
+                                        old_family = db.updateUserNoFilter({'DID': user_info['DID']},{'FAMILY':user_info['DISNAME'], 'FAMILY_DID' : user_profile['DID']})
                                     await button_ctx.send(response)
                                     await main.bless(divorce_split, str(family_profile['PARTNER']))
                                 except Exception as ex:
@@ -402,7 +402,10 @@ class Family(commands.Cog):
                                             response = db.addFamilyMemberAlt(family_query, newvalue, str(ctx.author), str(player))
                                         else:
                                             response = db.addFamilyMember(family_query, newvalue, str(ctx.author), str(player))
-                                        user_update = {'$set' : {'FAMILY': str(family['HEAD'])}}
+                                        if partner_mode:
+                                            user_update = {'$set' : {'FAMILY': str(family['HEAD']), 'FAMILY_DID' : family['HDID']}}
+                                        else:
+                                            user_update = {'$set' : {'FAMILY': str(family['HEAD']), 'FAMILY_DID' : family['HDID']}}
                                         user_query = {'DID' : kid_profile['DID']}
                                         user_update = db.updateUserNoFilter(user_query, user_update)
                                         await button_ctx.send(response)                                       
@@ -527,7 +530,7 @@ class Family(commands.Cog):
                             try:
                                 new_value_query = {'$pull': {'KIDS': str(kid) }}
                                 response = db.deleteFamilyMember(family_query, new_value_query, str(ctx.author), str(kid))
-                                user_update = {'$set' : {'FAMILY': str(kid)}}
+                                user_update = {'$set' : {'FAMILY': str(kid), 'FAMILY_DID': kid.id}}
                                 user_query = {'DID' : str(kid.id)}
                                 user_update = db.updateUserNoFilter(user_query, user_update)
                                 await button_ctx.send(response)
@@ -618,7 +621,7 @@ class Family(commands.Cog):
                         new_value_query = {'$pull': {'KIDS': str(ctx.author)}}
                         response = db.deleteFamilyMemberAlt(family_query, new_value_query, str(ctx.author))
                         await ctx.send(response)
-                        user_update = {'$set' : {'FAMILY': str(kid_profile['DISNAME'])}}
+                        user_update = {'$set' : {'FAMILY': str(kid_profile['DISNAME'], 'FAMILY_DID' : str(kid_profile['DID']))}}
                         user_query = {'DID' : kid_profile['DID']}
                         user_update = db.updateUserNoFilter(user_query, user_update)
                     except:

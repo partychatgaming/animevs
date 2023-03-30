@@ -926,7 +926,7 @@ async def register(ctx):
       }
       family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': summon_info, 'HDID' : str(ctx.author.id)}), str(disname))
       update_summon = db.updateFamily({'HEAD': str(disname)}, {'$set' : {'SUMMON': summon_info}})
-      user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
+      user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname), 'FAMILY_DID': str(ctx.author.id)}
       r_response = db.createUsers(data.newUser(user))
 
       if not server_created:
@@ -3410,7 +3410,6 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
          response = db.updateManyTitles({'$set': {new_field: field_type}})
       elif collection == 'vault':
          # response = db .updateVaultNoFilter({'DID' : str(ctx.author.id)}, {new_field: field_type})
-         print(response)
          response = db.updateManyVaults({'$set': {new_field: field_type}})
       elif collection == 'users':
          response = db.updateManyUsers({'$set': {new_field: field_type}})
@@ -3429,7 +3428,32 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       elif collection == 'hall':
          response = db.updateManyHalls({'$set': {new_field: field_type}})
       elif collection == 'family':
-         response = db.updateManyFamily({'$set': {new_field: field_type}})
+         print("Hello")
+         all_families = db.queryAllFamilies()
+         #print(len(list(all_families)))
+         print("here 1")
+         for family in all_families:
+            print(family['HEAD'])
+            head_name = family['HEAD']
+            head_info = db.queryUser({'DISNAME': head_name})
+            if head_info:
+               print(head_info['DISNAME'])
+               response = db.updateFamily({'HEAD' : head_info['DISNAME']}, {'$set' : {'HDID' : head_info['DID']}})
+               set_partner_did = db.updateUserNoFilter({'DID' : head_info['DID']}, {'$set': {'FAMILY_DID' : str(head_info['DID'])}})
+            partner_name = family['PARTNER']
+            partner_info = db.queryUser({'DISNAME' : partner_name})
+            if partner_info:
+               print(partner_info['DID'])
+               set_partner_did = db.updateUserNoFilter({'DID' : partner_info['DID']}, {'$set': {'FAMILY_DID' : str(head_info['DID'])}})
+            kid_info = family['KIDS']
+            if kid_info:
+               print("has kids")
+               for kids in kid_info:
+                  print(kids)
+                  kid_data = db.queryUser({'DISNAME' : kids})
+                  if kid_data:
+                     set_kid_did = db.updateUserNoFilter({'DID' : kid_data['DID']}, {'$set': {'FAMILY_DID' : str(head_info['DID'])}})
+         #response = db.updateManyFamily({'$set': {new_field: field_type}})
       elif collection == 'guild':
          response = db.updateManyGuild({'$set': {new_field: field_type}})
       

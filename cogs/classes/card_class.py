@@ -1717,21 +1717,21 @@ class Card:
                             self._barrier_value = 0
                         self._barrier_value = self._barrier_value + ap
                         self.add_solo_leveling_temp_values('BARRIER', _opponent_card)
-                        message = f"{move} was used! {self.name} received {self.summon_emoji} {ap} barrier"
+                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n{move} was used! {self.name} received {self.summon_emoji} {ap} barrier"
                     if move_element == "SHIELD":
                         self._shield_active = True
                         if self._shield_value < 0:
                             self._shield_value = 0
                         self._shield_value = self._shield_value + ap
                         self.add_solo_leveling_temp_values('SHIELD', _opponent_card)
-                        message = f"{move} was used! {self.name} received {self.summon_emoji} {ap} shield!"
+                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n{move} was used! {self.name} received {self.summon_emoji} {ap} shield!"
                     if move_element == "PARRY":
                         self._parry_active = True
                         if self._parry_value < 0:
                             self._parry_value = 0
                         self._parry_value = self._parry_value + ap
                         self.add_solo_leveling_temp_values('PARRY', _opponent_card)
-                        message = f"{move} was used! {self.name} receive {self.summon_emoji} {ap} parry!"
+                        message = f"🧬 {self.name} summoned **{self.summon_name}**\n{move} was used! {self.name} receive {self.summon_emoji} {ap} parry!"
                     battle_config.add_to_battle_log(message)
                     response = {
                     "DMG": 0,

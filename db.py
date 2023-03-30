@@ -1059,6 +1059,10 @@ def queryAllCards():
     data = cards_col.find()
     return data
 
+def queryAllFamilies():
+    data = family_col.find()
+    return data
+
 def queryAllCardsBasedOnUniverse(query):
     data = cards_col.find(query)
     return data
