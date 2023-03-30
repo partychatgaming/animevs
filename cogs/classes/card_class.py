@@ -1732,7 +1732,7 @@ class Card:
                         self._parry_value = self._parry_value + ap
                         self.add_solo_leveling_temp_values('PARRY', _opponent_card)
                         message = f"🧬 {self.name} summoned **{self.summon_name}**\n🔄 {move} was used! {self.name} receive {self.summon_emoji} {ap} parry!"
-                    battle_config.add_to_battle_log(message)
+                    # battle_config.add_to_battle_log(message)
                     response = {
                     "DMG": 0,
                     "MESSAGE": message,
