@@ -2069,7 +2069,9 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'Crown Rift Madness': ':m:',
               'Persona': '<:persona:1090238487028047913>',
               'YuYu Hakusho': '<:yusuke:1088702663861993503>',
-              'One Piece': '<:one_piece:1088702665581670451>'
+              'One Piece': '<:one_piece:1088702665581670451>',
+              'Overlord': '<:overlord:1091223691729305681>',
+              'FairyTail': '<:FairyTail:1091223690445865062>'
 }
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
