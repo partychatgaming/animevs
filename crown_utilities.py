@@ -2071,7 +2071,6 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'YuYu Hakusho': '<:yusuke:1088702663861993503>',
               'One Piece': '<:one_piece:1088702665581670451>',
               'Overlord': '<:overlord:1091223691729305681>',
-<<<<<<< HEAD
               'Fairy Tail': '<:FairyTail:1091223690445865062>'
 }
 
@@ -2088,9 +2087,6 @@ format_tactics = {
     'INTIMIDATION': 'Intimidation',
     'PETRIFIED_FEAR': 'Petrified Fear',
     'BLOODLUST': 'Bloodlust',
-=======
-              'FairyTail': '<:FairyTail:1091223690445865062>'
->>>>>>> bfbab744aad391819bb79ea8f4bb199ee4471601
 }
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
