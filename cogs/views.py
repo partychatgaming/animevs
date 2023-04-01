@@ -1028,17 +1028,7 @@ async def viewboss(self, ctx, data):
                 traitmessage = f"**{mytrait['EFFECT']}**| {mytrait['TRAIT']}"
             
             embedVar = discord.Embed(title=f":japanese_ogre: | {uboss_name}\n:earth_africa: | {uboss_show} Boss", description=textwrap.dedent(f"""
-            *{message}*
-            
-            :flower_playing_cards: | **Card**:  {uboss_card}
-            :reminder_ribbon: | **Title**:  {uboss_title}
-            :mechanical_arm: | **Arm**:  {uboss_arm}
-            :dna: | **Summon**: {uboss_pet}
-            
-            :vs: | **Tactics**:
-            {tactics_message}
-            
-            :infinity: | **Universe Trait** - {traitmessage}
+            \n*{message}*\n\n:flower_playing_cards: | **Card**:  {uboss_card}\n:reminder_ribbon: | **Title**:  {uboss_title} \n:mechanical_arm: | **Arm**:  {uboss_arm}\n:dna: | **Summon**: {uboss_pet}\n\n:vs: | **Tactics**:\n{tactics_message}\n\n:infinity: | **Universe Trait** - {traitmessage}
             """), colour=000000)
             if uboss_show != "Unbound":
                 embedVar.set_thumbnail(url=uboss_show_img)
