@@ -198,6 +198,8 @@ class CrownUnlimited(commands.Cog):
                 embedVar = discord.Embed(title=f"**{selected_card.approach_message}{selected_card.name}** has a bounty!",
                                          description=textwrap.dedent(f"""\
                 **Bounty** **{selected_card.bounty_message}**
+                **Universe** {crown_utilities.crest_dict[selected_card.universe]} **{selected_card.universe}**
+                **Difficulty**: :gear: {p.difficulty.capitalize()}
                 {selected_card.battle_message}
                 """), colour=0xf1c40f)
              

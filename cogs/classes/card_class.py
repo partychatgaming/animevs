@@ -986,7 +986,7 @@ class Card:
 
 
         self.bounty_message = f"{bounty_icon} {'{:,}'.format(self.bounty)}"
-        self.battle_message = "\n:crown: | **Glory**: Earn the Card & 2x Bounty, If you Lose, You lose gold!\n:coin: | **Gold**: Earn gold only!"
+        self.battle_message = f"\n:crown: | **Glory**: Earn {self.name} & 2x Bounty, If you Lose, You lose gold!\n:coin: | **Gold**: Earn gold only!"
 
         self.set_card_level_buffs(None)
 
