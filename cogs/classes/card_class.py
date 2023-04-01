@@ -2466,7 +2466,7 @@ class Card:
         if not self.used_resolve and self.used_focus:
             if self.is_tank:
                 self._shield_value = self._shield_value + (self.tier * 500)
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['TANK']}**) **{self._shield_value} Shield Gained!*")
+                battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) **{self._shield_value}** Shield Gained!")
 
             if self.overwhelming_power:
                 self._parry_active = True
