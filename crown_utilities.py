@@ -2087,7 +2087,7 @@ format_tactics = {
     'PETRIFIED_FEAR': 'Petrified Fear',
     'BLOODLUST': 'Bloodlust',
     'REGENERATION': 'Regeneration',
-    'ENRAGED' : 'Enrage'
+    'ENRAGED' : 'Enraged'
     
 }
 
