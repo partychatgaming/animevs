@@ -106,7 +106,7 @@ class Views(commands.Cog):
                             list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}?", 'DATA': result['DATA']})
                         
                         if result['TYPE'] == "PET":
-                            list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon :dna: {result['DATA']['PET']}?", 'DATA': result['DATA']})
+                            list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🧬 {result['DATA']['PET']}?", 'DATA': result['DATA']})
                         
                         if result['TYPE'] == "UNIVERSE":
                             list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
@@ -161,7 +161,7 @@ class Views(commands.Cog):
                             buttons.append(
                                 manage_components.create_button(
                                     style=ButtonStyle.blue,
-                                    label=f"🐦 {result['DATA']['PET']}",
+                                    label=f"🧬 {result['DATA']['PET']}",
                                     custom_id=f"{str(result['NUMBER'])}"
                                 )
                             )
@@ -263,7 +263,7 @@ class Views(commands.Cog):
                         list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}", 'DATA': result['DATA']})
                     
                     if result['TYPE'] == "PET":
-                        list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🐦 {result['DATA']['PET']}", 'DATA': result['DATA']})
+                        list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🧬 {result['DATA']['PET']}", 'DATA': result['DATA']})
                     
                     if result['TYPE'] == "UNIVERSE":
                         list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}", 'DATA': result['DATA']})
@@ -318,7 +318,7 @@ class Views(commands.Cog):
                         buttons.append(
                             manage_components.create_button(
                                 style=ButtonStyle.blue,
-                                label=f"🐦 {result['DATA']['PET']}",
+                                label=f"🧬 {result['DATA']['PET']}",
                                 custom_id=f"{str(result['NUMBER'])}"
                             )
                         )
@@ -466,7 +466,7 @@ class Views(commands.Cog):
                 buttons.append(
                     manage_components.create_button(
                         style=ButtonStyle.blue,
-                        label=f"🐦 {result['DATA']['PET']}",
+                        label=f"🧬 {result['DATA']['PET']}",
                         custom_id=f"{str(result['NUMBER'])}"
                     )
                 )
@@ -832,6 +832,16 @@ async def viewuniverse(self, ctx, data):
         if universe:
             universe_title= universe['TITLE']
             fights = len(universe['CROWN_TALES'])
+            # if (fights <= 0 or not universe['HAS_CROWN_TALES']) and universe_title != "Unbound":
+            #     embedVar = discord.Embed(title=f":earth_africa: | {universe_title}", description=textwrap.dedent(f"""
+            #     {crest} | :construction_site: Under Construction
+            #     """), colour=000000)
+            #     universe_image = universe['PATH']
+            #     embedVar.set_image(url=universe_image)
+            #     embedVar.set_footer(text=f"{universe_title} Details")
+
+            #     await ctx.send(embed=embedVar)
+            #     return
             dungeon_fights = len(universe['DUNGEONS'])
             crest = crown_utilities.crest_dict[universe_title]
             universe_image = universe['PATH']

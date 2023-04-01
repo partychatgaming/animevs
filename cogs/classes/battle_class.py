@@ -481,10 +481,11 @@ class Battle:
         try:
             scenarios = db.queryAllScenariosByUniverse(str(self.selected_universe))
             is_corrupted = db.queryUniverse({'TITLE': self.selected_universe})['CORRUPTED']
-            print(is_corrupted)
+            #print(is_corrupted)
             embed_list = []
             for scenario in scenarios:
                 must_complete = scenario['MUST_COMPLETE']
+                
                 if (any(scenario in self.player.scenario_history for scenario in must_complete) and not scenario['IS_RAID']) or (scenario['IS_RAID'] and is_corrupted and self.is_hard_difficulty) or ((scenario['TITLE'] in self.player.scenario_history and not scenario['IS_RAID']) or not must_complete and not scenario['IS_RAID']):  
                     if scenario['AVAILABLE']:
                         title = scenario['TITLE']
@@ -512,7 +513,7 @@ class Battle:
                             type_of_enemy_lvl = f"👹 **NEMESIS LEVEL:** {enemy_level}"
                             type_of_reward = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
                             type_of_difficulty = f"<a:Fire:777975890172837898> **DIFFICULTY:** {self.difficulty.title()}"
-
+                            scenario_gold = round(scenario_gold * 3)
                         for reward in rewards:
                             # Add Check for Cards and make Cards available in Easy Drops
                             arm = db.queryArm({"ARM": reward})
