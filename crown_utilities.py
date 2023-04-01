@@ -2087,6 +2087,8 @@ format_tactics = {
     'INTIMIDATION': 'Intimidation',
     'PETRIFIED_FEAR': 'Petrified Fear',
     'BLOODLUST': 'Bloodlust',
+    'REGENERATION': 'Regeneration',
+    
 }
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
