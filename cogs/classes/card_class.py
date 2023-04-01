@@ -3073,6 +3073,7 @@ class Card:
             battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
         else:
+            self.stamina = 0
             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** is too tired to block.")
             battle_config.repeat_turn()
 
@@ -3087,12 +3088,13 @@ class Card:
             battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
         else:
+            self.stamina = 0
             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** is too tired to block.")
             battle_config.repeat_turn()
             
     
     def use_boost(self, battle_config, companion_card=None):
-        if self.stamina >= 20:
+        if self.stamina >= 10:
             if companion_card:
                 companion_card.stamina = companion_card.stamina + 10
                 companion_card.health = companion_card.health + 50
@@ -3109,6 +3111,7 @@ class Card:
             battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
         else:
+            self.stamina = 0
             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** is too tired to boost.")
             battle_config.repeat_turn()
     
