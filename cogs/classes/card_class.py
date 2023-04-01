@@ -219,7 +219,12 @@ class Card:
             self.scheduled_death_message = False
             self.focus_icon = "❤️"
             self.resolve_icon = "🌀"
-            self.class_message = self.card_class.title()
+            self.class_tier = ""
+            if self.tier in [4,5]:
+                self.class_tier = "Elite"
+            elif self.tier in [6,7]:
+                self.class_tier = "Legendary"
+            self.class_message = f"{self.class_tier} {self.card_class.title()}"
             
 
             # Talisman Info
@@ -1128,7 +1133,7 @@ class Card:
                 opponent_card._parry_active = True
                 opponent_card._parry_value = opponent_card.temp_opp_parry_value
                 opponent_card.temp_opp_arm_parry_active = True
-                seopponent_cardlf.temp_opp_parry_value = 0
+                opponent_card.temp_opp_parry_value = 0
 
             battle_config.add_to_battle_log(f"🩸 **ARISE!** *{opponent_card.name}* has gained your lost protections...")
 
@@ -1296,7 +1301,10 @@ class Card:
                     title_len = int(len(list(title['TITLE'])))
                     title_message = f"{title['TITLE']}"
                 else:
-                    title_message = f"{title.passive_type.title()} {title.passive_value}"
+                    title_passive_msg = title.passive_value
+                    # if title.passive_type == "SOULCHAIN":
+                    #     title_passive_msg = title.passive_value + 90 
+                    title_message = f"{title.passive_type.title()} {title_passive_msg}"
                     title_len = int(len(list(title.name)))
 
                 self.set_passive_num(self.passive_num)
@@ -2037,6 +2045,7 @@ class Card:
                         
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
+                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['ASSASSIN']}**) **{self.name}**:  Assasin Strike!\n*{self._assassin_attack - self._assassin_value} Left!*")
                     if self._assassin_value == self._assassin_attack:
                         self._assassin_active = False
                 else:
@@ -2121,6 +2130,9 @@ class Card:
 
         if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
             hit_roll = hit_roll + 3
+            
+        if self._assassin_active:
+            hit_roll = hit_roll + round(hit_roll * .50)
         
         if (_opponent_card.used_block or _opponent_card.used_defend) and hit_roll >= 20:
             hit_roll = 19
@@ -2222,7 +2234,7 @@ class Card:
                 if _title.passive_type == "BLAST":
                     _opponent_card.health = _opponent_card.health - (_title.passive_value * battle_config.turn_total)
                 if _title.passive_type == "SOULCHAIN":
-                    self.stamina = self.stamina - _title.passive_value
+                    self.stamina = self.stamina + _title.passive_value
 
             if _opponent_title.passive_type:
                 if _opponent_title.passive_type == "GAMBLE":
@@ -2230,7 +2242,7 @@ class Card:
                 if _opponent_title.passive_type == "BLAST":
                     self.health = self.health - (_opponent_title.passive_value * battle_config.turn_total)
                 if _opponent_title.passive_type == "SOULCHAIN":
-                    self.stamina = self.stamina - _opponent_title.passive_value
+                    self.stamina = self.stamina + _opponent_title.passive_value
                     
             if self.passive_type == "GAMBLE":
                 health_calculation = self.passive_num
@@ -2454,6 +2466,7 @@ class Card:
         if not self.used_resolve and self.used_focus:
             if self.is_tank:
                 self._shield_value = self._shield_value + (self.tier * 500)
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['TANK']}**) **{self._shield_value} Shield Gained!*")
 
             if self.overwhelming_power:
                 self._parry_active = True
@@ -3287,8 +3300,32 @@ class Card:
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
                     if not opponent_card.used_resolve:
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card.naruto_heal_buff}** total stored.")
+                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
+                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
+                        if not dmg['SUMMON_USED']:
+                            self._barrier_active = False
+                            self._barrier_value = 0
+                            self._arm_message = ""
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
+                            self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
+                    if opponent_card._barrier_value > 1:
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} hits **{opponent_card.name}** Barrier 💠 blocking the attack\n{opponent_card._barrier_value - 1} Barriers remain")
+                        if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
+                            opponent_card._barrier_active = False
+                            opponent_card._barrier_value = 0
+                            opponent_card._arm_message = ""
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
+                            self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
+                        opponent_card._barrier_value = opponent_card._barrier_value - 1
+                    elif opponent_card._barrier_value == 1:
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
+                        opponent_card._barrier_value = opponent_card._barrier_value - 1
+                        opponent_card._barrier_active = False
+                        opponent_card._barrier_value = 0
+                        opponent_card._arm_message = ""
+                        self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
-                elif opponent_card._shield_active and dmg['ELEMENT'] not in ["DARK"]:
+                elif opponent_card._shield_active and dmg['ELEMENT'] not in ["DARK", "PSYCHIC"]:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
@@ -3326,32 +3363,7 @@ class Card:
                                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroyed **{opponent_card.name}**'s 💠 Barrier! No Barriers remain!")
                                 self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
-                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
-                    if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
-                        if not dmg['SUMMON_USED']:
-                            self._barrier_active = False
-                            self._barrier_value = 0
-                            self._arm_message = ""
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
-                            self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
-                    if opponent_card._barrier_value > 1:
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} hits **{opponent_card.name}** Barrier 💠 blocking the attack\n{opponent_card._barrier_value - 1} Barriers remain")
-                        if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
-                            opponent_card._barrier_active = False
-                            opponent_card._barrier_value = 0
-                            opponent_card._arm_message = ""
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
-                            self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
-                        opponent_card._barrier_value = opponent_card._barrier_value - 1
-                    elif opponent_card._barrier_value == 1:
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
-                        opponent_card._barrier_value = opponent_card._barrier_value - 1
-                        opponent_card._barrier_active = False
-                        opponent_card._barrier_value = 0
-                        opponent_card._arm_message = ""
-                        self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
-                
-                elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:                    
+                elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "TIME", "GRAVITY"]:                    
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
@@ -3835,8 +3847,8 @@ class Card:
                     player2_card.health = round(player2_card.health - 100)
                     value_for_passive = 100
             if  self.passive_type == "SOULCHAIN":
-                self.stamina_focus_recovery_amount  = self.passive_num + 90 #hello1
-                player2_card.stamina_focus_recovery_amount = self.passive_num + 90
+                self.stamina_focus_recovery_amount  = self.passive_num #hello1
+                player2_card.stamina_focus_recovery_amount = self.passive_num
                 
             if self.passive_type in ['HLT','CREATION']:
                 self.damage_healed = self.damage_healed + ((value_for_passive / 100) * self.health )

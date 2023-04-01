@@ -1005,8 +1005,8 @@ class Lookup(commands.Cog):
                 main_page.set_footer(text=f"/ally to join the {guild_name} Association")
                 
                 arena_page = discord.Embed(title= f"Hall Information".format(self), description=textwrap.dedent(f"""\
-                :flags: | **{guild_name} Raid Arena**
-                :coin: | **Raid Fee: **{'{:,}'.format(hall_fee)}
+                :flags: | **{guild_name} Arena**
+                :coin: | **Arena Fee: **{'{:,}'.format(hall_fee)}
                 :yen: | **Bounty: **{'{:,}'.format(bounty)}
                 :moneybag: | **Victory Bonus: **{'{:,}'.format(bonus)}
                 
@@ -1017,10 +1017,10 @@ class Lookup(commands.Cog):
                 :mechanical_arm: | **Arm: **{shield_arm}
                     
                 :shinto_shrine: | **Hall: **{hall_name} 
-                :shield: | **Raid Defenses: **{hall_def} 
+                :shield: | **Arena Defenses: **{hall_def} 
                 """), colour=000000)
                 arena_page.set_image(url=hall_img)
-                arena_page.set_footer(text=f"/raid {guild_name} - Raid Association")
+                arena_page.set_footer(text=f"/lookaup {guild_name} - Enter Arena")
                 
                 guilds_page = discord.Embed(title=f"Guild Information".format(self), description=f":flags: |  {guild_name} **Guild** List\n⛩️ | Guilds Earn **{hall_split}x**:coin:\n:bank: |  Party Chat Gaming Database", colour=000000)
                 guilds_page.add_field(name=f":military_helmet: Guilds | **:ninja: ~ {sword_count}/:knife: {total_blade_count}**", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
@@ -1076,9 +1076,9 @@ class Lookup(commands.Cog):
                 - **Sponser**: Associations Leaders can sponsor Guilds with Association Funds
                 - **Fund**: Invest money into Association from Guild
                 - **Halls**: Give Coin Multipliers and Wage Multiplier in all game modes towards Association Earnings
-                - **Raid Fee**: Cost to Raid this Association (Determined by Hall)
-                - **Hall Defense**:  Give Bonus Defense Multiplier to Shield During Raids
-                - **Bounty**: Other Associated players can raid to aquire the Bounty
+                - **Arena Fee**: Cost to enter Arena (Determined by Hall)
+                - **Hall Defense**:  Give Bonus Defense Multiplier to Shield During Arena Battle
+                - **Bounty**: Other Associated players can fight in the Arena to aquire the Bounty
                 - **Victory Bonus**: Each Succesful Shield Defense increases the bounty and Victory Bonus
                 - **Real Estate**: Own multiple Halls, swap your current Hall buy and sell real estate.
                 - **Guild Armory**: Members share the Armory: Store Cards, Titles and Arms for all Members
@@ -1088,7 +1088,7 @@ class Lookup(commands.Cog):
                 **Association Position Explanations**
                 - **Founder**:  All operations.
                 - **Sworn**:  All operations
-                - **Shield**: Can set Raid Bounty, Swap Hideouts, and Knight other Blades
+                - **Shield**: Can set Arena Bounty, Swap Hideouts, and Knight other Blades
                 """), colour=0x7289da)
                 association_explanations.set_footer(text=f"/help for more information on Associations")
                 
@@ -1101,7 +1101,7 @@ class Lookup(commands.Cog):
                 if is_visitor:
                     buttons = [
                         manage_components.create_button(style=3, label="Say Hello", custom_id="hello"),
-                        manage_components.create_button(style=3, label="Raid!", custom_id="raid")
+                        manage_components.create_button(style=3, label="Arena Battle!", custom_id="raid")
                     ]
                     
                 if is_founder or is_sworn:
@@ -1144,7 +1144,7 @@ class Lookup(commands.Cog):
                                 guild_query = {"GNAME": guild['GNAME']}
                                 #await button_ctx.defer(ignore=True)
                                 update_query = {
-                                        '$push': {'TRANSACTIONS': f":crossed_swords: | {button_ctx.author} Raided!"}
+                                        '$push': {'TRANSACTIONS': f":crossed_swords: | {button_ctx.author} Fought in the Arena!"}
                                     }
                                 response = db.updateGuildAlt(guild_query, update_query)
                                 await raid(button_ctx, guild['GNAME'])
@@ -1219,11 +1219,11 @@ class Lookup(commands.Cog):
                                             💰 | **Price**: {price_message}
                                             〽️ | **Multiplier**: {hall_multiplier}
                                             :dollar: | **Split**: {hall_split}
-                                            :yen: | **Raid Fee**: {hall_fee}
+                                            :yen: | **Arena Fee**: {hall_fee}
                                             :shield: | **Defenses**: {hall_def}
                                             
                                             **Association** earns **{hall_multiplier}x** :coin: per match!
-                                            **Raids** cost **{hall_fee}** :coin:!
+                                            **Arenas** cost **{hall_fee}** :coin:!
                                             **Guilds** earn **{hall_split}x** :coin: per match! 
                                             **Shield** Defense Boost: :shield:**{hall_def}x**
                                             """))
@@ -1245,11 +1245,11 @@ class Lookup(commands.Cog):
                                             💰 | **Price**: {price_message}
                                             〽️ | **Multiplier**: {hall_multiplier}
                                             :dollar: | **Split**: {hall_split}
-                                            :yen: | **Raid Fee**: {hall_fee}
+                                            :yen: | **Arena Fee**: {hall_fee}
                                             :shield: | **Defenses**: {hall_def}
                                             
                                             **Association** earns **{hall_multiplier}x** :coin: per match!
-                                            **Raids** cost **{hall_fee}** :coin:!
+                                            **Arenas** cost **{hall_fee}** :coin:!
                                             **Guilds** earn **{hall_split}x** :coin: per match! 
                                             **Shield** Defense Boost: :shield:**{hall_def}x**
                                             """))
@@ -1271,11 +1271,11 @@ class Lookup(commands.Cog):
                                             💰 | **Price**: {price_message}
                                             〽️ | **Multiplier**: {hall_multiplier}
                                             :dollar: | **Split**: {hall_split}
-                                            :yen: | **Raid Fee**: {hall_fee}
+                                            :yen: | **Arena  Fee**: {hall_fee}
                                             :shield: | **Defenses**: {hall_def}
                                             
                                             **Association** earns **{hall_multiplier}x** :coin: per match!
-                                            **Raids** cost **{hall_fee}** :coin:!
+                                            **Arena** cost **{hall_fee}** :coin:!
                                             **Guilds** earn **{hall_split}x** :coin: per match! 
                                             **Shield** Defense Boost: :shield:**{hall_def}x**
                                             """))
@@ -1333,11 +1333,11 @@ class Lookup(commands.Cog):
                                             💰 | **Price**: {price_message}
                                             〽️ | **Multiplier**: {hall_multiplier}
                                             :dollar: | **Split**: {hall_split}
-                                            :yen: | **Raid Fee**: {hall_fee}
+                                            :yen: | **Arena Fee**: {hall_fee}
                                             :shield: | **Defenses**: {hall_def}
                                             
                                             **Association** earns **{hall_multiplier}x** :coin: per match!
-                                            **Raids** cost **{hall_fee}** :coin:!
+                                            **Arenas** cost **{hall_fee}** :coin:!
                                             **Guilds** earn **{hall_split}x** :coin: per match! 
                                             **Shield** Defense Boost: :shield:**{hall_def}x**
                                             
@@ -3259,7 +3259,7 @@ async def raid(ctx, guild):
         # Get Session Owner Disname for scoring
         sowner = db.queryUser({'DID': str(ctx.author.id)})
         if sowner['DIFFICULTY'] == "EASY":
-            await ctx.send("Raiding is unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
+            await ctx.send("Arena Battles unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
             return
 
         guild = sowner['TEAM']
@@ -3332,7 +3332,7 @@ async def raid(ctx, guild):
         if private_channel:
             await battle_commands(main, ctx, battle, p1, None, p2, player3=None)
         else:
-            await ctx.send("Failed to start raid battle!")
+            await ctx.send("Failed to start Arena battle!")
     except Exception as ex:
         trace = []
         tb = ex.__traceback__

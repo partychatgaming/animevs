@@ -4569,29 +4569,23 @@ class Profile(commands.Cog):
                     c.set_card_level_buffs(player._card_levels)
                     c.set_affinity_message()
                     evasion = c.get_evasion()
-                    evasion_message = f"{c.speed}"
+                    evasion_message = f"**{c.speed}**"
                     if c.speed >= 70 or c.speed <=30:
                         if c.speed >= 70:     
                             if player.performance:
-                                evasion_message = f"{c.speed}: *{round(c.evasion)}% evasion*"
+                                evasion_message = f"**{c.speed}**: *{round(c.evasion)}% evasion*"
                             else:
-                                evasion_message = f"{c.speed}: {round(c.evasion)}% evasion"
+                                evasion_message = f"**{c.speed}**: {round(c.evasion)}% evasion"
                         elif c.speed <= 30:
                             if player.performance:
-                                evasion_message = f"{c.speed}: *{c.evasion}% evasion*"
+                                evasion_message = f"**{c.speed}**: *{c.evasion}% evasion*"
                             else:
-                                evasion_message = f"{c.speed}: {c.evasion}% evasion"
-                    card_tier = 0
-                    lvl = ""
-                    tier = ""
-                    speed = 0
-                    card_tier = f":mahjong: {resp['TIER']}"
-                    card_available = resp['AVAILABLE']
-                    card_exclusive = resp['EXCLUSIVE']
-                    card_collection = resp['HAS_COLLECTION']
-                    show_img = db.queryUniverse({'TITLE': resp['UNIVERSE']})['PATH']
-                    affinity_message = crown_utilities.set_affinities(resp)
-                    o_show = resp['UNIVERSE']
+                                evasion_message = f"**{c.speed}**: {c.evasion}% evasion"
+                    card_available = c.available
+                    card_exclusive = c.exclusive
+                    card_collection = c.has_collection
+                    show_img = db.queryUniverse({'TITLE': c.universe})['PATH']
+
                     icon = ":flower_playing_cards:"
                     if card_available and card_exclusive:
                         icon = ":fire:"
@@ -4600,155 +4594,40 @@ class Profile(commands.Cog):
                             icon =":sparkles:"
                         else:
                             icon = ":japanese_ogre:"
-                    card_lvl = 0
-                    card_exp = 0
-                    card_lvl_attack_buff = 0
-                    card_lvl_defense_buff = 0
-                    card_lvl_ap_buff = 0
-                    card_lvl_hlt_buff = 0
-
-                    for cl in card_levels:
-                        if card == cl['CARD']:
-                            
-                            licon = "🔰"
-                            if cl['LVL'] >= 200:
-                                licon ="🔱"
-                            if cl['LVL'] >= 700:
-                                licon ="⚜️"
-                            if cl['LVL'] >= 999:
-                                licon = "🏅"
-                            lvl = f"{licon} **{cl['LVL']}**"
-                            card_lvl = cl['LVL']
-                            card_exp = cl['EXP']
-                            card_lvl_ap_buff = crown_utilities.level_sync_stats(card_lvl, "AP")
-                            card_lvl_attack_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
-                            card_lvl_defense_buff = crown_utilities.level_sync_stats(card_lvl, "ATK_DEF")
-                            card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
-                            
+                    licon = "🔰"
+                    if c.card_lvl >= 200:
+                        licon ="🔱"
+                    if c.card_lvl >= 700:
+                        licon ="⚜️"
+                    if c.card_lvl >= 1000:
+                        licon = "🏅"
                     
-                    o_passive = resp['PASS'][0] 
-                    o_moveset = resp['MOVESET']
-                    o_1 = o_moveset[0]
-                    o_2 = o_moveset[1]
-                    o_3 = o_moveset[2]
-                    o_enhancer = o_moveset[3]
-                    
-                    # Move 1
-                    move1 = list(o_1.keys())[0]
-                    move1ap = list(o_1.values())[0] + card_lvl_ap_buff
-                    move1_stamina = list(o_1.values())[1]
-                    move1_element = list(o_1.values())[2]
-                    move1_emoji = crown_utilities.set_emoji(move1_element)
-                    
-                    # Move 2
-                    move2 = list(o_2.keys())[0]
-                    move2ap = list(o_2.values())[0] + card_lvl_ap_buff
-                    move2_stamina = list(o_2.values())[1]
-                    move2_element = list(o_2.values())[2]
-                    move2_emoji = crown_utilities.set_emoji(move2_element)
+             
 
-
-                    # Move 3
-                    move3 = list(o_3.keys())[0]
-                    move3ap = list(o_3.values())[0] + card_lvl_ap_buff
-                    move3_stamina = list(o_3.values())[1]
-                    move3_element = list(o_3.values())[2]
-                    move3_emoji = crown_utilities.set_emoji(move3_element)
-
-
-                    # Move Enhancer
-                    move4 = list(o_enhancer.keys())[0]
-                    move4ap = list(o_enhancer.values())[0]
-                    move4_stamina = list(o_enhancer.values())[1]
-                    move4enh = list(o_enhancer.values())[2]
-
-                    passive_name = list(o_passive.keys())[0]
-                    passive_num = list(o_passive.values())[0]
-                    passive_type = list(o_passive.values())[1]
-                
-                    if passive_type:
-                        value_for_passive = resp['TIER'] * .5
-                        flat_for_passive = round(10 * (resp['TIER'] * .5))
-                        stam_for_passive = 5 * (resp['TIER'] * .5)
-                        if passive_type == "HLT":
-                            passive_num = value_for_passive
-                        if passive_type == "LIFE":
-                            passive_num = value_for_passive
-                        if passive_type == "ATK":
-                            passive_num = value_for_passive
-                        if passive_type == "DEF":
-                            passive_num = value_for_passive
-                        if passive_type == "STAM":
-                            passive_num = stam_for_passive
-                        if passive_type == "DRAIN":
-                            passive_num = stam_for_passive
-                        if passive_type == "FLOG":
-                            passive_num = value_for_passive
-                        if passive_type == "WITHER":
-                            passive_num = value_for_passive
-                        if passive_type == "RAGE":
-                            passive_num = value_for_passive
-                        if passive_type == "BRACE":
-                            passive_num = value_for_passive
-                        if passive_type == "BZRK":
-                            passive_num = value_for_passive
-                        if passive_type == "CRYSTAL":
-                            passive_num = value_for_passive
-                        if passive_type == "FEAR":
-                            passive_num = flat_for_passive
-                        if passive_type == "GROWTH":
-                            passive_num = flat_for_passive
-                        if passive_type == "CREATION":
-                            passive_num = value_for_passive
-                        if passive_type == "DESTRUCTION":
-                            passive_num = value_for_passive
-                        if passive_type == "SLOW":
-                            passive_num = "1"
-                        if passive_type == "HASTE":
-                            passive_num = "1"
-                        if passive_type == "STANCE":
-                            passive_num = flat_for_passive
-                        if passive_type == "CONFUSE":
-                            passive_num = flat_for_passive
-                        if passive_type == "BLINK":
-                            passive_num = stam_for_passive
-
-                    traits = ut.traits
-                    mytrait = {}
-                    traitmessage = ''
-                    for trait in traits:
-                        if trait['NAME'] == o_show:
-                            mytrait = trait
-                        if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
-                            if trait['NAME'] == 'Pokemon':
-                                mytrait = trait
-                    if mytrait:
-                        traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
-
-
-                    embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
-                    {crown_utilities.class_emojis[resp['CLASS']]} {resp["CLASS"].title()}
+                    embedVar = discord.Embed(title= f"{c.name}", description=textwrap.dedent(f"""\
                     {icon} **[{index}]** 
-                    {card_tier}: {lvl}
-                    :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{evasion_message}**
+                    {crown_utilities.class_emojis[c.card_class]} {c.class_message}
+                    :mahjong: {c.tier}: {licon} **{c.card_lvl}**
+                    :heart: **{c.max_health}** :dagger: **{c.attack}** :shield: **{c.defense}**
+                    🏃 {evasion_message}
                     
-                    {move1_emoji} **{move1}:** {move1ap}
-                    {move2_emoji} **{move2}:** {move2ap}
-                    {move3_emoji} **{move3}:** {move3ap}
-                    🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
+                    {c.move1_emoji} **{c.move1}:** {c.move1ap}
+                    {c.move2_emoji} **{c.move2}:** {c.move2ap}
+                    {c.move3_emoji} **{c.move3}:** {c.move3ap}
+                    🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
 
-                    🩸 **{passive_name}:** {passive_type.title()} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
+                    🩸 **{c.passive_name}:** {c.passive_type} {c.passive_num}{passive_enhancer_suffix_mapping[c.passive_type]}
                     """), colour=0x7289da)
-                    embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
+                    embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_thumbnail(url=show_img)
-                    embedVar.set_footer(text=f"/enhancers - 🩸 Enhancer Menu")
+                    embedVar.set_footer(text=f"/enhancers - 🦠 Enhancer Menu")
                     embed_list.append(embedVar)
 
                 buttons = [
                     manage_components.create_button(style=3, label="Equip", custom_id="Equip"),
                     manage_components.create_button(style=1, label="Resell/Dismantle", custom_id="Econ"),
                     manage_components.create_button(style=1, label="Trade", custom_id="Trade"),
-                    manage_components.create_button(style=2, label="Swap/Store", custom_id="Storage")
+                    manage_components.create_button(style=2, label="Swap/Store", custom_id="Storage"),
                 ]
                 custom_action_row = manage_components.create_actionrow(*buttons)
                 # custom_button = manage_components.create_button(style=3, label="Equip")

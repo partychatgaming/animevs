@@ -881,6 +881,7 @@ async def viewuniverse(self, ctx, data):
             :japanese_ogre: | **Universe Boss**
             :flower_playing_cards: | **Card** - {boss}
             {bossmessage}
+            
             :infinity: | **Universe Trait** - {traitmessage}
             """), colour=000000)
             embedVar.set_image(url=universe_image)
@@ -995,6 +996,11 @@ async def viewboss(self, ctx, data):
             pet_ability_value = list(pet_ability.values())[0]
 
             traits = ut.traits
+            tactics = uboss['TACTICS']
+            tactics_list = []
+            for tact in tactics:
+                tactics_list.append(crown_utilities.format_tactics[tact])
+            tactics_message = "\n".join(tactics_list)
 
             if uboss_show != 'Unbound':
                 uboss_show_img = db.queryUniverse({'TITLE': uboss_show})['PATH']
@@ -1014,10 +1020,13 @@ async def viewboss(self, ctx, data):
             embedVar = discord.Embed(title=f":japanese_ogre: | {uboss_name}\n:earth_africa: | {uboss_show} Boss", description=textwrap.dedent(f"""
             *{message}*
             
-            :flower_playing_cards: | **Card** - {uboss_card}
-            :reminder_ribbon: | **Title** - {uboss_title}: **{title_passive_type}** - {title_passive_value}
-            :mechanical_arm: | **Arm** - {uboss_arm}: **{arm_passive_type}** - {arm_passive_value}
-            :dna: | **Summon** - {uboss_pet}: **{pet_ability_type}**: {pet_ability_value}
+            :flower_playing_cards: | **Card**:  {uboss_card}
+            :reminder_ribbon: | **Title**:  {uboss_title}
+            :mechanical_arm: | **Arm**:  {uboss_arm}
+            :dna: | **Summon**: {uboss_pet}
+            
+            :vs: | **Tactics**:
+            {tactics_message}
             
             :infinity: | **Universe Trait** - {traitmessage}
             """), colour=000000)

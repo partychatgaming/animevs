@@ -14,6 +14,8 @@ class Title:
         self.passive = abilities[0]
         self.passive_type = list(self.passive.keys())[0]
         self.passive_value = list(self.passive.values())[0]
+        if self.passive_type == "SOULCHAIN":
+            self.passive_value = self.passive_value + 90
 
         self.price_message = ""
         self.type_message = ""
@@ -216,6 +218,8 @@ class Title:
             self.message = f"On your turn, **{self.type_message}** by **{self.passive_value}**"
         
         elif self.passive_type == "SOULCHAIN" or self.passive_type == "GAMBLE":
+            # if self.passive_type == "SOULCHAIN":
+            #     self.passive_value = self.passive_value + 90
             self.message = f"During Focus, **{self.type_message}** equal **{self.passive_value}**"
             
         elif self.passive_type == "BLAST" or self.passive_type == "WAVE":

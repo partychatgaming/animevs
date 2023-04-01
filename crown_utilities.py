@@ -2069,7 +2069,24 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'Crown Rift Madness': ':m:',
               'Persona': '<:persona:1090238487028047913>',
               'YuYu Hakusho': '<:yusuke:1088702663861993503>',
-              'One Piece': '<:one_piece:1088702665581670451>'
+              'One Piece': '<:one_piece:1088702665581670451>',
+              'Overlord': '<:overlord:1091223691729305681>',
+              'Fairy Tail': '<:FairyTail:1091223690445865062>'
+}
+
+
+format_tactics = {
+    'ENRAGE': 'Enrage',
+    'OVERWHELMING_POWER': 'Overwhelming Power',
+    'DAMAGE_CHECK': 'Damage Check',
+    'DEVASTATING_BLOW': 'Devastating Blow',
+    'DEATH_BLOW': 'Death Blow',
+    'ALMIGHTY_WILL': 'Almighty Will',
+    'STAGGER': 'Stagger',
+    'PROVOKED': 'Provoked',
+    'INTIMIDATION': 'Intimidation',
+    'PETRIFIED_FEAR': 'Petrified Fear',
+    'BLOODLUST': 'Bloodlust',
 }
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
@@ -2104,15 +2121,15 @@ BATTLE_OPTIONS = [1, 2, 3, 4, 5, 0]
 
 BOSS_TACTICS = [
     'ENRAGE',
-    'OVERWHELMING POWER',
-    'DAMAGE CHECK',
-    'DEVASTATING BLOW',
-    'DEATH BLOW',
-    'ALMIGHTY WILL',
+    'OVERWHELMING_POWER',
+    'DAMAGE_CHECK',
+    'DEVASTATING_BLOW',
+    'DEATH_BLOW',
+    'ALMIGHTY_WILL',
     'STAGGER',
     'PROVOKED',
     'INTIMIDATION',
-    'PETRIFIED FEAR',
+    'PETRIFIED_FEAR',
     'BLOODLUST'
 ]
 

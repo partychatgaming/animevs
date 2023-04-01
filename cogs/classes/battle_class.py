@@ -270,7 +270,7 @@ class Battle:
             self.is_raid_game_mode = True
             self.is_ai_opponent = True
             self.total_number_of_opponents = 1
-            self.starting_match_title = f"Raid Battle!"
+            self.starting_match_title = f"Arena Battle!"
             self.can_auto_battle = True
 
         if self.mode in crown_utilities.TALE_M:
@@ -1056,7 +1056,49 @@ class Battle:
                     aiMove = 1
             else:
                 aiMove = 1
-        elif opponent_card.health <=500: #Killing Blow
+        if self.is_hard_difficulty and self.is_turn in [1,3]:
+            if opponent_card._barrier_active: #Ai Opponent Barrier Checks
+                if your_card.stamina >=20: #Stamina Check For Enhancer
+                    #Check if you have a psychic move for barrier
+                    if your_card.stamina >= 80 and your_card.move3_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
+                        aiMove = 3
+                    elif your_card.stamina >= 30 and your_card.move2_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
+                        aiMove = 2
+                    elif your_card.stamina >= 10 and your_card.move1_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
+                        aiMove = 1
+                    elif your_card.stamina >= 80:
+                        aiMove = 3
+                    elif your_card.stamina >= 30:
+                        aiMove = 2
+                    else:
+                        aiMove = 1
+            elif opponent_card._shield_active: #Ai Shield Checks
+                if your_card.stamina >= 80 and your_card.move3_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
+                    aiMove = 3
+                elif your_card.stamina >= 30 and your_card.move2_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
+                    aiMove = 2
+                elif your_card.stamina >= 10 and your_card.move1_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
+                    aiMove = 1
+                elif your_card.stamina >= 80:
+                    aiMove = 3
+                elif your_card.stamina >= 30:
+                    aiMove = 2
+                else:
+                    aiMove = 1
+            elif opponent_card._parry_active: #Ai Parry Checks
+                if your_card.stamina >= 80 and your_card.move3_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
+                    aiMove = 3
+                elif your_card.stamina >= 30 and your_card.move2_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
+                    aiMove = 2
+                elif your_card.stamina >= 10 and your_card.move1_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
+                    aiMove = 1
+                elif your_card.stamina >= 80:
+                    aiMove = 3
+                elif your_card.stamina >= 30:
+                    aiMove = 2
+                else:
+                    aiMove = 1
+        elif opponent_card.health <=700: #Killing Blow
             if your_card.move4enh == "BLAST":
                 if your_card.stamina >=20:
                     aiMove =4
@@ -1627,9 +1669,9 @@ class Battle:
             picon = "📹"
             f_message = f"💀 | Scenario Battle Ended."
         if self.is_raid_game_mode:
-            close_message = "Raid Battle"
+            close_message = "Arena Battle"
             picon = "⛩️"
-            f_message = f"💀 | Unsuccessful Raid."
+            f_message = f"💀 | Unsuccessful Arena Battle."
             
             
 
@@ -1655,7 +1697,7 @@ class Battle:
         if self.is_raid_game_mode:
             close_message = "Raid"
             icon2 = "🛡️"
-            f_message = f"⛩️ | Raid Associations to Claim the Bounty or Claim The Shield Title"
+            f_message = f"⛩️ | Participate in Arena to Claim the Bounty or Claim The Shield Title"
             
 
                 
@@ -1848,9 +1890,9 @@ class Battle:
             
             
         if self._is_bounty_match:
-            embedVar.add_field(name=":shinto_shrine: Raid Earnings", value=f"**:coin:{self._raid_bounty_plus_bonus}**")
+            embedVar.add_field(name=":shinto_shrine: Arena Earnings", value=f"**:coin:{self._raid_bounty_plus_bonus}**")
         if self._is_title_match:
-            embedVar.add_field(name=":shinto_shrine: Raid Earnings", value=f"**:shield: New Shield** {self.player.disname}")
+            embedVar.add_field(name=":shinto_shrine: Arena Earnings", value=f"**:shield: New Shield** {self.player.disname}")
         return embedVar
 
 

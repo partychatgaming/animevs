@@ -106,16 +106,20 @@ bot.remove_command("help")
                                     value="legend",
                                 ),
                                 create_choice(
-                                    name="🥋 What are classes?",
+                                    name="🥋 What are Classes?",
                                     value="classes",
                                 ),
                                 create_choice(
-                                    name="🦠 What are enhancers?",
+                                    name="🦠 What are Enhancers?",
                                     value="enhancers",
                                 ),
                                 create_choice(
-                                    name="🔅 What are elements?",
+                                    name="🔅 What are Elements?",
                                     value="elements",
+                                ),
+                                create_choice(
+                                    name="🆚 What are Tactics?",
+                                    value="tactics",
                                 ),
                                 create_choice(
                                     name="👑 Your Cards, Accessories, Quests, Destinies, Shop, Blacksmith, Trade, Gift, Analysis, Codes",
@@ -187,6 +191,10 @@ async def help(ctx: SlashContext, selection):
    if selection == "classes":
       await classes(ctx)
       return
+   
+   if selection == "tactics":
+      await tactics(ctx)
+      return
 
    if selection == "enhancers":
       await enhancers(ctx)
@@ -221,57 +229,57 @@ async def enhancers(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
 
    try:
-      embedVar1 = discord.Embed(title= f"Enhancer Type: Boosts",colour=0x7289da)
+      embedVar1 = discord.Embed(title= f"Boosts",colour=0x7289da)
       embedVar1.set_thumbnail(url=avatar)
       embedVar1.add_field(name="`BOOSTS`", value="**ATK**\n**Title, Arm, Card Passive Effect:** Increase Attack by Flat AP value.\n**Card Active Enhancer Effect:** Increase Attack By AP %.\n\n**DEF**\n**Title, Arm, Card Passive Effect:** Increase Defense by Flat AP value.\n**Card Active Enhancer Effect:** Increase Defense By AP %.\n\n**HLT**\n**Title, Arm, Card Passive Effect:** Increase Health by Flat AP value.\n**Card Active Enhancer Effect:** Increase Health By Flat AP + 16% of Current Health.\n\n**STAM** - Increase Stamina by Flat AP\n\n")
       embedVar1.set_footer(text=f"/help - Bot Help")
 
-      embedVar2 = discord.Embed(title= f"Enhancer Type: Steals",colour=0x7289da)
+      embedVar2 = discord.Embed(title= f"Steals",colour=0x7289da)
       embedVar2.set_thumbnail(url=avatar)
       embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\n**Title, Arm, Card Passive Effect:** Steal Opponent Health and Add it to your Max Health by AP %\n**Card Active Enhancer Effect:** Steal Opponent Health and Add it to your Current Health by Flat AP + 9% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
       embedVar2.set_footer(text=f"/help - Bot Help")
 
-      embedVar3 = discord.Embed(title= f"Enhancer Type: Sacrifice",colour=0x7289da)
+      embedVar3 = discord.Embed(title= f"Sacrifice",colour=0x7289da)
       embedVar3.set_thumbnail(url=avatar)
       embedVar3.add_field(name="`SACRIFICE`", value="**RAGE** - Decrease Your Defense by AP %, Increase All Moves AP by Amount of Decreased Defense\n\n**BRACE** - Decrease Your Attack by AP %, Increase All Moves AP By Amount of Decreased Attack\n\n**BZRK** - Decrease Your Current Health by AP %,  Increase Your Attack by Amount of Decreased Health\n\n**CRYSTAL** - Decrease Your Health by AP %, Increase Your Defense by Amount of Decreased Health\n\n")
       embedVar3.set_footer(text=f"/help - Bot Help")
 
-      embedVar4 = discord.Embed(title= f"Enhancer Type: Conversion",colour=0x7289da)
+      embedVar4 = discord.Embed(title= f"Conversion",colour=0x7289da)
       embedVar4.set_thumbnail(url=avatar)
       embedVar4.add_field(name="`CONVERSION`", value="**STANCE** - Swap Your Attack and Defense, Increase Your Defense By Flat AP\n\n**CONFUSE** - Swap Opponenet Attack and Defense, Decrease Opponent Defense by Flat AP\n\n")
       embedVar4.set_footer(text=f"/help - Bot Help")
 
-      embedVar5 = discord.Embed(title= f"Enhancer Type: Time Manipulation",colour=0x7289da)
+      embedVar5 = discord.Embed(title= f"Time Manipulation",colour=0x7289da)
       embedVar5.set_thumbnail(url=avatar)
-      embedVar5.add_field(name="`TIME MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW** - Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n\n**HASTE** - Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n\n")
+      embedVar5.add_field(name="`STAMINA MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW**\n**Active** - Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n**Passive** Decrease Turn Count By AP Value\n\n**HASTE**\n**Active** - Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n**Passive** - Increase Turn Count by AP\n\n")
       embedVar5.set_footer(text=f"/help - Bot Help")
 
-      embedVar6 = discord.Embed(title= f"Enhancer Type: Control",colour=0x7289da)
+      embedVar6 = discord.Embed(title= f"Control",colour=0x7289da)
       embedVar6.set_thumbnail(url=avatar)
-      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN** - You and Your Opponent's Stamina Equal Flat AP\n\n**GAMBLE** - You and Your Opponent's Health Equal Flat AP\n\n")
+      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN**\n**Active** - You and Your Opponent's Stamina Equal Flat AP\n**Passive** - On Focus You and Your Opponents Stamina Regen is set to AP\n\n**GAMBLE**\n**Active** - You and Your Opponent's Health Equal Flat AP\n**Passive** - You and Your Opponent Health Regen is set to AP\n\n")
       embedVar6.set_footer(text=f"/help - Bot Help")
 
-      embedVar7 = discord.Embed(title= f"Enhancer Type: Fortitude",colour=0x7289da)
+      embedVar7 = discord.Embed(title= f"Fortitude",colour=0x7289da)
       embedVar7.set_thumbnail(url=avatar)
       embedVar7.add_field(name="`FORTITUDE`", value="**GROWTH**- Decrease Your Max Health by 10%, Increase Your Attack, Defense and AP Buff by GROWTH AP\n\n**FEAR** - Decrease Your Max Health by 10%, Decrease Opponent Attack, Defense, and reduce Opponent AP Buffs by AP\n\n")
       embedVar7.set_footer(text=f"/help - Bot Help")
 
-      embedVar8 = discord.Embed(title= f"Enhancer Type: Damage",colour=0x7289da)
+      embedVar8 = discord.Embed(title= f"Damage",colour=0x7289da)
       embedVar8.set_thumbnail(url=avatar)
       embedVar8.add_field(name="`DAMAGE`", value="**WAVE** - Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal 75% AP Damage.*\n\n**BLAST** - Deal Flat AP Damage to Opponent. AP Increases each turn.\n\n")
       embedVar8.set_footer(text=f"/help - Bot Help")
 
-      embedVar9 = discord.Embed(title= f"Enhancer Type: Divinity",colour=0x7289da)
+      embedVar9 = discord.Embed(title= f"Divinity",colour=0x7289da)
       embedVar9.set_thumbnail(url=avatar)
       embedVar9.add_field(name="`DIVINITY`", value="**CREATION** - Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for 75% AP.*\n\n**DESTRUCTION** - Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn.\n\n")
       embedVar9.set_footer(text=f"/help - Bot Help")
       
-      embedVar10 = discord.Embed(title= f"Arm Enhancer Type: Offensive",colour=0x7289da)
+      embedVar10 = discord.Embed(title= f"Offensive",colour=0x7289da)
       embedVar10.set_thumbnail(url=avatar)
       embedVar10.add_field(name="`OFFENSE`", value="**BASIC** - Equip a new Basic Attack and Element \n\n**SPECIAL** - Equip a new Special Attack and Element \n\n**ULTIMATE** - Equip a new Ultimate Attack and Element \n\n**ULTIMAX** - Increase **ALL** Attack Move Ability Power by Value \n\n**MANA** - Increase 🦠 Enhancer Ability Power by Percentage \n\n💉 **SIPHON** - Heal for 10% DMG + AP\n\n")
       embedVar10.set_footer(text=f"/help - Bot Help")
       
-      embedVar11 = discord.Embed(title= f"Arm Enhancer Type: Defensive",colour=0x7289da)
+      embedVar11 = discord.Embed(title= f"Defensive",colour=0x7289da)
       embedVar11.set_thumbnail(url=avatar)
       embedVar11.add_field(name="`DEFENSE`", value="🌐 **SHIELD**- Grant Damage absorbing Shield until destroyed \n\n💠 **BARRIER** - Blocks all Attack Damage until player Attacks or is Destoyed (Enhancers Exempt)\n\n🔄 **PARRY** - Reflects 25% Damage back to Attacker\n\n")
       embedVar11.set_footer(text=f"/help - Bot Help")
@@ -301,39 +309,71 @@ async def enhancers(ctx):
          
 async def classes(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
-   embedVar3 = discord.Embed(title= f"Classes", description=textwrap.dedent(f"""\
-   🥋 **Card Class**
-   Your Class grants you a boost when you enter the battle
+   embedVar3 = discord.Embed(title= f"🥋 Classes", description=textwrap.dedent(f"""\
+   Your Class grants you a boost during battle
    The **Boost** is determined by your Card Tier Range
    Common : [1 - 3]
-   Rare : [4 - 5]
+   Elite : [4 - 5]
    Legendary : [6 - 7]
    
    {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle
    
-   {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // Initial Attacks cost 0 Stamina
-   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
+   {crown_utilities.class_emojis['ASSASSIN']} *Assassin* // Initial Attacks cost 0 Stamina + 50% Crit Chance
+   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks*
    
    {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with up to 6 Parries
-   *Common - 3 Parry, Rare - 5 Parries, Legendary - 6 Parries*
+   *Common - 3 Parry, Elite - 5 Parries, Legendary - 6 Parries*
    
    {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with up to 3 barriers, can attack through barrier
-   *Common - 2 Barrier, Rare - 3 Barriers, Legendary - 4 Barriers*
+   *Common - 2 Barrier, Elite - 3 Barriers, Legendary - 4 Barriers*
    
    {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 500 Shield, gain same shield on resolve
-   *Common - 500/1000/1500 Shield, Rare - 2000/2500, Legendary - 3000/3500*
+   *Common - 500/1000/1500 Shield, Elite - 2000/2500, Legendary - 3000/3500*
    
    {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain up to 3 Critical Strikes
-   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
+   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks*
    
    {crown_utilities.class_emojis['MONSTROSITY']} *Monstrosity* // On Resolve gain up to 3 Double Strikes
-   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
+   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks*
 
    {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by up to 50%
-   *Common - 35%, Rare - 45%, Legendary - 50%*
+   *Common - 35%, Elite - 45%, Legendary - 50%*
    
    {crown_utilities.class_emojis['HEALER']} *Healer* // Stores up to 40% of damage taken and heals for the total amount each Focus 
-   *Common - 25%, Rare - 35%, Legendary - 45%*
+   *Common - 25%, Elite - 35%, Legendary - 45%*
+   """), colour=0x7289da)
+   embedVar3.set_thumbnail(url=avatar)
+   
+   await ctx.send(embed=embedVar3)
+
+async def tactics(ctx):
+   avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
+   embedVar3 = discord.Embed(title= f"🆚 Tactics", description=textwrap.dedent(f"""\
+   Tactics are special abilities that occur during Boss Fights and Raids
+   Bosses may have more than 1 Tactic
+   These happen outside of the traditional turn structure and are considered Legendary Actions
+   
+   🆚 Enrage - When the boss's health drops below 50% of its base maximum health, it gains a boost to its stats.
+
+   🆚 Overwhelming Power - Upon resolve, the boss will parry all attacks for 10 - 15 turns.
+
+   🆚 Damage Check - The boss will skip its turn 5 times during the fight. If you fail to deal enough damage during those turns, you will lose the fight. This mechanic occurs a maximum of 1-2 times per boss fight.
+
+   🆚 Death Blow - Throughout the match, after turns 10, 30, 60, 90, 120, 150, 180, 200, 220, 240, 250 the boss will unleash a devastating attack that destroys all of your protections [Shields, Parry, Barrier, Blocks], leaving you vulnerable to its attacks. If you had no protections to begin with, the attack will be fatal and you will lose the game.
+
+   🆚 Almighty Will - The boss has the ability to manipulate the turn order and their focus count by either increasing or decreasing the total number of turns. The exact effect is randomized and depends on the boss.
+
+   🆚 Stagger - When the boss lands a critical hit, the opponent is staggered and loses their turn.
+
+   🆚 Provoked - If the boss's health drops to 0 or below, it gains a temporary spike in health for 5 turns. If it kills the opponent during this time, the boss wins. Otherwise, the boss loses the fight.
+
+   🆚 Intimidation - The boss has the ability to temporarily reduce the opponent's attack and defense stats to 0 for 1-5 turns.
+
+   🆚 Petrified Fear - At the start of the match, the boss gains the ability to take 1 - 5 turns before you have a chance to act.
+
+   🆚 Regeneration - At the start of turn 50, the boss regenerates all of its health, fully restoring itself.
+
+   🆚 Bloodlust - After the boss's health drops below 75% of its base maximum health, it gains the ability to heal for 35% of the damage it deals for the remainder of the match.
    """), colour=0x7289da)
    embedVar3.set_thumbnail(url=avatar)
    
@@ -433,7 +473,7 @@ async def animevs(ctx):
    🀄 **Card Tier**
    Card Tier Determines Base Stats and Enhancer Types/Values.
    Common : Tier 1 - 3
-   Rare : Tier 4 - 5
+   Elite : Tier 4 - 5
    Legendary : Tier 6 - 7
    
    🔅 **Affinities**
@@ -601,8 +641,9 @@ async def animevs(ctx):
    
    👤 **Solo**/solo
    **Tales:** Single player adventures where you traverse through your favorite universes as characters from various worlds!
+   **Scenarios:** Iconic Lore Based Adventures that drop Specific Loot based on Difficulty
    **Dungeon:** Hard version of tales with better loot and better drop rates! (Unlocks after completing **Anime VS+ Tale**)
-   **Boss:** End Game battles featuring Iconic Villians from Anime VS+ Universes. (Unlocks after completing **Anime VS+ Dungeon**)
+   **Boss:** End Game battles featuring Iconic Villians from Anime VS+ Universes.(Unlocks after completing **Anime VS+ Dungeon**)
    
    👥 **Duo**/duo *Beta*
    **Tales Deck(1-5):** Battle with your favorite AI preset in this Duo Tale!

@@ -5184,6 +5184,9 @@ async def scenario_drop(self, ctx, player, scenario, difficulty):
         if scenario['TITLE'] in player.scenario_history:
             scenario_gold = round(scenario_gold / 2)
         
+        if scenario['IS_RAID']:
+            scenario_gold = round(scenario_gold * 3)
+        
         await crown_utilities.bless(scenario_gold, ctx.author.id)
         # Add Card Check
         arm = db.queryArm({"ARM": rewarded})
