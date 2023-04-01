@@ -2076,7 +2076,6 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
 
 
 format_tactics = {
-    'ENRAGE': 'Enrage',
     'OVERWHELMING_POWER': 'Overwhelming Power',
     'DAMAGE_CHECK': 'Damage Check',
     'DEVASTATING_BLOW': 'Devastating Blow',

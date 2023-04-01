@@ -353,7 +353,7 @@ async def tactics(ctx):
    Bosses may have more than 1 Tactic
    These happen outside of the traditional turn structure and are considered Legendary Actions
    
-   🆚 Enrage - When the boss's health drops below 50% of its base maximum health, it gains a boost to its stats.
+   🆚 Enraged - When the boss's health drops below 50% of its base maximum health, it gains a boost to its stats.
 
    🆚 Overwhelming Power - Upon resolve, the boss will parry all attacks for 10 - 15 turns.
 
