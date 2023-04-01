@@ -79,7 +79,7 @@ ELEMENTS = textwrap.dedent(f"""\
 **🔅 Elements**    
 👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry
 
-🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks.
+🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks. Burn Damage ignores Shields
 
 ❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn.
 
@@ -91,7 +91,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🌪️ Wind - On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.
 
-🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier
+🔮 Psychic - Penetrates Barriers and Shields. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier
 
 ☠️ Death - Deals 30% DMG to opponent max health. Gain Attack equal to that amount.
 
@@ -101,7 +101,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.
 
-🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).
+🧪 Poison - Poison 30 damage stacking up to (150 * Card Tier). Poison Penetrates Shields
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%
 
@@ -109,11 +109,11 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
 
-⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and lower opponent protections and goes through parry.
+⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and lower opponent protections, penetrates Barrier and parry.
 
 🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.
 
-🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 30% DMG, Decrease Turn Count By 3, goes through barrier and parry.
+🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 30% DMG, Decrease Turn Count By 3, penetrates Barrier and Parry.
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
