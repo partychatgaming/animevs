@@ -1711,7 +1711,8 @@ class Card:
 
             if selected_move == 6:
                 move_element = self.summon_type
-                move_emoji = self.summon_emoji
+                # move_emoji = self.summon_emoji
+                move_emoji = crown_utilities.set_emoji(move_element)
                 can_use_move_flag = True
                 ap = self.summon_power
                 move_stamina = 0
