@@ -3687,7 +3687,7 @@ class Profile(commands.Cog):
                     await button_ctx.send(embed=embed)
 
                 except asyncio.TimeoutError:
-                    await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+                    await ctx.send(f"{ctx.author.mention} Preset Menu closed.", hidden=True)
                 except Exception as ex:
                     trace = []
                     tb = ex.__traceback__
