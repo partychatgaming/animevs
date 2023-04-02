@@ -36,8 +36,8 @@ traits = [{
     'TRAIT': 'Mana Zone : Gain 100 Stamina on Focus. Gain 50 Stamina on Block. Grimoire : AP is increased by (30 + turn Count) on Focus.'
 },{
     'NAME': 'Fate',
-    'EFFECT': 'Command Seal',
-    'TRAIT': 'On Resolve, Strike with Ultimate with no Stamina cost.'
+    'EFFECT': 'Roles, Command Seal',
+    'TRAIT': 'Roles: Your Card Class Tier boost increased to the next Tier, Command Seal : On Resolve, Strike with Ultimate with no Stamina cost. '
 },{
     'NAME': 'Demon Slayer',
     'EFFECT': 'Total Concentration Breathing, Constant',

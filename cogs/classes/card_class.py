@@ -451,6 +451,11 @@ class Card:
         p_value = 0
         mage_buff = .35
         heal_buff = .25
+        if self.universe == "Fate":
+            if self.tier in [1, 2, 3]:
+                self.tier = 4
+            elif self.tier in [4, 5]:
+                self.tier = 6
         if self.tier in [1, 2, 3]:
             value = 1
             p_value = 3
@@ -464,6 +469,12 @@ class Card:
             p_value = 6
             mage_buff = .50
             heal_buff = .45
+            if self.universe == "Fate":
+                value = 4
+                p_value = 8
+                mage_buff = .55
+                heal_buff = .55
+                
 
         if self.card_class == "FIGHTER":
             self.is_fighter = True
