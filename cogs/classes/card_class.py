@@ -494,7 +494,10 @@ class Card:
         if self.card_class == "TANK":
             self.is_tank = True
             self._shield_active = True
-            self._shield_value = self._shield_value + (self.tier * 500)
+            if self.universe == "Fate":
+                self._shield_value = self.shield_value + (self.tier * 700)
+            else:
+                self._shield_value = self._shield_value + (self.tier * 500)
         
         if self.card_class == "HEALER":
             self.is_healer = True
@@ -2775,17 +2778,17 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
 
-                evolution_boost = 500
+                evolution_boost = 500 * self.tier
                 if battle_config.turn_total >= 50:
                     self.max_health = self.max_health + (evolution_boost * 2)
                     self.health = self.health + (evolution_boost * 2)
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Gigantomax Evolution!!! Gained **1000** HP!!!")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Gigantomax Evolution!!! Gained 2x Defense and **{evolution_boost * 2}** HP!!!")
                 elif battle_config.turn_total >= 30:
                     self.max_health = self.max_health + evolution_boost
                     self.health = self.health + evolution_boost
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained **500** HP!")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained 2x Defense**{evolution_boost}** HP!")
                 else:
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Evolution!")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Evolution! Gained 2x Defense")
 
                 self.damage_healed = self.damage_healed + resolve_health + evolution_boost
                 battle_config.turn_total = battle_config.turn_total + 1

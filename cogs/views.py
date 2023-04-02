@@ -832,16 +832,16 @@ async def viewuniverse(self, ctx, data):
         if universe:
             universe_title= universe['TITLE']
             fights = len(universe['CROWN_TALES'])
-            # if (fights <= 0 or not universe['HAS_CROWN_TALES']) and universe_title != "Unbound":
-            #     embedVar = discord.Embed(title=f":earth_africa: | {universe_title}", description=textwrap.dedent(f"""
-            #     {crest} | :construction_site: Under Construction
-            #     """), colour=000000)
-            #     universe_image = universe['PATH']
-            #     embedVar.set_image(url=universe_image)
-            #     embedVar.set_footer(text=f"{universe_title} Details")
+            if (fights <= 0 or not universe['HAS_CROWN_TALES']) and universe_title != "Unbound":
+                embedVar = discord.Embed(title=f":earth_africa: | {universe_title}", description=textwrap.dedent(f"""
+                {crest} | :construction_site: Under Construction
+                """), colour=000000)
+                universe_image = universe['PATH']
+                embedVar.set_image(url=universe_image)
+                embedVar.set_footer(text=f"{universe_title} Details")
 
-            #     await ctx.send(embed=embedVar)
-            #     return
+                await ctx.send(embed=embedVar)
+                return
             dungeon_fights = len(universe['DUNGEONS'])
             crest = crown_utilities.crest_dict[universe_title]
             universe_image = universe['PATH']

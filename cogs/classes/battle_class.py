@@ -1057,48 +1057,43 @@ class Battle:
                     aiMove = 1
             else:
                 aiMove = 1
-        if self.is_hard_difficulty and self.is_turn in [1,3]:
-            if opponent_card._barrier_active: #Ai Opponent Barrier Checks
-                if your_card.stamina >=20: #Stamina Check For Enhancer
-                    #Check if you have a psychic move for barrier
-                    if your_card.stamina >= 80 and your_card.move3_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
-                        aiMove = 3
-                    elif your_card.stamina >= 30 and your_card.move2_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
-                        aiMove = 2
-                    elif your_card.stamina >= 10 and your_card.move1_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
-                        aiMove = 1
-                    elif your_card.stamina >= 80:
-                        aiMove = 3
-                    elif your_card.stamina >= 30:
-                        aiMove = 2
-                    else:
-                        aiMove = 1
-            elif opponent_card._shield_active: #Ai Shield Checks
-                if your_card.stamina >= 80 and your_card.move3_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
-                    aiMove = 3
-                elif your_card.stamina >= 30 and your_card.move2_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
-                    aiMove = 2
-                elif your_card.stamina >= 10 and your_card.move1_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
-                    aiMove = 1
-                elif your_card.stamina >= 80:
-                    aiMove = 3
-                elif your_card.stamina >= 30:
-                    aiMove = 2
-                else:
-                    aiMove = 1
-            elif opponent_card._parry_active: #Ai Parry Checks
-                if your_card.stamina >= 80 and your_card.move3_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
-                    aiMove = 3
-                elif your_card.stamina >= 30 and your_card.move2_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
-                    aiMove = 2
-                elif your_card.stamina >= 10 and your_card.move1_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
-                    aiMove = 1
-                elif your_card.stamina >= 80:
-                    aiMove = 3
-                elif your_card.stamina >= 30:
-                    aiMove = 2
-                else:
-                    aiMove = 1
+        elif self.is_hard_difficulty and self.is_turn in [1,3] and opponent_card._barrier_active:
+            if your_card.stamina >= 80 and your_card.move3_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
+                aiMove = 3
+            elif your_card.stamina >= 30 and your_card.move2_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
+                aiMove = 2
+            elif your_card.stamina >= 10 and your_card.move1_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
+                aiMove = 1
+            elif your_card.stamina >= 80:
+                aiMove = 3
+            elif your_card.stamina >= 30:
+                aiMove = 2
+            else:
+                aiMove = 1
+        elif self.is_hard_difficulty and self.is_turn in [1,3] and opponent_card._shield_active:
+            if your_card.stamina >= 80 and your_card.move3_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
+                aiMove = 3
+            elif your_card.stamina >= 30 and your_card.move2_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
+                aiMove = 2
+            elif your_card.stamina >= 10 and your_card.move1_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
+                aiMove = 1
+            elif your_card.stamina >= 80:
+                aiMove = 3
+            elif your_card.stamina >= 30:
+                aiMove = 2
+            else:
+                aiMove = 1
+        elif self.is_hard_difficulty and self.is_turn in [1,3] and opponent_card._parry_active:
+            if your_card.stamina >= 80 and your_card.move3_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
+                aiMove = 3
+            elif your_card.stamina >= 30 and your_card.move2_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
+                aiMove = 2
+            elif your_card.stamina >= 10 and your_card.move1_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
+                aiMove = 1
+            elif your_card.stamina >= 30:
+                aiMove = 2
+            else:
+                aiMove = 1
         elif opponent_card.health <=700: #Killing Blow
             if your_card.move4enh == "BLAST":
                 if your_card.stamina >=20:
