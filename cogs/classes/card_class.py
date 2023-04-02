@@ -495,7 +495,7 @@ class Card:
             self.is_tank = True
             self._shield_active = True
             if self.universe == "Fate":
-                self._shield_value = self.shield_value + (self.tier * 700)
+                self._shield_value = self._shield_value + (self.tier * 700)
             else:
                 self._shield_value = self._shield_value + (self.tier * 500)
         
