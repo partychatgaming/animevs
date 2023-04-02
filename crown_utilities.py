@@ -2058,7 +2058,7 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               '7ds': '<:7ds:1088702006581006377>',
               'Hoenn Region': '<:hoenn:1090448753233756292>',
               'Digimon': '<:digimon_sparkle:1088702667703988316>',
-              'Fate': ':u6e80:',
+              'Fate': '<:fate:1092176982277632032>',
               'Solo Leveling': '<:jin:1090240014891352114>',
               'Souls': '<:dark_souls_icon:1088702666688966726>',
               'Dragon Ball Z': '<:dbz:1088698675338952774>',
@@ -2071,7 +2071,8 @@ crest_dict = { 'Unbound': ':ideograph_advantage:',
               'YuYu Hakusho': '<:yusuke:1088702663861993503>',
               'One Piece': '<:one_piece:1088702665581670451>',
               'Overlord': '<:overlord:1091223691729305681>',
-              'Fairy Tail': '<:FairyTail:1091223690445865062>'
+              'Fairy Tail': '<:FairyTail:1091223690445865062>',
+              'That Time I Got Reincarnated as a Slime': '<:slime:1091223689007210517>'
 }
 
 
