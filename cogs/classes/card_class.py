@@ -2060,7 +2060,7 @@ class Card:
                         
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
-                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['ASSASSIN']}**) **{self.name}**:  Assasin Strike!\n*{self._assassin_attack - self._assassin_value} Left!*")
+                    battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['ASSASSIN']}**) **{self.name}**:  Assassin Strike!\n*{self._assassin_attack - self._assassin_value} Left!*")
                     if self._assassin_value == self._assassin_attack:
                         self._assassin_active = False
                 else:
