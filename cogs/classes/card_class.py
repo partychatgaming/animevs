@@ -3900,29 +3900,29 @@ class Card:
             self.resolve_icon = '⚡'
                 
     def get_performance_stats(self):
-        if len(self.passive_name) > 20:
-            self.passive_name = self.passive_name[:17] + "..."
-        if round(self.health) == round(self.max_health):
+        if len(self.passive_name) > 18:
+            self.passive_name = self.passive_name[:15] + "..."
+        if round(self.health) == round(self.msax_health):
             return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** *Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*\n🩸 | *{self.passive_name}* **{self.passive_type.title()} {self.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]}**"
         return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** / *{round(self.max_health)} Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*\n🩸 | *{self.passive_name}* **{self.passive_type.title()} {self.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]}**"
     
     def get_perfomance_header(self, player_title):
-        if len(player_title.name) > 20:
-            player_title.name = player_title.name[:17] + "..."
+        if len(player_title.name) > 18:
+            player_title.name = player_title.name[:15] + "..."
         if self._arm_message != "":
             return f"{self.get_performance_stats()}\n{player_title.get_title_icon(self.universe)} | *{player_title.name}* **{player_title.passive_type.title()} {player_title.passive_value}{crown_utilities.title_enhancer_suffix_mapping[player_title.passive_type]}**\n**{self._arm_message}**"
         else:
             return f"{self.get_performance_stats()}\n{player_title.get_title_icon(self.universe)} | *{player_title.name}* **{player_title.passive_type.title()} {player_title.passive_value}{crown_utilities.title_enhancer_suffix_mapping[player_title.passive_type]}**"
     
     def get_performance_moveset(self):
-        if len(self.move1) > 20:
-            self.move1 = self.move1[:17] + "..."
-        if len(self.move2) > 20:
-            self.move2 = self.move2[:17] + "..."
-        if len(self.move3) > 20:
-            self.move3 = self.move3[:17] + "..."
-        if len(self.move4) > 20:
-            self.move4 = self.move4[:17] + "..."
+        if len(self.move1) > 18:
+            self.move1 = self.move1[:15] + "..."
+        if len(self.move2) > 18:
+            self.move2 = self.move2[:15] + "..."
+        if len(self.move3) > 18:
+            self.move3 = self.move3[:15] + "..."
+        if len(self.move4) > 18:
+            self.move4 = self.move4[:15] + "..."
         if self.used_resolve:
             return f"{self.move1_emoji} 10 | *{self.move1}* **{self.move1ap}**\n{self.move2_emoji} 30 | *{self.move2}* **{self.move2ap}**\n{self.move3_emoji} 80 | *{self.move3}* **{self.move3ap}**\n:microbe: 20 | *{self.move4}* **{self.move4enh.title()} {self.move4ap}**\n*{self.summon_resolve_message}*"
         else:
