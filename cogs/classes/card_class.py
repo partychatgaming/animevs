@@ -508,7 +508,7 @@ class Card:
         if self.card_class == "ASSASSIN":
             self.is_assassin = True
             self._assassin_active = True
-            self._assassin_attack = value + 1
+            self._assassin_attack = value
             
         if self.card_class == "SWORDSMAN":
             self.is_swordsman = True
