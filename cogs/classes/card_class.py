@@ -2463,7 +2463,7 @@ class Card:
             elif _opponent_card.universe == "Souls" and not _opponent_card.used_resolve:
                 _opponent_card.attack = round(_opponent_card.attack + (100 + battle_config.turn_total))
 
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
+                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Phase 1! Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
 
             battle_config.turn_total = battle_config.turn_total + 1
             

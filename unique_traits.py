@@ -60,8 +60,8 @@ traits = [{
     'TRAIT': 'Rulers Authority : On Focus, OPP loses (50 + turn) DEF Your Summon gain Ap eqal to value. Arise! : When OPP Arm Breaks it revives as your Arm.'
 },{
     'NAME': 'Souls',
-    'EFFECT': 'Combo Recognition, Second Phase!',
-    'TRAIT': 'Combo Recognition : :First Phase! : On OPP Focus, gain (100 + turn) ATK. Second Phase! : On Resolve, Shuffle Moveset, Dbl Strike with Basic ATK'
+    'EFFECT': 'Combat Phases!',
+    'TRAIT': 'First : On OPP Focus, gain (100 + turn) ATK. Second : On Resolve, Shuffle Moveset, Third: When Health < 50% Dbl Strike with Basic ATK'
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death, Shinigami Eyes',

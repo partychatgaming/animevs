@@ -2769,8 +2769,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
                                                         player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                         battle_config.next_turn()
-                                                if player1_card.universe == "Souls" and player1_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
+                                                if player1_card.universe == "Souls" and player1_card.used_resolve and (player1_card.health <= (.50 * player1_card.max_health)):
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 3!: Enhanced Aggression!")
                                                     damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                     battle_config.next_turn()
@@ -3066,8 +3066,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{player1_card._monstrosity_value - player1_card._double_strike_count} Left!*")
                                                         player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                         battle_config.next_turn()
-                                                if player1_card.universe == "Souls" and player1_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 2: Enhanced Aggression!")
+                                                if player1_card.universe == "Souls" and player1_card.used_resolve and (player1_card.health <= (.50 * player1_card.max_health)):
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player1_card.name}** Phase 3!: Enhanced Aggression!")
                                                     damage_calculation_response = player1_card.damage_cal("Souls", battle_config, player2_card)
                                                     player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                     #if not player1_card._monstrosity_active:
@@ -3289,8 +3289,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                             battle_config.next_turn()
-                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve and (player2_card.health <= (.50 * player2_card.max_health)):
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 3!: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         #if not player2_card._monstrosity_active:
@@ -3383,8 +3383,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)   
                                                         battle_config.next_turn()     
-                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                if player2_card.universe == "Souls" and player2_card.used_resolve and (player2_card.health <= (.50 * player2_card.max_health)):
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 3!: Enhanced Aggression!")
                                                     damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player1_card) 
                                                     #if not player2_card._monstrosity_active:
@@ -3496,8 +3496,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                             battle_config.next_turn()
-                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve and (player2_card.health <= (.50 * player2_card.max_health)):
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 3!: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                         #if not player2_card._monstrosity_active:
@@ -3512,8 +3512,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                             battle_config.next_turn()
-                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve and (player2_card.health <= (.50 * player2_card.max_health)):
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 3!: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         #if not player2_card._monstrosity_active:
@@ -3528,8 +3528,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         battle_config.next_turn()
-                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                if player2_card.universe == "Souls" and player2_card.used_resolve and (player2_card.health <= (.50 * player2_card.max_health)):
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 3!: Enhanced Aggression!")
                                                     damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                     #if not player2_card._monstrosity_active:
@@ -3616,8 +3616,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
                                                         player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                         battle_config.next_turn()
-                                                if player3_card.universe == "Souls" and player3_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 2: Enhanced Aggression!")
+                                                if player3_card.universe == "Souls" and player3_card.used_resolve and (player3_card.health <= (.50 * player3_card.max_health)):
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 3!: Enhanced Aggression!")
                                                     damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
                                                     player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                     #if not player3_card._monstrosity_active:
@@ -3743,8 +3743,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                             #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
                                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                             battle_config.next_turn()
-                                                    if player3_card.universe == "Souls" and player3_card.used_resolve:
-                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 2: Enhanced Aggression!")
+                                                    if player3_card.universe == "Souls" and player3_card.used_resolve and (player3_card.health <= (.50 * player3_card.max_health)):
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player3_card.name}** Phase 3!: Enhanced Aggression!")
                                                         damage_calculation_response = player3_card.damage_cal("Souls", battle_config, player2_card)
                                                         player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                         #if not player3_card._monstrosity_active:
@@ -3915,8 +3915,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                             battle_config.next_turn()
-                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve and (player2_card.health <= (.50 * player2_card.max_health)):
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 3!: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         #if not player2_card._monstrosity_active:
@@ -3931,8 +3931,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                             battle_config.next_turn()
-                                                    if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                    if player2_card.universe == "Souls" and player2_card.used_resolve and (player2_card.health <= (.50 * player2_card.max_health)):
+                                                        battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 3!: Enhanced Aggression!")
                                                         damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                         #if not player2_card._monstrosity_active:
@@ -3947,8 +3947,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                         battle_config.next_turn()
-                                                if player2_card.universe == "Souls" and player2_card.used_resolve:
-                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 2: Enhanced Aggression!")
+                                                if player2_card.universe == "Souls" and player2_card.used_resolve and (player2_card.health <= (.50 * player2_card.max_health)):
+                                                    battle_config.add_to_battle_log(f"(**🩸**) **{player2_card.name}** Phase 3!: Enhanced Aggression!")
                                                     damage_calculation_response = player2_card.damage_cal("Souls", battle_config, player3_card)
                                                     player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                     #if not player2_card._monstrosity_active:
