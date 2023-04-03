@@ -3076,7 +3076,7 @@ class Lookup(commands.Cog):
                                                 pet_exp = pet['EXP']
                                                 
                                                 petmove_ap = list(pet.values())[3] 
-                                                bond_req = ((petmove_ap * 5) * (pet_bond + 1))
+                                                bond_req = int((petmove_ap * 5) * (pet_bond + 1))
                                                 lvl_req = int(pet_level) * 10
                                                 if lvl_req <= 0:
                                                     lvl_req = 2

@@ -1100,7 +1100,7 @@ class Profile(commands.Cog):
                     embedVar = discord.Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
                     {icon} **[{index}]**
                     🦠 **{title_passive_type}:** {title_passive_value}
-                    :earth_africa: **Universe:** {resp['UNIVERSE']}"""), 
+                    {crown_utilities.crest_dict[resp['UNIVERSE']]} **Universe:** {resp['UNIVERSE']}"""), 
                     colour=0x7289da)
                     embedVar.set_thumbnail(url=avatar)
                     embedVar.set_footer(text=f"{title_passive_type}: {title_enhancer_mapping[title_passive_type]}")
@@ -1591,7 +1591,7 @@ class Profile(commands.Cog):
 
                     {arm_type}
                     {arm_message}
-                    :earth_africa: **Universe:** {resp['UNIVERSE']}
+                    {crown_utilities.crest_dict[resp['UNIVERSE']]} **Universe:** {resp['UNIVERSE']}
                     ⚒️ {arm['DUR']}
                     """), 
                     colour=0x7289da)
@@ -2108,7 +2108,7 @@ class Profile(commands.Cog):
                     soul = "🥀"
 
                 gem_details.append(
-                    f"🌍 **{gd['UNIVERSE']}**\n💎 {'{:,}'.format(gd['GEMS'])}\nUniverse Heart {heart}\nUniverse Soul {soul}\n")
+                    f"{crown_utilities.crest_dict[gd['UNIVERSE']]} **{gd['UNIVERSE']}**\n💎 {'{:,}'.format(gd['GEMS'])}\nUniverse Heart {heart}\nUniverse Soul {soul}\n")
 
             # Adding to array until divisible by 10
             while len(gem_details) % 10 != 0:
@@ -2680,7 +2680,7 @@ class Profile(commands.Cog):
                     if pet['LVL'] == 10:
                         lvl_message = ":star:"
                     
-                         
+                    
                     
                     pet_ability = ""
                     pet_emoji = crown_utilities.set_emoji(pet['TYPE'])
@@ -2689,11 +2689,11 @@ class Profile(commands.Cog):
                         if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
                             pet_ability_power = pet[key]
                             pet_ability = key
-
                     power = (pet['BOND'] * pet['LVL']) + pet_ability_power
                     if pet['TYPE'] in ['PARRY','BARRIER']:
                         power = pet_ability_power
                     pet_info = db.queryPet({'PET' : pet['NAME']})
+                    universe_crest = crown_utilities.crest_dict[pet_info['UNIVERSE']]
                     if pet_info:
                         pet_available = pet_info['AVAILABLE']
                         pet_exclusive = pet_info['EXCLUSIVE']
@@ -2705,12 +2705,11 @@ class Profile(commands.Cog):
                         icon = ":japanese_ogre:"
 
                     embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
-                    {icon}
                     _Bond_ **{pet['BOND']}** | {bond_message}
                     _Level_ **{pet['LVL']}** | {lvl_message}
-
-                    {pet_emoji} {pet['TYPE'].capitalize()} Ability 
+                    {pet_emoji} {pet['TYPE'].capitalize()} Ability
                     **{pet_ability}:** {power}
+                    {universe_crest}: {pet_info['UNIVERSE']}
                     """), 
                     colour=0x7289da)
                     embedVar.set_thumbnail(url=avatar)
@@ -3155,7 +3154,7 @@ class Profile(commands.Cog):
 
                     embedVar = discord.Embed(title=f"{opponent_name}", description=textwrap.dedent(f"""\
                     **Quest**: Defeat {opponent_name} **{str(goal)}** times!
-                    **Universe:** 🌍 {opponent['UNIVERSE']}
+                    **Universe:** {crown_utilities.crest_dict[opponent['UNIVERSE']]} {opponent['UNIVERSE']}
                     **Reward:** {icon} {reward}
                     **Guild Quest Buff:**  {guild_buff_msg}
                     

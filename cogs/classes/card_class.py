@@ -2750,8 +2750,8 @@ class Card:
                 damage_calculation_response = self.damage_cal(3, battle_config, opponent_card, )
                 opponent_card.health = opponent_card.health - damage_calculation_response['DMG']
                 self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Command Seal!")
-
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Command Seal! {damage_calculation_response['MESSAGE']}")
+                
                 # self.stamina = 0
                 self.used_resolve = True
                 self.usedsummon = False
@@ -3902,7 +3902,7 @@ class Card:
     def get_performance_stats(self):
         if len(self.passive_name) > 18:
             self.passive_name = self.passive_name[:15] + "..."
-        if round(self.health) == round(self.msax_health):
+        if round(self.health) == round(self.max_health):
             return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** *Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*\n🩸 | *{self.passive_name}* **{self.passive_type.title()} {self.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]}**"
         return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** / *{round(self.max_health)} Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*\n🩸 | *{self.passive_name}* **{self.passive_type.title()} {self.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]}**"
     
