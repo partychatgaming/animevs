@@ -4050,7 +4050,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
                                         if carm_durability_message != False:
                                             await private_channel.send(f"{carm_durability_message}")
-                                    private_channel.send("🪦{user1.mention})
+                                    private_channel.send(f"🪦{user1.mention})
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
                                 else:
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
