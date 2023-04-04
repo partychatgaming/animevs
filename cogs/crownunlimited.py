@@ -4464,7 +4464,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         **{max(0, (25 - (25 * player1.prestige))) if max(0, (25 - (25 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Explore Mode*
                                         **{max(0, (30 - (30 * player1.prestige))) if max(0, (30 - (30 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Marriage*
                                         **{max(0, (40 - (40 * player1.prestige))) if max(0, (40 - (40 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Dungeons*
-                                        **{max(0, (50 - (50 * player1.prestige))) if max(0, (50 - (50 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Bosses*
+                                        **{max(0, (60 - (60 * player1.prestige))) if max(0, (60 - (60 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Bosses*
                                         **{max(0, 100 - (10 * player1.prestige)) if max(0, 100 - (10 * player1.prestige)) > 0 else "Prestige Unlocked"}** - *Boss Soul Exchange*
                                         """),colour=0xe91e63)
 
