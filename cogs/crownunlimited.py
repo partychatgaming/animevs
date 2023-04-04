@@ -4053,6 +4053,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     private_channel.send(f"🪦{ctx.author.mention}")
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
                                 else:
+                                    private_channel.send(f"🪦{ctx.author.mention}")
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
                                 await battle_msg.delete(delay=2)
                                 await asyncio.sleep(2)
