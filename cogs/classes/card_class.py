@@ -220,10 +220,17 @@ class Card:
             self.focus_icon = "❤️"
             self.resolve_icon = "🌀"
             self.class_tier = ""
+            if self.universe == "Fate":
+                self.class_tier = "Elite"
             if self.tier in [4,5]:
                 self.class_tier = "Elite"
+                if self.universe == "Fate":
+                    self.class_tier = "Legendary"
             elif self.tier in [6,7]:
                 self.class_tier = "Legendary"
+                if self.universe == "Fate":
+                    self.class_tier = "Mythical"
+            
             self.class_message = f"{self.class_tier} {self.card_class.title()}"
             
 
