@@ -459,6 +459,16 @@ destiny = [
         "COMPLETED": False,
         "UNIVERSE": "Kanto Region"
     },
+        {
+        "NAME": "Pika Pika",
+        "WINS": 0,
+        "REQUIRED": 5,
+        "DEFEAT": "Pikachu",
+        "USE_CARDS": ["Ash Ketchum"],
+        "EARN": "Pikachu",
+        "COMPLETED": False,
+        "UNIVERSE": "Kanto Region"
+    },
     {
         "NAME": "Blastoise Evolution",
         "WINS": 0,
