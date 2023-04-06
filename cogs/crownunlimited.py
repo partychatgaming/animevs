@@ -4050,8 +4050,10 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         carm_durability_message = update_arm_durability(self, player3, player3_arm, player3_card)
                                         if carm_durability_message != False:
                                             await private_channel.send(f"{carm_durability_message}")
+                                    await private_channel.send(f"🪦{ctx.author.mention}")
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, player3_card)
                                 else:
+                                    await private_channel.send(f"🪦{ctx.author.mention}")
                                     loss_response = battle_config.you_lose_embed(player1_card, player2_card, None)
                                 await battle_msg.delete(delay=2)
                                 await asyncio.sleep(2)
@@ -4462,7 +4464,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         **{max(0, (25 - (25 * player1.prestige))) if max(0, (25 - (25 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Explore Mode*
                                         **{max(0, (30 - (30 * player1.prestige))) if max(0, (30 - (30 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Marriage*
                                         **{max(0, (40 - (40 * player1.prestige))) if max(0, (40 - (40 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Dungeons*
-                                        **{max(0, (50 - (50 * player1.prestige))) if max(0, (50 - (50 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Bosses*
+                                        **{max(0, (60 - (60 * player1.prestige))) if max(0, (60 - (60 * player1.prestige))) > 0 else "Prestige Unlocked"}** - *Bosses*
                                         **{max(0, 100 - (10 * player1.prestige)) if max(0, 100 - (10 * player1.prestige)) > 0 else "Prestige Unlocked"}** - *Boss Soul Exchange*
                                         """),colour=0xe91e63)
 
