@@ -2706,7 +2706,7 @@ class Profile(commands.Cog):
 
                     embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
                     _Bond_ **{pet['BOND']}** | {bond_message}
-                    _Level_ **{pet['LVL']}** | {lvl_message}
+                    _Level_ **{pet['LVL']}** | {lvl_message}s
                     {pet_emoji} {pet['TYPE'].capitalize()} Ability
                     **{pet_ability}:** {power}
                     {universe_crest}: {pet_info['UNIVERSE']}
