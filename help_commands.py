@@ -76,7 +76,8 @@ LEGEND = textwrap.dedent(f"""\
 """)
 
 ELEMENTS = textwrap.dedent(f"""\
-**🔅 Elements**    
+**🔅 Elements**
+
 👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry
 
 🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks. Burn Damage ignores Shields
