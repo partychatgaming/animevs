@@ -1438,7 +1438,7 @@ class Profile(commands.Cog):
 
                                             update_storage_query = {
                                                 '$pull': {'TSTORAGE': swap_with},
-                                                '$addToSet': {'TCARDS': swap_with}
+                                                '$addToSet': {'TITLES': swap_with}
                                             }
                                             response = db.updateVaultNoFilter(query, update_storage_query)
 
