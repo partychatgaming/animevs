@@ -863,12 +863,20 @@ class CrownUnlimited(commands.Cog):
             return
 
         try:
-            universe_data = list(db.queryAllUniverseAlt())
+            universe_data = list(db.queryAllUniverse())
+            #universe_count = 0
+            #for uni in universe_data:
+                #universe_count = universe_count + 1
+            #if universe_count > 25:
+                #universe_subset = random.sample(universe_data, k=min(len(universe_data), 25))
+            #else:
             universe_subset = random.sample(universe_data, k=min(len(universe_data), 25))
 
+            # user = db.queryUser({'DID': str(ctx.author.id)})
             universe_embed_list = []
             for uni in universe_subset:
                 available = ""
+                # if len(uni['CROWN_TALES']) > 2:
                 if uni['CROWN_TALES']:
                     available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
                     
@@ -878,13 +886,6 @@ class CrownUnlimited(commands.Cog):
                     {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: :crossed_swords: **{len(uni['CROWN_TALES'])}**
 
                     :crossed_swords: **Tales Order**: {tales_list}
-                    """))
-                    embedVar.set_image(url=uni['PATH'])
-                    universe_embed_list.append(embedVar)
-                elif not uni['CROWN_TALES'] and not uni['TITLE'] == "Unbound":
-                    embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                    :construction_site: Under Construction
-
                     """))
                     embedVar.set_image(url=uni['PATH'])
                     universe_embed_list.append(embedVar)
@@ -1078,6 +1079,7 @@ async def tutorial(self, ctx, player, mode):
         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
         return
 
+
 async def quest(player, opponent, mode):
     user_data = db.queryVault({'DID': str(player.id)})
     quest_data = {}
@@ -1136,6 +1138,7 @@ async def quest(player, opponent, mode):
             'trace': trace
         }))
         return
+
 
 async def destiny(player, opponent, mode, craft_amount = None):
     num_of_wins = 1
@@ -1288,6 +1291,8 @@ async def savematch(player, card, path, title, arm, universe, universe_type, exc
     matchquery = {'PLAYER': player, 'CARD': card, 'PATH': path, 'TITLE': title, 'ARM': arm, 'UNIVERSE': universe,
                   'UNIVERSE_TYPE': universe_type, 'EXCLUSIVE': exclusive}
     save_match = db.createMatch(data.newMatch(matchquery))
+
+
 
 async def abyss_level_up_message(did, floor, card, title, arm):
     try:
@@ -1542,6 +1547,8 @@ def showsummon(url, summon, message, lvl, bond):
 def setup(bot):
     bot.add_cog(CrownUnlimited(bot))
 
+
+
 async def abyss(self, ctx: SlashContext, _player, mode):
     #await ctx.defer()
     a_registered_player = await crown_utilities.player_check(ctx)
@@ -1709,9 +1716,6 @@ async def cardlist(self, ctx: SlashContext, universe: str):
     universe_data = db.queryUniverse({'TITLE': {"$regex": str(universe), "$options": "i"}})
     user = db.queryUser({'DID': str(ctx.author.id)})
     list_of_cards = db.queryAllCardsBasedOnUniverse({'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
-    if len(list(list_of_cards)) <= 1:
-        await ctx.send(":construction_site: | Cards under Construction")
-        return
     cards = [x for x in list_of_cards]
     dungeon_card_details = []
     tales_card_details = []
@@ -1815,9 +1819,6 @@ async def titlelist(self, ctx: SlashContext, universe: str):
     universe_data = db.queryUniverse({'TITLE': {"$regex": universe, "$options": "i"}})
     user = db.queryUser({'DID': str(ctx.author.id)})
     list_of_titles = db.queryAllTitlesBasedOnUniverses({'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
-    if len(list(list_of_titles)) <= 1:
-        await ctx.send(":construction_site: | Titles under Construction")
-        return
     titles = [x for x in list_of_titles]
     dungeon_titles_details = []
     tales_titles_details = []
@@ -1897,9 +1898,6 @@ async def armlist(self, ctx: SlashContext, universe: str):
     universe_data = db.queryUniverse({'TITLE': {"$regex": universe, "$options": "i"}})
     user = db.queryUser({'DID': str(ctx.author.id)})
     list_of_arms = db.queryAllArmsBasedOnUniverses({'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
-    if len(list(list_of_arms)) <= 1:
-        await ctx.send(":construction_site: | Arms under Construction")
-        return
     arms = [x for x in list_of_arms]
     dungeon_arms_details = []
     tales_arms_details = []
@@ -2045,9 +2043,6 @@ async def summonlist(self, ctx: SlashContext, universe: str):
     universe_data = db.queryUniverse({'TITLE': {"$regex": universe, "$options": "i"}})
     user = db.queryUser({'DID': str(ctx.author.id)})
     list_of_pets = db.queryAllPetsBasedOnUniverses({'UNIVERSE': {"$regex": str(universe), "$options": "i"}})
-    if len(list(list_of_pets)) <= 1:
-        await ctx.send(":construction_site: | Summons under Construction")
-        return
     pets = [x for x in list_of_pets]
     dungeon_pets_details = []
     tales_pets_details = []
