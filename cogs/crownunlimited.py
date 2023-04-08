@@ -4788,7 +4788,7 @@ def tactics_almighty_will_check(boss_card, battle_config):
 def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_card, battle_config, companion = None):
     #If any damage happened last turn that would kill
     player_card.reset_stats_to_limiter(opponent_card)
-    battle_config.add_to_battle_log(player_card.set_poison_hit(opponent_card))
+    # battle_config.add_to_battle_log(player_card.set_poison_hit(opponent_card))
     burn_turn = player_card.set_burn_hit(opponent_card)
     if burn_turn != None:
         battle_config.add_to_battle_log(player_card.set_burn_hit(opponent_card))

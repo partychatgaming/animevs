@@ -3333,7 +3333,7 @@ class Card:
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
                     if not opponent_card.used_resolve:
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card.naruto_heal_buff}** total stored.")
-                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
+                elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "GRAVITY"]:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
@@ -3358,7 +3358,7 @@ class Card:
                         opponent_card._arm_message = ""
                         self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
-                elif opponent_card._shield_active and dmg['ELEMENT'] not in ["DARK", "PSYCHIC"]:
+                elif opponent_card._shield_active and dmg['ELEMENT'] not in ["DARK", "PSYCHIC", "TIME"]:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
@@ -3396,7 +3396,7 @@ class Card:
                                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroyed **{opponent_card.name}**'s 💠 Barrier! No Barriers remain!")
                                 self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
                 
-                elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "TIME", "GRAVITY"]:                    
+                elif opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "TIME", "GRAVITY", "LIGHT"]:                    
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
                             self._barrier_active = False
@@ -3457,7 +3457,7 @@ class Card:
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
 
                     self.activate_element_check(battle_config, dmg, opponent_card)
-
+                battle_config.add_to_battle_log(self.set_poison_hit(opponent_card))
                     # battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}:** {dmg['MESSAGE']}")
                 if self.health <= 0:
                     if self._final_stand==True:
@@ -3550,7 +3550,7 @@ class Card:
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
                 self.stamina = 0
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (4 * battle_config.turn_total)
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (2 * battle_config.turn_total)
             self.used_block = True
             self.defense = round(self.defense * 4)
             battle_config.turn_total = battle_config.turn_total + 3
@@ -3658,10 +3658,10 @@ class Card:
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .20))} AP*")
 
         elif dmg['ELEMENT'] == "POISON":
-            if self.poison_dmg <= (150 * self.tier):
-                self.poison_dmg = self.poison_dmg + 30
-                if self.poison_dmg > (150 * self.tier):
-                   self.poison_dmg = (150 * self.tier)
+            if self.poison_dmg <= (200 * self.tier):
+                self.poison_dmg = self.poison_dmg + (15 * self.tier)
+                if self.poison_dmg > (200 * self.tier):
+                   self.poison_dmg = (200 * self.tier)
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
 
@@ -3687,7 +3687,7 @@ class Card:
                 battle_config.turn_total = 0
             self.gravity_hit = True
             opponent_card.health = opponent_card.health - dmg['DMG']
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .30)
+            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .20)
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} has slowed down time -3 turns*")
         
         else:
