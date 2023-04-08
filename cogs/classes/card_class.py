@@ -1968,24 +1968,32 @@ class Card:
                 # hit_roll = round(random.randint(0, 20))
                 hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
                 evasion = crown_utilities.calculate_speed_modifier(_opponent_card.speed)
-                accuracy = self.speed - _opponent_card.speed
+                speed_mod = self.speed / 10
+                if speed_mod < 1:
+                    speed_mod = speed_mod * 10
+                opponent_speed_mod = _opponent_card.speed / 10
+                if opponent_speed_mod < 1:
+                    opponent_speed_mod = opponent_speed_mod * 10
+                accuracy = speed_mod - opponent_speed_mod
                 if accuracy <= 0:
                     accuracy = 0
                 if accuracy >= 3:
                     accuracy = 3
                 hit_roll += evasion + accuracy
-                
+                spirit_crit = False
                 #Evasion Modifier
                 hit_roll = self.adjust_hit_roll(hit_roll, _opponent_card, summon_used, true_dmg, move_element, battle_config, low_hit, med_hit, standard_hit, high_hit, miss_hit)
 
                 if move_element == "RECOIL" and hit_roll > miss_hit:
-                    true_dmg = round(true_dmg * 3)
+                    true_dmg = round(true_dmg * (1 + accuracy))
 
                 if self.wind_element_activated and hit_roll < miss_hit:
                     battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * .25))
                     battle_config.add_to_battle_log(f"*The wind is mustering... all wind power increased by {round(true_dmg * .25)}*")
                     true_dmg = round(true_dmg + battle_config._wind_buff)
 
+                if move_element == "SPIRIT" and hit_roll >= 20:
+                    spirit_crit = True
                 if hit_roll < miss_hit:
                     if self.universe == 'Crown Rift Slayers':
                         true_dmg = round(true_dmg * 2.5)
@@ -2013,10 +2021,10 @@ class Card:
                     if self.stagger:
                         self.stagger_activated = True
                     if self.universe =="Crown Rift Awakening":
-                        true_dmg = round(true_dmg * 4)
+                        true_dmg = round(true_dmg * 3)
                         message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits {_opponent_card.name} for {true_dmg}!! 💥"
                     else:
-                        true_dmg = round(true_dmg * 2.5)
+                        true_dmg = round(true_dmg * 2)
                         message = f"{move_emoji} {move} used! Critically Hits {_opponent_card.name} for {true_dmg}!! 💥"
                 
                 else:
@@ -2037,7 +2045,7 @@ class Card:
                     else:
                         message = f"{_opponent_card.name} is weak to {move_emoji} {move_element.lower()}! Strong hit for **{true_dmg}**!"
                 
-                if not self._talisman == move_element and not self._is_boss:
+                if not self._talisman == move_element and not self._is_boss and not spirit_crit:
                     if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) :
                         true_dmg = round(true_dmg * .45)
                         if summon_used:
@@ -2135,7 +2143,7 @@ class Card:
                     battle_config.add_to_battle_log(damage_check_message)
 
         if self.universe == "Crown Rift Slayers" and hit_roll <= low_hit:
-            hit_roll = hit_roll - 3
+            hit_roll = hit_roll - 5
 
         if self._swordsman_active and self.used_resolve and not summon_used:
             if self._critical_strike_count < self._swordsman_value:
@@ -3596,9 +3604,9 @@ class Card:
             
         elif dmg['ELEMENT'] == "RANGED":
             self.ranged_meter = self.ranged_meter + 1
-            if self.ranged_meter == 3:
+            if self.ranged_meter == 2:
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} takes aim...*")
-            elif self.ranged_meter == 4:
+            elif self.ranged_meter == 3:
                 self.ranged_meter = 0
                 self.ranged_hit_bonus = self.ranged_hit_bonus + 1
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} accurary Increased by {self.ranged_hit_bonus * 5}%*")

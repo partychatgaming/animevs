@@ -404,12 +404,16 @@ async def route_to_storage(user, player, card_name, current_cards, card_owned, p
         
 
 def calculate_speed_modifier(speed):
-    if speed <= 10:
+    if speed <= 1:
+        return 4
+    elif speed <= 10:
         return 3
     elif speed <= 20:
         return 2
     elif speed <= 30:
         return 1
+    elif speed >= 100:
+        return -4
     elif speed >= 90:
         return -3
     elif speed >= 80:

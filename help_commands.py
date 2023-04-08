@@ -104,9 +104,9 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🧪 Poison - Poison 30 damage stacking up to (150 * Card Tier). Poison Penetrates Shields
 
-🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%
+🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Crit Chance by 5%
 
-🧿 Spirit - Has higher 35% higher chance of Crit.
+🧿 Spirit - Has higher 35% higher chance of Crit. Crit PPenetrates Shields, Barriers and Parries.
 
 ♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
 
