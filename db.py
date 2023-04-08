@@ -1618,6 +1618,9 @@ def queryAllUniverse():
     data = universe_col.find({"HAS_CROWN_TALES": True})
     return data
 
+def queryAllUniverseAlt():
+    data = universe_col.find()
+    return data
 
 def queryTaleAllUniverse():
     data = universe_col.find({"HAS_CROWN_TALES": True})
