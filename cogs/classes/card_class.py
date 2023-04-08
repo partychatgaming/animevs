@@ -1452,7 +1452,7 @@ class Card:
 
                 turn_crit = False
                 if self.move4enh in crown_utilities.Turn_Enhancer_Check:
-                    if turn_total == 0:
+                    if turn_total in [0,1] :
                         self.move4ap = round(self.move4base)
                         turn_crit = True
                     elif turn_total % 10 == 0:
@@ -3645,9 +3645,9 @@ class Card:
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
 
         elif dmg['ELEMENT'] == "ELECTRIC":
-            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .15)
+            self.shock_buff = self.shock_buff +  (dmg['DMG'] * .20)
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .10))} AP*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .20))} AP*")
 
         elif dmg['ELEMENT'] == "POISON":
             if self.poison_dmg <= (150 * self.tier):
