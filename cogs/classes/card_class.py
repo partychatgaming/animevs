@@ -1039,7 +1039,7 @@ class Card:
             bleed_hit_modified = bleed_hit_local + (self.health * .05)
             self.health = self.health - bleed_hit_modified
             if self.health < 0:
-                self.health = 0
+                self.health = -999
             self.damage_recieved = self.damage_recieved + round(bleed_hit_modified)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(bleed_hit_modified)
             return f"🩸 **{self.name}** shredded for **{round(bleed_hit_modified)}** bleed dmg..."
@@ -1053,7 +1053,7 @@ class Card:
             self.damage_recieved = self.damage_recieved + round(opponent_card.burn_dmg)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.burn_dmg)
             if self.health <= 0:
-                self.health = 0
+                self.health = -999
                 burn_message = f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg and died..."
                 opponent_card.burn_dmg = 0
         

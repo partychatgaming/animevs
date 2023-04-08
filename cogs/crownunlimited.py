@@ -889,6 +889,15 @@ class CrownUnlimited(commands.Cog):
                     """))
                     embedVar.set_image(url=uni['PATH'])
                     universe_embed_list.append(embedVar)
+                elif not uni['CROWN_TALES'] and not uni['TITLE'] == "Unbound":
+                    available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
+
+                    embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
+                    {crown_utilities.crest_dict[uni['TITLE']]} | :construction_site: Under Construction
+
+                    """))
+                    embedVar.set_image(url=uni['PATH'])
+                    universe_embed_list.append(embedVar)
                 
 
             buttons = [

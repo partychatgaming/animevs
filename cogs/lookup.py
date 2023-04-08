@@ -372,7 +372,7 @@ class Lookup(commands.Cog):
                     {patreon_message}
                 """), colour=000000)
                 embed8.set_image(url=avi)
-                embed8.set_footer(text=f"{birthday}")
+                embed8.set_footer(text=f"{birthday}")#
                 
                 if crown_list:
                     embed4 = discord.Embed(title=f"{name}'s Tales Achievements".format(self), description=textwrap.dedent(f"""\
