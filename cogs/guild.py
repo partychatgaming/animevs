@@ -706,10 +706,11 @@ class Guild(commands.Cog):
                 if founder_profile['DID'] != f_profile and founder_profile['DID'] != s_profile:
                     await ctx.send(m.KNIGHT_GUILD_FOUNDER, delete_after=3)
                     return
+                await main.DM(ctx, blade, f"{ctx.author.mention}" + f" would like you to serve as the Association Shield!" + f" React in server to protect the Association" )
                 trade_buttons = [
                     manage_components.create_button(
                         style=ButtonStyle.green,
-                        label="Knight",
+                        label="Serve",
                         custom_id="yes"
                     ),
                     manage_components.create_button(
@@ -719,94 +720,46 @@ class Guild(commands.Cog):
                     )
                 ]
                 trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
-                await ctx.send(f"Do you wish to knight {blade.mention}?".format(self), components=[trade_buttons_action_row])
+                await ctx.send(f"{blade.mention}" +f" will you defend **:flags:{guildname}**?".format(self), components=[trade_buttons_action_row])
                 
                 def check(button_ctx):
-                    return button_ctx.author == ctx.author
+                    return button_ctx.author == blade
 
                 
                 try:
                     button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
                     if button_ctx.custom_id == "no":
-                        await button_ctx.send("No Change")
+                        await button_ctx.send("Knight Refused")
                         self.stop = True
                         return
                     if button_ctx.custom_id == "yes":
-                        try: 
-                            await main.DM(ctx, blade, f"{ctx.author.mention}" + f" would like you to serve as the Association Shield!" + f" React in server to protect the Association" )
-                            trade_buttons = [
-                                manage_components.create_button(
-                                    style=ButtonStyle.green,
-                                    label="Serve",
-                                    custom_id="yes"
-                                ),
-                                manage_components.create_button(
-                                    style=ButtonStyle.blue,
-                                    label="No",
-                                    custom_id="no"
-                                )
-                            ]
-                            trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
-                            await ctx.send(f"{blade.mention}" +f" will you defend **:flags:{guildname}**?".format(self), components=[trade_buttons_action_row])
-                            
-                            def check(button_ctx):
-                                return button_ctx.author == blade
-
-                            
-                            try:
-                                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
-                                if button_ctx.custom_id == "no":
-                                    await button_ctx.send("Knight Refused")
-                                    self.stop = True
-                                    return
-                                if button_ctx.custom_id == "yes":
-                                    if prev_team_exist:
-                                        prev_team_update = {'$set': {'SHIELDING': False}}
-                                        remove_shield = db.updateTeam({'TEAM_NAME': str(prev_team['TEAM_NAME'])}, prev_team_update)
-                                    update_shielding = {'$set': {'SHIELDING': True}}
-                                    add_shield = db.updateTeam({'TEAM_NAME': str(shield_team_name)}, update_shielding)
-                                    newvalue = {'$set': {'SHIELD': str(blade), 'STREAK' : 0, 'SDID' : str(blade.id)}}
-                                    response = db.addGuildShield(new_query, newvalue, ctx.author, blade)
-                                    await ctx.send(response)
-                                    
-                            except Exception as ex:
-                                trace = []
-                                tb = ex.__traceback__
-                                while tb is not None:
-                                    trace.append({
-                                        "filename": tb.tb_frame.f_code.co_filename,
-                                        "name": tb.tb_frame.f_code.co_name,
-                                        "lineno": tb.tb_lineno
-                                    })
-                                    tb = tb.tb_next
-                                print(str({
-                                    'type': type(ex).__name__,
-                                    'message': str(ex),
-                                    'trace': trace
-                                }))
-                                await ctx.send(
-                                    "There's an issue with your commnads. Alert support.")
-                                return
-                        except Exception as ex:
-                            trace = []
-                            tb = ex.__traceback__
-                            while tb is not None:
-                                trace.append({
-                                    "filename": tb.tb_frame.f_code.co_filename,
-                                    "name": tb.tb_frame.f_code.co_name,
-                                    "lineno": tb.tb_lineno
-                                })
-                                tb = tb.tb_next
-                            print(str({
-                                'type': type(ex).__name__,
-                                'message': str(ex),
-                                'trace': trace
-                            }))
-                            await ctx.send(
-                                "There's an issue with your commnads. Alert support.")
-                            return
-                except:
-                    print("No proposal Sent")
+                        if prev_team_exist:
+                            prev_team_update = {'$set': {'SHIELDING': False}}
+                            remove_shield = db.updateTeam({'TEAM_NAME': str(prev_team['TEAM_NAME'])}, prev_team_update)
+                        update_shielding = {'$set': {'SHIELDING': True}}
+                        add_shield = db.updateTeam({'TEAM_NAME': str(shield_team_name)}, update_shielding)
+                        newvalue = {'$set': {'SHIELD': str(blade), 'STREAK' : 0, 'SDID' : str(blade.id)}}
+                        response = db.addGuildShield(new_query, newvalue, ctx.author, blade)
+                        await ctx.send(response)
+                        
+                except Exception as ex:
+                    trace = []
+                    tb = ex.__traceback__
+                    while tb is not None:
+                        trace.append({
+                            "filename": tb.tb_frame.f_code.co_filename,
+                            "name": tb.tb_frame.f_code.co_name,
+                            "lineno": tb.tb_lineno
+                        })
+                        tb = tb.tb_next
+                    print(str({
+                        'type': type(ex).__name__,
+                        'message': str(ex),
+                        'trace': trace
+                    }))
+                    await ctx.send(
+                        "There's an issue with your commnads. Alert support.")
+                    return
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
