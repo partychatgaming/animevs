@@ -2706,33 +2706,39 @@ async def allowance(ctx, player: User, amount):
       return
 
 
-@slash.slash(name="Performance", description="Toggles Text Only Performance Mode", guild_ids=guild_ids)
+@slash.slash(name="Performance", description="Toggles Performance Modes Quality/Performance/Text Only", guild_ids=guild_ids)
 async def performance(ctx):
-   try:
-      player = db.queryUser({"DID": str(ctx.author.id)})
-      if not player["PERFORMANCE"]:
+    try:
+        player = db.queryUser({"DID": str(ctx.author.id)})
+        performance_mode = player["PERFORMANCE"]
+        text_only_mode = player["TEXT_ONLY"]
+
+        if not performance_mode and not text_only_mode:
             await ctx.send(f":gear: | Entering Performance Mode")
             db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PERFORMANCE': True}})
-            return
-      if player["PERFORMANCE"]:
-            await ctx.send(f":gear: | Exiting Performance Mode")
-            db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PERFORMANCE': False}})
-            return
-   except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
+        elif performance_mode and not text_only_mode:
+            await ctx.send(f":gear: | Entering Text Only Mode")
+            db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'TEXT_ONLY': True}})
+        elif performance_mode and text_only_mode:
+            await ctx.send(f":gear: | Entering Quality Mode")
+            db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'TEXT_ONLY': False, 'PERFORMANCE': False}})
+        return
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
             trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
             })
             tb = tb.tb_next
-      print(str({
+        print(str({
             'type': type(ex).__name__,
             'message': str(ex),
             'trace': trace
-      }))
+        }))
+
       
 @slash.slash(name="Autosave", description="Toggles Autosave on Battle Start.", guild_ids=guild_ids)
 async def autosave(ctx):

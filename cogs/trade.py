@@ -316,6 +316,7 @@ class Trade(commands.Cog):
                                     db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'ARMS': {'ARM': str(a)}}})
                                     db.updateVaultNoFilter({'DID': str(buyer_info['DID'])},{'$addToSet':{'ARMS': {'ARM': str(a), 'DUR': durability}}})
                                     
+                                pet_info = {}
                                 for s in msummons:
                                     summons = mvault['PETS']
                                     for l in summons:
@@ -325,8 +326,8 @@ class Trade(commands.Cog):
                                             pet_ability = list(l.keys())[3]
                                             pet_ability_power = list(l.values())[3]
                                             pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': 0, 'BONDEXP': 0, 'PATH': l['PATH']}
-                                    db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'PETS': {'NAME': str(s)}}})
-                                    db.updateVaultNoFilter({'DID': str(buyer_info['DID'])},{'$addToSet':{'PETS': pet_info }})
+                                            db.updateVaultNoFilter({'DID': str(ctx.author.id)},{'$pull':{'PETS': {'NAME': str(s)}}})
+                                            db.updateVaultNoFilter({'DID': str(buyer_info['DID'])},{'$addToSet':{'PETS': pet_info }})
                                 
                                 #buyer  
                                 card_level_exist=False

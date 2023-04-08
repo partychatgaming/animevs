@@ -46,6 +46,7 @@ class USER():
     EXPLORE: bool = field(default_factory=lambda: True)
     SAVE_SPOT: list[str] = field(default_factory=lambda: [])
     PERFORMANCE: bool = field(default_factory=lambda: False)
+    TEXT_ONLY: bool = field(default_factory=lambda: False)
     TRADING: bool = field(default_factory=lambda: False)
     BOSS_FOUGHT: bool = field(default_factory=lambda: True)
     AUTOSAVE: bool = field(default_factory=lambda: False)

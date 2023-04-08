@@ -689,6 +689,7 @@ def showsummon(url, summon, message, lvl, bond):
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
     try:
+        #print(url)
         im = Image.open(requests.get(url, stream=True).raw)
 
         draw = ImageDraw.Draw(im)

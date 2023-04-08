@@ -210,6 +210,7 @@ class Battle:
         self.opponent_focus_traits = ['7ds',
                                  'Souls',
                                  'One Punch Man',
+                                 'Crown Rift Madness'
                                  
             
         ]
@@ -716,6 +717,7 @@ class Battle:
             self._ai_opponentsummon_data = db.queryPet({'PET': self.selected_universe_full_data[summon]})
             self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
             self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
+            #print(self._ai_opponentsummon_name)
             self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
 
             summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]

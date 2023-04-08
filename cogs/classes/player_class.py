@@ -8,7 +8,7 @@ import random
 
 
 class Player:
-    def __init__(self, auto_save, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equippedsummon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history):
+    def __init__(self, auto_save, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equippedsummon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history,text_only):
         self.disname = disname
         self.did = did
         self.avatar = avatar
@@ -30,6 +30,7 @@ class Player:
         self.explore = explore
         self.save_spot = save_spot
         self.performance = performance
+        self.text_only = text_only
         self.trading = trading
         self.boss_fought = boss_fought
         self.difficulty = difficulty

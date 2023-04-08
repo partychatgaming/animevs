@@ -136,7 +136,7 @@ class CrownUnlimited(commands.Cog):
               
                 if not player:
                     return
-                p = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])
+                p = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY'])
            
                 battle = Battle(mode, p)
                  
@@ -301,7 +301,7 @@ class CrownUnlimited(commands.Cog):
                 player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'],
                 player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'],
                 player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'],
-                player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY']
+                player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY']
             )
             message = None
             if p.explore == 0:
@@ -488,10 +488,10 @@ class CrownUnlimited(commands.Cog):
                 return
 
             p = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
-            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])
+            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY'])
 
             p3 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
-            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])
+            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY'])
 
             p3.set_deck_config(deckNumber)
 
@@ -564,8 +564,8 @@ class CrownUnlimited(commands.Cog):
         try:
             player = db.queryUser({'DID': str(ctx.author.id)})
             player3 = db.queryUser({'DID': str(user.id)})
-            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])
-            p3 = Player(player3['AUTOSAVE'], player3['DISNAME'], player3['DID'], player3['AVATAR'], player3['GUILD'], player3['TEAM'], player3['FAMILY'], player3['TITLE'], player3['CARD'], player3['ARM'], player3['PET'], player3['TALISMAN'], player3['CROWN_TALES'], player3['DUNGEONS'], player3['BOSS_WINS'], player3['RIFT'], player3['REBIRTH'], player3['LEVEL'], player3['EXPLORE'], player3['SAVE_SPOT'], player3['PERFORMANCE'], player3['TRADING'], player3['BOSS_FOUGHT'], player3['DIFFICULTY'], player3['STORAGE_TYPE'], player3['USED_CODES'], player3['BATTLE_HISTORY'], player3['PVP_WINS'], player3['PVP_LOSS'], player3['RETRIES'], player3['PRESTIGE'], player3['PATRON'], player3['FAMILY_PET'], player3['EXPLORE_LOCATION'], player3['SCENARIO_HISTORY'])
+            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY'])
+            p3 = Player(player3['AUTOSAVE'], player3['DISNAME'], player3['DID'], player3['AVATAR'], player3['GUILD'], player3['TEAM'], player3['FAMILY'], player3['TITLE'], player3['CARD'], player3['ARM'], player3['PET'], player3['TALISMAN'], player3['CROWN_TALES'], player3['DUNGEONS'], player3['BOSS_WINS'], player3['RIFT'], player3['REBIRTH'], player3['LEVEL'], player3['EXPLORE'], player3['SAVE_SPOT'], player3['PERFORMANCE'], player3['TRADING'], player3['BOSS_FOUGHT'], player3['DIFFICULTY'], player3['STORAGE_TYPE'], player3['USED_CODES'], player3['BATTLE_HISTORY'], player3['PVP_WINS'], player3['PVP_LOSS'], player3['RETRIES'], player3['PRESTIGE'], player3['PATRON'], player3['FAMILY_PET'], player3['EXPLORE_LOCATION'], player3['SCENARIO_HISTORY'], player3['TEXT_ONLY'])
             battle = Battle(mode, p1)
 
 
@@ -636,7 +636,7 @@ class CrownUnlimited(commands.Cog):
         try:
             player = db.queryUser({'DID': str(ctx.author.id)})
             p = Player(player['AUTOSAVE'],player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'],player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'],
-            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])
+            player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY'])
 
             if mode == "Abyss":
                 await abyss(self, ctx, p, mode)
@@ -693,8 +693,8 @@ class CrownUnlimited(commands.Cog):
             mode = "PVP"
             player = db.queryUser({'DID': str(ctx.author.id)})
             player2 = db.queryUser({'DID': str(opponent.id)})
-            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])    
-            p2 = Player(player2['AUTOSAVE'], player2['DISNAME'], player2['DID'], player2['AVATAR'], player2['GUILD'], player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'], player2['SCENARIO_HISTORY'])    
+            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY'])    
+            p2 = Player(player2['AUTOSAVE'], player2['DISNAME'], player2['DID'], player2['AVATAR'], player2['GUILD'], player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'], player2['SCENARIO_HISTORY'], player2['TEXT_ONLY'])    
             battle = Battle(mode, p1)
             battle.set_tutorial(p2.did)
             
@@ -814,8 +814,8 @@ class CrownUnlimited(commands.Cog):
             
             player = sowner
             player2 = t_user
-            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])    
-            p2 = Player(player2['AUTOSAVE'], player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])  
+            p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY'])    
+            p2 = Player(player2['AUTOSAVE'], player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'], player['TEXT_ONLY'])  
             battle = Battle(mode, p1)
             battle.create_raid(title_match_active, shield_test_active, shield_training_active, association_info, hall_info, tteam, oguild_name)
             
@@ -1054,7 +1054,7 @@ async def tutorial(self, ctx, player, mode):
         battle.set_tutorial(tutorial_did)
         battle.mode = "PVP"
         opponent = db.queryUser({'DID': tutorial_did})
-        player2 = Player(opponent['AUTOSAVE'], opponent['DISNAME'], opponent['DID'], opponent['AVATAR'], opponent['GUILD'], opponent['TEAM'], opponent['FAMILY'], opponent['TITLE'], opponent['CARD'], opponent['ARM'],opponent['PET'], opponent['TALISMAN'], opponent['CROWN_TALES'], opponent['DUNGEONS'], opponent['BOSS_WINS'], opponent['RIFT'], opponent['REBIRTH'], opponent['LEVEL'], opponent['EXPLORE'], opponent['SAVE_SPOT'], opponent['PERFORMANCE'], opponent['TRADING'], opponent['BOSS_FOUGHT'], opponent['DIFFICULTY'], opponent['STORAGE_TYPE'], opponent['USED_CODES'], opponent['BATTLE_HISTORY'], opponent['PVP_WINS'], opponent['PVP_LOSS'], opponent['RETRIES'], opponent['PRESTIGE'], opponent['PATRON'], opponent['FAMILY_PET'], opponent['EXPLORE_LOCATION'], opponent['SCENARIO_HISTORY'])
+        player2 = Player(opponent['AUTOSAVE'], opponent['DISNAME'], opponent['DID'], opponent['AVATAR'], opponent['GUILD'], opponent['TEAM'], opponent['FAMILY'], opponent['TITLE'], opponent['CARD'], opponent['ARM'],opponent['PET'], opponent['TALISMAN'], opponent['CROWN_TALES'], opponent['DUNGEONS'], opponent['BOSS_WINS'], opponent['RIFT'], opponent['REBIRTH'], opponent['LEVEL'], opponent['EXPLORE'], opponent['SAVE_SPOT'], opponent['PERFORMANCE'], opponent['TRADING'], opponent['BOSS_FOUGHT'], opponent['DIFFICULTY'], opponent['STORAGE_TYPE'], opponent['USED_CODES'], opponent['BATTLE_HISTORY'], opponent['PVP_WINS'], opponent['PVP_LOSS'], opponent['RETRIES'], opponent['PRESTIGE'], opponent['PATRON'], opponent['FAMILY_PET'], opponent['EXPLORE_LOCATION'], opponent['SCENARIO_HISTORY'], opponent['TEXT_ONLY'])
         
 
         await battle_commands(self, ctx, battle, player, None, player2, None)
@@ -2532,6 +2532,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                     battle_config.is_tales_game_mode = False
                 if battle_config.is_explore_game_mode:
                     player2_card = _custom_explore_card
+                    battle_config.get_aisummon_ready(player2_card)
                 else:
                     battle_config.get_ai_battle_ready(player1_card.card_lvl)
                     player2_card = Card(battle_config._ai_opponent_card_data['NAME'], battle_config._ai_opponent_card_data['PATH'], battle_config._ai_opponent_card_data['PRICE'], battle_config._ai_opponent_card_data['EXCLUSIVE'], battle_config._ai_opponent_card_data['AVAILABLE'], battle_config._ai_opponent_card_data['IS_SKIN'], battle_config._ai_opponent_card_data['SKIN_FOR'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['HLT'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['STAM'], battle_config._ai_opponent_card_data['MOVESET'], battle_config._ai_opponent_card_data['ATK'], battle_config._ai_opponent_card_data['DEF'], battle_config._ai_opponent_card_data['TYPE'], battle_config._ai_opponent_card_data['PASS'][0], battle_config._ai_opponent_card_data['SPD'], battle_config._ai_opponent_card_data['UNIVERSE'], battle_config._ai_opponent_card_data['HAS_COLLECTION'], battle_config._ai_opponent_card_data['TIER'], battle_config._ai_opponent_card_data['COLLECTION'], battle_config._ai_opponent_card_data['WEAKNESS'], battle_config._ai_opponent_card_data['RESISTANT'], battle_config._ai_opponent_card_data['REPEL'], battle_config._ai_opponent_card_data['ABSORB'], battle_config._ai_opponent_card_data['IMMUNE'], battle_config._ai_opponent_card_data['GIF'], battle_config._ai_opponent_card_data['FPATH'], battle_config._ai_opponent_card_data['RNAME'], battle_config._ai_opponent_card_data['RPATH'], battle_config._ai_is_boss, battle_config._ai_opponent_card_data['CLASS'])
@@ -2824,7 +2825,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     {battle_config.get_previous_moves_embed()}
                                     
                                     """), color=0xe74c3c)
-                                    if player1.performance:
+                                    if player1.text_only:
                                         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{ctx.author.mention}'s move!\n{player1_card.get_perfomance_header(player1_title)}")
                                     else:
                                         embedVar.set_author(name=f"{player1_card.summon_resolve_message}\n")
@@ -2837,7 +2838,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
   
                                     await battle_msg.delete(delay=2)
                                     await asyncio.sleep(2)
-                                    if player1.performance:
+                                    if player1.text_only:
                                         embedVar.add_field(name=f"**Moves**", value=f"{player1_card.get_performance_moveset()}")
                                         battle_msg = await private_channel.send(embed=embedVar, components=components)
                                     else:
@@ -2949,7 +2950,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                            
                                             damage_calculation_response = player1_card.damage_cal(int(button_ctx.custom_id), battle_config, player2_card)
                                             
-                                            if player1_card.gif != "N/A" and not player1.performance:
+                                            if player1_card.gif != "N/A" and not (player1.performance or player1.text_only):
                                                 # await button_ctx.defer(ignore=True)
                                                 await battle_msg.delete(delay=None)
                                                 # await asyncio.sleep(1)
@@ -3017,7 +3018,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                         await asyncio.sleep(2)
                                             summon_response = player1_card.usesummon(battle_config, player2_card)
                                             damage_calculation_response = summon_response
-                                            if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                            if not (player1.performance or player1.text_only) and summon_response['CAN_USE_MOVE']:
                                                 if not battle_config.is_auto_battle_game_mode:
                                                     await battle_msg.delete(delay=2)
                                                     summon_file = crown_utilities.showsummon(player1_card.summon_image, player1_card.summon_name, summon_response['MESSAGE'], player1_card.summon_lvl, player1_card.summon_bond)
@@ -3211,7 +3212,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         """), color=0xe74c3c)
                                        
-                                        if player2.performance:
+                                        if player2.text_only:
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention}'s move!\n{player2_card.get_perfomance_header(player2_title)}")
                                         else:
                                             embedVar.set_author(name=f"{player2_card.summon_resolve_message}\n")
@@ -3227,7 +3228,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=1)
                                         await asyncio.sleep(1)
-                                        if player2.performance:
+                                        if player2.text_only:
                                             embedVar.add_field(name=f"**Moves**", value=f"{player2_card.get_performance_moveset()}")
                                             battle_msg = await private_channel.send(embed=embedVar, components=components)
                                         else:
@@ -3259,7 +3260,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             
                                             elif button_ctx.custom_id == "3":
                                                 damage_calculation_response = player2_card.damage_cal(int(button_ctx.custom_id), battle_config, player1_card)
-                                                if player2_card.gif != "N/A" and not player1.performance:
+                                                if player2_card.gif != "N/A" and not (player1.performance or player1.text_only):
                                                     # await button_ctx.defer(ignore=True)
                                                     await battle_msg.delete(delay=None)
                                                     # await asyncio.sleep(1)
@@ -3348,7 +3349,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         tembedVar.set_image(url="attachment://image.png")
                                         await battle_msg.delete(delay=2)
                                         await asyncio.sleep(2) 
-                                        if player1.performance:
+                                        if player1.text_only:
                                             embedVar.add_field(name=f"➡️ **Enemy Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_perfomance_header(player2_title)}")
                                             embedVar.add_field(name=f"**Moves**", value=f"{player2_card.get_performance_moveset()}")
                                             battle_msg = await private_channel.send(embed=tembedVar)
@@ -3408,7 +3409,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, player3_card)
                                         else:
                                             embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player1_card, battle_config, None)
-                                        if player1.performance:
+                                        if player1.text_only:
                                             embedVar.add_field(name=f"➡️ **Enemy Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_perfomance_header(player2_title)}")
                                             embedVar.add_field(name=f"**Moves**", value=f"{player2_card.get_performance_moveset()}")
                                             battle_msg = await private_channel.send(embed=embedVar)
@@ -3422,7 +3423,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)                                    
 
                                         if not battle_config.is_auto_battle_game_mode and int(selected_move) == 3:
-                                            if player2_card.gif != "N/A"  and not player1.performance:
+                                            if player2_card.gif != "N/A"  and not (player1.performance or player1.text_only):
                                                 await battle_msg.delete(delay=2)
                                                 await asyncio.sleep(2)
                                                 battle_msg = await private_channel.send(f"{player2_card.gif}")
@@ -3440,7 +3441,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player3_card.used_defend == True:
                                                     summon_response = player2_card.usesummon(battle_config, player3_card)
                                                     damage_calculation_response = summon_response
-                                                    if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                    if not (player1.performance or player1.text_only) and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
                                                             summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
@@ -3453,7 +3454,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 else:
                                                     summon_response = player2_card.usesummon(battle_config, player1_card)
                                                     damage_calculation_response = summon_response
-                                                    if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                    if not (player1.performance or player1.text_only) and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
                                                             summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
@@ -3466,7 +3467,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             else:
                                                 summon_response = player2_card.usesummon(battle_config, player1_card)
                                                 damage_calculation_response = summon_response
-                                                if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                if not (player1.performance or player1.text_only) and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
                                                         summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
@@ -3560,7 +3561,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             {battle_config.get_previous_moves_embed()}
                                             
                                             """), color=0xe74c3c)
-                                            if player1.performance:
+                                            if player1.text_only:
                                                 embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"Ally {player3_card.name}'s Turn!\n{player3_card.get_perfomance_header(player3_title)}")
                                             else:
                                                 embedVar.set_author(name=f"{player3_card.summon_resolve_message}\n")
@@ -3576,7 +3577,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                             await battle_msg.delete(delay=2)
                                             await asyncio.sleep(2)
-                                            if player1.performance:
+                                            if player1.text_only:
                                                 embedVar.add_field(name=f"**Moves**", value=f"{player3_card.get_performance_moveset()}")
                                                 battle_msg = await private_channel.send(embed=embedVar)
                                             else:
@@ -3645,7 +3646,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                         {battle_config.get_previous_moves_embed()}
                                         
                                         """), color=0xe74c3c)
-                                        if player3.performance:
+                                        if player3.text_only:
                                             embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{user2.mention}'s move!\n{player2_card.get_perfomance_header(player3_title)}")
                                         else:
                                             embedVar.set_author(name=f"{player3_card.summon_resolve_message}\n")
@@ -3660,7 +3661,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
                                         await battle_msg.delete(delay=2)
                                         await asyncio.sleep(2)
-                                        if player3.performance:
+                                        if player3.text_only:
                                             embedVar.add_field(name=f"**Moves**", value=f"{player3_card.get_performance_moveset()}")
                                             battle_msg = await private_channel.send(embed=embedVar, components=components)
                                         else:
@@ -3692,7 +3693,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             
                                             elif button_ctx.custom_id == "3":
                                                 damage_calculation_response = player3_card.damage_cal(int(button_ctx.custom_id), battle_config, player2_card)
-                                                if player3_card.gif != "N/A" and not player3.performance:
+                                                if player3_card.gif != "N/A" and not (player3.performance or player3.text_only):
                                                     # await button_ctx.defer(ignore=True)
                                                     await battle_msg.delete(delay=None)
                                                     # await asyncio.sleep(1)
@@ -3708,7 +3709,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             elif button_ctx.custom_id == "6":
                                                 summon_response = player3_card.usesummon(battle_config, player2_card)
                                                 damage_calculation_response = summon_response
-                                                if not player3.performance and summon_response['CAN_USE_MOVE']:
+                                                if not (player3.performance or player3.text_only) and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
                                                         summon_file = crown_utilities.showsummon(player3_card.summon_image, player3_card.summon_name, summon_response['MESSAGE'], player3_card.summon_lvl, player3_card.summon_bond)
@@ -3827,7 +3828,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 else:
                                     await battle_msg.delete(delay=2)
                                     embedVar = await auto_battle_embed_and_starting_traits(ctx, player2_card, player3_card, battle_config, player1_card)
-                                    if player3.performance:
+                                    if player3.text_only:
                                         embedVar.add_field(name=f"➡️ **Enemy Turn** {battle_config.turn_total}", value=f"Enemy {player2_card.name}'s Turn!\n{player2_card.get_perfomance_header(player2_title)}")
                                         embedVar.add_field(name=f"**Moves**", value=f"{player2_card.get_performance_moveset()}")
                                         battle_msg = await private_channel.send(embed=embedVar)
@@ -3841,7 +3842,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     if int(selected_move) == 3:                                    
                                         if battle_config.is_auto_battle_game_mode:
 
-                                            if player2_card.gif != "N/A"  and not player1.performance:
+                                            if player2_card.gif != "N/A"  and not (player1.performance or player1.text_only):
                                                 await battle_msg.delete(delay=2)
                                                 await asyncio.sleep(2)
                                                 battle_msg = await private_channel.send(f"{player2_card.gif}")
@@ -3859,7 +3860,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player3_card.used_defend == True:
                                                     summon_response = player2_card.usesummon(battle_config, player1_card)
                                                     damage_calculation_response = summon_response
-                                                    if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                    if not (player1.performance or player1.text_only) and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
                                                             summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
@@ -3872,7 +3873,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 else:
                                                     summon_response = player2_card.usesummon(battle_config, player3_card)
                                                     damage_calculation_response = summon_response
-                                                    if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                    if not (player1.performance or player1.text_only) and summon_response['CAN_USE_MOVE']:
                                                         if not battle_config.is_auto_battle_game_mode:
                                                             await battle_msg.delete(delay=2)
                                                             summon_file = crown_utilities.showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)
@@ -3885,7 +3886,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                             else:
                                                 summon_response = player2_card.usesummon(battle_config, player3_card)
                                                 damage_calculation_response = summon_response
-                                                if not player1.performance and summon_response['CAN_USE_MOVE']:
+                                                if not (player1.performance or player1.text_only) and summon_response['CAN_USE_MOVE']:
                                                     if not battle_config.is_auto_battle_game_mode:
                                                         await battle_msg.delete(delay=2)
                                                         tsummon_file = showsummon(player2_card.summon_image, player2_card.summon_name, summon_response['MESSAGE'], player2_card.summon_lvl, player2_card.summon_bond)

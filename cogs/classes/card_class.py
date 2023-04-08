@@ -2486,15 +2486,6 @@ class Card:
         if self.attack <= 0:
             self.attack = 25
         if not self.used_resolve and self.used_focus:
-            if self.is_tank:
-                self._shield_value = self._shield_value + (self.tier * 500)
-                battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) **{self._shield_value}** Shield Gained!")
-
-            if self.overwhelming_power:
-                self._parry_active = True
-                self._parry_value = round(random.randint(10, 20))
-                battle_config.add_to_battle_log(f"**[{self.name} is overwhemlingly powerful, parrying the next {str(self._parry_value)} attacks**")
-
             if self.universe == "My Hero Academia":  # My Hero Trait
                 # fortitude or luck is based on health
                 fortitude = 0.0
@@ -2836,7 +2827,16 @@ class Card:
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
+            
+            if self.is_tank:
+                self._shield_value = self._shield_value + (self.tier * 500)
+                battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {self.name} gained **{self._shield_value}** Shield!")
 
+            if self.overwhelming_power:
+                self._parry_active = True
+                self._parry_value = round(random.randint(10, 20))
+                battle_config.add_to_battle_log(f"**[{self.name} is overwhemlingly powerful, parrying the next {str(self._parry_value)} attacks**")
+                
             if battle_config.is_boss_game_mode:
                 if (battle_config.is_turn == 0 or battle_config.is_turn == 2):
                     if battle_config._boss_resolve_message == False:
