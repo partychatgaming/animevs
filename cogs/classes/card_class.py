@@ -2061,16 +2061,16 @@ class Card:
                     if move_element in _opponent_card.repels and not (hit_roll <= miss_hit):
                         if summon_used:
                             self.health = self.health - true_dmg
-                            message = f"{_opponent_card.name} repels {move_emoji} {move_element.lower()} for {true_dmg} dmg!"
+                            message = f"{_opponent_card.name} repels {true_dmg} {move_emoji} {move_element.lower()} dmg!"
                         else:
-                            message = f"{_opponent_card.name} repels {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
+                            message = f"{_opponent_card.name} repels **{true_dmg}** {move_emoji} {move_element.lower()} dmg!"
                         does_repel = True
                     if move_element in _opponent_card.absorbs and not (hit_roll <= miss_hit):
                         if summon_used:
                             _opponent_card.health = _opponent_card.health + true_dmg
-                            message = f"{_opponent_card.name} absorbs {move_emoji} {move_element.lower()} for {true_dmg} dmg!"
+                            message = f"{_opponent_card.name} absorbs {true_dmg} {move_emoji} {move_element.lower()} dmg!"
                         else:
-                            message = f"{_opponent_card.name} absorbs {move_emoji} {move_element.lower()} for **{true_dmg}** dmg!"
+                            message = f"{_opponent_card.name} absorbs **{true_dmg}** {move_emoji} {move_element.lower()} dmg!"
                         does_absorb = True
                         
                 if self._assassin_active and not summon_used:
@@ -2837,7 +2837,6 @@ class Card:
                 battle_config.next_turn()
             
             if self.is_tank:
-                self._shield_active = True
                 self._shield_value = self._shield_value + (self.tier * 500)
                 battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {self.name} gained **{self._shield_value}** Shield!")
 
@@ -2861,9 +2860,9 @@ class Card:
                         battle_config._boss_player_resolve_message = True
     
             if self._monstrosity_active:
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.name}**: gains {self._monstrosity_value} Double Strikes!")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.name}**: gains 2 Double Strikes!")
             if self._swordsman_active:
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**: gains {self._swordsman_value} Critical Strikes!")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**: gains 3 Critical Strikes!")
             
 
     def usesummon(self, battle_config, opponent_card):
@@ -3290,6 +3289,10 @@ class Card:
                 
                             opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
                             # print(opponent_card.health)
+                            if not opponent_card.used_resolve:
+                                if opponent_card.is_tank:
+                                    opponent_card._shield_value = opponent_card._shield_value + (opponent_card.tier * 500)
+                                    battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {opponent_card.name} gained **{opponent_card._shield_value}** Shield!")
                             opponent_card.used_resolve = True
                             opponent_card.used_focus = True
                             opponent_card._final_stand = False
@@ -3368,8 +3371,8 @@ class Card:
                             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
                             self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     if dmg['ELEMENT'] == "POISON": #Poison Update
-                        if self.poison_dmg <= (150 * self.tier):
-                            self.poison_dmg = self.poison_dmg + 30
+                        if self.poison_dmg <= (100 * self.tier):
+                            self.poison_dmg = self.poison_dmg + (15 * self.tier)
                     if dmg['ELEMENT'] == "FIRE":
                         self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
                     if opponent_card._shield_value > 0:
@@ -3476,6 +3479,10 @@ class Card:
                 
                             self.damage_healed = self.damage_healed + self.health
                             # print(opponent_card.health)
+                            if not self.used_resolve:
+                                if self.is_tank:
+                                    self._shield_value = self._shield_value + (self.tier * 500)
+                                    battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {self.name} gained **{self._shield_value}** Shield!")
                             self.used_resolve = True
                             self.used_focus = True
                             self._final_stand = False
@@ -3496,6 +3503,10 @@ class Card:
                 
                             opponent_card.damage_healed = opponent_card.damage_healed + opponent_card.health
                             # print(opponent_card.health)
+                            if not opponent_card.used_resolve:
+                                if opponent_card.is_tank:
+                                    opponent_card._shield_value = opponent_card._shield_value + (opponent_card.tier * 500)
+                                    battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {opponent_card.name} gained **{opponent_card._shield_value}** Shield!")
                             opponent_card.used_resolve = True
                             opponent_card.used_focus = True
                             opponent_card._final_stand = False
@@ -3519,7 +3530,18 @@ class Card:
                     if not dmg['SUMMON_USED']:
                         battle_config.next_turn()
             else:
-                pass
+                if dmg['REPEL']:
+                    self.health = self.health - dmg['DMG']
+                elif dmg['ABSORB']:
+                    opponent_card.health = opponent_card.health + dmg['DMG']
+                if dmg['SUMMON_USED']:
+                    name = f"🧬 {self.name} summoned **{self.summon_name}**\n"
+                else:
+                    name = f"(**{battle_config.turn_total}**) **{self.name}:**"
+                battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
+                battle_config.turn_total = battle_config.turn_total + 1
+                if not dmg['SUMMON_USED']:
+                    battle_config.next_turn()
         else:
             print(f"End of damage_done")
             battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: Not enough Stamina to use this ability.")
