@@ -2812,7 +2812,7 @@ class Card:
                 elif battle_config.turn_total >= 30:
                     self.max_health = self.max_health + evolution_boost
                     self.health = self.health + evolution_boost
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained 2x Defense**{evolution_boost}** HP!")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained 2x Defense and **{evolution_boost}** HP!")
                 else:
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Evolution! Gained 2x Defense")
 
