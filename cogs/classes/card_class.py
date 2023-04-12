@@ -3705,7 +3705,7 @@ class Card:
             elif self.ranged_meter == 3:
                 self.ranged_meter = 0
                 self.ranged_hit_bonus = self.ranged_hit_bonus + 1
-                battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} accurary Increased by {self.ranged_hit_bonus * 5}%*")
+                battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Increased Crit Chance by {self.ranged_hit_bonus * 5}%*")
             else:
                  battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
