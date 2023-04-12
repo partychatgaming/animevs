@@ -1046,6 +1046,8 @@ class Card:
 
 
     def set_burn_hit(self, opponent_card):
+        # print(opponent_card.name)
+        # print(opponent_card.burn_dmg)
         burn_message = None
         if opponent_card.burn_dmg > 15:
             self.health = self.health - opponent_card.burn_dmg
@@ -3382,9 +3384,48 @@ class Card:
                             opponent_card._shield_active = False
                             opponent_card._arm_message = ""
                             residue_damage = abs(opponent_card._shield_value)
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌐 **{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG**")
                             self.decrease_solo_leveling_temp_values_self('SHIELD', battle_config)
-                            opponent_card.health = opponent_card.health - residue_damage
+                            if opponent_card._parry_active and dmg['ELEMENT'] not in ["EARTH", "DARK", "TIME", "GRAVITY", "LIGHT"]:            
+                                if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
+                                    if not dmg['SUMMON_USED']:
+                                        self._barrier_active = False
+                                        self._barrier_value = 0
+                                        self._arm_message = ""
+                                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
+                                        self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
+                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌐 **{opponent_card.name}'s**: Shield Shattered but they were prepared with a Parry!")     
+                                if opponent_card._parry_value > 1:
+                                    parry_damage = round(residue_damage)
+                                    opponent_card.health = round(opponent_card.health - (parry_damage * .75))
+                                    self.health = round(self.health - (parry_damage * .40))
+                                    self.damage_dealt = self.damage_dealt +  (parry_damage * .75)
+                                    opponent_card._parry_value = opponent_card._parry_value - 1
+                                    battle_config.add_to_battle_log(f"(**🌐**) **{opponent_card.name}** Parried 🔄 {name}'s attack\nAfter dealing **{round(parry_damage * .75)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
+                                    if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
+                                        opponent_card._barrier_active = False
+                                        opponent_card._barrier_value = 0
+                                        opponent_card._arm_message = ""
+                                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
+                                        self.decrease_solo_leveling_temp_values_self('PARRY', battle_config)
+                                elif opponent_card._parry_value == 1:
+                                    parry_damage = round(residue_damage)
+                                    opponent_card.health = round(opponent_card.health - (parry_damage * .75))
+                                    self.health = round(self.health - (parry_damage * .40))
+                                    battle_config.add_to_battle_log(f"(**🌐**) {name} penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing **{round(parry_damage * .75)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
+                                    opponent_card._parry_value = opponent_card._parry_value - 1
+                                    if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
+                                        opponent_card._barrier_active = False
+                                        opponent_card._barrier_value = 0
+                                        opponent_card._arm_message = ""
+                                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} destroys **{opponent_card.name}** 💠 Barrier")
+                                        self.decrease_solo_leveling_temp_values_self('BARRIER', battle_config)
+                                    opponent_card._parry_active = False
+                                    opponent_card._parry_value = 0
+                                    opponent_card._arm_message = ""
+                                    self.decrease_solo_leveling_temp_values_self('PARRY', battle_config)
+                            else:
+                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌐 **{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG**")
+                                opponent_card.health = opponent_card.health - residue_damage
                             self.damage_dealt = self.damage_dealt +  residue_damage
                             if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                                 opponent_card._barrier_active = False

@@ -2676,8 +2676,8 @@ class Lookup(commands.Cog):
                 
                 summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
                 🧬**{summon_name}**
-                _Bond_ **{summon_bond}** | {bond_message}bp
-                _Level_ **{summon_lvl}** | {lvl_message}xp
+                _Bond_ **{summon_bond}** | {bond_message}
+                _Level_ **{summon_lvl}** | {lvl_message}
                 {crown_utilities.set_emoji(summon_type)} **{summon_type.capitalize()}** | {summon_ability} ~ **{power}**
                 :sunny:  : **{crown_utilities.element_mapping[summon_type]}**
                 """), colour=0x7289da)
@@ -3033,8 +3033,8 @@ class Lookup(commands.Cog):
                                 summon_screen = discord.Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
                                 {summon_message}
                                 🧬**{summon_name}**
-                                _Bond_ **{summon_bond}** | {bond_message}bp
-                                _Level_ **{summon_lvl}** | {lvl_message}xp
+                                _Bond_ **{summon_bond}** | {bond_message}
+                                _Level_ **{summon_lvl}** | {lvl_message}
                                 {crown_utilities.set_emoji(summon_type)} **{summon_type.capitalize()}** | {summon_ability} ~ **{power}**
                                 :sunny:  : **{crown_utilities.element_mapping[summon_type]}**
                                 """), color=0xe74c3c)
@@ -3111,8 +3111,8 @@ class Lookup(commands.Cog):
 
                                                 embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
                                                 {icon}
-                                                _Bond_ **{pet['BOND']}** | {bond_message}bp
-                                                _Level_ **{pet['LVL']}** | {lvl_message}xp
+                                                _Bond_ **{pet['BOND']}** | {bond_message}
+                                                _Level_ **{pet['LVL']}** | {lvl_message}
                                                 {crown_utilities.set_emoji(pet['TYPE'])} *{pet['TYPE'].capitalize()} Ability*
                                                 **{pet_ability}:** {power} *{bonus_message}*
                                                 """), 

@@ -2705,8 +2705,8 @@ class Profile(commands.Cog):
                         icon = ":japanese_ogre:"
 
                     embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
-                    _Bond_ **{pet['BOND']}** | {bond_message}bp
-                    _Level_ **{pet['LVL']}** | {lvl_message}xp
+                    _Bond_ **{pet['BOND']}** | {bond_message}
+                    _Level_ **{pet['LVL']}** | {lvl_message}
                     {pet_emoji} {pet['TYPE'].capitalize()} Ability
                     **{pet_ability}:** {power}
                     {universe_crest}: {pet_info['UNIVERSE']}
@@ -9271,8 +9271,8 @@ async def menusummons(self, ctx):
 
                 embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
                 {icon}
-                _Bond_ **{pet['BOND']}** | {bond_message}bp
-                _Level_ **{pet['LVL']}** | {lvl_message}xp
+                _Bond_ **{pet['BOND']}** | {bond_message}
+                _Level_ **{pet['LVL']}** | {lvl_message}
 
                 {pet_emoji} {pet['TYPE'].capitalize()} Ability 
                 **{pet_ability}:** {power}

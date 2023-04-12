@@ -4791,7 +4791,10 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     # battle_config.add_to_battle_log(player_card.set_poison_hit(opponent_card))
     burn_turn = player_card.set_burn_hit(opponent_card)
     if burn_turn != None:
-        battle_config.add_to_battle_log(player_card.set_burn_hit(opponent_card))
+        battle_config.add_to_battle_log(burn_turn)
+    o_burn_turn = opponent_card.set_burn_hit(player_card)
+    if o_burn_turn != None:
+        battle_config.add_to_battle_log(o_burn_turn)
     battle_config.add_to_battle_log(player_card.set_bleed_hit(battle_config.turn_total, opponent_card))
     player_card.damage_dealt = round(player_card.damage_dealt)
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
