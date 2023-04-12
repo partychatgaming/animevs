@@ -2161,8 +2161,8 @@ class Card:
             hit_roll = hit_roll + 3
             self.health = self.health + (.35 * true_dmg)
 
-        if (move_element == "SPIRIT" or self.stagger) and hit_roll >= 15:
-            hit_roll = hit_roll + 5
+        if (move_element == "SPIRIT" or self.stagger) and hit_roll >= 17:
+            hit_roll = hit_roll + 3
 
         if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
             hit_roll = hit_roll + 3
