@@ -3753,6 +3753,7 @@ class Card:
         elif dmg['ELEMENT'] == "ELECTRIC":
             self.shock_buff = self.shock_buff +  (dmg['DMG'] * .20)
             opponent_card.health = opponent_card.health - dmg['DMG']
+            self.speed = self.speed + 3
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .20))} AP*")
 
         elif dmg['ELEMENT'] == "POISON":
@@ -3768,7 +3769,7 @@ class Card:
             if self.ice_counter == 2:
                 self.freeze_enh = True
                 self.ice_counter = 0
-            opponent_card.speed = opponent_card.speed - 5
+            opponent_card.speed = opponent_card.speed - 3
             if opponent_card.speed <= 1:
                 opponent_card.speed = 1
             opponent_card.health = opponent_card.health - dmg['DMG']

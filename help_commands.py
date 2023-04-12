@@ -82,13 +82,13 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks. Burn Damage ignores Shields
 
-❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn. Lowers opponent speed by 5
+❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn. Lowers opponent speed by 3
 
 💧 Water - Increases all water move AP by 100 Flat. At 500 Tide send a tsunami dealing stored AP damage
 
 ⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 30% AP.
 
-🌩️ Electric- Add 20% DMG Dealt to Shock damage, added to all Move AP.
+🌩️ Electric- Add 20% DMG Dealt to Shock damage, added to all Move AP. Increase Speed by 3
 
 🌪️ Wind - On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.
 
