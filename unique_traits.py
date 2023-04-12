@@ -53,7 +53,7 @@ traits = [{
 },{
     'NAME': 'One Punch Man',
     'EFFECT': 'Hero Reinforcement, Hero Rankings',
-    'TRAIT': 'Hero Rankings : On Focus gain (15 * Card Tier) AP. Hero Reinforcement : On Opp Focus you create (100 * Card Tier) HP. '
+    'TRAIT': 'Hero Rankings : On Focus gain (15 * Card Tier) AP. Hero Reinforcement : On Opp Focus you create (350 - (Card Tier - 1) * 50) HP. '
 },{
     'NAME': 'Solo Leveling',
     'EFFECT': 'Rulers Authority, Arise!',

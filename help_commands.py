@@ -82,9 +82,9 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks. Burn Damage ignores Shields
 
-❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn.
+❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn. Lowers opponent speed by 5
 
-💧 Water - Increases all water move AP by 100 Flat.
+💧 Water - Increases all water move AP by 100 Flat. At 500 Tide send a tsunami dealing stored AP damage
 
 ⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 30% AP.
 
@@ -98,7 +98,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ☠️ Death - Deals 30% DMG to opponent max health. Gain Attack equal to that amount.
 
-❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.
+❤️‍🔥 Life - Create Max Health and Heal for 35% DMG. Steal 7% of opponent ATK and DEF.
 
 🌕 Light - Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 30% of DMG.
 
@@ -108,7 +108,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Crit Chance by 5%
 
-🧿 Spirit - Has higher 35% higher chance of Crit. Crit PPenetrates Shields, Barriers and Parries.
+🧿 Spirit - Has higher 35% higher chance of Crit. Crit Penetrates all Defenses and Spirit Resistance.
 
 ♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
 
