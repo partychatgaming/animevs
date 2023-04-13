@@ -316,7 +316,7 @@ async def classes(ctx):
    Elite : [4 - 5]
    Legendary : [6 - 7]
    
-   {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle
+   {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle. Summons Siphon for (5 * card tier)% Health
    
    {crown_utilities.class_emojis['ASSASSIN']} *Assassin* // Initial Attacks cost 0 Stamina + 50% Crit Chance
    *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks*
