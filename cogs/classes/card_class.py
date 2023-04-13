@@ -3665,7 +3665,7 @@ class Card:
                 self.add_solo_leveling_temp_values('BARRIER', opponent_card)
             else:
                 self._barrier_active = False
-                self.._barrier_value = 0
+                self._barrier_value = 0
             self.used_block = True
             self.defense = round(self.defense * 4)
             
