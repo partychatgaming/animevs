@@ -6241,7 +6241,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                 if mytrait:
                                     traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
                                     
-                                skin_stats = showcard("non-battle", skins, "none", skins['HLT'],skins['HLT'], skins['STAM'],skins['STAM'], False, base_title, False, skins['ATK'], skins['DEF'], 0, move1ap, move2ap, move3ap, enhap, enh, 0, None )
+                                #skin_stats = showcard("non-battle", skins, "none", skins['HLT'],skins['HLT'], skins['STAM'],skins['STAM'], False, base_title, False, skins['ATK'], skins['DEF'], 0, move1ap, move2ap, move3ap, enhap, enh, 0, None )
                                 embedVar = discord.Embed(title= f"{skins['NAME']}", description=textwrap.dedent(f"""
                                 :mahjong: {skins['TIER']}: 🃏 **{skins['SKIN_FOR']}** 
                                 :heart: **{skins['HLT']}** :dagger: **{skins['ATK']}** :shield: **{skins['DEF']}**

@@ -3832,10 +3832,16 @@ class Card:
         
         if _opponent_card.defense > 9999:
             _opponent_card.defense = 9999
+            
+        if self.max_health >= (self.base_max_health * 2):
+            self.max_health = self.base_max_health * 2
+            
+        if _opponent_card.max_health >= (_opponent_card.base_max_health * 2):
+            _opponent_card.max_health = _opponent_card.base_max_health * 2
     
         if self.health >= self.max_health:
             self.health = self.max_health
-            
+        
         if _opponent_card.health >= _opponent_card.max_health:
             _opponent_card.health = _opponent_card.max_health
         
