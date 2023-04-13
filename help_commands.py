@@ -112,9 +112,9 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
 
-⌛ Time - Block and Increase Turn Count by 3,Focus for 1 Turn increase All AP by 2 * Turn, penetrates Shield and Parry.
+⌛ Time - Block and Increase Turn Count by 3,Focus for 1 Turn and project (Turn Count % 3) Barrier. Penetrates Shield and Parry.
 
-🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 20% DMG, Decrease Turn Count By 3, penetrates Barrier and Parry.
+🪐 Gravity - Disables Opponent Block and Decrease Turn Count By 3, Reduce opponent DEF by 20% DMG. Penetrates Barrier and Parry.
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
