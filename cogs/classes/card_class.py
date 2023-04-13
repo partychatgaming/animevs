@@ -3818,7 +3818,7 @@ class Card:
                 battle_config.add_to_battle_log(f"(**💉**) **{self.name}**: Siphoned **Full Health!**")
             else:
                 battle_config.add_to_battle_log(f"(**💉**) **{self.name}**: Siphoned **{round(siphon_damage)}** Health!")
-        elif (self._summoner_active and dmg['SUMMON_USED']):
+        elif self.is_summoner and dmg['SUMMON_USED']:
             siphon_damage = (dmg['DMG'] * (.05 * self.tier)) + 100
             self.damage_healed = self.damage_healed + siphon_damage
             self.health = round(self.health + siphon_damage)
