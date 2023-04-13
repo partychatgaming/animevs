@@ -2870,6 +2870,7 @@ class Card:
                 battle_config.next_turn()
             
             if self.is_tank:
+                self._shield_active = True
                 self._shield_value = self._shield_value + (self.tier * 500)
                 battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {self.name} gained **{self._shield_value}** Shield!")
 
