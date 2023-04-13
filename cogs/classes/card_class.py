@@ -3406,9 +3406,9 @@ class Card:
                             self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     if dmg['ELEMENT'] == "POISON": #Poison Update
                         if self.poison_dmg <= (100 * self.tier):
-                            self.poison_dmg = self.poison_dmg + (5 * self.tier)
+                            self.poison_dmg = self.poison_dmg + (7 * self.tier)
                     if dmg['ELEMENT'] == "FIRE":
-                        self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
+                        self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .25)
                     if opponent_card._shield_value > 0:
                         opponent_card._shield_value = opponent_card._shield_value - dmg['DMG']
                         # opponent_card.health = opponent_card.health 
