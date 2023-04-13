@@ -630,12 +630,12 @@ async def viewcard(self, ctx, data):
             evasion_message = f"{c.speed}"
             if c.speed >= 70 or c.speed <=30:
                 if c.speed >= 70:     
-                    if d['PERFORMANCE']:
+                    if d['TEXT_ONLY']:
                         evasion_message = f"{c.speed}: *{round(c.evasion)}% evasion*"
                     else:
                         evasion_message = f"{c.speed}: {round(c.evasion)}% evasion"
                 elif c.speed <= 30:
-                    if d['PERFORMANCE']:
+                    if d['TEXT_ONLY']:
                         evasion_message = f"{c.speed}: *{c.evasion}% evasion*"
                     else:
                         evasion_message = f"{c.speed}: {c.evasion}% evasion"
@@ -648,7 +648,7 @@ async def viewcard(self, ctx, data):
             card_exp = 150
 
             # Temporarily removed ♾️ {c.set_trait_message()}
-            if d['PERFORMANCE']:
+            if d['TEXT_ONLY']:
                 embedVar = discord.Embed(title=f"{c.card_icon} {c.price_message} {c.name} [{crown_utilities.class_emojis[c.card_class]}]", description=textwrap.dedent(f"""\
                 {crown_utilities.class_emojis[c.card_class]} | {c.class_message}
                 :mahjong: | {c.tier}

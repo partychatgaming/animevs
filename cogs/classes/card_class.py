@@ -3347,6 +3347,7 @@ class Card:
                         self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: {dmg['MESSAGE']}")
                 battle_config.turn_total = battle_config.turn_total + 1
+                battle_config.add_to_battle_log(self.set_poison_hit(opponent_card))
                 if not dmg['SUMMON_USED']:
                     battle_config.next_turn()            
             elif not dmg['REPEL'] and not dmg['ABSORB']:
