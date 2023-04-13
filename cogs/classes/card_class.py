@@ -3824,9 +3824,9 @@ class Card:
             self.health = round(self.health + siphon_damage)
             if self.health >= self.max_health:
                 self.health = self.max_health
-                battle_config.add_to_battle_log(f"**({crown_utilities.class_emojis['SUMMONER']})** {name} 💉 Siphoned **Full Health!**")
+                battle_config.add_to_battle_log(f"**({crown_utilities.class_emojis['SUMMONER']})** {self.summon_name} 💉 Siphoned **Full Health!**")
             else:
-                battle_config.add_to_battle_log(f"**({crown_utilities.class_emojis['SUMMONER']})** {name} 💉 Siphoned **{round(siphon_damage)}** Health!")
+                battle_config.add_to_battle_log(f"**({crown_utilities.class_emojis['SUMMONER']})** {self.summon_name} 💉 Siphoned **{round(siphon_damage)}** Health!")
         self.element_selection.append(dmg['ELEMENT'])
         self.damage_dealt = self.damage_dealt + dmg['DMG']
         opponent_card.damage_recieved = opponent_card.damage_recieved + dmg['DMG']
