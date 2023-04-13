@@ -14,8 +14,9 @@ class Title:
         self.passive = abilities[0]
         self.passive_type = list(self.passive.keys())[0]
         self.passive_value = list(self.passive.values())[0]
+        self.display_value = self.passive_value
         if self.passive_type == "SOULCHAIN":
-            self.passive_value = self.passive_value + 90
+            self.display_value = self.display_value + 90
 
         self.price_message = ""
         self.type_message = ""
@@ -173,13 +174,13 @@ class Title:
         try:
             if self.universe == "Unbound" or (card_universe in crown_utilities.pokemon_universes) or card_universe == "Crown Rift Awakening":
                 if performance_mode:
-                    self.title_message = f"👑 | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
+                    self.title_message = f"👑 | {self.name}: {self.passive_type} {self.display_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
                 else:
                     self.title_message = f"👑 | {self.name}" 
 
             elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_title==True):
                 if performance_mode:
-                    self.title_message = f"🎗️ | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
+                    self.title_message = f"🎗️ | {self.name}: {self.passive_type} {self.display_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
                 else:
                     self.title_message = f"🎗️ | {self.name}"
                         
@@ -202,31 +203,29 @@ class Title:
 
     def set_title_embed_message(self):
         if self.passive_type == "ATK" or self.passive_type == "DEF" or self.passive_type == "HLT" or self.passive_type == "STAM":
-            self.message = f"On your turn, Increases **{self.type_message}** by **{self.passive_value}{self.set_title_suffix()}**"
+            self.message = f"On your turn, Increases **{self.type_message}** by **{self.display_value}{self.set_title_suffix()}**"
         
         elif self.passive_type == "FLOG" or self.passive_type == "WITHER" or self.passive_type == "LIFE" or self.passive_type == "DRAIN":
-            self.message = f"On your turn, Steals **{self.passive_value}{self.set_title_suffix()} {self.type_message}**"
+            self.message = f"On your turn, Steals **{self.display_value}{self.set_title_suffix()} {self.type_message}**"
         
         elif self.passive_type == "RAGE" or self.passive_type == "BRACE" or self.passive_type == "BZRK" or self.passive_type == "CRYSTAL" or self.passive_type == "GROWTH" or self.passive_type == "FEAR":
-            self.message = f"On your turn, Sacrifice **{self.passive_value}{self.set_title_suffix()} {self.type_message}**"
+            self.message = f"On your turn, Sacrifice **{self.display_value}{self.set_title_suffix()} {self.type_message}**"
         
         elif self.passive_type == "STANCE" or self.passive_type == "CONFUSE":
-            self.message = f"On your turn, Swap {self.type_message} Defense by **{self.passive_value}**"
-            self.message = value=f"On your turn, **{self.type_message}** by **{self.passive_value}**, **{self.type2_message}** by **{self.passive_value}**"
+            self.message = f"On your turn, Swap {self.type_message} Defense by **{self.display_value}**"
+            self.message = value=f"On your turn, **{self.type_message}** by **{self.display_value}**, **{self.type2_message}** by **{self.display_value}**"
         
         elif self.passive_type == "SLOW" or self.passive_type == "HASTE":
-            self.message = f"On your turn, **{self.type_message}** by **{self.passive_value}**"
+            self.message = f"On your turn, **{self.type_message}** by **{self.display_value}**"
         
         elif self.passive_type == "SOULCHAIN" or self.passive_type == "GAMBLE":
-            # if self.passive_type == "SOULCHAIN":
-            #     self.passive_value = self.passive_value + 90
-            self.message = f"During Focus, **{self.type_message}** equal **{self.passive_value}**"
+            self.message = f"During Focus, **{self.type_message}** equal **{self.display_value}**"
             
         elif self.passive_type == "BLAST" or self.passive_type == "WAVE":
-            self.message = f"On your turn, **{self.type_message}** equal to **{self.passive_value}**"
+            self.message = f"On your turn, **{self.type_message}** equal to **{self.display_value}**"
             
         elif self.passive_type == "CREATION" or self.passive_type == "DESTRUCTION":
-            self.message = f"On your turn, **{self.type_message}** by **{self.passive_value}{self.set_title_suffix()}**"
+            self.message = f"On your turn, **{self.type_message}** by **{self.display_value}{self.set_title_suffix()}**"
         
         return self.message
     

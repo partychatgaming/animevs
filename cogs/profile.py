@@ -287,12 +287,12 @@ class Profile(commands.Cog):
                     evasion_message = f"{c.speed}"
                     if c.speed >= 70 or c.speed <=30:
                         if c.speed >= 70:     
-                            if player.performance:
+                            if player.text_only:
                                 evasion_message = f"{c.speed} : *{round(c.evasion)}% evasion*"
                             else:
                                 evasion_message = f"{c.speed} : {round(c.evasion)}% evasion"
                         elif c.speed <= 30:
-                            if player.performance:
+                            if player.text_only:
                                 evasion_message = f"{c.speed} : *{c.evasion}% evasion*"
                             else:
                                 evasion_message = f"{c.speed} : {c.evasion}% evasion"
@@ -303,8 +303,8 @@ class Profile(commands.Cog):
                     player.set_talisman_message()
                     player.setsummon_messages()
                     
-                    a.set_arm_message(player.performance, c.universe)
-                    t.set_title_message(player.performance, c.universe)
+                    a.set_arm_message(player.text_only, c.universe)
+                    t.set_title_message(player.text_only, c.universe)
                     
                     
                     has_universe_heart = False
@@ -340,7 +340,7 @@ class Profile(commands.Cog):
                     if c.card_lvl >= 1000:
                         level_up_message = "👑 | Max Level!!"
 
-                    if player.performance:
+                    if player.text_only:
                         embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                         {crown_utilities.class_emojis[c.card_class]} | **{c.class_message}**
                         :mahjong: | **{c.tier}**
@@ -1086,6 +1086,8 @@ class Profile(commands.Cog):
                     title_passive = resp['ABILITIES'][0]
                     title_passive_type = list(title_passive.keys())[0]
                     title_passive_value = list(title_passive.values())[0]
+                    if title_passive_type == "SOULCHAIN":
+                        title_passive_value = title_passive_value + 90
                     title_available = resp['AVAILABLE']
                     title_exclusive = resp['EXCLUSIVE']
                     icon = "🎗️"
@@ -4571,12 +4573,12 @@ class Profile(commands.Cog):
                     evasion_message = f"**{c.speed}**"
                     if c.speed >= 70 or c.speed <=30:
                         if c.speed >= 70:     
-                            if player.performance:
+                            if player.text_only:
                                 evasion_message = f"**{c.speed}**: *{round(c.evasion)}% evasion*"
                             else:
                                 evasion_message = f"**{c.speed}**: {round(c.evasion)}% evasion"
                         elif c.speed <= 30:
-                            if player.performance:
+                            if player.text_only:
                                 evasion_message = f"**{c.speed}**: *{c.evasion}% evasion*"
                             else:
                                 evasion_message = f"**{c.speed}**: {c.evasion}% evasion"
@@ -6442,12 +6444,12 @@ async def menubuild(self, ctx):
                 evasion_message = f"{c.speed}"
                 if c.speed >= 70 or c.speed <=30:
                     if c.speed >= 70:     
-                        if player.performance:
+                        if player.text_only:
                             evasion_message = f"{c.speed} : *{round(c.evasion)}% evasion*"
                         else:
                             evasion_message = f"{c.speed} : {round(c.evasion)}% evasion"
                     elif c.speed <= 30:
-                        if player.performance:
+                        if player.text_only:
                             evasion_message = f"{c.speed} : *{c.evasion}% evasion*"
                         else:
                             evasion_message = f"{c.speed} : {c.evasion}% evasion"
@@ -6458,8 +6460,8 @@ async def menubuild(self, ctx):
                 player.set_talisman_message()
                 player.setsummon_messages()
                 
-                a.set_arm_message(player.performance, c.universe)
-                t.set_title_message(player.performance, c.universe)
+                a.set_arm_message(player.text_only, c.universe)
+                t.set_title_message(player.text_only, c.universe)
                 
                 
                 has_universe_heart = False
@@ -6495,7 +6497,7 @@ async def menubuild(self, ctx):
                 if c.card_lvl >= 1000:
                     level_up_message = "👑 | Max Level!!"
 
-                if player.performance:
+                if player.text_only:
                     embedVar = discord.Embed(title=f"{c.set_card_level_icon()} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
                     {crown_utilities.class_emojis[c.card_class]} | **{c.class_message}**
                     :mahjong: | **{c.tier}**
@@ -6691,12 +6693,12 @@ async def menucards(self, ctx):
                 evasion_message = f"{c.speed}"
                 if c.speed >= 70 or c.speed <=30:
                     if c.speed >= 70:     
-                        if player.performance:
+                        if player.text_only:
                             evasion_message = f"{c.speed}: *{round(c.evasion)}% evasion*"
                         else:
                             evasion_message = f"{c.speed}: {round(c.evasion)}% evasion"
                     elif c.speed <= 30:
-                        if player.performance:
+                        if player.text_only:
                             evasion_message = f"{c.speed}: *{c.evasion}% evasion*"
                         else:
                             evasion_message = f"{c.speed}: {c.evasion}% evasion"
@@ -7716,6 +7718,8 @@ async def menutitles(self, ctx):
                 title_passive = resp['ABILITIES'][0]
                 title_passive_type = list(title_passive.keys())[0]
                 title_passive_value = list(title_passive.values())[0]
+                if title_passive_type == "SOULCHAIN":
+                    title_passive_value = title_passive_value + 90
                 title_available = resp['AVAILABLE']
                 title_exclusive = resp['EXCLUSIVE']
                 icon = "🎗️"

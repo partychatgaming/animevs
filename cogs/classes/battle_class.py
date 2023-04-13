@@ -1044,7 +1044,7 @@ class Battle:
                 aiMove =4
             else:
                 aiMove = 1
-        elif your_card._barrier_active: #Ai Barrier Checks
+        elif your_card._barrier_active and not your_card.is_ranger: #Ai Barrier Checks
             if your_card.stamina >=20: #Stamina Check For Enhancer
                 #Check if you have a psychic move for barrier
                 if your_card.stamina >= 80 and your_card.move3_element == "PSYCHIC":
@@ -1140,7 +1140,7 @@ class Battle:
                 aiMove = 0
             elif your_card.universe == "Death Note" and your_card.max_health >= 1500:
                 aiMove = 0
-            elif your_card._barrier_active:
+            elif your_card._barrier_active and not your_card.is_ranger:
                 aiMove = 4
             else:
                 aiMove = 1
@@ -1282,7 +1282,7 @@ class Battle:
                         else:
                             aiMove = 1
                     elif self._previous_ai_move == 1:
-                        if your_card._barrier_active:
+                        if your_card._barrier_active and not your_card.is_ranger:
                             if your_card.used_focus and not your_card.used_resolve:
                                 aiMove =5
                             else:
@@ -1301,7 +1301,7 @@ class Battle:
                             else:
                                 aiMove = 1   
                     elif self._previous_ai_move == 2:
-                        if your_card._barrier_active:
+                        if your_card._barrier_active and not your_card.is_ranger:
                             if your_card.used_focus and not your_card.used_resolve:
                                 aiMove =5
                             else:
@@ -1320,7 +1320,7 @@ class Battle:
                             else:
                                 aiMove = 1   
                     elif self._previous_ai_move == 3:
-                        if your_card._barrier_active:
+                        if your_card._barrier_active and not your_card.is_ranger:
                             if your_card.used_focus and not your_card.used_resolve:
                                 aiMove = 5
                             else:
@@ -1339,7 +1339,7 @@ class Battle:
                             else:
                                 aiMove = 1   
                     elif self._previous_ai_move == 4:
-                        if your_card._barrier_active:
+                        if your_card._barrier_active and not your_card.is_ranger:
                             if your_card.used_focus and not your_card.used_resolve:
                                 aiMove =5
                             else:
@@ -1358,7 +1358,7 @@ class Battle:
                             else:
                                 aiMove = 1              
                     else:
-                        if your_card._barrier_active:
+                        if your_card._barrier_active and not your_card.is_ranger:
                             if your_card.used_focus and not your_card.used_resolve:
                                 aiMove =5
                             else:
@@ -2151,7 +2151,7 @@ class Battle:
 
 def ai_enhancer_moves(your_card, opponent_card):
     aiMove = 1
-    if your_card._barrier_active:
+    if your_card._barrier_active and not your_card.is_ranger:
         aiMove = 4
         if your_card.move4enh in ["RAGE", "BRACE", "GROWTH"]:
             if your_card.card_lvl_ap_buff >= 1000 + your_card.card_lvl:
@@ -2160,22 +2160,76 @@ def ai_enhancer_moves(your_card, opponent_card):
             if opponent_card.card_lvl_ap_buff <= 0:
                 aiMove = 0
         elif your_card.move4enh in crown_utilities.INC_Enhancer_Check: #Ai Inc Check
-            if your_card.attack >= 8000 or your_card.defense >=8000:
+            if your_card.attack >= (opponent_card.defense * 1.5) or your_card.defense >=(opponent_card.attack * 1.5):
                 if your_card.used_focus and not your_card.used_resolve:
                     aiMove =5
-                else:
+                elif your_card.used_focus:
                     if your_card.stamina >=80 and your_card.used_focus:
                         aiMove = 3
                     elif your_card.stamina>=30 and your_card.used_focus:
                         aiMove = 2
                     else:
                         aiMove = 1
+                else:
+                    aiMove = 4
             else:
                 aiMove = 4
         elif your_card.move4enh in crown_utilities.DPS_Enhancer_Check: #Ai Steal Check
-            if your_card.attack >= 8000 and opponent_card.attack >=100:
+            if your_card.attack >= (opponent_card.defense) and your_card.attack >= (opponent_card.attack) and your_card.move4enh == "FLOG":
                 if your_card.used_focus and not your_card.used_resolve:
                     aiMove =5
+                elif your_card.used_focus:
+                    if your_card.stamina >=80 and your_card.used_focus:
+                        aiMove = 3
+                    elif your_card.stamina>=30 and your_card.used_focus:
+                        aiMove = 2
+                    else:
+                        aiMove = 1
+                else:
+                    aiMove = 4
+            elif your_card.defense >= (opponent_card.defense) and opponent_card.defense >=(opponent_card.attack) and your_card.move4enh == "WITHER":
+                if your_card.used_focus and not your_card.used_resolve:
+                    aiMove =5
+                elif your_card.used_focus:
+                    if your_card.stamina >=80 and your_card.used_focus:
+                        aiMove = 3
+                    elif your_card.stamina>=30 and your_card.used_focus:
+                        aiMove = 2
+                    else:
+                        aiMove = 1
+                else:
+                    aiMove = 4
+            else:
+                aiMove = 4
+        elif your_card.move4enh in crown_utilities.Sacrifice_Enhancer_Check: #Ai Sacrifice Check
+            if your_card.attack >= (opponent_card.defense * 2) or your_card.health <= 1500 or your_card.health <= (.50 * your_card.max_health):
+                if your_card.used_focus and not your_card.used_resolve:
+                    aiMove =5
+                elif your_card.used_focus:
+                    if your_card.stamina >=80 and your_card.used_focus:
+                        aiMove = 3
+                    elif your_card.stamina>=30 and your_card.used_focus:
+                        aiMove = 2
+                    else:
+                        aiMove = 1
+                else:
+                    aiMove = 4
+            elif your_card.defense >= (opponent_card.defense * 2) or your_card.health <=1500 or your_card.health <= (.50 * your_card.max_health):
+                if your_card.used_focus and not your_card.used_resolve:
+                    aiMove =5
+                elif your_card.used_focus:
+                    if your_card.stamina >=80 and your_card.used_focus:
+                        aiMove = 3
+                    elif your_card.stamina>=30 and your_card.used_focus:
+                        aiMove = 2
+                    else:
+                        aiMove = 1
+                else:
+                    aiMove = 4
+        elif your_card.move4enh in crown_utilities.Time_Enhancer_Check:
+            if your_card.move4enh == "HASTE":
+                if opponent_card.stamina <= your_card.stamina:
+                    aiMove =4
                 else:
                     if your_card.stamina >=80 and your_card.used_focus:
                         aiMove = 3
@@ -2183,9 +2237,9 @@ def ai_enhancer_moves(your_card, opponent_card):
                         aiMove = 2
                     else:
                         aiMove = 1
-            elif your_card.defense >= 8000 and opponent_card.defense >=100:
-                if your_card.used_focus and not your_card.used_resolve:
-                    aiMove =5
+            elif your_card.move4enh == "SLOW":
+                if your_card.stamina <= opponent_card.stamina:
+                    aiMove =4
                 else:
                     if your_card.stamina >=80 and your_card.used_focus:
                         aiMove = 3
@@ -2194,28 +2248,35 @@ def ai_enhancer_moves(your_card, opponent_card):
                     else:
                         aiMove = 1
             else:
+                if your_card.used_focus ==False:
+                    aiMove=4
+                else:
+                    if your_card.move4enh == "BLINK":
+                        aiMove =4
+                    else:
+                        if your_card.stamina >=80 and your_card.used_focus:
+                            aiMove = 3
+                        elif your_card.stamina>=30 and your_card.used_focus:
+                            aiMove = 2
+                        else:
+                            aiMove = 1
+        elif your_card.move4enh in crown_utilities.FORT_Enhancer_Check: #Ai Fort Check
+            if (opponent_card.attack<= 50 or your_card.attack >=5000) or your_card.health <= 1000 or your_card.health <= (.66 * your_card.max_health):
+                if your_card.stamina >=80 and your_card.used_focus:
+                    aiMove = 3
+                elif your_card.stamina>=30 and your_card.used_focus:
+                    aiMove = 2
+                else:
+                    aiMove = 1
+            elif (opponent_card.defense <=50 or your_card.defense >= 5000) or your_card.health <= 1000 or your_card.health <= (.66 * your_card.max_health):
+                if your_card.stamina >=80 and your_card.used_focus:
+                    aiMove = 3
+                elif your_card.stamina>=30 and your_card.used_focus:
+                    aiMove = 2
+                else:
+                    aiMove = 1
+            else:
                 aiMove = 4
-        elif your_card.move4enh in crown_utilities.Sacrifice_Enhancer_Check: #Ai Sacrifice Check
-            if your_card.attack >= 8000 or your_card.health <= 1500 or your_card.health <= (.50 * your_card.max_health):
-                if your_card.used_focus and not your_card.used_resolve:
-                    aiMove =5
-                else:
-                    if your_card.stamina >=80 and your_card.used_focus:
-                        aiMove = 3
-                    elif your_card.stamina>=30 and your_card.used_focus:
-                        aiMove = 2
-                    else:
-                        aiMove = 1
-            elif your_card.defense >= 8000 or your_card.health <=1500 or your_card.health <= (.50 * your_card.max_health):
-                if your_card.used_focus and not your_card.used_resolve:
-                    aiMove =5
-                else:
-                    if your_card.stamina >=80 and your_card.used_focus:
-                        aiMove = 3
-                    elif your_card.stamina>=30 and your_card.used_focus:
-                        aiMove = 2
-                    else:
-                        aiMove = 1
         else:
             aiMove = 4
         
@@ -2406,7 +2467,7 @@ def ai_enhancer_moves(your_card, opponent_card):
         aiMove = 4 #Block or Enhance
         
     #Killing Blow Checks
-    if opponent_card.health <= 500:
+    if opponent_card.health <= 1000:
         if your_card.stamina >= 80:
             aiMove =3
         elif your_card.stamina >= 30:

@@ -1324,7 +1324,7 @@ class Card:
                     title_len = int(len(list(title['TITLE'])))
                     title_message = f"{title['TITLE']}"
                 else:
-                    title_passive_msg = title.passive_value
+                    title_passive_msg = title.display_value
                     # if title.passive_type == "SOULCHAIN":
                     #     title_passive_msg = title.passive_value + 90 
                     title_message = f"{title.passive_type.title()} {title_passive_msg}"
@@ -2051,8 +2051,8 @@ class Card:
                     else:
                         message = f"{_opponent_card.name} is weak to {move_emoji} {move_element.lower()}! Strong hit for **{true_dmg}**!"
                 
-                if not self._talisman == move_element and not self._is_boss and not spirit_crit:
-                    if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) :
+                if not self._talisman == move_element and not self._is_boss:
+                    if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) and not spirit_crit:
                         true_dmg = round(true_dmg * .45)
                         if summon_used:
                             message = f"{_opponent_card.name} is resistant to {move_emoji} {move_element.lower()}. Weak hit for {true_dmg}!"
@@ -2263,40 +2263,51 @@ class Card:
             attack_calculation = round((fortitude * (self.tier / 10)) + (.05 * self.attack))
             defense_calculation = round((fortitude * (self.tier / 10)) + (.05 * self.defense))
             
-            
+            title_response = ""
             if _title.passive_type:
                 if _title.passive_type == "GAMBLE":
                     health_calculation = _title.passive_value
+                    # title_response = f"*{_title.get_title_icon(self.universe)} Gambler*"
                 if _title.passive_type == "BLAST":
-                    _opponent_card.health = _opponent_card.health - (_title.passive_value * battle_config.turn_total)
+                    _opponent_card.health = _opponent_card.health - (_title.passive_value + battle_config.turn_total)
+                    title_response = f"*{_title.get_title_icon(self.universe)} Blasted {_opponent_card.name} {(_title.passive_value + battle_config.turn_total)}*"
                 if _title.passive_type == "SOULCHAIN":
                     self.stamina = self.stamina + _title.passive_value
-
+                    # title_response = f"*{_title.get_title_icon(self.universe)} Soulchain {(_title.display_value)}*"
+                    
+            opponent_title_response = ""
             if _opponent_title.passive_type:
                 if _opponent_title.passive_type == "GAMBLE":
                     health_calculation = _opponent_title.passive_value
-                if _opponent_title.passive_type == "BLAST":
-                    self.health = self.health - (_opponent_title.passive_value * battle_config.turn_total)
+                    # opponent_title_response = f"*{_opponent_title.get_title_icon(_opponent_card.universe)} Gambled*"
                 if _opponent_title.passive_type == "SOULCHAIN":
                     self.stamina = self.stamina + _opponent_title.passive_value
-                    
+                    # opponent_title_response = f"*{_opponent_title.get_title_icon(_opponent_card.universe)} Soulchain {(_opponent_title.display_value)}*"
+            
+            passive_response = ""
+            opponent_passive_response = ""
             if self.passive_type == "GAMBLE":
                 health_calculation = self.passive_num
+                # passive_response = "*🩸 Gambler*"
             if _opponent_card.passive_type == "GAMBLE":
                 health_calculation = _opponent_card.passive_num
+                # opponent_passive_response = "*🩸 Gambled*"
+                
+            title_passive_response = f"{title_response} {passive_response}"
+            opponent_title_passive_response = f"{opponent_title_response} {opponent_passive_response}"
                     
             
             new_health_value = 0
             heal_message = ""
             message_number = 0
             if self.universe == "Crown Rift Madness":
-                heal_message = "yet inner **Madness** drags on..."
+                heal_message = "inner **Madness** drags on..."
                 message_number = 3
             else:
                 if self.health <= self.max_health:
                     new_health_value = self.health + health_calculation
                     if new_health_value > self.max_health:
-                        heal_message = "the injuries dissapeared!"
+                        heal_message = "injuries dissapeared!"
                         message_number = 1
                         health_calculation = round(self.max_health - self.health)
                         self.damage_healed = round(self.damage_healed + health_calculation)
@@ -2314,24 +2325,24 @@ class Card:
                     message_number = 0
             
             if self.universe == "Crown Rift Madness" and not self.used_resolve:
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}** focused and {heal_message}\n*+:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
-            else:
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} | {title_passive_response}*")
+            # else:
+            #     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}\n*+🌀{self.stamina}*\n{title_passive_response}")
             if self.universe == "Crown Rift Madness" and self.used_resolve:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
-                battle_config.add_to_battle_log(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                battle_config.add_to_battle_log(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} | {title_passive_response}*")
             elif not self.used_resolve:
                 if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                     attack_calculation = attack_calculation + round(attack_calculation / 2)
                     defense_calculation = defense_calculation + round(defense_calculation / 2)
-                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}**  Gains 2x ATK and DEF\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+:heart:{health_calculation} | +🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} | {title_passive_response}*")
                 elif self.universe != "Crown Rift Madness":
-                    battle_config.add_to_battle_log(f"*(🌀) {self.name}\n+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation} | +🌀{self.stamina} |  +:dagger: {attack_calculation} | +:shield:{defense_calculation} | {title_passive_response}*")
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
             elif self.used_resolve and self.universe != "Crown Rift Madness":
-                battle_config.add_to_battle_log(f"*(🌀) {self.name}\n+:heart:{health_calculation}*")
+                battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation} | +🌀{self.stamina} | {title_passive_response}*")
                 
                 
 
@@ -2366,19 +2377,20 @@ class Card:
                 self.damage_healed = self.damage_healed + resolve_health
                 self.attack = round(self.attack + resolve_attack_value)
                 self.defense = round(self.defense - resolve_defense_value)
-                self.attack = round(self.attack * 1.5)
-                self.defense = round(self.defense * 1.5)
+                self.attack = round(self.attack * 2)
+                self.defense = round(self.defense * 2)
                 self.used_resolve = True
                 self.usedsummon = False
                 if battle_config.turn_total <= 5:
                     self.attack = round(self.attack * 2)
-                    self.defense = round(self.defense * 2 )
-                    self.health = self.health + 500
-                    self.damage_healed = self.damage_healed + 500
-                    self.max_health = self.max_health + 500
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Transformation: Mega Digivolution!!!")
+                    self.defense = round(self.defense * 2)
+                    boost = (250 * self.tier)
+                    self.health = self.health + boost
+                    self.damage_healed = self.damage_healed + boost
+                    self.max_health = self.max_health + boost
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Transformation: Mega Digivolution!!! Gained {boost} Health and 4x ATK & DEF!")
                 else:
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Transformation: Digivolve")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Transformation: Digivolve! Gained 2x ATK & DEF!")
             #Self Traits
             if self.universe == "League Of Legends":                
                 if _opponent_card.health <= (_opponent_card.max_health * .90):
@@ -2413,9 +2425,10 @@ class Card:
 
             elif self.universe == "Black Clover":                
                 self.stamina = 100
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50 + battle_config.turn_total
+                ap_gain = self.card_lvl_ap_buff + 50 + battle_config.turn_total
+                self.card_lvl_ap_buff = ap_gain
 
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Increased AP & Stamina 🌀")
+                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Gained {ap_gain} AP & Stamina 🌀")
 
             elif self.universe == "Death Note":
                 if battle_config.turn_total >= (130 + (10 * self.tier)):
@@ -3502,15 +3515,15 @@ class Card:
                         if self.focus_count == 0:
                             dmg['DMG'] = dmg['DMG'] * .6
 
-                    if self._siphon_active:
-                        siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
-                        self.damage_healed = self.damage_healed + (dmg['DMG'] * .15) + self._siphon_value
-                        self.health = round(self.health + siphon_damage)
-                        if self.health >= self.max_health:
-                            self.health = self.max_health
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **Full Health!**")
-                        else:
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
+                    # if self._siphon_active:
+                    #     siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
+                    #     self.damage_healed = self.damage_healed + (dmg['DMG'] * .15) + self._siphon_value
+                    #     self.health = round(self.health + siphon_damage)
+                    #     if self.health >= self.max_health:
+                    #         self.health = self.max_health
+                    #         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **Full Health!**")
+                    #     else:
+                    #         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}**: 💉 Siphoned **{round(siphon_damage)}** Health!")
                     
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
@@ -3795,7 +3808,25 @@ class Card:
         else:
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
-            
+        
+        if self._siphon_active and not dmg['SUMMON_USED']:
+            siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
+            self.damage_healed = self.damage_healed + siphon_damage
+            self.health = round(self.health + siphon_damage)
+            if self.health >= self.max_health:
+                self.health = self.max_health
+                battle_config.add_to_battle_log(f"(**💉**) **{self.name}**: Siphoned **Full Health!**")
+            else:
+                battle_config.add_to_battle_log(f"(**💉**) **{self.name}**: Siphoned **{round(siphon_damage)}** Health!")
+        elif (self._summoner_active and dmg['SUMMON_USED']):
+            siphon_damage = (dmg['DMG'] * (.05 * self.tier)) + 100
+            self.damage_healed = self.damage_healed + siphon_damage
+            self.health = round(self.health + siphon_damage)
+            if self.health >= self.max_health:
+                self.health = self.max_health
+                battle_config.add_to_battle_log(f"**({crown_utilities.class_emojis('SUMMONER')})** {name} 💉 Siphoned **Full Health!**")
+            else:
+                battle_config.add_to_battle_log(f"**({crown_utilities.class_emojis('SUMMONER')})** {name} 💉 Siphoned **{round(siphon_damage)}** Health!")
         self.element_selection.append(dmg['ELEMENT'])
         self.damage_dealt = self.damage_dealt + dmg['DMG']
         opponent_card.damage_recieved = opponent_card.damage_recieved + dmg['DMG']
@@ -3833,11 +3864,11 @@ class Card:
         if _opponent_card.defense > 9999:
             _opponent_card.defense = 9999
             
-        if self.max_health >= (self.base_max_health * 2):
-            self.max_health = self.base_max_health * 2
+        # if self.max_health >= (self.base_max_health * 2):
+        #     self.max_health = self.base_max_health * 2
             
-        if _opponent_card.max_health >= (_opponent_card.base_max_health * 2):
-            _opponent_card.max_health = _opponent_card.base_max_health * 2
+        # if _opponent_card.max_health >= (_opponent_card.base_max_health * 2):
+        #     _opponent_card.max_health = _opponent_card.base_max_health * 2
     
         if self.health >= self.max_health:
             self.health = self.max_health
