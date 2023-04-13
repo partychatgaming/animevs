@@ -2812,7 +2812,7 @@ class Card:
                 elif battle_config.turn_total >= 30:
                     self.max_health = self.max_health + evolution_boost
                     self.health = self.health + evolution_boost
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained 2x Defense**{evolution_boost}** HP!")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained 2x Defense and **{evolution_boost}** HP!")
                 else:
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Evolution! Gained 2x Defense")
 
@@ -3705,7 +3705,7 @@ class Card:
             elif self.ranged_meter == 3:
                 self.ranged_meter = 0
                 self.ranged_hit_bonus = self.ranged_hit_bonus + 1
-                battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} accurary Increased by {self.ranged_hit_bonus * 5}%*")
+                battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Increased Crit Chance by {self.ranged_hit_bonus * 5}%*")
             else:
                  battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
