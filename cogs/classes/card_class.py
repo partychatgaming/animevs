@@ -2325,24 +2325,24 @@ class Card:
                     message_number = 0
             
             if self.universe == "Crown Rift Madness" and not self.used_resolve:
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} | {title_passive_response}*")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} |* {title_passive_response}")
             # else:
             #     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}\n*+🌀{self.stamina}*\n{title_passive_response}")
             if self.universe == "Crown Rift Madness" and self.used_resolve:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
-                battle_config.add_to_battle_log(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} | {title_passive_response}*")
+                battle_config.add_to_battle_log(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} |* {title_passive_response}")
             elif not self.used_resolve:
                 if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                     attack_calculation = attack_calculation + round(attack_calculation / 2)
                     defense_calculation = defense_calculation + round(defense_calculation / 2)
-                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+:heart:{health_calculation} | +🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} | {title_passive_response}*")
+                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+:heart:{health_calculation} | +🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} |* {title_passive_response}")
                 elif self.universe != "Crown Rift Madness":
-                    battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation} | +🌀{self.stamina} |  +:dagger: {attack_calculation} | +:shield:{defense_calculation} | {title_passive_response}*")
+                    battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation} | +🌀{self.stamina} |  +:dagger: {attack_calculation} | +:shield:{defense_calculation} |* {title_passive_response}")
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
             elif self.used_resolve and self.universe != "Crown Rift Madness":
-                battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation} | +🌀{self.stamina} | {title_passive_response}*")
+                battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation} | +🌀{self.stamina} |* {title_passive_response}")
                 
                 
 
