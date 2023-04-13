@@ -3658,14 +3658,19 @@ class Card:
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*The Tide Stirs +{self.water_buff}*")
         
         elif dmg['ELEMENT'] == "TIME":
-            if self.stamina <= 50:
-                self.stamina = 0
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (2 * battle_config.turn_total)
+            self.stamina = 0
+            if battle_config.turn_total % 3 != 0:
+                self._barrier_active = True
+                self._barrier_value = battle_config.turn_total % 3
+                self.add_solo_leveling_temp_values('BARRIER', opponent_card)
+            else:
+                self._barrier_active = False
+                self.._barrier_value = 0
             self.used_block = True
             self.defense = round(self.defense * 4)
+            
             battle_config.turn_total = battle_config.turn_total + 3
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*Time speeds forward +3 turns!*")
-            # battle_config.add_to_battle_log(f"**{self.name}** moved time forward +3 turns!")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} projects {self._barrier_value} Barrier 💠! Time speeds forward +3 turns!*")
             opponent_card.health = opponent_card.health - (dmg['DMG'] * (battle_config.turn_total / 100))
 
         elif dmg['ELEMENT'] == "EARTH":
