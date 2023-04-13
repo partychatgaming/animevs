@@ -1261,6 +1261,7 @@ async def rebirth(ctx):
          
          pursemessage = " "
          gabes_purse = user_is_validated['TOURNAMENT_WINS']
+         pursemessage = "You will lose all of your equipped and vaulted items."
          if gabes_purse == 1:
             pursemessage = ":purse: | Gabe's Purse Activated! All Items Will Be Retained! *You will not be able to select a new starting universe!*"
          
@@ -1288,7 +1289,6 @@ async def rebirth(ctx):
             await ctx.send(embed=embedVar1)
             return
          elif rLevel < 10:
-            pursemessage = "You will lose all of your equipped and vaulted items."
             
 
             util_buttons = [
