@@ -3645,17 +3645,18 @@ class Card:
             self.water_buff = self.water_buff + 100
             opponent_card.health = opponent_card.health - dmg['DMG']
             if self.water_buff >= (500 * self.water_mult):
-                self.water_mult += 1
-                opponent_card.health = opponent_card.health - (500 * self.water_mult)
+                
+                opponent_card.health = opponent_card.health - (300 * self.water_mult)
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*Tsunami Strikes! +{self.water_buff} Dealt!*")
                 self.water_buff = 0
                 if self.move1_element == "WATER":
-                    self.basic_water_buff = self.basic_water_buff - (500 * self.water_mult)
+                    self.basic_water_buff = self.basic_water_buff - (300 * self.water_mult)
                 if self.move2_element == "WATER":
-                    self.special_water_buff = self.special_water_buff - (500 * self.water_mult)
+                    self.special_water_buff = self.special_water_buff - (300 * self.water_mult)
                 if self.move3_element == "WATER":
-                    self.ultimate_water_buff = self.ultimate_water_buff - (500 * self.water_mult)
-            elif self.water_buff >= ((500 * self.water_mult) - 100):
+                    self.ultimate_water_buff = self.ultimate_water_buff - (300 * self.water_mult)
+                self.water_mult += 1
+            elif self.water_buff >= ((300 * self.water_mult) - 100):
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*Tsunami Incoming... +{self.water_buff}*")
             else:
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*The Tide Stirs +{self.water_buff}*")
