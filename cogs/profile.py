@@ -736,6 +736,7 @@ class Profile(commands.Cog):
                         if card['NAME'] == c['CARD']:
                             level = str(c['LVL'])
                             card_lvl = int(c['LVL'])
+                        print(c['CARD'])
                     if card_lvl >= 200:
                         level_icon = "🔱"
                     if card_lvl >= 700:
