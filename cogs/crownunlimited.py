@@ -4699,7 +4699,7 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
                 boss_card.intimidation_turns = boss_card.intimidation_turns - 1
                 player_card.attack = 0
                 player_card.defense = 0
-                intimidation_message = f"(:vs:)**[{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns\n{player_card.name}'s Attack and Defense are booth 0 out of fear]**"
+                intimidation_message = f"(:vs:)**[{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns\n{player_card.name}'s Attack and Defense reduced to 0 out of fear]**"
                 battle_config.add_to_battle_log(intimidation_message)
             else:
                 player_card.attack = player_card.temporary_attack
@@ -4717,7 +4717,7 @@ def tactics_damage_check(boss_card, battle_config):
             if boss_card.focus_count in [3]:
                 boss_card.damage_check_activated = True
                 boss_card.damage_check_limit = round(boss_card.max_health * .10)
-                boss_card.damage_check_turns = round(random.randint(5, 10))
+                boss_card.damage_check_turns = round(random.randint(5, 15))
         if boss_card.damage_check_activated:
             battle_config.is_turn = 0
             battle_config.add_to_battle_log(f"(:vs:)**[{boss_card.name} Damage Check\nDamage Dealt [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]**")
