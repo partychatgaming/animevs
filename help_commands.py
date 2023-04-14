@@ -84,7 +84,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn. Lowers opponent speed by 3
 
-💧 Water - Increases all water move AP by 100 Flat. At 500 Tide send a tsunami dealing stored AP damage
+💧 Water - Increases all water move AP by 100. At (500 * Tsunami Count) Tide send a tsunami dealing stored AP damage. 
 
 ⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 30% AP.
 
