@@ -3644,7 +3644,7 @@ class Card:
                 self.ultimate_water_buff = self.ultimate_water_buff + 100
             self.water_buff = self.water_buff + 100
             opponent_card.health = opponent_card.health - dmg['DMG']
-            if self.water_buff >= (500 * self.water_mult):
+            if self.water_buff >= (300 * self.water_mult):
                 
                 opponent_card.health = opponent_card.health - (300 * self.water_mult)
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*Tsunami Strikes! +{self.water_buff} Dealt!*")
