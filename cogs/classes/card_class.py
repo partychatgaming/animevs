@@ -1102,7 +1102,7 @@ class Card:
         if self.universe == "One Piece" and not self.haki_message:
             battle_config.turn_zero_has_happened = True
             self.haki_message = True
-            battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** 🩸 Observation Haki: **40% Damage Reduction Until First Focus!**")
+            battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Observation Haki: **40% Damage Reduction Until First Focus!**")
 
     
 
