@@ -2426,8 +2426,8 @@ class Card:
 
             elif self.universe == "Black Clover":                
                 self.stamina = 100
-                ap_gain = self.card_lvl_ap_buff + 50 + battle_config.turn_total
-                self.card_lvl_ap_buff = ap_gain
+                ap_gain =  50 + battle_config.turn_total
+                self.card_lvl_ap_buff += ap_gain
 
                 battle_config.add_to_battle_log(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Gained {ap_gain} AP & Stamina 🌀")
 
