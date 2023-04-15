@@ -1095,7 +1095,7 @@ class Card:
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
     def activate_mage_message(self,battle_config):
-        if self.card_class == "Mage" and not self.mage_message:
+        if self.card_class == "MAGE" and not self.mage_message:
             self.mage_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MAGE']}**) **{self.class_message}** : **{self.name}** Gains {100 * self.mage_buff}% Elemental Damage!")
     def activate_observation_haki_trait(self, battle_config, opponent_card):
