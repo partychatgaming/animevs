@@ -2766,7 +2766,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player1_card._monstrosity_active and player1_card.used_resolve:
                                                     if player1_card._double_strike_count < player1_card._monstrosity_value:
                                                         player1_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{player1_card._monstrosity_value - player1_card._double_strike_count} Left!*")
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.class_message}** : **{player1_card.name}** Double Strike!\n*{player1_card._monstrosity_value - player1_card._double_strike_count} Left!*")
                                                         #damage_calculation_response = player1_card.damage_cal(selected_move, battle_config, player2_card)
                                                         player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                         battle_config.next_turn()
@@ -3064,7 +3064,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player1_card._monstrosity_active and player1_card.used_resolve:
                                                     if player1_card._double_strike_count < player1_card._monstrosity_value:
                                                         player1_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.name}**:  Double Strike!\n*{player1_card._monstrosity_value - player1_card._double_strike_count} Left!*")
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player1_card.class_message}** : **{player1_card.name}** Double Strike!\n*{player1_card._monstrosity_value - player1_card._double_strike_count} Left!*")
                                                         player1_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                         battle_config.next_turn()
                                                 if player1_card.universe == "Souls" and player1_card.used_resolve and (player1_card.health <= (.50 * player1_card.max_health)):
@@ -3286,7 +3286,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if player2_card._monstrosity_active and player2_card.used_resolve:
                                                         if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                             player2_card._double_strike_count +=1
-                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.class_message}** : **{player2_card.name}** Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                             battle_config.next_turn()
@@ -3380,7 +3380,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player2_card._monstrosity_active and player2_card.used_resolve:
                                                     if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                         player2_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.class_message}** : **{player2_card.name}** Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)   
                                                         battle_config.next_turn()     
@@ -3493,7 +3493,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if player2_card._monstrosity_active and player2_card.used_resolve:
                                                         if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                             player2_card._double_strike_count +=1
-                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.class_message}** : **{player2_card.name}** Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                             battle_config.next_turn()
@@ -3509,7 +3509,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if player2_card._monstrosity_active and player2_card.used_resolve:
                                                         if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                             player2_card._double_strike_count +=1
-                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.class_message}** : **{player2_card.name}** Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                             battle_config.next_turn()
@@ -3525,7 +3525,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player2_card._monstrosity_active and player2_card.used_resolve:
                                                     if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                         player2_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.class_message}** : **{player2_card.name}** Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                         battle_config.next_turn()
@@ -3613,7 +3613,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player3_card._monstrosity_active and player3_card.used_resolve:
                                                     if player3_card._double_strike_count < player3_card._monstrosity_value:
                                                         player3_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player3_card.name}**:  Double Strike!\n*{player3_card._monstrosity_value - player3_card._double_strike_count} Left!*")
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player3_card.class_message}** : **{player3_card.name}** Double Strike!\n*{player3_card._monstrosity_value - player3_card._double_strike_count} Left!*")
                                                         #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
                                                         player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                         battle_config.next_turn()
@@ -3740,7 +3740,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if player3_card._monstrosity_active and player3_card.used_resolve:
                                                         if player3_card._double_strike_count < player3_card._monstrosity_value:
                                                             player3_card._double_strike_count +=1
-                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player3_card.name}**:  Double Strike!\n*{player3_card._monstrosity_value - player3_card._double_strike_count} Left!*")
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player3_card.class_message}** : **{player3_card.name}** Double Strike!\n*{player3_card._monstrosity_value - player3_card._double_strike_count} Left!*")
                                                             #damage_calculation_response = player3_card.damage_cal(selected_move, battle_config, player2_card)
                                                             player3_card.damage_done(battle_config, damage_calculation_response, player2_card)
                                                             battle_config.next_turn()
@@ -3912,7 +3912,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if player2_card._monstrosity_active and player2_card.used_resolve:
                                                         if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                             player2_card._double_strike_count +=1
-                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.class_message}** : **{player2_card.name}** Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player1_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player1_card)
                                                             battle_config.next_turn()
@@ -3928,7 +3928,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     if player2_card._monstrosity_active and player2_card.used_resolve:
                                                         if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                             player2_card._double_strike_count +=1
-                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.class_message}** : **{player2_card.name}** Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                             #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                             player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                             battle_config.next_turn()
@@ -3944,7 +3944,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                 if player2_card._monstrosity_active and player2_card.used_resolve:
                                                     if player2_card._double_strike_count < player2_card._monstrosity_value:
                                                         player2_card._double_strike_count +=1
-                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.name}**:  Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
+                                                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{player2_card.class_message}** : **{player2_card.name}** Double Strike!\n*{player2_card._monstrosity_value - player2_card._double_strike_count} Left!*")
                                                         #damage_calculation_response = player2_card.damage_cal(selected_move, battle_config, player3_card)
                                                         player2_card.damage_done(battle_config, damage_calculation_response, player3_card)
                                                         battle_config.next_turn()
