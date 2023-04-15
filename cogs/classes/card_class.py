@@ -2326,9 +2326,7 @@ class Card:
                     message_number = 0
             
             if self.universe == "Crown Rift Madness" and not self.used_resolve:
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
-            # else:
-            #     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}\n*+🌀{self.stamina} |* {title_passive_response}\n")
+                battle_config.add_to_battle_log(f"(🌀) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
             if self.universe == "Crown Rift Madness" and self.used_resolve:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
@@ -2337,7 +2335,7 @@ class Card:
                 if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                     attack_calculation = attack_calculation + round(attack_calculation / 2)
                     defense_calculation = defense_calculation + round(defense_calculation / 2)
-                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+:heart:{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
+                    battle_config.add_to_battle_log(f"(🌀) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+:heart:{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
                 elif self.universe != "Crown Rift Madness":
                     battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
                 self.attack = self.attack + attack_calculation
@@ -2550,7 +2548,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
                 
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Quirk Awakening! Ap has been increased by **{self.my_hero_academia_buff}** 🔺")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Quirk Awakening! Ap has been increased by **{self.my_hero_academia_buff}** 🔺")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2587,7 +2585,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
                 
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Spirit Resolved! Ap has been increased by **{round(boost)}** 🔺")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Spirit Resolved! Ap has been increased by **{round(boost)}** 🔺")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2617,7 +2615,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
 
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Conquerors Haki!")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Conquerors Haki!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2648,7 +2646,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
 
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Total Concentration Breathing!")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Total Concentration Breathing!")
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
 
@@ -2702,7 +2700,7 @@ class Card:
                 self.health = self.health + health_boost
                 self.damage_healed = self.damage_healed + resolve_health + health_boost
 
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2729,7 +2727,7 @@ class Card:
                 # # self.defense = 120
                 self.used_resolve = True
                 self.usedsummon = False
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Bankai!")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Bankai!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2756,14 +2754,14 @@ class Card:
                 if self._gow_resolve:
                     self.damage_healed = self.damage_healed + (self.max_health - self.health)
                     self.health = self.max_health
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Ascension!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Ascension!")
                 elif not self._gow_resolve:
                     self.health = round(self.health + (self.max_health / 2))
                     self.damage_healed = self.damage_healed + (self.max_health / 2)
                     self.used_resolve = False
                     self._gow_resolve = True
                     
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Crushed Blood Orb: Health Refill")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Crushed Blood Orb: Health Refill")
                                 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2790,7 +2788,7 @@ class Card:
                 damage_calculation_response = self.damage_cal(3, battle_config, opponent_card, )
                 opponent_card.health = opponent_card.health - damage_calculation_response['DMG']
                 self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Command Seal! {damage_calculation_response['MESSAGE']}")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Command Seal! {damage_calculation_response['MESSAGE']}")
                 
                 # self.stamina = 0
                 self.used_resolve = True
@@ -2822,13 +2820,13 @@ class Card:
                 if battle_config.turn_total >= 50:
                     self.max_health = self.max_health + (evolution_boost * 2)
                     self.health = self.health + (evolution_boost * 2)
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Gigantomax Evolution!!! Gained 2x Defense and **{evolution_boost * 2}** HP!!!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Gigantomax Evolution!!! Gained 2x Defense and **{evolution_boost * 2}** HP!!!")
                 elif battle_config.turn_total >= 30:
                     self.max_health = self.max_health + evolution_boost
                     self.health = self.health + evolution_boost
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained 2x Defense and **{evolution_boost}** HP!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained 2x Defense and **{evolution_boost}** HP!")
                 else:
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Evolution! Gained 2x Defense")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Evolution! Gained 2x Defense")
 
                 self.damage_healed = self.damage_healed + resolve_health + evolution_boost
                 battle_config.turn_total = battle_config.turn_total + 1
@@ -2860,12 +2858,12 @@ class Card:
                 if self.universe == "League Of Legends":
                     opponent_card.health = opponent_card.health - (200 * (self.focus_count + opponent_card.focus_count))
                     self.damage_dealt = self.damage_dealt + (200 * (self.focus_count + opponent_card.focus_count))
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(200 * (self.focus_count + opponent_card.focus_count))} damage.")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(200 * (self.focus_count + opponent_card.focus_count))} damage.")
                 elif self.universe == "Souls":
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
                     self.set_souls_trait()
                 else:
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) ⚡ **{self.name}** Resolved!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** Resolved!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
