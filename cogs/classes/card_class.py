@@ -3533,7 +3533,7 @@ class Card:
                             self._barrier_active = False
                             self._barrier_value = 0
                             self._arm_message = ""
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
 
                     self.activate_element_check(battle_config, dmg, opponent_card)
                 battle_config.add_to_battle_log(self.set_poison_hit(opponent_card))
