@@ -2189,7 +2189,7 @@ class Card:
             if self._critical_strike_count < self._swordsman_value:
                 self._critical_strike_count += 1
                 hit_roll = 20
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{self._swordsman_value - self._critical_strike_count} Left!*")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.class_message}** : **{self.name}**:  Critical Strike!\n*{self._swordsman_value - self._critical_strike_count} Left!*")
 
         if self.bloodlust_activated:
             hit_roll = hit_roll + 3
