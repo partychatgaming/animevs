@@ -4816,8 +4816,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         player_title.activate_title_passive(battle_config, player_card, opponent_card)
         player_card.activate_card_passive(opponent_card, battle_config)
     opponent_card.wind_element_activated = False
-    player_card.activate_mage_message(battle_config)
-    opponent_card.activate_mage_message(battle_config)
+    player_card.activate_class_message(battle_config)
+    opponent_card.activate_class_message(battle_config)
     player_card.activate_demon_slayer_trait(battle_config, opponent_card)
     opponent_card.activate_demon_slayer_trait(battle_config, player_card)
     player_card.activate_observation_haki_trait(battle_config, opponent_card)
@@ -4829,7 +4829,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         companion.activate_my_hero_academia_trait()
         companion.reset_stats_to_limiter(opponent_card)
         companion.activate_chainsawman_trait(battle_config)
-        companion.activate_mage_message(battle_config)
+        companion.activate_class_message(battle_config)
         companion.activate_demon_slayer_trait(battle_config, opponent_card)
         companion.activate_observation_haki_trait(battle_config, opponent_card)
         if companion.used_block == True:

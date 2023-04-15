@@ -70,6 +70,10 @@ class Card:
             self._double_strike_count = 0
             self._magic_active = False
             self.mage_message = False
+            self.fighter_message = False
+            self.tank_message = False
+            self.ranger_message = False
+            self.summoner_message = False
             self._magic_value = 0
             self._heal_active = True
             self._heal_value = 0
@@ -464,6 +468,7 @@ class Card:
         p_value = 0
         mage_buff = .35
         heal_buff = .25
+        shield_buff = 500
         if self.universe == "Fate":
             if self.tier in [1, 2, 3]:
                 self.tier = 4
@@ -487,10 +492,12 @@ class Card:
                 p_value = 8
                 mage_buff = .55
                 heal_buff = .55
+                shield_buff = 700
         self.value = value
         self.p_value = p_value
         self.mage_buff = mage_buff
         self.heal_buff = heal_buff
+        self.shield_buff = shield_buff
                 
 
         if self.card_class == "FIGHTER":
@@ -512,9 +519,9 @@ class Card:
             self.is_tank = True
             self._shield_active = True
             if self.universe == "Fate":
-                self._shield_value = self._shield_value + (self.tier * 700)
+                self._shield_value = self._shield_value + (self.tier * shield_buff)
             else:
-                self._shield_value = self._shield_value + (self.tier * 500)
+                self._shield_value = self._shield_value + (self.tier * shield_buff)
         
         if self.card_class == "HEALER":
             self.is_healer = True
@@ -1094,10 +1101,22 @@ class Card:
             battle_config.add_to_battle_log(f"(**{crown_utilities.crest_dict[self.universe]}**) **{self.name}** Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
-    def activate_mage_message(self,battle_config):
+    def activate_class_message(self,battle_config):
         if self.card_class == "MAGE" and not self.mage_message:
             self.mage_message = True
-            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MAGE']}**) **{self.class_message}** : **{self.name}** Gains {100 * self.mage_buff}% Elemental Damage!")
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MAGE']}**) **{self.class_message}** : **{self.name}** Gains {round(100 * self.mage_buff)}% Elemental Damage!")
+        if self.card_class == "FIGHTER" and not self.fighter_message:
+            self.fighter_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['FIGHTER']}**) **{self.class_message}** : **{self.name}** Gains {self.p_value} Parries!")
+        if self.card_class == "RANGER" and not self.ranger_message:
+            self.ranger_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['RANGER']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Barriers!")
+        if self.card_class == "TANK" and not self.tank_message:
+            self.tank_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['TANK']}**) **{self.class_message}** : **{self.name}** Gains {round(self.tier * self.shield_buff)} Shield!")
+        if self.card_class == "SUMMONER" and not self.summoner_message:
+            self.summoner_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SUMMONER']}**) **{self.class_message}** : **{self.name}** Summons {self.summon_name}!")
     def activate_observation_haki_trait(self, battle_config, opponent_card):
         if self.universe == "One Piece" and not self.haki_message:
             battle_config.turn_zero_has_happened = True
@@ -3384,7 +3403,7 @@ class Card:
                             self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** {crown_utilities.crest_dict[self.universe]}: Substitution Jutsu")
                     if not opponent_card.used_resolve:
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hashirama Cells stored. {crown_utilities.crest_dict[self.universe]}**{opponent_card.naruto_heal_buff}** total stored.")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💥**{stored_damage}** Substituted. {crown_utilities.crest_dict[self.universe]}**{opponent_card.naruto_heal_buff}** Hashirama Cells Stored.")
                 elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "GRAVITY"]  and not dmg['SPIRIT_CRIT']:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
@@ -3439,14 +3458,14 @@ class Card:
                                         self._arm_message = ""
                                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** disengaged their barrier to engage with an attack")
                                         self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
-                                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌐 **{opponent_card.name}'s**: Shield Shattered but they were prepared with a Parry!")     
+                                #battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌐 **{opponent_card.name}'s**: Shield Shattered but they were prepared with a Parry!")     
                                 if opponent_card._parry_value > 1:
                                     parry_damage = round(residue_damage)
-                                    opponent_card.health = round(opponent_card.health - (parry_damage * .75))
+                                    opponent_card.health = round(opponent_card.health - (parry_damage * .60))
                                     self.health = round(self.health - (parry_damage * .40))
-                                    self.damage_dealt = self.damage_dealt +  (parry_damage * .75)
+                                    self.damage_dealt = self.damage_dealt +  (parry_damage * .60)
                                     opponent_card._parry_value = opponent_card._parry_value - 1
-                                    battle_config.add_to_battle_log(f"(**🌐**) **{opponent_card.name}** Parried 🔄 {name}'s attack\nAfter dealing **{round(parry_damage * .75)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
+                                    battle_config.add_to_battle_log(f"(**🌐**) **{opponent_card.name}'s** Shield Shattered but they were prepared with a Parry!🔄\nAfter dealing **{round(parry_damage * .60)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
                                     if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                                         opponent_card._barrier_active = False
                                         opponent_card._barrier_value = 0
@@ -3455,9 +3474,10 @@ class Card:
                                         self.decrease_solo_leveling_temp_values_self('PARRY', battle_config)
                                 elif opponent_card._parry_value == 1:
                                     parry_damage = round(residue_damage)
-                                    opponent_card.health = round(opponent_card.health - (parry_damage * .75))
+                                    opponent_card.health = round(opponent_card.health - (parry_damage * .60))
                                     self.health = round(self.health - (parry_damage * .40))
-                                    battle_config.add_to_battle_log(f"(**🌐**) {name} penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing **{round(parry_damage * .75)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
+                                    self.damage_dealt = self.damage_dealt +  (parry_damage * .60)
+                                    battle_config.add_to_battle_log(f"(**🌐**) {name} Shattered **{opponent_card.name}**'s Shield and penetrates their Final Parry!🔄\nAfter dealing **{round(parry_damage * .60)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
                                     opponent_card._parry_value = opponent_card._parry_value - 1
                                     if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                                         opponent_card._barrier_active = False
@@ -3497,11 +3517,11 @@ class Card:
                             self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     if opponent_card._parry_value > 1:
                         parry_damage = round(dmg['DMG'])
-                        opponent_card.health = round(opponent_card.health - (parry_damage * .75))
+                        opponent_card.health = round(opponent_card.health - (parry_damage * .60))
                         self.health = round(self.health - (parry_damage * .40))
-                        self.damage_dealt = self.damage_dealt +  (parry_damage * .75)
+                        self.damage_dealt = self.damage_dealt +  (parry_damage * .60)
                         opponent_card._parry_value = opponent_card._parry_value - 1
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Parried 🔄 {name}'s attack\nAfter dealing **{round(parry_damage * .75)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Parried 🔄 {name}'s attack\nAfter dealing **{round(parry_damage * .60)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False
                             opponent_card._barrier_value = 0
@@ -3510,9 +3530,10 @@ class Card:
                             self.decrease_solo_leveling_temp_values_self('PARRY', battle_config)
                     elif opponent_card._parry_value == 1:
                         parry_damage = round(dmg['DMG'])
-                        opponent_card.health = round(opponent_card.health - (parry_damage * .75))
+                        opponent_card.health = round(opponent_card.health - (parry_damage * .60))
                         self.health = round(self.health - (parry_damage * .40))
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing **{round(parry_damage * .75)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
+                        self.damage_dealt = self.damage_dealt +  (parry_damage * .60)
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {name} penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing **{round(parry_damage * .60)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
                         opponent_card._parry_value = opponent_card._parry_value - 1
                         if opponent_card._barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                             opponent_card._barrier_active = False
