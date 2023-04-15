@@ -1091,7 +1091,7 @@ class Card:
         if self.universe == "Demon Slayer" and not self.breathing_message:
             battle_config.turn_zero_has_happened = True
             self.breathing_message = True
-            battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
+            battle_config.add_to_battle_log(f"(**{crown_utilities.crest_dict[self.universe}**) **{self.name}** Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
     def activate_mage_message(self,battle_config):
