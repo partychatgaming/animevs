@@ -3405,7 +3405,7 @@ class Card:
                             self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
                     
                     if not opponent_card.used_resolve:
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💥**{stored_damage}** Substituted. {crown_utilities.crest_dict[opponent_card.universe]}**{opponent_card.naruto_heal_buff}** Hashirama Cells Stored.")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Substituted 💥**{stored_damage}** Damage! {crown_utilities.crest_dict[opponent_card.universe]}**{opponent_card.naruto_heal_buff}** Hashirama Cells Stored.")
                     else:
                         battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** {crown_utilities.crest_dict[opponent_card.universe]}: Substitution Jutsu")
                 elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "GRAVITY"]  and not dmg['SPIRIT_CRIT']:
