@@ -3403,9 +3403,9 @@ class Card:
                             self._arm_message = ""
                             battle_config.add_to_battle_log(f"(💠) **{self.name}** disengaged their barrier to engage with an attack")
                             self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** {crown_utilities.crest_dict[self.universe]}: Substitution Jutsu")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** {crown_utilities.crest_dict[opponent_card.universe]}: Substitution Jutsu")
                     if not opponent_card.used_resolve:
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💥**{stored_damage}** Substituted. {crown_utilities.crest_dict[self.universe]}**{opponent_card.naruto_heal_buff}** Hashirama Cells Stored.")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💥**{stored_damage}** Substituted. {crown_utilities.crest_dict[opponent_card.universe]}**{opponent_card.naruto_heal_buff}** Hashirama Cells Stored.")
                 elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "GRAVITY"]  and not dmg['SPIRIT_CRIT']:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
