@@ -316,31 +316,32 @@ async def classes(ctx):
    Elite : [4 - 5]
    Legendary : [6 - 7]
    
-   {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle. Summons Siphon for (5 * card tier)% Health
+   {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle. Summons Siphon for (5 * card tier)% Health + Summoner Bonus
+   *Common - 25%, Elite - 35%, Legendary - 45%, Mythical - 55%*
    
    {crown_utilities.class_emojis['ASSASSIN']} *Assassin* // Initial Attacks cost 0 Stamina + 50% Crit Chance
-   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks*
+   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks, Mythical - 4 Attacks*
    
    {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with up to 6 Parries
-   *Common - 3 Parry, Elite - 5 Parries, Legendary - 6 Parries*
+   *Common - 2 Parry, Elite - 4 Parries, Legendary - 6 Parries, Mythical - 8 Parries*
    
    {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with up to 3 barriers, can attack through barrier
-   *Common - 2 Barrier, Elite - 3 Barriers, Legendary - 4 Barriers*
+   *Common - 1 Barrier, Elite - 2 Barriers, Legendary - 3 Barriers, Mythical - 4 Barriers*
    
    {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 500 Shield, gain same shield on resolve
-   *Common - 500/1000/1500 Shield, Elite - 2000/2500, Legendary - 3000/3500*
+   *Common - 500/1000/1500 Shield, Elite - 2000/2500, Legendary - 3000/3500, Mythical -  + (200 * Tier)*
    
    {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain up to 3 Critical Strikes
-   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks*
+   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks, Mythical - 4 Attacks*
    
    {crown_utilities.class_emojis['MONSTROSITY']} *Monstrosity* // On Resolve gain up to 3 Double Strikes
-   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks*
+   *Common - 1 Attack, Elite - 2 Attacks, Legendary - 3 Attacks, Mythical - 4 Attacks*
 
    {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by up to 50%
-   *Common - 35%, Elite - 45%, Legendary - 50%*
+   *Common - 35%, Elite - 45%, Legendary - 50%, Mythical - 55%*
    
    {crown_utilities.class_emojis['HEALER']} *Healer* // Stores up to 40% of damage taken and heals for the total amount each Focus 
-   *Common - 25%, Elite - 35%, Legendary - 45%*
+   *Common - 25%, Elite - 35%, Legendary - 45%, Mythical - 55%*
    """), colour=0x7289da)
    embedVar3.set_thumbnail(url=avatar)
    
