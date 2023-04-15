@@ -2505,7 +2505,7 @@ class Card:
                 _opponent_card.health = round(_opponent_card.health + health_boost)
                 _opponent_card.max_health = round(_opponent_card.max_health + health_boost)
 
-                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[opponent_card.universe]}{rank} Rank Hero Reinforcements! **{_opponent_card.name}**  Gained **{health_boost}** Health & Max Health ❤️")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[_opponent_card.universe]}{rank} Rank Hero Reinforcements! **{_opponent_card.name}**  Gained **{health_boost}** Health & Max Health ❤️")
 
             elif _opponent_card.universe == "7ds":
                 _opponent_card.stamina = _opponent_card.stamina + 60
@@ -2535,14 +2535,14 @@ class Card:
                     _opponent_card.health = _opponent_card.max_health
                 _opponent_card.usedsummon = False
                 if _opponent_card.used_resolve:
-                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[opponent_card.universe]} Power Of Friendship! 🧬 {_opponent_card.summon_name} Rested, **{_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[_opponent_card.universe]} Power Of Friendship! 🧬 {_opponent_card.summon_name} Rested, **{_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 else:
-                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[opponent_card.universe]} Increase Power!** {_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[_opponent_card.universe]} Increase Power!** {_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
 
             elif _opponent_card.universe == "Souls" and not _opponent_card.used_resolve:
                 _opponent_card.attack = round(_opponent_card.attack + (100 + battle_config.turn_total))
 
-                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[opponent_card.universe]} Phase 1! Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[_opponent_card.universe]} Phase 1! Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
 
             battle_config.turn_total = battle_config.turn_total + 1
             
