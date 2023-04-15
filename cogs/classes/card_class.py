@@ -3922,7 +3922,7 @@ class Card:
                     self.bloodlust = True
                 if "PETRIFIED_FEAR" in self.tactics:
                     self.petrified_fear = True
-                    self.petrified_fear_turns = random.randint(1, 5)
+                    self.petrified_fear_turns = random.randint(2, 5)
                 if "DAMAGE_CHECK":
                     self.damage_check = True
                     self.damage_check_limit = round(random.randint(1000, 2500))
