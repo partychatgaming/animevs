@@ -2930,9 +2930,9 @@ class Card:
                         battle_config._boss_player_resolve_message = True
     
             if self._monstrosity_active:
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.name}**: gains 2 Double Strikes!")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.class_message}** : **{self.name}** gains **{self.value}** Double Strikes!")
             if self._swordsman_active:
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**: gains 3 Critical Strikes!")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.class_message}** : **{self.name}** gains **{self.value}** Critical Strikes!")
             
 
     def usesummon(self, battle_config, opponent_card):
