@@ -3710,7 +3710,7 @@ class Card:
                     self._barrier_value = 1
             
             battle_config.turn_total = battle_config.turn_total + 3
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} projects {self._barrier_value} Barrier 💠! Time speeds forward +3 turns!*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} projects {self._barrier_value} Barrier 💠! Time Skip +3 turns!*")
             opponent_card.health = opponent_card.health - (dmg['DMG'] * (battle_config.turn_total / 100))
 
         elif dmg['ELEMENT'] == "EARTH":
@@ -3864,7 +3864,7 @@ class Card:
             self.gravity_hit = True
             opponent_card.health = opponent_card.health - dmg['DMG']
             opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .20)
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} has slowed down time -3 turns*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Gravity Well -3 turns*")
         
         else:
             opponent_card.health = opponent_card.health - dmg['DMG']
