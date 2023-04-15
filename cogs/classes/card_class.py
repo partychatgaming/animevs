@@ -1171,7 +1171,7 @@ class Card:
                 opponent_card.temp_opp_arm_parry_active = True
                 opponent_card.temp_opp_parry_value = 0
 
-            battle_config.add_to_battle_log(f"🩸 **ARISE!** *{opponent_card.name}* has gained your lost protections...")
+            battle_config.add_to_battle_log(f"{crown_utilities.crest_dict[self.universe]} **ARISE!** *{opponent_card.name}* has gained your lost protections...")
 
     def decrease_solo_leveling_temp_values_self(self, protection, battle_config):
         if self.universe == "Solo Leveling":
@@ -1193,7 +1193,7 @@ class Card:
                 self.temp_opp_arm_parry_active = True
                 self.temp_opp_parry_value = 0
 
-            battle_config.add_to_battle_log(f"🩸 **ARISE!** *{self.name}* has gained your lost protections...")
+            battle_config.add_to_battle_log(f"{crown_utilities.crest_dict[self.universe]} **ARISE!** *{self.name}* has gained your lost protections...")
 
 
 
@@ -1203,34 +1203,34 @@ class Card:
             if opponent_card.temp_opp_arm_shield_active and not opponent_card._shield_active:
                 if self._shield_active:
                     self._shield_value = self._shield_value + opponent_card._shield_value
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
                 elif not self._shield_active:
                     self._shield_active = True
                     self._shield_value = opponent_card.temp_opp_shield_value
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
             
             elif opponent_card.temp_opp_arm_parry_active and not opponent_card._barrier_active:
                 if self._barrier_active:
                     self._barrier_value = self._barrier_value + opponent_card.temp_opp_barrier_value
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
                 elif not self._barrier_active:
                     self._barrier_active = True
                     self._barrier_value = opponent_card.temp_opp_barrier_value
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
             
             elif opponent_card.temp_opp_arm_parry_active and not opponent_card._parry_value:
                 if self._parry_active:
                     self._parry_value = self._parry_value + opponent_card.temp_opp_parry_value
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
                 elif not self._parry_active:
                     self._parry_active = True
                     self._parry_value = opponent_card.temp_opp_parry_value
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 **ARISE!** *{opponent_card.name}* is now yours")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} **ARISE!** *{opponent_card.name}* is now yours")
                     self.solo_leveling_trait_swapped = True
 
 
@@ -1238,7 +1238,7 @@ class Card:
         if not self.scheduled_death_message:
             if self.universe == "Death Note":
                 self.scheduled_death_message = True
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Scheduled Death 📓 **Turn {130 + (10 * self.tier)}**")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Scheduled Death 📓 **Turn {130 + (10 * self.tier)}**")
 
 
     def set_souls_trait(self):
@@ -2013,7 +2013,7 @@ class Card:
                 if hit_roll < miss_hit:
                     if self.universe == 'Crown Rift Slayers':
                         true_dmg = round(true_dmg * 2.5)
-                        message = f'🩸{move_emoji} Feint Attack! {move} Critically Hits {_opponent_card.name} for {true_dmg}!! 💥 '
+                        message = f'{crown_utilities.crest_dict[self.universe]}{move_emoji} Feint Attack! {move} Critically Hits {_opponent_card.name} for {true_dmg}!! 💥 '
                     elif self.wind_element_activated:
                         true_dmg = round(true_dmg)
                         message = f'🌪️ Wind Attack! {move} hits {_opponent_card.name} for {true_dmg}!'       
@@ -2038,7 +2038,7 @@ class Card:
                         self.stagger_activated = True
                     if self.universe =="Crown Rift Awakening":
                         true_dmg = round(true_dmg * 3)
-                        message = f"🩸 {move_emoji} Blood Awakening! {move} used! Critically Hits {_opponent_card.name} for {true_dmg}!! 💥"
+                        message = f"{crown_utilities.crest_dict[self.universe]} {move_emoji} Blood Awakening! {move} used! Critically Hits {_opponent_card.name} for {true_dmg}!! 💥"
                     elif spirit_crit:
                         true_dmg = round(true_dmg * 2)
                         message = f"{move_emoji} Spirit Unleashed! {move} used! Critically Hits {_opponent_card.name} for {true_dmg}!! 💥\n*{self.name} ignores {_opponent_card.name}'s protections*"
@@ -2280,31 +2280,28 @@ class Card:
             if _title.passive_type:
                 if _title.passive_type == "GAMBLE":
                     health_calculation = _title.passive_value
-                    # title_response = f"*{_title.get_title_icon(self.universe)} Gambler*"
+
                 if _title.passive_type == "BLAST":
                     _opponent_card.health = _opponent_card.health - (_title.passive_value + battle_config.turn_total)
                     title_response = f"*{_title.get_title_icon(self.universe)} Blasted {_opponent_card.name} {(_title.passive_value + battle_config.turn_total)}*"
                 if _title.passive_type == "SOULCHAIN":
                     self.stamina = self.stamina + _title.passive_value
-                    # title_response = f"*{_title.get_title_icon(self.universe)} Soulchain {(_title.display_value)}*"
+
                     
             opponent_title_response = ""
             if _opponent_title.passive_type:
                 if _opponent_title.passive_type == "GAMBLE":
                     health_calculation = _opponent_title.passive_value
-                    # opponent_title_response = f"*{_opponent_title.get_title_icon(_opponent_card.universe)} Gambled*"
+
                 if _opponent_title.passive_type == "SOULCHAIN":
                     self.stamina = self.stamina + _opponent_title.passive_value
-                    # opponent_title_response = f"*{_opponent_title.get_title_icon(_opponent_card.universe)} Soulchain {(_opponent_title.display_value)}*"
             
             passive_response = ""
             opponent_passive_response = ""
             if self.passive_type == "GAMBLE":
                 health_calculation = self.passive_num
-                # passive_response = "*🩸 Gambler*"
             if _opponent_card.passive_type == "GAMBLE":
                 health_calculation = _opponent_card.passive_num
-                # opponent_passive_response = "*🩸 Gambled*"
                 
             title_passive_response = f"{title_response} {passive_response}"
             opponent_title_passive_response = f"{opponent_title_response} {opponent_passive_response}"
@@ -2340,16 +2337,16 @@ class Card:
             if self.card_class == "HEALER":
                 heal_icon = crown_utilities.class_emojis["HEALER"]
             if self.universe == "Crown Rift Madness" and not self.used_resolve:
-                battle_config.add_to_battle_log(f"(🌀) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
+                battle_config.add_to_battle_log(f"(🌀) {crown_utilities.crest_dict[self.universe]} Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
             if self.universe == "Crown Rift Madness" and self.used_resolve:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
-                battle_config.add_to_battle_log(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
+                battle_config.add_to_battle_log(f"(🌀) {crown_utilities.crest_dict[self.universe]} Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
             elif not self.used_resolve:
                 if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                     attack_calculation = attack_calculation + round(attack_calculation / 2)
                     defense_calculation = defense_calculation + round(defense_calculation / 2)
-                    battle_config.add_to_battle_log(f"(🌀) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+{heal_icon}{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
+                    battle_config.add_to_battle_log(f"(🌀) {crown_utilities.crest_dict[self.universe]} Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+{heal_icon}{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
                 elif self.universe != "Crown Rift Madness":
                     battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+{heal_icon}{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
                 self.attack = self.attack + attack_calculation
@@ -2401,9 +2398,9 @@ class Card:
                     self.health = self.health + boost
                     self.damage_healed = self.damage_healed + boost
                     self.max_health = self.max_health + boost
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Transformation: Mega Digivolution!!! Gained {boost} Health and 4x ATK & DEF!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Transformation: Mega Digivolution!!! Gained {boost} Health and 4x ATK & DEF!")
                 else:
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Transformation: Digivolve! Gained 2x ATK & DEF!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Transformation: Digivolve! Gained 2x ATK & DEF!")
             #Self Traits
             if self.universe == "League Of Legends":                
                 if _opponent_card.health <= (_opponent_card.max_health * .90):
@@ -2416,12 +2413,12 @@ class Card:
                     turret_shot = round((_opponent_card.health * .05) + battle_config.turn_total)
                 self.damage_dealt = self.damage_dealt + turret_shot
                 _opponent_card.health = _opponent_card.health - turret_shot
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Turret Shot hits **{_opponent_card.name}** for **{(turret_shot + battle_config.turn_total)}** Damage 💥")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Turret Shot hits **{_opponent_card.name}** for **{(turret_shot + battle_config.turn_total)}** Damage 💥")
 
             elif self.universe == "Dragon Ball Z":
                 self.health = self.health + (_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total
                 self.max_health = self.max_health + (_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Saiyan Spirit... You heal for **{(_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total}** ❤️")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Saiyan Spirit... You heal for **{(_opponent_card.stamina * _opponent_card.tier) + battle_config.turn_total}** ❤️")
 
             elif self.universe == "Solo Leveling":
                 _opponent_card.defense = round(_opponent_card.defense - (50 + battle_config.turn_total))
@@ -2434,18 +2431,18 @@ class Card:
                         summon_msg = ""
                     
                 self.summon_power = self.summon_power + summon_increase
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Ruler's Authority... Opponent loses **{50 + battle_config.turn_total}** 🛡️ 🔻 Summon gained {summon_increase} {self.summon_type.capitalize()} {summon_msg}")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Ruler's Authority... Opponent loses **{50 + battle_config.turn_total}** 🛡️ 🔻 Summon gained {summon_increase} {self.summon_type.capitalize()} {summon_msg}")
 
             elif self.universe == "Black Clover":                
                 self.stamina = 100
                 ap_gain =  50 + battle_config.turn_total
                 self.card_lvl_ap_buff += ap_gain
 
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Mana Zone! **{self.name}** Gained {ap_gain} AP & Stamina 🌀")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Mana Zone! **{self.name}** Gained {ap_gain} AP & Stamina 🌀")
 
             elif self.universe == "Death Note":
                 if battle_config.turn_total >= (130 + (10 * self.tier)):
-                    battle_config.add_to_battle_log(f"(**🌀**) **{_opponent_card.name}** 🩸 had a heart attack and died")
+                    battle_config.add_to_battle_log(f"(**🌀**) **{_opponent_card.name}** {crown_utilities.crest_dict[self.universe]} had a heart attack and died")
                     
                     _opponent_card.health = -1000
             
@@ -2466,7 +2463,7 @@ class Card:
                     rank = ":regional_indicator_a:"
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + ap_boost
                 
-                battle_config.add_to_battle_log(f"(**🌀**)  🩸{rank} Rank Hero : **{self.name}** increased AP by **{ap_boost}** :sunny:!")
+                battle_config.add_to_battle_log(f"(**🌀**)  {crown_utilities.crest_dict[self.universe]}{rank} Rank Hero : **{self.name}** increased AP by **{ap_boost}** :sunny:!")
 
             #Opponent Traits
             if _opponent_card.universe == "One Punch Man":
@@ -2487,7 +2484,7 @@ class Card:
                 _opponent_card.health = round(_opponent_card.health + health_boost)
                 _opponent_card.max_health = round(_opponent_card.max_health + health_boost)
 
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸{rank} Rank Hero Reinforcements! **{_opponent_card.name}**  Gained **{health_boost}** Health & Max Health ❤️")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]}{rank} Rank Hero Reinforcements! **{_opponent_card.name}**  Gained **{health_boost}** Health & Max Health ❤️")
 
             elif _opponent_card.universe == "7ds":
                 _opponent_card.stamina = _opponent_card.stamina + 60
@@ -2517,14 +2514,14 @@ class Card:
                     _opponent_card.health = _opponent_card.max_health
                 _opponent_card.usedsummon = False
                 if _opponent_card.used_resolve:
-                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Power Of Friendship! 🧬 {_opponent_card.summon_name} Rested, **{_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Power Of Friendship! 🧬 {_opponent_card.summon_name} Rested, **{_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 else:
-                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Increase Power!** {_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Increase Power!** {_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
 
             elif _opponent_card.universe == "Souls" and not _opponent_card.used_resolve:
                 _opponent_card.attack = round(_opponent_card.attack + (100 + battle_config.turn_total))
 
-                battle_config.add_to_battle_log(f"(**🌀**) 🩸 Phase 1! Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Phase 1! Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
 
             battle_config.turn_total = battle_config.turn_total + 1
             
@@ -2562,7 +2559,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
                 
-                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Quirk Awakening! Ap has been increased by **{self.my_hero_academia_buff}** 🔺")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Resolved: Quirk Awakening! Ap has been increased by **{self.my_hero_academia_buff}** 🔺")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2599,7 +2596,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
                 
-                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Spirit Resolved! Ap has been increased by **{round(boost)}** 🔺")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Spirit Resolved! Ap has been increased by **{round(boost)}** 🔺")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2629,7 +2626,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
 
-                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Conquerors Haki!")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Resolved: Conquerors Haki!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2660,7 +2657,7 @@ class Card:
                 self.used_resolve = True
                 self.usedsummon = False
 
-                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Total Concentration Breathing!")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Resolved: Total Concentration Breathing!")
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
 
@@ -2714,7 +2711,7 @@ class Card:
                 self.health = self.health + health_boost
                 self.damage_healed = self.damage_healed + resolve_health + health_boost
 
-                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Resolved: Titan Mode! Health increased by **{health_boost}**!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2741,7 +2738,7 @@ class Card:
                 # # self.defense = 120
                 self.used_resolve = True
                 self.usedsummon = False
-                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Bankai!")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Resolved: Bankai!")
 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2768,14 +2765,14 @@ class Card:
                 if self._gow_resolve:
                     self.damage_healed = self.damage_healed + (self.max_health - self.health)
                     self.health = self.max_health
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Ascension!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Resolved: Ascension!")
                 elif not self._gow_resolve:
                     self.health = round(self.health + (self.max_health / 2))
                     self.damage_healed = self.damage_healed + (self.max_health / 2)
                     self.used_resolve = False
                     self._gow_resolve = True
                     
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Crushed Blood Orb: Health Refill")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Crushed Blood Orb: Health Refill")
                                 
                 battle_config.turn_total = battle_config.turn_total + 1
                 battle_config.next_turn()
@@ -2802,7 +2799,7 @@ class Card:
                 damage_calculation_response = self.damage_cal(3, battle_config, opponent_card, )
                 opponent_card.health = opponent_card.health - damage_calculation_response['DMG']
                 self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']
-                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Command Seal! {damage_calculation_response['MESSAGE']}")
+                battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Resolved: Command Seal! {damage_calculation_response['MESSAGE']}")
                 
                 # self.stamina = 0
                 self.used_resolve = True
@@ -2834,13 +2831,16 @@ class Card:
                 if battle_config.turn_total >= 50:
                     self.max_health = self.max_health + (evolution_boost * 2)
                     self.health = self.health + (evolution_boost * 2)
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Gigantomax Evolution!!! Gained 2x Defense and **{evolution_boost * 2}** HP!!!")
+                    if self.tier in ['6,7']:
+                        battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict['Sinnoh Region']} Resolved: Legendary Gigantomax Evolution!!! Gained 2x Defense and **{evolution_boost * 2.5}** HP!!!")
+                    else:
+                        battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict['Hoenn Region']} Resolved: Gigantomax Evolution!!! Gained 2x Defense and **{evolution_boost * 2}** HP!!!")
                 elif battle_config.turn_total >= 30:
                     self.max_health = self.max_health + evolution_boost
                     self.health = self.health + evolution_boost
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Mega Evolution!! Gained 2x Defense and **{evolution_boost}** HP!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict['Johto Region']} Resolved: Mega Evolution!! Gained 2x Defense and **{evolution_boost}** HP!")
                 else:
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Evolution! Gained 2x Defense")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict['Kanto Region']} Resolved: Evolution! Gained 2x Defense")
 
                 self.damage_healed = self.damage_healed + resolve_health + evolution_boost
                 battle_config.turn_total = battle_config.turn_total + 1
@@ -2872,9 +2872,9 @@ class Card:
                 if self.universe == "League Of Legends":
                     opponent_card.health = opponent_card.health - (200 * (self.focus_count + opponent_card.focus_count))
                     self.damage_dealt = self.damage_dealt + (200 * (self.focus_count + opponent_card.focus_count))
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Resolved: Pentakill! Dealing {(200 * (self.focus_count + opponent_card.focus_count))} damage.")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Resolved: Pentakill! Dealing {(200 * (self.focus_count + opponent_card.focus_count))} damage.")
                 elif self.universe == "Souls":
-                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** 🩸 Phase 2: Enhanced Moveset!")
+                    battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Phase 2: Enhanced Moveset!")
                     self.set_souls_trait()
                 else:
                     battle_config.add_to_battle_log(f"(**⚡**) **{self.name}** Resolved!")
@@ -2920,7 +2920,7 @@ class Card:
                 if self.universe == "Persona":
                     dmg = self.damage_cal(1, battle_config, opponent_card)
                     opponent_card.health = opponent_card.health - dmg['DMG']
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Persona!** 🩸 : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{dmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Persona!** {crown_utilities.crest_dict[self.universe]} : **{self.summon_name}** was summoned from **{self.name}'s** soul dealing **{dmg['DMG']}** damage to!\n**{opponent_card.name}** summon disabled!")
                     self.activate_element_check(battle_config, dmg, opponent_card)
                     opponent_card.usedsummon = True
                     self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']               
@@ -3079,7 +3079,7 @@ class Card:
     def activate_death_note_block_ability(self, battle_config):
         if self.universe == "Death Note":
             value = 3
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Shinigami Eyes** 🩸 ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {value + self.tier}")
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Shinigami Eyes** {crown_utilities.crest_dict[self.universe]} ! **{self.name}** Sacrified {round((.10 * self.max_health))}  Max Health to Increase Turn Count by {value + self.tier}")
             self.max_health = round(self.max_health - (.10 * self.max_health))
             if self.health >= self.max_health:
                 self.health = self.max_health
@@ -3088,7 +3088,7 @@ class Card:
 
     def activate_aot_block_ability(self, battle_config):
         if self.universe == "Attack On Titan":
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{self.name}** Gained {(100 * self.tier)} Health & Max Health ❤️")
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Rally** {crown_utilities.crest_dict[self.universe]} ! **{self.name}** Gained {(100 * self.tier)} Health & Max Health ❤️")
             self.max_health = round(self.max_health + (100 * self.tier))
             self.health = self.health + (100 * self.tier)
 
@@ -3097,13 +3097,13 @@ class Card:
         if self.universe == "Black Clover":                
             self.stamina = self.stamina + 70
             self.card_lvl_ap_buff = self.card_lvl_ap_buff + 50
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Charged their stamina, increasing their stamina & ap by 50")
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Charged their stamina, increasing their stamina & ap by 50")
 
 
     def activate_bleach_block_ability(self, battle_config, opponent_card):
         if self.universe == "Bleach":
             dmg = self.damage_cal(1, battle_config, opponent_card)
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** Exerted their 🩸 Spiritual Pressure Executing a Basic Attack!")
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** Exerted their {crown_utilities.crest_dict[self.universe]} Spiritual Pressure Executing a Basic Attack!")
             if self.universe == "One Piece" and (self.name_tier in crown_utilities.LOW_TIER_CARDS or self.name_tier in crown_utilities.MID_TIER_CARDS or self.name_tier in crown_utilities.HIGH_TIER_CARDS):
                 if self.focus_count == 0:
                     dmg['DMG'] = dmg['DMG'] * .6
@@ -3113,13 +3113,13 @@ class Card:
     def activate_my_hero_block_ability(self, battle_config):
         if self.universe == "My Hero Academia" and not self.used_block:
             self.my_hero_academia_buff_counter += 20
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 went Plus Ultra, increasing their dormant ap to {self.my_hero_academia_buff_counter}")
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} went Plus Ultra, increasing their dormant ap to {self.my_hero_academia_buff_counter}")
 
     def activate_yuyu_hakusho_block_ability(self, battle_config):
         if self.universe == "Yu Yu Hakusho" and not self.used_resolve:
             defense_increase = 100 * self.tier
             self.defense = self.defense + defense_increase
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 went into a state of meditation, increasing their defense by {defense_increase}")
+            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} went into a state of meditation, increasing their defense by {defense_increase}")
 
 
     def use_block(self, battle_config, opponent_card, co_op_card=None):
@@ -3327,7 +3327,7 @@ class Card:
                             if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                                 self._barrier_active = False
                                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** destroys **{opponent_card.name}** 💠 Barrier!\n     0 Barriers remain!")
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** {crown_utilities.crest_dict[self.universe]} Transformation: Last Stand!!!")
                             # print(opponent_card.attack)
                             # print(opponent_card.defense)
                             opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
@@ -3382,9 +3382,9 @@ class Card:
                             self._arm_message = ""
                             battle_config.add_to_battle_log(f"(💠) **{self.name}** disengaged their barrier to engage with an attack")
                             self.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸: Substitution Jutsu")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** {crown_utilities.crest_dict[self.universe]}: Substitution Jutsu")
                     if not opponent_card.used_resolve:
-                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. 🩸**{opponent_card.naruto_heal_buff}** total stored.")
+                        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸**{stored_damage}** Hasirama Cells stored. {crown_utilities.crest_dict[self.universe]}**{opponent_card.naruto_heal_buff}** total stored.")
                 elif opponent_card._barrier_active and dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "GRAVITY"]  and not dmg['SPIRIT_CRIT']:
                     if self._barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not self.is_ranger:
                         if not dmg['SUMMON_USED']:
@@ -3557,7 +3557,7 @@ class Card:
                                 if not dmg['SUMMON_USED']:
                                     self._barrier_active = False
                                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Transformation: Last Stand!!!")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]} Transformation: Last Stand!!!")
                             # print(opponent_card.attack)
                             # print(opponent_card.defense)
                             self.health = 1 + round(.75 * (self.attack + self.defense))
@@ -3581,7 +3581,7 @@ class Card:
                                 if not dmg['SUMMON_USED']:
                                     self._barrier_active = False
                                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** **{self.name}** disengaged their barrier to engage with an attack")
-                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** 🩸 Transformation: Last Stand!!!")
+                            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** {crown_utilities.crest_dict[self.universe]} Transformation: Last Stand!!!")
                             # print(opponent_card.attack)
                             # print(opponent_card.defense)
                             opponent_card.health = 1 + round(.75 * (opponent_card.attack + opponent_card.defense))
@@ -4065,7 +4065,7 @@ class Card:
                     self.defense = self.defense * 2
                     self.attack = self.attack * 2
                     self.max_health = self.max_health * 2
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸's Devilization")
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]}'s Devilization")
 
 
                         
