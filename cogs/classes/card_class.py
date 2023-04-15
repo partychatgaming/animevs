@@ -3675,7 +3675,7 @@ class Card:
         if dmg['ELEMENT'] == "WATER":
             water_inc = 100
             if self._magic_active:
-                water_inc = round(water_inc * self.mage_buff)
+                water_inc = water_inc + round(water_inc * self.mage_buff)
             if self.move1_element == "WATER":
                 self.basic_water_buff = self.basic_water_buff + water_inc
             if self.move2_element == "WATER":
