@@ -256,7 +256,7 @@ async def enhancers(ctx):
 
       embedVar6 = discord.Embed(title= f"Control",colour=0x7289da)
       embedVar6.set_thumbnail(url=avatar)
-      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN**\n**Active** - You and Your Opponent's Stamina Equal Flat AP\n**Passive** - On Focus You and Your Opponents Stamina Regen is set to AP\n\n**GAMBLE**\n**Active** - You and Your Opponent's Health Equal Flat AP\n**Passive** - You and Your Opponent Health Regen is set to AP\n\n")
+      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN**\n**Active** - You and Your Opponent's Stamina Equal Flat AP\n**Passive** - On Focus You and Your Opponents Stamina Regen is set to AP\n\n**GAMBLE**\n**Active** - You and Your Opponent's Health Equal Flat AP\n**Passive** - You and Your Opponent Health Regen is set to AP\n*Bosses gain 3x Gamble AP*\n\n")
       embedVar6.set_footer(text=f"/help - Bot Help")
 
       embedVar7 = discord.Embed(title= f"Fortitude",colour=0x7289da)

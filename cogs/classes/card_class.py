@@ -1812,7 +1812,7 @@ class Card:
                 "DEF": lambda ap: round((ap / 100) * defense),
                 "STAM": lambda ap: ap,
                 "HLT": lambda ap: 0 if health == max_health else round(100 + min(ap, max_health - health) + (.15 * health) + (.20 * (max_health - health))),
-                "LIFE": lambda ap: 0 if health >= max_health else round(min(ap, max_health - health) + (.10 * _opponent_card.health) + (.10 * (self.max_health - self.health)) if (ap + self.health) <= max_health else (max_health - health) + (.10 * _opponent_card.health) + (.10 * (self.max_health - self.health))),
+                "LIFE": lambda ap: 0 if health >= max_health else round(min(ap, max_health - health) + (.05 * _opponent_card.health) if (ap + self.health) <= max_health else (max_health - health) + (.10 * _opponent_card.health)),
                 "DRAIN": lambda ap: round(ap),
                 "FLOG": lambda ap: round((ap / 100) * min(_opponent_card.attack, 2000)),
                 "WITHER": lambda ap: round((ap / 100) * min(_opponent_card.defense, 2000)),
@@ -2326,24 +2326,24 @@ class Card:
                     message_number = 0
             
             if self.universe == "Crown Rift Madness" and not self.used_resolve:
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} |* {title_passive_response}\n")
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
             # else:
             #     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌀 **{self.name}** focused and {heal_message}\n*+🌀{self.stamina} |* {title_passive_response}\n")
             if self.universe == "Crown Rift Madness" and self.used_resolve:
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
-                battle_config.add_to_battle_log(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} |* {title_passive_response}\n")
+                battle_config.add_to_battle_log(f"(🌀) 🩸 Beast Blood!\n**{self.name}** Gains ATK and DEF\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
             elif not self.used_resolve:
                 if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                     attack_calculation = attack_calculation + round(attack_calculation / 2)
                     defense_calculation = defense_calculation + round(defense_calculation / 2)
-                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+:heart:{health_calculation} | +🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} |* {title_passive_response}\n")
+                    battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+:heart:{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
                 elif self.universe != "Crown Rift Madness":
-                    battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation} | +🌀{self.stamina} | +:dagger: {attack_calculation} | +:shield:{defense_calculation} |* {title_passive_response}\n")
+                    battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
             elif self.used_resolve and self.universe != "Crown Rift Madness":
-                battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation} | +🌀{self.stamina} |* {title_passive_response}\n")
+                battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation}|+🌀{self.stamina}|* {title_passive_response}\n")
                 
                 
 
