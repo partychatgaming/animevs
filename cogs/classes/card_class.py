@@ -3719,6 +3719,7 @@ class Card:
                 self._barrier_active = False
                 self._barrier_value = 0
                 if self._magic_active:
+                    self._barrier_active = True
                     self._barrier_value = 1
             
             battle_config.turn_total = battle_config.turn_total + 3
