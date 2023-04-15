@@ -2495,13 +2495,13 @@ class Card:
                 health_boost = round((350 - ((self.tier - 1) * 50)))
                 if self.tier == 7:
                     health_boost = 500
-                    rank = f"{crown_utilities.crest_dict['One Punch Man']}"
-                if self.tier in low_tier_cards:
                     rank = ":regional_indicator_s:"
-                if self.tier in mid_tier_cards:
+                if self.tier in low_tier_cards:
                     rank = ":regional_indicator_a:"
-                if self.tier in high_tier_cards:
+                if self.tier in mid_tier_cards:
                     rank = ":regional_indicator_b:"
+                if self.tier in high_tier_cards:
+                    rank = ":regional_indicator_c:"
                 _opponent_card.health = round(_opponent_card.health + health_boost)
                 _opponent_card.max_health = round(_opponent_card.max_health + health_boost)
 
