@@ -80,7 +80,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry
 
-🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks. Burn Damage ignores Shields
+🔥 Fire - Does 40% damage of previous attack over the next opponent turns, stacks. Burn Damage ignores Shields decreased by 50% each burn
 
 ❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn. Lowers opponent speed by 3
 
@@ -102,7 +102,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🌕 Light - Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 30% of DMG.
 
-🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.
+🌑 Dark- Penetrates all Enemy Protections Sapping 10% of their DEF and gaining ATK & decreases opponent ST(Stamina) by 15.
 
 🧪 Poison - Poison (15 * Card Tier) damage stacking up to (200 * Card Tier). Poison Penetrates Shields. Damages each enemy move
 
@@ -112,7 +112,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
 
-⌛ Time - Block and Increase Turn Count by 3,Focus for 1 Turn and project (Turn Count % 3) Barrier. Penetrates Shield and Parry.
+⌛ Time - Increase Turn Count by 3,Focus for 1 Turn and project (Turn Count % 3) Barrier. Penetrates Shield and Parry.
 
 🪐 Gravity - Disables Opponent Block and Decrease Turn Count By 3, Reduce opponent DEF by 20% DMG. Penetrates Barrier and Parry.
 

@@ -3669,27 +3669,30 @@ class Card:
             
 
         if dmg['ELEMENT'] == "WATER":
+            water_inc = 100
+            if self._magic_active:
+                water_inc = round(water_inc * self.mage_buff)
             if self.move1_element == "WATER":
-                self.basic_water_buff = self.basic_water_buff + 100
+                self.basic_water_buff = self.basic_water_buff + water_inc
             if self.move2_element == "WATER":
-                self.special_water_buff = self.special_water_buff + 100
+                self.special_water_buff = self.special_water_buff + water_inc
             if self.move3_element == "WATER":
-                self.ultimate_water_buff = self.ultimate_water_buff + 100
-            self.water_buff = self.water_buff + 100
+                self.ultimate_water_buff = self.ultimate_water_buff + water_inc
+            self.water_buff = self.water_buff + water_inc
             opponent_card.health = opponent_card.health - dmg['DMG']
-            if self.water_buff >= (300 * self.water_mult):
+            if self.water_buff >= ((3 * water_inc) * self.water_mult):
                 
-                opponent_card.health = opponent_card.health - (300 * self.water_mult)
+                opponent_card.health = opponent_card.health - ((3 * water_inc) * self.water_mult)
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*Tsunami Strikes! +{self.water_buff} Dealt!*")
                 self.water_buff = 0
                 if self.move1_element == "WATER":
-                    self.basic_water_buff = self.basic_water_buff - (300 * self.water_mult)
+                    self.basic_water_buff = self.basic_water_buff - ((3 * water_inc) * self.water_mult)
                 if self.move2_element == "WATER":
-                    self.special_water_buff = self.special_water_buff - (300 * self.water_mult)
+                    self.special_water_buff = self.special_water_buff - ((3 * water_inc) * self.water_mult)
                 if self.move3_element == "WATER":
-                    self.ultimate_water_buff = self.ultimate_water_buff - (300 * self.water_mult)
+                    self.ultimate_water_buff = self.ultimate_water_buff - ((3 * water_inc) * self.water_mult)
                 self.water_mult += 1
-            elif self.water_buff >= ((300 * self.water_mult) - 100):
+            elif self.water_buff >= (((3 * water_inc) * self.water_mult) - water_inc):
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*Tsunami Incoming... +{self.water_buff}*")
             else:
                 battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*The Tide Stirs +{self.water_buff}*")
@@ -3703,8 +3706,8 @@ class Card:
             else:
                 self._barrier_active = False
                 self._barrier_value = 0
-            self.used_block = True
-            self.defense = round(self.defense * 4)
+                if self._magic_active:
+                    self._barrier_value = 1
             
             battle_config.turn_total = battle_config.turn_total + 3
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} projects {self._barrier_value} Barrier 💠! Time speeds forward +3 turns!*")
@@ -3738,9 +3741,16 @@ class Card:
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Illuminated! Gain {round((dmg['DMG'] * .30))} ATK*")
 
         elif dmg['ELEMENT'] == "DARK":
-            opponent_card.stamina = opponent_card.stamina - 15
+            stamina_reduction = 15
+            if self.card_class == "MAGE":
+                stamina_reduction = 20
+            if self.card_class == "MAGE" and self.universe == "Fate":
+                stamina_reduction = 25
+            self.attack = round(self.attack + (opponent_card.defense * .10))
+            opponent_card.defense = round(opponent_card.defense - (opponent_card.defense * .10))
+            opponent_card.stamina = opponent_card.stamina - stamina_reduction
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{opponent_card.name} lost 15 Stamina*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} Sapped {round(opponent_card.defense * .10)} Defense and {opponent_card.name} lost {stamina_reduction} Stamina*")
 
         elif dmg['ELEMENT'] == "PHYSICAL":
             self.physical_meter = self.physical_meter + 1
@@ -3802,7 +3812,10 @@ class Card:
                 opponent_card.attack = 25
 
         elif dmg['ELEMENT'] == "FIRE":
-            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
+            burn_percent = .40
+            if self._magic_active:
+                burn_percent = .50
+            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * burn_percent)
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
 
@@ -3813,10 +3826,15 @@ class Card:
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .20))} AP*")
 
         elif dmg['ELEMENT'] == "POISON":
-            if self.poison_dmg <= (200 * self.tier):
-                self.poison_dmg = self.poison_dmg + (15 * self.tier)
-                if self.poison_dmg > (200 * self.tier):
-                   self.poison_dmg = (200 * self.tier)
+            max_poison = 200
+            poison_tick = 15
+            if self._magic_active:
+                max_poison = 300
+                poison_tick = 20
+            if self.poison_dmg <= (max_poison * self.tier):
+                self.poison_dmg = self.poison_dmg + (poison_tick * self.tier)
+                if self.poison_dmg > (max_poison * self.tier):
+                   self.poison_dmg = (max_poison * self.tier)
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}")
 
