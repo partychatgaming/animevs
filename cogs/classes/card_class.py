@@ -2905,6 +2905,8 @@ class Card:
             
             if self.is_tank:
                 self._shield_active = True
+                if self._shield_value <= 0:
+                    self._shield_value = 0
                 self._shield_value = self._shield_value + (self.tier * 500)
                 battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {self.name} gained **{self._shield_value}** Shield!")
 
@@ -3359,6 +3361,8 @@ class Card:
                             # print(opponent_card.health)
                             if not opponent_card.used_resolve:
                                 if opponent_card.is_tank:
+                                    if opponent_card._shield_value <= 0:
+                                        opponent_card._shield_value = 0
                                     opponent_card._shield_value = opponent_card._shield_value + (opponent_card.tier * 500)
                                     battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {opponent_card.name} gained **{opponent_card._shield_value}** Shield!")
                             opponent_card.used_resolve = True
@@ -3593,6 +3597,8 @@ class Card:
                             # print(opponent_card.health)
                             if not self.used_resolve:
                                 if self.is_tank:
+                                    if self._shield_value <= 0:
+                                        self._shield_value = 0
                                     self._shield_value = self._shield_value + (self.tier * 500)
                                     battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {self.name} gained **{self._shield_value}** Shield!")
                             self.used_resolve = True
@@ -3617,6 +3623,8 @@ class Card:
                             # print(opponent_card.health)
                             if not opponent_card.used_resolve:
                                 if opponent_card.is_tank:
+                                    if opponent_card._shield_value <= 0:
+                                        opponent_card._shield_value = 0
                                     opponent_card._shield_value = opponent_card._shield_value + (opponent_card.tier * 500)
                                     battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['TANK']}) {opponent_card.name} gained **{opponent_card._shield_value}** Shield!")
                             opponent_card.used_resolve = True
