@@ -69,6 +69,7 @@ class Card:
             self._monstrosity_active = False
             self._double_strike_count = 0
             self._magic_active = False
+            self.mage_message = False
             self._magic_value = 0
             self._heal_active = True
             self._heal_value = 0
@@ -77,6 +78,10 @@ class Card:
             self._assassin_value = 0
             self._assassin_attack = 0
             self.tactics = []
+            self.value = 0
+            self.p_value = 0
+            self.mage_buff = .35
+            self.heal_buff = .25
             self.max_base_health = self.max_health
             self.temporary_max_health = self.max_health
             self.temporary_health = health
@@ -482,6 +487,10 @@ class Card:
                 p_value = 8
                 mage_buff = .55
                 heal_buff = .55
+        self.value = value
+        self.p_value = p_value
+        self.mage_buff = mage_buff
+        self.heal_buff = heal_buff
                 
 
         if self.card_class == "FIGHTER":
@@ -1082,15 +1091,18 @@ class Card:
         if self.universe == "Demon Slayer" and not self.breathing_message:
             battle_config.turn_zero_has_happened = True
             self.breathing_message = True
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
+            battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
             self.health = round(self.health + (opponent_card.health * .40))
             self.max_health = round(self.max_health + (opponent_card.health *.40))
-            
+    def activate_mage_message(self,battle_config):
+        if self.card_class == "Mage" and not self.mage_message:
+            self.mage_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MAGE']}**) **{self.class_message}** : **{self.name}** Gains {100 * self.mage_buff}% Elemental Damage!")
     def activate_observation_haki_trait(self, battle_config, opponent_card):
         if self.universe == "One Piece" and not self.haki_message:
             battle_config.turn_zero_has_happened = True
             self.haki_message = True
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** 🩸 Observation Haki: **40% Damage Reduction Until First Focus!**")
+            battle_config.add_to_battle_log(f"(**🩸**) **{self.name}** 🩸 Observation Haki: **40% Damage Reduction Until First Focus!**")
 
     
 
@@ -2324,7 +2336,9 @@ class Card:
                     heal_message = f"**{_opponent_card.name}**'s blows don't appear to have any effect!"
                     self.health = self.max_health
                     message_number = 0
-            
+            heal_icon = ":heart:"
+            if self.card_class == "HEALER":
+                heal_icon = crown_utilities.class_emojis["HEALER"]
             if self.universe == "Crown Rift Madness" and not self.used_resolve:
                 battle_config.add_to_battle_log(f"(🌀) 🩸 Madness!\n**{self.name}**'s {heal_message}\n*+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
             if self.universe == "Crown Rift Madness" and self.used_resolve:
@@ -2335,13 +2349,13 @@ class Card:
                 if self.universe == "One Piece" and (self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                     attack_calculation = attack_calculation + round(attack_calculation / 2)
                     defense_calculation = defense_calculation + round(defense_calculation / 2)
-                    battle_config.add_to_battle_log(f"(🌀) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+:heart:{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
+                    battle_config.add_to_battle_log(f"(🌀) 🩸 Armament Haki !\n**{self.name}** Gains 2x ATK and DEF and {heal_message}\n*+{heal_icon}{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
                 elif self.universe != "Crown Rift Madness":
-                    battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
+                    battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+{heal_icon}{health_calculation}|+🌀{self.stamina}|+:dagger:{attack_calculation}|+:shield:{defense_calculation}|* {title_passive_response}\n")
                 self.attack = self.attack + attack_calculation
                 self.defense = self.defense + defense_calculation
             elif self.used_resolve and self.universe != "Crown Rift Madness":
-                battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+:heart:{health_calculation}|+🌀{self.stamina}|* {title_passive_response}\n")
+                battle_config.add_to_battle_log(f"*(🌀) {self.name} {heal_message}\n+{heal_icon}{health_calculation}|+🌀{self.stamina}|* {title_passive_response}\n")
                 
                 
 
@@ -3259,13 +3273,13 @@ class Card:
                 elif self.move4enh == 'GAMBLE':
                     if battle_config.is_dungeon_game_mode:
                         opponent_card.health = round(dmg['DMG']) * 2
-                        self.max_health = round(dmg['DMG'])
+                        self.health = round(dmg['DMG'])
                     elif battle_config.is_boss_game_mode:
                         opponent_card.health = round(dmg['DMG']) * 3
-                        self.max_health = round(dmg['DMG'])
+                        self.health = round(dmg['DMG'])
                     else:
                         opponent_card.health = round(dmg['DMG'])
-                        self.max_health = round(dmg['DMG'])
+                        self.health = round(dmg['DMG'])
                 elif self.move4enh == 'FEAR':
                     if self.universe != "Chainsawman":
                         self.max_health = round(self.max_health - (self.max_health * .10))
