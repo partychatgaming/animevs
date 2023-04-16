@@ -1670,6 +1670,10 @@ class Battle:
             close_message = "Arena Battle"
             picon = "⛩️"
             f_message = f"💀 | Unsuccessful Arena Battle."
+        if self.is_raid_scenario: 
+                close_message = "Raid Battle"
+                picon = "<:Raid_Emblem:1088707240917221399>"
+                f_message = f"💀 | Raid Battle Failed!"
             
             
 
