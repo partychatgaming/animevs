@@ -643,10 +643,11 @@ async def animevs(ctx):
    👤 **Solo**/solo
    **Tales:** Single player adventures where you traverse through your favorite universes as characters from various worlds!
    **Scenarios:** Iconic Lore Based Adventures that drop Specific Loot based on Difficulty
+   **Raids:** Time Based Events, Late Game Scenarios that drop Specific Loot (Must be on Hard Diffulty During Corruption Hour) 
    **Dungeon:** Hard version of tales with better loot and better drop rates! (Unlocks after completing **Anime VS+ Tale**)
    **Boss:** End Game battles featuring Iconic Villians from Anime VS+ Universes.(Unlocks after completing **Anime VS+ Dungeon**)
    
-   👥 **Duo**/duo *Beta*
+   👥 **Duo**/duo 
    **Tales Deck(1-5):** Battle with your favorite AI preset in this Duo Tale!
    **Dungeon Deck(1-5):** Bring your strongest builds through the Darkest Duo Dungeons.
  
@@ -659,10 +660,10 @@ async def animevs(ctx):
    embedVar8 = discord.Embed(title= f"Multiplayer", description=textwrap.dedent(f"""\
    **Multiplayer**
    
-   :people_hugging: **Co-Op**/coop *Beta*
-   **Tales @partner:** Take a companion with your through your favorite tales with higher stakes!
-   **Dungeon @partner:** Bring a companion through the darkest dungeons to earn awesome loot together.
-   **Boss @partner:** Epic battles between two high level companions and one Incredible Boss.
+   :people_hugging: **Co-Op**/coop
+   **Tales @companion:** Take a companion with your through your favorite tales with higher stakes!
+   **Dungeon @companion:** Bring a companion through the darkest dungeons to earn awesome loot together.
+   **Boss @companion:** Epic battles between two high level companions and one Incredible Boss.
    
    **Coop Mechanics**
    Coop Adds two new mechanics to gameplayer
@@ -672,10 +673,10 @@ async def animevs(ctx):
    🤼 **PVP**
    **/pvp @player:** Select your Build and Challenge any Anime VS+ Player to a quick match!
    
+   
    🔮 **Anime VS+ Rifts**
    Anime VS+ Rifts are Co-Op Compatable and Helping other players in Co-Op **WILL NOT** close your open Rift!
    Grind Those Rifts Together!
-   
    """),colour=0x7289da)
    embedVar8.set_thumbnail(url=avatar)
 
@@ -702,7 +703,7 @@ async def animevs(ctx):
    **Resell**
    Sell Cards, Titles, and Arms back to the market for :coin:**Coins**.
    
-   **Crafting**b
+   **Crafting**
    **/menu** to **Start Crafting!** Craft **Card Skins**, **Summons**, and **Destinies**!
 
    **Dismantle**
@@ -752,6 +753,7 @@ async def animevs(ctx):
    - Level Buff: Each fight will grant you a level up
    - Stat Buff: Add 50 ATK & DEF, 30 AP, and 100 HLT
    - Rift Buff: Rifts will always be available
+   - Rematch Buff: Grant 100 Rematches to your Guild
 
    Guild Position Explanations
    - Owner: All operations
@@ -825,27 +827,27 @@ async def animevs(ctx):
    """) ,colour=0x7289da)
    embedVar13.set_thumbnail(url=avatar)
    
-   embedVar14 = discord.Embed(title= f"Raids",description=textwrap.dedent(f"""\
-   **Raids Explained**
-   - Players aligned with a Association can use /raid to claim bounties from other guilds
+   embedVar14 = discord.Embed(title= f"Arenas",description=textwrap.dedent(f"""\
+   **Arenas Explained**
+   - Players aligned with a Association can battle in Arenas to claim bounties from other Associations
    - Victory claims the bounty and resets the Associations victory multiplier !
-   - Income from Raids is limited to the bounty offered from the Association.
+   - Income from Arenas is limited to the bounty offered from the Association.
    - To take money from a **Association Bank** players must compete in PvP
    
-   Raiding an Association is no easy feat and must be done **Without Summons**
+   Arenas must be done **Without Summons**
    
-   **Raid Benefits**
+   **Arena Benefits**
    - Earn Large Bounties from guilds.
    - Earn Wins for your Anime VS+ **Guild**
    
    **Shield  Defense Explained**
-   - The **Shield** has a big repsonsible to defend the **Association** from raids, earning income from **Challengers**.
+   - The **Shield** has a big repsonsible to defend the **Association** from areans, earning income from **Challengers**.
    - The **Shield** exist within the Association hall as the **Current Equipped Build** of the **Shield Player**.
-   - As the **Shield**, whenever your Avatar succesfully defends a raid you earn :coin:
+   - As the **Shield**, whenever your Avatar succesfully defends a arena you earn :coin:
    - With each victory you will build a streak earning both respect and more :coin: via **Multipliers**.
    
    **Shield Benefits**
-   - Earn income by defending your Association from raiders
+   - Earn income by defending your Association from players
    - Guild has a 30% reduction in buff cost
    - Earn respect by increasing the Association victory streak 
    
