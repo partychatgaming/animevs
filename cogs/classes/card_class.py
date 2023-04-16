@@ -74,6 +74,10 @@ class Card:
             self.tank_message = False
             self.ranger_message = False
             self.summoner_message = False
+            self.assassin_message = False
+            self.healer_message = False
+            self.swordsman_message = False
+            self.monstrosity_message = False
             self._magic_value = 0
             self._heal_active = True
             self._heal_value = 0
@@ -1107,18 +1111,31 @@ class Card:
         if self.card_class == "MAGE" and not self.mage_message:
             self.mage_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MAGE']}**) **{self.class_message}** : **{self.name}** Gains {round(100 * self.mage_buff)}% Elemental Damage!")
+        if self.card_class == "HEALER" and not self.healer_message: 
+            self.healer_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['HEALER']}**) **{self.class_message}** : **{self.name}** Focus Healing Increased by {self.heal_buff}% Damage recieved!")
         if self.card_class == "FIGHTER" and not self.fighter_message:
             self.fighter_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['FIGHTER']}**) **{self.class_message}** : **{self.name}** Gains {self.p_value} Parries!")
         if self.card_class == "RANGER" and not self.ranger_message:
             self.ranger_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['RANGER']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Barriers!")
+        if self.card_class == "ASSASSIN" and not self.assassin_message:
+            self.assassin_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['ASSASSIN']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Assassin Strikes!")
         if self.card_class == "TANK" and not self.tank_message:
             self.tank_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['TANK']}**) **{self.class_message}** : **{self.name}** Gains {round(self.tier * self.shield_buff)} Shield!")
         if self.card_class == "SUMMONER" and not self.summoner_message:
             self.summoner_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SUMMONER']}**) **{self.class_message}** : **{self.name}** Summons {self.summon_name}!")
+        if self.card_class == "SWORDSMAN" and not self.swordsman_message:
+            self.swordsman_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Critical Strikes!")
+        if self.card_class == "MONSTROSITY" and not self.monstrosity_message:
+            self.monstrosity_message = True
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Double Strikes!")
+            
     def activate_observation_haki_trait(self, battle_config, opponent_card):
         if self.universe == "One Piece" and not self.haki_message:
             battle_config.turn_zero_has_happened = True
