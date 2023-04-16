@@ -221,9 +221,9 @@ class CrownUnlimited(commands.Cog):
                         await button_ctx.defer(ignore=True)
                         battle.explore_type = "glory"
                         battle.is_tactic_explore = True
-                        battle._boss_tactics = ['STAGGER']
+                        battle._boss_tactics = ['BLOODLUST', 'INTIMIDATION']
                         if battle.is_hard_difficulty:
-                            battle._boss_tactics = ['DAMAGE_CHECK', 'STAGGER']
+                            battle._boss_tactics = ['DAMAGE_CHECK', 'BLOODLUST', 'INTIMIDATION']
                         await battle_commands(self, button_ctx, battle, p, selected_card, player2=None, player3=None)
                         await msg.edit(components=[])
     
@@ -232,7 +232,7 @@ class CrownUnlimited(commands.Cog):
                         battle.explore_type = "gold"
                         if battle.is_hard_difficulty:
                             battle.is_tactic_explore = True
-                            battle._boss_tactics = ['STAGGER']
+                            battle._boss_tactics = ['BLOODLUST', 'INTIMIDATION']
                         await battle_commands(self, button_ctx, battle, p, selected_card, player2=None, player3=None)
                         await msg.edit(components=[])
                     if button_ctx.custom_id == "ignore":
