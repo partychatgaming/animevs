@@ -852,7 +852,7 @@ destiny = [
     {
         "NAME": "Proven Hero",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Lord Boros",
         "USE_CARDS": ["Saitama"],
         "EARN": "One Punch Man",
@@ -902,7 +902,7 @@ destiny = [
     {
         "NAME": "Failed Invasion",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 100,
         "DEFEAT": "Lord Boros",
         "USE_CARDS": ["One Punch Man"],
         "EARN": "Lord Boros",
@@ -932,7 +932,7 @@ destiny = [
     {
         "NAME": "Erotic Asphyxiation",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Mosquito Girl",
         "USE_CARDS": ["Genos"],
         "EARN": "Saitama",
@@ -982,7 +982,7 @@ destiny = [
     {
         "NAME": "The Old Gods And The New",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 10,
         "DEFEAT": "Ares",
         "USE_CARDS": ["God Of War"],
         "EARN": "Ares",
@@ -1002,7 +1002,7 @@ destiny = [
     {
         "NAME": "Keys To Hades",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 10,
         "DEFEAT": "Hades",
         "USE_CARDS": ["God Of War"],
         "EARN": "Hades",
@@ -1012,7 +1012,7 @@ destiny = [
     {
         "NAME": "Another Pantheon To Conquer",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 25,
         "DEFEAT": "Baldur",
         "USE_CARDS": ["Kratos And Atreus"],
         "EARN": "Baldur",
@@ -1022,7 +1022,7 @@ destiny = [
     {
         "NAME": "Fear No Gorgon Boy",
         "WINS": 0,
-        "REQUIRED": 30,
+        "REQUIRED": 25,
         "DEFEAT": "Medusa",
         "USE_CARDS": ["Atreus"],
         "EARN": "Medusa",
@@ -1532,7 +1532,7 @@ destiny = [
     {
         "NAME": "Only A Matter Of Time",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 50,
         "DEFEAT": "Dialga",
         "USE_CARDS": ["Team Galactic"],
         "EARN": "Dialga",
@@ -1542,7 +1542,7 @@ destiny = [
     {
         "NAME": "We Need A Little Space",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 50,
         "DEFEAT": "Palkia",
         "USE_CARDS": ["Team Galactic"],
         "EARN": "Palkia",
@@ -1552,7 +1552,7 @@ destiny = [
     {
         "NAME": "Anti-Matter Apocalypse",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 100,
         "DEFEAT": "Giratina",
         "USE_CARDS": ["Ash Ketchum"],
         "EARN": "Giratina",
@@ -1562,7 +1562,7 @@ destiny = [
     {
         "NAME": "Fallen Angel Strikes",
         "WINS": 0,
-        "REQUIRED": 30,
+        "REQUIRED": 100,
         "DEFEAT": "Arceus",
         "USE_CARDS": ["Giratina"],
         "EARN": "Arceus",
@@ -1802,7 +1802,7 @@ destiny = [
     {
         "NAME": "Sinners Protege",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 100,
         "DEFEAT": "All For One",
         "USE_CARDS": ["Shigiraki"],
         "EARN": "All For One",
@@ -1812,7 +1812,7 @@ destiny = [
     {
         "NAME": "Grandon of the Seventh",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 25,
         "DEFEAT": "Shigiraki",
         "USE_CARDS": ["Nana Shimura"],
         "EARN": "Shigiraki",
@@ -1862,7 +1862,7 @@ destiny = [
     {
         "NAME": "The Reanimated Rivalry",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 25,
         "DEFEAT": "Madara",
         "USE_CARDS": ["The 1st"],
         "EARN": "Madara",
@@ -1902,7 +1902,7 @@ destiny = [
     {
         "NAME": "Ichigo Kurosaki, Substitute Soul Reaper",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Ichigo Kurosaki",
         "USE_CARDS": ["Mugetsu"],
         "EARN": "Ichigo Kurosaki",
@@ -1962,7 +1962,7 @@ destiny = [
     {
         "NAME": "For Nezukuo",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 100,
         "DEFEAT": "Muzan Kibutsuji",
         "USE_CARDS": ["Tanjiro Kamado"],
         "EARN": "Muzan Kibutsuji",
@@ -1982,7 +1982,7 @@ destiny = [
     {
         "NAME": "Train Wreck",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Azaka",
         "USE_CARDS": ["Kyojuro Rengoku"],
         "EARN": "Azaka",
@@ -2003,7 +2003,7 @@ destiny = [
     {
         "NAME": "Hunting Season",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Cleric Beast",
         "USE_CARDS": ["Hunter"],
         "EARN": "Cleric Beast",
@@ -2012,7 +2012,7 @@ destiny = [
     },{
         "NAME": "Daddy Issues",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Father Gascoigne",
         "USE_CARDS": ["Mad Hunter"],
         "EARN": "Father Gascoigne",
@@ -2093,7 +2093,7 @@ destiny = [
     },{
         "NAME": "Host Of The Nightmare",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Micolash",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Micolash",
@@ -3283,7 +3283,7 @@ destiny = [
     {
         "NAME": "Reveng Of The Elves",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Zagred",
         "USE_CARDS": ["Licht"],
         "EARN": "Zagred",
