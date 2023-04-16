@@ -1131,10 +1131,10 @@ class Card:
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SUMMONER']}**) **{self.class_message}** : **{self.name}** Summons {self.summon_name}!")
         if self.card_class == "SWORDSMAN" and not self.swordsman_message:
             self.swordsman_message = True
-            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Critical Strikes!")
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.class_message}** : On Resolve, **{self.name}** Gains {self.value} Critical Strikes!")
         if self.card_class == "MONSTROSITY" and not self.monstrosity_message:
             self.monstrosity_message = True
-            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Double Strikes!")
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.class_message}** : On Resolve, **{self.name}** Gains {self.value} Double Strikes!")
             
     def activate_observation_haki_trait(self, battle_config, opponent_card):
         if self.universe == "One Piece" and not self.haki_message:
@@ -3906,9 +3906,9 @@ class Card:
             self.health = round(self.health + siphon_damage)
             if self.health >= self.max_health:
                 self.health = self.max_health
-                battle_config.add_to_battle_log(f"**(💉)** **{self.name}**: Siphoned **Full Health!**")
+                battle_config.add_to_battle_log(f"(💉) **{self.name}**: Siphoned **Full Health!**")
             else:
-                battle_config.add_to_battle_log(f"**(💉)** **{self.name}**: Siphoned **{round(siphon_damage)}** Health!")
+                battle_config.add_to_battle_log(f"(💉) **{self.name}**: Siphoned **{round(siphon_damage)}** Health!")
         elif self.is_summoner and dmg['SUMMON_USED']:
             siphon_damage = (dmg['DMG'] * (.05 * self.tier)) + 100
             self.damage_healed = self.damage_healed + round(siphon_damage * self.heal_buff)
