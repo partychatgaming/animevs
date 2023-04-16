@@ -31,6 +31,7 @@ class Battle:
         self.is_duo_mode = False
         self.is_ai_opponent = False
         self.is_raid_scenario = False
+        self.is_tactic_explore = False
 
         self.is_auto_battle_game_mode = False
         self.can_auto_battle = False
