@@ -4117,7 +4117,8 @@ class Card:
                     self.defense = self.defense * 2
                     self.attack = self.attack * 2
                     self.max_health = self.max_health * 2
-                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{self.name}** {crown_utilities.crest_dict[self.universe]}'s Devilization")
+                    self.health = self.health * 2
+                    battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {crown_utilities.crest_dict[self.universe]} **{self.name}**'s Devilization\n*+:heart:{round(self.health / 2)}|+:dagger:{round(self.attack / 2)}|+:shield:{round(self.defense / 2)}|*")
 
 
                         

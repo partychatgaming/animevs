@@ -21,7 +21,7 @@ traits = [{
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Devilization, Fearful',
-    'TRAIT': 'Devilization : When HP reaches 50% gain Double ATK, Double DEF, and Double Max HP. Fearful : Strong Fear Infliction.'
+    'TRAIT': 'Devilization : When HP reaches 50% gain Double ATK, Double DEF, and Double HP and Max HP. Fearful : Strong Fear Infliction.'
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, Spiritual Pressure',
