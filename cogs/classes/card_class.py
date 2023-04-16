@@ -2189,7 +2189,7 @@ class Card:
             if self._critical_strike_count < self._swordsman_value:
                 self._critical_strike_count += 1
                 hit_roll = 20
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**:  Critical Strike!\n*{self._swordsman_value - self._critical_strike_count} Left!*")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.class_message}** : **{self.name}**:  Critical Strike!\n*{self._swordsman_value - self._critical_strike_count} Left!*")
 
         if self.bloodlust_activated:
             hit_roll = hit_roll + 3
@@ -2495,17 +2495,17 @@ class Card:
                 health_boost = round((350 - ((self.tier - 1) * 50)))
                 if self.tier == 7:
                     health_boost = 500
-                    rank = f"{crown_utilities.crest_dict['One Punch Man']}"
-                if self.tier in low_tier_cards:
                     rank = ":regional_indicator_s:"
-                if self.tier in mid_tier_cards:
+                if self.tier in low_tier_cards:
                     rank = ":regional_indicator_a:"
-                if self.tier in high_tier_cards:
+                if self.tier in mid_tier_cards:
                     rank = ":regional_indicator_b:"
+                if self.tier in high_tier_cards:
+                    rank = ":regional_indicator_c:"
                 _opponent_card.health = round(_opponent_card.health + health_boost)
                 _opponent_card.max_health = round(_opponent_card.max_health + health_boost)
 
-                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]}{rank} Rank Hero Reinforcements! **{_opponent_card.name}**  Gained **{health_boost}** Health & Max Health ❤️")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[_opponent_card.universe]}{rank} Rank Hero Reinforcements! **{_opponent_card.name}**  Gained **{health_boost}** Health & Max Health ❤️")
 
             elif _opponent_card.universe == "7ds":
                 _opponent_card.stamina = _opponent_card.stamina + 60
@@ -2535,14 +2535,14 @@ class Card:
                     _opponent_card.health = _opponent_card.max_health
                 _opponent_card.usedsummon = False
                 if _opponent_card.used_resolve:
-                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Power Of Friendship! 🧬 {_opponent_card.summon_name} Rested, **{_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[_opponent_card.universe]} Power Of Friendship! 🧬 {_opponent_card.summon_name} Rested, **{_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
                 else:
-                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Increase Power!** {_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
+                    battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[_opponent_card.universe]} Increase Power!** {_opponent_card.name}** Gained **60** Stamina and Focused!\n*+:heart:{health_calculation} | +:dagger: {attack_calculation} | +:shield:{defense_calculation}*")
 
             elif _opponent_card.universe == "Souls" and not _opponent_card.used_resolve:
                 _opponent_card.attack = round(_opponent_card.attack + (100 + battle_config.turn_total))
 
-                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[self.universe]} Phase 1! Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
+                battle_config.add_to_battle_log(f"(**🌀**) {crown_utilities.crest_dict[_opponent_card.universe]} Phase 1! Combo Recognition! **{_opponent_card.name}** Increased Attack by **{100 + battle_config.turn_total}** 🔺")
 
             battle_config.turn_total = battle_config.turn_total + 1
             
@@ -2930,9 +2930,9 @@ class Card:
                         battle_config._boss_player_resolve_message = True
     
             if self._monstrosity_active:
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.name}**: gains 2 Double Strikes!")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{self.class_message}** : **{self.name}** gains **{self.value}** Double Strikes!")
             if self._swordsman_active:
-                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.name}**: gains 3 Critical Strikes!")
+                battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['SWORDSMAN']}**) **{self.class_message}** : **{self.name}** gains **{self.value}** Critical Strikes!")
             
 
     def usesummon(self, battle_config, opponent_card):
