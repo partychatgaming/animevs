@@ -3982,7 +3982,7 @@ class Card:
 
  
     def get_boss_tactics(self, battle_config):
-        if self._is_boss or battle_config.is_raid_scenario:
+        if self._is_boss or battle_config.is_raid_scenario or battle_config.is_tactic_explore:
             self.tactics = battle_config._boss_tactics
             if self.tactics:
                 if "ENRAGED" in self.tactics:
