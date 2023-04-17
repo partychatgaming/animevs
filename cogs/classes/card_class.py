@@ -2964,7 +2964,8 @@ class Card:
                     self.activate_element_check(battle_config, dmg, opponent_card)
                     opponent_card.usedsummon = True
                     self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']               
-                battle_config.repeat_turn()
+                if not damage_calculation_response['ELEMENT'] == "ICE" and not self.freeze_enh:
+                    battle_config.repeat_turn()
                 return damage_calculation_response
             else:
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🧬 **{self.summon_name}** needs a turn to rest...")
