@@ -4813,8 +4813,9 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     player_card.activate_chainsawman_trait(battle_config)
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
-        if new_turn != battle_config.is_turn:
-            battle_config.is_turn = new_turn['TURN']
+        print(new_turn)
+        #if new_turn != battle_config.is_turn:
+        battle_config.is_turn = new_turn['TURN']
         battle_config.add_to_battle_log(new_turn['MESSAGE'])
         opponent_card.freeze_enh = False
         # return new_turn
