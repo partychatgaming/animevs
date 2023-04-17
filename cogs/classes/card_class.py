@@ -2964,7 +2964,7 @@ class Card:
                     self.activate_element_check(battle_config, dmg, opponent_card)
                     opponent_card.usedsummon = True
                     self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']               
-                if not damage_calculation_response['ELEMENT'] == "ICE" and not self.freeze_enh:
+                if not damage_calculation_response['ELEMENT'] == "ICE" and not self.freeze_enh and not damage_calculation_response['SUMMON_USED']:
                     battle_config.repeat_turn()
                 return damage_calculation_response
             else:
