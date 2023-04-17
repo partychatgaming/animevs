@@ -1113,7 +1113,7 @@ class Card:
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MAGE']}**) **{self.class_message}** : **{self.name}** Gains {round(100 * self.mage_buff)}% Elemental Damage!")
         if self.card_class == "HEALER" and not self.healer_message: 
             self.healer_message = True
-            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['HEALER']}**) **{self.class_message}** : **{self.name}** Focus Healing Increased by {self.heal_buff}% Damage recieved!")
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['HEALER']}**) **{self.class_message}** : **{self.name}** Focus Healing Increased by {round(100 * self.heal_buff)}% Damage recieved!")
         if self.card_class == "FIGHTER" and not self.fighter_message:
             self.fighter_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['FIGHTER']}**) **{self.class_message}** : **{self.name}** Gains {self.p_value} Parries!")
@@ -2964,8 +2964,8 @@ class Card:
                     self.activate_element_check(battle_config, dmg, opponent_card)
                     opponent_card.usedsummon = True
                     self.damage_dealt = self.damage_dealt + damage_calculation_response['DMG']               
-                if not damage_calculation_response['ELEMENT'] == "ICE" and not self.freeze_enh and not damage_calculation_response['SUMMON_USED']:
-                    battle_config.repeat_turn()
+                # if not damage_calculation_response['ELEMENT'] == "ICE" and not self.freeze_enh and not damage_calculation_response['SUMMON_USED']:
+                battle_config.repeat_turn()
                 return damage_calculation_response
             else:
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🧬 **{self.summon_name}** needs a turn to rest...")
