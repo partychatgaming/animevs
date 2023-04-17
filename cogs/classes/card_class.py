@@ -1093,6 +1093,7 @@ class Card:
     def frozen(self, battle_config, opponent_card):
         if opponent_card.freeze_enh:
             battle_config.turn_total = battle_config.turn_total + 1
+            
             battle_config.next_turn()
 
 
@@ -3874,6 +3875,8 @@ class Card:
             if self.ice_counter == 2:
                 self.freeze_enh = True
                 self.ice_counter = 0
+                if dmg['SUMMON_USED']:
+                    battle_config.next_turn()
             opponent_card.speed = opponent_card.speed - 3
             if opponent_card.speed <= 1:
                 opponent_card.speed = 1
