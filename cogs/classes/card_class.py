@@ -78,6 +78,7 @@ class Card:
             self.healer_message = False
             self.swordsman_message = False
             self.monstrosity_message = False
+            self.threat_message = False
             self._magic_value = 0
             self._heal_active = True
             self._heal_value = 0
