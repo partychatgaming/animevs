@@ -4831,6 +4831,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.activate_demon_slayer_trait(battle_config, player_card)
     player_card.activate_observation_haki_trait(battle_config, opponent_card)
     opponent_card.activate_observation_haki_trait(battle_config, player_card)
+    player_card.activate_threat_level(battle_config, opponent_card)
+    opponent_card.activate_threat_level(battle_config, player_card)
     player_card.set_solo_leveling_config(opponent_card._shield_active, opponent_card._shield_value, opponent_card._barrier_active, opponent_card._barrier_value, opponent_card._parry_active, opponent_card._parry_value)
     opponent_card.set_solo_leveling_config(player_card._shield_active, player_card._shield_value, player_card._barrier_active, player_card._barrier_value, player_card._parry_active, player_card._parry_value)
 
