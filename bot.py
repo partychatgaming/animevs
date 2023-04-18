@@ -350,7 +350,7 @@ async def classes(ctx):
 async def tactics(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
    embedVar3 = discord.Embed(title= f"🆚 Tactics", description=textwrap.dedent(f"""\
-   Tactics are special abilities that occur during Boss Fights and Raids
+   Tactics are special abilities that occur during Special Battles
    Bosses may have more than 1 Tactic
    These happen outside of the traditional turn structure and are considered Legendary Actions
    
