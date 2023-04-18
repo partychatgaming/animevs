@@ -2749,6 +2749,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                 if battle_config.is_boss_game_mode:
                                     await private_channel.send(embed=battle_config._boss_embed_message)
+                                    battle_config._boss_embed_message = False
                                     await asyncio.sleep(2)
                                 
                             else:
