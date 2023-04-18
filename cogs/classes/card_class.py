@@ -1166,7 +1166,7 @@ class Card:
              if opponent_card.tier in olow_tier_cards:
                  orank = "🐅Tiger"
                  rank = ":regional_indicator_c:"
-             battle_config.add_to_battle_log(f"(**{crown_utilities.crest_dict[self.universe]}**)**{opponent_card.name}** {orank} Level Threat🚨!\n*Sending {rank} rank Hero Reinforcements!*")
+             battle_config.add_to_battle_log(f"(**{crown_utilities.crest_dict[self.universe]}**)**{opponent_card.name}**\n🚨{orank} Level Threat🚨!\n*Sending {rank} rank Hero Reinforcements!*")
 
     def set_poison_hit(self, opponent_card):
         if opponent_card.poison_dmg:
