@@ -155,6 +155,7 @@ class Card:
             self.yuyu_3ap_buff = 0
             self.my_hero_academia_buff_counter = 0
             self.my_hero_academia_buff = 0
+            self.threat_message = False
 
             # Elemental Effect Meters
             self.burn_dmg = 0
