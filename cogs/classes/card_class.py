@@ -1143,7 +1143,29 @@ class Card:
             self.haki_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.crest_dict[self.universe]}**) **{self.name}** Observation Haki: **40% Damage Reduction Until First Focus!**")
 
-    
+    def activate_threat_level(self, battle_config, opponent_card):
+         if self.universe == "One Punch Man" and not self.threat_message:
+             self.threat_message = True
+             olow_tier_cards = [4]
+             omid_tier_cards = [5]
+             ohigh_tier_cards = [6]
+
+             orank = "🐺Wolf"
+             rank = ":regional_indicator_d:"
+             health_boost = self.tier * 100
+             if opponent_card.tier == 7:
+                 orank = "🌞God"
+                 rank = ":regional_indicator_s:"
+             if opponent_card.tier in ohigh_tier_cards:
+                 orank = "🐉Dragon"
+                 rank = ":regional_indicator_a:"
+             if opponent_card.tier in omid_tier_cards:
+                 orank = "👹Demon"
+                 rank = ":regional_indicator_b:"
+             if opponent_card.tier in olow_tier_cards:
+                 orank = "🐅Tiger"
+                 rank = ":regional_indicator_c:"
+             battle_config.add_to_battle_log(f"(**{crown_utilities.crest_dict[self.universe]}**)**{opponent_card.name}** {orank} Level Threat🚨!\n*Sending {rank} rank Hero Reinforcements!*")
 
     def set_poison_hit(self, opponent_card):
         if opponent_card.poison_dmg:
@@ -2486,13 +2508,13 @@ class Card:
                     _opponent_card.health = -1000
             
             elif self.universe == "One Punch Man":
-                low_tier_cards = [1,2]
-                mid_tier_cards = [3,4]
-                high_tier_cards = [5,6]
-                rank = "F"
-                ap_boost = 15 * self.tier
+                low_tier_cards = [4]
+                mid_tier_cards = [5]
+                high_tier_cards = [6]
+                rank = ":regional_indicator_f:"
+                ap_boost = 20 * self.tier
                 if self.tier == 7:
-                    ap_boost = 110
+                    ap_boost = 150
                     rank = ":regional_indicator_s:"
                 if self.tier in low_tier_cards:
                     rank = ":regional_indicator_c:"
@@ -2500,25 +2522,29 @@ class Card:
                     rank = ":regional_indicator_b:"
                 if self.tier in high_tier_cards:
                     rank = ":regional_indicator_a:"
+                if self.tier == 3:
+                    rank = ":regional_indicator_d:"
+                if self.tier == 2:
+                    rank = ":regional_indicator_e:"
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + ap_boost
                 
                 battle_config.add_to_battle_log(f"(**🌀**)  {crown_utilities.crest_dict[self.universe]}{rank} Rank Hero : **{self.name}** increased AP by **{ap_boost}** :sunny:!")
 
             #Opponent Traits
             if _opponent_card.universe == "One Punch Man":
-                low_tier_cards = [1,2]
-                mid_tier_cards = [3,4]
-                high_tier_cards = [5,6]
-                rank = "F"
-                health_boost = round((350 - ((self.tier - 1) * 50)))
+                low_tier_cards = [4]
+                mid_tier_cards = [5]
+                high_tier_cards = [6]
+                rank = ":regional_indicator_d:"
+                health_boost = 100 * self.tier
                 if self.tier == 7:
-                    health_boost = 500
+                    health_boost = 700
                     rank = ":regional_indicator_s:"
-                if self.tier in low_tier_cards:
+                if self.tier in high_tier_cards:
                     rank = ":regional_indicator_a:"
                 if self.tier in mid_tier_cards:
                     rank = ":regional_indicator_b:"
-                if self.tier in high_tier_cards:
+                if self.tier in low_tier_cards:
                     rank = ":regional_indicator_c:"
                 _opponent_card.health = round(_opponent_card.health + health_boost)
                 _opponent_card.max_health = round(_opponent_card.max_health + health_boost)
