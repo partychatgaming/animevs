@@ -1142,7 +1142,30 @@ class Card:
             battle_config.turn_zero_has_happened = True
             self.haki_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.crest_dict[self.universe]}**) **{self.name}** Observation Haki: **40% Damage Reduction Until First Focus!**")
+            
+    def activate_threat_level(self, battle_config, opponent_card):
+        if self.universe == "One Punch Man" and not self.threat_message:
+            self.threat_message = True
+            olow_tier_cards = [4]
+            omid_tier_cards = [5]
+            ohigh_tier_cards = [6]
 
+            orank = "🐺Wolf"
+            rank = ":regional_indicator_d:"
+            health_boost = self.tier * 100
+            if opponent_card.tier == 7:
+                orank = "🌞God"
+                rank = ":regional_indicator_s:"
+            if opponent_card.tier in ohigh_tier_cards:
+                orank = "🐉Dragon"
+                rank = ":regional_indicator_a:"
+            if opponent_card.tier in omid_tier_cards:
+                orank = "👹Demon"
+                rank = ":regional_indicator_b:"
+            if opponent_card.tier in olow_tier_cards:
+                orank = "🐅Tiger"
+                rank = ":regional_indicator_c:"
+            battle_config.add_to_battle_log(f"(**{crown_utilities.crest_dict[self.universe]}**) **{opponent_card.name}** {rank} Level Threat 🚨!\n*Sending {rank} rank Hero Reinforcements!*")
     
 
     def set_poison_hit(self, opponent_card):
@@ -2506,10 +2529,10 @@ class Card:
 
             #Opponent Traits
             if _opponent_card.universe == "One Punch Man":
-                low_tier_cards = [1,2]
+                low_tier_cards = [2]
                 mid_tier_cards = [3,4]
                 high_tier_cards = [5,6]
-                rank = "F"
+                rank = ":regional_indicator_d:"
                 health_boost = self.tier * 100
                 if self.tier == 7:
                     rank = ":regional_indicator_s:"
