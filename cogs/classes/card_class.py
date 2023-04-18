@@ -2510,13 +2510,13 @@ class Card:
                     _opponent_card.health = -1000
             
             elif self.universe == "One Punch Man":
-                low_tier_cards = [1,2]
-                mid_tier_cards = [3,4]
-                high_tier_cards = [5,6]
-                rank = "F"
-                ap_boost = 15 * self.tier
+                low_tier_cards = [4]
+                mid_tier_cards = [5]
+                high_tier_cards = [6]
+                rank = ":regional_indicator_f:"
+                ap_boost = 20 * self.tier
                 if self.tier == 7:
-                    ap_boost = 110
+                    ap_boost = 150
                     rank = ":regional_indicator_s:"
                 if self.tier in low_tier_cards:
                     rank = ":regional_indicator_c:"
@@ -2524,15 +2524,19 @@ class Card:
                     rank = ":regional_indicator_b:"
                 if self.tier in high_tier_cards:
                     rank = ":regional_indicator_a:"
+                if self.tier == 3:
+                    rank = ":regional_indicator_d:"
+                if self.tier == 2:
+                    rank = ":regional_indicator_e:"
                 self.card_lvl_ap_buff = self.card_lvl_ap_buff + ap_boost
                 
                 battle_config.add_to_battle_log(f"(**🌀**)  {crown_utilities.crest_dict[self.universe]}{rank} Rank Hero : **{self.name}** increased AP by **{ap_boost}** :sunny:!")
 
             #Opponent Traits
             if _opponent_card.universe == "One Punch Man":
-                low_tier_cards = [2]
-                mid_tier_cards = [3,4]
-                high_tier_cards = [5,6]
+                low_tier_cards = [4]
+                mid_tier_cards = [5]
+                high_tier_cards = [6]
                 rank = ":regional_indicator_d:"
                 health_boost = self.tier * 100
                 if self.tier == 7:
