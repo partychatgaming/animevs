@@ -112,7 +112,7 @@ class Card:
             self.regeneration = False
             self.bloodlust = False
 
-
+            # Bosses
             self.almighty_will_turn = []
             self.damage_check_counter = 0
             self.damage_check_limit = 0
@@ -228,6 +228,7 @@ class Card:
             self.enhance_turn_iterators = 0
             self.stamina_required_to_focus = 10
             self.stamina_focus_recovery_amount = 90
+            self._combo_counter = 0
             self._tutorial_message = ""
             self.resolve_value = 60
             self.summon_resolve_message = ""

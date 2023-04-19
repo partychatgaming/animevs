@@ -1269,10 +1269,10 @@ class Battle:
         if self.is_hard_difficulty:
             print("hard")
             if aiMove == self._previous_ai_move:
-                self._combo_counter = self._combo_counter + 1
-                if self._combo_counter >= 2:
-                    print("Combo Counter: " + str(self._combo_counter))
-                    self._combo_counter = 0
+                your_card._combo_counter = your_card._combo_counter + 1
+                if your_card._combo_counter >= 3:
+                    print("Combo Counter: " + str(your_card._combo_counter))
+                    your_card._combo_counter = 0
                     #Try to select a different move
                     if self._previous_ai_move == 0:
                         if your_card.stamina >= 80:
