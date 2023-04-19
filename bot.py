@@ -505,7 +505,7 @@ async def animevs(ctx):
    """), colour=0x7289da)
    embedVar11.set_thumbnail(url=avatar)
    
-   embedVar17 = discord.Embed(title= f"Damage, Elements & Talismans!", description=textwrap.dedent(f"""                                                                           
+   embedVar17 = discord.Embed(title= f"Damage!", description=textwrap.dedent(f"""                                                                           
    🗯️**Engagement** Each of you Attack Moves deals damage based on the **Engagement**.
    
    💢: **Desperate Engagement**: Your opponent has overwhelming defense... Deal %33-%50 of AP
@@ -531,6 +531,7 @@ async def animevs(ctx):
    :bangbang: **Connects** - Your ability strikes. No Reduction
    :anger_right: **Hits** - Land a significant Strike. 20% Increase
    :boom: **Critical Hit** - You land a lethal blow. 250% Increase
+   
    """), colour=0x7289da)
    embedVar17.set_thumbnail(url=avatar)
 
