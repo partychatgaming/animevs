@@ -1261,13 +1261,17 @@ class Battle:
             aiMove = 1
         else:
             aiMove = 0
+        print("aiMove: " + str(aiMove))
         self._previous_ai_move = aiMove
         #Hard Mode Ai
+        print("diff " + str(self.is_hard_difficulty))
+        print("prev" + str(self._previous_ai_move))
         if self.is_hard_difficulty:
-            self._combo_counter = 0
+            print("hard")
             if aiMove == self._previous_ai_move:
                 self._combo_counter = self._combo_counter + 1
-                if self._combo_counter == 2:
+                if self._combo_counter >= 2:
+                    print("Combo Counter: " + str(self._combo_counter))
                     self._combo_counter = 0
                     #Try to select a different move
                     if self._previous_ai_move == 0:
@@ -1315,7 +1319,7 @@ class Battle:
                             elif your_card.stamina>=80:
                                 aiMove = 3
                             elif your_card.stamina>=50:
-                                aiMove = 2
+                                aiMove = 1
                             elif your_card.stamina>=30:
                                 aiMove = 1
                             else:

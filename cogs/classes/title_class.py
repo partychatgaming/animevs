@@ -261,9 +261,9 @@ class Title:
             if self.passive_type:
                 if self.passive_type == "HLT":
                     if player1_card.max_health > player1_card.health + ((self.passive_value / 100) * player1_card.health):
-                        player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player1_card.health))
+                        player1_card.health = round(player1_card.health + ((self.passive_value / 100) * (player1_card.max_health - player1_card.health)))
                     else:
-                        player1_card.health = round(player1_card.health + (player2_card.max_health - player2_card.health))
+                        player1_card.health = round(player1_card.health + (player2_card.max_health - (player1_card.max_health - player2_card.health)))
                     if player1_card.health >= player1_card.max_health:
                         player1_card.health = player1_card.max_health
                 if self.passive_type == "LIFE":

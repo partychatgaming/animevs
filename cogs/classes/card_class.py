@@ -1885,7 +1885,7 @@ class Card:
                 "ATK": lambda ap: round((ap / 100) * attack),
                 "DEF": lambda ap: round((ap / 100) * defense),
                 "STAM": lambda ap: ap,
-                "HLT": lambda ap: 0 if health == max_health else round(100 + min(ap, max_health - health) + (.15 * health) + (.20 * (max_health - health))),
+                "HLT": lambda ap: 0 if health == max_health else round(100 + min(ap, max_health - health) + (.7 * health) + (.5 * (max_health - health))),
                 "LIFE": lambda ap: 0 if health >= max_health else round(min(ap, max_health - health) + (.05 * _opponent_card.health) if (ap + self.health) <= max_health else (max_health - health) + (.10 * _opponent_card.health)),
                 "DRAIN": lambda ap: round(ap),
                 "FLOG": lambda ap: round((ap / 100) * min(_opponent_card.attack, 2000)),
