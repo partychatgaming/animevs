@@ -2747,7 +2747,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                     battle_config.tutorial_focus = True
                                     await asyncio.sleep(2)
 
-                                if battle_config.is_boss_game_mode:
+                                if battle_config.is_boss_game_mode and not battle_config._boss_player_focus_message:
                                     await private_channel.send(embed=battle_config._boss_embed_message)
                                     battle_config._boss_embed_message = False
                                     await asyncio.sleep(2)
@@ -2785,7 +2785,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     battle_config.next_turn()
                                     if selected_move == 5:
                                         player1_card.resolving(battle_config, player2_card, player1)
-                                        if battle_config.is_boss_game_mode:
+                                        if battle_config.is_boss_game_mode and not battle_config._boss_player_resolve_message:
                                             await button_ctx.send(embed=battle_config._boss_embed_message)
 
                                     elif selected_move == 6:
@@ -3000,7 +3000,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                                     await asyncio.sleep(2)
 
                                                 player1_card.resolving(battle_config, player2_card, player1)
-                                                if battle_config.is_boss_game_mode:
+                                                if battle_config.is_boss_game_mode and not battle_config._boss_player_resolve_message:
                                                     await button_ctx.send(embed=battle_config._boss_embed_message)
                                             else:
                                                 emessage = m.CANNOT_USE_RESOLVE
@@ -3371,7 +3371,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                         if selected_move == 5:
                                             player2_card.resolving(battle_config, player1_card, player2)
-                                            if battle_config.is_boss_game_mode:
+                                            if battle_config.is_boss_game_mode and not battle_config._boss_resolve_message:
                                                 await private_channel.send(embed=battle_config._boss_embed_message)
 
                                         elif selected_move == 6:
@@ -3439,7 +3439,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     elif int(selected_move) == 5:
                                         player2_card.resolving(battle_config, player1_card)
-                                        if battle_config.is_boss_game_mode:
+                                        if battle_config.is_boss_game_mode and not battle_config._boss_resolve_message:
                                             await private_channel.send(embed=battle_config._boss_embed_message)
 
                                     elif int(selected_move) == 6:
@@ -3818,7 +3818,8 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
                                 if player2_card.stamina < 10:
                                     player2_card.focusing(player2_title, player3_title, player3_card, battle_config)
 
-                                    if battle_config.is_boss_game_mode:
+                                    if battle_config.is_boss_game_mode and not battle_config._boss_focus_message:
+                                        battle_config._boss_focus_message = True
                                         embedVar = discord.Embed(title=f"**{player2_card.name}** Enters Focus State",
                                                                 description=f"{battle_config._powerup_boss_description}", colour=0xe91e63)
                                         embedVar.add_field(name=f"A great aura starts to envelop **{player2_card.name}** ",
@@ -3858,7 +3859,7 @@ async def battle_commands(self, ctx, battle_config, _player, _custom_explore_car
 
                                     elif int(selected_move) == 5:
                                         player2_card.resolving(battle_config, player3_card, player2)
-                                        if battle_config.is_boss_game_mode:
+                                        if battle_config.is_boss_game_mode and not battle_config._boss_resolve_message:
                                             await button_ctx.send(embed=battle_config._boss_embed_message)
 
                                     elif int(selected_move) == 6:
