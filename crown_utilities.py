@@ -1592,6 +1592,8 @@ def inc_talisman(did, element):
             filter_query = [{'type.' + "TYPE": element.upper()}]
             r = db.updateVault(query, update_query, filter_query)
             response = f"{emoji} {element.title()} Talisman now has {current_durability - 1} durability."
+            if (current_durability - 1) <= 1:
+                response = response + f" {emoji} {element.title()} Talisman destroyed!"
             return response
     except Exception as ex:
         trace = []
@@ -1649,6 +1651,13 @@ def dismantle_talisman(element, did):
                 'trace': trace
         }))
 
+
+def has_talisman(vault, element):
+    talismans = vault["TALISMANS"]
+    for talisman in talismans:
+        if talisman["TYPE"].upper() == element.upper():
+            return True
+    return False
 
 def essence_cost(vault, element, did):
     try:
@@ -2156,7 +2165,8 @@ class_emojis = {
 
 utility_emojis = {
     'OFF': '<:toggle_off:1085611427143897088>',
-    'ON': '<:toggle_on:1085611434207105115>'
+    'ON': '<:toggle_on:1085611434207105115>',
+    'ESSENCE': '<:essence:1098085861637238925>'
 }
 
 Healer_Enhancer_Check = ['HLT', 'LIFE']

@@ -5002,7 +5002,8 @@ def update_arm_durability(self, player, player_arm, player_card):
                         return False
                     else:
                         return f"⚒️ {new_durability} | **{player_arm.name}** will lose all durability soon! Use **/blacksmith** to repair!"
-                        
+            else:
+                return False     
     except Exception as ex:
         trace = []
         tb = ex.__traceback__

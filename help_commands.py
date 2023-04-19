@@ -70,7 +70,7 @@ LEGEND = textwrap.dedent(f"""\
 **Currency**
 💰 - **Coins** *Buy items in the shop and blacksmith*
 💎 - **Gems** *Craft universe hearts, souls, cards, and destiny lines!*
-🪔 - **Essence** *Craft Elemental Talismans*
+🪔 - **Essence** *Attune Elemental Talismans*
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)

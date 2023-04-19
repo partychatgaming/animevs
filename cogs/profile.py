@@ -434,225 +434,121 @@ class Profile(commands.Cog):
                 'trace': trace
             }))
 
-    @cog_ext.cog_slash(description="Infuse Elemental Essence into Talisman's for aid",
-                    options=[
-                        create_option(
-                            name="selection",
-                            description="select an option to continue",
-                            option_type=3,
-                            required=True,
-                            choices=[
-                                create_choice(
-                                    name="👊 Physical",
-                                    value="PHYSICAL",
-                                ),
-                                create_choice(
-                                    name="🔥 Fire",
-                                    value="FIRE",
-                                ),
-                                create_choice(
-                                    name="❄️ Ice",
-                                    value="ICE",
-                                ),
-                                create_choice(
-                                    name="💧 Water",
-                                    value="WATER",
-                                ),
-                                create_choice(
-                                    name="⛰️ Earth",
-                                    value="EARTH",
-                                ),
-                                create_choice(
-                                    name="⚡️ Electric",
-                                    value="ELECTRIC",
-                                ),
-                                create_choice(
-                                    name="🌪️ Wind",
-                                    value="WIND",
-                                ),
-                                create_choice(
-                                    name="🔮 Psychic",
-                                    value="PSYCHIC",
-                                ),
-                                create_choice(
-                                    name="☠️ Death",
-                                    value="DEATH",
-                                ),
-                                create_choice(
-                                    name="❤️‍🔥 Life",
-                                    value="LIFE"
-                                ),
-                                create_choice(
-                                    name="🌕 Light",
-                                    value="LIGHT",
-                                ),
-                                create_choice(
-                                    name="🌑 Dark",
-                                    value="DARK",
-                                ),
-                                create_choice(
-                                    name="🧪 Poison",
-                                    value="POISON",
-                                ),
-                                create_choice(
-                                    name="🏹 Ranged",
-                                    value="RANGED",
-                                ),
-                                create_choice(
-                                    name="🧿 Spirit",
-                                    value="SPIRIT",
-                                ),
-                                create_choice(
-                                    name="♻️ Recoil",
-                                    value="RECOIL",
-                                ),
-                                create_choice(
-                                    name="⌛ Time",
-                                    value="TIME",
-                                ),
-                                create_choice(
-                                    name="🅱️ Bleed",
-                                    value="BLEED",
-                                ),
-                                create_choice(
-                                    name="🪐 Gravity",
-                                    value="GRAVITY",
-                                ),
-                            ]
-                        )
-                    ]
-        ,guild_ids=main.guild_ids)
+    @cog_ext.cog_slash(description="Infuse Elemental Essence into Talisman's",
+                options=[
+                    create_option(
+                        name="selection",
+                        description="select an option to continue",
+                        option_type=3,
+                        required=True,
+                        choices=[
+                            create_choice(
+                                name="👊 Physical",
+                                value="PHYSICAL",
+                            ),
+                            create_choice(
+                                name="🔥 Fire",
+                                value="FIRE",
+                            ),
+                            create_choice(
+                                name="❄️ Ice",
+                                value="ICE",
+                            ),
+                            create_choice(
+                                name="💧 Water",
+                                value="WATER",
+                            ),
+                            create_choice(
+                                name="⛰️ Earth",
+                                value="EARTH",
+                            ),
+                            create_choice(
+                                name="⚡️ Electric",
+                                value="ELECTRIC",
+                            ),
+                            create_choice(
+                                name="🌪️ Wind",
+                                value="WIND",
+                            ),
+                            create_choice(
+                                name="🔮 Psychic",
+                                value="PSYCHIC",
+                            ),
+                            create_choice(
+                                name="☠️ Death",
+                                value="DEATH",
+                            ),
+                            create_choice(
+                                name="❤️‍🔥 Life",
+                                value="LIFE"
+                            ),
+                            create_choice(
+                                name="🌕 Light",
+                                value="LIGHT",
+                            ),
+                            create_choice(
+                                name="🌑 Dark",
+                                value="DARK",
+                            ),
+                            create_choice(
+                                name="🧪 Poison",
+                                value="POISON",
+                            ),
+                            create_choice(
+                                name="🏹 Ranged",
+                                value="RANGED",
+                            ),
+                            create_choice(
+                                name="🧿 Spirit",
+                                value="SPIRIT",
+                            ),
+                            create_choice(
+                                name="♻️ Recoil",
+                                value="RECOIL",
+                            ),
+                            create_choice(
+                                name="⌛ Time",
+                                value="TIME",
+                            ),
+                            create_choice(
+                                name="🅱️ Bleed",
+                                value="BLEED",
+                            ),
+                            create_choice(
+                                name="🪐 Gravity",
+                                value="GRAVITY",
+                            ),
+                        ]
+                    )
+                ]
+    ,guild_ids=main.guild_ids)
     async def attune(self, ctx, selection):
         try:
             a_registered_player = await crown_utilities.player_check(ctx)
             if not a_registered_player:
                 return
-            query = {'DID': str(ctx.author.id)}
+
+            query = {"DID": str(ctx.author.id)}
             d = db.queryUser(query)
-            vault = db.queryVault({'DID': d['DID']})
+            vault = db.queryVault({"DID": d["DID"]})
             talismans = vault["TALISMANS"]
             essence_list = vault["ESSENCE"]
-            if crown_utilities.is_maxed_out(talismans):
-                await ctx.send("Your Talisman's are maxed out.")
+
+            # Check if the user has the talisman of the selected type
+            talisman_exists = any(
+                talisman["TYPE"].upper() == selection.upper() for talisman in talismans
+            )
+
+            if talisman_exists:
+                # Equip the talisman
+                response = db.updateUserNoFilter(query, {"$set": {"TALISMAN": selection.upper()}})
+                await ctx.send(f"**{selection.capitalize()} Talisman** equipped.")
             else:
-                response = crown_utilities.essence_cost(vault, selection, ctx.author.id)
-                await ctx.send(response)
-        except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                    trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-            print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-            }))
-
-
-    @cog_ext.cog_slash(description="View your talismen that are in storage", guild_ids=main.guild_ids)
-    async def talismans(self, ctx):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
-
-        try:
-            user = db.queryUser({"DID": str(ctx.author.id)})
-            vault = db.queryVault({'DID': str(ctx.author.id)})
-            talismans = vault["TALISMANS"]
-           
-            if crown_utilities.does_exist(talismans):
-                embed_list = []
-                equipped_talisman = user["TALISMAN"]
-
-                for t in talismans:
-                    current_durability = t['DUR']
-                    m = ""
-                    emoji = crown_utilities.set_emoji(t["TYPE"])
-                    durability = t["DUR"]
-                    name = t["TYPE"].title()
-                    if equipped_talisman.upper() == name.upper():
-                        m = "**Equipped**"
-                    embedVar = discord.Embed(title= f"{name}", description=textwrap.dedent(f"""\
-                    🔅 Element: {emoji} **{name.title()}**
-                    ⚒️ {durability}
-                    *{name} damage will ignore enemy Affinities.*
-                    {m}
-                    """), colour=0x7289da)
-                    # embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
-                    # embedVar.set_thumbnail(url=show_img)
-                    # embedVar.set_footer(text=f"/enhancers - 🩸 Enhancer Menu")
-                    embed_list.append(embedVar)
-
-
-                buttons = [
-                    manage_components.create_button(style=3, label="Equip", custom_id="Equip"),
-                    manage_components.create_button(style=3, label="Unequip", custom_id="Unequip"),
-                    # manage_components.create_button(style=3, label="Repair", custom_id="Repair"),
-                    manage_components.create_button(style=1, label="Dismantle", custom_id="Dismantle"),
-                ]
-                custom_action_row = manage_components.create_actionrow(*buttons)
-
-
-                async def custom_function(self, button_ctx):
-                    if button_ctx.author == ctx.author:
-                        updated_vault = db.queryVault({'DID': str(ctx.author.id)})
-                        selected_talisman = str(button_ctx.origin_message.embeds[0].title)
-                       
-                        if button_ctx.custom_id == "Equip":
-                            user_query = {'DID': str(ctx.author.id)}
-                            response = db.updateUserNoFilter(user_query, {'$set': {'TALISMAN': selected_talisman.upper()}})
-                            await button_ctx.send(f"**{selected_talisman} Talisman** equipped.")
-                            self.stop = True
-                        if button_ctx.custom_id == "Dismantle":
-                            if selected_talisman.upper() == equipped_talisman.upper():
-                                await button_ctx.send(f"You cannot dismantle an equipped Talisman.")
-                            else:
-                                response = crown_utilities.dismantle_talisman(selected_talisman.upper(), ctx.author.id)
-                                await button_ctx.send(response)
-                        if button_ctx.custom_id == "Unequip":
-                            if selected_talisman.upper() == equipped_talisman.upper():
-                                query = {'DID': str(ctx.author.id)}
-                                user_update_query = {'$set': {'TALISMAN': 'NULL'}}
-                                db.updateUserNoFilter(query, user_update_query)
-                                await button_ctx.send(f"Your Talisman has been unequipped.")
-                            else:
-                                await button_ctx.send(f"You cannot unequip a Talisman that isn't equipped.")
-                        # if button_ctx.custom_id == "Repair":
-                        #     curseAmount = int(500)
-                        #     element = name
-                        #     negCurseAmount = 0 - abs(int(curseAmount))
-                        #     query = {'DID': str(user['DID'])}
-                        #     update_query = {'$inc': {'ESSENCE.$[type].' + "ESSENCE": negCurseAmount}}
-                        #     filter_query = [{'type.' + "ELEMENT": element}]
-                        #     response = db.updateVault(query, update_query, filter_query)
-                        #     levels_gained = int(30 - current_durability)
-                        #     new_durability = current_durability + levels_gained
-                        #     full_repair = False
-                        #     if new_durability > 30:
-                        #         levels_gained = 30 - current_durability
-                        #         full_repair=True
-                        #     query = {'DID': str(ctx.author.id)}
-                        #     update_query = {'$inc': {'TALISMANS.$[type].' + 'DUR': levels_gained}}
-                        #     filter_query = [{'type.' + "TYPE": str(t['TYPE'])}]
-                        #     resp = db.updateVault(query, update_query, filter_query)
-                            
-                        #     await button_ctx.send(f"{name}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
-
-                    else:
-                        await ctx.send("This is not your card list.")
-
-                await Paginator(bot=self.bot, disableAfterTimeout=True, useQuitButton=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
-                    custom_action_row,
-                    custom_function,
-                ]).run()
-            else:
-                await ctx.send("You currently have no Talismans. Attune Talismans using /attune")
-                return
+                if crown_utilities.is_maxed_out(talismans):
+                    await ctx.send("Your Talisman's are maxed out.")
+                else:
+                    response = crown_utilities.essence_cost(vault, selection, ctx.author.id)
+                    await ctx.send(response)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -2149,6 +2045,67 @@ class Profile(commands.Cog):
         else:
             await ctx.send("You currently own no 💎.")
 
+    # @cog_ext.cog_slash(description="View all of your collected essence", guild_ids=main.guild_ids)
+    # async def essence(self, ctx: SlashContext):
+    #     a_registered_player = await crown_utilities.player_check(ctx)
+    #     if not a_registered_player:
+    #         return
+
+    #     vault = db.queryVault({'DID': str(ctx.author.id)})
+    #     current_essence = vault['ESSENCE']
+    #     if current_essence:
+    #         # number_of_gems_universes = len(current_essence)
+
+    #         essence_details = []
+    #         for ed in current_essence:
+    #             element = ed["ELEMENT"]
+    #             essence = ed["ESSENCE"]
+    #             element_emoji = crown_utilities.set_emoji(element)
+    #             essence_details.append(
+    #                 f"{element_emoji} **{element.title()} Essence: ** {'{:,}'.format(essence)}\n")
+
+    #         # Adding to array until divisible by 10
+    #         while len(essence_details) % 10 != 0:
+    #             essence_details.append("")
+    #         # Check if divisible by 10, then start to split evenly
+
+    #         if len(essence_details) % 10 == 0:
+    #             first_digit = int(str(len(essence_details))[:1])
+    #             if len(essence_details) >= 89:
+    #                 if first_digit == 1:
+    #                     first_digit = 10
+    #             essence_broken_up = np.array_split(essence_details, first_digit)
+
+    #         # If it's not an array greater than 10, show paginationless embed
+    #         if len(essence_details) < 10:
+    #             embedVar = discord.Embed(title=f"🪔 Essence", description="\n".join(essence_details),
+    #                                     colour=0x7289da)
+    #             await ctx.send(embed=embedVar)
+
+    #         embed_list = []
+    #         for i in range(0, len(essence_broken_up)):
+    #             globals()['embedVar%s' % i] = discord.Embed(title=f"🪔 Essence",
+    #                                                         description="\n".join(essence_broken_up[i]), colour=0x7289da)
+    #             embed_list.append(globals()['embedVar%s' % i])
+
+    #         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+    #         paginator.add_reaction('⏮️', "first")
+    #         paginator.add_reaction('⬅️', "back")
+    #         paginator.add_reaction('🔐', "lock")
+    #         paginator.add_reaction('➡️', "next")
+    #         paginator.add_reaction('⏭️', "last")
+    #         embeds = embed_list
+    #         await paginator.run(embeds)
+    #     else:
+    #         await ctx.send("You currently own no 💎.")
+
+    def has_talisman(vault, element):
+        talismans = vault["TALISMANS"]
+        for talisman in talismans:
+            if talisman["TYPE"].upper() == element.upper():
+                return True
+        return False
+
     @cog_ext.cog_slash(description="View all of your collected essence", guild_ids=main.guild_ids)
     async def essence(self, ctx: SlashContext):
         a_registered_player = await crown_utilities.player_check(ctx)
@@ -2158,20 +2115,17 @@ class Profile(commands.Cog):
         vault = db.queryVault({'DID': str(ctx.author.id)})
         current_essence = vault['ESSENCE']
         if current_essence:
-            # number_of_gems_universes = len(current_essence)
-
             essence_details = []
             for ed in current_essence:
                 element = ed["ELEMENT"]
                 essence = ed["ESSENCE"]
                 element_emoji = crown_utilities.set_emoji(element)
+                talisman_emoji = f"{element_emoji}" if crown_utilities.has_talisman(vault, element) else f":prayer_beads:"
                 essence_details.append(
-                    f"{element_emoji} **{element.title()} Essence: ** {'{:,}'.format(essence)}\n")
+                    f"{talisman_emoji} **{element.title()} Essence: ** {'{:,}'.format(essence)}\n")
 
-            # Adding to array until divisible by 10
             while len(essence_details) % 10 != 0:
                 essence_details.append("")
-            # Check if divisible by 10, then start to split evenly
 
             if len(essence_details) % 10 == 0:
                 first_digit = int(str(len(essence_details))[:1])
@@ -2180,16 +2134,17 @@ class Profile(commands.Cog):
                         first_digit = 10
                 essence_broken_up = np.array_split(essence_details, first_digit)
 
-            # If it's not an array greater than 10, show paginationless embed
             if len(essence_details) < 10:
                 embedVar = discord.Embed(title=f"🪔 Essence", description="\n".join(essence_details),
                                         colour=0x7289da)
+                embedVar.set_footer(text="📿  | No Talisman Attuned")
                 await ctx.send(embed=embedVar)
 
             embed_list = []
             for i in range(0, len(essence_broken_up)):
                 globals()['embedVar%s' % i] = discord.Embed(title=f"🪔 Essence",
                                                             description="\n".join(essence_broken_up[i]), colour=0x7289da)
+                globals()['embedVar%s' % i].set_footer(text="📿  | No Talisman Attuned")
                 embed_list.append(globals()['embedVar%s' % i])
 
             paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
