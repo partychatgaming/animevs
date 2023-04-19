@@ -579,12 +579,7 @@ async def animevs(ctx):
    ⚕️ **Recovery**
    When Players have used all of their **Stamina** they enter **Focus State**.
 
-   The Match is over when a players **Health** reaches 0.
-   """) ,colour=0x7289da)
-   embedVar5.set_thumbnail(url=avatar)
-
-   embedVar6 = discord.Embed(title= f"Focus & Resolve", description=textwrap.dedent(f"""\
-   ⚕️ **Focus**
+   💖 **Focus**
    Players can take advantage of **Focus State** to **Recover**.
    **Focus State** sacrifices a turn to Level Up Stats, increase **Stamina** to 90, and **Recover** some **Health**.
    
@@ -598,8 +593,10 @@ async def animevs(ctx):
    Summons Enhancers either use an Elemental Attack or Grant the player a Defensive Arm. Summon moves do not end the player turn!
    🧬 Summon _uses 15 stamina_.
 
+   The Match is over when a players **Health** reaches 0.
    """) ,colour=0x7289da)
-   embedVar6.set_thumbnail(url=avatar)
+   embedVar5.set_thumbnail(url=avatar)
+
    
    embedVar16 = discord.Embed(title= f"Difficulty & Progression", description=textwrap.dedent(f"""\
    ⚙️**Difficulty**
@@ -694,6 +691,9 @@ async def animevs(ctx):
    
    **Preset Builds**
    You can bring your preset builds into Duo Battles!
+   
+   **Preset Upgrade**
+   Upgrade your Preset at the **/blacksmith**
    """) ,colour=0x7289da)
    embedVar9.set_thumbnail(url=avatar)
 
@@ -861,7 +861,7 @@ async def animevs(ctx):
    """) ,colour=0x7289da)
    embedVar14.set_thumbnail(url=avatar)
    
-   embedVar17 = discord.Embed(title= f"PvE Game Modes",description=textwrap.dedent(f"""\
+   embedVar19 = discord.Embed(title= f"PvE Game Modes",description=textwrap.dedent(f"""\
    **Abyss Explained**
    - Battle Through our Seasonal progression system to unlock game modes and Abyssal Rewards!
    - The Abyss is updated each season and features 100 custom made floors scaling in difficulty.
@@ -905,7 +905,7 @@ async def animevs(ctx):
    - Enemies will use tactics on higher difficulties and during Wager Matches
    
    """) ,colour=0x7289da)
-   embedVar17.set_thumbnail(url=avatar)
+   embedVar19.set_thumbnail(url=avatar)
    
    embedVar18 = discord.Embed(title= f"PvP Game Modes",description=textwrap.dedent(f"""\
    **Tutorial**
@@ -929,7 +929,7 @@ async def animevs(ctx):
 
 
 
-   embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar17,embedVar18 embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
+   embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar16, embedVar7, embedVar8,embedVar19, embedVar18, embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
    await Paginator(bot=bot, ctx=ctx, pages=embeds, timeout=60).run()
   
 
