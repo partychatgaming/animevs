@@ -1060,7 +1060,7 @@ class Battle:
                     aiMove = 1
             else:
                 aiMove = 1
-        elif self.is_hard_difficulty and self.is_turn in [1,3] and opponent_card._barrier_active:
+        elif self.is_easy_difficulty == False and self.is_turn in [1,3] and opponent_card._barrier_active:
             if your_card.stamina >= 80 and your_card.move3_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
                 aiMove = 3
             elif your_card.stamina >= 30 and your_card.move2_element in ["PSYCHIC", "DARK", "TIME","GRAVITY"]:
@@ -1073,7 +1073,7 @@ class Battle:
                 aiMove = 2
             else:
                 aiMove = 1
-        elif self.is_hard_difficulty and self.is_turn in [1,3] and opponent_card._shield_active:
+        elif self.is_easy_difficulty == False and self.is_turn in [1,3] and opponent_card._shield_active:
             if your_card.stamina >= 80 and your_card.move3_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
                 aiMove = 3
             elif your_card.stamina >= 30 and your_card.move2_element in ["PSYCHIC", "DARK", "FIRE","POISON"]:
@@ -1086,7 +1086,7 @@ class Battle:
                 aiMove = 2
             else:
                 aiMove = 1
-        elif self.is_hard_difficulty and self.is_turn in [1,3] and opponent_card._parry_active:
+        elif self.is_easy_difficulty == False and self.is_turn in [1,3] and opponent_card._parry_active:
             if your_card.stamina >= 80 and your_card.move3_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
                 aiMove = 3
             elif your_card.stamina >= 30 and your_card.move2_element in ["EARTH", "DARK", "TIME", "GRAVITY"]:
@@ -1266,11 +1266,11 @@ class Battle:
         #Hard Mode Ai
         print("diff " + str(self.is_hard_difficulty))
         print("prev" + str(self._previous_ai_move))
-        if self.is_hard_difficulty:
+        if self.is_easy_difficulty == False:
             print("hard")
             if aiMove == self._previous_ai_move:
                 your_card._combo_counter = your_card._combo_counter + 1
-                if your_card._combo_counter >= 3:
+                if your_card._combo_counter > 3:
                     print("Combo Counter: " + str(your_card._combo_counter))
                     your_card._combo_counter = 0
                     #Try to select a different move
