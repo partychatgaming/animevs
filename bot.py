@@ -505,7 +505,7 @@ async def animevs(ctx):
    """), colour=0x7289da)
    embedVar11.set_thumbnail(url=avatar)
    
-   embedVar17 = discord.Embed(title= f"Damage, Elements & Talismans", description=textwrap.dedent(f"""                                                                           
+   embedVar17 = discord.Embed(title= f"Damage, Elements & Talismans!", description=textwrap.dedent(f"""                                                                           
    🗯️**Engagement** Each of you Attack Moves deals damage based on the **Engagement**.
    
    💢: **Desperate Engagement**: Your opponent has overwhelming defense... Deal %33-%50 of AP
@@ -531,15 +531,10 @@ async def animevs(ctx):
    :bangbang: **Connects** - Your ability strikes. No Reduction
    :anger_right: **Hits** - Land a significant Strike. 20% Increase
    :boom: **Critical Hit** - You land a lethal blow. 250% Increase
-   
-   📿**Talismans**
-   Talismans nullify the affinities of the chosen **Element**. 
-   **/attune** and equip /**talismans** from stored **Essence**
- 
    """), colour=0x7289da)
    embedVar17.set_thumbnail(url=avatar)
 
-   embedVar4 = discord.Embed(title= f"Titles, Arms, and Summons ", description=textwrap.dedent(f"""\
+   embedVar4 = discord.Embed(title= f"Titles, Arms, Summons & Talismans!", description=textwrap.dedent(f"""\
    **Titles** & **Arms** 
    Modify you or the Opponents **Stats** by applying **Enhancers** during battle.
    
@@ -564,8 +559,14 @@ async def animevs(ctx):
    Can assist during battle with an **Elemntal Attack** or **Defensive Boost**.
    Earn **Summons** through Tales, Dungeon and Boss **Drops** or through trade with other Players!
    Battle with your **Summon** to gain **EXP** to increase Summon **Ability Power**. 
+   
+   📿**Talismans**
+   Talismans nullify the affinities of the chosen **Element**. 
+   Equip a Talisman matching your strongest attack to bypass enemy affinities.
+   **/attune** to create a taliman from stored **Essence**.
+   **/essence** to view Elemental Essenece and Attuned Talismans.
 
-   Mix and Match Titles, Arms and Summons to gain the **Tactical Advantage**!
+   Mix and Match Titles, Arms, Summons & Talismans to gain the **Tactical Advantage**!
    """) ,colour=0x7289da)
    embedVar4.set_thumbnail(url=avatar)
 
@@ -615,6 +616,8 @@ async def animevs(ctx):
    - Rebirth for increase in base stats and drop rates
    
    **Hard** *Not for the faint of Heart*
+   - Scenario Raids! */solo*
+   - More Tactics!
    - Normal Mode but with increasing scaling, drops and rewards
    - Clout
    
@@ -641,11 +644,13 @@ async def animevs(ctx):
    **Single Player**
    
    👤 **Solo**/solo
+   **Abyss:** AnimveVS+ Seasonal Ranking System, Climb 100 Floors Each Season to be the first to claim the God Title
    **Tales:** Single player adventures where you traverse through your favorite universes as characters from various worlds!
-   **Scenarios:** Iconic Lore Based Adventures that drop Specific Loot based on Difficulty
-   **Raids:** Time Based Events, Late Game Scenarios that drop Specific Loot (Must be on Hard Diffulty During Corruption Hour) 
    **Dungeon:** Hard version of tales with better loot and better drop rates! (Unlocks after completing **Anime VS+ Tale**)
    **Boss:** End Game battles featuring Iconic Villians from Anime VS+ Universes.(Unlocks after completing **Anime VS+ Dungeon**)
+   **Explore:** Random Encounter Battles that spawn in the Explore Channel. Fight to earn Bounties and Rare Encounter Cards!
+   **Scenarios:** Iconic Lore Based Adventures that drop Specific Loot based on Difficulty
+   **Raids:** Time Based Events, Late Game Scenarios that drop Specific Loot (Must be on Hard Diffulty During Corruption Hour) 
    
    👥 **Duo**/duo 
    **Tales Deck(1-5):** Battle with your favorite AI preset in this Duo Tale!
@@ -673,6 +678,8 @@ async def animevs(ctx):
    🤼 **PVP**
    **/pvp @player:** Select your Build and Challenge any Anime VS+ Player to a quick match!
    
+   :shinto_shrine: **Association**
+   **Association Arenas**: Arenas are PvE PVP battles fought against the association Shield Avatar. /association
    
    🔮 **Anime VS+ Rifts**
    Anime VS+ Rifts are Co-Op Compatable and Helping other players in Co-Op **WILL NOT** close your open Rift!
@@ -853,10 +860,76 @@ async def animevs(ctx):
    
    """) ,colour=0x7289da)
    embedVar14.set_thumbnail(url=avatar)
+   
+   embedVar17 = discord.Embed(title= f"PvE Game Modes",description=textwrap.dedent(f"""\
+   **Abyss Explained**
+   - Battle Through our Seasonal progression system to unlock game modes and Abyssal Rewards!
+   - The Abyss is updated each season and features 100 custom made floors scaling in difficulty.
+   - Each player to complete the Seasonal Abyss Earns a unique Build
+   - Each Seasonal Abyss has a unique reward for the first player to complete it.
+   - Certain Game Modes and Features May be locked behind Abyss Levels
+   
+   **Tales Explained**
+   - Battle Through Universe Specific Ladder Matches for Drops and Coin
+   - Conquering Tales Unlocks the Universe Dungeon and Grants a Large amount of Coin
+   - Tales can be played in Solo, Duo or Coop
+   - Opponent Equipment is randomized for each match from universe specific items.
+   
+   **Dungeon**
+   - Battle Through High Level Universe Matches for Rare Drops
+   - Conquering a Dungeon Unlocks the Universe Boss Arena and grants a Boss Key!
+   - Dungeon can be played Solo, Duo or Coop
+   - Opponent Equipment is ranomized for each match from universe specfic items.
+   
+   **Boss**
+   - End Game Battles featuring Iconic Bosses
+   - Defeat the boss to earn Boss items and Claim the Boss Soul
+   - Boss souls can be exchanged for any card in the Bosses Universe
+   - Bosses use Multiple Tactics and have increased Scaling
+   - Boss can be played Solo or Coop
+   - Bosses can drop Dungeon items or Better
+   
+   **Scenarios Explained**
+   - Shorter Lore Based Battles in your favorite Universeds
+   - Conquering Scenarios grants specific drops based on your difficuty setting
+   - Scenario Trees are interconnected scenarios unlocked after completing specific scenarios
+   
+   **Scenario Raids**
+   - Impossible Scenarios (Must be on Hard Mode During Corruption Hour)
+   - Unlock Ultra Rare Drops and Great Bounties.
+   - Enemies will use Tactics
+   
+   **Explore**
+   - Use /setexplorechannel to enable **Explore Mode**
+   - Spawn Rare cards to battle for high bounties or wager coin to unlock a Rare Card!
+   - Enemies will use tactics on higher difficulties and during Wager Matches
+   
+   """) ,colour=0x7289da)
+   embedVar17.set_thumbnail(url=avatar)
+   
+   embedVar18 = discord.Embed(title= f"PvP Game Modes",description=textwrap.dedent(f"""\
+   **Tutorial**
+   - Battle against the AnimeVS+ AI Senpai
+   - Practice builds and learn how to play via in game embed messages
+   
+   **PVP Explained**
+   - Compete against your friends with your strongest build!
+   - Each win or loss is stored in your **PvP Record**
+   - Join a Guild to earn **Guild Points** and **Guild Buffs**
+   - Join and Association to Earn Bonus Gold in PVP
+   
+   **Arenas Explained**
+   - Battle against knights of different AnimeVS+ Associations
+   - Arena Battles are played against the AI avatar of the Association Shield
+   - Defeat the Shield to Earn the association bounty
+   - Each Shield Victory grants the Association Gold and increases the Bounty of the Association!
+   
+   """) ,colour=0x7289da)
+   embedVar18.set_thumbnail(url=avatar)
 
 
 
-   embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
+   embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar17,embedVar18 embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
    await Paginator(bot=bot, ctx=ctx, pages=embeds, timeout=60).run()
   
 
