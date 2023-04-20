@@ -1698,6 +1698,8 @@ def essence_cost(vault, element, did):
                 }
             }
         tresponse = db.updateVaultNoFilter(query, talisman_query)
+        u_update_query = {"$set" : {"TALISMAN" : element.upper()}}
+        equip_res = db.updateUserNoFilter(query, u_update_query)
         msg = f"You have successfully attuned a **{element.title()} Talisman!**"
         return msg
     except Exception as ex:
