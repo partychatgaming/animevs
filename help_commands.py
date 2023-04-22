@@ -51,7 +51,7 @@ UNIVERSE_STUFF = textwrap.dedent(f"""\
 LEGEND = textwrap.dedent(f"""\
 **Card Basics**
 🀄 - **Card Tier** *1-7*
-🔱 - **Card Level** *1-999*
+🔱 - **Card Level** *1-1000*
 🥋 - **Card Class**
 ❤️ - **Card Health** (HLT)
 🌀 / ⚡ - **Card Stamina** (ST)
@@ -64,7 +64,7 @@ LEGEND = textwrap.dedent(f"""\
 ⚠️ - Your title or arm does not match your universe
 🎗️ - **Title accessory**  *Title enhancers are applied each turn, passively.*
 🦾 - **Arm accessory** *Arm enhancers are applied passively throughout the duration of battle.*
-📿 - **Talisman** *Equip Elemntal  Talismans to bypass opponent affinities*
+📿 - **Talisman** *Equip Elemental  Talismans to bypass opponent affinities*
 🧬 - **Summon!** *Summons use Active Enhancers that are available during battle after you Resolve*
 
 **Currency**
