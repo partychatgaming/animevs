@@ -1122,7 +1122,7 @@ class Card:
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['FIGHTER']}**) **{self.class_message}** : **{self.name}** Gains {self.p_value} Parries!")
         if self.card_class == "RANGER" and not self.ranger_message:
             self.ranger_message = True
-            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['RANGER']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Barriers!")
+            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['RANGER']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Barriers!\n*{self.name} can attack through barriers!}*")
         if self.card_class == "ASSASSIN" and not self.assassin_message:
             self.assassin_message = True
             battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['ASSASSIN']}**) **{self.class_message}** : **{self.name}** Gains {self.value} Assassin Strikes!")
