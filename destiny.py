@@ -272,7 +272,7 @@ destiny = [
     {
         "NAME": "Stolen Shifter",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 10,
         "DEFEAT": "Beast Titan",
         "USE_CARDS": ["Lady Ymir"],
         "EARN": "Jaw Titan",
@@ -282,7 +282,7 @@ destiny = [
     {
         "NAME": "Eternal Lovers",
         "WINS": 0,
-        "REQUIRED": 50,
+        "REQUIRED": 100,
         "DEFEAT": "Founding Titan",
         "USE_CARDS": ["Mikasa"],
         "EARN": "Founding Titan",
@@ -292,7 +292,7 @@ destiny = [
     {
         "NAME": "Declaration Of War",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Jaw Titan",
         "USE_CARDS": ["Attack Titan"], 
         "EARN": "Warhammer Titan",
@@ -302,7 +302,7 @@ destiny = [
     {
         "NAME": "A New Commander",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Colossal Titan",
         "USE_CARDS": ["Captain Erwin"],
         "EARN": "Colossal Titan",
@@ -312,7 +312,7 @@ destiny = [
     {
         "NAME": "Reveal The Coordinate",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Armored Titan",
         "USE_CARDS": ["Eren Jaeger"],
         "EARN": "Attack Titan",
@@ -322,7 +322,7 @@ destiny = [
     {
         "NAME": "Among Us",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Female Titan",
         "USE_CARDS": ["Annie"],
         "EARN": "Female Titan",
@@ -332,7 +332,7 @@ destiny = [
     {
         "NAME": "Strike The Nape!",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Beast Titan",
         "USE_CARDS": ["Captain Levi"],
         "EARN": "Beast Titan",
@@ -342,7 +342,7 @@ destiny = [
     {
         "NAME": "Split Personality",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Armored Titan",
         "USE_CARDS": ["Reiner"],
         "EARN": "Armored Titan",
@@ -362,7 +362,7 @@ destiny = [
     {
         "NAME": "The Angel Of Death Returns",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 25,
         "DEFEAT": "Chandler And Cusack",
         "USE_CARDS": ["Angel Of Death"],
         "EARN": "Chandler And Cusack",
@@ -382,7 +382,7 @@ destiny = [
     {
         "NAME": "I Am Your Father",
         "WINS": 0,
-        "REQUIRED": 50,
+        "REQUIRED": 100,
         "DEFEAT": "Meliodas",
         "USE_CARDS": ["Demon King"],
         "EARN": "Demon King Meliodas",
@@ -392,7 +392,7 @@ destiny = [
     {
         "NAME": "Fairy King Fatale",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Gloxinia",
         "USE_CARDS": ["King"],
         "EARN": "Gloxinia",
@@ -402,7 +402,7 @@ destiny = [
     {
         "NAME": "Dancing Giants",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Drole",
         "USE_CARDS": ["Diane"],
         "EARN": "Drole",
@@ -412,7 +412,7 @@ destiny = [
     {
         "NAME": "Lovers Quarrel",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 10,
         "DEFEAT": "King",
         "USE_CARDS": ["Diane"],
         "EARN": "King",
@@ -422,7 +422,7 @@ destiny = [
     {
         "NAME": "Sunshine",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 25,
         "DEFEAT": "Escanor",
         "USE_CARDS": ["Meliodas"],
         "EARN": "Escanor",
@@ -432,7 +432,7 @@ destiny = [
     {
         "NAME": "Gowthers Sin",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 25,
         "DEFEAT": "Estarossa",
         "USE_CARDS": ["Gowther"],
         "EARN": "Estarossa",
@@ -442,7 +442,7 @@ destiny = [
     {
         "NAME": "True Sonshine",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 100,
         "DEFEAT": "Escanor",
         "USE_CARDS": ["Estarossa"],
         "EARN": "Mael",
@@ -562,7 +562,7 @@ destiny = [
     {
         "NAME": "Mercy Mercy Mercy",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 50,
         "DEFEAT": "Armageddemon",
         "USE_CARDS": ["Omnimon"],
         "EARN": "Omnimon Merciful Mode",
@@ -572,7 +572,7 @@ destiny = [
     {
         "NAME": "Seraphs Embrace",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 100,
         "DEFEAT": "Ordinemon",
         "USE_CARDS": ["Omnimon Merciful Mode"],
         "EARN": "Ordinemon",
@@ -1632,7 +1632,7 @@ destiny = [
     {
         "NAME": "Through The Heavens",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 10,
         "DEFEAT": "Kamina",
         "USE_CARDS": ["Young Simon"],
         "EARN": "Kamina",
@@ -1642,7 +1642,7 @@ destiny = [
     {
         "NAME": "The Handsome Monster",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 10,
         "DEFEAT": "Dr. Frankenstein",
         "USE_CARDS": ["Maka"],
         "EARN": "Dr. Frankenstein",
@@ -1652,7 +1652,7 @@ destiny = [
     {
         "NAME": "Daddy Death",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 100,
         "DEFEAT": "Lord Death",
         "USE_CARDS": ["Death The Kid"],
         "EARN": "Lord Death",
@@ -1662,7 +1662,7 @@ destiny = [
     {
         "NAME": "Dad Was Right",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 25,
         "DEFEAT": "Viral",
         "USE_CARDS": ["Kamina"],
         "EARN": "Gurren",
@@ -1672,7 +1672,7 @@ destiny = [
     {
         "NAME": "Team Gurren Lagann",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 35,
         "DEFEAT": "Viral",
         "USE_CARDS": ["Gurren"],
         "EARN": "Gurren Lagann",
@@ -1682,7 +1682,7 @@ destiny = [
     {
         "NAME": "Hunted Humans",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 20,
         "DEFEAT": "Viral",
         "USE_CARDS": ["Gurren Lagann"],
         "EARN": "Viral",
@@ -1702,7 +1702,7 @@ destiny = [
     {
         "NAME": "Free Humanity",
         "WINS": 0,
-        "REQUIRED": 5,
+        "REQUIRED": 25,
         "DEFEAT": "Spiral King",
         "USE_CARDS": ["Gurren"],
         "EARN": "Spiral King",
@@ -1712,7 +1712,7 @@ destiny = [
     {
         "NAME": "Family Feud",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 30,
         "DEFEAT": "Spiral King",
         "USE_CARDS": ["Nia"],
         "EARN": "Adult Simon",
@@ -1722,7 +1722,7 @@ destiny = [
     {
         "NAME": "Pierce The Heavens",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 100,
         "DEFEAT": "Anti Spiral",
         "USE_CARDS": ["Gurren Lagann"],
         "EARN": "Tengen Toppa Gurren Lagann",
@@ -1732,7 +1732,7 @@ destiny = [
     {
         "NAME": "Fallen Leader",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 50,
         "DEFEAT": "Kamina",
         "USE_CARDS": ["Viral"],
         "EARN": "Teppelin",
@@ -1742,7 +1742,7 @@ destiny = [
     {
         "NAME": "Spiral War",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 100,
         "DEFEAT": "Anti Spiral",
         "USE_CARDS": ["Tengen Toppa Gurren Lagann"],
         "EARN": "Anti Spiral",
@@ -1834,7 +1834,7 @@ destiny = [
         "WINS": 0,
         "REQUIRED": 8,
         "DEFEAT": "Itachi",
-        "USE_CARDS": ["Mangekyo Sasuke"],
+        "USE_CARDS": ["EMS Sasuke"],
         "EARN": "Awakened Itachi",
         "COMPLETED": False,
         "UNIVERSE": "Naruto"
@@ -1843,9 +1843,9 @@ destiny = [
         "NAME": "The Avenger",
         "WINS": 0,
         "REQUIRED": 5,
-        "DEFEAT": "Mangekyo Sasuke",
+        "DEFEAT": "EMS Sasuke",
         "USE_CARDS": ["Sasuke"],
-        "EARN": "Mangekyo Sasuke",
+        "EARN": "EMS Sasuke",
         "COMPLETED": False,
         "UNIVERSE": "Naruto"
     },
@@ -1952,7 +1952,7 @@ destiny = [
     {
         "NAME": "For Nezukuo",
         "WINS": 0,
-        "REQUIRED": 50,
+        "REQUIRED": 25,
         "DEFEAT": "Muzan Kibutsuji",
         "USE_CARDS": ["Tanjiro Kamado"],
         "EARN": "Muzan Kibutsuji",
@@ -2002,7 +2002,7 @@ destiny = [
     },{
         "NAME": "Daddy Issues",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 10,
         "DEFEAT": "Father Gascoigne",
         "USE_CARDS": ["Mad Hunter"],
         "EARN": "Father Gascoigne",
@@ -2011,7 +2011,7 @@ destiny = [
     },{
         "NAME": "Bloody Battle",
         "WINS": 0,
-        "REQUIRED": 50,
+        "REQUIRED": 30,
         "DEFEAT": "Blood Starved Beast",
         "USE_CARDS": ["Ranged Hunter"],
         "EARN": "Blood Starved Beast",
@@ -2029,7 +2029,7 @@ destiny = [
     },{
         "NAME": "Witch Season",
         "WINS": 0,
-        "REQUIRED": 10,
+        "REQUIRED": 20,
         "DEFEAT": "The Witch Of Hemwick",
         "USE_CARDS": ["Priest"],
         "EARN": "The Witch Of Hemwick",
@@ -2038,7 +2038,7 @@ destiny = [
     },{
         "NAME": "Outnumbered",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 30,
         "DEFEAT": "Shadow of Yharnam",
         "USE_CARDS": ["Hunter"],
         "EARN": "Shadow of Yharnam",
@@ -2047,7 +2047,7 @@ destiny = [
     },{
         "NAME": "8 Legged Freak",
         "WINS": 0,
-        "REQUIRED": 20,
+        "REQUIRED": 30,
         "DEFEAT": "Rom The Vaccous Spider",
         "USE_CARDS": ["Mad Hunter"],
         "EARN": "Rom The Vaccous Spider",
@@ -2056,7 +2056,7 @@ destiny = [
     },{
         "NAME": "Corpse Battle",
         "WINS": 0,
-        "REQUIRED": 30,
+        "REQUIRED": 35,
         "DEFEAT": "The One Reborn",
         "USE_CARDS": ["Ranged Hunter"],
         "EARN": "The One Reborn",
@@ -2074,7 +2074,7 @@ destiny = [
     },{
         "NAME": "Lurking Phantoms",
         "WINS": 0,
-        "REQUIRED": 25,
+        "REQUIRED": 35,
         "DEFEAT": "Amygdala",
         "USE_CARDS": ["Priest"],
         "EARN": "Amygdala",
@@ -2083,7 +2083,7 @@ destiny = [
     },{
         "NAME": "Host Of The Nightmare",
         "WINS": 0,
-        "REQUIRED": 15,
+        "REQUIRED": 10,
         "DEFEAT": "Micolash",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Micolash",
@@ -2092,7 +2092,7 @@ destiny = [
     },{
         "NAME": "Nightnare Nurse",
         "WINS": 0,
-        "REQUIRED": 60,
+        "REQUIRED": 25,
         "DEFEAT": "Mergo's Wet Nurse",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Mergo's Wet Nurse",
@@ -2101,7 +2101,7 @@ destiny = [
     },{
         "NAME": "Martyrdom",
         "WINS": 0,
-        "REQUIRED": 55,
+        "REQUIRED": 25,
         "DEFEAT": "Martyr Logarius",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Martyr Logarius",
@@ -2119,7 +2119,7 @@ destiny = [
     },{
         "NAME": "Cosmic Child",
         "WINS": 0,
-        "REQUIRED": 60,
+        "REQUIRED": 40,
         "DEFEAT": "Ebrietas",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Ebrietas",
@@ -2128,7 +2128,7 @@ destiny = [
     },{
         "NAME": "Hunters Dream?",
         "WINS": 0,
-        "REQUIRED": 60,
+        "REQUIRED": 50,
         "DEFEAT": "Gehrman",
         "USE_CARDS": ["Old Hunter"],
         "EARN": "Gehrman",
@@ -2146,7 +2146,7 @@ destiny = [
     },{
         "NAME": "Hunter Of Great Ones",
         "WINS": 0,
-        "REQUIRED": 100,
+        "REQUIRED": 50,
         "DEFEAT": "Cthulhu",
         "USE_CARDS": ["Moon Presence"],
         "EARN": "Cthulhu",
@@ -2155,7 +2155,7 @@ destiny = [
     },{
         "NAME": "Outer God Alpha",
         "WINS": 0,
-        "REQUIRED": 50,
+        "REQUIRED": 30,
         "DEFEAT": "Shub Niggurath",
         "USE_CARDS": ["The Unnamed Darkness"],
         "EARN": "Shub Niggurath",
@@ -2164,7 +2164,7 @@ destiny = [
     },{
         "NAME": "Outer God Omega",
         "WINS": 0,
-        "REQUIRED": 100,
+        "REQUIRED": 30,
         "DEFEAT": "Yog Sothoth",
         "USE_CARDS": ["The Nameless Mist"],
         "EARN": "Yog Sothoth",
@@ -2173,7 +2173,7 @@ destiny = [
     },{
         "NAME": "The Deep Dark",
         "WINS": 0,
-        "REQUIRED": 100,
+        "REQUIRED": 50,
         "DEFEAT": "Azathoth",
         "USE_CARDS": ["Yog Sothoth"],
         "EARN": "Azathoth",

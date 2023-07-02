@@ -1,44 +1,37 @@
-import discord
-from discord.ext import commands
-import bot as main
 import crown_utilities
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
 # Converters
-from discord import User
-from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
 from collections import ChainMap
-import DiscordUtils
-from discord_slash import cog_ext, SlashContext
 import asyncio
-from discord_slash.utils import manage_components
-from discord_slash.model import ButtonStyle
-from discord_slash.utils.manage_commands import create_option, create_choice
-from dinteractions_Paginator import Paginator
+# from dinteractions_Paginator import Paginator
+from interactions import User
+from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+
 
 emojis = ['👍', '👎']
 
-class Family(commands.Cog):
+class Family(Extension):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
+    @listen()
     async def on_ready(self):
         print('Family Cog is ready!')
 
     async def cog_check(self, ctx):
-        return await main.validate_user(ctx)
+        return await self.bot.validate_user(ctx)
 
 
-    @cog_ext.cog_slash(description="Marry a player", guild_ids=main.guild_ids)
+    @slash_command(description="Marry a player")
     async def marry(self, ctx, player: User):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         try:
@@ -62,18 +55,18 @@ class Family(commands.Cog):
                 family_query = {'HEAD': str(ctx.author)}
                 
                 trade_buttons = [
-                    manage_components.create_button(
-                        style=ButtonStyle.green,
+                    Button(
+                        style=ButtonStyle.GREEN,
                         label="Propose!",
                         custom_id="yes"
                     ),
-                    manage_components.create_button(
-                        style=ButtonStyle.red,
+                    Button(
+                        style=ButtonStyle.RED,
                         label="No",
                         custom_id="no"
                     )
                 ]
-                trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
+                trade_buttons_action_row = ActionRow(*trade_buttons)
                 await ctx.send(f"Do you want to propose to **{player.mention}**?", components=[trade_buttons_action_row])
                 
                 def check(button_ctx):
@@ -81,26 +74,26 @@ class Family(commands.Cog):
 
                 
                 try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
+                    button_ctx  = await self.bot.wait_for_component(components=[trade_buttons_action_row], timeout=120, check=check)
                     if button_ctx.custom_id == "no":
                             await button_ctx.send("No **Proposal**")
                             self.stop = True
                             return
                     if button_ctx.custom_id == "yes":
-                        await main.DM(ctx, player, f"{ctx.author.mention}" + f" proposed to you !" + f" React in server to join their family" )
+                        await self.bot.DM(ctx, player, f"{ctx.author.mention}" + f" proposed to you !" + f" React in server to join their family" )
                         trade_buttons = [
-                            manage_components.create_button(
-                                style=ButtonStyle.green,
+                            Button(
+                                style=ButtonStyle.GREEN,
                                 label="Lets Get Married!",
                                 custom_id="yes"
                             ),
-                            manage_components.create_button(
-                                style=ButtonStyle.red,
+                            Button(
+                                style=ButtonStyle.RED,
                                 label="No",
                                 custom_id="no"
                             )
                         ]
-                        trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
+                        trade_buttons_action_row = ActionRow(*trade_buttons)
                         await button_ctx.send(f"**{player.mention}** do you accept the proposal?".format(self), components=[trade_buttons_action_row])
                         
                         def check(button_ctx):
@@ -108,7 +101,7 @@ class Family(commands.Cog):
 
                         
                         try:
-                            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
+                            button_ctx  = await self.bot.wait_for_component(components=[trade_buttons_action_row], timeout=120, check=check)
                             if button_ctx.custom_id == "no":
                                     await button_ctx.send("**Proposal Denied**")
                                     self.stop = True
@@ -161,10 +154,10 @@ class Family(commands.Cog):
             }))
             return
 
-    @cog_ext.cog_slash(description="Divorce your partner", guild_ids=main.guild_ids)
+    @slash_command(description="Divorce your partner")
     async def divorce(self, ctx, partner: User):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         head_profile = db.queryUser({'DID': str(ctx.author.id)})
@@ -189,18 +182,18 @@ class Family(commands.Cog):
         if family_profile:
             if head_profile['DISNAME'] == family_profile['HEAD'] or head_profile['DISNAME'] == family_profile['PARTNER']:
                 trade_buttons = [
-                    manage_components.create_button(
-                        style=ButtonStyle.red,
+                    Button(
+                        style=ButtonStyle.RED,
                         label="Divorce!",
                         custom_id="yes"
                     ),
-                    manage_components.create_button(
-                        style=ButtonStyle.blue,
+                    Button(
+                        style=ButtonStyle.BLUE,
                         label="No",
                         custom_id="no"
                     )
                 ]
-                trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
+                trade_buttons_action_row = ActionRow(*trade_buttons)
                 await ctx.send(f"Do you want to divorce {partner.mention}?".format(self), components=[trade_buttons_action_row])
                 
                 def check(button_ctx):
@@ -208,46 +201,46 @@ class Family(commands.Cog):
 
                 
                 try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
+                    button_ctx  = await self.bot.wait_for_component(components=[trade_buttons_action_row], timeout=120, check=check)
                     if button_ctx.custom_id == "no":
                         await button_ctx.send("No **Divorce**")
                         self.stop = True
                         return
                     if button_ctx.custom_id == "yes":
-                        await main.DM(ctx, partner, f"{ctx.author.mention}" + f"is divorcing you!" + f" You will be removed from the family in 90 seconds" )
+                        await self.bot.DM(ctx, partner, f"{ctx.author.mention}" + f"is divorcing you!" + f" You will be removed from the family in 90 seconds" )
                         trade_buttons = [
-                            manage_components.create_button(
-                                style=ButtonStyle.green,
+                            Button(
+                                style=ButtonStyle.GREEN,
                                 label="Accept! Half of Family Bank",
                                 custom_id="yes"
                             ),
-                            manage_components.create_button(
-                                style=ButtonStyle.red,
+                            Button(
+                                style=ButtonStyle.RED,
                                 label="No",
                                 custom_id="no"
                             )
                         ]
-                        trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
-                        await button_ctx.send(f"{partner.mention} do you accept the divorce? You will gain half the family bank :coin:**{'{:,}'.format(divorce_split)}**.\n*{family_profile['PARTNER']} will be automatically removed from the family in 90 seconds*".format(self), components=[trade_buttons_action_row])
+                        trade_buttons_action_row = ActionRow(*trade_buttons)
+                        await button_ctx.send(f"{partner.mention} do you accept the divorce? You will gain half the family bank 🪙**{'{:,}'.format(divorce_split)}**.\n*{family_profile['PARTNER']} will be automatically removed from the family in 90 seconds*".format(self), components=[trade_buttons_action_row])
                         
                         def check(button_ctx):
                             return button_ctx.author == partner
 
                         
                         try:
-                            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=90, check=check)
+                            button_ctx  = await self.bot.wait_for_component(components=[trade_buttons_action_row], timeout=90, check=check)
                             if button_ctx.custom_id == "no":
                                 await button_ctx.send("No **Divorce**")
                                 self.stop = True
                             if button_ctx.custom_id == "yes":
                                 try:
                                     if str(partner) == family_profile['PARTNER']:
-                                        await button_ctx.send(f"**Divorce Finalized** {partner.mention} earned :coin:**{'{:,}'.format(divorce_split)}**")
+                                        await button_ctx.send(f"**Divorce Finalized** {partner.mention} earned 🪙**{'{:,}'.format(divorce_split)}**")
                                     else:
-                                        await button_ctx.send(f"**Divorce Finalized** {ctx.author.mention} earned :coin:**{'{:,}'.format(divorce_split)}**")
+                                        await button_ctx.send(f"**Divorce Finalized** {ctx.author.mention} earned 🪙**{'{:,}'.format(divorce_split)}**")
                                     
                                     new_value_query = {'$set': {'PARTNER': '' }}
-                                    await main.cursefamily(divorce_split,family_profile['HEAD'])
+                                    await self.bot.cursefamily(divorce_split,family_profile['HEAD'])
                                     response = db.deleteFamilyMember(family_query, new_value_query, str(ctx.author), str(partner))
                                     if str(ctx.author) == family_profile['PARTNER']:
                                         family_query = {'HEAD': str(partner)}
@@ -256,7 +249,7 @@ class Family(commands.Cog):
                                         user_info = db.queryUser(user_query)
                                         old_family = db.updateUserNoFilter({'FAMILY':user_info['DISNAME']})
                                     await button_ctx.send(response)
-                                    await main.bless(divorce_split, str(family_profile['PARTNER']))
+                                    await self.bot.bless(divorce_split, str(family_profile['PARTNER']))
                                 except Exception as ex:
                                     trace = []
                                     tb = ex.__traceback__
@@ -280,7 +273,7 @@ class Family(commands.Cog):
                             else:
                                 await button_ctx.send(f"**Divorce Finalized** {ctx.author.mention} removed!")
                             new_value_query = {'$set': {'PARTNER': '' }}
-                            await main.cursefamily(divorce_split,family_profile['HEAD'])
+                            await self.bot.cursefamily(divorce_split,family_profile['HEAD'])
                             response = db.deleteFamilyMember(family_query, new_value_query, str(ctx.author), str(partner))
                             if str(ctx.author) == family_profile['PARTNER']:
                                 family_query = {'HEAD': str(partner)}
@@ -308,10 +301,10 @@ class Family(commands.Cog):
         else:
             await ctx.send(m.TEAM_DOESNT_EXIST, delete_after=5)
 
-    @cog_ext.cog_slash(description="Adopt a kid", guild_ids=main.guild_ids)
+    @slash_command(description="Adopt a kid")
     async def adopt(self, ctx, player: User):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         try:
@@ -335,23 +328,26 @@ class Family(commands.Cog):
                 kid_count = 0
                 for kids in family['KIDS']:
                     kid_count = kid_count + 1
+                    if kids == kid_profile['DISNAME']:
+                        await ctx.send("Member already in family")
+                        return
                 if kid_count >= 2:
                     await ctx.send(m.MAX_CHILDREN, delete_after=3)
                     return
 
                 trade_buttons = [
-                    manage_components.create_button(
-                        style=ButtonStyle.green,
+                    Button(
+                        style=ButtonStyle.GREEN,
                         label="Adopt!",
                         custom_id="yes"
                     ),
-                    manage_components.create_button(
-                        style=ButtonStyle.blue,
+                    Button(
+                        style=ButtonStyle.BLUE,
                         label="No",
                         custom_id="no"
                     )
                 ]
-                trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
+                trade_buttons_action_row = ActionRow(*trade_buttons)
                 await ctx.send(f"Do you want to adopt {player.mention}?".format(self), components=[trade_buttons_action_row])
                 
                 def check(button_ctx):
@@ -359,27 +355,27 @@ class Family(commands.Cog):
 
                 
                 try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
+                    button_ctx  = await self.bot.wait_for_component(components=[trade_buttons_action_row], timeout=120, check=check)
                     if button_ctx.custom_id == "no":
                         await button_ctx.send("No **Adoption**")
                         self.stop = True
                         return
                     if button_ctx.custom_id == "yes":
                         try:
-                            await main.DM(ctx, player, f"{ctx.author.mention}" + f" would like to adopt you!" + f" React in server to join their **Family**" )
+                            await self.bot.DM(ctx, player, f"{ctx.author.mention}" + f" would like to adopt you!" + f" React in server to join their **Family**" )
                             trade_buttons = [
-                                manage_components.create_button(
-                                    style=ButtonStyle.green,
+                                Button(
+                                    style=ButtonStyle.GREEN,
                                     label="Join Family!",
                                     custom_id="yes"
                                 ),
-                                manage_components.create_button(
-                                    style=ButtonStyle.blue,
+                                Button(
+                                    style=ButtonStyle.BLUE,
                                     label="No",
                                     custom_id="no"
                                 )
                             ]
-                            trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
+                            trade_buttons_action_row = ActionRow(*trade_buttons)
                             await button_ctx.send(f"{player.mention}" +f" would you like to be adopted ?".format(self), components=[trade_buttons_action_row])
                             
                             def check(button_ctx):
@@ -387,7 +383,7 @@ class Family(commands.Cog):
 
                             
                             try:
-                                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
+                                button_ctx  = await self.bot.wait_for_component(components=[trade_buttons_action_row], timeout=120, check=check)
                                 if button_ctx.custom_id == "no":
                                     await button_ctx.send("No **Adoption**")
                                     self.stop = True
@@ -474,10 +470,10 @@ class Family(commands.Cog):
             }))
             return
 
-    @cog_ext.cog_slash(description="Disown your kid", guild_ids=main.guild_ids)
+    @slash_command(description="Disown your kid")
     async def disown(self, ctx, kid: User):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         try:
@@ -496,18 +492,18 @@ class Family(commands.Cog):
                     return
                 if head_profile['DISNAME'] == family_profile['HEAD']:
                     trade_buttons = [
-                        manage_components.create_button(
-                            style=ButtonStyle.red,
+                        Button(
+                            style=ButtonStyle.RED,
                             label="Disown!",
                             custom_id="yes"
                         ),
-                        manage_components.create_button(
-                            style=ButtonStyle.blue,
+                        Button(
+                            style=ButtonStyle.BLUE,
                             label="No",
                             custom_id="no"
                         )
                     ]
-                    trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
+                    trade_buttons_action_row = ActionRow(*trade_buttons)
                     await ctx.send(f"Do you want to disown {kid.mention}?".format(self), components=[trade_buttons_action_row])
                     
                     def check(button_ctx):
@@ -515,7 +511,7 @@ class Family(commands.Cog):
 
                     
                     try:
-                        button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
+                        button_ctx  = await self.bot.wait_for_component(components=[trade_buttons_action_row], timeout=120, check=check)
                         if button_ctx.custom_id == "no":
                             await button_ctx.send("Not **Disowned**")
                             self.stop = True
@@ -569,10 +565,10 @@ class Family(commands.Cog):
             }))
             return 
 
-    @cog_ext.cog_slash(description="Leave your adopted family", guild_ids=main.guild_ids)
+    @slash_command(description="Leave your adopted family")
     async def leavefamily(self, ctx):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         kid_profile = db.queryUser({'DID': str(ctx.author.id)})
@@ -586,18 +582,18 @@ class Family(commands.Cog):
                 await ctx.send(f"Must be an **Adopted Kid**")
                 return
             trade_buttons = [
-                manage_components.create_button(
-                    style=ButtonStyle.red,
+                Button(
+                    style=ButtonStyle.RED,
                     label="Leave Family!",
                     custom_id="yes"
                 ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
+                Button(
+                    style=ButtonStyle.BLUE,
                     label="No",
                     custom_id="no"
                 )
             ]
-            trade_buttons_action_row = manage_components.create_actionrow(*trade_buttons)
+            trade_buttons_action_row = ActionRow(*trade_buttons)
             await ctx.send(f"Do you want to **Leave** your family?".format(self), components=[trade_buttons_action_row])
             
             def check(button_ctx):
@@ -605,7 +601,7 @@ class Family(commands.Cog):
 
             
             try:
-                button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[trade_buttons_action_row], timeout=120, check=check)
+                button_ctx  = await self.bot.wait_for_component(components=[trade_buttons_action_row], timeout=120, check=check)
                 if button_ctx.custom_id == "no":
                     await button_ctx.send("Family Not **Abandoned**")
                     self.stop = True
@@ -641,4 +637,4 @@ class Family(commands.Cog):
             await ctx.send(m.TEAM_DOESNT_EXIST, delete_after=5)
 
 def setup(bot):
-    bot.add_cog(Family(bot))
+    Family(bot)

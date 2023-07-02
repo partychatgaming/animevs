@@ -1,40 +1,31 @@
 from os import times
 from time import time
-import discord
-from discord.ext import commands
-import bot as main
 import db
-import classes as data
+import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
-# Converters
-from discord import User
-from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
 from collections import ChainMap
-import DiscordUtils
-from discord_slash import cog_ext, SlashContext
-from discord_slash.utils import manage_components
-from discord_slash.model import ButtonStyle
+from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 emojis = ['👍', '👎']
 
-class Lobbies(commands.Cog):
+class Lobbies(Extension):
     def __init__(self, bot):
         self.bot = bot
 
 
 
-    @commands.Cog.listener()
+    @listen()
     async def on_ready(self):
         print('Lobbies Cog is ready!')
 
     async def cog_check(self, ctx):
-        return await main.validate_user(ctx)
+        return await self.bot.validate_user(ctx)
 
-    # @cog_ext.cog_slash(description="End your Crown PVP Match", guild_ids=main.guild_ids)
+    # @slash_command(description="End your Crown PVP Match")
     async def end(self, ctx):
         session_query = {"OWNER": str(ctx.author), "AVAILABLE": True}
         session = db.querySession(session_query)
@@ -170,12 +161,12 @@ class Lobbies(commands.Cog):
                 if bool(cards):
                     winner_earned_tourney_cards=True
                     for card in cards:
-                        db.updateVaultNoFilter(vault_query, {'$addToSet':{'CARDS': card}})
+                        db.updateUserNoFilter(vault_query, {'$addToSet':{'CARDS': card}})
 
                 if bool(titles):
                     winner_earned_tourney_titles=True
                     for title in titles:
-                        db.updateVaultNoFilter(vault_query, {'$addToSet':{'TITLES': title}})
+                        db.updateUserNoFilter(vault_query, {'$addToSet':{'TITLES': title}})
                 else:
                     print("No update")
             else:
@@ -183,9 +174,9 @@ class Lobbies(commands.Cog):
 
             uid = player['DID']
             user = await self.bot.fetch_user(uid)
-            await main.bless(blessings, player['DISNAME'])
+            await self.bot.bless(blessings, player['DISNAME'])
 
-            await main.DM(ctx, user, "You Won. Doesnt Prove Much Tho :yawning_face:")
+            await self.bot.DM(ctx, user, "You Won. Doesnt Prove Much Tho :yawning_face:")
 
             if winner_earned_tourney_cards or winner_earned_tourney_titles:
                 await ctx.send(f"Competitor " + f"{user.mention}" + " earns a victory ! :100:")
@@ -266,8 +257,8 @@ class Lobbies(commands.Cog):
 
                 uid = player['DID']
                 user = await self.bot.fetch_user(uid)
-                await main.curse(8, user)
-                await main.DM(ctx, user, "You Lost. Get back in there!")
+                await self.bot.curse(8, user)
+                await self.bot.DM(ctx, user, "You Lost. Get back in there!")
                 await ctx.send(f"Competitor " + f"{user.mention}" + " took an L! :eyes:")
 
 
@@ -289,8 +280,8 @@ class Lobbies(commands.Cog):
             card = user['CARD']
             title = user['TITLE']
             if name in user['GAMES']:
-                #await main.DM(ctx, user1, f"{ctx.author.mention}" + f" has challenged you to {name}")
-                await ctx.send(f"{ctx.author.mention} are you ready to battle? !!!:fire:")
+                #await self.bot.DM(ctx, user1, f"{ctx.author.mention}" + f" has challenged you to {name}")
+                await ctx.send(f"{ctx.author.mention} are you ready to battle? !!!🔥")
                 # for emoji in emojis:
                 #     await accept.add_reaction(emoji)
 
@@ -314,7 +305,7 @@ class Lobbies(commands.Cog):
                     session = db.createSession(data.newSession(session_query))
                     resp = db.joinSession(session_query, join_query)
                     await ctx.send(resp)
-                    embedVar = discord.Embed(title=f"Use the .start command to start the tutorial match", colour=0xe91e63)
+                    embedVar = Embed(title=f"Use the .start command to start the tutorial match", color=0xe91e63)
                     await ctx.send(embed=embedVar)
 
                 except:
@@ -344,8 +335,8 @@ class Lobbies(commands.Cog):
             card = user['CARD']
             title = user['TITLE']
             if name in user['GAMES']:
-                #await main.DM(ctx, user1, f"{ctx.author.mention}" + f" has challenged you to {name}")
-                await ctx.send(f"{ctx.author.mention} are you ready to battle? !!!:fire:")
+                #await self.bot.DM(ctx, user1, f"{ctx.author.mention}" + f" has challenged you to {name}")
+                await ctx.send(f"{ctx.author.mention} are you ready to battle? !!!🔥")
 
                 if name == 'Crown Unlimited':
                     join_query = {"TEAM": [str(user1)], "SCORE": 0, "CARD": card1, "TITLE": title1, "POSITION": 1}
@@ -360,7 +351,7 @@ class Lobbies(commands.Cog):
                     session = db.createSession(data.newSession(session_query))
                     resp = db.joinSession(session_query, join_query)
                     await ctx.send(resp)
-                    embedVar = discord.Embed(title=f"Use the .start command to start the tutorial match", colour=0xe91e63)
+                    embedVar = Embed(title=f"Use the .start command to start the tutorial match", color=0xe91e63)
                     await ctx.send(embed=embedVar)
 
                 except:
@@ -373,6 +364,6 @@ class Lobbies(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Lobbies(bot))
+    Lobbies(bot)
 
 

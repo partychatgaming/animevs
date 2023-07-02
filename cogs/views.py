@@ -1,378 +1,873 @@
 import textwrap
-import discord
 import crown_utilities
-from discord.ext import commands
-import bot as main
 import db
-import classes as data
 import messages as m
 import numpy as np
 import help_commands as h
 import unique_traits as ut
 import destiny as d
-# Converters
-from discord import User
-from discord import Member
-from PIL import Image, ImageFont, ImageDraw
-import requests
 import random
-from .crownunlimited import showcard, showsummon, cardback, enhancer_mapping, enhancer_suffix_mapping, passive_enhancer_suffix_mapping, title_enhancer_suffix_mapping, title_enhancer_mapping
-from discord_slash.utils.manage_commands import create_option, create_choice
-from discord_slash import cog_ext, SlashContext
-from discord_slash import SlashCommand
-from discord_slash.utils import manage_components
-from discord_slash.model import ButtonStyle
-from dinteractions_Paginator import Paginator
+from .classes.card_class import Card
+from .classes.title_class import Title
+from .classes.arm_class import Arm
+from .classes.summon_class import Summon
+from interactions.ext.paginators import Paginator
+from interactions import Client, ActionRow, Button, ButtonStyle, File, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, global_autocomplete, AutocompleteContext, slash_option
+import re
+import io
+from io import BytesIO
 
 
 
-class Views(commands.Cog):
+
+
+class Views(Extension):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
+    @listen()
     async def on_ready(self):
         print('Views Cog is ready!')
 
     async def cog_check(self, ctx):
-        return await main.validate_user(ctx)
+        return await self.bot.validate_user(ctx)
 
-    @cog_ext.cog_slash(description="Equip a Card", guild_ids=main.guild_ids)
+    @slash_command(description="Equip a Card", options=[
+            SlashCommandOption(
+                name="card",
+                description="Type in the name of the card you want to equip",
+                type=OptionType.STRING,
+                required=True,
+            )
+    ])
     async def equipcard(self, ctx, card: str):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         card_name = card
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
 
-        vault_query = {'DID': str(ctx.author.id)}
-        vault = db.altQueryVault(vault_query)
-
         resp = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
 
         card_name = resp["NAME"]
-        # Do not Check Tourney wins
-        if card_name in vault['CARDS']:
+
+        if card_name in user['CARDS']:
             response = db.updateUserNoFilter(user_query, {'$set': {'CARD': str(card_name)}})
-            await ctx.send(f"**{card_name}** has been equipped.")
+            embed = Embed(title=f"🎴 Card Successfully Equipped", description=f"{card_name} has been equipped.", color=0x00ff00)
+            await ctx.send(embed=embed)
         else:
             await ctx.send(m.USER_DOESNT_HAVE_THE_CARD, hidden=True)
 
 
-    @cog_ext.cog_slash(description="Select an operation from the menu!",
-                    options=[
-                        create_option(
-                            name="name",
-                            description="name of card, title, arm, summons, universe, hall, or house you want to view",
-                            option_type=3,
-                            required=True
-                        ),
-                        create_option(
-                            name="selection",
-                            description="Select an option!",
-                            option_type=3,
-                            required=True,
-                            choices=[
-                                create_choice(
-                                    name="🎴 It's a Card",
-                                    value="cards",
-                                ),
-                                create_choice(
-                                    name="🎗️ It's a Title",
-                                    value="titles",
-                                ),
-                                create_choice(
-                                    name="🦾 It's an Arm",
-                                    value="arms",
-                                ),
-                                create_choice(
-                                    name="🧬 It's a Summon",
-                                    value="summons",
-                                ),
-                                create_choice(
-                                    name="🌍 It's a Universe",
-                                    value="universe",
-                                ),
-                                create_choice(
-                                    name="👹 It's a Boss",
-                                    value="boss",
-                                ),
-                                create_choice(
-                                    name="🎏 It's a Hall",
-                                    value="hall",
-                                ),
-                                create_choice(
-                                    name="🏠 It's a House",
-                                    value="house",
-                                ),
-                            ]
-                        )
-                    ], guild_ids=main.guild_ids)
-    async def view(self, ctx, selection, name):
-        if selection == "cards":
-            await viewcard(self, ctx, name)
-        if selection == "titles":
-            await viewtitle(self, ctx, name)
-        if selection == "arms":
-            await viewarm(self, ctx, name)
-        if selection == "summons":
-            await viewsummon(self, ctx, name)
-        if selection == "universe":
-            await viewuniverse(self, ctx, name)
-        if selection == "boss":
-            await viewboss(self, ctx, name)
-        if selection == "hall":
-            await viewhall(self, ctx, name)
-        if selection == "house":
-            await viewhouse(self, ctx, name)
+    @slash_command(description="Type a card name, title, arm, universe, house, hall, or boss to view it!")
+    @slash_option(
+        name="name",
+        description="Type in the name of the card, title, arm, universe, house, hall, or boss you want to view",
+        opt_type=OptionType.STRING,
+        required=False,
+    )
+    @slash_option(
+        name="advanced_search",
+        description="Advanced search for lists of characters and accessories",
+        opt_type=OptionType.STRING,
+        required=False,
+        autocomplete=True,
+    )
+    async def view(self, ctx: InteractionContext, name: str = "", advanced_search: str = ""):
+        await ctx.defer()
+        if not await crown_utilities.player_check(ctx):
+            return
+        try:
+            if advanced_search:
+                if advanced_search:
+                    response = await advanced_card_search(self, ctx, advanced_search)
+                    return
+            
+            if name:
+                response = db.viewQuery(f"^{str(name)}$")
+                if response:
+                    if len(response) == 1:
+                        if response[0]['TYPE'] == "CARDS":
+                            await viewcard(self, ctx, response[0]['DATA'])
+                        if response[0]['TYPE'] == "TITLES":
+                            await viewtitle(self, ctx, response[0]['DATA'])
+                        if response[0]['TYPE'] == "ARM":
+                            await viewarm(self, ctx, response[0]['DATA'])
+                        if response[0]['TYPE'] == "PET":
+                            await viewsummon(self, ctx, response[0]['DATA'])
+                        if response[0]['TYPE'] == "UNIVERSE":
+                            await viewuniverse(self, ctx, response[0]['DATA'])
+                        if response[0]['TYPE'] == "BOSS":
+                            await viewboss(self, ctx, response[0]['DATA'])
+                        if response[0]['TYPE'] == "HALL":
+                            await viewhall(self, ctx, response[0]['DATA'])
+                        if response[0]['TYPE'] == "HOUSE":
+                            await viewhouse(self, ctx, response[0]['DATA'])
+                        return
+                    else:
+                        list_of_results = []
+                        counter = 0
+                        if response:
+                            for result in response:
+                                if result['TYPE'] == "CARDS":
+                                    list_of_results.append({'TYPE': 'CARD', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the card 🎴 {result['DATA']['NAME']}?", 'DATA': result['DATA']})
+                                
+                                if result['TYPE'] == "TITLES":
+                                    list_of_results.append({'TYPE': 'TITLE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the title 🎗️ {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
+                                
+                                if result['TYPE'] == "ARM":
+                                    list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}?", 'DATA': result['DATA']})
+                                
+                                if result['TYPE'] == "PET":
+                                    list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🧬 {result['DATA']['PET']}?", 'DATA': result['DATA']})
+                                
+                                if result['TYPE'] == "UNIVERSE":
+                                    list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
+                                
+                                if result['TYPE'] == "BOSS":
+                                    list_of_results.append({'TYPE': 'BOSS', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the boss 👹 {result['DATA']['NAME']}?", 'DATA': result['DATA']})
+                                
+                                if result['TYPE'] == "HALL":
+                                    list_of_results.append({'TYPE': 'HALL', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the hall ⛩️ {result['DATA']['HALL']}?", 'DATA': result['DATA']})
+                                
+                                if result['TYPE'] == "HOUSE":
+                                    list_of_results.append({'TYPE': 'HOUSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the house 🏠 {result['DATA']['HOUSE']}?", 'DATA': result['DATA']})
+                            
+                        if list_of_results:
+                            message = [f"{result['TEXT']}\n\n" for result in list_of_results]
+                            me = ''.join(message)
+                            embedVar = Embed(title="Did you mean?...", description=textwrap.dedent(f"""\
+                            {me}
+                            """), color=0xf1c40f)
+
+                            buttons = []
+                            
+                            for result in list_of_results:
+                                if result['TYPE'] == "CARD":
+                                    buttons.append(
+                                        Button(
+                                            style=ButtonStyle.BLUE,
+                                            label=f"🎴 {result['DATA']['NAME']}",
+                                            custom_id=f"{str(result['NUMBER'])}"
+                                        )
+                                    )
+                                
+                                if result['TYPE'] == "TITLE":
+                                    buttons.append(
+                                        Button(
+                                            style=ButtonStyle.BLUE,
+                                            label=f"🎗️ {result['DATA']['TITLE']}",
+                                            custom_id=f"{str(result['NUMBER'])}"
+                                        )
+                                    )
+                                
+                                if result['TYPE'] == "ARM":
+                                    buttons.append(
+                                        Button(
+                                            style=ButtonStyle.BLUE,
+                                            label=f"🦾 {result['DATA']['ARM']}",
+                                            custom_id=f"{str(result['NUMBER'])}"
+                                        )
+                                    )
+                                
+                                if result['TYPE'] == "PET":
+                                    buttons.append(
+                                        Button(
+                                            style=ButtonStyle.BLUE,
+                                            label=f"🐦 {result['DATA']['PET']}",
+                                            custom_id=f"{str(result['NUMBER'])}"
+                                        )
+                                    )
+                                
+                                if result['TYPE'] == "UNIVERSE":
+                                    buttons.append(
+                                        Button(
+                                            style=ButtonStyle.BLUE,
+                                            label=f"🌍 {result['DATA']['TITLE']}",
+                                            custom_id=f"{str(result['NUMBER'])}"
+                                        )
+                                    )
+                                
+                                if result['TYPE'] == "BOSS":
+                                    buttons.append(
+                                        Button(
+                                            style=ButtonStyle.BLUE,
+                                            label=f"👹 {result['DATA']['NAME']}",
+                                            custom_id=f"{str(result['NUMBER'])}"
+                                        )
+                                    )
+                                
+                                if result['TYPE'] == "HALL":
+                                    buttons.append(
+                                        Button(
+                                            style=ButtonStyle.BLUE,
+                                            label=f"⛩️ {result['DATA']['HALL']}",
+                                            custom_id=f"{str(result['NUMBER'])}"
+                                        )
+                                    )
+                                
+                                if result['TYPE'] == "HOUSE":
+                                    buttons.append(
+                                        Button(
+                                            style=ButtonStyle.BLUE,
+                                            label=f"🏠 {result['DATA']['HOUSE']}",
+                                            custom_id=f"{str(result['NUMBER'])}"
+                                        )
+                                    )
+
+                            buttons.append(
+                                Button(
+                                style=ButtonStyle.RED,
+                                label="❌ Cancel",
+                                custom_id="cancel"
+                            ))
+                            
+                            buttons_action_row = ActionRow(*buttons)
+
+                            msg = await ctx.send(embed=embedVar, components=[buttons_action_row])
+                            
+                            def check(component: Button) -> bool:
+                                return button_ctx.author == ctx.author
+
+                            try:
+                                button_ctx  = await self.bot.wait_for_component(components=[buttons_action_row, buttons], timeout=300, check=check)
+                                
+                                for result in list_of_results:
+                                    if button_ctx.custom_id == str(result['NUMBER']):
+                                        await msg.edit(components=[])
+                                        
+                                        await view_selection(self, ctx, result)
+                                        return                 
+                                if button_ctx.custom_id == "cancel":
+                                    await msg.edit(components=[])
+                                    
+                                    return
+                            except Exception as ex:
+                                trace = []
+                                tb = ex.__traceback__
+                                while tb is not None:
+                                    trace.append({
+                                        "filename": tb.tb_frame.f_code.co_filename,
+                                        "name": tb.tb_frame.f_code.co_name,
+                                        "lineno": tb.tb_lineno
+                                    })
+                                    tb = tb.tb_next
+                                print(str({
+                                    'type': type(ex).__name__,
+                                    'message': str(ex),
+                                    'trace': trace
+                                }))
+                                await ctx.send("You took too long to respond.", hidden=True)
+                                return
+                        else:
+                            pass
+
+                if not response:
+                    results = db.viewQuerySearch(f".*{str(name)}.*")
+                    list_of_results = []
+                    counter = 0
+                    if results:
+                        for result in results:
+                            if result['TYPE'] == "CARDS":
+                                list_of_results.append({'TYPE': 'CARD', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the card 🎴 {result['DATA']['NAME']}?", 'DATA': result['DATA']})
+                            
+                            if result['TYPE'] == "TITLES":
+                                list_of_results.append({'TYPE': 'TITLE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the title 🎗️ {result['DATA']['TITLE']}?", 'DATA': result['DATA']})
+                            
+                            if result['TYPE'] == "ARM":
+                                list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}", 'DATA': result['DATA']})
+                            
+                            if result['TYPE'] == "PET":
+                                list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🐦 {result['DATA']['PET']}", 'DATA': result['DATA']})
+                            
+                            if result['TYPE'] == "UNIVERSE":
+                                list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}", 'DATA': result['DATA']})
+                            
+                            if result['TYPE'] == "BOSS":
+                                list_of_results.append({'TYPE': 'BOSS', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the boss 👹 {result['DATA']['NAME']}", 'DATA': result['DATA']})
+                            
+                            if result['TYPE'] == "HALL":
+                                list_of_results.append({'TYPE': 'HALL', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the hall ⛩️ {result['DATA']['HALL']}", 'DATA': result['DATA']})
+                            
+                            if result['TYPE'] == "HOUSE":
+                                list_of_results.append({'TYPE': 'HOUSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the house 🏠 {result['DATA']['HOUSE']}", 'DATA': result['DATA']})
+                        
+                    if list_of_results:
+                        message = [f"{result['TEXT']}\n\n" for result in list_of_results]
+                        me = ''.join(message)
+                        embedVar = Embed(title="Did you mean?...", description=textwrap.dedent(f"""\
+                        {me}
+                        """), color=0xf1c40f)
+
+                        buttons = []
+                        
+                        for result in list_of_results:
+                            if result['TYPE'] == "CARD":
+                                buttons.append(
+                                    Button(
+                                        style=ButtonStyle.BLUE,
+                                        label=f"🎴 {result['DATA']['NAME']}",
+                                        custom_id=f"{str(result['NUMBER'])}"
+                                    )
+                                )
+                            
+                            if result['TYPE'] == "TITLE":
+                                buttons.append(
+                                    Button(
+                                        style=ButtonStyle.BLUE,
+                                        label=f"🎗️ {result['DATA']['TITLE']}",
+                                        custom_id=f"{str(result['NUMBER'])}"
+                                    )
+                                )
+                            
+                            if result['TYPE'] == "ARM":
+                                buttons.append(
+                                    Button(
+                                        style=ButtonStyle.BLUE,
+                                        label=f"🦾 {result['DATA']['ARM']}",
+                                        custom_id=f"{str(result['NUMBER'])}"
+                                    )
+                                )
+                            
+                            if result['TYPE'] == "PET":
+                                buttons.append(
+                                    Button(
+                                        style=ButtonStyle.BLUE,
+                                        label=f"🐦 {result['DATA']['PET']}",
+                                        custom_id=f"{str(result['NUMBER'])}"
+                                    )
+                                )
+                            
+                            if result['TYPE'] == "UNIVERSE":
+                                buttons.append(
+                                    Button(
+                                        style=ButtonStyle.BLUE,
+                                        label=f"🌍 {result['DATA']['TITLE']}",
+                                        custom_id=f"{str(result['NUMBER'])}"
+                                    )
+                                )
+                            
+                            if result['TYPE'] == "BOSS":
+                                buttons.append(
+                                    Button(
+                                        style=ButtonStyle.BLUE,
+                                        label=f"👹 {result['DATA']['NAME']}",
+                                        custom_id=f"{str(result['NUMBER'])}"
+                                    )
+                                )
+                            
+                            if result['TYPE'] == "HALL":
+                                buttons.append(
+                                    Button(
+                                        style=ButtonStyle.BLUE,
+                                        label=f"⛩️ {result['DATA']['HALL']}",
+                                        custom_id=f"{str(result['NUMBER'])}"
+                                    )
+                                )
+                            
+                            if result['TYPE'] == "HOUSE":
+                                buttons.append(
+                                    Button(
+                                        style=ButtonStyle.BLUE,
+                                        label=f"🏠 {result['DATA']['HOUSE']}",
+                                        custom_id=f"{str(result['NUMBER'])}"
+                                    )
+                                )
+
+                        buttons.append(Button(
+                            style=ButtonStyle.RED,
+                            label="❌ Cancel",
+                            custom_id="cancel"
+                        ))
+
+                        components = ActionRow(*buttons)
+                        
+
+                        msg = await ctx.send(embed=embedVar, components=components)
+                        
+                        def check(component: Button) -> bool:
+                            return component.ctx.author == ctx.author
+
+                        try:
+                            button_ctx  = await self.bot.wait_for_component(components=components, check=check, timeout=300)
+                            event = button_ctx.ctx
+
+                            for result in list_of_results:
+                                if event.custom_id == str(result['NUMBER']):
+                                    await msg.edit(components=[])
+                                    # await event.defer(ignore_check=True)
+                                    await view_selection(self, ctx, result)
+                                    return                 
+                            if event.custom_id == "cancel":
+                                await msg.delete()
+                                # await event.defer(ignore_check=True)
+                                return
+                        except Exception as ex:
+                            trace = []
+                            tb = ex.__traceback__
+                            while tb is not None:
+                                trace.append({
+                                    "filename": tb.tb_frame.f_code.co_filename,
+                                    "name": tb.tb_frame.f_code.co_name,
+                                    "lineno": tb.tb_lineno
+                                })
+                                tb = tb.tb_next
+                            print(str({
+                                'type': type(ex).__name__,
+                                'message': str(ex),
+                                'trace': trace
+                            }))
+                            await ctx.send("You took too long to respond.", hidden=True)
+                            return
+                    else:
+                        pass
+
+                regex_pattern = r'.*\belements\b.*'
+                
+                if re.match(regex_pattern, name):
+                    embedVar = Embed(title= f"What does each element do?", description=h.ELEMENTS, color=0x7289da)
+                    embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+                    await ctx.send(embed=embedVar)
+                    return
+
+                if re.search(r"(manual|help|guide)", name):
+                    await self.bot.animevs(ctx)
+                    return
+
+                if re.search(r"(enhancers|passives|talents)", name):
+                    await self.bot.enhancers(ctx)
+                    return
+
+                
+                await ctx.send("No results found.", hidden=True)
+                return
+
+            if not advanced_search and not name:
+                embed = Embed(title="Whoops!", description="Please enter a Name or an Advanced Search term.", color=0xff0000)
+                await ctx.send(embed=embed)
+                return
+        
+        except Exception as ex:
+            print(ex)
+            embed = Embed(title="View Error", description="Something went wrong. Please try again later.", color=0xff0000)
+            await ctx.send(embed=embed)
+            return
+
+    @view.autocomplete("advanced_search")
+    async def view_autocomplete(self, ctx: AutocompleteContext):        
+        choices = []
+        options = crown_utilities.autocomplete_advanced_search
+        # Iterate over the options and append matching ones to the choices list
+        for option in options:
+            if not ctx.input_text:
+                # If input_text is empty, append the first 24 options to choices
+                if len(choices) < 24:
+                    choices.append(option)
+                else:
+                    break
+            else:
+                # If input_text is not empty, append the first 24 options that match the input to choices
+                if option["name"].lower().startswith(ctx.input_text.lower()):
+                    choices.append(option)
+                    if len(choices) == 24:
+                        break
+
+        await ctx.send(choices=choices)
+
+
+    async def direct_selection(self, ctx, results):
+        print("Hello Direct Selection")
+        message = [f"{result['TEXT']}\n\n" for result in results]
+        me = ''.join(message)
+        embedVar = Embed(title="Did you mean?...", description=textwrap.dedent(f"""\
+        {me}
+        """), color=0xf1c40f)
+
+        buttons = []
+        
+        for result in results:
+            if result['TYPE'] == "CARDS":
+                buttons.append(
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label=f"🎴 {result['DATA']['NAME']}",
+                        custom_id=f"{str(result['NUMBER'])}"
+                    )
+                )
+            
+            if result['TYPE'] == "TITLES":
+                buttons.append(
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label=f"🎗️ {result['DATA']['TITLE']}",
+                        custom_id=f"{str(result['NUMBER'])}"
+                    )
+                )
+            
+            if result['TYPE'] == "ARM":
+                buttons.append(
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label=f"🦾 {result['DATA']['ARM']}",
+                        custom_id=f"{str(result['NUMBER'])}"
+                    )
+                )
+            
+            if result['TYPE'] == "PET":
+                buttons.append(
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label=f"🐦 {result['DATA']['PET']}",
+                        custom_id=f"{str(result['NUMBER'])}"
+                    )
+                )
+            
+            if result['TYPE'] == "UNIVERSE":
+                buttons.append(
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label=f"🌍 {result['DATA']['TITLE']}",
+                        custom_id=f"{str(result['NUMBER'])}"
+                    )
+                )
+            
+            if result['TYPE'] == "BOSS":
+                buttons.append(
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label=f"👹 {result['DATA']['NAME']}",
+                        custom_id=f"{str(result['NUMBER'])}"
+                    )
+                )
+            
+            if result['TYPE'] == "HALL":
+                buttons.append(
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label=f"⛩️ {result['DATA']['HALL']}",
+                        custom_id=f"{str(result['NUMBER'])}"
+                    )
+                )
+            
+            if result['TYPE'] == "HOUSE":
+                buttons.append(
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label=f"🏠 {result['DATA']['HOUSE']}",
+                        custom_id=f"{str(result['NUMBER'])}"
+                    )
+                )
+
+        buttons.append(Button(
+            style=ButtonStyle.RED,
+            label="❌ Cancel",
+            custom_id="cancel"
+        ))
+        buttons_action_row = ActionRow(*buttons)
+
+        msg = await ctx.send(embed=embedVar, components=[buttons_action_row])
+        
+        def check(component: Button) -> bool:
+            return button_ctx.author == ctx.author
+
+        try:
+            button_ctx  = await self.bot.wait_for_component(components=[buttons_action_row, buttons], timeout=300, check=check)
+
+            if button_ctx.custom_id in ["0", "1", "2", "3", "4"]:
+                if results["NUMBER"] == int(button_ctx.custom_id):
+                    await view_selection(ctx, results["DATA"])
+                    return
+            if button_ctx.custom_id == "cancel":
+                await msg.delete()    
+                return
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            await ctx.send("You took too long to respond.", hidden=True)
+            return
+
+
+    @slash_command(description="View all available Universes and their cards, summons, destinies, and accessories")
+    async def universes(self, ctx: InteractionContext):
+        
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
+
+        try:
+            universe_data = list(db.queryAllUniverse())
+            universe_subset = random.sample(universe_data, k=min(len(universe_data), 25))
+
+            # user = db.queryUser({'DID': str(ctx.author.id)})
+            universe_embed_list = []
+            for uni in universe_subset:
+                available = ""
+                # if len(uni['CROWN_TALES']) > 2:
+                if uni['CROWN_TALES']:
+                    available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
+                    
+                    tales_list = ", ".join(uni['CROWN_TALES'])
+
+                    embedVar = Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
+                    {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: ⚔️ **{len(uni['CROWN_TALES'])}**
+
+                    ⚔️ **Tales Order**: {tales_list}
+                    """))
+                    embedVar.set_image(url=uni['PATH'])
+                    universe_embed_list.append(embedVar)
+                
+
+            buttons = [
+                Button(style=3, label="🎴 Cards", custom_id="cards"),
+                Button(style=1, label="🎗️ Titles", custom_id="titles"),
+                Button(style=1, label="🦾 Arms", custom_id="arms"),
+                Button(style=1, label="🧬 Summons", custom_id="summons"),
+                Button(style=2, label="✨ Destinies", custom_id="destinies")
+            ]
+            custom_action_row = ActionRow(*buttons)
+
+            async def custom_function(self, button_ctx):
+                universe_name = str(button_ctx.origin_message.embeds[0].title)
+                await button_ctx.defer(ignore=True)
+                if button_ctx.author == ctx.author:
+                    if button_ctx.custom_id == "cards":
+                        await cardlist(self, ctx, universe_name)
+                        #self.stop = True
+                    if button_ctx.custom_id == "titles":
+                        await titlelist(self, ctx, universe_name)
+                        #self.stop = True
+                    if button_ctx.custom_id == "arms":
+                        await armlist(self, ctx, universe_name)
+                        #self.stop = True
+                    if button_ctx.custom_id == "summons":
+                        await summonlist(self, ctx, universe_name)
+                        #self.stop = True
+                    if button_ctx.custom_id == "destinies":
+                        await destinylist(self, ctx, universe_name)
+                        #self.stop = True
+                else:
+                    await ctx.send("This is not your command.")
+
+
+            await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=universe_embed_list, customActionRow=[
+                custom_action_row,
+                custom_function,
+            ]).run()
+
+
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+
+
+    @slash_command(description="View all Homes for purchase")
+    async def houses(self, ctx: InteractionContext):
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
+        try:
+            house_data = db.queryAllHouses()
+
+            house_list = []
+            for homes in house_data:
+                house_list.append(
+                    f"🏠 | **{homes['HOUSE']}**\n🪙 | **COST: **{'{:,}'.format(homes['PRICE'])}\n:part_alternation_mark: | **MULT: **{homes['MULT']}x\n_______________")
+
+            total_houses = len(house_list)
+
+            embed_list = []
+            for i in range(0, len(house_list), 5):
+                sublist = house_list[i:i + 5]
+                embedVar = Embed(title=f"🏠 House List",description="\n".join(sublist), color=0x7289da)
+                embedVar.set_footer(text=f"{total_houses} Total Houses\n/view *House Name* `🏠 It's a House` - View House Details")
+                embed_list.append(embedVar)
+
+            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+            await paginator.send(ctx)
+        except Exception as ex:
+            print(ex)
+            embed = Embed(title="Houses Error", description="Something went wrong. Please try again later.", color=0xff0000)
+            await ctx.send(embed=embed)
+            return
+
+
+    @slash_command(description="View all Halls for purchase")
+    async def halls(self, ctx: InteractionContext):
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
+
+        try:
+            hall_data = db.queryAllHalls()
+
+            hall_list = []
+            for homes in hall_data:
+                hall_list.append(f"🎏 | **{homes['HALL']}**\n🛡️ | **DEF: **{homes['DEFENSE']}\n🪙 | **COST: **{'{:,}'.format(homes['PRICE'])}\n:part_alternation_mark: | **MULT: **{homes['MULT']}x\n💰 | **SPLIT: **{'{:,}'.format(homes['SPLIT'])}x\n:yen: | **FEE: **{'{:,}'.format(homes['FEE'])}\n_______________")
+
+            total_halls = len(hall_list)
+
+            embed_list = []
+            for i in range(0, len(hall_list), 5):
+                sublist = hall_list[i:i+5]
+                embedVar = Embed(title=f"🎏 Hall List", description="\n".join(sublist), color=0x7289da)
+                embedVar.set_footer(text=f"{total_halls} Total Halls\n/view Hall Name `🎏 It's A Hall` - View Hall Details")
+                embed_list.append(embedVar)
+
+
+            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+            await paginator.send(ctx)
+        except Exception as e:
+            print(e)
+            embed = Embed(title="Halls Error", description="Something went wrong. Please try again later.", color=0xff0000)
+            await ctx.send(embed=embed)
+            return
 
 
 def setup(bot):
-    bot.add_cog(Views(bot))
+    Views(bot)
 
 
-
-async def viewcard(self, ctx, card: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
+async def view_selection(self, ctx, result):
+    if result['TYPE'] == "CARD":
+        await viewcard(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "TITLE":
+        await viewtitle(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "ARM":
+        await viewarm(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "PET":
+        await viewsummon(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "UNIVERSE":
+        await viewuniverse(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "BOSS":
+        await viewboss(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "HALL":
+        await viewhall(self, ctx, result['DATA'])
+        return
+    
+    if result['TYPE'] == "HOUSE":
+        await viewhouse(self, ctx, result['DATA'])
         return
 
-    card_name = card
+
+async def viewcard(self, ctx, data):
     query = {'DID': str(ctx.author.id)}
     d = db.queryUser(query)
-    card = db.queryCard({'NAME': {"$regex": f"^{str(card_name)}$", "$options": "i"}})
+    card = data
     try:
         if card:
-            o_card = card['NAME']
-            o_card_path = card['PATH']
-            o_price = card['PRICE']
-            o_exclusive = card['EXCLUSIVE']
-            o_available = card['AVAILABLE']
-            o_is_skin = card['IS_SKIN']
-            o_skin_for = card['SKIN_FOR']
-            o_max_health = card['HLT']
-            o_health = card['HLT']
-            o_stamina = card['STAM']
-            o_max_stamina = card['STAM']
-            o_moveset = card['MOVESET']
-            o_attack = card['ATK']
-            o_defense = card['DEF']
-            o_type = card['TYPE']
-            o_passive = card['PASS'][0]
-            affinity_message = crown_utilities.set_affinities(card)
-            o_speed = card['SPD']
-            o_show = card['UNIVERSE']
-            o_has_collection = card['HAS_COLLECTION']
-            o_tier = card['TIER']
-            traits = ut.traits
-            show_img = db.queryUniverse({'TITLE': o_show})['PATH']
-            o_collection = card['COLLECTION']
-            performance_mode = d['PERFORMANCE']
-            resolved = False
-            focused = False
-            dungeon = False
+            if "FPATH" not in card:
+                card['FPATH'] = card['PATH']
+
+            c = crown_utilities.create_card_from_data(card)
             title = {'TITLE': 'CARD PREVIEW'}
             arm = {'ARM': 'CARD PREVIEW'}
 
-            if o_show == "Unbound":
+            if c.is_universe_unbound():
                 await ctx.send("You cannot view this card at this time. ", hidden=True)
                 return
-
-            price_message = ""
-            card_icon = ""
-            if o_is_skin:
-                price_message = "Card Skin"
-                card_icon = f"💎"
-            elif o_exclusive or o_has_collection:
-                if o_has_collection == True:
-                    price_message = "Destiny Only"
-                    card_icon = f"✨"
-                else:
-                    price_message = "Dungeon Only"
-                    card_icon = f"🔥"
-                    dungeon = True
-            elif o_exclusive == False and o_available == False and o_has_collection == False:
-                price_message = "Boss Only"
-                card_icon = f"👹"
-            else:
-                price_message = f"Shop & Drop"
-                card_icon = f"🎴"
+            c.set_tip_and_view_card_message()
+            evasion = c.get_evasion()
+            evasion_message = f"{c.speed}"
+            if c.speed >= 70 or c.speed <=30:
+                if c.speed >= 70:     
+                    if d['PERFORMANCE']:
+                        evasion_message = f"{c.speed}: *{round(c.evasion)}% evasion*"
+                    else:
+                        evasion_message = f"{c.speed}: {round(c.evasion)}% evasion"
+                elif c.speed <= 30:
+                    if d['PERFORMANCE']:
+                        evasion_message = f"{c.speed}: *{c.evasion}% evasion*"
+                    else:
+                        evasion_message = f"{c.speed}: {c.evasion}% evasion"
             att = 0
             defe = 0
             turn = 0
-            mytrait = {}
-            traitmessage = ''
-            for trait in traits:
-                if trait['NAME'] == o_show:
-                    mytrait = trait
-                if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
-                    if trait['NAME'] == 'Pokemon':
-                        mytrait = trait
-            if mytrait:
-                traitmessage = f"{mytrait['EFFECT']}: {mytrait['TRAIT']}"
 
-            passive_name = list(o_passive.keys())[0]
-            passive_num = list(o_passive.values())[0]
-            passive_type = list(o_passive.values())[1]
-
-        
-            if passive_type:
-                value_for_passive = o_tier * .5
-                flat_for_passive = round(10 * (o_tier * .5))
-                stam_for_passive = 5 * (o_tier * .5)
-                if passive_type == "HLT":
-                    passive_num = value_for_passive
-                if passive_type == "LIFE":
-                    passive_num = value_for_passive
-                if passive_type == "ATK":
-                    passive_num = flat_for_passive
-                if passive_type == "DEF":
-                    passive_num = flat_for_passive
-                if passive_type == "STAM":
-                    passive_num = stam_for_passive
-                if passive_type == "DRAIN":
-                    passive_num = stam_for_passive
-                if passive_type == "FLOG":
-                    passive_num = value_for_passive
-                if passive_type == "WITHER":
-                    passive_num = value_for_passive
-                if passive_type == "RAGE":
-                    passive_num = value_for_passive
-                if passive_type == "BRACE":
-                    passive_num = value_for_passive
-                if passive_type == "BZRK":
-                    passive_num = value_for_passive
-                if passive_type == "CRYSTAL":
-                    passive_num = value_for_passive
-                if passive_type == "FEAR":
-                    passive_num = flat_for_passive
-                if passive_type == "GROWTH":
-                    passive_num = flat_for_passive
-                if passive_type == "CREATION":
-                    passive_num = value_for_passive
-                if passive_type == "DESTRUCTION":
-                    passive_num = value_for_passive
-                if passive_type == "SLOW":
-                    passive_num = passive_num
-                if passive_type == "HASTE":
-                    passive_num = passive_num
-                if passive_type == "GAMBLE":
-                    passive_num = passive_num
-                if passive_type == "SOULCHAIN":
-                    passive_num = passive_num + 90
-                if passive_type == "STANCE":
-                    passive_num = flat_for_passive
-                if passive_type == "CONFUSE":
-                    passive_num = flat_for_passive
-                if passive_type == "BLINK":
-                    passive_num = stam_for_passive
-
-
-            o_1 = o_moveset[0]
-            o_2 = o_moveset[1]
-            o_3 = o_moveset[2]
-            o_enhancer = o_moveset[3]
-
-            # Move 1
-            move1 = list(o_1.keys())[0]
-            move1ap = list(o_1.values())[0]
-            move1_stamina = list(o_1.values())[1]
-            move1_element = list(o_1.values())[2]
-            move1_emoji = crown_utilities.set_emoji(move1_element)
-
-            # Move 2
-            move2 = list(o_2.keys())[0]
-            move2ap = list(o_2.values())[0]
-            move2_stamina = list(o_2.values())[1]
-            move2_element = list(o_2.values())[2]
-            move2_emoji = crown_utilities.set_emoji(move2_element)
-
-            # Move 3
-            move3 = list(o_3.keys())[0]
-            move3ap = list(o_3.values())[0]
-            move3_stamina = list(o_3.values())[1]
-            move3_element = list(o_3.values())[2]
-            move3_emoji = crown_utilities.set_emoji(move3_element)
-
-            # Move Enhancer
-            move4 = list(o_enhancer.keys())[0]
-            move4ap = list(o_enhancer.values())[0]
-            move4_stamina = list(o_enhancer.values())[1]
-            move4enh = list(o_enhancer.values())[2]
             active_pet = {}
             pet_ability_power = 0
             card_exp = 150
 
+            # Temporarily removed ♾️ {c.set_trait_message()}
+            if d['PERFORMANCE']:
+                embedVar = Embed(title=f"{c.drop_emoji} {c.price_message} {c.name} [{crown_utilities.class_emojis[c.card_class]}]", description=textwrap.dedent(f"""\
+                {crown_utilities.class_emojis[c.card_class]} | {c.class_message}
+                🀄 | {c.tier}
+                ❤️ | {c.max_health}
+                🗡️ | {c.attack}
+                🛡️ | {c.defense}
+                🏃 | {evasion_message}
 
-            message = ""
-            tip = ""
-            if o_is_skin:
-                message = f"{o_card} is a card Skin. "
-                tip = f"Earn the {o_skin_for} card and use gems to /craft this Skin!"
-            elif o_has_collection == True or dungeon == True:
-                if o_has_collection:
-                    message = f"{o_card} is a Destiny card. "
-                    tip = f"Complete {o_show} Destiny: {o_collection} to unlock this card."
-                else:
-                    message = f"{o_card} is a Dungeon card. "
-                    tip = f"/craft or Find this card in the {o_show} Dungeon"
-            elif o_has_collection == False and o_available == False and o_exclusive == False:
-                message = f"{o_card} is a Boss card. "
-                tip = f"Defeat {o_show} Boss to earn this card."
-            elif o_attack > o_defense:
-                message = f"{o_card} is an offensive card. "
-                tip = f"Tip: Equipping {o_show} /titles and defensive /arms would help boost survivability"
-            elif o_defense > o_attack:
-                message = f"{o_card} is a defensive card. "
-                tip = f"Tip: Equipping {o_show} /titles and offensive /arms would help boost killability"
-            else:
-                message = f"{o_card} is a balanced card. "
-                tip = f"Tip: Equip {o_show} /titles and /arms that will maximize your Enhancer"
+                {c.move1_emoji} | {c.move1}: {c.move1ap}
+                {c.move2_emoji} | {c.move2}: {c.move2ap}
+                {c.move3_emoji} | {c.move3}: {c.move3ap}
+                🦠 | {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.enhancer_suffix_mapping[c.move4enh]}
 
-            
-            if performance_mode:
-                embedVar = discord.Embed(title=f"{card_icon} {price_message} {o_card}", description=textwrap.dedent(f"""\
-                :mahjong: {o_tier}
-                ❤️ {o_max_health}
-                🗡️ {o_attack}
-                🛡️ {o_defense}
-                🏃 {o_speed}
-
-                🩸 {passive_name}: {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}                
-
-                {move1_emoji} {move1}: {move1ap}
-                {move2_emoji} {move2}: {move2ap}
-                {move3_emoji} {move3}: {move3ap}
-                🦠 {move4}: {move4enh} {move4ap} {passive_enhancer_suffix_mapping[move4enh]}   
-
-                ♾️ {traitmessage}
-                """), colour=000000)
-                embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
-                embedVar.set_footer(text=f"{tip}")
+                🩸 | {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
+                """), color=000000)
+                embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
+                embedVar.set_footer(text=f"{c.tip}")
                 await ctx.send(embed=embedVar)
 
             else:
-                card_file = showcard("non-battle", card, "none", o_max_health, o_health, o_max_stamina, o_stamina, resolved, title, focused,
-                                    o_attack, o_defense, turn, move1ap, move2ap, move3ap, move4ap, move4enh, 0, None)
-
-                embedVar = discord.Embed(title=f"", colour=000000)
-                embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
+                embedVar = Embed(title=f"", color=000000)
+                embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
+                embedVar.add_field(name="__Class__", value=f"{crown_utilities.class_emojis[c.card_class]} {c.class_message}", inline=False)
                 embedVar.set_image(url="attachment://image.png")
-                embedVar.set_thumbnail(url=show_img)
+                embedVar.set_thumbnail(url=c.set_universe_image())
                 embedVar.set_author(name=textwrap.dedent(f"""\
-                {card_icon} {price_message}
-                Passive & Universe Trait
-                🩸 {passive_name}: {passive_type} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
-                ♾️ {traitmessage}
-                🏃 {o_speed}
+                {c.drop_emoji} {c.price_message}
+                
+                Passive
+                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
+                🏃 {evasion_message}
                 """))
-                embedVar.set_footer(text=f"{tip}")
-
+                embedVar.set_footer(text=f"{c.tip}")
+                image_binary = c.showcard("non-battle", "none", title, 0, 0)
+                image_binary.seek(0)
+                card_file = File(file_name="image.png", file=image_binary)
                 await ctx.send(file=card_file, embed=embedVar)
+                image_binary.close()
         else:
-            await ctx.send(m.CARD_DOESNT_EXIST, hidden=True)
+            embed = Embed(title=f"🎴 Whoops!", description=f"That card does not exist.", color=000000)
+            await ctx.send(embed=embed)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -389,134 +884,28 @@ async def viewcard(self, ctx, card: str):
             'trace': trace
         }))
         return
+        embedVar = Embed(title=f"🎴 Whoops!", description=f"There was an issue with loading the card.", color=000000)
+        await ctx.send(embed=embedVar)
 
 
-async def viewtitle(self, ctx, title: str):
+async def viewtitle(self, ctx, data):
     try:
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
+        if data:
+            user = db.queryUser({"DID": str(ctx.author.id)})
+            player = crown_utilities.create_player_from_data(user)
+            t = crown_utilities.create_title_from_data(data)
+            t.set_unlock_method_message(player)
 
-        title_name = title
-        title = db.queryTitle({'TITLE': {"$regex": f"^{str(title)}$", "$options": "i"}})
-        #print(title)
-        if title:
-            title_title = title['TITLE']
-            title_show = title['UNIVERSE']
-            title_price = title['PRICE']
-            exclusive = title['EXCLUSIVE']
-            abyssal = False
-
-            if title_show != 'Unbound':
-                title_img = db.queryUniverse({'TITLE': title_show})['PATH']
-            else:
-                abyssal = True
-            title_passive = title['ABILITIES'][0]
-                # Title Passive
-            o_title_passive_type = list(title_passive.keys())[0]
-            o_title_passive_value = list(title_passive.values())[0]
-            
-            message=""
-
-            price_message ="" 
-            if abyssal:
-                price_message = "_Abyssal_"
-            elif exclusive:
-                price_message = "_Priceless_"
-            else:
-                price_message = f"_Shop & Drop_"
-            typetext = " "
-            type2 = " "
-            if o_title_passive_type == 'ATK':
-                typetext = "Attack"
-                message=f"{title_title} is an ATK title"
-            elif o_title_passive_type == 'DEF':
-                typetext = "Defense"
-                message=f"{title_title} is a DEF title"
-            elif o_title_passive_type == 'STAM':
-                typetext = "Stamina"
-                message=f"{title_title} is a STAM title"
-            elif o_title_passive_type == 'HLT':
-                typetext = "Health"
-                message=f"{title_title} is a HLT title"
-            elif o_title_passive_type == 'LIFE':
-                typetext = "Health"
-                message=f"{title_title} is a LIFE title"
-            elif o_title_passive_type == 'DRAIN':
-                typetext = "Stamina"
-                message=f"{title_title} is a DRAIN title"
-            elif o_title_passive_type == 'FLOG':
-                typetext = "Attack"
-                message=f"{title_title} is a FLOG title"
-            elif o_title_passive_type == 'WITHER':
-                typetext = "Defense"
-                message=f"{title_title} is a WITHER title"
-            elif o_title_passive_type == 'RAGE':
-                typetext = "Defense gain Attack"
-                message=f"{title_title} is a RAGE title"
-            elif o_title_passive_type == 'BRACE':    
-                typetext = "Attack gain Defense"        
-                message=f"{title_title} is a BRACE title"
-            elif o_title_passive_type == 'BZRK':    
-                typetext = "Health gain Attack"        
-                message=f"{title_title} is a BZRK title"
-            elif o_title_passive_type == 'CRYSTAL':    
-                typetext = "Health gain Defense"        
-                message=f"{title_title} is a CRYSTAL title"
-            elif o_title_passive_type == 'GROWTH':    
-                typetext = "Max Health gain Attack and Defense"        
-                message=f"{title_title} is a GROWTH title"
-            elif o_title_passive_type == 'STANCE':
-                typetext = "Attack and Defense increase"
-                message=f"{title_title} is a STANCE title"
-            elif o_title_passive_type == 'CONFUSE':
-                typetext = "Opponent Attack And Defense decrease Opponent"
-                message=f"{title_title} is a CONFUSE title"
-            elif o_title_passive_type == 'BLINK':
-                typetext = "Decrease Stamina"
-                type2 ="Increase Target Stamina"
-                message=f"{title_title} is a BLINK title"
-            elif o_title_passive_type == 'SLOW':
-                typetext = "Decrease Turn Count"
-                type2 = "Decrease Stamina"
-                message=f"{title_title} is a SLOW title"
-            elif o_title_passive_type == 'HASTE':
-                typetext = "Increase Turn Count"
-                type2 = "Decrease Opponent Stamina"
-                message=f"{title_title} is a HASTE title" 
-            elif o_title_passive_type == 'SOULCHAIN':
-                typetext = "Stamina Regen"
-                message=f"{title_title} is a SOULCHAIN title"
-            elif o_title_passive_type == 'FEAR':
-                typetext = "Max Health reduce Opponent Attack and Defense"
-                message=f"{title_title} is a FEAR title"
-            elif o_title_passive_type == 'GAMBLE':
-                typetext = "Health Regen "
-                message=f"{title_title} is a GAMBLE title" 
-
-            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[title_show]} {title_title}\n{price_message}".format(self), colour=000000)
-            if title_show != "Unbound":
-                embedVar.set_thumbnail(url=title_img)
-            if o_title_passive_type == "ATK" or o_title_passive_type == "DEF" or o_title_passive_type == "HLT" or o_title_passive_type == "STAM":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your Turn, Increases **{typetext}** by **{o_title_passive_value}{title_enhancer_suffix_mapping[o_title_passive_type]}**", inline=False)
-            elif o_title_passive_type == "FLOG" or o_title_passive_type == "WITHER" or o_title_passive_type == "LIFE" or o_title_passive_type == "DRAIN":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, Steals **{o_title_passive_value}{title_enhancer_suffix_mapping[o_title_passive_type]} {typetext}**", inline=False)
-            elif o_title_passive_type == "RAGE" or o_title_passive_type == "BRACE" or o_title_passive_type == "BZRK" or o_title_passive_type == "CRYSTAL" or o_title_passive_type == "GROWTH" or o_title_passive_type == "FEAR":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, Sacrifice **{o_title_passive_value}{title_enhancer_suffix_mapping[o_title_passive_type]} {typetext}**", inline=False)
-            elif o_title_passive_type == "STANCE" or o_title_passive_type == "CONFUSE":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, Swap {typetext} Defense by **{o_title_passive_value}**", inline=False)
-            elif o_title_passive_type == "BLINK":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, **{typetext}** by **{o_title_passive_value}**, **{type2}** by **{o_title_passive_value}**", inline=False)
-            elif o_title_passive_type == "SLOW" or o_title_passive_type == "HASTE":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"On your turn, **{typetext}** by **{o_title_passive_value}**", inline=False)
-            elif o_title_passive_type == "SOULCHAIN" or o_title_passive_type == "GAMBLE":
-                embedVar.add_field(name=f"**Unique Passive**", value=f"During Focus, **{typetext}** equal **{o_title_passive_value}**", inline=False)
-            embedVar.set_footer(text=f"{o_title_passive_type}: {title_enhancer_mapping[o_title_passive_type]}")
-
+            embedVar = Embed(title=f"🎗️ | {t.name}\n{crown_utilities.crest_dict[t.universe]} | {t.universe}".format(self), color=000000)
+            if t.universe != "Unbound":
+                embedVar.set_thumbnail(url=t.title_img)
+            embedVar.add_field(name=f"**Title Effects**", value="\n".join(t.title_messages), inline=False)
+            embedVar.add_field(name=f"**How To Unlock**", value=f"{t.unlock_method_message}", inline=False)
             await ctx.send(embed=embedVar)
 
         else:
-            await ctx.send("That title doesn't exist.", hidden=True)
+            embed = Embed(title="🎗️ Whoops!", description="That title does not exist.", color=000000)
+            await ctx.send(embed=embed)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -533,83 +922,25 @@ async def viewtitle(self, ctx, title: str):
             'trace': trace
         }))
 
-async def viewarm(self, ctx, arm: str):
-    arm_name = arm
-    arm = db.queryArm({'ARM': {"$regex": f"^{str(arm_name)}$", "$options": "i"}})
+
+async def viewarm(self, ctx, data):
+    arm = data
     try:
         if arm:
-            element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
-            arm_arm = arm['ARM']
-            arm_show = arm['UNIVERSE']
-            arm_price = arm['PRICE']
-            exclusive = arm['EXCLUSIVE']
-            element = arm['ELEMENT']
-            abyssal = False
-            if element:
-                element_name = element.title()
-                element = crown_utilities.set_emoji(element)
+            a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
+            embedVar = Embed(title=f"🦾 | {a.name}\n{crown_utilities.crest_dict[a.universe]} | {a.universe}\n{a.price_message}".format(self), color=000000)
+            if a.universe != "Unbound":
+                embedVar.set_thumbnail(url=a.show_img)
 
-            if arm_show != 'Unbound':
-                arm_show_img = db.queryUniverse({'TITLE': arm_show})['PATH']
-            else:
-                abyssal = True
-            arm_passive = arm['ABILITIES'][0]
-                # Arm Passive
-            o_arm_passive_type = list(arm_passive.keys())[0]
-            o_arm_passive_value = list(arm_passive.values())[0]
-
-            message=""
-            
-            price_message ="" 
-            if abyssal:
-                price_message = "_Abyssal_"
-            elif exclusive:
-                price_message = "_Priceless_"
-            else:
-                price_message = f"_Shop & Drop_"
-
-            if o_arm_passive_type == 'BASIC':
-                typetext = 'Basic'
-                message=f"{arm_arm} is a basic attack arm"
-            elif o_arm_passive_type == 'SPECIAL':
-                typetext = 'Special'
-                message=f"{arm_arm} is a special attack arm"
-            elif o_arm_passive_type == 'ULTIMATE':
-                typetext = 'Ultimate'
-                message=f"{arm_arm} is an ultimate attack arm"
-            elif o_arm_passive_type == 'ULTIMAX':
-                typetext = 'Ultimax'
-                message=f"{arm_arm} is a ULTIMAX arm"
-            elif o_arm_passive_type == 'SHIELD':
-                typetext = 'Shield'
-                message=f"{arm_arm} is a SHIELD arm"
-            elif o_arm_passive_type == 'BARRIER':
-                typetext = 'Barrier'
-                message=f"{arm_arm} is an BARRIER arm"
-            elif o_arm_passive_type == 'PARRY':
-                typetext = 'Parry'
-                message=f"{arm_arm} is a PARRY arm"
-            elif o_arm_passive_type == 'MANA':
-                typetext = 'Mana'
-                message=f"{arm_arm} is a MANA arm"
-            elif o_arm_passive_type == 'SIPHON':
-                typetext = 'Siphon'
-                message=f"{arm_arm} is a SIPHON arm"
-
-
-
-
-            embedVar = discord.Embed(title=f"{crown_utilities.crest_dict[arm_show]} {arm_arm}\n{price_message}".format(self), colour=000000)
-            if arm_show != "Unbound":
-                embedVar.set_thumbnail(url=arm_show_img)
-            if o_arm_passive_type in element_available:
+            if a.is_move():
                 # embedVar.add_field(name=f"Arm Move Element", value=f"{element}", inline=False)
-                embedVar.add_field(name=f"{typetext} {element_name} Attack", value=f"{element} **{arm_arm}**: **{o_arm_passive_value}**", inline=False)
-                embedVar.set_footer(text=f"The new {typetext} attack will reflect on your card when equipped")
+                embedVar.add_field(name=f"{a.type_message} {a.element.title()} Attack", value=f"{a.element_emoji} | **{a.name}**: **{a.passive_value}**\n *{a.element_ability}*", inline=False)
+                # embedVar.add_field(name=f":sunny: | Elemental Effect", value=f"*{a.element_ability}*", inline=False)
+                embedVar.set_footer(text=f"The new {a.type_message} attack will reflect on your card when equipped")
 
             else:
-                embedVar.add_field(name=f"Unique Passive", value=f"Increases {typetext} by **{o_arm_passive_value}**", inline=False)
-                embedVar.set_footer(text=f"{o_arm_passive_type}: {enhancer_mapping[o_arm_passive_type]}")
+                embedVar.add_field(name=f"Unique Passive", value=f"Increases {a.type_message} by **{a.passive_value}**", inline=False)
+                embedVar.set_footer(text=f"{a.passive_type}: {crown_utilities.enhancer_mapping[a.passive_type]}")
 
             await ctx.send(embed=embedVar)
 
@@ -633,140 +964,23 @@ async def viewarm(self, ctx, arm: str):
         return
 
 
-async def viewsummon(self, ctx, summon: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
-    pet = db.queryPet({'PET': {"$regex": f"^{str(summon)}$", "$options": "i"}})
+async def viewsummon(self, ctx, data):
+    pet = data
     try:
         if pet:
-            pet_pet = pet['PET']
-            pet_show = pet['UNIVERSE']
-            pet_image = pet['PATH']
+            s = crown_utilities.create_summon_from_data(pet)
+            # s.set_messages()
 
-            if pet_show != 'Unbound':
-                pet_show_img = db.queryUniverse({'TITLE': pet_show})['PATH']
-            pet_passive = pet['ABILITIES'][0]
-                # Summon Passive
-            o_pet_passive_name = list(pet_passive.keys())[0]
-            o_pet_passive_value = list(pet_passive.values())[0]
-            o_pet_passive_type = list(pet_passive.values())[1]
-
-            message=""
-            
-            if o_pet_passive_type == 'ATK':
-                typetext = "Attack"
-                message=f"{pet_pet} is a ATK Summon"
-                value=f"{o_pet_passive_name}: Increase {typetext} by {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]}"
-            elif o_pet_passive_type == 'DEF':
-                typetext = "Defense"
-                mmessage=f"{pet_pet} is a DEF Summon"
-                value=f"{o_pet_passive_name}: Increase {typetext} by {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]}"
-            elif o_pet_passive_type == 'STAM':
-                typetext = "Stamina"
-                message=f"{pet_pet} is a STAM Summon"
-                value=f"{o_pet_passive_name}: Increase {typetext} by {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]}"
-            elif o_pet_passive_type == 'HLT':
-                typetext = "Health"
-                message=f"{pet_pet} is a HLT Summon"
-                value=f"{o_pet_passive_name}: Increase {typetext} by {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]}"
-            elif o_pet_passive_type == 'LIFE':
-                typetext = "of Opponents Health"
-                message=f"{pet_pet} is a LIFE Summon"
-                value=f"{o_pet_passive_name}: Steals {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} {typetext}"
-            elif o_pet_passive_type == 'DRAIN':
-                typetext = "of Opponents Stamina"
-                message=f"{pet_pet} is a DRAIN Summon"
-                value=f"{o_pet_passive_name}: Steals {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} {typetext}"
-            elif o_pet_passive_type == 'FLOG':
-                typetext = "of Opponents Attack"
-                message=f"{pet_pet} is a FLOG Summon"
-                value=f"{o_pet_passive_name}: Steals {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} {typetext}"
-            elif o_pet_passive_type == 'WITHER':
-                typetext = "of Opponents Defense"
-                message=f"{pet_pet} is a WITHER Summon"
-                value=f"{o_pet_passive_name}: Steals {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} {typetext}"
-            elif o_pet_passive_type == 'RAGE':
-                typetext = f"Defense to gain {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} AP"
-                message=f"{pet_pet} is a RAGE Summon"
-                value=f"{o_pet_passive_name}: Sacrifice {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} {typetext}"
-            elif o_pet_passive_type == 'BRACE':    
-                typetext = f"Attack to gain {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} AP"        
-                message=f"{pet_pet} is a BRACE Summon"
-                value=f"{o_pet_passive_name}: Sacrifice {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} {typetext}"
-            elif o_pet_passive_type == 'BZRK':    
-                typetext = f"Health to gain {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} Attack"        
-                message=f"{pet_pet} is a BZRK Summon"
-                value=f"{o_pet_passive_name}: Sacrifice {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} {typetext}"
-            elif o_pet_passive_type == 'CRYSTAL':    
-                typetext = f"Health to gain {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} Defense"        
-                message=f"{pet_pet} is a CRYSTAL Summon"
-                value=f"{o_pet_passive_name}: Sacrifice {o_pet_passive_value}{enhancer_suffix_mapping[o_pet_passive_type]} {typetext}"
-            elif o_pet_passive_type == 'GROWTH':    
-                typetext = f"Max Health to gain {round(o_pet_passive_value * .5)}{enhancer_suffix_mapping[o_pet_passive_type]} Attack, Defense, and AP"      
-                message=f"{pet_pet} is a GROWTH Summon"
-                value=f"{o_pet_passive_name}: Sacrifice 10% {typetext}"
-            elif o_pet_passive_type == 'STANCE':
-                typetext = "Attack and Defense, Increase"
-                message=f"{pet_pet} is a STANCE Summon"
-                value=f"{o_pet_passive_name}: Swap {typetext} Defense by {o_pet_passive_value}"
-            elif o_pet_passive_type == 'CONFUSE':
-                typetext = "Opponent Attack And Defense, Decrease Opponent"
-                message=f"{pet_pet} is a CONFUSE Summon"
-                value=f"{o_pet_passive_name}: Swap {typetext} Defense by {o_pet_passive_value}"
-            elif o_pet_passive_type == 'BLINK':
-                typetext = "Decrease Your Stamina, Increase Opponent Stamina"
-                message=f"{pet_pet} is a BLINK Summon"
-                value=f"{o_pet_passive_name}: {typetext} by {o_pet_passive_value}"
-            elif o_pet_passive_type == 'SLOW':
-                typetext = "Decrease Your Stamina by"
-                message=f"{pet_pet} is a SLOW Summon"
-                value=f"{o_pet_passive_name}: {typetext} by {o_pet_passive_value}, Swap Stamina with Opponent"
-            elif o_pet_passive_type == 'HASTE':
-                typetext = "Increase Opponent Stamina by"
-                message=f"{pet_pet} is a HASTE Summon"
-                value=f"{o_pet_passive_name}: {typetext} by {o_pet_passive_value}, Swap Stamina with Opponent"
-            elif o_pet_passive_type == 'SOULCHAIN':
-                typetext = "Stamina"
-                message=f"{pet_pet} is a SOULCHAIN Summon"
-                value=f"{o_pet_passive_name}: Set both players {typetext} equal to {o_pet_passive_value}"
-            elif o_pet_passive_type == 'FEAR':
-                typetext = f"Max Health to reduce {round(o_pet_passive_value * .5)}{enhancer_suffix_mapping[o_pet_passive_type]} Opponent Attack, Defense, and AP"
-                message=f"{pet_pet} is a FEAR Summon"
-                value=f"{o_pet_passive_name}: Sacrifice 10% {typetext}"
-            elif o_pet_passive_type == 'GAMBLE':
-                typetext = "Health"
-                message=f"{pet_pet} is a GAMBLE Summon"
-                value=f"{o_pet_passive_name}: Set both players {typetext} equal to {o_pet_passive_value}"
-            elif o_pet_passive_type == 'BLAST':
-                typetext = "Deals Increasing AP * Turn Count Damage "
-                message=f"{pet_pet} is a BLAST Summon"
-                value=f"{o_pet_passive_name}: {typetext} starting at {o_pet_passive_value}"
-            elif o_pet_passive_type == 'WAVE':
-                typetext = "Deals Decreasing AP / Turn Count Damage"
-                message=f"{pet_pet} is a WAVE Summon"
-                value=f"{o_pet_passive_name}: {typetext} starting at {o_pet_passive_value}"
-            elif o_pet_passive_type == 'DESTRUCTION':
-                typetext = "Destroys Increasing AP * Turn Count Max Health"
-                message=f"{pet_pet} is a DESTRUCTION Summon"
-                value=f"{o_pet_passive_name}: {typetext} starting at {o_pet_passive_value}"
-            elif o_pet_passive_type == 'CREATION':
-                typetext = "Grants Decreasing AP / Turn Count Max Health"
-                message=f"{pet_pet} is a CREATION Summon"
-                value=f"{o_pet_passive_name}: {typetext} starting at {o_pet_passive_value}"
-
-            explanation = f"{o_pet_passive_type}: {enhancer_mapping[o_pet_passive_type]}"  
-
-
-            summon_file = showsummon(pet_image, pet_pet, value, 0, 0)
-            embedVar = discord.Embed(title=f"Summon".format(self), colour=000000)
-            if pet_show != "Unbound":
-                embedVar.set_thumbnail(url=pet_show_img)
+            image_binary = crown_utilities.showsummon(s.path, s.name, s.value, 0, 0)
+            image_binary.seek(0)
+            summon_file = File(file_name="summon.png", file=image_binary)
+            embedVar = Embed(title=f"Summon".format(self), color=000000)
+            if s.is_not_universe_unbound:
+                embedVar.set_thumbnail(url=s.show_img)
                         
-            embedVar.set_image(url="attachment://pet.png")
+            embedVar.set_image(url="attachment://summon.png")
 
-            await ctx.send(file=summon_file, hidden=True)
+            await ctx.send(file=summon_file)
 
         else:
             await ctx.send(m.PET_DOESNT_EXIST, hidden=True)
@@ -788,14 +1002,9 @@ async def viewsummon(self, ctx, summon: str):
         return
 
 
-async def viewuniverse(self, ctx, universe: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
+async def viewuniverse(self, ctx, data):
     try:
-        universe_name = universe
-        universe = db.queryUniverse({'TITLE': {"$regex": f"^{universe_name}$", "$options": "i"}})
+        universe = data
         universe_name = universe['TITLE']
         ttitle = "Starter"
         tarm = "Stock"
@@ -850,28 +1059,17 @@ async def viewuniverse(self, ctx, universe: str):
                     if trait['NAME'] == 'Pokemon':
                         mytrait = trait
             if mytrait:
-                traitmessage = f"**{mytrait['EFFECT']}**: {mytrait['TRAIT']}"
+                traitmessage = f"**{mytrait['EFFECT']}**| {mytrait['TRAIT']}"
                 
 
-            embedVar = discord.Embed(title=f"🌍 | {universe_title} :crossed_swords: {fights} :fire: {dungeon_fights} ", description=textwrap.dedent(f"""
+            embedVar = Embed(title=f"🌍 | {universe_title} ⚔️ {fights} 🔥 {dungeon_fights} ", description=textwrap.dedent(f"""
             {crest} | **{ownermessage}**
             
-            🗒️ | **Details**
-            :crown: | **Tales Build** 
-            :reminder_ribbon: | **Title** - {ttitle}
-            :mechanical_arm: | **Arm** - {tarm}
-            🧬 | **Universe Summon ** - {upet}
-            
-            :fire: | **Dungeon Build**
-            :reminder_ribbon: | **Title** - {dtitle}
-            :mechanical_arm: | **Arm** - {darm}
-            🧬 | **Dungeon Summon ** - {dpet}
-            
             :japanese_ogre: | **Universe Boss**
-            :flower_playing_cards: | **Card** - {boss}
+            🎴 | **Card** - {boss}
             {bossmessage}
             :infinity: | **Universe Trait** - {traitmessage}
-            """), colour=000000)
+            """), color=000000)
             embedVar.set_image(url=universe_image)
             embedVar.set_footer(text=f"{universe_title} Details")
 
@@ -898,12 +1096,8 @@ async def viewuniverse(self, ctx, universe: str):
         return
 
 
-async def viewhouse(self, ctx, house: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
-    house = db.queryHouse({'HOUSE': {"$regex": f"^{str(house)}$", "$options": "i"}})
+async def viewhouse(self, ctx, data):
+    house = data
     if house:
         house_house = house['HOUSE']
         house_price = house['PRICE']
@@ -913,12 +1107,12 @@ async def viewhouse(self, ctx, house: str):
         message=""
         
         price_message ="" 
-        price_message = f":coin: {'{:,}'.format(house_price)}"
+        price_message = f"🪙 {'{:,}'.format(house_price)}"
 
 
-        embedVar = discord.Embed(title=f"{house_house}\n{price_message}".format(self), colour=000000)
+        embedVar = Embed(title=f"{house_house}\n{price_message}".format(self), color=000000)
         embedVar.set_image(url=house_img)
-        embedVar.add_field(name="Income Multiplier", value=f"Family earns **{house_multiplier}x** :coin: per match!", inline=False)
+        embedVar.add_field(name="Income Multiplier", value=f"Family earns **{house_multiplier}x** 🪙 per match!", inline=False)
         embedVar.set_footer(text=f"/houses - House Menu")
 
         await ctx.send(embed=embedVar)
@@ -927,12 +1121,8 @@ async def viewhouse(self, ctx, house: str):
         await ctx.send(m.HOUSE_DOESNT_EXIST, delete_after=3)
 
 
-async def viewhall(self, ctx, hall: str):
-    a_registered_player = await crown_utilities.player_check(ctx)
-    if not a_registered_player:
-        return
-
-    hall = db.queryHall({'HALL':{"$regex": f"^{str(hall)}$", "$options": "i"}})
+async def viewhall(self, ctx, data):
+    hall = data
     if hall:
         hall_hall = hall['HALL']
         hall_price = hall['PRICE']
@@ -945,15 +1135,15 @@ async def viewhall(self, ctx, hall: str):
         message=""
         
         price_message ="" 
-        price_message = f":coin: {'{:,}'.format(hall_price)}"
+        price_message = f"🪙 {'{:,}'.format(hall_price)}"
 
 
-        embedVar = discord.Embed(title=f"{hall_hall}\n{price_message}", colour=000000)
+        embedVar = Embed(title=f"{hall_hall}\n{price_message}", color=000000)
         embedVar.set_image(url=hall_img)
         embedVar.add_field(name="Bounty Fee", value=f"**{'{:,}'.format(hall_fee)}** :yen: per **Raid**!", inline=False)
-        embedVar.add_field(name="Multiplier", value=f"Association earns **{hall_multiplier}x** :coin: per match!", inline=False)
-        embedVar.add_field(name="Split", value=f"**Guilds** earn **{hall_split}x** :coin: per match!", inline=False)
-        embedVar.add_field(name="Defenses", value=f"**Shield** Defense Boost: :shield:**{hall_def}x**", inline=False)
+        embedVar.add_field(name="Multiplier", value=f"Association earns **{hall_multiplier}x** 🪙 per match!", inline=False)
+        embedVar.add_field(name="Split", value=f"**Guilds** earn **{hall_split}x** 🪙 per match!", inline=False)
+        embedVar.add_field(name="Defenses", value=f"**Shield** Defense Boost: **{hall_def}x**", inline=False)
         embedVar.set_footer(text=f"/halls - Hall Menu")
 
         await ctx.send(embed=embedVar)
@@ -962,10 +1152,9 @@ async def viewhall(self, ctx, hall: str):
         await ctx.send(m.HALL_DOESNT_EXIST, delete_after=3)
 
 
-async def viewboss(self, ctx, boss : str):
+async def viewboss(self, ctx, data):
     try:
-        uboss_name = boss
-        uboss = db.queryBoss({'NAME': {"$regex": str(uboss_name), "$options": "i"}})
+        uboss = data
         if uboss:
             uboss_name = uboss['NAME']
             uboss_show = uboss['UNIVERSE']
@@ -986,7 +1175,7 @@ async def viewboss(self, ctx, boss : str):
             title_passive_type = list(title_passive.keys())[0]
             title_passive_value = list(title_passive.values())[0]
             
-            pet = db.queryPet({'PET': uboss_pet})
+            pet = db.querySummon({'PET': uboss_pet})
             pet_ability = pet['ABILITIES'][0]
             pet_ability_name = list(pet_ability.keys())[0]
             pet_ability_type = list(pet_ability.values())[1]
@@ -1007,18 +1196,18 @@ async def viewboss(self, ctx, boss : str):
                     if trait['NAME'] == 'Pokemon':
                         mytrait = trait
             if mytrait:
-                traitmessage = f"**{mytrait['EFFECT']}**: {mytrait['TRAIT']}"
+                traitmessage = f"**{mytrait['EFFECT']}**| {mytrait['TRAIT']}"
             
-            embedVar = discord.Embed(title=f":japanese_ogre: | {uboss_name}\n🌍 | {uboss_show} Boss", description=textwrap.dedent(f"""
+            embedVar = Embed(title=f":japanese_ogre: | {uboss_name}\n🌍 | {uboss_show} Boss", description=textwrap.dedent(f"""
             *{message}*
             
-            :flower_playing_cards: | **Card** - {uboss_card}
-            :reminder_ribbon: | **Title** - {uboss_title}: **{title_passive_type}** - {title_passive_value}
-            :mechanical_arm: | **Arm** - {uboss_arm}: **{arm_passive_type}** - {arm_passive_value}
-            :dna: | **Summon** - {uboss_pet}: **{pet_ability_type}**: {pet_ability_value}
+            🎴 | **Card** - {uboss_card}
+            🎗️ | **Title** - {uboss_title}: **{title_passive_type}** - {title_passive_value}
+            🦾 | **Arm** - {uboss_arm}: **{arm_passive_type}** - {arm_passive_value}
+            🧬 | **Summon** - {uboss_pet}: **{pet_ability_type}**: {pet_ability_value}
             
             :infinity: | **Universe Trait** - {traitmessage}
-            """), colour=000000)
+            """), color=000000)
             if uboss_show != "Unbound":
                 embedVar.set_thumbnail(url=uboss_show_img)
             embedVar.set_image(url=uboss_pic)
@@ -1048,76 +1237,74 @@ async def viewboss(self, ctx, boss : str):
         return
 
 
-enhancer_mapping = {'ATK': 'Increase Attack %',
-'DEF': 'Increase Defense %',
-'STAM': 'Increase Stamina',
-'HLT': 'Heal yourself or companion',
-'LIFE': 'Steal Health from Opponent',
-'DRAIN': 'Drain Stamina from Opponent',
-'FLOG': 'Steal Attack from Opponent',
-'WITHER': 'Steal Defense from Opponent',
-'RAGE': 'Lose Defense, Increase Attack',
-'BRACE': 'Lose Attack, Increase Defense',
-'BZRK': 'Lose Health, Increase Attack',
-'CRYSTAL': 'Lose Health, Increase Defense',
-'GROWTH': 'Lose Health, Increase Attack & Defense',
-'STANCE': 'Swap your Attack & Defense, Increase Attack',
-'CONFUSE': 'Swap Opponent Attack & Defense, Decrease Opponent Defense',
-'BLINK': 'Decrease your  Stamina, Increase Target Stamina',
-'SLOW': 'Decrease Opponent Stamina, Swap Stamina with Opponent',
-'HASTE': ' Increase your Stamina, Swap Stamina with Opponent',
-'FEAR': 'Decrease your Health, Decrease Opponent Attack and Defense',
-'SOULCHAIN': 'You and Your Opponent Stamina Link',
-'GAMBLE': 'You and Your Opponent Health Link',
-'WAVE': 'Deal Damage, Decreases over time',
-'CREATION': 'Heals you, Decreases over time',
-'BLAST': 'Deals Damage, Increases over time',
-'DESTRUCTION': 'Decreases Opponent Max Health, Increases over time',
-'BASIC': 'Increase Basic Attack AP',
-'SPECIAL': 'Increase Special Attack AP',
-'ULTIMATE': 'Increase Ultimate Attack AP',
-'ULTIMAX': 'Increase All AP Values',
-'MANA': 'Increase Enchancer AP',
-'SHIELD': 'Blocks Incoming DMG, until broken',
-'BARRIER': 'Nullifies Incoming Attacks, until broken',
-'PARRY': 'Returns 25% Damage, until broken',
-'SIPHON': 'Heal for 10% DMG inflicted + AP'
-}
+async def advanced_card_search(self, ctx, advanced_search_item):
+    try:
+        if advanced_search_item in crown_utilities.elements:
+            cards = [x for x in db.queryCardsByElement(advanced_search_item)]
+            suffix = "Element"
+        elif advanced_search_item in crown_utilities.class_mapping:
+            cards = [x for x in db.queryCardsByClass(advanced_search_item)]
+            suffix = "Class"
+        else:
+            cards = [x for x in db.queryCardsByPassive(advanced_search_item)]
+            suffix = "Passive / Enhancer"
 
+        all_cards = []
+        embed_list = []
 
-enhancer_suffix_mapping = {'ATK': '%',
-'DEF': '%',
-'STAM': ' Flat',
-'HLT': '%',
-'LIFE': '%',
-'DRAIN': ' Flat',
-'FLOG': '%',
-'WITHER': '%',
-'RAGE': '%',
-'BRACE': '%',
-'BZRK': '%',
-'CRYSTAL': '%',
-'GROWTH': '%',
-'STANCE': ' Flat',
-'CONFUSE': ' Flat',
-'BLINK': ' Flat',
-'SLOW': ' Flat',
-'HASTE': ' Flat',
-'FEAR': '%',
-'SOULCHAIN': ' Flat',
-'GAMBLE': ' Flat',
-'WAVE': ' Flat',
-'CREATION': ' Flat',
-'BLAST': ' Flat',
-'DESTRUCTION': ' Flat',
-'BASIC': ' Flat',
-'SPECIAL': ' Flat',
-'ULTIMATE': ' Flat',
-'ULTIMAX': ' Flat',
-'MANA': ' %',
-'SHIELD': ' DMG 🌐',
-'BARRIER': ' Blocks 💠',
-'PARRY': ' Counters 🔄',
-'SIPHON': ' Healing 💉'
-}
+        sorted_card_list = sorted(cards, key=lambda card: card["NAME"])
+        for index, card in enumerate(sorted_card_list):
+            moveset = card['MOVESET']
+            move3 = moveset[2]
+            move2 = moveset[1]
+            move1 = moveset[0]
+            basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
+            super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
+            ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
+            
+            class_info = card['CLASS']
+            class_emoji = crown_utilities.class_emojis[class_info]
+            class_message = class_info.title()
 
+            
+            universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
+                
+            available = ""
+            if card['DROP_STYLE'] == "DESTINY" or card['DROP_STYLE'] == "SCENARIO":
+                emoji = "✨"
+
+            if card['DROP_STYLE'] == "DUNGEON":
+                emoji = "🔥"
+
+            if card['DROP_STYLE'] == "TALES":
+                emoji = "🎴"
+
+            if card['DROP_STYLE'] == "BOSS":
+                emoji = "👹"
+
+            all_cards.append(f"{universe_crest} : 🀄 **{card['TIER']}** **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n❤️ {card['HLT']} 🗡️ {card['ATK']} 🛡️ {card['DEF']}\n")
+
+        for i in range(0, len(all_cards), 10):
+            sublist = all_cards[i:i+10]
+            embedVar = Embed(title=f"Advanced Search by {advanced_search_item.capitalize()} {suffix}", description="\n".join(sublist), color=0x7289da)
+            embed_list.append(embedVar)
+
+        pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
+        await pagination.send(ctx)
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        embed = Embed(title="View Error", description="Error when advance searching. Alert support. Thank you!", color=0xff0000)
+        await ctx.send(embed=embed)

@@ -1,71 +1,66 @@
-import discord
-from discord.embeds import Embed
-from discord.ext import commands
-import bot as main
+import time
+now = time.asctime()
 import crown_utilities
 import db
-import classes as data
+import classes as dclass
+import dataclasses as data
+from .classes.player_class import Player
+from .classes.card_class import Card
+from .classes.title_class import Title
+from .classes.arm_class import Arm
+from .classes.summon_class import Summon
+from .classes.battle_class  import Battle
+from .classes.custom_paginator import CustomPaginator
 import messages as m
 import numpy as np
 import help_commands as h
-# Converters
-from discord import User
-from discord import Member
-from PIL import Image, ImageFont, ImageDraw
 import requests
 from collections import ChainMap
-
+from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, User
 from io import BytesIO
 import io
 import unique_traits as ut
-import DiscordUtils
 import textwrap
-from .crownunlimited import showcard, cardback, enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping
+from .game_modes import  enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping
 from collections import Counter
-from discord_slash import cog_ext, SlashContext
-from dinteractions_Paginator import Paginator
-from discord_slash import SlashCommand
-from discord_slash.utils import manage_components
-from discord_slash.model import ButtonStyle
-from crown_utilities import crest_dict
-
 
 
 emojis = ['👍', '👎']
 
-class Lookup(commands.Cog):
+class Lookup(Extension):
     def __init__(self, bot):
         self.bot = bot
 
 
 
-    @commands.Cog.listener()
+    @listen()
     async def on_ready(self):
         print('Lookup Cog is ready!')
 
     async def cog_check(self, ctx):
-        return await main.validate_user(ctx)
+        return await self.bot.validate_user(ctx)
 
     
-    @cog_ext.cog_slash(description="Lookup player stats", guild_ids=main.guild_ids)
+    @slash_command(description="Lookup player stats", 
+    options=[
+        SlashCommandOption(
+            name="player",
+            description="Player to lookup",
+            type=OptionType.USER,
+            required=False
+        )]
+    )
     async def player(self, ctx, player = None):
         await ctx.defer()
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         try:
-            if player:
-                player = player.replace("<","")
-                player = player.replace(">","")
-                player = player.replace("@","")
-                player = player.replace("!","")
-                
-                
+            if player:     
+                player = player.id           
                 user = await self.bot.fetch_user(player)
                 avi = user.avatar_url
-                # print(player)
-                # print(str(ctx.author.id))
             else:
                 player = ctx.author.id
                 avi = ctx.author.avatar_url
@@ -79,13 +74,13 @@ class Lookup(commands.Cog):
             user = await self.bot.fetch_user(d['DID'])
             if d:
                 balance = v['BALANCE']
-                bal_icon = ":coin:"
+                bal_icon = "🪙"
                 if balance >= 50000000:
-                    bal_icon = ":money_with_wings:"
+                    bal_icon = "💸"
                 elif balance >= 10000000:
-                    bal_icon = ":moneybag:"
+                    bal_icon = "💰"
                 elif balance >= 500000:
-                    bal_icon = ":dollar:"
+                    bal_icon = "💵"
 
                 bal_message = f"{bal_icon}{'{:,}'.format(balance)}"
 
@@ -101,7 +96,9 @@ class Lookup(commands.Cog):
                 difficulty = d['DIFFICULTY']
                 games = d['GAMES']
                 abyss_level = d['LEVEL']
-                if abyss_level > 100:
+                if abyss_level <= 25:
+                    explore_message = f"*Unlock After Abyss 25*"
+                elif abyss_level > 100:
                     abyss_level = "**Conquered**"
                 retries = d['RETRIES']
                 card = d['CARD']
@@ -109,27 +106,62 @@ class Lookup(commands.Cog):
                 team = d['TEAM']
                 guild = d['GUILD']
                 patreon = d['PATRON']
+                autosave_message = crown_utilities.utility_emojis['OFF']
+                autosave = d['AUTOSAVE']
+                if autosave:
+                    autosave_message = crown_utilities.utility_emojis['ON']
+                    
+                performance_message = crown_utilities.utility_emojis['OFF']
+                performance = d['PERFORMANCE']
+                if performance:
+                    performance_message = crown_utilities.utility_emojis['ON']
+                    
+                explore_message = crown_utilities.utility_emojis['OFF']
+                explore = d['EXPLORE']
+                if explore:
+                    explore_location = d['EXPLORE_LOCATION']
+                    location = "All"
+                    if explore_location != "NULL":
+                        location = explore_location
+                    explore_message = f"{crown_utilities.utility_emojis['ON']} *Exploring {location}*"
+                    
+
+                    
+                purse_message = ""
+                purse = d['TOURNAMENT_WINS']
+                if purse == 1:
+                    purse_message = "👛 | **Gabe's Purse** Activated"
+                    
                 patreon_message = ""
                 if patreon == True:
                     patreon_message = "**💞 | Patreon Supporter**"
+                
+                rift_message = crown_utilities.utility_emojis['OFF']
+                rift = d['RIFT']
+                if rift == 1:
+                    rift_message = crown_utilities.utility_emojis['ON']
                 if team != "PCG":
                     team_info = db.queryTeam({'TEAM_NAME' : str(team.lower())})
                     guild = team_info['GUILD']
-                family = d['FAMILY']
+                    guild_buff = team_info['ACTIVE_GUILD_BUFF']
+                    guild_buff_active = team_info['GUILD_BUFF_ON']
+                    if guild_buff == "Rift" and guild_buff_active:
+                        rift_message = f"*{crown_utilities.utility_emojis['ON']} Guild Buff On*"
                 
+                family = d['FAMILY'] 
                 family_info = db.queryFamily({"HEAD": str(family)})
                 if family_info:
                     family_summon = family_info['SUMMON']
                     family_summon_name = family_summon['NAME']
                 fs_message = ""
                 if d['FAMILY_PET']:
-                    fs_message = f":family_mwgb: **Family Summon** *{family_summon_name}*"
+                    fs_message = f":family_mwgb: | **Family Summon** *{family_summon_name}*"
                 titles = d['TITLE']
                 arm = d['ARM']
                 battle_history = d['BATTLE_HISTORY']
+
                 avatar = d['AVATAR']
                 matches = d['MATCHES']
-                tournament_wins = d['TOURNAMENT_WINS']
                 crown_tales = d['CROWN_TALES']
                 dungeons = d['DUNGEONS']
                 bosses = d['BOSS_WINS']
@@ -141,6 +173,7 @@ class Lookup(commands.Cog):
                 year_joined = join_raw[20:]
                 day_joined = join_raw[:10]
                 prestige = d['PRESTIGE']
+                
                 aicon = ":new_moon:"
                 if prestige == 1:
                     aicon = ":waxing_crescent_moon:"
@@ -167,29 +200,15 @@ class Lookup(commands.Cog):
                     prestige_message = f"**Prestige:** *{prestige}*"
                 #print(day_joined + " " + year_joined)
                 birthday = f"🎉 | Registered on {day_joined}, {year_joined}"
-                icon = ':triangular_flag_on_post:'
+                icon = ':heart_on_fire:'
                 if rebirth == 0:
                     icon = ':triangular_flag_on_post:'
-                elif rebirth == 1:
-                    icon = ':heart_on_fire:'
-                elif rebirth == 2:
-                    icon = ':heart_on_fire::heart_on_fire:'
-                elif rebirth == 3:
-                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire:'
-                elif rebirth == 4:
-                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire:'
-                elif rebirth == 5:
-                    icon = ':heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire::heart_on_fire:'
-                elif rebirth == 6:
+                elif rebirth >= 6:
                     icon = '👼'
-                elif rebirth == 7:
-                    icon = '👼👼'
-                elif rebirth == 8:
-                    icon = '👼👼👼'
-                elif rebirth == 9:
-                    icon = '👼👼👼👼'
-                elif rebirth == 10:
-                    icon = '👼👼👼👼👼'
+                elif rebirth >= 10:
+                    icon = ':man_fairy:'
+                else:
+                    icon = ':man_fairy:'
 
                 talisman = d['TALISMAN']
                 talisman_message = "No Talisman Equipped"
@@ -251,12 +270,12 @@ class Lookup(commands.Cog):
                 crown_list = []
                 for crown in crown_tales:
                     if crown != "":
-                        crown_list.append(f"**{crest_dict[crown]} |** {crown}")
+                        crown_list.append(f"**{crown_utilities.crest_dict[crown]} |** {crown}")
                 
                 dungeon_list = []
                 for dungeon in dungeons:
                     if dungeon != "":
-                        dungeon_list.append(f"**{crest_dict[dungeon]} |** {dungeon}")
+                        dungeon_list.append(f"**{crown_utilities.crest_dict[dungeon]} |** {dungeon}")
 
                 boss_list =[]
                 uni = "Unbound"
@@ -264,7 +283,7 @@ class Lookup(commands.Cog):
                     if boss != "":
                         boss_info = db.queryBoss({'NAME': str(boss)})
                         uni = boss_info['UNIVERSE']
-                        boss_list.append(f"**{crest_dict[uni]} |** {boss}")
+                        boss_list.append(f"**{crown_utilities.crest_dict[uni]} |** {boss}")
 
                 matches_to_string = dict(ChainMap(*matches))
                 ign_to_string = dict(ChainMap(*ign))
@@ -273,85 +292,89 @@ class Lookup(commands.Cog):
 
 
 
-                embed1 = discord.Embed(title= f"{icon} | " + f"{name}".format(self), description=textwrap.dedent(f"""\
+                embed1 = Embed(title=f"{name}'s Profile".format(self), description=textwrap.dedent(f"""\
                 {aicon} | **Abyss Rank**: {abyss_level}
-                :flower_playing_cards: | **Card:** {card}
-                :reminder_ribbon:** | Title: **{titles}
-                :mechanical_arm: | **Arm: **{arm}
-                🧬 | **Summon: **{pet}
+                :heart_on_fire: | **Rebirth**: {rebirth}
+                
+                🎴 | **Card:** {card}
+                🎗️** | Title:** {titles}
+                🦾 | **Arm:** {arm}
+                🧬 | **Summon:** {pet}
                 {talisman_message}
 
-                :flags: | **Association: **{guild}
-                :military_helmet: | **Guild: **{team} 
-                :family_mwgb: | **Family: **{family}
-                
-                🆚 **Retries** {retries} available
-                ⚙️ **Battle History Setting** {str(battle_history)} messages
-                ⚙️ **Difficulty** {difficulty.lower().capitalize()}
-                """), colour=000000)
+                :flags: | **Association: ** {guild}
+                :military_helmet: | **Guild:** {team} 
+                :family_mwgb: | **Family:** {family}
+                """))
                 embed1.set_thumbnail(url=avatar)
                 
-                embed5 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Stats".format(self), description=textwrap.dedent(f"""\
+                embed2 = Embed(title=f"{name}'s Settings".format(self), description=textwrap.dedent(f"""\
+                🆚 | **Retries:** {retries} available
+                :crystal_ball: | **Rift:** {rift_message}
+                :milky_way: | **Explore:** {explore_message}
+                
+                ⚙️ | **Battle History Setting:** {str(battle_history)} messages
+                ⚙️ | **Difficulty:** {difficulty.lower().capitalize()}
+                ⚙️ | **Performance:** {performance_message}
+                
+                :floppy_disk: | **Autosave:** {autosave_message}
+                """))
+                embed2.set_thumbnail(url=avatar)
+                
+                embed5 = Embed(title=f"{name}'s Stats".format(self), description=textwrap.dedent(f"""\
                 ⚔️ | **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
                 🔥 | **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
                 👹 | **Bosses Played: **{'{:,}'.format(len(boss_matches))}
+                
                 🆚 | **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
                 📊 | **Pvp Record: ** :regional_indicator_w: **{pvp_wins}** / :regional_indicator_l: **{pvp_loss}**
-                
-                **Balance** | {bal_message}
-                :flower_playing_cards: **Cards** | {all_cards} ~ :briefcase: *{cstorage}*
-                :reminder_ribbon: **Titles** | {all_titles} ~ :briefcase: *{tstorage}*
-                :mechanical_arm: **Arms** | {all_arms} ~ :briefcase: *{astorage}*
-                🧬 **Summons** | {all_pets}
-                {fs_message}
-                """), colour=000000)
+                """))
                 embed5.set_thumbnail(url=avatar)
                 
-                embed6 = discord.Embed(title= f"{icon} | " + f"{name} AnimeVs+ Avatar".format(self), description=textwrap.dedent(f"""\
-                    **:bust_in_silhouette: | User**: {user.mention}
+                embed3 = Embed(title=f"{name}'s Vault".format(self), description=textwrap.dedent(f"""\
+                **Balance** | {bal_message}
+                🎴 | **Cards:** {all_cards} ~ :briefcase: *{cstorage}*
+                🎗️ | **Titles:** {all_titles} ~ :briefcase: *{tstorage}*
+                🦾 | **Arms:** {all_arms} ~ :briefcase: *{astorage}*
+                🧬 | **Summons:** {all_pets}
+                {fs_message}
+                {purse_message}
+                """))
+                embed3.set_thumbnail(url=avatar)
+                
+                embed6 = Embed(title=f"{name}'s Avatar".format(self), description=textwrap.dedent(f"""\
+                    **:bust_in_silhouette: | User:** {user.mention}
                     {aicon} | {prestige_message}
                     :military_medal: | {most_played_card_message}
-                    :earth_africa: | {most_played_universe_message}
+                    🌍 | {most_played_universe_message}
                     {patreon_message}
-                """), colour=000000)
+                """), color=000000)
                 embed6.set_image(url=avi)
                 embed6.set_footer(text=f"{birthday}")
-                # embed1.add_field(name="Team" + " :military_helmet:", value=team)
-                # embed1.add_field(name="Family" + " :family_mwgb:", value=family)
-                # embed1.add_field(name="Card" + " ::flower_playing_cards: :", value=' '.join(str(x) for x in titles))
-                # embed1.add_field(name="Title" + " :crown:", value=' '.join(str(x) for x in titles))
-                # embed1.add_field(name="Arm" + " :mechanical_arm: ", value=f"{arm}")
-                # embed1.add_field(name="Pet" + " :dog:  ", value=f"{pet}")
-                # embed1.add_field(name="Tournament Wins" + " :fireworks:", value=tournament_wins)
-
                 if crown_list:
-                    embed4 = discord.Embed(title= f"{icon} | " + f"{name} Achievements".format(self), description=":bank: | Party Chat Gaming Database™️", colour=000000)
+                    embed4 = Embed(title=f"{name}'s Achievements".format(self), description=":bank: | Party Chat Gaming Database™️")
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name=":medal: | " + "Completed Tales" , value="\n".join(crown_list))
                     if dungeon_list:
-                        embed4.add_field(name=":fire: | " + "Completed Dungeons", value="\n".join(dungeon_list))
+                        embed4.add_field(name="🔥 | " + "Completed Dungeons", value="\n".join(dungeon_list))
                         if boss_list:
                             embed4.add_field(name=":japanese_ogre: | " + "Boss Souls",value="\n".join(boss_list))
                         else:
                             embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                     else:
-                        embed4.add_field(name=":fire: | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
+                        embed4.add_field(name="🔥 | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
                         embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                 else:
-                    embed4 = discord.Embed(title= f"{icon} " + f"{name}".format(self), description=":bank: Party Chat Gaming Database™️", colour=000000)
+                    embed4 = Embed(title=f"{name}'s Achievements".format(self), description=":bank: Party Chat Gaming Database™️")
                     embed4.set_thumbnail(url=avatar)
                     embed4.add_field(name="Completed Tales" + " :medal:", value="No Completed Tales, yet!")
-                    embed4.add_field(name="Completed Dungeons" + " :fire: ", value="No Dungeons Completed, yet!")
+                    embed4.add_field(name="Completed Dungeons" + " 🔥 ", value="No Dungeons Completed, yet!")
                     embed4.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
 
-                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
-                paginator.add_reaction('⏮️', "first")
-                paginator.add_reaction('⬅️', "back")
-                paginator.add_reaction('🔐', "lock")
-                paginator.add_reaction('➡️', "next")
-                paginator.add_reaction('⏭️', "last")
-                embeds = [embed6, embed1, embed5, embed4]
-                await paginator.run(embeds)
+                embeds = [embed6, embed1, embed5, embed3, embed2, embed4]
+                paginator = CustomPaginator.create_from_embeds(self.bot, *embeds)
+                paginator.show_select_menu = True
+                await paginator.send(ctx)
             else:
                 await ctx.send(m.USER_NOT_REGISTERED)
         except Exception as ex:
@@ -373,13 +396,37 @@ class Lookup(commands.Cog):
             return
 
     
-    @cog_ext.cog_slash(description="Lookup Guild stats", guild_ids=main.guild_ids)
-    async def guild(self, ctx, guild = None):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+    @slash_command(description="Lookup Guild stats", options=[
+        SlashCommandOption(
+            name="guild",
+            description="Look guild up by guild name",
+            type=OptionType.STRING,
+            required=False
+        ),
+        SlashCommandOption(
+            name="player",
+            description="Look guild up by player",
+            type=OptionType.USER,
+            required=False
+        )
+    ])
+    async def guild(self, ctx, guild = None, player = None):
+        await ctx.defer()
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         try:
+            if player:
+                user = db.queryUser({'DID': str(player.id)})
+                if user:
+                    team_name = user['TEAM'].lower()
+                    if team_name == 'pcg':
+                        await ctx.send("This player is not a member of a guild.")
+                        return
+                    else:
+                        guild = team_name
+                    
             if guild:
                 team_name = guild.lower()
                 team_query = {'TEAM_NAME': team_name}
@@ -391,6 +438,7 @@ class Lookup(commands.Cog):
                 else:
                     await ctx.send("Guild does not exist")
                     return
+            
             else:
                 user = db.queryUser({'DID': str(ctx.author.id)})
                 team = db.queryTeam({'TEAM_NAME': user['TEAM'].lower()})
@@ -410,11 +458,26 @@ class Lookup(commands.Cog):
 
                 owner = team['OWNER']
                 shielding = team['SHIELDING']
-                owner_data = db.queryUser({'DISNAME': owner})
-                owner_object = await self.bot.fetch_user(owner_data['DID'])
-                officers = team['OFFICERS']
-                captains = team['CAPTAINS']
-                members = team['MEMBERS']
+                owner_data = db.queryUser({'DID': owner})
+                officers_dids = team['OFFICERS']
+                captains_dids = team['CAPTAINS']
+                members_dids = team['MEMBERS']
+                officers = []
+                captains = []
+                members = []
+            
+                for officer in officers_dids:
+                    officer_data = db.queryUser({'DID': officer})
+                    officers.append(officer_data['DISNAME'])
+                for captain in captains_dids:
+                    captain_data = db.queryUser({'DID': captain})
+                    captains.append(captain_data['DISNAME'])
+                for member in members_dids:
+                    member_data = db.queryUser({'DID': member})
+                    members.append(member_data['DISNAME'])
+                
+                owner = owner_data['DISNAME']
+
                 member_count = len(members)
                 formatted_list_of_members = []
                 formatted_list_of_officers = []
@@ -435,10 +498,10 @@ class Lookup(commands.Cog):
                         formatted_name = f"👑 [{str(index)}] **{member}**"
                         formatted_owner = formatted_name
                     elif member not in officers and member not in captains and member != owner:
-                        formatted_name = f"🔰 [{str(index)}] **{member}**"
+                        formatted_name = f"\n🔰 [{str(index)}] **{member}**"
                         formatted_list_of_members.append(formatted_name)
 
-                members_list_joined = ", ".join(formatted_list_of_members)
+                members_list_joined = "".join(formatted_list_of_members)
                 captains_list_joined = ", ".join(formatted_list_of_captains)
                 officers_list_joined = ", ".join(formatted_list_of_officers)
                 if user['DISNAME'] in officers:
@@ -491,7 +554,7 @@ class Lookup(commands.Cog):
                 association_msg = f"{association}"
                 
                 if shielding:
-                    association_msg= f":shield: {association}"
+                    association_msg= f"🛡️ {association}"
                 
                 hall_info = db.queryHall({'HALL': 'Mine'})
                 hall_img = hall_info['PATH']
@@ -534,160 +597,103 @@ class Lookup(commands.Cog):
                 guild = team['GUILD']
 
 
-                first_page = discord.Embed(title=f"{team_display_name}", description=textwrap.dedent(f"""
+                first_page = Embed(title=f"{team_display_name}", description=textwrap.dedent(f"""
                 👑 **Owner** 
                 {formatted_owner}
-
+                
                 🅾️ **Officers**
                 {officers_list_joined}
-
+                
                 🇨 **Captains**
                 {captains_list_joined}
                 
                 **Guild Membership Count** 
                 {member_count}
-
+                
                 **Association**
                 {association_msg}
-
+                
                 **Guild Buff**
                 {guild_buff_message}
-
+                
                 **Active Buff**
                 {guild_buff_message_active}
-
+                
                 **Bank** 
                 {icon} {'{:,}'.format(balance)}
-                """), colour=0x7289da)
-                # first_page.set_footer(text=f"")
-                
-                membership_pages = discord.Embed(title=f"Members", description=textwrap.dedent(f"""
-                🔰 **Members**
-                {members_list_joined}
-               
-                """), colour=0x7289da)
+                """), color=0x7289da)
 
                 
-                guild_mission_embed = discord.Embed(title=f"Guild Missions", description=textwrap.dedent(f"""
+                membership_pages = Embed(title=f"Members", description=textwrap.dedent(f"""
+                🔰 **Members**\n{members_list_joined}
+                """), color=0x7289da)
+
+                
+                guild_mission_embed = Embed(title=f"Guild Missions", description=textwrap.dedent(f"""
                 **Guild Mission** *Coming Soon*
                 {guild_mission_message}
-
                 **Completed Guild Missions**
                 {str(completed_missions)}
                
-                """), colour=0x7289da)
+                """), color=0x7289da)
 
 
-                war_embed = discord.Embed(title=f"Guild War", description=textwrap.dedent(f"""
+                war_embed = Embed(title=f"Guild War", description=textwrap.dedent(f"""
                 **War** *Coming Soon*
                 {war_message}
-
                 **Wars Won**
                 {str(war_wins)}
-
                
-                """), colour=0x7289da)
+                """), color=0x7289da)
                 
-                activity_page = discord.Embed(title="Recent Guild Activity", description=textwrap.dedent(f"""
+
+                activity_page = Embed(title="Recent Guild Activity", description=textwrap.dedent(f"""
                 {transactions_embed}
-                """), colour=0x7289da)
+                """), color=0x7289da)
                 
-                association_page = discord.Embed(title="Association", description=textwrap.dedent(f"""
+
+                association_page = Embed(title="Association", description=textwrap.dedent(f"""
                 **:flags: Association** | {association}
                 **:shinto_shrine: Hall** | {hall_name}
-                **:yen: Split** | Earn **{split}x** :coin: per match!
-                """), colour=0x7289da)
+                **:yen: Split** | Earn **{split}x** 🪙 per match!
+                """), color=0x7289da)
+                
                 association_page.set_image(url=hall_img)
                 
-                
-                guild_explanations = discord.Embed(title=f"Information", description=textwrap.dedent(f"""
+                guild_explanations = Embed(title=f"Information", description=textwrap.dedent(f"""
                 **Buff Explanations**
                 - **Quest Buff**: Start Quest from the required fight in the Tale, not for dungeons
                 - **Level Buff**: Each fight will grant you a level up
                 - **Stat Buff**: Add 50 ATK & DEF, 30 AP, and 100 HLT
                 - **Rift Buff**: Rifts will always be available
                 - **Rematch Buff**: Unlimited Rematches
-
+                
                 **Guild Position Explanations**
                 - **Owner**:  All operations */guildoperations*
                 - **Officer**:  Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
                 - **Captain**:  Can Toggly Buffs, Pay members
                 - **Member**:  No operations
-                """), colour=0x7289da)
+                """), color=0x7289da)
 
                 embed_list = [first_page, membership_pages, guild_mission_embed, war_embed, association_page, activity_page, guild_explanations]
 
                 buttons = [] 
 
-
-
-                
-
                 if not is_member:
-                    buttons.append(
-                        manage_components.create_button(style=3, label="Apply", custom_id="guild_apply")
-                    )
+                    buttons = ["Apply"]
                 
-                if is_owner:
-                    buttons = [
-                        manage_components.create_button(style=3, label="Buff Toggle", custom_id="guild_buff_toggle"),
-                        manage_components.create_button(style=3, label="Buff Swap", custom_id="guild_buff_swap"),
-                        manage_components.create_button(style=3, label="Buff Shop", custom_id="guild_buff_shop"),
-                    ]
-
-                elif is_officer:
-                    buttons = [
-                        manage_components.create_button(style=3, label="Buff Toggle", custom_id="guild_buff_toggle"),
-                        manage_components.create_button(style=3, label="Buff Swap", custom_id="guild_buff_swap"),
-                        manage_components.create_button(style=3, label="Buff Shop", custom_id="guild_buff_shop"),
-                    ]
-
+                if is_owner or is_officer:
+                    buttons = ["Buff Toggle", "Buff Swap", "Buff Shop"]
+                    
                 elif is_captain:
-                    buttons = [
-                        manage_components.create_button(style=3, label="Buff Toggle", custom_id="guild_buff_toggle"),
-                    ]
+                    buttons = ["Buff Toggle"]
 
-                elif is_member and not is_owner and not is_captain and not is_officer:
-                    buttons = [
-                        manage_components.create_button(style=2, label="Close", custom_id="Q")
-                    ]
-
-
-                custom_action_row = manage_components.create_actionrow(*buttons)
-
-
+            
                 async def custom_function(self, button_ctx):
                     if button_ctx.author == ctx.author:
-                        if button_ctx.custom_id == "guild_apply":
+                        if button_ctx.custom_id == "guild_buff_shop":
                             await button_ctx.defer(ignore=True)
-                            await apply(self, ctx, owner_object)
-                            self.stop = True
-                            return
-                        elif button_ctx.custom_id == "Q":
-                            self.stop = True
-                            return
-                        elif button_ctx.custom_id == "guild_buff_toggle":
-                            if guild_buff_available:
-                                response = guild_buff_toggle(user, team)
-                                if response:
-                                    await button_ctx.send(f"{response['MSG']}")
-                                else:
-                                    await button_ctx.send("Error in toggling buff. Please seek support https://discord.gg/yWAD5HkDXU")
-                                self.stop = True
-                            else:
-                                await button_ctx.send(f"No Active Guild Buff.")
-                        
-                        elif button_ctx.custom_id == "guild_buff_swap":
-                            if guild_buff_available:
-                                await button_ctx.defer(ignore=True)
-                                await main.buffswap(ctx, user, team)
-                                self.stop = True
-                            else:
-                                await button_ctx.send(f"No Active Guild Buff.")
-
-                        elif button_ctx.custom_id == "guild_buff_shop":
-                            await button_ctx.defer(ignore=True)
-                            await main.buffshop(ctx, user, team)
+                            await self.bot.buffshop(ctx, user, team)
                             self.stop = True
                         self.stop = True
                     else:
@@ -695,10 +701,10 @@ class Lookup(commands.Cog):
                         self.stop = True
 
 
-                await Paginator(bot=self.bot, useQuitButton=True, disableAfterTimeout=True, ctx=ctx, pages=embed_list, timeout=60, customActionRow=[
-                    custom_action_row,
-                    custom_function,
-                ]).run()
+                paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=buttons, paginator_type="Guild Buff")
+                paginator.show_select_menu = True
+                paginator.guild_buff_available = guild_buff_available
+                await paginator.send(ctx)
                 
             else:
                 await ctx.send(m.TEAM_DOESNT_EXIST)
@@ -719,10 +725,10 @@ class Lookup(commands.Cog):
             }))
     
     
-    @cog_ext.cog_slash(description="Lookup Association", guild_ids=main.guild_ids)
+    @slash_command(description="Lookup Association")
     async def association(self, ctx, association = None):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
         
         in_guild = False
@@ -799,16 +805,16 @@ class Lookup(commands.Cog):
                     
                 estates_list_joined = ", ".join(estates_list)
                 
-                picon = ":shield:"
+                picon = "🛡️"
                 sicon = ":beginner:"
                 
-                icon = ":coin:"
+                icon = "🪙"
                 if balance >= 2000000000:
-                    icon = ":money_with_wings:"
+                    icon = "💸"
                 elif balance >=1000000000:
-                    icon = ":moneybag:"
+                    icon = "💰"
                 elif balance >= 500000000:
-                    icon = ":dollar:"
+                    icon = "💵"
                     
                 if streak >= 100:
                     sicon = ":skull_crossbones:"     
@@ -817,11 +823,9 @@ class Lookup(commands.Cog):
                 elif streak >=25:
                     sicon = ":ghost:"
                 elif streak >= 10:
-                    sicon = ":diamond_shape_with_a_dot_inside:"
+                    sicon = "💠"
                     
                 
-                
-
                 sword_list = []
                 owner_list = []
                 owner_name_list = []
@@ -858,24 +862,31 @@ class Lookup(commands.Cog):
                         blade_count = blade_count + 1
                         total_blade_count = total_blade_count + 1
                         if blades in officers:
-                            formatted_name = f"**🅾️ [{str(index)}{str(bindex)}]** {blades}"
+                            formatted_name = f"__🅾️ [{str(index)}{str(bindex)}] {blades}__"
                             sword_member_list.append(formatted_name)
                         elif blades in captains:
-                            formatted_name = f"**🇨 [{str(index)}{str(bindex)}** {blades}"
+                            formatted_name = f"🇨 [{str(index)}{str(bindex)}] {blades}"
                             sword_member_list.append(formatted_name)
                         elif blades == owner:
-                            formatted_name = f"**👑 [{str(index)}{str(bindex)}] {blades}**"
+                            if blades == founder_name:
+                                formatted_name = f"\n🪖 | {swords_name}\n**🪆 | [{str(index)}] {owner}**"
+                            elif blades == sworn_name:
+                                formatted_name = f"\n🪖 | {swords_name}\n**🎎 | [{str(index)}] {owner}**"
+                            elif blades == shield_name:
+                                formatted_name = f"\n🪖 | {swords_name}\n**👺 | [{str(index)}] {owner}**"
+                            else:
+                                formatted_name = f"\n🪖 | {swords_name}\n**👑 [{str(index)}{str(bindex)}] {blades}**"
                             formatted_owner = formatted_name
                             sword_member_list.append(formatted_owner)
                         elif blades not in officers and blades not in captains and blades != owner:
-                            formatted_name = f"**🔰 [{str(index)}{str(bindex)}]** *{blades}*"
+                            formatted_name = f"*🔰 [{str(index)}{str(bindex)}] {blades}*"
                             sword_member_list.append(formatted_name)
                         #sword_member_list.append(f":knife: [{str(index)}{str(bindex)}] **{blades}**")
                     sword_bank = sword_team['BANK']
-                    sword_list.append(f"~ {swords_name} ~ W**{dubs}** / L**{els}**\n:coin: | **Bank: **{'{:,}'.format(sword_bank)}\n:knife: | **Members: **{blade_count}\n_______________________")
+                    sword_list.append(f"~ {swords_name} ~ W**{dubs}** / L**{els}**\n🪙 | **Bank: **{'{:,}'.format(sword_bank)}\n:knife: | **Members: **{blade_count}\n_______________________")
                     
                 guild_owner_list_joined = "\n".join(owner_name_list)
-                members_list_joined =  " | ".join(sword_member_list)
+                members_list_joined =  "\n".join(sword_member_list)
                 crest_list = []
                 for c in crest:
                     crest_list.append(f"{crown_utilities.crest_dict[c]} | {c}")
@@ -917,12 +928,12 @@ class Lookup(commands.Cog):
                     else:
                         transactions_embed = "\n".join(transactions)
 
-                # embed1 = discord.Embed(title=f":flags: {guild_name} Guild Card - {icon}{'{:,}'.format(balance)}".format(self), description=":bank: Party Chat Gaming Database", colour=000000)
+                # embed1 = Embed(title=f":flags: {guild_name} Guild Card - {icon}{'{:,}'.format(balance)}".format(self), description=":bank: Party Chat Gaming Database", color=000000)
                 # if guild['LOGO_FLAG']:
                 #     embed1.set_image(url=logo)
                 # embed1.add_field(name="Founder :dolls:", value= founder_name.split("#",1)[0], inline=True)
                 # embed1.add_field(name="Sworn :dolls:", value= sworn_name.split("#",1)[0], inline=True)
-                main_page = discord.Embed(title= f"{guild_name}".format(self), description=textwrap.dedent(f"""\
+                main_page = Embed(title= f"{guild_name}".format(self), description=textwrap.dedent(f"""\
                 :flags: | **Association:** {guild_name}
                 {icon} | **Bank:** {icon}{'{:,}'.format(balance)}
                 :nesting_dolls: | **Founder: ~** {founder_name.split("#",1)[0]}
@@ -932,87 +943,76 @@ class Lookup(commands.Cog):
                 :secret: | **Universe Crest: **{len(crest_list)} 
                     
                 :shinto_shrine: | **Hall: **{hall_name}
-                """), colour=000000)
+                """), color=000000)
                 main_page.set_image(url=hall_img)
                 main_page.set_footer(text=f"/ally to join the {guild_name} Association")
                 
-                arena_page = discord.Embed(title= f"Hall Information".format(self), description=textwrap.dedent(f"""\
+                arena_page = Embed(title= f"Hall Information".format(self), description=textwrap.dedent(f"""\
                 :flags: | **{guild_name} Raid Arena**
-                :coin: | **Raid Fee: **{'{:,}'.format(hall_fee)}
+                🪙 | **Raid Fee: **{'{:,}'.format(hall_fee)}
                 :yen: | **Bounty: **{'{:,}'.format(bounty)}
-                :moneybag: | **Victory Bonus: **{'{:,}'.format(bonus)}
+                💰 | **Victory Bonus: **{'{:,}'.format(bonus)}
                 
                 {sicon} | **Victories: **{streak}
                 :japanese_goblin: | **Shield: ~**{shield_name.split("#",1)[0].format(self)}
-                :flower_playing_cards: | **Card: **{shield_card}
-                :reminder_ribbon: | **Title: **{shield_title}
-                :mechanical_arm: | **Arm: **{shield_arm}
+                🎴 | **Card: **{shield_card}
+                🎗️ | **Title: **{shield_title}
+                🦾 | **Arm: **{shield_arm}
                     
                 :shinto_shrine: | **Hall: **{hall_name} 
-                :shield: | **Raid Defenses: **{hall_def} 
-                """), colour=000000)
+                🛡️ | **Raid Defenses: **{hall_def} 
+                """), color=000000)
                 arena_page.set_image(url=hall_img)
                 arena_page.set_footer(text=f"/raid {guild_name} - Raid Association")
                 
-                guilds_page = discord.Embed(title=f"Guild Information".format(self), description=f":flags: |  {guild_name} **Guild** List\n⛩️ | Guilds Earn **{hall_split}x**:coin:\n:bank: |  Party Chat Gaming Database", colour=000000)
+                guilds_page = Embed(title=f"Guild Information".format(self), description=f":flags: |  {guild_name} **Guild** List\n⛩️ | Guilds Earn **{hall_split}x**🪙\n:bank: |  Party Chat Gaming Database", color=000000)
                 guilds_page.add_field(name=f":military_helmet: Guilds | **:ninja: ~ {sword_count}/:knife: {total_blade_count}**", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
                 guilds_page.set_footer(text=f"/guild - View Association Guild")
                 
-                crest_page = discord.Embed(title=f"Universe Crest".format(self), description=f":flags: |  {guild_name} **Universe Crest**\n:bank: |  Party Chat Gaming Database", colour=000000)
+                crest_page = Embed(title=f"Universe Crest".format(self), description=f":flags: |  {guild_name} **Universe Crest**\n:bank: |  Party Chat Gaming Database", color=000000)
                 crest_page.add_field(name=f":secret: | **OWNED**", value="\n".join(f'**{c}**'.format(self) for c in crest_list), inline=False)
                 crest_page.set_footer(text=f"Earn Universe Crest in Dungeons and Boss Fights!")
                 
-                activity_page = discord.Embed(title="Recent Association Activity", description=textwrap.dedent(f"""
+                activity_page = Embed(title="Recent Association Activity", description=textwrap.dedent(f"""
                 {transactions_embed}
-                """), colour=0x7289da)
+                """), color=0x7289da)
                 
-                ghost_page = discord.Embed(title=f"Guild Owners", description=textwrap.dedent(f"""
-                👑 **Guild Leaders** | *Guilds Sworn To {guild['GNAME']}*
-                {guild_owner_list_joined}
-               
-                """), colour=0x7289da)
-                ghost_page.set_footer(text=f"/player - Lookup Guild Owners")
+                ghost_page = Embed(title=f"Guild Owners", description=textwrap.dedent(f"""
+                \n{guild_owner_list_joined}
+                """), color=0x7289da)
+                ghost_page.set_footer(text=f"🪆 | {guild['GNAME']} Founder\n🎎 | {guild['GNAME']} Sworn\n👺 | {guild['GNAME']} Shield\n👑 | Guilds Owners Sworn To {guild['GNAME']}\n👤 | /player - Lookup Guild Owners")
 
-                blades_page = discord.Embed(title=f"Association Members List", description=textwrap.dedent(f"""
-                👑 **Owner** | Guild Owner
-                🇨  **Captains** | Guild Captains
-                🅾️ **Officers** | Guild Officers
-                🔰 **Members** | Guild Members
-    
-                {members_list_joined}
-               
-                """), colour=0x7289da)
-                blades_page.set_footer(text=f"/player - Lookup Guild Members")
+                blades_page = Embed(title=f"Association Members List", description=textwrap.dedent(f"""
+                \n{members_list_joined}
+                """), color=0x7289da)
+                blades_page.set_footer(text=f"🪆 | Association Founder\n🎎 | Association Sworn\n👺 | Association Shield\n🪖 | Guild Name\n👑 | Guild Owner\n🅾️ | Guild Officer\n🇨  | Guild Captain\n🔰 | Guild Member\n👤 | /player - Lookup Guild Members")
                 
-                estates_page = discord.Embed(title=f"Halls", description=textwrap.dedent(f"""
+                estates_page = Embed(title=f"Halls", description=textwrap.dedent(f"""
                 ⛩️ | **Halls**
                 {estates_list_joined}
-               
-                """), colour=0x7289da)
+                """), color=0x7289da)
                 estates_page.set_footer(text=f"/halls - View Hall List")
                 
                 
-                war_embed = discord.Embed(title=f"Association War", description=textwrap.dedent(f"""
+                war_embed = Embed(title=f"Association War", description=textwrap.dedent(f"""
                 **War** *Coming Soon*
                 *None*
 
                 **Wars Won**
                 0
-               
-                """), colour=0x7289da)
+                """), color=0x7289da)
                 war_embed.set_footer(text=f"Association Wars Coming Soon")
                 
-                association_mission_page = discord.Embed(title=f"Association Missions", description=textwrap.dedent(f"""
+                association_mission_page = Embed(title=f"Association Missions", description=textwrap.dedent(f"""
                 **Association Mission** *Coming Soon*
                 *None*
 
                 **Completed Association Missions**
                 0
-               
-                """), colour=0x7289da)
+                """), color=0x7289da)
                 association_mission_page.set_footer(text=f"Association Missions Coming Soon")
                 
-                association_explanations = discord.Embed(title=f"Information", description=textwrap.dedent(f"""
+                association_explanations = Embed(title=f"Information", description=textwrap.dedent(f"""
                 **Assocation Explanations**
                 - **Earnings**: Associations earn coin for every PVP Match or Dungeon/Boss Encounter
                 - **Splits**: Each Guild earns a % of the Wages Earned during these battles determined by the type of Hall
@@ -1032,57 +1032,43 @@ class Lookup(commands.Cog):
                 - **Founder**:  All operations.
                 - **Sworn**:  All operations
                 - **Shield**: Can set Raid Bounty, Swap Hideouts, and Knight other Blades
-                - **Kids**:  Can equip family summon.
-                """), colour=0x7289da)
+                """), color=0x7289da)
                 association_explanations.set_footer(text=f"/help for more information on Associations")
                 
                 # if guild['LOGO_FLAG']:
                 #     embed3.set_image(url=logo)
                 
                 embed_list = [main_page, arena_page, crest_page, guilds_page, ghost_page, blades_page, estates_page, association_mission_page, war_embed, activity_page, association_explanations]
-                # paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
-                # paginator.add_reaction('⏮️', "first")
-                # paginator.add_reaction('⬅️', "back")
-                # paginator.add_reaction('🔐', "lock")
-                # paginator.add_reaction('➡️', "next")
-                # paginator.add_reaction('⏭️', "last")
-                # embeds = [embed1,embed2, embed3]
-                # await paginator.run(embeds)
                 
                 buttons = [] 
-                # print(member)
-                # print(is_visitor)
-                # print(is_founder)
-                # print(is_sworn)
-                # print(is_guild_leader)
                 if is_visitor:
-                    buttons.append(
-                        manage_components.create_button(style=3, label="Say Hello", custom_id="hello")
-                    )
+                    buttons = [
+                        Button(style=3, label="Say Hello", custom_id="hello"),
+                        Button(style=3, label="Raid!", custom_id="raid")
+                    ]
                     
                 if is_founder or is_sworn:
                     buttons = [
-                        manage_components.create_button(style=3, label="Check/Purchase Halls", custom_id="property"),
-                        manage_components.create_button(style=3, label="View/Update Armory", custom_id="armory"),
+                        Button(style=3, label="Check/Purchase Halls", custom_id="property"),
+                        Button(style=3, label="View/Update Armory", custom_id="armory"),
+                        Button(style=3, label="Test Shield Defenses", custom_id="raid")
                     ]
-                # elif is_sworn:
-                #     buttons = [
-                #         manage_components.create_button(style=3, label="Check Properties", custom_id="property"),
-                #     ]
                     
                 elif is_shield:
                     buttons = [
-                        manage_components.create_button(style=3, label="View Properties", custom_id="property"),
-                        manage_components.create_button(style=3, label="View/Update Armory", custom_id="armory"),
+                        Button(style=3, label="View Properties", custom_id="property"),
+                        Button(style=3, label="View/Update Armory", custom_id="armory"),
+                        Button(style=3, label="Shield Training", custom_id="raid")
                     ]
                     
-                elif is_guild_leader:
+                elif is_guild_leader or member:
                     buttons = [
-                        manage_components.create_button(style=3, label="View Properties", custom_id="property"),
-                        manage_components.create_button(style=3, label="View Armory", custom_id="armory"),
+                        Button(style=3, label="View Properties", custom_id="property"),
+                        Button(style=3, label="View Armory", custom_id="armory"),
+                        Button(style=3, label="Claim The Shield!", custom_id="raid")
                     ]
                     
-                custom_action_row = manage_components.create_actionrow(*buttons)
+                custom_action_row = ActionRow(*buttons)
                 async def custom_function(self, button_ctx):
                     try:
                         await button_ctx.defer(ignore=True)
@@ -1091,10 +1077,20 @@ class Lookup(commands.Cog):
                                 guild_query = {"GNAME": guild['GNAME']}
                                 #await button_ctx.defer(ignore=True)
                                 update_query = {
-                                        '$push': {'TRANSACTIONS': f"{button_ctx.author} said 'Hello'!"}
+                                        '$push': {'TRANSACTIONS': f":wave: | {button_ctx.author} said 'Hello'!"}
                                     }
                                 response = db.updateGuildAlt(guild_query, update_query)
                                 await ctx.send(f"**{button_ctx.author.mention}** Said Hello to **{guild['GNAME']}**!")
+                                self.stop = True
+                                return
+                            if button_ctx.custom_id == "raid":
+                                guild_query = {"GNAME": guild['GNAME']}
+                                #await button_ctx.defer(ignore=True)
+                                update_query = {
+                                        '$push': {'TRANSACTIONS': f"⚔️ | {button_ctx.author} Raided!"}
+                                    }
+                                response = db.updateGuildAlt(guild_query, update_query)
+                                await raid(button_ctx, guild['GNAME'])
                                 self.stop = True
                                 return
                             elif button_ctx.custom_id == "property":
@@ -1103,41 +1099,41 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                                 balance_message = '{:,}'.format(guild['BANK'])
                                 if is_founder:
-                                    real_estate_message = "Welcome Great Founder!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\n Welcome Great Founder!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
-                                    manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
-                                    manage_components.create_button(style=3, label="Buy/Sell Halls", custom_id="buy"),
-                                    manage_components.create_button(style=1, label="Browse Hall Catalog", custom_id="browse"),
-                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
+                                    Button(style=2, label="Owned Properties", custom_id="equip"),
+                                    Button(style=3, label="Buy/Sell Halls", custom_id="buy"),
+                                    Button(style=1, label="Browse Hall Catalog", custom_id="browse"),
+                                    Button(style=ButtonStyle.RED, label="Quit", custom_id="q")
                                     
                                 ]
                                 elif is_sworn:
-                                    real_estate_message = "Welcome Holy Sworn!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\n Welcome Holy Sworn!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Hall** - Buy a new Hall for your Association\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
-                                    manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
-                                    manage_components.create_button(style=3, label="Buy/Sell Halls", custom_id="buy"),
-                                    manage_components.create_button(style=1, label="Browse Hall Catalog", custom_id="browse"),
-                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
+                                    Button(style=2, label="Owned Properties", custom_id="equip"),
+                                    Button(style=3, label="Buy/Sell Halls", custom_id="buy"),
+                                    Button(style=1, label="Browse Hall Catalog", custom_id="browse"),
+                                    Button(style=ButtonStyle.RED, label="Quit", custom_id="q")
                                 ]
                                 elif is_shield:
-                                    real_estate_message = "Welcome Noble Shield!\n**View Property** - View Owned Properties or make a Move!\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\n Welcome Noble Shield!\n**View Property** - View Owned Properties or make a Move!\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
-                                    manage_components.create_button(style=1, label="Owned Properties", custom_id="equip"),
-                                    manage_components.create_button(style=1, label="Browse Hall Catalog", custom_id="browse"),
-                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
+                                    Button(style=1, label="Owned Properties", custom_id="equip"),
+                                    Button(style=1, label="Browse Hall Catalog", custom_id="browse"),
+                                    Button(style=ButtonStyle.RED, label="Quit", custom_id="q")
                                 ]
                                 elif is_guild_leader:
-                                    real_estate_message = "Welcome Oathsworn!\n**View Property** - View Owned Properties\n**Browse Hall Catalog** - View all Properties for sale"
+                                    real_estate_message = "\n Welcome Oathsworn!\n**View Property** - View Owned Properties\n**Browse Hall Catalog** - View all Properties for sale"
                                     property_buttons = [
-                                    manage_components.create_button(style=1, label="View Properties", custom_id="view"),
-                                    manage_components.create_button(style=1, label="Browse Hall Catalog", custom_id="browse"),
-                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
+                                    Button(style=1, label="View Properties", custom_id="view"),
+                                    Button(style=1, label="Browse Hall Catalog", custom_id="browse"),
+                                    Button(style=ButtonStyle.RED, label="Quit", custom_id="q")
                                 ]
-                                property_action_row = manage_components.create_actionrow(*property_buttons)
-                                real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
-                                {real_estate_message}
-                                *Current Association Bank*:
-                                :coin: **{balance_message}**
+                                property_action_row = ActionRow(*property_buttons)
+                                real_estate_screen = Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
+                                \n{real_estate_message}
+                                \n*Current Association Bank*:
+                                \n🪙 **{balance_message}**
                                 """), color=0xe74c3c)
                                 real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
                                 
@@ -1146,7 +1142,7 @@ class Lookup(commands.Cog):
                                     return button_ctx.author == ctx.author
                                 try:
                                     hall_embed_list = []
-                                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[property_action_row], timeout=120, check=check)
+                                    button_ctx  = await self.bot.wait_for_component(components=[property_action_row], timeout=120, check=check)
                                     if button_ctx.custom_id == "q":
                                         await ctx.send("Real Estate Menu Closed...")
                                         return
@@ -1162,17 +1158,17 @@ class Lookup(commands.Cog):
                                             hall_fee = '{:,}'.format(hall['FEE'])
                                             hall_split = hall['SPLIT']
                                             hall_def = hall['DEFENSE']                                       
-                                            embedVar = discord.Embed(title= f"{hall_name}", description=textwrap.dedent(f"""
+                                            embedVar = Embed(title= f"{hall_name}", description=textwrap.dedent(f"""
                                             💰 | **Price**: {price_message}
                                             〽️ | **Multiplier**: {hall_multiplier}
-                                            :dollar: | **Split**: {hall_split}
+                                            💵 | **Split**: {hall_split}
                                             :yen: | **Raid Fee**: {hall_fee}
-                                            :shield: | **Defenses**: {hall_def}
+                                            🛡️ | **Defenses**: {hall_def}
                                             
-                                            **Association** earns **{hall_multiplier}x** :coin: per match!
-                                            **Raids** cost **{hall_fee}** :coin:!
-                                            **Guilds** earn **{hall_split}x** :coin: per match! 
-                                            **Shield** Defense Boost: :shield:**{hall_def}x**
+                                            **Association** earns **{hall_multiplier}x** 🪙 per match!
+                                            **Raids** cost **{hall_fee}** 🪙!
+                                            **Guilds** earn **{hall_split}x** 🪙 per match! 
+                                            **Shield** Defense Boost: 🛡️**{hall_def}x**
                                             """))
                                             embedVar.set_image(url=hall_img)
                                             hall_embed_list.append(embedVar)
@@ -1188,17 +1184,17 @@ class Lookup(commands.Cog):
                                             hall_fee = '{:,}'.format(hall['FEE'])
                                             hall_split = hall['SPLIT']
                                             hall_def = hall['DEFENSE']                                            
-                                            embedVar = discord.Embed(title= f"{hall_name}", description=textwrap.dedent(f"""
+                                            embedVar = Embed(title= f"{hall_name}", description=textwrap.dedent(f"""
                                             💰 | **Price**: {price_message}
                                             〽️ | **Multiplier**: {hall_multiplier}
-                                            :dollar: | **Split**: {hall_split}
+                                            💵 | **Split**: {hall_split}
                                             :yen: | **Raid Fee**: {hall_fee}
-                                            :shield: | **Defenses**: {hall_def}
+                                            🛡️ | **Defenses**: {hall_def}
                                             
-                                            **Association** earns **{hall_multiplier}x** :coin: per match!
-                                            **Raids** cost **{hall_fee}** :coin:!
-                                            **Guilds** earn **{hall_split}x** :coin: per match! 
-                                            **Shield** Defense Boost: :shield:**{hall_def}x**
+                                            **Association** earns **{hall_multiplier}x** 🪙 per match!
+                                            **Raids** cost **{hall_fee}** 🪙!
+                                            **Guilds** earn **{hall_split}x** 🪙 per match! 
+                                            **Shield** Defense Boost: 🛡️**{hall_def}x**
                                             """))
                                             embedVar.set_image(url=hall_img)
                                             hall_embed_list.append(embedVar)
@@ -1214,33 +1210,33 @@ class Lookup(commands.Cog):
                                             hall_fee = '{:,}'.format(hall['FEE'])
                                             hall_split = hall['SPLIT']
                                             hall_def = hall['DEFENSE']                                               
-                                            embedVar = discord.Embed(title= f"{hall_name}", description=textwrap.dedent(f"""
+                                            embedVar = Embed(title= f"{hall_name}", description=textwrap.dedent(f"""
                                             💰 | **Price**: {price_message}
                                             〽️ | **Multiplier**: {hall_multiplier}
-                                            :dollar: | **Split**: {hall_split}
+                                            💵 | **Split**: {hall_split}
                                             :yen: | **Raid Fee**: {hall_fee}
-                                            :shield: | **Defenses**: {hall_def}
+                                            🛡️ | **Defenses**: {hall_def}
                                             
-                                            **Association** earns **{hall_multiplier}x** :coin: per match!
-                                            **Raids** cost **{hall_fee}** :coin:!
-                                            **Guilds** earn **{hall_split}x** :coin: per match! 
-                                            **Shield** Defense Boost: :shield:**{hall_def}x**
+                                            **Association** earns **{hall_multiplier}x** 🪙 per match!
+                                            **Raids** cost **{hall_fee}** 🪙!
+                                            **Guilds** earn **{hall_split}x** 🪙 per match! 
+                                            **Shield** Defense Boost: 🛡️**{hall_def}x**
                                             """))
                                             embedVar.set_image(url=hall_img)
                                             hall_embed_list.append(embedVar)
                                             
                                         equip_buttons = [
-                                            manage_components.create_button(style=3, label="⛩️ Equip Hall", custom_id="equip"),
+                                            Button(style=3, label="⛩️ Equip Hall", custom_id="equip"),
 
                                         ]
-                                        equip_action_row = manage_components.create_actionrow(*equip_buttons)
+                                        equip_action_row = ActionRow(*equip_buttons)
                                         async def equip_function(self, button_ctx):
                                             hall_name = str(button_ctx.origin_message.embeds[0].title)
                                             guild_query = {'GNAME': guild['GNAME']}
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "equip":
-                                                    transaction_message = f"{ctx.author} changed the Association Hall to **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                    transaction_message = f"⛩️ | {ctx.author} changed the Association Hall to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                     update_query = {
                                                             '$set': {'HALL': hall_name},
                                                             '$push': {'TRANSACTIONS': transaction_message}
@@ -1273,20 +1269,20 @@ class Lookup(commands.Cog):
                                             sell_price = hall_price *.80
                                             sell_message = " "
                                             sell_message = f"💱 Sells for **{'{:,}'.format(hall['PRICE'])}**"                                  
-                                            embedVar = discord.Embed(title= f"{hall_name}", description=textwrap.dedent(f"""
-                                            **Current Bank**: :coin: **{current_savings}**                                                                    
+                                            embedVar = Embed(title= f"{hall_name}", description=textwrap.dedent(f"""
+                                            **Current Bank**: 🪙 **{current_savings}**                                                                    
                                             {ownership_message}
                                             
                                             💰 | **Price**: {price_message}
                                             〽️ | **Multiplier**: {hall_multiplier}
-                                            :dollar: | **Split**: {hall_split}
+                                            💵 | **Split**: {hall_split}
                                             :yen: | **Raid Fee**: {hall_fee}
-                                            :shield: | **Defenses**: {hall_def}
+                                            🛡️ | **Defenses**: {hall_def}
                                             
-                                            **Association** earns **{hall_multiplier}x** :coin: per match!
-                                            **Raids** cost **{hall_fee}** :coin:!
-                                            **Guilds** earn **{hall_split}x** :coin: per match! 
-                                            **Shield** Defense Boost: :shield:**{hall_def}x**
+                                            **Association** earns **{hall_multiplier}x** 🪙 per match!
+                                            **Raids** cost **{hall_fee}** 🪙!
+                                            **Guilds** earn **{hall_split}x** 🪙 per match! 
+                                            **Shield** Defense Boost: 🛡️**{hall_def}x**
                                             
                                             {sell_message}
                                             """))
@@ -1294,11 +1290,11 @@ class Lookup(commands.Cog):
                                             hall_embed_list.append(embedVar)
                                         
                                         econ_buttons = [
-                                            manage_components.create_button(style=3, label="💰 Buy Hall", custom_id="buy"),
-                                            manage_components.create_button(style=3, label="💱 Sell Hall", custom_id="sell"),
+                                            Button(style=3, label="💰 Buy Hall", custom_id="buy"),
+                                            Button(style=3, label="💱 Sell Hall", custom_id="sell"),
 
                                         ]
-                                        econ_action_row = manage_components.create_actionrow(*econ_buttons)
+                                        econ_action_row = ActionRow(*econ_buttons)
                                         
                                         async def econ_function(self, button_ctx):
                                             hall_name = str(button_ctx.origin_message.embeds[0].title)
@@ -1328,7 +1324,7 @@ class Lookup(commands.Cog):
                                                                 else:
                                                                     guild_query = {'GNAME': guild['GNAME']}
                                                                     await crown_utilities.curseguild(cost, guild['GNAME'])
-                                                                    transaction_message = f"{ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                                    transaction_message = f"🪙 | {ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                                     response = db.updateGuildAlt(guild_query,{'$set':{'HALL': str(hall_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                                     response2 = db.updateGuildAlt(guild_query,{'$addToSet':{'ESTATES': str(hall_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Hall!")
@@ -1367,8 +1363,9 @@ class Lookup(commands.Cog):
                                                         #self.stop = True
                                                         return
                                                     elif hall_name in guild['ESTATES']:
-                                                        await crown_utilities.blessGuild(cost, guild['GNAME'])
-                                                        transaction_message = f"{ctx.author} sold the Association Hall: **{str(hall_name)}**."
+                                                        guild_query = {'GNAME': guild['GNAME']}
+                                                        await crown_utilities.blessguild_Alt(cost, guild['GNAME'])
+                                                        transaction_message = f"🪙 | {ctx.author} sold the Association Hall: **{str(hall_name)}**."
                                                         response = db.updateGuildAlt(guild_query,{'$pull':{'ESTATES': str(hall_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f"{guild['GNAME']} sold their **{hall_name}** for **{formatted_cost}**")
                                                         #self.stop = True
@@ -1400,50 +1397,50 @@ class Lookup(commands.Cog):
                                 armory_buttons = []
                                 balance_message = '{:,}'.format(guild['BANK'])
                                 if is_founder:
-                                    armory_message = "Welcome Great Founder!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n nWelcome Great Founder!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
-                                    manage_components.create_button(style=2, label="View Armory", custom_id="view"),
-                                    manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
-                                    manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
+                                    Button(style=2, label="View Armory", custom_id="view"),
+                                    Button(style=3, label="Upgrade Armory", custom_id="upgrade"),
+                                    Button(style=1, label="Donate Gear", custom_id="donate"),
                                     
                                 ]
                                 elif is_sworn:
-                                    armory_message = "Welcome Holy Sword!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n Welcome Holy Sword!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
-                                    manage_components.create_button(style=2, label="View Armory", custom_id="view"),
-                                    manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
-                                    manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
+                                    Button(style=2, label="View Armory", custom_id="view"),
+                                    Button(style=3, label="Upgrade Armory", custom_id="upgrade"),
+                                    Button(style=1, label="Donate Gear", custom_id="donate"),
                                 ]
                                 elif is_shield:
-                                    armory_message = "Welcome Noble Shield!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n Welcome Noble Shield!\n**View Armory** - View Items in Armory\n**Upgrade Armory** - Upgrade Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
-                                    manage_components.create_button(style=2, label="View Armory", custom_id="view"),
-                                    manage_components.create_button(style=3, label="Upgrade Armory", custom_id="upgrade"),
-                                    manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
+                                    Button(style=2, label="View Armory", custom_id="view"),
+                                    Button(style=3, label="Upgrade Armory", custom_id="upgrade"),
+                                    Button(style=1, label="Donate Gear", custom_id="donate"),
                                     
                                 ]
                                 elif is_guild_leader:
-                                    armory_message = "Welcome Oathsworn!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n Welcome Oathsworn!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
-                                    manage_components.create_button(style=2, label="View Armory", custom_id="view"),
-                                    manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
+                                    Button(style=2, label="View Armory", custom_id="view"),
+                                    Button(style=1, label="Donate Gear", custom_id="donate"),
                                     
                                 ]
                                 elif member:
-                                    armory_message = "Welcome Member!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
+                                    armory_message = "\n Welcome Member!\n**View Armory** - View Items in Armory\n**Donate Gear** - Donate Cards, Titles or Arms to the Armory"
                                     armory_buttons = [
-                                    manage_components.create_button(style=2, label="View Armory", custom_id="view"),
-                                    manage_components.create_button(style=1, label="Donate Gear", custom_id="donate"),
+                                    Button(style=2, label="View Armory", custom_id="view"),
+                                    Button(style=1, label="Donate Gear", custom_id="donate"),
                                     
                                 ]
-                                armory_action_row = manage_components.create_actionrow(*armory_buttons)
-                                armory_screen = discord.Embed(title=f"{guild['GNAME']} Armory!", description=textwrap.dedent(f"""\
-                                {armory_message}
+                                armory_action_row = ActionRow(*armory_buttons)
+                                armory_screen = Embed(title=f"{guild['GNAME']} Armory!", description=textwrap.dedent(f"""\
+                                \n{armory_message}
                                  
-                                🕋 **Armory Inventory** | 300
-                                🎴 **Cards** |  {len(guild['CSTORAGE'])}
-                                🎗️ **Titles** |  {len(guild['TSTORAGE'])}
-                                🦾 **Arms** |  {len(guild['ASTORAGE'])}
+                                \n🕋 **Armory Inventory** | 300
+                                \n🎴 **Cards** |  {len(guild['CSTORAGE'])}
+                                \n🎗️ **Titles** |  {len(guild['TSTORAGE'])}
+                                \n🦾 **Arms** |  {len(guild['ASTORAGE'])}
                                 """), color=0xe74c3c)
                                 armory_screen.set_image(url="https://cdnb.artstation.com/p/assets/images/images/036/549/141/original/jonathan-dodd-mdz2-large-warehouse-port.gif?1617957276")
                                 
@@ -1455,20 +1452,20 @@ class Lookup(commands.Cog):
                                     card_storage = []
                                     title_storage = []
                                     arm_storage = []
-                                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[armory_action_row], timeout=120, check=check)
+                                    button_ctx  = await self.bot.wait_for_component(components=[armory_action_row], timeout=120, check=check)
                                     if button_ctx.custom_id == "q":
                                         await ctx.send("Armory Menu Closed...")
                                         return
                                     if button_ctx.custom_id == "view":
                                         await msg.delete()
                                         armory_item_buttons = [
-                                            manage_components.create_button(style=2, label="View Cards", custom_id="cards"),
-                                            manage_components.create_button(style=3, label="View Titles", custom_id="titles"),
-                                            manage_components.create_button(style=1, label="View Arms", custom_id="arms"),
+                                            Button(style=2, label="View Cards", custom_id="cards"),
+                                            Button(style=3, label="View Titles", custom_id="titles"),
+                                            Button(style=1, label="View Arms", custom_id="arms"),
                                             
                                         ]
-                                        armory_item_action_row = manage_components.create_actionrow(*armory_item_buttons)
-                                        armory_item_screen = discord.Embed(title=f"{guild['GNAME']} Armory!", description=textwrap.dedent(f"""\
+                                        armory_item_action_row = ActionRow(*armory_item_buttons)
+                                        armory_item_screen = Embed(title=f"{guild['GNAME']} Armory!", description=textwrap.dedent(f"""\
                                         {armory_message}
                                         
                                         🕋 **Armory Inventory** | 300
@@ -1482,7 +1479,7 @@ class Lookup(commands.Cog):
                                         def check(button_ctx):
                                             return button_ctx.author == ctx.author
                                         try:
-                                            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[armory_item_action_row], timeout=120, check=check)
+                                            button_ctx  = await self.bot.wait_for_component(components=[armory_item_action_row], timeout=120, check=check)
                                             if button_ctx.custom_id == "cards":
                                                 try:
                                                     card_storage = guild['CSTORAGE']
@@ -1504,17 +1501,18 @@ class Lookup(commands.Cog):
                                                             ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
 
                                                             
+                                                            class_info = card['CLASS']
+                                                            class_emoji = crown_utilities.class_emojis[class_info]
+                                                            class_message = class_info.title()
                                                             universe_crest = crown_utilities.crest_dict[card['UNIVERSE']]
                                                             index = card_storage.index(card['NAME'])
                                                             level = ""
                                                             level_icon = "🔰"
+                                                            card_lvl = 0
                                                             for c in guild['S_CARD_LEVELS']:
                                                                 if card['NAME'] == c['CARD']:
                                                                     level = str(c['LVL'])
                                                                     card_lvl = int(c['LVL'])
-                                                                else:
-                                                                    level = str(0)
-                                                                    card_lvl = int(0)
                                                             if card_lvl >= 200:
                                                                 level_icon = "🔱"
                                                             if card_lvl >= 700:
@@ -1525,13 +1523,13 @@ class Lookup(commands.Cog):
                                                             available = ""
                                                             if card['EXCLUSIVE'] and not card['HAS_COLLECTION']:
                                                                 dungeon_card_details.append(
-                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                                                                    f"[{str(index)}] {universe_crest} : 🀄 **{card['TIER']}** **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n🔥 **{level_icon}**: {str(level)} ❤️ {card['HLT']} 🗡️ {card['ATK']}  🛡️ {card['DEF']}\n")
                                                             elif not card['HAS_COLLECTION']:
                                                                 tales_card_details.append(
-                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                                                                    f"[{str(index)}] {universe_crest} : 🀄 **{card['TIER']}** **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n🎴 **{level_icon}**: {str(level)} ❤️ {card['HLT']} 🗡️ {card['ATK']}  🛡️ {card['DEF']}\n")
                                                             elif card['HAS_COLLECTION']:
                                                                 destiny_card_details.append(
-                                                                    f"[{str(index)}] {universe_crest} : :mahjong: **{card['TIER']}** **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n**{level_icon}**: {str(level)} :heart: {card['HLT']} :dagger: {card['ATK']}  🛡️ {card['DEF']}\n")
+                                                                    f"[{str(index)}] {universe_crest} : 🀄 **{card['TIER']}** **{card['NAME']}** [{class_emoji}] {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}\n✨ **{level_icon}**: {str(level)} ❤️ {card['HLT']} 🗡️ {card['ATK']}  🛡️ {card['DEF']}\n")
 
                                                         all_cards = []
                                                         if tales_card_details:
@@ -1563,19 +1561,19 @@ class Lookup(commands.Cog):
 
                                                         # If it's not an array greater than 10, show paginationless embed
                                                         if len(all_cards) < 10:
-                                                            embedVar = discord.Embed(title=f"🕋 | {guild['GNAME']}'s Card Armory", description="\n".join(all_cards), colour=0x7289da)
+                                                            embedVar = Embed(title=f"🕋 | {guild['GNAME']}'s Card Armory", description="\n".join(all_cards), color=0x7289da)
                                                             embedVar.set_footer(
                                                                 text=f"{total_cards} Total Cards\n{str(storage_allowed_amount - len(card_storage))} Storage Available")
                                                             await ctx.send(embed=embedVar)
 
                                                         embed_list = []
                                                         for i in range(0, len(cards_broken_up)):
-                                                            globals()['embedVar%s' % i] = discord.Embed(
+                                                            embedVar = Embed(
                                                                 title=f"🕋 | {guild['GNAME']}'s Card Armory",
-                                                                description="\n".join(cards_broken_up[i]), colour=0x7289da)
-                                                            globals()['embedVar%s' % i].set_footer(
+                                                                description="\n".join(cards_broken_up[i]), color=0x7289da)
+                                                            embedVar.set_footer(
                                                                 text=f"{total_cards} Total Cards\n{str(storage_allowed_amount - len(card_storage))} Storage Available")
-                                                            embed_list.append(globals()['embedVar%s' % i])
+                                                            embed_list.append(embedVar)
 
                                                         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
                                                         paginator.add_reaction('⏮️', "first")
@@ -1636,7 +1634,7 @@ class Lookup(commands.Cog):
                                                                 f"[{str(index)}] {universe_crest} 👹 : **{title_title}**\n**🦠 {title_passive_type}**:  *{title_passive_value}*\n")
                                                         elif exclusive and available:
                                                             dungeon_title_details.append(
-                                                                f"[{str(index)}] {universe_crest} :fire: : **{title_title}**\n**🦠 {title_passive_type}**: *{title_passive_value}*\n")
+                                                                f"[{str(index)}] {universe_crest} 🔥 : **{title_title}**\n**🦠 {title_passive_type}**: *{title_passive_value}*\n")
                                                         elif available and not exclusive:
                                                             tales_title_details.append(
                                                                 f"[{str(index)}] {universe_crest} 🎗️ : **{title_title}**\n**🦠 {title_passive_type}**:  *{title_passive_value}*\n")
@@ -1678,19 +1676,19 @@ class Lookup(commands.Cog):
 
                                                     # If it's not an array greater than 10, show paginationless embed
                                                     if len(all_titles) < 10:
-                                                        embedVar = discord.Embed(title=f"🕋 | {guild['GNAME']}'s Title Armory", description="\n".join(all_titles), colour=0x7289da)
+                                                        embedVar = Embed(title=f"🕋 | {guild['GNAME']}'s Title Armory", description="\n".join(all_titles), color=0x7289da)
                                                         embedVar.set_footer(
                                                             text=f"{total_titles} Total Titles\n{str(storage_allowed_amount - len(guild['TSTORAGE']))} Storage Available")
                                                         await ctx.send(embed=embedVar)
 
                                                     embed_list = []
                                                     for i in range(0, len(titles_broken_up)):
-                                                        globals()['embedVar%s' % i] = discord.Embed(
+                                                        embedVar = Embed(
                                                             title=f"🕋 | {guild['GNAME']}'s Title Armory",
-                                                            description="\n".join(titles_broken_up[i]), colour=0x7289da)
-                                                        globals()['embedVar%s' % i].set_footer(
+                                                            description="\n".join(titles_broken_up[i]), color=0x7289da)
+                                                        embedVar.set_footer(
                                                             text=f"{total_titles} Total Titles\n{str(storage_allowed_amount - len(guild['TSTORAGE']))} Storage Available")
-                                                        embed_list.append(globals()['embedVar%s' % i])
+                                                        embed_list.append(embedVar)
 
                                                     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
                                                     paginator.add_reaction('⏮️', "first")
@@ -1762,7 +1760,7 @@ class Lookup(commands.Cog):
                                                                 f"[{str(index)}] {universe_crest} 👹 {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** :  *{arm_passive_value}*\n")
                                                         elif exclusive and available:
                                                             dungeon_arm_details.append(
-                                                                f"[{str(index)}] {universe_crest} :fire: {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** : *{arm_passive_value}*\n")
+                                                                f"[{str(index)}] {universe_crest} 🔥 {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** : *{arm_passive_value}*\n")
                                                         elif available and not exclusive:
                                                             tales_arm_details.append(
                                                                 f"[{str(index)}] {universe_crest} 🦾 {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** :  *{arm_passive_value}*\n")
@@ -1803,19 +1801,19 @@ class Lookup(commands.Cog):
 
                                                     # If it's not an array greater than 10, show paginationless embed
                                                     if len(all_arms) < 10:
-                                                        embedVar = discord.Embed(title=f"🕋 | {guild['GNAME']}'s Arm Armory", description="\n".join(all_arms), colour=0x7289da)
+                                                        embedVar = Embed(title=f"🕋 | {guild['GNAME']}'s Arm Armory", description="\n".join(all_arms), color=0x7289da)
                                                         embedVar.set_footer(
                                                             text=f"{total_arms} Total Arms\n{str(storage_allowed_amount - len(guild['ASTORAGE']))} Storage Available")
                                                         await ctx.send(embed=embedVar)
 
                                                     embed_list = []
                                                     for i in range(0, len(arms_broken_up)):
-                                                        globals()['embedVar%s' % i] = discord.Embed(
+                                                        embedVar = Embed(
                                                             title=f"🕋 | {guild['GNAME']}'s Arm Armory",
-                                                            description="\n".join(arms_broken_up[i]), colour=0x7289da)
-                                                        globals()['embedVar%s' % i].set_footer(
+                                                            description="\n".join(arms_broken_up[i]), color=0x7289da)
+                                                        embedVar.set_footer(
                                                             text=f"{total_arms} Total Arms\n{str(storage_allowed_amount - len(guild['ASTORAGE']))} Storage Available")
-                                                        embed_list.append(globals()['embedVar%s' % i])
+                                                        embed_list.append(embedVar)
 
                                                     paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
                                                     paginator.add_reaction('⏮️', "first")
@@ -1854,13 +1852,13 @@ class Lookup(commands.Cog):
                                         # return  
                                         await msg.delete()
                                         donate_buttons = [
-                                            manage_components.create_button(style=2, label="Donate Cards", custom_id="cards"),
-                                            manage_components.create_button(style=3, label="Donate Titles", custom_id="titles"),
-                                            manage_components.create_button(style=1, label="Donate Arms", custom_id="arms"),
+                                            Button(style=2, label="Donate Cards", custom_id="cards"),
+                                            Button(style=3, label="Donate Titles", custom_id="titles"),
+                                            Button(style=1, label="Donate Arms", custom_id="arms"),
                                             
                                         ]
-                                        donate_action_row = manage_components.create_actionrow(*donate_buttons)
-                                        donate_item_screen = discord.Embed(title=f"{guild['GNAME']} Armory!", description=textwrap.dedent(f"""\
+                                        donate_action_row = ActionRow(*donate_buttons)
+                                        donate_item_screen = Embed(title=f"{guild['GNAME']} Armory!", description=textwrap.dedent(f"""\
                                         {armory_message}
                                         
                                         🕋 **Armory Inventory** | 300
@@ -1874,7 +1872,7 @@ class Lookup(commands.Cog):
                                         def check(button_ctx):
                                             return button_ctx.author == ctx.author
                                         try:
-                                            button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[donate_action_row], timeout=120, check=check)
+                                            button_ctx  = await self.bot.wait_for_component(components=[donate_action_row], timeout=120, check=check)
                                             if button_ctx.custom_id == "cards": 
                                                 query = {'DID': str(ctx.author.id)}
                                                 d = db.queryUser(query)#Storage Update
@@ -1894,13 +1892,13 @@ class Lookup(commands.Cog):
                                                         current_card = d['CARD']
                                                         storage = vault['STORAGE']
                                                         cards=[]
-                                                        icon = ":coin:"
+                                                        icon = "🪙"
                                                         if balance >= 150000:
-                                                            icon = ":money_with_wings:"
+                                                            icon = "💸"
                                                         elif balance >=100000:
-                                                            icon = ":moneybag:"
+                                                            icon = "💰"
                                                         elif balance >= 50000:
-                                                            icon = ":dollar:"
+                                                            icon = "💵"
                                                         
                                                         embed_list = []
 
@@ -1911,16 +1909,16 @@ class Lookup(commands.Cog):
                                                             lvl = ""
                                                             tier = ""
                                                             speed = 0
-                                                            card_tier = f":mahjong: {resp['TIER']}"
+                                                            card_tier = f"🀄 {resp['TIER']}"
                                                             card_available = resp['AVAILABLE']
                                                             card_exclusive = resp['EXCLUSIVE']
                                                             card_collection = resp['HAS_COLLECTION']
                                                             show_img = db.queryUniverse({'TITLE': resp['UNIVERSE']})['PATH']
                                                             affinity_message = crown_utilities.set_affinities(resp)
                                                             o_show = resp['UNIVERSE']
-                                                            icon = ":flower_playing_cards:"
+                                                            icon = "🎴"
                                                             if card_available and card_exclusive:
-                                                                icon = ":fire:"
+                                                                icon = "🔥"
                                                             elif card_available == False and card_exclusive ==False:
                                                                 if card_collection:
                                                                     icon =":sparkles:"
@@ -2056,10 +2054,10 @@ class Lookup(commands.Cog):
                                                                 traitmessage = f"**{mytrait['EFFECT']}:** {mytrait['TRAIT']}"
 
 
-                                                            embedVar = discord.Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
+                                                            embedVar = Embed(title= f"{resp['NAME']}", description=textwrap.dedent(f"""\
                                                             {icon} **[{index}]** 
                                                             {card_tier}: {lvl}
-                                                            :heart: **{resp['HLT']}** :dagger: **{resp['ATK']}** :shield: **{resp['DEF']}** 🏃 **{resp['SPD']}**
+                                                            ❤️ **{resp['HLT']}** 🗡️ **{resp['ATK']}** 🛡️ **{resp['DEF']}** 🏃 **{resp['SPD']}**
 
                                                             {move1_emoji} **{move1}:** {move1ap}
                                                             {move2_emoji} **{move2}:** {move2ap}
@@ -2068,17 +2066,17 @@ class Lookup(commands.Cog):
 
                                                             🩸 **{passive_name}:** {passive_type.title()} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
                                                             ♾️ {traitmessage}
-                                                            """), colour=0x7289da)
+                                                            """), color=0x7289da)
                                                             embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")
                                                             embedVar.set_thumbnail(url=show_img)
                                                             embedVar.set_footer(text=f"/enhancers - 🩸 Enhancer Menu")
                                                             embed_list.append(embedVar)
 
                                                         buttons = [
-                                                            manage_components.create_button(style=3, label="Donate", custom_id="Donate"),
+                                                            Button(style=3, label="Donate", custom_id="Donate"),
                                                         ]
-                                                        custom_action_row = manage_components.create_actionrow(*buttons)
-                                                        # custom_button = manage_components.create_button(style=3, label="Equip")
+                                                        custom_action_row = ActionRow(*buttons)
+                                                        # custom_button = Button(style=3, label="Equip")
 
                                                         async def custom_function(self, button_ctx):
                                                             if button_ctx.author == ctx.author:
@@ -2103,12 +2101,12 @@ class Lookup(commands.Cog):
                                                                         await ctx.send(f"🕋 | **{selected_card}** cannot donate Equipped Card")
                                                                         return
                                                                     if len(card_storage) <= 300:
-                                                                        transaction_message = f"{ctx.author} Donated 🎴**{selected_card}**."
+                                                                        transaction_message = f":kaaba:  | {ctx.author} Donated 🎴**{selected_card}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'CARDS': selected_card, 'CARD_LEVELS': {'CARD' :  selected_card}},
                                                                         }
-                                                                        response = db.updateVaultNoFilter(query, update_storage_query)
+                                                                        response = db.updateUserNoFilter(query, update_storage_query)
                                                                         update_gstorage_query = {
                                                                             '$addToSet' : {'CSTORAGE' : str(selected_card)},
                                                                             '$push': {'TRANSACTIONS': transaction_message}                                                                         
@@ -2166,13 +2164,13 @@ class Lookup(commands.Cog):
                                                         current_gems = []
                                                         for gems in vault['GEMS']:
                                                             current_gems.append(gems['UNIVERSE'])
-                                                        icon = ":coin:"
+                                                        icon = "🪙"
                                                         if balance >= 150000:
-                                                            icon = ":money_with_wings:"
+                                                            icon = "💸"
                                                         elif balance >=100000:
-                                                            icon = ":moneybag:"
+                                                            icon = "💰"
                                                         elif balance >= 50000:
-                                                            icon = ":dollar:"
+                                                            icon = "💵"
 
 
                                                         embed_list = []
@@ -2188,24 +2186,24 @@ class Lookup(commands.Cog):
                                                             if resp['UNIVERSE'] == "Unbound":
                                                                 icon = ":crown:"
                                                             elif title_available and title_exclusive:
-                                                                icon = ":fire:"
+                                                                icon = "🔥"
                                                             elif title_available == False and title_exclusive ==False:
                                                                 icon = ":japanese_ogre:"
                                                             
                                                             
-                                                            embedVar = discord.Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
+                                                            embedVar = Embed(title= f"{resp['TITLE']}", description=textwrap.dedent(f"""
                                                             {icon} **[{index}]**
                                                             🦠 **{title_passive_type}:** {title_passive_value}
-                                                            :earth_africa: **Universe:** {resp['UNIVERSE']}"""), 
-                                                            colour=0x7289da)
+                                                            🌍 **Universe:** {resp['UNIVERSE']}"""), 
+                                                            color=0x7289da)
                                                             embedVar.set_thumbnail(url=avatar)
                                                             embedVar.set_footer(text=f"{title_passive_type}: {title_enhancer_mapping[title_passive_type]}")
                                                             embed_list.append(embedVar)
                                                         
                                                         buttons = [
-                                                            manage_components.create_button(style=3, label="Donate", custom_id="Donate"),
+                                                            Button(style=3, label="Donate", custom_id="Donate"),
                                                         ]
-                                                        custom_action_row = manage_components.create_actionrow(*buttons)
+                                                        custom_action_row = ActionRow(*buttons)
 
                                                         async def custom_function(self, button_ctx):
                                                             if button_ctx.author == ctx.author:
@@ -2217,12 +2215,12 @@ class Lookup(commands.Cog):
                                                                         return
                                                                 if button_ctx.custom_id == "Donate":
                                                                     if len(title_storage) <= 300:
-                                                                        transaction_message = f"{ctx.author} Donated 🎗️ **{selected_title}**."
+                                                                        transaction_message = f":kaaba:  | {ctx.author} Donated 🎗️ **{selected_title}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'TITLES': selected_title},
                                                                         }
-                                                                        response = db.updateVaultNoFilter(query, update_storage_query)
+                                                                        response = db.updateUserNoFilter(query, update_storage_query)
                                                                         update_gstorage_query = {
                                                                             '$addToSet' : {'TSTORAGE' : str(selected_title)},
                                                                             '$push': {'TRANSACTIONS': transaction_message}                                                                          
@@ -2276,13 +2274,13 @@ class Lookup(commands.Cog):
                                                         for gems in vault['GEMS']:
                                                             current_gems.append(gems['UNIVERSE'])
 
-                                                        icon = ":coin:"
+                                                        icon = "🪙"
                                                         if balance >= 150000:
-                                                            icon = ":money_with_wings:"
+                                                            icon = "💸"
                                                         elif balance >=100000:
-                                                            icon = ":moneybag:"
+                                                            icon = "💰"
                                                         elif balance >= 50000:
-                                                            icon = ":dollar:"
+                                                            icon = "💵"
 
                                                         embed_list = []
                                                         for arm in arms_list:
@@ -2298,7 +2296,7 @@ class Lookup(commands.Cog):
                                                             if resp['UNIVERSE'] == "Unbound":
                                                                 icon = ":crown:"
                                                             elif arm_available and arm_exclusive:
-                                                                icon = ":fire:"
+                                                                icon = "🔥"
                                                             elif arm_available == False and arm_exclusive ==False:
                                                                 icon = ":japanese_ogre:"
                                                             element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
@@ -2316,23 +2314,23 @@ class Lookup(commands.Cog):
 
 
 
-                                                            embedVar = discord.Embed(title= f"{resp['ARM']}", description=textwrap.dedent(f"""
+                                                            embedVar = Embed(title= f"{resp['ARM']}", description=textwrap.dedent(f"""
                                                             {icon} **[{index}]**
 
                                                             {arm_type}
                                                             {arm_message}
-                                                            :earth_africa: **Universe:** {resp['UNIVERSE']}
+                                                            🌍 **Universe:** {resp['UNIVERSE']}
                                                             ⚒️ {arm['DUR']}
                                                             """), 
-                                                            colour=0x7289da)
+                                                            color=0x7289da)
                                                             embedVar.set_thumbnail(url=avatar)
                                                             embedVar.set_footer(text=f"{footer}")
                                                             embed_list.append(embedVar)
                                                         
                                                         buttons = [
-                                                            manage_components.create_button(style=3, label="Donate", custom_id="Donate"),
+                                                            Button(style=3, label="Donate", custom_id="Donate"),
                                                         ]
-                                                        custom_action_row = manage_components.create_actionrow(*buttons)
+                                                        custom_action_row = ActionRow(*buttons)
 
                                                         async def custom_function(self, button_ctx):
                                                             if button_ctx.author == ctx.author:
@@ -2353,12 +2351,12 @@ class Lookup(commands.Cog):
                                                                         if names['ARM'] == selected_arm:
                                                                             durability = names['DUR']
                                                                     if len(arm_storage) <= 300:
-                                                                        transaction_message = f"{ctx.author} Donated 🦾 **{selected_arm}**."
+                                                                        transaction_message = f":kaaba:  | {ctx.author} Donated 🦾 **{selected_arm}**."
                                                                         query = {'DID': str(ctx.author.id)}
                                                                         update_storage_query = {
                                                                             '$pull': {'ARMS': {'ARM' : str(selected_arm)}}
                                                                         }
-                                                                        response = db.updateVaultNoFilter(query, update_storage_query)
+                                                                        response = db.updateUserNoFilter(query, update_storage_query)
                                                                         update_gstorage_query = {
                                                                             '$addToSet' : {'ASTORAGE': { 'ARM' : str(selected_arm), 'DUR' : int(durability)}},
                                                                             '$push': {'TRANSACTIONS': transaction_message}                                                                           
@@ -2458,10 +2456,17 @@ class Lookup(commands.Cog):
             }))
 
 
-    @cog_ext.cog_slash(description="Lookup player family", guild_ids=main.guild_ids)
+    @slash_command(description="Lookup player family", options=[
+        SlashCommandOption(
+            name="player",
+            description="Player to lookup",
+            type=OptionType.USER,
+            required=False
+        )
+    ])
     async def family(self, ctx, player = None):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
         ctx_user = db.queryUser({'DID': str(ctx.author.id)})
         #print(ctx_user)
@@ -2516,13 +2521,13 @@ class Lookup(commands.Cog):
                 kid_list = []
                 for kids in family['KIDS']:
                     kid_list.append(kids.split("#",1)[0])
-                icon = ":coin:"
+                icon = "🪙"
                 if savings >= 500000000:
-                    icon = ":money_with_wings:"
+                    icon = "💸"
                 elif savings >=100000000:
-                    icon = ":moneybag:"
+                    icon = "💰"
                 elif savings >= 50000000:
-                    icon = ":dollar:"
+                    icon = "💵"
 
                 if str(ctx.author.id) == head_data['DID']:
                     is_head = True
@@ -2546,97 +2551,30 @@ class Lookup(commands.Cog):
                     else:
                         transactions_embed = "\n".join(transactions)
                 
-                        
+                
                 summon_object = family['SUMMON']
-                summon = list(summon_object.values())[0]
-                head_vault = db.queryVault({'DID' : head_data['DID']})
-                pet_name = ""
-                summon_bond = 0
-                summon_lvl = 0
-                summon_type = "Unbound"
-                power = 0
-                path = "N/A"
-                found_summon_in_vault = False
-                if head_vault:
-                    vault_summons = head_vault['PETS']
-                    for l in vault_summons:
-                        if summon == l['NAME']:
-                            found_summon_in_vault = True
-                            level = l['LVL']
-                            xp = l['EXP']
-                            pet_ability = list(l.keys())[3]
-                            pet_ability_power = list(l.values())[3]
-                            power = (l['BOND'] * l['LVL']) + pet_ability_power
-                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                            summon_img = pet_info['PATH']
-                            pet_name = pet_info["NAME"]
-                            summon_bond = l["BOND"]
-                            summon_lvl = level
-                            summon_type = pet_info["TYPE"]
-                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                            path = pet_info["PATH"]
-                            summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
-                    if found_summon_in_vault == False:
-                        pet_info = db.queryPet({'PET': summon})
-                        summon_img = pet_info['PATH']
-                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                        pet_ability = list(pet_info['ABILITIES'])[0]
-                        summon_type = pet_ability['TYPE']
-                        summon_bond = 0
-                        pet_name = pet_info["PET"]
-                        summon_lvl = 0
-                        summon_img = pet_info['PATH']
-                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                        path = pet_info["PATH"]
-                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
-                else:
-                    partnervault =  db.queryVault({'DID' : partner_data['DID']})
-                    if partnervault:
-                        vault_summons = partnervault['PETS']
-                        for l in vault_summons:
-                            if summon == l['NAME']:
-                                found_summon_in_vault = True
-                                level = l['LVL']
-                                xp = l['EXP']
-                                pet_ability = list(l.keys())[3]
-                                pet_ability_power = list(l.values())[3]
-                                power = (l['BOND'] * l['LVL']) + pet_ability_power
-                                pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                                summon_img = pet_info['PATH']
-                                summon_type = pet_info["TYPE"]
-                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
-                                pet_name = pet_info["NAME"]
-                                summon_bond = pet_info["BOND"]
-                                summon_lvl = level
-                                power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                path = pet_info["PATH"]
-                        if found_summon_in_vault == False:
-                            pet_info = db.queryPet({'PET': summon})
-                            summon_img = pet_info['PATH']
-                            pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                            pet_ability = list(pet_info['ABILITIES'])[0]
-                            summon_type = pet_ability['TYPE']
-                            summon_bond = 0
-                            pet_name = pet_info["PET"]
-                            summon_lvl = 0
-                            summon_img = pet_info['PATH']
-                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                            path = pet_info["PATH"]
-                            summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
-                                
-                    else:
-                        pet_info = db.queryPet({'PET': summon})
-                        summon_img = pet_info['PATH']
-                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                        pet_ability = list(pet_info['ABILITIES'])[0]
-                        summon_type = pet_ability['TYPE']
-                        summon_bond = 0
-                        pet_name = pet_info["PET"]
-                        summon_lvl = 0
-                        summon_img = pet_info['PATH']
-                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                        path = pet_info["PATH"]
-                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
+                summon_name = summon_object['NAME']
+                summon_ability_power = None
+                for key in summon_object:
+                    if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+                        summon_ability_power = summon_object[key]
+                summon_ability = list(summon_object.keys())[3]
+                summon_type = summon_object['TYPE']
+                summon_lvl = summon_object['LVL']
+                summon_exp = summon_object['EXP']
+                summon_bond = summon_object['BOND']
+                summon_bond_exp = summon_object['BONDEXP']
+                bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
+                lvl_req = int(summon_lvl) * 10
+
+                lvl_message = f"*{summon_exp}/{lvl_req}*"
+                bond_message = f"*{summon_bond_exp}/{bond_req}*"
+                
+                power = (summon_bond * summon_lvl) + int(summon_ability_power)
+                summon_path = summon_object['PATH']
+                summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+                summon_file = crown_utilities.showsummon(summon_path, summon_name, crown_utilities.element_mapping[summon_type], summon_lvl, summon_bond)
+
                 universe = family['UNIVERSE']
                 universe_data = db.queryUniverse({'TITLE': universe})
                 universe_img = universe_data['PATH']
@@ -2650,11 +2588,11 @@ class Lookup(commands.Cog):
                 estates_list_joined = ", ".join(estates_list)
                 
                 
-                kids_names = "\n".join(f'{k}'.format(self) for k in kid_list)
+                kids_names = ", ".join(f'{k}'.format(self) for k in kid_list)
                 # if summon_data:
                 #     await ctx.send({summon_data})
                     
-                first_page = discord.Embed(title=f":family_mwgb: | {family_name}", description=textwrap.dedent(f"""
+                first_page = Embed(title=f":family_mwgb: | {family_name}", description=textwrap.dedent(f"""
                 :brain: **Head of Household** 
                 {head_name.split("#",1)[0]}
 
@@ -2668,35 +2606,35 @@ class Lookup(commands.Cog):
                 {icon} {'{:,}'.format(savings)}
                 
                 🏠**Primary Residence**
-                {house_info['HOUSE']} - 〽️**{house_info['MULT']}x** :coin: per match!
-                """), colour=0x7289da)
+                {house_info['HOUSE']} - 〽️**{house_info['MULT']}x** 🪙 per match!
+                """), color=0x7289da)
                 first_page.set_image(url=house_img)
                 
-                estates_page = discord.Embed(title=f"Real Estate", description=textwrap.dedent(f"""
+                estates_page = Embed(title=f"Real Estate", description=textwrap.dedent(f"""
                 🌇 **Properties**
                 {estates_list_joined}
                
-                """), colour=0x7289da)
+                """), color=0x7289da)
 
                 
-                activity_page = discord.Embed(title="Recent Family Activity", description=textwrap.dedent(f"""
+                activity_page = Embed(title="Recent Family Activity", description=textwrap.dedent(f"""
                 {transactions_embed}
-                """), colour=0x7289da)
+                """), color=0x7289da)
                 
-                summon_page = discord.Embed(title="Family Summon", description=textwrap.dedent(f"""
-                🧬**{pet_name}**
-                *Bond* **{summon_bond}**
-                *Level* **{summon_lvl}**
-                :small_blue_diamond: **{summon_type}** ~ **{power}**{enhancer_suffix_mapping[summon_type]}
-                🦠 : **{enhancer_mapping[summon_type]}**
-                """), colour=0x7289da)
-                summon_page.set_image(url=path)
-                
-                
+                summon_page = Embed(title="Family Summon", description=textwrap.dedent(f"""
+                🧬**{summon_name}**
+                _Bond_ **{summon_bond}** | {bond_message}
+                _Level_ **{summon_lvl}** | {lvl_message}
+                {crown_utilities.set_emoji(summon_type)} **{summon_type.capitalize()}** | {summon_ability} ~ **{power}**
+                :sunny:  : **{crown_utilities.element_mapping[summon_type]}**
+                """), color=0x7289da)
+                summon_page.set_image(url=summon_path)
                 
                 
                 
-                family_explanations = discord.Embed(title=f"Information", description=textwrap.dedent(f"""
+                
+                
+                family_explanations = Embed(title=f"Information", description=textwrap.dedent(f"""
                 **Family Explanations**
                 - **Earnings**: Families earn coin for every completed battle by its members
                 - **Allowance**: Disperse Family Savings to a family member
@@ -2704,14 +2642,15 @@ class Lookup(commands.Cog):
                 - **Houses**: Give Coin Multipliers in all game modes towards Family Earnings
                 - **Home Universe**: Earn Extra gold in Home Universe,
                 - **Real Estate**: Own multiple houses, swap your current house buy and sell real estate
-                - **Family Summon**: Each family member has access and can equip the family summon
+                - **Family Summon**: Each family member has access and can equip the family summon 
+                - **Summon XP Boost**: The Family Summon gains an additional 100 AP and gains 2x XP and 5x Bond EXP
                 
 
                 **Family Position Explanations**
                 - **Head of Household**:  All operations.
                 - **Partner**:  Can equip/update family summon, change equipped house and give allowances
                 - **Kids**:  Can equip family summon.
-                """), colour=0x7289da)
+                """), color=0x7289da)
 
                 embed_list = [first_page, estates_page, summon_page, activity_page, family_explanations]
 
@@ -2719,27 +2658,27 @@ class Lookup(commands.Cog):
                 
                 if not member:
                     buttons.append(
-                        manage_components.create_button(style=3, label="Say Hello", custom_id="hello")
+                        Button(style=3, label="Say Hello", custom_id="hello")
                     )
                     
                 if is_head:
                     buttons = [
-                        manage_components.create_button(style=3, label="Check/Purchase Properties", custom_id="property"),
-                        manage_components.create_button(style=3, label="Equip/Set Family Summon", custom_id="summon"),
+                        Button(style=3, label="Check/Purchase Properties", custom_id="property"),
+                        Button(style=3, label="Equip/Set Family Summon", custom_id="summon"),
                     ]
                 elif is_partner:
                     buttons = [
-                        manage_components.create_button(style=3, label="Check Properties", custom_id="property"),
-                        manage_components.create_button(style=3, label="Equip/Set Family Summon", custom_id="summon"),
+                        Button(style=3, label="Check Properties", custom_id="property"),
+                        Button(style=3, label="Equip/Set Family Summon", custom_id="summon"),
                     ]
                     
                 elif is_kid:
                     buttons = [
-                        manage_components.create_button(style=3, label="View Properties", custom_id="property"),
-                        manage_components.create_button(style=3, label="Equip Family Summon", custom_id="summon"),
+                        Button(style=3, label="View Properties", custom_id="property"),
+                        Button(style=3, label="Equip Family Summon", custom_id="summon"),
                     ]
                     
-                custom_action_row = manage_components.create_actionrow(*buttons)
+                custom_action_row = ActionRow(*buttons)
                 
                 async def custom_function(self, button_ctx):
                     try:
@@ -2759,32 +2698,32 @@ class Lookup(commands.Cog):
                                 property_buttons = []
                                 balance_message = '{:,}'.format(savings)
                                 if is_head:
-                                    real_estate_message = "Welcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n**Browse Housing Catalog** - View all Properties for sale"
+                                    real_estate_message = "\nWelcome Head of Household!\n**View Property** - View Owned Properties or make a Move!\n**Buy New Home** - Buy a new Home for your Family\n**Browse Housing Catalog** - View all Properties for sale"
                                     property_buttons = [
-                                    manage_components.create_button(style=2, label="Owned Properties", custom_id="equip"),
-                                    manage_components.create_button(style=3, label="Buy/Sell Houses", custom_id="buy"),
-                                    manage_components.create_button(style=1, label="Browse Housing Catalog", custom_id="browse"),
-                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
+                                    Button(style=2, label="Owned Properties", custom_id="equip"),
+                                    Button(style=3, label="Buy/Sell Houses", custom_id="buy"),
+                                    Button(style=1, label="Browse Housing Catalog", custom_id="browse"),
+                                    Button(style=ButtonStyle.RED, label="Quit", custom_id="q")
                                     
                                 ]
                                 if is_partner:
-                                    real_estate_message = "Welcome Partner!\n**View Property** - View Owned Properties or make a Move!\n**Browse Housing Catalog** - View all Properties for sale"
+                                    real_estate_message = "\nWelcome Partner!\n**View Property** - View Owned Properties or make a Move!\n**Browse Housing Catalog** - View all Properties for sale"
                                     property_buttons = [
-                                    manage_components.create_button(style=1, label="Owned Properties", custom_id="equip"),
-                                    manage_components.create_button(style=1, label="Browse Housing Catalog", custom_id="browse"),
-                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
+                                    Button(style=1, label="Owned Properties", custom_id="equip"),
+                                    Button(style=1, label="Browse Housing Catalog", custom_id="browse"),
+                                    Button(style=ButtonStyle.RED, label="Quit", custom_id="q")
                                 ]
                                 if is_kid:
-                                    real_estate_message = "Welcome Kids!\n**View Property** - View Owned Properties"
+                                    real_estate_message = "\nWelcome Kids!\n**View Property** - View Owned Properties"
                                     property_buttons = [
-                                    manage_components.create_button(style=1, label="View Properties", custom_id="view"),
-                                    manage_components.create_button(style=ButtonStyle.red, label="Quit", custom_id="q")
+                                    Button(style=1, label="View Properties", custom_id="view"),
+                                    Button(style=ButtonStyle.RED, label="Quit", custom_id="q")
                                 ]
-                                property_action_row = manage_components.create_actionrow(*property_buttons)
-                                real_estate_screen = discord.Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
+                                property_action_row = ActionRow(*property_buttons)
+                                real_estate_screen = Embed(title=f"Anime VS+ Real Estate", description=textwrap.dedent(f"""\
                                 {real_estate_message}
-                                \n*Current Savings*: 
-                                :coin: **{balance_message}**
+                                *Current Savings*: 
+                                🪙 **{balance_message}**
                                 """), color=0xe74c3c)
                                 real_estate_screen.set_image(url="https://thumbs.gfycat.com/FormalBlankGeese-max-1mb.gif")
                                 
@@ -2793,7 +2732,7 @@ class Lookup(commands.Cog):
                                     return button_ctx.author == ctx.author
                                 try:
                                     house_embed_list = []
-                                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[property_action_row], timeout=120, check=check)
+                                    button_ctx  = await self.bot.wait_for_component(components=[property_action_row], timeout=120, check=check)
                                     if button_ctx.custom_id == "q":
                                         await ctx.send("Real Estate Menu Closed...")
                                         return
@@ -2806,10 +2745,10 @@ class Lookup(commands.Cog):
                                             price_message = '{:,}'.format(houses['PRICE'])
                                             house_img = houses['PATH']
                                             house_multiplier = houses['MULT']                                            
-                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            embedVar = Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             💰 **Price**: {price_message}
                                             〽️ **Multiplier**: {house_multiplier}
-                                            Family earns **{house_multiplier}x** :coin: per match!
+                                            Family earns **{house_multiplier}x** 🪙 per match!
                                             """))
                                             embedVar.set_image(url=house_img)
                                             house_embed_list.append(embedVar)
@@ -2822,10 +2761,10 @@ class Lookup(commands.Cog):
                                             price_message = '{:,}'.format(houses['PRICE'])
                                             house_img = houses['PATH']
                                             house_multiplier = houses['MULT']                                            
-                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            embedVar = Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             💰 **Price**: {price_message}
                                             〽️ **Multiplier**: {house_multiplier} 
-                                            Family earns **{house_multiplier}x** :coin: per match!
+                                            Family earns **{house_multiplier}x** 🪙 per match!
                                             """))
                                             embedVar.set_image(url=house_img)
                                             house_embed_list.append(embedVar)
@@ -2838,25 +2777,25 @@ class Lookup(commands.Cog):
                                             price_message = '{:,}'.format(houses['PRICE'])
                                             house_img = houses['PATH']
                                             house_multiplier = houses['MULT']                                            
-                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            embedVar = Embed(title= f"{house_name}", description=textwrap.dedent(f"""
                                             💰 **Price**: {price_message}
                                             〽️ **Multiplier**: {house_multiplier} 
-                                            Family earns **{house_multiplier}x** :coin: per match!
+                                            Family earns **{house_multiplier}x** 🪙 per match!
                                             """))
                                             embedVar.set_image(url=house_img)
                                             house_embed_list.append(embedVar)
                                             
                                         equip_buttons = [
-                                            manage_components.create_button(style=3, label="🏠 Equip House", custom_id="equip"),
+                                            Button(style=3, label="🏠 Equip House", custom_id="equip"),
 
                                         ]
-                                        equip_action_row = manage_components.create_actionrow(*equip_buttons)
+                                        equip_action_row = ActionRow(*equip_buttons)
                                         async def equip_function(self, button_ctx):
                                             house_name = str(button_ctx.origin_message.embeds[0].title)
                                             await button_ctx.defer(ignore=True)
                                             if button_ctx.author == ctx.author:
                                                 if button_ctx.custom_id == "equip":
-                                                    transaction_message = f"{ctx.author} changed the family house to **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                    transaction_message = f"🏠 | {ctx.author} changed the family house to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                     update_query = {
                                                             '$set': {'HOUSE': house_name},
                                                             '$push': {'TRANSACTIONS': transaction_message}
@@ -2886,22 +2825,22 @@ class Lookup(commands.Cog):
                                             sell_price = house_price *.80
                                             sell_message = " "
                                             sell_message = f"💱 Sells for **{'{:,}'.format(houses['PRICE'])}**"                                  
-                                            embedVar = discord.Embed(title= f"{house_name}", description=textwrap.dedent(f"""
-                                            **Current Savings**: :coin: **{current_savings}**                                                                    
+                                            embedVar = Embed(title= f"{house_name}", description=textwrap.dedent(f"""
+                                            **Current Savings**: 🪙 **{current_savings}**                                                                    
                                             {ownership_message}
                                             〽️ **Multiplier**: {house_multiplier}
                                             {sell_message}
-                                            Family earns **{house_multiplier}x** :coin: per match!
+                                            Family earns **{house_multiplier}x** 🪙 per match!
                                             """))
                                             embedVar.set_image(url=house_img)
                                             house_embed_list.append(embedVar)
                                         
                                         econ_buttons = [
-                                            manage_components.create_button(style=3, label="💰 Buy House", custom_id="buy"),
-                                            manage_components.create_button(style=3, label="💱 Sell House", custom_id="sell"),
+                                            Button(style=3, label="💰 Buy House", custom_id="buy"),
+                                            Button(style=3, label="💱 Sell House", custom_id="sell"),
 
                                         ]
-                                        econ_action_row = manage_components.create_actionrow(*econ_buttons)
+                                        econ_action_row = ActionRow(*econ_buttons)
                                         
                                         async def econ_function(self, button_ctx):
                                             house_name = str(button_ctx.origin_message.embeds[0].title)
@@ -2930,7 +2869,7 @@ class Lookup(commands.Cog):
                                                                     await ctx.send("You have an insufficent Balance")
                                                                 else:
                                                                     await crown_utilities.cursefamily(cost, family['HEAD'])
-                                                                    transaction_message = f"{ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                                    transaction_message = f"🪙 | {ctx.author} bought a new **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                                     response = db.updateFamily({'HEAD': family['HEAD']},{'$set':{'HOUSE': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                                     response2 = db.updateFamily({'HEAD': family['HEAD']},{'$addToSet':{'ESTATES': str(house_name)}})
                                                                     await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Home!")
@@ -2969,8 +2908,8 @@ class Lookup(commands.Cog):
                                                         #self.stop = True
                                                         return
                                                     elif house_name in family['ESTATES']:
-                                                        await crown_utilities.blessfamily(cost, family['HEAD'])
-                                                        transaction_message = f"{ctx.author} sold the family home: **{str(house_name)}**."
+                                                        await crown_utilities.blessfamily_Alt(cost, family['HEAD'])
+                                                        transaction_message = f"🪙 | {ctx.author} sold the family home: **{str(house_name)}**."
                                                         response = db.updateFamily({'HEAD': family['HEAD']},{'$pull':{'ESTATES': str(house_name)},'$push': {'TRANSACTIONS': transaction_message}})
                                                         await ctx.send(f'{family_name} sold their **{house_name}** for **{formatted_cost}**')
                                                         #self.stop = True
@@ -3000,129 +2939,59 @@ class Lookup(commands.Cog):
                                 await button_ctx.defer(ignore=True)
                                 summon_object = family['SUMMON']
                                 summon = list(summon_object.values())[0]
-                                head_vault = db.queryVault({'DID' : head_data['DID']})
-                                pet_name = ""
-                                summon_bond = 0
-                                summon_lvl = 0
-                                summon_type = "Unbound"
-                                power = 0
-                                path = "N/A"
-                                found_summon_in_vault = False
-                                if head_vault:
-                                    vault_summons = head_vault['PETS']
-                                    for l in vault_summons:
-                                        if summon == l['NAME']:
-                                            found_summon_in_vault = True
-                                            level = l['LVL']
-                                            xp = l['EXP']
-                                            pet_ability = list(l.keys())[3]
-                                            pet_ability_power = list(l.values())[3]
-                                            power = (l['BOND'] * l['LVL']) + pet_ability_power
-                                            pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                                            summon_img = pet_info['PATH']
-                                            pet_name = pet_info["NAME"]
-                                            summon_bond = l["BOND"]
-                                            summon_lvl = level
-                                            summon_type = pet_info["TYPE"]
-                                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                            path = pet_info["PATH"]
-                                            summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
-                                    if found_summon_in_vault == False:
-                                        pet_info = db.queryPet({'PET': summon})
-                                        summon_img = pet_info['PATH']
-                                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                                        pet_ability = list(pet_info['ABILITIES'])[0]
-                                        summon_type = pet_ability['TYPE']
-                                        summon_bond = 0
-                                        pet_name = pet_info["PET"]
-                                        summon_lvl = 0
-                                        summon_img = pet_info['PATH']
-                                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                        path = pet_info["PATH"]
-                                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
-                                else:
-                                    partnervault =  db.queryVault({'DID' : partner_data['DID']})
-                                    if partnervault:
-                                        vault_summons = partnervault['PETS']
-                                        for l in vault_summons:
-                                            if summon == l['NAME']:
-                                                found_summon_in_vault = True
-                                                level = l['LVL']
-                                                xp = l['EXP']
-                                                pet_ability = list(l.keys())[3]
-                                                pet_ability_power = list(l.values())[3]
-                                                power = (l['BOND'] * l['LVL']) + pet_ability_power
-                                                pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
-                                                summon_img = pet_info['PATH']
-                                                summon_type = pet_info["TYPE"]
-                                                summon_file = crown_utilities.showsummon(summon_img, pet_info['NAME'], enhancer_mapping[pet_info['TYPE']], pet_info['LVL'], pet_info['BOND'])
-                                                pet_name = pet_info["NAME"]
-                                                summon_bond = pet_info["BOND"]
-                                                summon_lvl = level
-                                                power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                                path = pet_info["PATH"]
-                                        if found_summon_in_vault == False:
-                                            pet_info = db.queryPet({'PET': summon})
-                                            summon_img = pet_info['PATH']
-                                            pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                                            pet_ability = list(pet_info['ABILITIES'])[0]
-                                            summon_type = pet_ability['TYPE']
-                                            summon_bond = 0
-                                            pet_name = pet_info["PET"]
-                                            summon_lvl = 0
-                                            summon_img = pet_info['PATH']
-                                            power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                            path = pet_info["PATH"]
-                                            summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
+                                summon_name = summon_object['NAME']
+                                summon_ability_power = list(summon_object.values())[3]
+                                summon_ability = list(summon_object.keys())[3]
+                                summon_type = summon_object['TYPE']
+                                summon_lvl = summon_object['LVL']
+                                summon_exp = summon_object['EXP']
+                                summon_bond = summon_object['BOND']
+                                summon_bond_exp = summon_object['BONDEXP']
+                                bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
+                                lvl_req = int(summon_lvl) * 10
 
-                                    else:
-                                        pet_info = db.queryPet({'PET': summon})
-                                        summon_img = pet_info['PATH']
-                                        pet_ability_power = list(pet_info['ABILITIES'][0].values())[0]
-                                        pet_ability = list(pet_info['ABILITIES'])[0]
-                                        summon_type = pet_ability['TYPE']
-                                        summon_bond = 0
-                                        pet_name = pet_info["PET"]
-                                        summon_lvl = 0
-                                        summon_img = pet_info['PATH']
-                                        power = (summon_bond * summon_lvl) + int(pet_ability_power)
-                                        path = pet_info["PATH"]
-                                        summon_file = crown_utilities.showsummon(summon_img, pet_info['PET'], enhancer_mapping[summon_type], 0, 0)
+                                lvl_message = f"*{summon_exp}/{lvl_req}*"
+                                bond_message = f"*{summon_bond_exp}/{bond_req}*"
+                                
+                                power = (summon_bond * summon_lvl) + int(summon_ability_power)
+                                summon_path = summon_object['PATH']
+                                head_vault = db.queryVault({'DID' : head_data['DID']})
+                                
                                 summon_buttons = []
                                 if is_head:
                                     summon_message = "Welcome Head of Household! Equip or Change Family Summon Here!"
                                     summon_buttons = [
-                                    manage_components.create_button(style=2, label="Change Summon", custom_id="change"),
-                                    manage_components.create_button(style=3, label="Equip Family Summon", custom_id="equip"),
+                                    Button(style=2, label="Change Summon", custom_id="change"),
+                                    Button(style=3, label="Equip Family Summon", custom_id="equip"),
                                     
                                 ]
                                 if is_partner:
                                     summon_message = "Welcome Partner! Equip or Change Family Summon Here!"
                                     summon_buttons = [
-                                    manage_components.create_button(style=1, label="Change Summon", custom_id="change"),
-                                    manage_components.create_button(style=1, label="Equip Family Summon", custom_id="equip"),
+                                    Button(style=1, label="Change Summon", custom_id="change"),
+                                    Button(style=1, label="Equip Family Summon", custom_id="equip"),
                                 ]
                                 if is_kid:
                                     summon_message = "Welcome Kids! Equip Family Summon Here!"
                                     summon_buttons = [
-                                    manage_components.create_button(style=1, label="Equip Family Summon", custom_id="equip"),
+                                    Button(style=1, label="Equip Family Summon", custom_id="equip"),
                                 ]
-                                summon_action_row = manage_components.create_actionrow(*summon_buttons)
-                                summon_screen = discord.Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
+                                summon_action_row = ActionRow(*summon_buttons)
+                                summon_screen = Embed(title=f"Anime VS+ Family", description=textwrap.dedent(f"""\
                                 {summon_message}
-                                :dna: : **{pet_name}**
-                                *Bond* **{summon_bond}**
-                                *Level* **{summon_lvl}**
-                                :small_blue_diamond: **{summon_type}** ~ **{power}**{enhancer_suffix_mapping[summon_type]}
-                                🦠 : **{enhancer_mapping[summon_type]}**
+                                🧬**{summon_name}**
+                                _Bond_ **{summon_bond}** | {bond_message}
+                                _Level_ **{summon_lvl}** | {lvl_message}
+                                {crown_utilities.set_emoji(summon_type)} **{summon_type.capitalize()}** | {summon_ability} ~ **{power}**
+                                :sunny:  : **{crown_utilities.element_mapping[summon_type]}**
                                 """), color=0xe74c3c)
-                                summon_screen.set_image(url=path)
+                                summon_screen.set_image(url=summon_path)
                                 
                                 msg = await ctx.send(embed=summon_screen, components=[summon_action_row])
                                 def check(button_ctx):
                                     return button_ctx.author == ctx.author
                                 try:
-                                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[summon_action_row], timeout=120, check=check)
+                                    button_ctx  = await self.bot.wait_for_component(components=[summon_action_row], timeout=120, check=check)
                                     
                                     if button_ctx.custom_id == "change":
                                         await button_ctx.defer(ignore=True)
@@ -3151,41 +3020,67 @@ class Lookup(commands.Cog):
                                                 if pet['LVL'] == 10:
                                                     lvl_message = ":star:"
                                                 
+                                                pet_bond = pet['BOND']
+                                                bond_exp = pet['BONDEXP']
+                                                pet_level = pet['LVL']
+                                                pet_exp = pet['EXP']
+                                                
+                                                petmove_ap = list(pet.values())[3] 
+                                                bond_req = ((petmove_ap * 5) * (pet_bond + 1))
+                                                lvl_req = int(pet_level) * 10
+                                                if lvl_req <= 0:
+                                                    lvl_req = 2
+                                                if bond_req <= 0:
+                                                    bond_req = 5
+                                                
+                                                lvl_message = f"*{pet_exp}/{lvl_req}*"
+                                                bond_message = f"*{bond_exp}/{bond_req}*"
+                                                
                                                 pet_ability = list(pet.keys())[3]
                                                 pet_ability_power = list(pet.values())[3]
                                                 power = (pet['BOND'] * pet['LVL']) + pet_ability_power
-                                                dash_pet_info = db.queryPet({'PET' : pet['NAME']})
+                                                can_change_summon = True
+                                                bonus_message = ""
+                                                if pet['TYPE'] not in ['BARRIER','PARRY']:
+                                                    bonus_message = '+100 Family Bonus'
+                                                if pet['NAME'] == summon_name:
+                                                    can_change_sumon = False
+                                                dash_pet_info = db.querySummon({'PET' : pet['NAME']})
                                                 if dash_pet_info:
                                                     pet_available = dash_pet_info['AVAILABLE']
                                                     pet_exclusive = dash_pet_info['EXCLUSIVE']
                                                     pet_universe = dash_pet_info['UNIVERSE']
                                                 icon = "🧬"
                                                 if pet_available and pet_exclusive:
-                                                    icon = ":fire:"
+                                                    icon = "🔥"
                                                 elif pet_available == False and pet_exclusive ==False:
                                                     icon = ":japanese_ogre:"
 
-                                                embedVar = discord.Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
+                                                embedVar = Embed(title= f"{pet['NAME']}", description=textwrap.dedent(f"""
                                                 {icon}
-                                                _Bond_ **{pet['BOND']}** {bond_message}
-                                                _Level_ **{pet['LVL']} {lvl_message}**
-                                                :small_blue_diamond: **{pet_ability}:** {power}{enhancer_suffix_mapping[pet['TYPE']]}
-                                                🦠 **Type:** {pet['TYPE']}"""), 
-                                                colour=0x7289da)
+                                                _Bond_ **{pet['BOND']}** | {bond_message}
+                                                _Level_ **{pet['LVL']}** | {lvl_message}
+                                                {crown_utilities.set_emoji(pet['TYPE'])} *{pet['TYPE'].capitalize()} Ability*
+                                                **{pet_ability}:** {power} *{bonus_message}*
+                                                """), 
+                                                color=0x7289da)
                                                 embedVar.set_thumbnail(url=avatar)
-                                                embedVar.set_footer(text=f"{pet['TYPE']}: {enhancer_mapping[pet['TYPE']]}")
+                                                #embedVar.set_footer(text=f"{pet['TYPE']}: {crown_utilities.element_mapping[pet['TYPE']]}")
                                                 embed_list.append(embedVar)
                                             
                                             buttons = [
-                                                manage_components.create_button(style=3, label="Share Summon", custom_id="share"),
+                                                Button(style=3, label="Share Summon", custom_id="share"),
                                             ]
-                                            custom_action_row = manage_components.create_actionrow(*buttons)
+                                            custom_action_row = ActionRow(*buttons)
 
                                             async def custom_function(self, button_ctx):
                                                 if button_ctx.author == ctx.author:
                                                     updated_vault = db.queryVault({'DID': d['DID']})
                                                     sell_price = 0
                                                     selected_summon = str(button_ctx.origin_message.embeds[0].title)
+                                                    if selected_summon == summon_name:
+                                                        await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is already the {family_name} **Summon**.")
+                                                        return 
                                                     user_query = {'DID': str(ctx.author.id)}
                                                     user_vault = db.queryVault(user_query)
 
@@ -3195,14 +3090,18 @@ class Lookup(commands.Cog):
                                                             level = l['LVL']
                                                             xp = l['EXP']
                                                             pet_ability = list(l.keys())[3]
-                                                            pet_ability_power = list(l.values())[3]
-                                                            power = (l['BOND'] * l['LVL']) + pet_ability_power
+                                                            bonus = 0
+                                                            if pet_ability not in ['PARRY','BARRIER']:
+                                                                bonus = 100
+                                                            pet_ability_power = list(l.values())[3] + bonus
+                                                            power = (l['BOND'] * l['LVL']) + pet_ability_power + bonus
                                                             pet_info = {'NAME': l['NAME'], 'LVL': l['LVL'], 'EXP': l['EXP'], pet_ability: pet_ability_power, 'TYPE': l['TYPE'], 'BOND': l['BOND'], 'BONDEXP': l['BONDEXP'], 'PATH': l['PATH']}
                                                     if button_ctx.custom_id == "share":
                                                         #update_query = {'$set': {'SUMMON': }}
                                                         #filter_query = [{'type.' + "NAME": str(pet)}]
-                                                        #response = db.updateVault(query, update_query, filter_query)
-                                                        transaction_message = f"{ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
+                                                        #response = db.updateUser(query, update_query, filter_query)
+                                                
+                                                        transaction_message = f"🧬 | {ctx.author} changed the family summon to **{str(button_ctx.origin_message.embeds[0].title)}**."
                                                         response = db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'SUMMON': pet_info}, '$push': {'TRANSACTIONS': transaction_message}})
                                                         await button_ctx.send(f"🧬 **{str(button_ctx.origin_message.embeds[0].title)}** is now the {family_name} **Summon**.")
                                                         self.stop = True
@@ -3217,10 +3116,10 @@ class Lookup(commands.Cog):
                                     elif button_ctx.custom_id == "equip":
                                         try:
                                             await button_ctx.defer(ignore=True)
-                                            transaction_message = f"{ctx.author} equipped the family summon : **{str(pet_info['NAME'])}**."
-                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': pet_info['NAME'], 'FAMILY_PET': True}})
+                                            transaction_message = f"{ctx.author} equipped the family summon : **{str(summon_name)}**."
+                                            response = db.updateUserNoFilter({'DID': str(button_ctx.author.id)}, {'$set' : {'PET': summon_name, 'FAMILY_PET': True}})
                                             response2 = db.updateFamily({'HEAD': family['HEAD']}, {'$push': {'TRANSACTIONS': transaction_message}})
-                                            await button_ctx.send(f"🧬 **{str(pet_info['NAME'])}** is now your **Summon**.")
+                                            await button_ctx.send(f"🧬 **{str(summon_name)}** is now your **Summon**.")
                                             self.stop = True
                                             return
                                         except Exception as ex:
@@ -3291,97 +3190,129 @@ class Lookup(commands.Cog):
                 'trace': trace
             }))
 
+
+async def raid(ctx, guild):
+    registered_player = await crown_utilities.player_check(ctx)
+    if not registered_player:
+        return
+
+    try:
+        guildname = guild
+        private_channel = ctx
+        if isinstance(private_channel.channel, discord.channel.DMChannel):
+            await private_channel.send(m.SERVER_FUNCTION_ONLY)
+            return
+        starttime = time.asctime()
+        h_gametime = starttime[11:13]
+        m_gametime = starttime[14:16]
+        s_gametime = starttime[17:19]
+
+        # Get Session Owner Disname for scoring
+        sowner = db.queryUser({'DID': str(ctx.author.id)})
+        if sowner['DIFFICULTY'] == "EASY":
+            await ctx.send("Raiding is unavailable on Easy Mode! Use /difficulty to change your difficulty setting.")
+            return
+
+        guild = sowner['TEAM']
+        guild_info = db.queryTeam({'TEAM_NAME': guild.lower()})
+        oguild_name = "PCG"
+        shield_test_active = False
+        shield_training_active = False
+        if guild_info:
+            oguild_name = guild_info['GUILD']
+            oassociation = db.queryGuildAlt({'GNAME': oguild_name})
+        player_guild = sowner['GUILD']
+
+        if oguild_name == "PCG":
+            await ctx.send(m.NO_GUILD, delete_after=5)
+            return
+        if oassociation['SHIELD'] == sowner['DISNAME']:
+            shield_training_active = True
+        elif player_guild == guildname:
+            shield_test_active = True
+            
+
+        guild_query = {'GNAME': guildname}
+        association_info = db.queryGuildAlt(guild_query)
+        guild_shield = ""
+
+        if not association_info:
+            await ctx.send(m.GUILD_DOESNT_EXIST, delete_after=5)
+            return
+        guild_shield = association_info['SHIELD']
+        shield_id = association_info['SDID']
+        guild_hall = association_info['HALL']
+        hall_info = db.queryHall({'HALL': str(guild_hall)})
+        hall_def = hall_info['DEFENSE']
+        t_user = db.queryUser({'DID': shield_id})
+        tteam_name = t_user['TEAM']
+        tteam_info = db.queryTeam({'TEAM_NAME': tteam_name.lower()})
+        tteam = tteam_info['TEAM_NAME']
+        tguild = tteam_info['GUILD']
+        if tteam_info:
+            tguild = tteam_info['GUILD']
+        tarm = db.queryArm({'ARM': t_user['ARM']})
+        ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
+        
+        # Guild Fees
+        title_match_active = False
+        fee = hall_info['FEE']
+        if oguild_name == tguild:
+            title_match_active = True
+        
+        
+        mode = "RAID"
+        
+        player = sowner
+        player2 = t_user
+        p1 = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], oguild_name, player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])    
+        p2 = Player(player2['AUTOSAVE'], player2['DISNAME'], player2['DID'], player2['AVATAR'], tteam, player2['TEAM'], player2['FAMILY'], player2['TITLE'], player2['CARD'], player2['ARM'], player2['PET'], player2['TALISMAN'], player2['CROWN_TALES'], player2['DUNGEONS'], player2['BOSS_WINS'], player2['RIFT'], player2['REBIRTH'], player2['LEVEL'], player2['EXPLORE'], player2['SAVE_SPOT'], player2['PERFORMANCE'], player2['TRADING'], player2['BOSS_FOUGHT'], player2['DIFFICULTY'], player2['STORAGE_TYPE'], player2['USED_CODES'], player2['BATTLE_HISTORY'], player2['PVP_WINS'], player2['PVP_LOSS'], player2['RETRIES'], player2['PRESTIGE'], player2['PATRON'], player2['FAMILY_PET'], player2['EXPLORE_LOCATION'], player2['SCENARIO_HISTORY'])  
+        battle = Battle(mode, p1)
+        battle.create_raid(title_match_active, shield_test_active, shield_training_active, association_info, hall_info, tteam, oguild_name)
+        
+
+
+        
+
+        # o = db.queryCard({'NAME': sowner['CARD']})
+        # otitle = db.queryTitle({'TITLE': sowner['TITLE']})
+
+        # t = db.queryCard({'NAME': t_user['CARD']})
+        # ttitle = db.queryTitle({'TITLE': t_user['TITLE']})
+        
+        if private_channel:
+            await battle_commands(main, ctx, battle, p1, None, p2, player3=None)
+        else:
+            await ctx.send("Failed to start raid battle!")
+    except Exception as ex:
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        print(str({
+            'PLAYER': str(ctx.author),
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        }))
+        guild = self.bot.get_guild(self.bot.guild_id)
+        channel = guild.get_channel(self.bot.guild_channel)
+        await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+        return
+
+
 def setup(bot):
-    bot.add_cog(Lookup(bot))
+    Lookup(bot)
+
 
 def most_frequent(List):
     occurence_count = Counter(List)
     return occurence_count.most_common(1)[0][0]
-
-def guild_buff_toggle(player, team):
-    guild_buff_on = team['GUILD_BUFF_ON']
-    team_query = {'TEAM_NAME': team['TEAM_NAME']}
-    return_message = {}
-    
-    if guild_buff_on:
-        transaction_message = f"{player['DISNAME']} turned off Guild Buff."
-        new_value_query = {
-            '$set': {'GUILD_BUFF_ON': False},
-            '$push': {'TRANSACTIONS': transaction_message}
-            }
-        response = db.updateTeam(team_query, new_value_query)
-        if response:
-            return {"MSG": "Guild Buff has been turned off."}
-        else:
-            return False
-    else:
-        transaction_message = f"{player['DISNAME']} turned on Guild Buff."
-        new_value_query = {
-            '$set': {'GUILD_BUFF_ON': True},
-            '$push': {'TRANSACTIONS': transaction_message}
-            }
-        response = db.updateTeam(team_query, new_value_query)
-        if response:
-            return {"MSG": "Guild Buff has been turned on."}
-        else:
-            return False
-
-
-async def apply(self, ctx, owner: User):
-    owner_profile = db.queryUser({'DID': str(owner.id)})
-    team_profile = db.queryTeam({'TEAM_NAME': owner_profile['TEAM'].lower()})
-
-    if owner_profile['TEAM'] == 'PCG':
-        await ctx.send(m.USER_NOT_ON_TEAM, delete_after=5)
-    else:
-
-        if owner_profile['DISNAME'] == team_profile['OWNER']:
-            member_profile = db.queryUser({'DID': str(ctx.author.id)})
-            if member_profile['LEVEL'] < 4:
-                await ctx.send(f"🔓 Unlock Guilds by completing Floor 3 of the 🌑 Abyss! Use /solo to enter the abyss.")
-                return
-
-            # If user is part of a team you cannot add them to your team
-            if member_profile['TEAM'] != 'PCG':
-                await ctx.send("You're already in a Guild. You may not join another guild.")
-                return
-            else:
-                team_buttons = [
-                    manage_components.create_button(
-                        style=ButtonStyle.blue,
-                        label="Accept",
-                        custom_id="Yes"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.red,
-                        label="Deny",
-                        custom_id="No"
-                    )
-                ]
-                team_buttons_action_row = manage_components.create_actionrow(*team_buttons)
-                
-                msg = await ctx.send(f"{ctx.author.mention}  applies to join **{team_profile['TEAM_DISPLAY_NAME']}**. Owner, Officers, or Captains - Please accept or deny".format(self), components=[team_buttons_action_row])
-
-                def check(button_ctx):
-                    return str(button_ctx.author) == str(owner)
-
-                try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(self.bot, components=[team_buttons_action_row], timeout=120, check=check)
-                    
-                    if button_ctx.custom_id == "No":
-                        await button_ctx.send("Application Denied.")
-                        await msg.delete()
-                        return
-
-                    if button_ctx.custom_id == "Yes":
-                        team_query = {'TEAM_NAME': team_profile['TEAM_NAME'].lower()}
-                        new_value_query = {'$push': {'MEMBERS': member_profile['DISNAME']}}
-                        response = db.addTeamMember(team_query, new_value_query, owner_profile['DISNAME'], member_profile['DISNAME'])
-                        await button_ctx.send(response)
-                except:
-                    await msg.delete()
-        else:
-            await ctx.send(m.OWNER_ONLY_COMMAND, delete_after=5)
 
 
 enhancer_mapping = {'ATK': 'Increase Attack %',
@@ -3419,3 +3350,6 @@ enhancer_mapping = {'ATK': 'Increase Attack %',
 'PARRY': 'Returns 25% Damage, until broken',
 'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
+
+
+

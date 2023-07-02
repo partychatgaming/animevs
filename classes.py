@@ -18,8 +18,8 @@ class USER():
     FAMILY: str = field(default_factory=lambda: 'PCG')
     TITLE: str = field(default_factory=lambda: 'Starter')
     CARD: str = field(default_factory=lambda: "Ochaco Uraraka")
-    DECK: list[str] = field(default_factory=lambda: [''])
     ARM: str = field(default_factory=lambda: "Stock")
+    DECK: list[str] = field(default_factory=lambda: [''])
     TALISMAN: str = field(default_factory=lambda: 'NULL')
     PET: str = field(default_factory=lambda: "Chick")
     MATCHES: list = field(default_factory=lambda: [{'1V1': [0, 0]}, {'2V2': [0, 0]}, {'3V3': [0, 0]}, {'4V4': [0, 0]}, {'5V5': [0, 0]}])
@@ -33,6 +33,7 @@ class USER():
     REFERRER: str = field(default_factory=lambda: "N/A")
     TIMESTAMP: str = now
     IS_ADMIN: bool = field(default_factory=lambda: False)
+    U_PRESET: bool = field(default_factory=lambda: False)
     RIFT: int = field(default_factory=lambda: 0)
     REBIRTH: int = field(default_factory=lambda: 0)
     RETRIES: int = field(default_factory=lambda: 5)
@@ -41,12 +42,12 @@ class USER():
     LEVEL: int = field(default_factory=lambda: 0)
     PVP_WINS: int = field(default_factory=lambda: 0)
     PVP_LOSS: int = field(default_factory=lambda: 0)
-    U_PRESET: bool = field(default_factory=lambda: False)
     EXPLORE: bool = field(default_factory=lambda: True)
     SAVE_SPOT: list[str] = field(default_factory=lambda: [])
     PERFORMANCE: bool = field(default_factory=lambda: False)
     TRADING: bool = field(default_factory=lambda: False)
-    BOSS_FOUGHT: bool = field(default_factory=lambda: False)
+    BOSS_FOUGHT: bool = field(default_factory=lambda: True)
+    AUTOSAVE: bool = field(default_factory=lambda: False)
     SERVER: str = field(default_factory=lambda: "N/A")
     DIFFICULTY: str = field(default_factory=lambda: "EASY")
     STORAGE_TYPE: int = field(default_factory=lambda: 1)
@@ -56,7 +57,9 @@ class USER():
     BATTLE_HISTORY: int = field(default_factory=lambda: 6)
     SCENARIO_HISTORY: list[str] = field(default_factory=lambda: [""])
     FAMILY_PET: bool = field(default_factory=lambda: False)
+    EXPLORE_LOCATION: str = field(default_factory=lambda: "NULL")
     
+
 @dataclass(frozen=True, order=True)
 class CODES():
     CODE_INPUT: str = field(default_factory=lambda: '')
@@ -137,9 +140,9 @@ class GUILD():
 @dataclass(frozen=True, order=True)
 class TEAMS():
     OWNER: str
-    DID: str
     MEMBERS: list
     TEAM_NAME: str
+    DID: str
     TEAM_DISPLAY_NAME:  str = field(default_factory=lambda: '')
     OFFICERS: list[str] = field(default_factory=lambda: []) 
     CAPTAINS: list[str] = field(default_factory=lambda: [])
@@ -224,9 +227,9 @@ class HALL():
 
 @dataclass(frozen=True, order=True)
 class SESSIONS():
-    OWNER: str
-    GAME: str
-    TYPE: int
+    PLAYER1: str
+    PLAYER2: str
+    MODE: str
     TEAMS: list[str] = field(default_factory=lambda: [])
     GODS: bool = field(default_factory=lambda: False)
     GODS_TITLE: str = field(default_factory=lambda: 'N/A')
@@ -477,17 +480,17 @@ class VAULT():
         {"ELEMENT": "GRAVITY", "ESSENCE": 5000}
     ])
     PETS: list[str] = field(default_factory=lambda: [
-        {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Heal': 5, 'TYPE': 'HLT', 'BOND': 0, 'BONDEXP': 0,
+        {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Peck': 100, 'TYPE': 'PHYSICAL', 'BOND': 0, 'BONDEXP': 0,
          'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}])
     DECK: list[str] = field(
-        default_factory=lambda: [{'CARD': 'Eevee', 'TITLE': 'Pokemon Trainer', 'ARM': 'Poke Ball', 'PET': 'Chick'},
+        default_factory=lambda: [{'CARD': 'Eevee', 'TITLE': 'Pokemon Trainer', 'ARM': 'Poke Ball', 'PET': 'Chick', 'TALISMAN': 'NULL'},
                                  {'CARD': 'Ochaco Uraraka', 'TITLE': 'UA 1st Year', 'ARM': 'Hyper-Density Seals',
-                                  'PET': 'Chick'},
-                                 {'CARD': 'Garen', 'TITLE': 'Iron 4', 'ARM': 'Dorans Shield', 'PET': 'Chick'}])
+                                  'PET': 'Chick', 'TALISMAN': 'NULL'},
+                                 {'CARD': 'Garen', 'TITLE': 'Iron 4', 'ARM': 'Dorans Shield', 'PET': 'Chick', 'TALISMAN': 'NULL'}])
     CARD_LEVELS: list[str] = field(default_factory=lambda: [
-        {'CARD': 'Eevee', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0},
-        {'CARD': 'Ochaco Uraraka', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0},
-        {'CARD': 'Garen', 'LVL': 0, 'TIER': 1, 'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}])
+        {'CARD': 'Eevee', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Ochaco Uraraka', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Garen', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36}])
     QUESTS: list[str] = field(default_factory=lambda: [])
     DESTINY: list[str] = field(default_factory=lambda: [])
     GEMS: list[str] = field(default_factory=lambda: [])
