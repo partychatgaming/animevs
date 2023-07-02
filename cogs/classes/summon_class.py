@@ -2,26 +2,61 @@ import db
 import crown_utilities
 
 class Summon:
-    def __init__(self, name, universe, path, abilities, available, exclusive):
+    def __init__(self, name, universe, path, available, drop_style, abilities):
         self.name = name
         self.universe = universe
         self.path = path
         self.abilities = abilities
         self.available = available
-        self.exclusive = exclusive
+        self.drop_style = drop_style
         self.show_img = ""
+        self.is_tale_drop = False
+        self.is_dungeon_drop = False
+        self.is_scenario_drop = False
+        self.is_boss_drop = False
 
         self.passive = abilities[0]
-        self.passive_name = list(self.passive.keys())[0]
+        self.ability = list(self.passive.keys())[0]
         self.passive_value = list(self.passive.values())[0]
-        self.passive_type = list(self.passive.values())[1]
-        self.emoji = crown_utilities.set_emoji(self.passive_type)
+        self.ability_type = list(self.passive.values())[1]
+        self.emoji = crown_utilities.set_emoji(self.ability_type)
 
         self.message = ""
         self.type_message = ""
-        self.value = f"{self.emoji} {self.passive_name}: {str(self.passive_value)}"  
-        self.explanation = f"{self.emoji} {self.passive_name}: {str(self.passive_value)}"  
+        self.value = f"{self.emoji} {self.ability}: {str(self.passive_value)}"  
+        self.explanation = f"{self.emoji} {self.ability}: {str(self.passive_value)}"  
+        self.universe_crest = crown_utilities.crest_dict[self.universe]
+
+        # For when checking for summons in player summons collection
+        self.level = 0
+        self.exp = 0
+        self.ability_power_potential = 0
+        self.ability_power = 0
+        self.bond = 0
+        self.bond_exp = 0
+        self.exp_to_level_up = 0
+        self.exp_to_bond_up = 0
+        self.bond_message = ""
+        self.level_message = ""
+        self.dismantle_amount = 0
         
+        if self.drop_style == "TALES":
+            self.is_tale_drop = True
+            self.drop_emoji = f"🎴"
+            self.dismantle_amount = 30000
+        elif self.drop_style == "DUNGEON":
+            self.is_dungeon_drop = True
+            self.drop_emoji = f"🔥"
+            self.dismantle_amount = 100000
+        elif self.drop_style == "SCENARIO":
+            self.is_scenario_drop = True
+            self.drop_emoji = f"🎞️"
+            self.dismantle_amount = 50000
+        elif self.drop_style == "BOSS":
+            self.is_boss_drop = True
+            self.drop_emoji = f"👹"
+            self.dismantle_amount = 1000000
+
     def is_not_universe_unbound(self):
         if(self.universe != "Unbound"):
             self.show_img = db.queryUniverse({'TITLE': self.universe})['PATH']
@@ -30,9 +65,36 @@ class Summon:
             return False
 
 
-    # def set_messages(self):  
-    #     self.value = f"{self.emoji} {self.passive_name}: {str(self.passive_value)}"  
-    #     self.explanation = f"{self.emoji} {self.passive_name}: {str(self.passive_value)}"  
+    def set_player_summon_info(self, player):
+        for summon in player.summons:
+            if self.name == summon['NAME']:
+                self.level = summon['LVL']
+                self.exp = summon['EXP']
+                self.ability_power_potential = summon[self.ability]
+                self.bond = summon['BOND']
+                self.bond_exp = summon['BONDEXP']
+                self.message = f"{self.drop_emoji} {self.name} ({self.universe_crest}) Level: {self.level} | Bond: {self.bond} | Ability: {self.ability} | Ability Power: {self.ability_power_potential}"
+                self.type_message = f"{self.drop_emoji} {self.name} ({self.universe_crest}) Level: {self.level} | Bond: {self.bond} | Ability: {self.ability} | Ability Power: {self.ability_power_potential}"
+
+                self.exp_to_bond_up = ((self.ability_power_potential * 5) * (self.bond + 1))
+                self.exp_to_level_up = int(self.level) * 10
+                
+                if self.exp_to_level_up <= 0:
+                    self.exp_to_level_up = 2
+                if self.exp_to_bond_up <= 0:
+                    self.exp_to_bond_up = 5
+                
+                self.level_message = f"*{self.exp}/{self.exp_to_level_up}*"
+                self.bond_message = f"*{self.bond_exp}/{self.exp_to_bond_up}*"
+                
+                if self.bond == 3:
+                    self.bond_message = "🌟"
+                if self.level == 10:
+                    self.level_message = "⭐"
+
+                self.ability_power = (self.bond * self.level) + self.ability_power_potential
+
+
 
 
 enhancer_mapping = {'ATK': 'Increase Attack %',

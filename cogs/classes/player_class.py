@@ -1,15 +1,20 @@
 from numpy import save
 import db
 import crown_utilities
-import discord
-from discord import Embed
+import custom_logging
+from interactions import Embed
 import textwrap
 import random
+from .custom_paginator import CustomPaginator
+import uuid
+from interactions import ActionRow, Button, ButtonStyle, Embed
+
 
 
 class Player:
-    def __init__(self, auto_save, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equippedsummon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history):
+    def __init__(self, auto_save, available, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history, balance, cards, titles, arms, summons, deck, card_levels, quests, destiny, gems, storage, talismans, essence, tstorage, astorage):
         self.disname = disname
+        self.is_available = available
         self.did = did
         self.avatar = avatar
         self.association = association
@@ -18,7 +23,7 @@ class Player:
         self.equipped_title = equipped_title
         self.equipped_card = equipped_card
         self.equipped_arm = equipped_arm
-        self.equippedsummon = equippedsummon
+        self.equipped_summon = equipped_summon
         self.equipped_talisman = equipped_talisman
         self.completed_tales = completed_tales
         self.completed_dungeons = completed_dungeons
@@ -47,11 +52,33 @@ class Player:
         self.explore_location = explore_location
         self.autosave = auto_save
         self.scenario_history = scenario_history
+        self.balance = balance
+        self.cards = cards
+        self.titles = titles
+        self.arms = arms
+        self.summons = summons
+        self.deck = deck
+        self.card_levels = card_levels
+        self.quests = quests
+        self.destiny = destiny
+        self.gems = gems
+        self.storage = storage
+        self.talismans = talismans
+        self.essence = essence
+        self.tstorage = tstorage
+        self.astorage = astorage
+        self.cards_length = len(self.cards)
+        self.titles_length = len(self.titles)
+        self.arms_length = len(self.arms)
+        self.summons_length = len(self.summons)
+        self.storage_length = len(self.storage)
+        self.tstorage_length = len(self.tstorage)
+        self.astorage_length = len(self.astorage)
+        self.card_storage_full = self.cards_length == (self.storage_length * self.storage_type)
 
-        self.owned_destinies = []
+
 
         self.talisman_message = "📿 | No Talisman Equipped"
-
         self.summon_power_message = ""
         self.summon_lvl_message = ""
         self.rift_on = False
@@ -69,62 +96,39 @@ class Player:
         self.association_info = ""
         self.crestlist = ""
         self.crestsearch = False
-        
-
-        # Vault Infoo
-        self.vault = db.queryVault({'DID': str(self.did)})
-        if self.vault:
-            self._balance = self.vault['BALANCE']
-            self._cards = self.vault['CARDS']
-            self._titles = self.vault['TITLES']
-            self._arms = self.vault['ARMS']
-            self.summons = self.vault['PETS']
-            self._deck = self.vault['DECK']
-            self._card_levels = self.vault['CARD_LEVELS']
-            self._quests = self.vault['QUESTS']
-            self._destiny = self.vault['DESTINY']
-            self._gems = self.vault['GEMS']
-            self._storage = self.vault['STORAGE']
-            self._talismans = self.vault['TALISMANS']
-            self._essence = self.vault['ESSENCE']
-            self._tstorage = self.vault['TSTORAGE']
-            self._astorage = self.vault['ASTORAGE']
             
-            if self._destiny:
-                for destiny in self._destiny:
-                    self.owned_destinies.append(destiny['NAME'])
-
-            self.list_of_cards = ""
-
-        self._deck_card = ""
-        self._deck_title = ""
-        self._deck_arm = ""
-        self._decksummon = ""
-        self._deck_talisman = ""
+        self.deck_card = ""
+        self.deck_title = ""
+        self.deck_arm = ""
+        self.decksummon = ""
+        self.deck_talisman = ""
 
         self._equipped_card_data = ""
         self._equipped_title_data = ""
         self._equipped_arm_data = ""
-        self._equippedsummon_data = ""
-        self._equippedsummon_power = 0
-        self._equippedsummon_bond = 0
-        self._equippedsummon_bondexp = 0
-        self._equippedsummon_exp = 0
-        self._equippedsummon_lvl = 0
-        self._equippedsummon_type = ""
-        self._equippedsummon_name = ""
-        self._equippedsummon_ability_name = ""
-        self._equippedsummon_image = ""
-        self._equippedsummon_universe = ""
+        self._equipped_summon_data = ""
+        self._equipped_summon_power = 0
+        self._equipped_summon_bond = 0
+        self._equipped_summon_bondexp = 0
+        self._equipped_summon_exp = 0
+        self._equipped_summon_lvl = 0
+        self._equipped_summon_type = ""
+        self._equipped_summon_name = ""
+        self._equipped_summon_ability_name = ""
+        self._equipped_summon_image = ""
+        self._equipped_summon_universe = ""
+        self.user_query = {'DID': self.did}
         
         self._universe_buff_msg = ""
+
+        if self.rift == 1:
+            self.rift_on = True
 
 
     def set_talisman_message(self):
         try:
-            #print(self.equipped_talisman)
             if self.equipped_talisman != "NULL":
-                for t in self._talismans:
+                for t in self.talismans:
                     if t["TYPE"].upper() == self.equipped_talisman.upper():
                         talisman_emoji = crown_utilities.set_emoji(self.equipped_talisman.upper())
                         talisman_durability = t["DUR"]
@@ -147,6 +151,7 @@ class Player:
             print("Error setting talisman message.")
             return self.talisman_message
         
+    
     def get_family_summon(self):
         family_info = db.queryFamily({'HEAD':str(self.family)})
         summon_object = family_info['SUMMON']
@@ -164,11 +169,13 @@ class Player:
         power = (summon_bond * summon_lvl) + int(summon_ability_power)
         summon_path = summon_object['PATH']
         return summon_object
+    
+    
     def setsummon_messages(self):
         try:
             
             for summon in self.summons:
-                if summon['NAME'] == self.equippedsummon:
+                if summon['NAME'] == self.equipped_summon:
                     activesummon = summon
             if self.family_pet:
                 activesummon = self.get_family_summon()
@@ -193,7 +200,7 @@ class Player:
             else:    
                 summon_ability_power = (bond * lvl) + power
 
-            self.summon_power_message = f"🧬 | {self.equippedsummon}: {crown_utilities.set_emoji(s_type)} {s_type.title()}: {summon_ability_power}"
+            self.summon_power_message = f"🧬 | {self.equipped_summon}: {crown_utilities.set_emoji(s_type)} {s_type.title()}: {summon_ability_power}"
 
 
             self.summon_lvl_message = f"🧬 | Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"
@@ -226,12 +233,7 @@ class Player:
         else:
             return "Scenario already saved."
 
-    def set_rift_on(self):
-        if self.rift == 1:
-            self.rift_on = True
-        return self.rift_on
-
-
+    
     async def set_guild_data(self):
         if self.guild != "PCG":
             self.guild_info = db.queryTeam({'TEAM_NAME': self.guild.lower()})
@@ -256,281 +258,170 @@ class Player:
             self.auto_battle = True
         return self.auto_battle
 
-    def set_selectable_bosses(self, ctx, mode):
-        _all_universes = db.queryAllUniverse()
-        
-        
-        def get_bosses(universes):
-            all_universes = []
-            for uni in universes:
-                if uni["TITLE"] in self.completed_dungeons:
-                    all_universes.append(uni)
-                    #print(uni["TITLE"])
-            if not all_universes:
-                return None
-            else:
-                return all_universes
-        all_universes = get_bosses(_all_universes)
-        #print(all_universes)
-        available_universes = []
-        selected_universe = ""
-        universe_menu = []
-        universe_embed_list = []
-        available_dungeons_list = "Sadly, you have no available dungeons at this time!\n🌍 To unlock a Universe Dungeon you must first complete the Universe Tale!"
-        can_fight_boss = False
-        can_fight_message = "🗝️ | Conquer A Dungeon to Gain a Boss Key"
-        if self.boss_fought == False:
-            can_fight_boss = True
-            can_fight_message = "📿| Boss Talismans ignore all Affinities. Be Prepared"
-        difficulty = self.difficulty
-        prestige_slider = 0
-        p_message = ""
-        aicon = crown_utilities.prestige_icon(self.prestige)
-        if self.prestige > 0:
-            prestige_slider = ((((self.prestige + 1) * (10 + self.rebirth)) /100))
-            p_percent = (prestige_slider * 100)
-            p_message = f"*{aicon} x{round(p_percent)}%*"
-        if self.completed_tales:
-            l = []
-            for uni in self.completed_tales:
-                if uni != "":
-                    l.append(uni)
-            available_dungeons_list = "\n".join(l)
-        
-        
-        if len(self.completed_dungeons) > 25:
-            all_universes = random.sample(all_universes, min(len(all_universes), 25))
-            #print(all_universes)
-        if not all_universes:
-            return False
-        for uni in all_universes:
-            if uni['TITLE'] in self.completed_dungeons:
-                if uni != "":
-                    if uni['GUILD'] != "PCG":
-                        owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
-                    else: 
-                        owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
-                    if uni['UNIVERSE_BOSS'] != "":
-                        boss_info = db.queryBoss({"NAME": uni['UNIVERSE_BOSS']})
-                        if boss_info:
-                            if boss_info['NAME'] in self.boss_wins:
-                                completed = crown_utilities.utility_emojis['ON']
-                            else:
-                                completed = crown_utilities.utility_emojis['OFF']
-                            embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                            {crown_utilities.crest_dict[uni['TITLE']]} **Boss**: :japanese_ogre: **{boss_info['NAME']}**
-                            🎗️ **Boss Title**: {boss_info['TITLE']}
-                            🦾 **Boss Arm**: {boss_info['ARM']}
-                            🧬 **Boss Summon**: {boss_info['PET']}
-                            
-                            **Difficulty**: ⚙️ {difficulty.lower().capitalize()} {p_message}
-                            **Soul Aquired**: {completed}
-                            {owner_message}
-                            """))
-                            embedVar.set_image(url=boss_info['PATH'])
-                            #embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                            embedVar.set_footer(text=f"{can_fight_message}")
-                            universe_embed_list.append(embedVar)
 
-        if not universe_embed_list:
-            universe_embed_list = discord.Embed(title= f"👹 There are no available Bosses at this time.", description=textwrap.dedent(f"""
-            \n__How to unlock Bosses?__
-            \nYou unlock Bosses by completing the Universe Dungeon. Once a Dungeon has been completed the boss for that universe will be unlocked for you to fight!
-            \n🗝️ | A Boss Key is required to Enter the Boss Arena.
-            \nEarn Boss Keys by completing any Universe Dungeon.
-            \n__🌍 Available Universe Dungeons__
-            \n{available_dungeons_list}
-            """))
-            # embedVar.set_image(url=boss_info['PATH'])
-            universe_embed_list.set_thumbnail(url=ctx.author.avatar_url)
-            # embedVar.set_footer(text="Use /tutorial")
-
-
-        return universe_embed_list
-
-
-    def set_selectable_universes(self, ctx, mode, fight_number = None):
-        try:
-            
-            completed_message = f"**Completed**: {crown_utilities.utility_emojis['OFF']}"
-            save_spot_text = "No Save Data"
-            corruption_message = "📢 Not Corrupted"
-            title = "UTITLE"
-            title_message = "Universe Title"
-            arm_message = "Universe Arm"
-            summon_message = "Universe Summon"
-            arm = "UARM"
-            summon = "UPET"
-            fight_emoji = ":crossed_swords:"
-            list_of_opponents = "CROWN_TALES"
-            save_spot_check = crown_utilities.TALE_M
-            mode_check = "HAS_CROWN_TALES"
-            completed_check = self.completed_tales
-            all_universes = ""
-            if mode in crown_utilities.DUNGEON_M and self.level <= 40:
-                universe_embed_list = discord.Embed(title= f"🔥 Dungeon Locked.", description=textwrap.dedent(f"""
-                \n__How to unlock Dungeons?__
-                \nYou unlock Bosses by completing floor 40 of :new_moon: The Abyss. Once a Tale has been completed the Dungeon for that universe will be unlocked for you to fight!
-                \nDungeons offer rarer item drops and Summons.
-                \nAssoicatied players can earn Universe Crest by completing Dungeons granting their Assocaition additional Gold.
-                """))
-            
-            prestige_slider = 0
-            p_message = ""
-            aicon = crown_utilities.prestige_icon(self.prestige)
-            if self.prestige > 0:
-                prestige_slider = ((((self.prestige + 1) * (10 + self.rebirth)) /100))
-                p_percent = (prestige_slider * 100)
-                p_message = f"*{aicon} x{round(p_percent)}%*"
-            if mode in crown_utilities.DUNGEON_M:
-                title = "DTITLE"
-                title_message = "Dungeon Title"
-                arm_message = "Dungeon Arm"
-                summon_message = "Dungeon Summon"
-                fight_emoji = ":fire:"
-                arm = "DARM"
-                summon = "DPET"
-                list_of_opponents = "DUNGEONS"
-                save_spot_check = crown_utilities.DUNGEON_M
-                mode_check = "HAS_DUNGEON"
-                completed_check = self.completed_dungeons
-
-            def get_dungeons(universes):
-                all_universes = []
-                for uni in universes:
-                    if uni['TITLE'] in self.completed_tales:
-                        all_universes.append(uni)
-                if not all_universes:
-                    return None
-                else:
-                    return all_universes
-                
-            def get_tales(universes):
-                all_universes = []
-                for uni in universes:
-                    all_universes.append(uni)
-                if not all_universes:
-                    return None
-                else:
-                    return all_universes
-                    
-            def get_rifts(universes):
-                rift_universes = []
-                for uni in universes:
-                    if uni['TIER'] == 9:
-                        rift_universes.append(uni)
-                return rift_universes
-                
-            if self.rift_on:
-                if mode in crown_utilities.DUNGEON_M:
-                    _all_universes = db.queryDungeonAllUniverse()
-                    all_universes = get_dungeons(_all_universes)
-                    if not all_universes:
-                        return None
-                if mode in crown_utilities.TALE_M:
-                    _all_universes = db.queryTaleAllUniverse()
-                    all_universes = get_tales(_all_universes)
-                rift_universes = get_rifts(all_universes)
-                num_rift_universes = len(rift_universes)
-                if len(rift_universes) > 1:
-                    num_rift_universes = random.randint(1, min(len(rift_universes), 3))
-                selected_universes = random.sample(rift_universes, num_rift_universes)
-
-                max_non_rift_universes = 25 - num_rift_universes
-                non_rift_universes = [uni for uni in all_universes if uni['TIER'] != 9]
-                selected_universes.extend(random.sample(non_rift_universes, min(len(non_rift_universes), max_non_rift_universes)))
-                
-                corruption_message = "📢 Not Corrupted | 🔮 *Crown Rifts*"
-
-            if not self.rift_on:
-                if mode in crown_utilities.DUNGEON_M:
-                    _all_universes = db.queryDungeonUniversesNotRift()
-                    all_universes = get_dungeons(_all_universes)
-                    if not all_universes:
-                        return None
-                if mode in crown_utilities.TALE_M:
-                    _all_universes = db.queryTaleUniversesNotRift()
-                    all_universes = get_tales(_all_universes)
-                selected_universes = random.sample(all_universes, min(len(all_universes), 25))
-                    
-
-        
-                
-
-            universe_embed_list = []
-            can_fight_message = ""
-            for uni in selected_universes:
-                completed_message = f"**Completed**: {crown_utilities.utility_emojis['OFF']}"
-                save_spot_text = "No Save Data"
-                can_fight_message = f"🔥 Dungeon | {uni['TITLE']} : /universes to view all Dungeon Drops."
-                if uni[mode_check] == True:
-                    if uni['TITLE'] in completed_check:
-                        completed_message = f"**Completed**: {crown_utilities.utility_emojis['ON']}"
-                        can_fight_message = f"🔥 Dungeon | Conquer {uni['TITLE']} Dungeon again for a Boss Key and Minor Reward."
-
-                    if self.difficulty != "EASY":
-                        for save in self.save_spot:
-                            if save['UNIVERSE'] == uni['TITLE'] and save['MODE'] in save_spot_check:
-                                save_spot_text = str((int(save['CURRENTOPPONENT']) + 1))
-                    
-                    if uni['CORRUPTED']:
-                        corruption_message = "👾 **Corrupted**"
-
-                    if uni['GUILD'] != "PCG":
-                        owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} **Crest Owned**: {uni['GUILD']}"
-                    else: 
-                        owner_message = f"{crown_utilities.crest_dict[uni['TITLE']]} *Crest Unclaimed*"
-
-
-                    embedVar = discord.Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""
-                    {crown_utilities.crest_dict[uni['TITLE']]} **Number of Fights**: {fight_emoji} **{len(uni[list_of_opponents])}**
-
-                    **Saved Game**: :crossed_swords: *{save_spot_text}*
-                    **Difficulty**: ⚙️ {self.difficulty.lower().capitalize()} {p_message}
-                    {completed_message}
-                    {corruption_message}
-                    {owner_message}
-                    """))
-                    embedVar.set_image(url=uni['PATH'])
-                    embedVar.set_thumbnail(url=ctx.author.avatar_url)
-                    if mode not in crown_utilities.DUNGEON_M:
-                        if self.rift_on:
-                            if uni['TIER'] == 9:
-                                embedVar.set_footer(text=f"🔮 Rift | Traverse {uni['TITLE']} : /universes to view all Rift Drops.")
-                            else:
-                                embedVar.set_footer(text=f"⚔️ Tales | Traverse {uni['TITLE']} : /universes to view all Tales Drops.")
-                        else:
-                            embedVar.set_footer(text=f"⚔️ Tales | Traverse {uni['TITLE']} : /universes to view all Tales Drops.")
-                    else:
-                        embedVar.set_footer(text=f"{can_fight_message}")
-                        
-                    universe_embed_list.append(embedVar)
-                        
-
-            return universe_embed_list
-
-        except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-
-        
     async def set_guild_buff(self):
         guild_buff = await crown_utilities.guild_buff_update_function(self.guild.lower())
         if guild_buff['Auto Battle']:
             self.auto_battle = True
             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+
+
+    def save_gems(self, universe_title, amount):
+        current_gems = 0
+        for gems in self.gems:
+            if universe_title == gems['UNIVERSE']:
+                current_gems = gems['GEMS']
+
+
+        if current_gems:
+            update_query = {'$inc': {'GEMS.$[type].' + "GEMS": amount}}
+            filter_query = [{'type.' + "UNIVERSE": universe_title}]
+            response = db.updateUser(self.user_query, update_query, filter_query)
+            return True
+        else:
+            gem_info = {'UNIVERSE': universe_title, 'GEMS' : 5000, 'UNIVERSE_HEART' : False, 'UNIVERSE_SOUL' : False}
+            response = db.updateUserNoFilter(self.user_query, {'$addToSet' : {'GEMS' :gem_info }})
+            return True
+
+
+    def save_card(self, card):
+        try:
+            if card.name in (self.cards or self.storage):
+                return False
+
+            if self.cards_length == 25:
+                if self.card_storage_full:
+                    return False
+                else:
+                    update_query = {'$addToSet': {'STORAGE': card.name}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+            else:
+                update_query = {'$addToSet': {'CARDS': card.name}}
+                db.updateUserNoFilter(self.user_query, update_query)
+            
+            if card.card_lvl > 1:
+                if (card.card_lvl + 1) % 2 == 0:
+                    atk_def_buff = crown_utilities.level_sync["ATK_DEF"]
+                if (card.card_lvl + 1) % 3 == 0:
+                    ap_buff = crown_utilities.level_sync["AP"]
+                if (card.card_lvl + 1) % 20 == 0:
+                    hlt_buff = crown_utilities.level_sync["HLT"]
+
+                update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
+                                '$inc': {'CARD_LEVELS.$[type].' + "LVL": card.card_lvl, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
+                                        'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
+                                        'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
+                filter_query = [{'type.' + "CARD": str(card.name)}]
+                db.updateUser(self.user_query, update_query, filter_query)
+        
+            return True
+        except Exception as ex:
+            custom_logging.debug(ex)
+            return False
+
+
+    def remove_card(self, card_name):
+        try:
+            if card_name in self.cards:
+                update_query = {'$pull': {'CARDS': card_name}}
+                response = db.updateUserNoFilter(self.user_query, update_query)
+
+
+            for card in self.card_levels:
+                if card['CARD'] == card_name:
+                    update_query = {'$pull': {'CARD_LEVELS': card}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+
+
+            if card_name in self.storage:
+                update_query = {'$pull': {'STORAGE': card_name}}
+                response = db.updateUserNoFilter(self.user_query, update_query)
+
+
+            for deck in self.deck:
+                if card_name == deck['CARD']:
+                    update_query = {'$pull': {'DECK': deck}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+
+
+            return True
+        except Exception as ex:
+            custom_logging.debug(ex)
+            return False
+
+    
+    def save_arm(self, arm):
+        for a in self.arms:
+            if arm.name == a['ARM']:
+                return False
+        for a in self.astorage:
+            if arm.name == a['ARM']:
+                return False
+        
+        if self.arms_length == 25:
+            if self.storage_length == 25:
+                return False
+            else:
+                update_query = {'$addToSet': {'ASTORAGE': {"ARM": arm.name, "DUR": arm.durability}}}
+                response = db.updateUserNoFilter(self.user_query, update_query)
+        else:
+            update_query = {'$addToSet': {'ARMS': {"ARM": arm.name, "DUR": arm.durability}}}
+            response = db.updateUserNoFilter(self.user_query, update_query)
+    
+    
+    def remove_arm(self, arm_name):
+        try:
+            for arm in self.arms:
+                if arm['ARM'] == arm_name:
+                    update_query = {'$pull': {'ARMS': arm}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+            
+            for arm in self.astorage:
+                if arm['ARM'] == arm_name:
+                    update_query = {'$pull': {'ASTORAGE': arm}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+
+            return True
+        except Exception as ex:
+            print(ex)
+            return False
+
+
+    def save_summon(self, summon):
+        for s in self.summons:
+            if summon.name == s['NAME']:
+                return False
+        for s in self.storage:
+            if summon.name == s['NAME']:
+                return False
+        
+        if self.summons_length == 25:
+            if self.storage_length == 25:
+                return False
+            else:
+                update_query = {'$addToSet': {'STORAGE': {"NAME": summon.name, "LVL": summon.lvl, "EXP": summon.exp, "TYPE": summon.type, "BOND": summon.bond, "BONDEXP": summon.bondexp, "PATH": summon.path}}}
+                response = db.updateUserNoFilter(self.user_query, update_query)
+        else:
+            update_query = {'$addToSet': {'SUMMONS': {"NAME": summon.name, "LVL": summon.lvl, "EXP": summon.exp, "TYPE": summon.type, "BOND": summon.bond, "BONDEXP": summon.bondexp, "PATH": summon.path}}}
+            response = db.updateUserNoFilter(self.user_query, update_query)
+
+
+    def remove_summon(self, summon_name):
+        try:
+            for summon in self.summons:
+                if summon['NAME'] == summon_name:
+                    update_query = {'$pull': {'PETS': summon}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                
+            for deck in self.deck:
+                if summon_name == deck['PET']:
+                    update_query = {'$pull': {'DECK': deck}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+
+            return True
+        except Exception as ex:
+            print(ex)
+            return False
 
 
     def get_locked_feature(self, mode):
@@ -562,66 +453,100 @@ class Player:
         return self._is_locked_feature
 
 
-    def get_battle_ready(self):
-        try:                
-            if self._deck_card:
-                self._equipped_card_data = self._deck_card
-                self._equipped_title_data = self._deck_title
-                self._equipped_arm_data = self._deck_arm
-                self.equippedsummon = self._decksummon['PET']
-                self.equipped_talisman = self._deck_talisman
-            else:
-                self._equipped_card_data = db.queryCard({'NAME': self.equipped_card})
-                self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
-                self._equipped_arm_data = db.queryArm({'ARM': self.equipped_arm})
-
-            if self.family_pet:
-                summon_object = self.get_family_summon()
-                self._equippedsummon_ability_name = list(summon_object.keys())[3]
-                self._equippedsummon_power = list(summon_object.values())[3]
-                self._equippedsummon_bond = summon_object['BOND']
-                self._equippedsummon_bondexp = summon_object['BONDEXP']
-                self._equippedsummon_lvl = summon_object['LVL']
-                self._equippedsummon_type = summon_object['TYPE']
-                self._equippedsummon_name = summon_object['NAME']
-                self._equippedsummon_image = summon_object['PATH']
-                self._equippedsummon_exp = summon_object['EXP']
-                self._equippedsummon_universe = db.queryPet({'PET': summon_object['NAME']})['UNIVERSE']
-            else:
-                for summon in self.summons:
-                    if summon['NAME'] == self.equippedsummon:
-                        activesummon = summon
-                self._equippedsummon_ability_name = ""
-                self._equippedsummon_power = 0
-                for key in activesummon:
-                    if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
-                        self._equippedsummon_power = activesummon[key]
-                        self._equippedsummon_ability_name = key
-
-                self._equippedsummon_bond = activesummon['BOND']
-                self._equippedsummon_bondexp = activesummon['BONDEXP']
-                self._equippedsummon_lvl = activesummon['LVL']
-                self._equippedsummon_type = activesummon['TYPE']
-                self._equippedsummon_name = activesummon['NAME']
-                self._equippedsummon_image = activesummon['PATH']
-                self._equippedsummon_exp = activesummon['EXP']
-                self._equippedsummon_universe = db.queryPet({'PET': activesummon['NAME']})['UNIVERSE']
+    def make_available(self):
+        try:
+            db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'AVAILABLE': True}})
+            self.is_available = True
+            return True
         except:
-            print("Failed to get battle ready")
+            return False
+
+
+    def make_unavailable(self):
+        try:
+            db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'AVAILABLE': False}})
+            self.is_available = False
+            return True
+        except:
+            return False
+            
+
+    def get_battle_ready(self):
+        try:
+            self._equip_deck_data()
+            self._equip_player_data()
+            self._equip_summon_data()
+        except Exception as ex:
+            custom_logging.debug(ex)
+
+
+    def _equip_deck_data(self):
+        if self.deck_card:
+            self._equipped_card_data = self.deck_card
+            self._equipped_title_data = self.deck_title
+            self._equipped_arm_data = self.deck_arm
+            self.equipped_summon = self.decksummon['PET']
+            self.equipped_talisman = self.deck_talisman
+        else:
+            return
+
+
+    def _equip_player_data(self):
+        if not self.deck_card:
+            self._equipped_card_data = db.queryCard({'NAME': self.equipped_card})
+            self._equipped_title_data = db.queryTitle({'TITLE': self.equipped_title})
+            self._equipped_arm_data = db.queryArm({'ARM': self.equipped_arm})
+        else:
+            return
+
+
+    def _equip_summon_data(self):
+        if self.family_pet:
+            summon_object = self.get_family_summon()
+            attribute_name, power = self._get_summon_attribute_and_power(summon_object)
+            self._assign_summon_attributes(summon_object, attribute_name, power)
+        else:
+            activesummon = self._get_active_summon()
+            self._assign_summon_attributes(activesummon, "", 0)
+
+
+    def _get_summon_attribute_and_power(self, summon_object):
+        attributes = {key: val for key, val in summon_object.items() if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]}
+        # Assuming there's only one other attribute and power, but adapt if needed
+        attribute_name, power = next(iter(attributes.items()))
+        return attribute_name, power
+
+
+    def _get_active_summon(self):
+        for summon in self.summons:
+            if summon['NAME'] == self.equipped_summon:
+                return summon
+        raise ValueError(f"Summon {self.equipped_summon} not found in summons")
+
+
+    def _assign_summon_attributes(self, summon_object, ability_name, power):
+        common_attributes = ['BOND', 'BONDEXP', 'LVL', 'TYPE', 'NAME', 'PATH', 'EXP']
+        for attr in common_attributes:
+            setattr(self, f'_equipped_summon_{attr.lower()}', summon_object[attr])
+        setattr(self, '_equipped_summon_ability_name', ability_name)
+        setattr(self, '_equipped_summon_power', power)
+        setattr(self, '_equipped_summon_universe', db.querySummon({'PET': summon_object['NAME']})['UNIVERSE'])
+
 
     def getsummon_ready(self, _card):
-        _card.summon_ability_name = self._equippedsummon_ability_name
-        _card.summon_power = self._equippedsummon_power
-        _card.summon_lvl = self._equippedsummon_lvl
-        _card.summon_type = self._equippedsummon_type
-        _card.summon_emoji = crown_utilities.set_emoji(self._equippedsummon_type)
-        _card.summon_bond = self._equippedsummon_bond
-        _card.summon_bondexp = self._equippedsummon_bondexp
-        _card.summon_exp = self._equippedsummon_exp
-        _card.summon_name = self._equippedsummon_name
-        _card.summon_image = self._equippedsummon_image
-        _card.summon_universe = self._equippedsummon_universe
+        _card.summon_ability_name = self._equipped_summon_ability_name
+        _card.summon_power = self._equipped_summon_power
+        _card.summon_lvl = self._equipped_summon_lvl
+        _card.summon_type = self._equipped_summon_type
+        _card.summon_emoji = crown_utilities.set_emoji(self._equipped_summon_type)
+        _card.summon_bond = self._equipped_summon_bond
+        _card.summon_bondexp = self._equipped_summon_bondexp
+        _card.summon_exp = self._equipped_summon_exp
+        _card.summon_name = self._equipped_summon_name
+        _card.summon_image = self._equipped_summon_image
+        _card.summon_universe = self._equipped_summon_universe
     
+
     def get_talisman_ready(self, card):
         if self.equipped_talisman:
             card._talisman = self.equipped_talisman
@@ -633,31 +558,25 @@ class Player:
 
 
     def has_storage(self):
-        if self._storage:
+        if self.storage:
             return True
         else:
             return False
 
 
-    def set_list_of_cards(self):
-        cards = db.querySpecificCards(self._storage)
-        self.list_of_cards = [x for x in cards]
-        return self.list_of_cards
-
-
     def set_deck_config(self, selected_deck):
         try:
-            active_deck = self._deck[selected_deck]
-            self._deck_card = db.queryCard({'NAME': str(active_deck['CARD'])})
-            self._deck_title = db.queryTitle({'TITLE': str(active_deck['TITLE'])})
-            self._deck_arm = db.queryArm({'ARM': str(active_deck['ARM'])})
-            self._decksummon = db.queryPet({'PET': str(active_deck['PET'])})
-            self._deck_talisman = str(active_deck['TALISMAN'])
-            self._equipped_card_data = self._deck_card
-            self._equipped_title_data = self._deck_title
-            self._equipped_arm_data = self._deck_arm
-            self._equippedsummon_data = self._decksummon
-            self.equipped_talisman = self._deck_talisman
+            active_deck = self.deck[selected_deck]
+            self.deck_card = db.queryCard({'NAME': str(active_deck['CARD'])})
+            self.deck_title = db.queryTitle({'TITLE': str(active_deck['TITLE'])})
+            self.deck_arm = db.queryArm({'ARM': str(active_deck['ARM'])})
+            self.decksummon = db.querySummon({'PET': str(active_deck['PET'])})
+            self.deck_talisman = str(active_deck['TALISMAN'])
+            self._equipped_card_data = self.deck_card
+            self._equipped_title_data = self.deck_title
+            self._equipped_arm_data = self.deck_arm
+            self._equipped_summon_data = self.decksummon
+            self.equipped_talisman = self.deck_talisman
         except Exception as ex:
             trace = []
             tb = ex.__traceback__

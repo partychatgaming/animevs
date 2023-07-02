@@ -1,21 +1,84 @@
 import db
 import crown_utilities
+import custom_logging
 
 class Title:
-    def __init__(self, title, universe, price, exclusive, available, abilities):
+    def __init__(self, title, universe, abilities, rarity, unlock_method, title_id, available):
         self.name = title
         self.universe = universe
-        self.price = price
-        self.exclusive = exclusive
         self.available = available
         self.abilities = abilities
+        self.rarity = rarity
+        self.unlock_method = unlock_method
+        self.id = title_id
         self.title_img = ""
+        self.universe_crest = crown_utilities.crest_dict[self.universe]
+        self.title_messages = []
+        self.title_battle_messages = []
+        """
+        Unlock Methods
+        # Tales completed {TYPE: "TALES", "VALUE": "1"}
+        # Dungeons completed {TYPE: "DUNGEONS", "VALUE": "1"}
+        # Scenarios completed {TYPE: "SCENARIOS", "VALUE": "1"}
+        # Specific Element Damage Dealt in universe {TYPE: "ELEMENT", "VALUE": "100"}
+        # Total Damage Dealt in universe {TYPE: "TOTAL_DAMAGE", "VALUE": "100"}
+        # Bosses beat in universe {TYPE: "BOSS", "VALUE": "1"}
+        # None / Picked from scenario window
+        {TYPE: "", "VALUE": ""}
+        """
+        self.unlock_method_message = f"🔒 This title can not be unlocked at this time."
+        self.atk_effect = False
+        self.def_effect = False
+        self.stam_effect = False
+        self.hlt_effect = False
+        self.life_effect = False
+        self.drain_effect = False
+        self.flog_effect = False
+        self.wither_effect = False
+        self.rage_effect = False
+        self.brace_effect = False
+        self.bzrk_effect = False
+        self.crystal_effect = False
+        self.growth_effect = False
+        self.fear_effect = False
+        self.stance_effect = False
+        self.confuse_effect = False
+        self.blink_effect = False
+        self.creation_effect = False
+        self.destruction_effect = False
+        self.blast_effect = False
+        self.wave_effect = False
+        self.speed_effect = False
+        self.slow_effect = False
+        self.haste_effect = False
+        self.soulchain_effect = False
+        self.gamble_effect = False
+        self.singularity_effect = False
+        self.iq_effect = False
+        self.high_iq_effect = False
+        self.blitz_effect = False
+        self.foresight_effect = False
+        self.obliterate_effect = False
+        self.impenetrable_shield_effect = False
+        self.pierce_effect = False
+        self.synthesis_effect = False
+        self.spell_shield_effect = False
+        self.elemental_buff_effect = False
+        self.elemental_debuff_effect = False
+        self.enhanced_guard_effect = False
+        self.strategist_effect = False
+        self.sharpshooter_effect = False
+        self.divinity_effect = False
+        self.synthesis_damage_stored = 0
 
-        self.passive = abilities[0]
-        self.passive_type = list(self.passive.keys())[0]
-        self.passive_value = list(self.passive.values())[0]
+        # Abilities
+        for i in range(min(3, len(abilities))):
+            ability_attr = self.set_ability_attributes(abilities, i)
+            self.add_title_message(ability_attr)
+            self.set_instance_attributes(i + 1, ability_attr)
+            self.set_title_effect(ability_attr)
 
-        self.price_message = ""
+
         self.type_message = ""
         self.type2_message = ""
         self.message = ""
@@ -29,10 +92,10 @@ class Title:
             self.pokemon_title = True
         self.title_icon = "⚠️"
 
+
     def set_title_image(self):
         if self.universe != 'Unbound':
             self.title_img = db.queryUniverse({'TITLE': self.universe})['PATH']
-        
         return self.title_img
 
 
@@ -41,83 +104,173 @@ class Title:
             self.pokemon_title = True
 
 
-    def set_type_message_and_price_message(self):
-            if self.exclusive:
-                self.price_message = "_Priceless_"
-            else:
-                self.price_message = f"_Shop & Drop_"
+    def set_ability_attributes(self, abilities, ability_index):
+        ability = abilities[ability_index]
+        ability_attr = {
+            'ability': ability.get('ABILITY', ''),
+            'prefix': crown_utilities.title_prefix_mapping[ability.get('ABILITY', '')],
+            'suffix': crown_utilities.title_enhancer_suffix_mapping[ability.get('ABILITY', '')],
+            'power': ability.get('POWER', 0),
+            'element': ability.get('ELEMENT', ''),
+            'duration': ability.get('DURATION', 0),
+            'element_emoji': crown_utilities.set_emoji(ability.get('ELEMENT', ''))
+        }
+        return ability_attr
 
-            self.type2_message = " "
-            if self.passive_type == 'ATK':
-                self.type_message = "Attack"
-                message=f"{self.name} is an ATK title"
-            elif self.passive_type == 'DEF':
-                self.type_message = "Defense"
-                message=f"{self.name} is a DEF title"
-            elif self.passive_type == 'STAM':
-                self.type_message = "Stamina"
-                message=f"{self.name} is a STAM title"
-            elif self.passive_type == 'HLT':
-                self.type_message = "Health"
-                message=f"{self.name} is a HLT title"
-            elif self.passive_type == 'LIFE':
-                self.type_message = "Health"
-                message=f"{self.name} is a LIFE title"
-            elif self.passive_type == 'DRAIN':
-                self.type_message = "Stamina"
-                message=f"{self.name} is a DRAIN title"
-            elif self.passive_type == 'FLOG':
-                self.type_message = "Attack"
-                message=f"{self.name} is a FLOG title"
-            elif self.passive_type == 'WITHER':
-                self.type_message = "Defense"
-                message=f"{self.name} is a WITHER title"
-            elif self.passive_type == 'RAGE':
-                self.type_message = "Defense gain Attack"
-                message=f"{self.name} is a RAGE title"
-            elif self.passive_type == 'BRACE':    
-                self.type_message = "Attack gain AP"        
-                message=f"{self.name} is a BRACE title"
-            elif self.passive_type == 'BZRK':    
-                self.type_message = "Health gain Attack"        
-                message=f"{self.name} is a BZRK title"
-            elif self.passive_type == 'CRYSTAL':    
-                self.type_message = "Health gain Defense"        
-                message=f"{self.name} is a CRYSTAL title"
-            elif self.passive_type == 'GROWTH':    
-                self.type_message = "Max Health gain Attack and Defense"        
-                message=f"{self.name} is a GROWTH title"
-            elif self.passive_type == 'STANCE':
-                self.type_message = "Attack and Defense increase"
-                message=f"{self.name} is a STANCE title"
-            elif self.passive_type == 'CONFUSE':
-                self.type_message = "Opponent Attack And Defense decrease Opponent"
-                message=f"{self.name} is a CONFUSE title"
-            elif self.passive_type == 'BLINK':
-                self.type_message = "Decrease Stamina"
-                self.type2_message ="Increase Target Stamina"
-                message=f"{self.name} is a BLINK title"
-            elif self.passive_type == 'SLOW':
-                self.type_message = "Decrease Turn Count"
-                self.type2_message = "Decrease Stamina"
-                message=f"{self.name} is a SLOW title"
-            elif self.passive_type == 'HASTE':
-                self.type_message = "Increase Turn Count"
-                self.type2_message = "Decrease Opponent Stamina"
-                message=f"{self.name} is a HASTE title" 
-            elif self.passive_type == 'SOULCHAIN':
-                self.type_message = "Stamina Regen"
-                message=f"{self.name} is a SOULCHAIN title"
-            elif self.passive_type == 'FEAR':
-                self.type_message = "Max Health reduce Opponent Attack and Defense"
-                message=f"{self.name} is a FEAR title"
-            elif self.passive_type == 'GAMBLE':
-                self.type_message = "Health Regen "
-                message=f"{self.name} is a GAMBLE title" 
+
+    def add_title_message(self, ability_attr):
+        if ability_attr['power'] > 0:
+            self.title_messages.append(f"🔸 {ability_attr['ability'].title()}: {ability_attr['prefix']} {ability_attr['power']}{ability_attr['suffix']}")
+        elif ability_attr['ability'] in ['ELEMENTAL BUFF', 'ELEMENTAL DEBUFF']:
+            self.title_messages.append(f"🔸 {ability_attr['ability'].title()}: {ability_attr['prefix']} {ability_attr['element_emoji']} {ability_attr['element'].capitalize()} {ability_attr['suffix']}")
+        else:
+            self.title_messages.append(f"🔸 {ability_attr['ability'].title()}: {ability_attr['prefix']} {ability_attr['suffix']}")
+
+
+    def set_instance_attributes(self, index, ability_attr):
+        setattr(self, f'ability{index}_ability', ability_attr['ability'])
+        setattr(self, f'ability{index}_prefix', ability_attr['prefix'])
+        setattr(self, f'ability{index}_suffix', ability_attr['suffix'])
+        setattr(self, f'ability{index}_power', ability_attr['power'])
+        setattr(self, f'ability{index}_element', ability_attr['element'])
+        setattr(self, f'ability{index}_duration', ability_attr['duration'])
+        setattr(self, f'ability{index}_element_emoji', ability_attr['element_emoji'])
+
+
+    def set_title_effect(self, ability_attr):
+        if ability_attr['ability'] == 'ATK':
+            self.atk_effect = True
+        elif ability_attr['ability'] == 'DEF':
+            self.def_effect = True
+        elif ability_attr['ability'] == 'STAM':
+            self.stam_effect = True
+        elif ability_attr['ability'] == 'HLT':
+            self.hlt_effect = True
+        elif ability_attr['ability'] == 'LIFE':
+            self.life_effect = True
+        elif ability_attr['ability'] == 'DRAIN':
+            self.drain_effect = True
+        elif ability_attr['ability'] == 'FLOG':
+            self.flog_effect = True
+        elif ability_attr['ability'] == 'WITHER':
+            self.wither_effect = True
+        elif ability_attr['ability'] == 'RAGE':
+            self.rage_effect = True
+        elif ability_attr['ability'] == 'BRACE':
+            self.brace_effect = True
+        elif ability_attr['ability'] == 'BZRK':
+            self.bzrk_effect = True
+        elif ability_attr['ability'] == 'CRYSTAL':
+            self.crystal_effect = True
+        elif ability_attr['ability'] == 'GROWTH':
+            self.growth_effect = True
+        elif ability_attr['ability'] == 'FEAR':
+            self.fear_effect = True
+        elif ability_attr['ability'] == 'STANCE':
+            self.stance_effect = True
+        elif ability_attr['ability'] == 'CONFUSE':
+            self.confuse_effect = True
+        elif ability_attr['ability'] == 'CREATION':
+            self.creation_effect = True
+        elif ability_attr['ability'] == 'DESTRUCTION':
+            self.destruction_effect = True
+        elif ability_attr['ability'] == 'SPEED':
+            self.speed_effect = True
+        elif ability_attr['ability'] == 'BLINK':
+            self.blink_effect = True
+        elif ability_attr['ability'] == 'SLOW':
+            self.slow_effect = True
+        elif ability_attr['ability'] == 'HASTE':
+            self.haste_effect = True
+        elif ability_attr['ability'] == 'SOULCHAIN':
+            self.soulchain_effect = True
+        elif ability_attr['ability'] == 'GAMBLE':
+            self.gamble_effect = True
+        elif ability_attr['ability'] == 'WAVE':
+            self.wave_effect = True
+        elif ability_attr['ability'] == 'BLAST':
+            self.blast_effect = True
+        elif ability_attr['ability'] == 'SINGULARITY':
+            self.singularity_effect = True
+        elif ability_attr['ability'] == 'IQ':
+            self.iq_effect = True
+        elif ability_attr['ability'] == 'HIGH IQ':
+            self.high_iq_effect = True
+        elif ability_attr['ability'] == 'BLITZ':
+            self.blitz_effect = True
+        elif ability_attr['ability'] == 'FORESIGHT':
+            self.foresight_effect = True
+        elif ability_attr['ability'] == 'OBLITERATE':
+            self.obliterate_effect = True
+        elif ability_attr['ability'] == 'IMPENETRABLE SHIELD':
+            self.impenetrable_shield_effect = True
+        elif ability_attr['ability'] == 'PIERCE':
+            self.pierce_effect = True
+        elif ability_attr['ability'] == 'SYNTHESIS':
+            self.synthesis_effect = True
+        elif ability_attr['ability'] == 'SPELL SHIELD':
+            self.spell_shield_effect = True
+        elif ability_attr['ability'] == 'ELEMENTAL BUFF':
+            self.elemental_buff_effect = True
+        elif ability_attr['ability'] == 'ELEMENTAL DEBUFF':
+            self.elemental_debuff_effect = True
+        elif ability_attr['ability'] == 'ENHANCED GUARD':
+            self.enhanced_guard_effect = True
+        elif ability_attr['ability'] == 'STRATEGIST':
+            self.strategist_effect = True
+        elif ability_attr['ability'] == 'SHARPSHOOTER':
+            self.sharpshooter_effect = True
+        elif ability_attr['ability'] == 'DIVINITY':
+            self.divinity_effect = True
+
+
+    def set_unlock_method_message(self, player):
+        """
+        Query stats using player info
+        """
+        if self.name in player.titles or self.name in player.tstorage:
+            self.unlock_method_message = f"🔷 You already unlocked {self.name}"
+
+        if not self.unlock_method:
+            return
+
+        if self.unlock_method['TYPE'] == "TALES":
+            self.unlock_method_message = f"🔹 Complete {self.unlock_method['VALUE']} Tales matches in {self.universe_crest} {self.universe}"
+
+        if self.unlock_method['TYPE'] == "DUNGEONS":
+            self.unlock_method_message = f"🔹 Complete {self.unlock_method['VALUE']} Dungeons matches in {self.universe_crest} {self.universe}"
+
+        if self.unlock_method['TYPE'] == "SCENARIOS":
+            r1 = db.queryScenarios({"NORMAL_DROPS": self.name})
+            r2 = db.queryScenarios({"HARD_DROPS": self.name})
+
+            list_of_scenarios = [
+                f"🔹 {scenario['TITLE']} [Normal Difficulty]" for scenario in r1
+            ] + [
+                f"🔹 {scenario['TITLE']} [Hard Difficulty]" for scenario in r2
+            ]
+
+            message = "\n".join(list_of_scenarios)
+            if not message:
+                self.unlock_method_message = f"Will be added to a scenario soon!"
+            self.unlock_method_message = f"**Complete any of the following scenarios:**\n{message}"
+
+
+        if self.unlock_method['TYPE'] in crown_utilities.elements:
+            formatted_number = format(int(self.unlock_method['VALUE']), ',')
+            self.unlock_method_message = f"🔹 Deal {formatted_number} {crown_utilities.set_emoji(self.unlock_method['TYPE'])} {self.unlock_method['TYPE'].capitalize()} damage in {self.universe_crest} {self.universe}"
+    
+        if self.unlock_method['TYPE'] == "TOTAL_DAMAGE":
+            formatted_number = format(int(self.unlock_method['VALUE']), ',')
+            self.unlock_method_message = f"🔹 Deal {formatted_number} total damage in {self.universe_crest} {self.universe}"
+    
+
+        if self.unlock_method['TYPE'] == "BOSS":
+            self.unlock_method_message = f"🔹 Defeat the boss in {self.universe_crest} {self.universe} for a chance to earn this title"
 
 
     def set_title_suffix(self):
-        title_suffix_mapping = {'ATK': '',
+        title_enhancer_suffix_mapping = {'ATK': '',
             'DEF': '',
             'STAM': '',
             'HLT': ' %',
@@ -152,26 +305,21 @@ class Title:
             'PARRY': ' Counters 🔄',
             'SIPHON': ' Healing 💉'
         }
-        return title_suffix_mapping[self.passive_type]
+        return title_enhancer_suffix_mapping[self.passive_type]
         
 
     def set_title_message(self, performance_mode, card_universe):
         try:
             if self.universe == "Unbound" or (card_universe in crown_utilities.pokemon_universes) or card_universe == "Crown Rift Awakening":
-                if performance_mode:
-                    self.title_message = f"👑 | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
-                else:
-                    self.title_message = f"👑 | {self.name}" 
+                self.title_message = f"👑 | {self.name}" 
 
             elif self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_title==True):
-                if performance_mode:
-                    self.title_message = f"🎗️ | {self.name}: {self.passive_type} {self.passive_value}{crown_utilities.title_enhancer_suffix_mapping[self.passive_type]}"
-                else:
-                    self.title_message = f"🎗️ | {self.name}"
+                self.title_message = f"🎗️ | {self.name}"
                         
         except:
             print("error setting title message")
-            
+
+
     def get_title_icon(self, card_universe):
         try:
             if self.universe == "Unbound" or (card_universe in crown_utilities.pokemon_universes) or card_universe == "Crown Rift Awakening":
@@ -208,6 +356,7 @@ class Title:
         
         return self.message
     
+
     def title_active_check(self, player_card):
         if self.universe == "Unbound":
             self.title_active = True
@@ -225,128 +374,297 @@ class Title:
         else:
             self.title_active = False
             return False
-            
+
              
+    def activate_ability(self, ability_name, ability_power, ability_element, player_card, opponent_card, battle):
+        if hasattr(self, ability_name) and getattr(self, ability_name):
+            self.title_effects_handler(player_card, opponent_card, battle, getattr(self, ability_power), getattr(self, ability_name))
+
+            ability_effects = {
+                "IQ": f"🔸 Focus Buffs +{round(getattr(self, ability_power))}%",
+                "HIGH IQ": "🔸 Focus Buffs Continue On Resolve",
+                "BLITZ": "🔸 Attacks Go Through Parries",
+                "FORESIGHT": "🔸 Parried Attacks Hurt Less",
+                "OBLITERATE": "🔸 Attacks Go Through Shields",
+                "IMPENETRABLE SHIELD": "🔸 Shields Are Always Hit",
+                "PIERCE": "🔸 Attacks Go Through Barriers",
+                "SYNTHESIS": "🔸 Barriers Stores Damage For Later Heals",
+                "SPELL SHIELD": f"🔸 Shields Absorb {crown_utilities.set_emoji(getattr(self, ability_element))} Damage",
+                "ELEMENTAL BUFF": f"🔸 {crown_utilities.set_emoji(getattr(self, ability_element))} Attacks Deal +{getattr(self, ability_power)}% Damage",
+                "ELEMENTAL DEBUFF": f"🔸 Opponent {crown_utilities.set_emoji(getattr(self, ability_element))} Attacks Deal -{getattr(self, ability_power)}% Damage",
+                "ENHANCED GUARD": f"🔸 Blocking Blocks {getattr(self, ability_power)}% Of Total Damage",
+                "SHARPSHOOTER": "🔸 Attacks Don't Miss",
+            }
+
+            ability_message = ability_effects.get(getattr(self, ability_name))
+
+            if ability_message not in self.title_battle_messages:
+                self.title_battle_messages.append(ability_message)
 
 
-    def activate_title_passive(self, battle, player1_card, player2_card, player3_card=None):
+    def activate_title_passive(self, battle, player_card, opponent_card, partner_card=None):
+        self.activate_ability('ability1_ability', 'ability1_power', 'ability1_element', player_card, opponent_card, battle)
+        self.activate_ability('ability2_ability', 'ability2_power', 'ability2_element', player_card, opponent_card, battle)
+        self.activate_ability('ability3_ability', 'ability3_power', 'ability3_element', player_card, opponent_card, battle)
+
+
+
+    def title_effects_handler(self, player_card, opponent_card, battle, power, ability=None):
         try:
-            active = self.title_active_check(player1_card)
+            active = self.title_active_check(player_card)
             if not active:
                 if not self.active_message_sent:
                     self.active_message_sent = True
-                    battle.add_to_battle_log(f"(**⚠️**) **Titleless** : {player1_card.name} cannot equip  **{self.name}**")
+                    battle.add_to_battle_log(f"(**⚠️**) **Titleless** : {player_card.name} cannot equip  **{self.name}**")
                 return
-            if self.passive_type:
-                if self.passive_type == "HLT":
-                    if player1_card.max_health > player1_card.health + ((self.passive_value / 100) * player1_card.health):
-                        player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player1_card.health))
-                    else:
-                        player1_card.health = round(player1_card.health + (player2_card.max_health - player2_card.health))
-                    if player1_card.health >= player1_card.max_health:
-                        player1_card.health = player1_card.max_health
-                if self.passive_type == "LIFE":
-                    if player1_card.max_health > (player1_card.health + ((self.passive_value / 100) * player2_card.health)):
-                        player2_card.health = round(player2_card.health - ((self.passive_value / 100) * player2_card.health))
-                        player1_card.health = round(player1_card.health + ((self.passive_value / 100) * player2_card.health))
-                        player1_card.damage_healed = round(player1_card.damage_healed + ((self.passive_value / 100) * player2_card.health))
-                        player1_card.damage_dealt = round(player1_card.damage_dealt + ((self.passive_value / 100) * player2_card.health))
 
-                if self.passive_type == "ATK":
-                    player1_card.attack = player1_card.attack + self.passive_value
-                if self.passive_type == "DEF":
-                    player1_card.defense = player1_card.defense + self.passive_value
-                if self.passive_type == "STAM":
-                    if player1_card.stamina > 15:
-                        player1_card.stamina = player1_card.stamina + self.passive_value
-                if self.passive_type == "DRAIN":
-                    if player2_card.stamina > 15:
-                        player2_card.stamina = player2_card.stamina - self.passive_value
-                        player1_card.stamina = player1_card.stamina + self.passive_value
-                if self.passive_type == "FLOG":
-                    player2_card.attack = round(player2_card.attack - ((self.passive_value / 100) * player2_card.attack))
-                    player1_card.attack = round(player1_card.attack + ((self.passive_value / 100) * player2_card.attack))
-                if self.passive_type == "WITHER":
-                    player2_card.defense = round(player2_card.defense - ((self.passive_value / 100) * player2_card.defense))
-                    player1_card.defense = round(player1_card.defense + ((self.passive_value / 100) * player2_card.defense))
-                if self.passive_type == "RAGE":
-                    player1_card.defense = round(player1_card.defense - ((self.passive_value / 100) * player1_card.defense))
-                    player1_card.card_lvl_ap_buff = round(player1_card.card_lvl_ap_buff + ((self.passive_value / 100) * player1_card.defense))
-                if self.passive_type == "BRACE":
-                    player1_card.card_lvl_ap_buff = round(player1_card.card_lvl_ap_buff + ((self.passive_value / 100) * player1_card.attack))
-                    player1_card.attack = round(player1_card.attack - ((self.passive_value / 100) * player1_card.attack))
-                if self.passive_type == "BZRK":
-                    player1_card.health = round(player1_card.health - ((self.passive_value / 100) * player1_card.health))
-                    player1_card.attack = round(player1_card.attack + ((self.passive_value / 100) * player1_card.health))
-                if self.passive_type == "CRYSTAL":
-                    player1_card.health = round(player1_card.health - ((self.passive_value / 100) * player1_card.health))
-                    player1_card.defense = round(player1_card.defense + ((self.passive_value / 100) * player1_card.health))
-                if self.passive_type == "FEAR":
-                    if player1_card.universe != "Chainsawman":
-                        player1_card.max_health = player1_card.max_health - (player1_card.max_health * .03)
-                        if player1_card.health > player1_card.max_health:
-                            player1_card.health = player1_card.max_health
-                    player2_card.defense = player2_card.defense - self.passive_value
-                    player2_card.attack = player2_card.attack - self.passive_value
-                    player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - self.passive_value
-                    if player2_card.attack <= 25:
-                        player2_card.attack = 25
-                    if player2_card.defense <= 25:
-                        player2_card.defense = 25
-                    if player2_card.card_lvl_ap_buff <= 0:
-                        player2_card.card_lvl_ap_buff = 1
-                if self.passive_type == "GROWTH":
-                    player1_card.max_health = player1_card.max_health - (player1_card.max_health * .03)
-                    if player1_card.health > player1_card.max_health:
-                        player1_card.health = player1_card.max_health
-                    player1_card.defense = player1_card.defense + self.passive_value
-                    player1_card.attack = player1_card.attack + self.passive_value
-                    player1_card.card_lvl_ap_buff = player1_card.card_lvl_ap_buff + self.passive_value
-                if self.passive_type == "SLOW":
-                    if battle.turn_total != 0:
-                        battle.turn_total = battle.turn_total - self.passive_value
-                        if battle.turn_total <= 0:
-                            battle.turn_total = 0
-                if self.passive_type == "HASTE":
-                    battle.turn_total = battle.turn_total + self.passive_value
-                if self.passive_type == "STANCE":
-                    tempattack = player1_card.attack + self.passive_value
-                    player1_card.attack = player1_card.defense
-                    player1_card.defense = tempattack
-                if self.passive_type == "CONFUSE":
-                    tempattack = player2_card.attack - self.passive_value
-                    player2_card.attack = player2_card.defense
-                    player2_card.defense = tempattack
-                if self.passive_type == "BLINK":
-                    player1_card.stamina = player1_card.stamina - player1_card.passive_value
-                    if player2_card.stamina >=10:
-                        player2_card.stamina = player2_card.stamina + self.passive_value
-                if self.passive_type == "CREATION":
-                    player1_card.max_health = round(round(player1_card.max_health + ((self.passive_value / 100) * player1_card.max_health)))
-                    player1_card.damage_healed = round(player1_card.damage_healed + ((self.passive_value / 100) * player1_card.max_health))
-                if self.passive_type == "DESTRUCTION":
-                    player2_card.max_health = round(player2_card.max_health - ((self.passive_value / 100) * player2_card.max_health))
-                    player1_card.damage_dealt = round(player1_card.damage_dealt + ((self.passive_value / 100) * player2_card.max_health))
-                if self.passive_type == "BLAST":
-                    player2_card.health = round(player2_card.health - self.passive_value)
-                    player1_card.damage_dealt = round(player1_card.damage_dealt + self.passive_value)
-                if self.passive_type == "WAVE":
-                    if battle.turn_total % 10 == 0:
-                        player2_card.health = round(player2_card.health - 100)
-                        player1_card.damage_dealt = player1_card.damage_dealt + 100
+            if ability == "HLT":
+                equation = (power / 100) * player_card.health
+                if player_card.max_health > player_card.health + (equation):
+                    player_card.health = round(player_card.health + (equation))
+                    self.title_battle_messages.append(f"🔸 +{round(equation)} ❤️")
+
+                if player_card.health >= player_card.max_health:
+                    player_card.health = player_card.max_health
+
+            if ability == "LIFE":
+                equation = (power / 100) * opponent_card.health
+                if player_card.max_health > (player_card.health + (equation)):
+                    opponent_card.health = round(opponent_card.health - (equation))
+                    player_card.health = round(player_card.health + (equation))
+                    player_card.damage_healed = round(player_card.damage_healed + (equation))
+                    player_card.damage_dealt = round(player_card.damage_dealt + (equation))
+                    self.title_battle_messages.append(f"🔸 Stole +{round(equation)} ❤️")
+
+            if ability == "ATK":
+                equation = (power / 100) * player_card.attack
+                player_card.attack = player_card.attack + round(equation)
+                self.title_battle_messages.append(f"🔸 +{round(equation)} 🗡️")
+
+            if ability == "DEF":
+                equation = (power / 100) * player_card.defense
+                player_card.defense = player_card.defense + (equation)
+                self.title_battle_messages.append(f"🔸 +{round(equation)} 🛡️")
+    
+            if ability == "STAM":
+                if player_card.stamina > 15:
+                    player_card.stamina = player_card.stamina + power
+                    self.title_battle_messages.append(f"🔸 +{power} Stamina")
+
+            if ability == "DRAIN":
+                if opponent_card.stamina > 15:
+                    opponent_card.stamina = opponent_card.stamina - power
+                    player_card.stamina = player_card.stamina + power
+                    self.title_battle_messages.append(f"🔸 Drained +{power} Stamina")
+
+            if ability == "FLOG":
+                equation = (power / 100) * opponent_card.attack
+                opponent_card.attack = round(opponent_card.attack - (equation))
+                player_card.attack = round(player_card.attack + (equation))
+                self.title_battle_messages.append(f"🔸 Stole +{round(equation)} 🗡️")
+
+            if ability == "WITHER":
+                equation = (power / 100) * opponent_card.defense
+                opponent_card.defense = round(opponent_card.defense - (equation))
+                player_card.defense = round(player_card.defense + (equation))
+                self.title_battle_messages.append(f"🔸 Stole +{round(equation)} 🛡️")
+
+            if ability == "RAGE":
+                equation = (power / 100) * player_card.defense
+                player_card.defense = round(player_card.defense - (equation))
+                player_card.card_lvl_ap_buff = round(player_card.card_lvl_ap_buff + (equation))
+                self.title_battle_messages.append(f"🔸 -{round(equation)} 🛡️ / +{round(equation)} Ability Points")
+             
+            if ability == "BRACE":
+                equation = (power / 100) * player_card.attack
+                player_card.card_lvl_ap_buff = round(player_card.card_lvl_ap_buff + (equation))
+                player_card.attack = round(player_card.attack - (equation))
+                self.title_battle_messages.append(f"🔸 -{round(equation)} 🗡️ / +{round(equation)} Ability Points")
+
+            if ability == "BZRK":
+                equation = (power / 100) * player_card.health
+                player_card.health = round(player_card.health - (equation))
+                player_card.attack = round(player_card.attack + (equation))
+                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ / +{round(equation)} 🗡️")
+
+            if ability == "CRYSTAL":
+                equation = (power / 100) * player_card.health
+                player_card.health = round(player_card.health - (equation))
+                player_card.defense = round(player_card.defense + (equation))
+                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ / +{round(equation)} 🛡️")
+
+            if ability == "FEAR":
+                if player_card.universe != "Chainsawman":
+                    player_card.max_health = player_card.max_health - (player_card.max_health * .03)
+                    if player_card.health > player_card.max_health:
+                        player_card.health = player_card.max_health
+                opponent_card.defense = opponent_card.defense - power
+                opponent_card.attack = opponent_card.attack - power
+                opponent_card.card_lvl_ap_buff = opponent_card.card_lvl_ap_buff - power
+                if opponent_card.attack <= 25:
+                    opponent_card.attack = 25
+                if opponent_card.defense <= 25:
+                    opponent_card.defense = 25
+                if opponent_card.card_lvl_ap_buff <= 0:
+                    opponent_card.card_lvl_ap_buff = 1
+            
+            if ability == "GROWTH":
+                player_card.max_health = player_card.max_health - (player_card.max_health * .03)
+                if player_card.health > player_card.max_health:
+                    player_card.health = player_card.max_health
+                player_card.defense = player_card.defense + power
+                player_card.attack = player_card.attack + power
+                player_card.card_lvl_ap_buff = player_card.card_lvl_ap_buff + power
+            
+            if ability == "SLOW":
+                if battle.turn_total != 0:
+                    battle.turn_total = battle.turn_total - power
+                    if battle.turn_total <= 0:
+                        battle.turn_total = 0
+                    self.title_battle_messages.append(f"🔸 -{power} Turns")
+
+            if ability == "HASTE":
+                battle.turn_total = battle.turn_total + power
+                self.title_battle_messages.append(f"🔸 +{power} Turns")
+
+            if ability == "STANCE":
+                tempattack = player_card.attack + power
+                player_card.attack = player_card.defense
+                player_card.defense = tempattack
+                self.title_battle_messages.append(f"🔸 Swapped +{power} 🗡️ and 🛡️")
+
+            if ability == "CONFUSE":
+                tempattack = opponent_card.attack - power
+                opponent_card.attack = opponent_card.defense
+                opponent_card.defense = tempattack
+                self.title_battle_messages.append(f"🔸 Opponent Swapped -{power} 🗡️ and 🛡️")
+
+            if ability == "BLINK":
+                player_card.stamina = player_card.stamina - player_card.passive_value
+                if opponent_card.stamina >=10:
+                    opponent_card.stamina = opponent_card.stamina + power
+                self.title_battle_messages.append(f"🔸 Swapped Stamina with Opponent")
+
+            if ability == "CREATION":
+                equation = (power / 100) * player_card.max_health
+                player_card.max_health = round(round(player_card.max_health + (equation)))
+                player_card.damage_healed = round(player_card.damage_healed + (equation))
+                self.title_battle_messages.append(f"🔸 +{round(equation)} Max ❤️")
+          
+            if ability == "DESTRUCTION":
+                equation = (power / 100) * opponent_card.max_health
+                opponent_card.max_health = round(opponent_card.max_health - (equation))
+                player_card.damage_dealt = round(player_card.damage_dealt + (equation))
+                self.title_battle_messages.append(f"🔸 -{round(equation)} Opponent Max ❤️")
+
+            if ability == "BLAST":
+                opponent_card.health = round(opponent_card.health - power)
+                player_card.damage_dealt = round(player_card.damage_dealt + power)
+                self.title_battle_messages.append(f"🔸 -{power} Opponent ❤️")
+            
+            if ability == "WAVE":
+                if battle.turn_total % 10 == 0:
+                    opponent_card.health = round(opponent_card.health - 100)
+                    player_card.damage_dealt = player_card.damage_dealt + 100
+                    self.title_battle_messages.append(f"🔸 -100 Opponent ❤️")
+
         except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
+            custom_logging.debug(ex)
+
+
+    def title_battle_message_handler(self):
+        # Remove None values from the list and join the messages
+        self.title_battle_messages = list(filter(None, self.title_battle_messages))
+        m = "\n".join(self.title_battle_messages) if self.title_battle_messages else ""
+        
+        if m:
+            title_m = f"🎗️ {self.name}\n{m}"
+        else:
+            title_m = f"🎗️ {self.name}"
+        
+        # Clear the list
+        self.title_battle_messages = []
+
+        return title_m
+
+
+    def iq_handler(self, health_calculation, attack_calculation, defense_calculation):
+        for i in range(1, 4):
+            ability = getattr(self, f'ability{i}_ability', None)
+            power = getattr(self, f'ability{i}_power', None)
+            if ability and ability == "IQ":
+                health_calculation += health_calculation * (power / 100)
+                attack_calculation += attack_calculation * (power / 100)
+                defense_calculation += defense_calculation * (power / 100)
+                title_message = f"🎗️ *IQ Effect has activated!*"
+                return health_calculation, attack_calculation, defense_calculation, title_message
+
+
+    def synthesis_handler(self, dmg, battle_config):
+        for i in range(1, 4):
+            ability = getattr(self, f'ability{i}_ability', None)
+            power = getattr(self, f'ability{i}_power', None)
+            if ability and ability == "SYNTHESIS":
+                self.synthesis_damage_stored = self.synthesis_damage_stored + round(dmg / 2)
+                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🎗️ **{self.name}** : {self.synthesis_damage_stored} damage stored")
+                title_message = f"🎗️ *Synthesis Effect has activated!*"
+
+
+    def singularity_handler(self, resolve_health_buff, resolve_attack_buff, resolve_defense_buff):
+        for i in range(1, 4):
+            ability = getattr(self, f'ability{i}_ability', None)
+            power = getattr(self, f'ability{i}_power', None)
+            if ability and ability == "SINGULARITY":
+                resolve_health_buff += resolve_health_buff * (power / 100)
+                resolve_attack_buff += resolve_attack_buff * (power / 100)
+                resolve_defense_buff += resolve_defense_buff * (power / 100)
+                title_message = f"🎗️ *Singularity Effect has activated!*"
+                return resolve_health_buff, resolve_attack_buff, resolve_defense_buff, title_message
+
+
+    def elem_buff_handler(self, move_element, true_dmg):
+        for i in range(1, 4):
+            ability = getattr(self, f'ability{i}_ability', None)
+            power = getattr(self, f'ability{i}_power', None)
+            element = getattr(self, f'ability{i}_element', None)
+            if ability and ability == "ELEMENTAL BUFF":
+                if move_element == element:
+                    true_dmg = round(true_dmg + (true_dmg * (power / 100)))
+                    return true_dmg
+
+
+    def elem_debuff_handler(self, move_element, true_dmg):
+        for i in range(1, 4):
+            ability = getattr(self, f'ability{i}_ability', None)
+            power = getattr(self, f'ability{i}_power', None)
+            element = getattr(self, f'ability{i}_element', None)
+            if ability and ability == "ELEMENTAL DEBUFF":
+                if move_element == element:
+                    true_dmg = round(true_dmg - (true_dmg * (power / 100)))
+                    return true_dmg
+                
+
+    def spell_shield_handler(self, card, dmg, battle_config):
+        for i in range(1, 4):
+            ability = getattr(self, f'ability{i}_ability', None)
+            power = getattr(self, f'ability{i}_power', None)
+            element = getattr(self, f'ability{i}_element', None)
+            if ability and ability == "SPELL SHIELD":
+                if dmg["ELEMENT"] == element:
+                    card.health = card.health + (dmg["DMG"] * .25)
+                    card.max_health = card.max_health + (dmg["DMG"] * .25)
+                    title_message = f"🎗️ *Spell Shield Effect has activated! 25% of the damage dealt to the shield was absorbed*"
+                    return title_message
+
+
+    def speed_handler(self, card):
+        for i in range(1, 4):
+            ability = getattr(self, f'ability{i}_ability', None)
+            power = getattr(self, f'ability{i}_power', None)
+            if ability and ability == "SPEED":
+                card.speed = card.speed + power
+                title_message = f"🎗️ *Speed Effect has activated!*"
+                return title_message
+
+
 

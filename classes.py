@@ -59,6 +59,7 @@ class USER():
     FAMILY_PET: bool = field(default_factory=lambda: False)
     EXPLORE_LOCATION: str = field(default_factory=lambda: "NULL")
     
+
 @dataclass(frozen=True, order=True)
 class CODES():
     CODE_INPUT: str = field(default_factory=lambda: '')
@@ -141,6 +142,7 @@ class TEAMS():
     OWNER: str
     MEMBERS: list
     TEAM_NAME: str
+    DID: str
     TEAM_DISPLAY_NAME:  str = field(default_factory=lambda: '')
     OFFICERS: list[str] = field(default_factory=lambda: []) 
     CAPTAINS: list[str] = field(default_factory=lambda: [])
@@ -225,9 +227,9 @@ class HALL():
 
 @dataclass(frozen=True, order=True)
 class SESSIONS():
-    OWNER: str
-    GAME: str
-    TYPE: int
+    PLAYER1: str
+    PLAYER2: str
+    MODE: str
     TEAMS: list[str] = field(default_factory=lambda: [])
     GODS: bool = field(default_factory=lambda: False)
     GODS_TITLE: str = field(default_factory=lambda: 'N/A')

@@ -1,39 +1,28 @@
-import discord
-from discord.ext import commands
-import bot as main
 import crown_utilities
 import db
 import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
-# Converters
-from discord import User
-from discord import Member
-from PIL import Image, ImageFont, ImageDraw
-import requests
-from discord_slash import cog_ext, SlashContext
-from discord_slash import SlashCommand
-from discord_slash.utils import manage_components
-from discord_slash.model import ButtonStyle
+from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
-class Titles(commands.Cog):
+class Titles(Extension):
     def __init__(self, bot):
         self.bot = bot
 
 
 
-    @commands.Cog.listener()
+    @listen()
     async def on_ready(self):
         print('Titles Cog is ready!')
 
     async def cog_check(self, ctx):
-        return await main.validate_user(ctx)
+        return await self.bot.validate_user(ctx)
 
-    @cog_ext.cog_slash(description="Equip a Title", guild_ids=main.guild_ids)
+    @slash_command(description="Equip a Title")
     async def equiptitle(self, ctx, title: str):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         title_name = title
@@ -62,5 +51,5 @@ class Titles(commands.Cog):
                 await ctx.send(m.USER_DOESNT_HAVE_THE_Title, hidden=True)
 
 def setup(bot):
-    bot.add_cog(Titles(bot))
+    Titles(bot)
     

@@ -1,7 +1,4 @@
 from re import T
-import discord
-from discord.ext import commands
-import bot as main
 import db
 import dataclasses as data
 import messages as m
@@ -10,37 +7,34 @@ import help_commands as h
 import unique_traits as ut
 import crown_utilities
 # Converters
-from discord import User
-from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
 from collections import ChainMap
-import DiscordUtils
 import random
 import textwrap
 from collections import Counter
-from discord_slash import cog_ext, SlashContext
 from .classes.player_class import Player
 from .classes.card_class import Card
 from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
+from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 emojis = ['👍', '👎']
 
-class Matches(commands.Cog):
+class Matches(Extension):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
+    @listen()
     async def on_ready(self):
         print('Matches Cog is ready!')
 
     async def cog_check(self, ctx):
-        return await main.validate_user(ctx)
+        return await self.bot.validate_user(ctx)
 
-    @cog_ext.cog_slash(description="Analysis on Card", guild_ids=main.guild_ids)
+    @slash_command(description="Analysis on Card")
     async def analysis(self, ctx, card: str):
         try:
             card_info = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
@@ -142,9 +136,9 @@ class Matches(commands.Cog):
                 arm = {'ARM': 'CARD PREVIEW'}
                 
                 
-                embedVar2 = discord.Embed(title=f":vs: {card_info['NAME']} | _Crown Analysis_".format(self), description=f"**Card Master**\n{card_main}", colour=0xe91e63) 
+                embedVar2 = Embed(title=f":vs: {card_info['NAME']} | _Crown Analysis_".format(self), description=f"**Card Master**\n{card_main}", color=0xe91e63) 
                 embedVar2.add_field(name=f":crown:Tales Stats", value=f"{tale_message}", inline=False)
-                embedVar2.add_field(name=f":fire:Dungeon Stats", value=f"{dungeon_message}", inline=False)
+                embedVar2.add_field(name=f"🔥Dungeon Stats", value=f"{dungeon_message}", inline=False)
                 embedVar2.add_field(name=f"👹Boss Stats", value=f"{boss_message}", inline=False)
                 embedVar2.add_field(name=f"⚔️PVP Stats", value=f"{pvp_message}", inline=False)
                 embedVar2.set_footer(text=f"/player {card_main} - Lookup Card Master")
@@ -176,4 +170,4 @@ def most_frequent(List):
     return occurence_count.most_common(1)[0][0]
 
 def setup(bot):
-    bot.add_cog(Matches(bot))
+    Matches(bot)

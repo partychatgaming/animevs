@@ -1,6 +1,3 @@
-import discord
-from discord.ext import commands
-import bot as main
 import crown_utilities
 import db
 import dataclasses as data
@@ -8,30 +5,28 @@ import messages as m
 import numpy as np
 import help_commands as h
 # Converters
-from discord import User
-from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
-from discord_slash import cog_ext, SlashContext
+from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
-class House(commands.Cog):
+class House(Extension):
     def __init__(self, bot):
         self.bot = bot
 
 
 
-    @commands.Cog.listener()
+    @listen()
     async def on_ready(self):
         print('House Cog is ready!')
 
     async def cog_check(self, ctx):
-        return await main.validate_user(ctx)
+        return await self.bot.validate_user(ctx)
 
 
-    @cog_ext.cog_slash(description="Buy a House for your family", guild_ids=main.guild_ids)
+    @slash_command(description="Buy a House for your family")
     async def buyhouse(self, ctx, house: str):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
         try: 
             house_name = house
@@ -71,4 +66,4 @@ class House(commands.Cog):
                     'trace': trace
                 }))
 def setup(bot):
-    bot.add_cog(House(bot))
+    House(bot)

@@ -19,7 +19,6 @@ mongo = MongoClient(MONGO, tlsCAFile=certifi.where())
 # mongo = pymongo.MongoClient(TOKEN)
 
 db = mongo[use_database]
-
 users_col = db["USERS"]
 teams_col = db["TEAMS"]
 family_col = db["FAMILY"]
@@ -45,6 +44,7 @@ server_col = db['SERVER']
 arena_col = db['ARENA']
 codes_col = db['CODES']
 scenario_col = db['SCENARIO']
+stats_col = db['STATS']
 
 acceptable = [1, 2, 3, 4]
 arm_exclude_list = ['BASIC', 'SPECIAL', 'ULTIMATE']
@@ -122,6 +122,55 @@ def col_exists(col):
 
 
 
+stats_col = db['STATS']
+
+def query_all_stats():
+    try:
+        data = stats_col.find()
+        return data
+    except:
+        return False
+
+
+def query_stats_by_player(did):
+    try:
+        data = stats_col.find_one({"DID": did})
+        return data
+    except:
+        return False
+
+
+def delete_stats_by_player(did):
+    try:
+        data = stats_col.delete_one({"DID": did})
+        return data
+    except:
+        return False
+
+
+def update_stats_by_player(did, new_value):
+    try:
+        data = stats_col.update_one({"DID": did}, {"$set": new_value})
+        return data
+    except:
+        return False
+
+
+def update_many_stats(new_value):
+    try:
+        data = stats_col.update_many({}, new_value)
+        return data
+    except:
+        return False
+
+
+def create_stats(stats):
+    try:
+        data = stats_col.insert_one(stats)
+        return data
+    except:
+        return False
+
 
 def queryAllAbyss():
     try:
@@ -195,6 +244,17 @@ def updateScenario(scenario, new_value):
         data = scenario_col.update_many(scenario, new_value)
         if data:
             return True
+        else:
+            return False
+    except Exception as e:
+        return e
+
+
+def queryScenarios(query):
+    try:
+        data = scenario_col.find(query)
+        if data:
+            return data
         else:
             return False
     except Exception as e:
@@ -727,16 +787,12 @@ def updateFamilyWithFilter(query, new_value, arrayFilters):
 
 def updateFamily(query, new_value):
     try:
-        exists = family_exists({'HEAD': query['HEAD']})
-        if exists:
-            data = family_col.update_one(query, new_value)
-            return data
-        else:
-           return False
+        data = family_col.update_one(query, new_value)
+        return data
     except:
         print("Find family failed.")
 
-def queryAllFamily(family):
+def queryAllFamily():
     data = family_col.find()
     return data
 
@@ -967,7 +1023,7 @@ def deleteVault(query):
     except:
         return False
 
-def updateVault(query, new_value, arrayFilters):
+def updateUser(query, new_value, arrayFilters):
     try:
         update = vault_col.update_one(query, new_value, array_filters=arrayFilters)
         return True
@@ -975,7 +1031,7 @@ def updateVault(query, new_value, arrayFilters):
         return False
 
 '''Update Vault With No Array Filters'''
-def updateVaultNoFilter(query, new_value):
+def updateUserNoFilter(query, new_value):
     try:
         update = vault_col.update_one(query, new_value)
         return True
@@ -1087,8 +1143,8 @@ def queryDestinyCards():
     data = cards_col.find({'HAS_COLLECTION': True})
     return data 
 
-def queryDropCards(args):
-    data = cards_col.find({'UNIVERSE': args, 'EXCLUSIVE': False, 'AVAILABLE': True, 'HAS_COLLECTION': False, 'IS_SKIN': False,'TIER': {'$in': acceptable}})
+def queryDropCards(universe, tiers, drop_style):
+    data = cards_col.find({'UNIVERSE': universe, 'AVAILABLE': True, 'TIER': {'$in': tiers}, 'DROP_STYLE': drop_style})
     return data 
 
 def querySpecificCards(args):
@@ -1111,6 +1167,13 @@ def querySpecificArms(args):
         return data 
     except Exception as e:
         return False
+
+def updateAllCards(update_query):
+    try:
+        data = cards_col.update_many({}, update_query)
+        return True
+    except Exception as e:
+        return False
    
 
 def querySpecificDropCards(args):
@@ -1124,6 +1187,45 @@ def queryExclusiveDropCards(args):
 def queryCard(query):
     data = cards_col.find_one(query)
     return data
+
+
+def queryCardsByElement(element):
+    try:
+        data = cards_col.find({
+            "$or": [
+                {"MOVESET.0.ELEMENT": element},
+                {"MOVESET.1.ELEMENT": element},
+                {"MOVESET.2.ELEMENT": element}
+            ]
+        })
+        return data
+    except:
+        return False
+
+
+def queryCardsByPassive(passive):
+    try:
+        data = cards_col.find({
+            "$or": [
+                {"MOVESET.3.TYPE": passive},
+                {"PASS.TYPE": passive}
+            ]
+        })
+        return data
+    except:
+        return False
+
+
+def queryCardsByClass(card_class):
+    try:
+        data = cards_col.find({"CLASS": card_class})
+        return data
+    except:
+        return False
+
+
+
+
 
 def updateCardWithFilter(query, new_value, arrayFilters):
     try:
@@ -1244,23 +1346,6 @@ def queryTitle(query):
     data = titles_col.find_one(query)
     return data
 
-def queryDropTitles(args):
-    data = titles_col.find({'UNIVERSE': args, 'EXCLUSIVE': False, 'AVAILABLE': True})
-    return data 
-
-def queryExclusiveDropTitles(args):
-    data = titles_col.find({'UNIVERSE': args, 'EXCLUSIVE': True, 'AVAILABLE': True})
-    return data 
-
-def queryTournamentTitles():
-    data = titles_col.find({'TOURNAMENT_REQUIREMENTS': {'$gt': 0}, 'AVAILABLE': True})
-    return data
-
-def queryShopTitles():
-    data = titles_col.find({'EXCLUSIVE': False, 'AVAILABLE': True})
-    return data 
-
-
 
 ''' ARM '''
 def arm_exists(data):
@@ -1338,16 +1423,8 @@ def get_random_arm(query):
     arm = arm_col.find(query, projection).limit(1).skip(random_index).next()["ARM"]
     return arm
 
-def queryDropArms(args):
-    data = arm_col.find({'UNIVERSE': args, 'EXCLUSIVE': False, 'AVAILABLE': True})
-    return data 
-
-def queryExclusiveDropArms(args):
-    data = arm_col.find({'UNIVERSE': args, 'EXCLUSIVE': True, 'AVAILABLE': True})
-    return data 
-
-def queryTournamentArms():
-    data = arm_col.find({'TOURNAMENT_REQUIREMENTS': {'$gt': 0}, 'AVAILABLE': True})
+def queryDropArms(universe, drop_style):
+    data = arm_col.find({'UNIVERSE': universe, 'DROP_STYLE': drop_style, 'AVAILABLE': True})
     return data
 
 def queryShopArms():
@@ -1484,18 +1561,7 @@ def pet_exists(data):
     else:
         return False
 
-def createPet(pet):
-    try:
-        petexists = pet_exists({'PET': pet['PET']})
-        if petexists:
-            return "Pet already exists."
-        else:
-            pet_col.insert_one(pet)
-            return "New Pet created."
-    except:
-        return "Cannot create Pet."
-
-def updatePet(query, new_value):
+def updateSummon(query, new_value):
     try:
         petexists = pet_exists({'PET': query['PET']})
         if petexists:
@@ -1506,38 +1572,20 @@ def updatePet(query, new_value):
     except:
         return False
 
-def updateManyPets(new_value):
+def updateManySummons(new_value):
     pet_col.update_many({}, new_value)
     return True
 
-def deletePet(pet):
-    try:
-        petexists = pet_exists({'PET': pet['PET']})
-        if petexists:
-            pet_col.delete_one(pet)
-            return True
-        else:
-            return False
-    except:
-        return False
 
-def deleteAllPet(pet_query):
-    exists = pet_exists({'PET': pet_query['PET']})
-    if exists:
-        pet_col.delete_many({})
-        return 'All Pets Deleted'
-    else:
-        return 'Unable to Delete All Pets'
-
-def queryAllPets():
+def queryAllSummons():
     data = pet_col.find()
     return data
 
-def queryPet(query):
+def querySummon(query):
     data = pet_col.find_one(query)
     return data
 
-def get_random_pet_name(query):
+def get_random_summon_name(query):
     projection = {"_id": 0, "PET": 1}
     pet_count = pet_col.count_documents(query)
     random_index = random.randint(0, pet_count - 1)
@@ -1546,15 +1594,11 @@ def get_random_pet_name(query):
     pet_name = pet_col.find(query, projection).limit(1).skip(random_index).next()["PET"]
     return pet_name
 
-def queryDropPets(args):
-    data = pet_col.find({'UNIVERSE': args,  'EXCLUSIVE': False,  'AVAILABLE': True})
+def queryDropSummons(universe, drop_style):
+    data = pet_col.find({'UNIVERSE': universe, 'AVAILABLE': True, 'DROP_STYLE': drop_style})
     return data 
 
-def queryExclusiveDropPets(args):
-    data = pet_col.find({'UNIVERSE': args, 'EXCLUSIVE': True, 'AVAILABLE': True})
-    return data 
-
-def queryAllPetsBasedOnUniverses(query):
+def queryAllSummonsBasedOnUniverses(query):
     data = pet_col.find(query)
     return data
 
@@ -1614,6 +1658,10 @@ def queryCorruptedUniverse():
     except Exception as e:
         return False
 
+def queryAllUniverses():
+    data = universe_col.find()
+    return data
+
 def queryAllUniverse():
     data = universe_col.find({"HAS_CROWN_TALES": True})
     return data
@@ -1653,7 +1701,8 @@ def queryUniverse(query):
     try:
         data = universe_col.find_one(query)
         return data
-    except:
+    except Exception as e:
+        print(f"Error querying universe: {e}")
         return False
 
 
@@ -1833,30 +1882,19 @@ def updateTeamWithFilter(query, new_value, arrayFilter):
     except:
         print("Find Guild failed.")
 
-def queryAllTeams(team):
+def queryAllTeams():
     data = teams_col.find()
     return data
 
 def createTeam(team, user):
     try:
-        find_user = queryUser({'DID': user})
-        if find_user['TEAM'].lower and find_user['TEAM'] != 'PCG':
-            return "You're already in a Guild"
-        else:
-            exists = team_exists({'TEAM_NAME': team['TEAM_NAME']})
-            if exists:
-                return False
-            else:
-                teams_col.insert_one(team)
+        teams_col.insert_one(team)
 
-                # Add Guild to User Profile as well
-                query = {'DID': user}
-                new_value = {
-                    '$set': {'TEAM': team['TEAM_DISPLAY_NAME']},
-                    '$inc': {'MEMBER_COUNT': 1}
-                    }
-                users_col.update_one(query, new_value)
-                return "Guild has been successfully created. "
+        # Add Guild to User Profile as well
+        query = {'DID': user}
+        new_value = {'$set': {'TEAM': team['TEAM_DISPLAY_NAME']}} 
+        users_col.update_one(query, new_value)
+        return "Guild has been successfully created. "
     except:
         return "Cannot create Guild."
 
@@ -1894,21 +1932,15 @@ def deleteTeamMember(query, value, user):
     except:
         print("Delete Guild Member failed.")
 
-def addTeamMember(query, add_to_team_query, user, new_user):
-    exists = team_exists({'TEAM_NAME': query['TEAM_NAME']})
-    if exists:
-        team = teams_col.find_one(query)
+def addTeamMember(query, add_to_team_query, user, team_name):
+    teams_col.update_one(query, add_to_team_query, upsert=True)
 
-        teams_col.update_one(query, add_to_team_query, upsert=True)
+    # Add Guild to User Profile as well
+    query = {'DID': user}
+    new_value = {'$set': {'TEAM': team_name}}
+    users_col.update_one(query, new_value)
+    return "User added to the Guild. "
 
-        # Add Guild to User Profile as well
-        query = {'DISNAME': new_user}
-        new_value = {'$set': {'TEAM': team['TEAM_DISPLAY_NAME']}}
-        users_col.update_one(query, new_value)
-        return "User added to the Guild. "
-
-    else:
-        return "Cannot add user to the Guild."
 
 def game_exists(game):
     collection_exists = col_exists("GAMES")
@@ -1975,161 +2007,46 @@ def updateGame(query, new_value):
 
 
 ''' SESSIONS '''
-def session_exist(data):
-    collection_exists = col_exists("SESSIONS")
-    if collection_exists:
-        sessionexists = sessions_col.find_one(data)
-        if sessionexists:
-            return True
-        else:
-            return False
-    else:
-        return False
-
 def querySession(session):
     try:
-        exists = session_exist({'OWNER': session['OWNER'], 'AVAILABLE': True})
-        if exists:
-            data = sessions_col.find_one(session)
-            return data
-        else:
-            return False
-           
+        data = sessions_col.find_one(session)
+        return data
     except:
-        return "Find Session failed."
+        return False
 
-def querySessionForUser(query):
-    data = sessions_col.find(query)
-    return data
-   
-def querySessionMembers(session):
-    data = sessions_col.find_one(session)
-    return data
+def queryAllSessions(query):
+    try:
+        data = sessions_col.find(query)
+        return data
+    except:
+        return False
+
 
 def createSession(session):
-    exists = session_exist({'OWNER': session['OWNER'], 'AVAILABLE': True})
-    if exists:
-        return m.ALREADY_IN_SESSION
-    else:
-        if session['GAME'] == "Crown Unlimited":
-            response = sessions_col.insert_one(session)
-            return response
-        else:
-            if len(session['TEAMS']) == 0:
-                sessions_col.insert_one(session)
-                return "New Lobby has been created"
-            elif session['TOURNAMENT']:
-                sessions_col.insert_one(session)
-                return "New Tournament Session has been created"
-            else:       
-                players_per_team_count = [x for x in session['TEAMS'][0]['TEAM']]
-                print(players_per_team_count)
-                print(session['TYPE'])
-                if session['TYPE'] != len(players_per_team_count):
+    try:
+        sessions_col.insert_one(session)
+        return True
+    except:
+        return False
 
-                    return "Guild and Session Type do not match. "
-                else:
-                    sessions_col.insert_one(session)
-                    return "New Session started. "
 
-def joinSession(session, query):
-    sessionquery = querySession(session)
-    matchtype = sessionquery['TYPE']
-    if not sessionquery['IS_FULL']:
-        if sessionquery['GODS'] and query['POSITION'] == 0:
-            teaminsert = sessions_col.update_one(session, {'$addToSet': {'TEAMS': query}})
-            return m.SESSION_JOINED
-        elif query['POSITION'] == 0:
-            teaminsert = sessions_col.update_one(session, {'$addToSet': {'TEAMS': query}})
-            return m.SESSION_JOINED
-        else:
-            if matchtype == len(query['TEAM']):
-                # List of current teams in session
-                p = [x for x in sessionquery['TEAMS']]
-                
-                # Check if Guild trying to join is part of a Guild already
-                list_matching = [x for x in p[0]['TEAM'] if x in query['TEAM']]
-
-                if len(list_matching) == 0:
-                    teaminsert = sessions_col.update_one(session, {'$addToSet': {'TEAMS': query}, '$set': {'IS_FULL': True}})
-
-                    return m.SESSION_JOINED
-                else: 
-                    return 'Lobby full.'
-            elif matchtype < len(query['TEAM']):
-                return 'Too many players in Guild'
-            elif matchtype > len(query['TEAM']):
-                return 'Not enough players in Guild'
-    else:
-        return "Lobby is full. "
-
-def joinExhibition(session, query):
-    sessionquery = querySession(session)
-    matchtype = sessionquery['TYPE']
-    if len(query['TEAM']) != 3:
-        if len(query['TEAM']) != 1:       
-            # List of current teams in session
-            p = [x for x in sessionquery['TEAMS']]
-            
-            # Check if Guild trying to join is part of a Guild already
-            list_matching = [x for x in p[0]['TEAM'] if x in query['TEAM']]
-
-            if len(list_matching) == 0:
-                teaminsert = sessions_col.update_one(session, {'$addToSet': {'TEAMS': query}, '$set': {'IS_FULL': True}})
-
-                return m.SESSION_JOINED
-            else: 
-                return 'Session full.'
-        else:
-            teaminsert = sessions_col.update_one(session, {'$addToSet': {'TEAMS': query}})
-            return m.SESSION_JOINED
-
-def joinKingsGambit(session, query):
-    sessionquery = querySession(session)
-    matchtype = sessionquery['TYPE']
-    if len(query['TEAM']) != 3:
-        if len(query['TEAM']) != 1:       
-            # List of current teams in session
-            p = [x for x in sessionquery['TEAMS']]
-            
-            # Check if Guild trying to join is part of a Guild already
-            list_matching = [x for x in p[0]['TEAM'] if x in query['TEAM']]
-
-            if len(list_matching) == 0:
-                teaminsert = sessions_col.update_one(session, {'$addToSet': {'TEAMS': query}})
-
-                return m.SESSION_JOINED
-            else: 
-                return m.LOBBY_IS_FULL
-        else:
-            teaminsert = sessions_col.update_one(session, {'$addToSet': {'TEAMS': query}})
-            return m.SESSION_JOINED
-
-def endSession(session):
-    exists = session_exist({'OWNER': session['OWNER'], 'AVAILABLE': True})
-    if exists:
-        sessions_col.update_one(session, {'$set': {'AVAILABLE': False}})
-        return m.SESSION_HAS_ENDED
-    else:
-        return m.SESSION_DOES_NOT_EXIST
+def endSession(session, update_query):
+    try:
+        sessions_col.update_one(session, update_query)
+        return True
+    except:
+        return False
 
 def deleteSession(session):
-    exists = session_exist({'OWNER': session['OWNER'], 'AVAILABLE': True})
-    if exists:
-        sessions_col.delete_one({'OWNER': session['OWNER'], 'AVAILABLE': True})
-        return m.SESSION_HAS_ENDED
-    else:
-        return m.SESSION_DOES_NOT_EXIST
+    try:
+        sessions_col.delete_one(session)
+        return True
+    except:
+        return False
 
-def deleteAllSessions(user_query):
-    exists = user_exists({'DISNAME': user_query['DISNAME']})
-    if exists:
-        sessions_col.delete_many({})
-        return 'All Sessions Deleted'
-    else:
-        return 'Unable to Delete All Sessions'
 
-def updateSession(session, query, update_query):
+
+def updateSession(query, update_query):
     exists = session_exist({'OWNER': session['OWNER'], 'AVAILABLE': True})
     if exists:
         sessions_col.update_one(query, update_query)

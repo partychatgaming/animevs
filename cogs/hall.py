@@ -1,6 +1,3 @@
-import discord
-from discord.ext import commands
-import bot as main
 import crown_utilities
 import db
 import dataclasses as data
@@ -8,29 +5,28 @@ import messages as m
 import numpy as np
 import help_commands as h
 # Converters
-from discord import User
-from discord import Member
 from PIL import Image, ImageFont, ImageDraw
 import requests
-from discord_slash import cog_ext, SlashContext
+from interactions import User
+from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
-class Hall(commands.Cog):
+class Hall(Extension):
     def __init__(self, bot):
         self.bot = bot
 
 
 
-    @commands.Cog.listener()
+    @listen()
     async def on_ready(self):
         print('Hall Cog is ready!')
 
     async def cog_check(self, ctx):
-        return await main.validate_user(ctx)
+        return await self.bot.validate_user(ctx)
 
-    @cog_ext.cog_slash(description="Buy a Hall for your guild", guild_ids=main.guild_ids)
+    @slash_command(description="Buy a Hall for your guild")
     async def buyhall(self, ctx, hall: str):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
             return
 
         hall_name = hall
@@ -63,4 +59,4 @@ class Hall(commands.Cog):
             await ctx.send(m.HALL_DOESNT_EXIST)
 
 def setup(bot):
-    bot.add_cog(Hall(bot))
+    Hall(bot)
