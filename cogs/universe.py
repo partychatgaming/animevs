@@ -49,6 +49,7 @@ class Universe(Extension):
             mode_check = "HAS_CROWN_TALES"
             completed_check = player.completed_tales
             all_universes = ""
+            universe_paginator_type = "Universe Tales"
             
             if mode in crown_utilities.DUNGEON_M and player.level <= 40:
                 dungeon_unavailable_response = create_dungeon_locked_embed()
@@ -63,6 +64,7 @@ class Universe(Extension):
                 save_spot_check = crown_utilities.DUNGEON_M
                 mode_check = "HAS_DUNGEON"
                 completed_check = player.completed_dungeons
+                universe_paginator_type = "Universe Dungeon"
 
             def get_dungeons(universes):
                 all_universes = []
@@ -147,7 +149,7 @@ class Universe(Extension):
                 else:
                     break
             
-            paginator = CustomPaginator.create_from_embeds(self.bot, *universe_embed_list, custom_buttons=["Start", "Co-op Start", "Duo Start", "Delete Save", "Quit"])
+            paginator = CustomPaginator.create_from_embeds(self.bot, *universe_embed_list, custom_buttons=["Start", "Co-op Start", "Duo Start", "Delete Save", "Quit"], paginator_type=universe_paginator_type)
             paginator.show_select_menu = True
             await paginator.send(ctx)
         except Exception as ex:

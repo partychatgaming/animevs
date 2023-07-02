@@ -88,11 +88,18 @@ class CustomPaginator(Paginator):
         self.buy_buff = None
         self.guild_buff_available = False
 
-        # Universe Selection Functions
-        self.universe_start = False
-        self.universe_co_op_start = False
-        self.universe_duo_start = False
-        self.universe_delete_save = False
+        # Universe Tale Selection Functions
+        self.universe_tale_start = False
+        self.universe_tale_co_op_start = False
+        self.universe_tale_duo_start = False
+        self.universe_tale_delete_save = False
+
+        # Universe Dungeon Selection Functions
+        self.universe_dungeon_start = False
+        self.universe_dungeon_co_op_start = False
+        self.universe_dungeon_duo_start = False
+        self.universe_dungeon_delete_save = False
+
 
 
     """
@@ -1544,4 +1551,8 @@ class CustomPaginator(Paginator):
     This section contains all the functions related to universe selections
     """
 
-    
+    async def activate_universe_action(self, ctx, universe, action: str):
+        if self.universe_tale_action:
+
+
+
