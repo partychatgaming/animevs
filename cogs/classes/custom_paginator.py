@@ -1553,6 +1553,14 @@ class CustomPaginator(Paginator):
 
     async def activate_universe_action(self, ctx, universe, action: str):
         if self.universe_tale_action:
+            mode = "Tales"
+        else:
+            mode = "Dungeon"
+
+        if self.universe_tale_start:
+            response = await self.start_tale(ctx, universe, mode)
+            self.universe_tale_start = False
+        
 
 
 
