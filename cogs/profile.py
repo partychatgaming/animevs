@@ -64,7 +64,7 @@ class Profile(Extension):
 
             team = db.queryTeam({'TEAM_NAME': user_is_validated['TEAM'].lower()})
 
-            await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account? " + "\n" + "All of your wins, purchases and other earnings will be removed from the system and can not be recovered. ", hidden=True, components=[accept_buttons_action_row])
+            await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account? " + "\n" + "All of your wins, purchases and other earnings will be removed from the system and can not be recovered. ", ephemeral=True, components=[accept_buttons_action_row])
 
             def check(button_ctx):
                 return button_ctx.author == ctx.author
@@ -110,7 +110,7 @@ class Profile(Extension):
                     'trace': trace
                 }))
         else:
-            await ctx.send("You aren't registered.", hidden=True)
+            await ctx.send("You aren't registered.", ephemeral=True)
 
 
     @slash_command(description="main menu where all your important game items and builds are",
@@ -1173,7 +1173,7 @@ class Profile(Extension):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("There's an issue with your Titles list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            await ctx.send("There's an issue with your Titles list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
             return
 
 
@@ -1566,7 +1566,7 @@ class Profile(Extension):
 
                 if button_ctx.custom_id in exp_boost_buttons:
                     if price > balance:
-                        await button_ctx.send("You're too broke to buy. Get your money up.", hidden=True)
+                        await button_ctx.send("You're too broke to buy. Get your money up.", ephemeral=True)
                         await msg.edit(components=[])
                         return
 
@@ -1578,7 +1578,7 @@ class Profile(Extension):
                     lvl = card_info['LVL']
                     max_lvl = 1000
                     if lvl >= max_lvl:
-                        await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
+                        await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", ephemeral=True)
                         await msg.edit(components=[])
                         return
 
@@ -1598,18 +1598,18 @@ class Profile(Extension):
                     await button_ctx.send(f"🔋🎴 | **{str(current_card)}** gained {levels_gained} levels!")
                     await msg.edit(components=[])
                     if button_ctx.custom_id == "cancel":
-                        await button_ctx.send("Sell ended.", hidden=True)
+                        await button_ctx.send("Sell ended.", ephemeral=True)
                         await msg.edit(components=[])
                         return
 
                 if button_ctx.custom_id == "4":
                     price = 25000000
                     if price > balance:
-                        await button_ctx.send("Insufficent funds.", hidden=True)
+                        await button_ctx.send("Insufficent funds.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                     if has_gabes_purse:
-                        await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", hidden=True)
+                        await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                     else:
@@ -1622,11 +1622,11 @@ class Profile(Extension):
                 if button_ctx.custom_id == "7":
                     price = 10000000
                     if price > balance:
-                        await button_ctx.send("Insufficent funds.", hidden=True)
+                        await button_ctx.send("Insufficent funds.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                     if preset_upgrade:
-                        await button_ctx.send("You already have 5 Presets!", hidden=True)
+                        await button_ctx.send("You already have 5 Presets!", ephemeral=True)
                         await msg.edit(components=[])
                         return
                     else:
@@ -1645,15 +1645,15 @@ class Profile(Extension):
                     if abyss_arm:
                         price = 1000000
                     if boss_arm:
-                        await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
+                        await button_ctx.send("Sorry I can't repair **Boss** Arms ...", ephemeral=True)
                         await msg.edit(components=[])
                         return
                     if price > balance:
-                        await button_ctx.send("Insufficent funds.", hidden=True)
+                        await button_ctx.send("Insufficent funds.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                     if current_durability >= 100:
-                        await button_ctx.send(f"🦾 | {current_arm} is already at Max Durability. ⚒️",hidden=True)
+                        await button_ctx.send(f"🦾 | {current_arm} is already at Max Durability. ⚒️",ephemeral=True)
                         await msg.edit(components=[])
                         return
                     else:
@@ -1676,21 +1676,21 @@ class Profile(Extension):
                             await msg.edit(components=[])
                             return
                         except:
-                            await ctx.send("Unsuccessful to purchase durability boost.", hidden=True)
+                            await ctx.send("Unsuccessful to purchase durability boost.", ephemeral=True)
 
                 if button_ctx.custom_id == "6":
                     if storage_pricing > balance:
-                        await button_ctx.send("Insufficent funds.", hidden=True)
+                        await button_ctx.send("Insufficent funds.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                         
                     if not patron_flag and storage_type >= 2:
-                        await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", hidden=True)
+                        await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                         
                     if storage_type == 10:
-                        await button_ctx.send("💼 | You already have max storage.", hidden=True)
+                        await button_ctx.send("💼 | You already have max storage.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                         
@@ -1701,7 +1701,7 @@ class Profile(Extension):
                         await msg.edit(components=[])
                         return
             except asyncio.TimeoutError:
-                await ctx.send("Blacksmith closed.", hidden=True)
+                await ctx.send("Blacksmith closed.", ephemeral=True)
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__
@@ -1717,9 +1717,9 @@ class Profile(Extension):
                     'message': str(ex),
                     'trace': trace
                 }))
-                await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
+                await ctx.send("Blacksmith closed unexpectedly. Seek support.", ephemeral=True)
         except asyncio.TimeoutError:
-            await ctx.send("Blacksmith closed.", hidden=True)
+            await ctx.send("Blacksmith closed.", ephemeral=True)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -1735,7 +1735,7 @@ class Profile(Extension):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
+            await ctx.send("Blacksmith closed unexpectedly. Seek support.", ephemeral=True)
     
 
     @slash_command(description="View your summons")
@@ -2128,7 +2128,7 @@ class Profile(Extension):
         exchange = int(100 - (prestige * 10))
         # server = db.queryServer({"GNAME": str(ctx.author.guild)})
         if not vault['QUESTS']:
-            await ctx.send("You have no quests available at this time!", hidden=True)
+            await ctx.send("You have no quests available at this time!", ephemeral=True)
             return
         if vault:
             try:
@@ -2319,7 +2319,7 @@ class Profile(Extension):
                     'message': str(ex),
                     'trace': trace
                 }))
-                await ctx.send("There's an issue with your Quest list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                await ctx.send("There's an issue with your Quest list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                 return
         else:
             newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
@@ -2539,7 +2539,7 @@ class Profile(Extension):
                     update_data = {}
                     if  button_ctx.ctx.custom_id == "0":
                         embed = Embed(title="🔖 | Preset Menu", description="No change has been made")
-                        await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
+                        await button_ctx.send(f"{ctx.author.mention}, No change has been made", ephemeral=True)
                         return
                     elif  button_ctx.ctx.custom_id == f"{_uuid}|1":
                         equipped_items = []
@@ -2731,7 +2731,7 @@ class Profile(Extension):
                     await msg.edit(embed=embed, components=[])
                     return
                 except asyncio.TimeoutError:
-                    await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+                    await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", ephemeral=True)
                 except Exception as ex:
                     trace = []
                     tb = ex.__traceback__
@@ -2747,13 +2747,13 @@ class Profile(Extension):
                         'message': str(ex),
                         'trace': trace
                     }))
-                    await ctx.send("Preset Issue Seek support.", hidden=True)
+                    await ctx.send("Preset Issue Seek support.", ephemeral=True)
             else:
                 embed = Embed(title=f"🔖 | Whoops!", description=f"You do not have a preset saved yet. Use /savepreset to save your current build as a preset.")
                 await ctx.send(embed=embed)
                 return
         except asyncio.TimeoutError:
-            await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+            await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", ephemeral=True)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -2769,7 +2769,7 @@ class Profile(Extension):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("Preset Issue Seek support.", hidden=True)
+            await ctx.send("Preset Issue Seek support.", ephemeral=True)
 
 
     @slash_command(description="Save your current build as a preset")
@@ -3804,10 +3804,10 @@ class Profile(Extension):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                             return
                     else:
-                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", ephemeral=True)
                         return
                 if mode == 'tdismantle':
                     title_data = storage_title
@@ -3866,10 +3866,10 @@ class Profile(Extension):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                             return
                     else:
-                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", ephemeral=True)
                         return
                 if mode == 'adismantle':
                     arm_data = storage_arm
@@ -3942,10 +3942,10 @@ class Profile(Extension):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                             return
                     else:
-                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", ephemeral=True)
                         return
                 if mode == 'cresell':
                     card_data = storage_card
@@ -4002,7 +4002,7 @@ class Profile(Extension):
                             await ctx.send("There's an issue with selling one or all of your items.")
                             return
                     else:
-                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", hidden=True)
+                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", ephemeral=True)
                         return
                 if mode == 'tresell':
                     title_data = storage_title
@@ -4055,10 +4055,10 @@ class Profile(Extension):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                             return
                     else:
-                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", ephemeral=True)
                         return
                 if mode == 'aresell':
                     arm_data = storage_arm
@@ -4115,10 +4115,10 @@ class Profile(Extension):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                             return
                     else:
-                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", hidden=True)
+                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", ephemeral=True)
                         return
         except Exception as ex:
             trace = []
@@ -4135,7 +4135,7 @@ class Profile(Extension):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
             return
 
 
@@ -4359,7 +4359,7 @@ class Profile(Extension):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send(f"Error with Armory. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            await ctx.send(f"Error with Armory. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
             return
 
 
@@ -4859,7 +4859,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
                                             if selected_skin in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
                                                 db.updateUserNoFilter(query, {'$addToSet': {'DESTINY': destiny}})
                                                 await button_ctx.send(
-                                                    f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.", hidden=True)
+                                                    f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.", ephemeral=True)
                                         update_query = {
                                             '$inc': {'GEMS.$[type].' + "GEMS": int(negPriceAmount)}
                                         }
@@ -5125,10 +5125,10 @@ async def menubuild(self, ctx):
                     'message': str(ex),
                     'trace': trace
                 }))
-                await ctx.send("There's an issue with your build. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                await ctx.send("There's an issue with your build. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                 return
         else:
-            await ctx.send(m.USER_NOT_REGISTERED, hidden=True)
+            await ctx.send(m.USER_NOT_REGISTERED, ephemeral=True)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -5859,7 +5859,7 @@ async def menucards(self, ctx):
             'message': str(ex),
             'trace': trace
         }))
-        await ctx.send("There's an issue with loading your cards. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+        await ctx.send("There's an issue with loading your cards. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
         return
 
 
@@ -5873,7 +5873,7 @@ async def menustorage(self, ctx):
         vault = db.queryVault({'DID': str(ctx.author.id)})
         storage_allowed_amount = user['STORAGE_TYPE'] * 15
         if not vault['STORAGE']:
-            await ctx.send("Your storage is empty.", hidden=True)
+            await ctx.send("Your storage is empty.", ephemeral=True)
             return
 
         list_of_cards = db.querySpecificCards(vault['STORAGE'])
@@ -6446,7 +6446,7 @@ async def menutitles(self, ctx):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("There's an issue with your Titles list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            await ctx.send("There's an issue with your Titles list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
             return
     else:
         newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
@@ -6912,7 +6912,7 @@ async def menuarms(self, ctx):
                                         'message': str(ex),
                                         'trace': trace
                                     }))
-                                    await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                                    await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                                     return
                             if button_ctx.custom_id == "store":
                                 await button_ctx.defer(ignore=True)
@@ -6956,7 +6956,7 @@ async def menuarms(self, ctx):
                                         'message': str(ex),
                                         'trace': trace
                                     }))
-                                    await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92.", hidden=True)
+                                    await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92.", ephemeral=True)
                                     return
                         except Exception as ex:
                             trace = []
@@ -6973,7 +6973,7 @@ async def menuarms(self, ctx):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                            await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                             return
                 else:
                     await ctx.send("This is not your Arms list.")        
@@ -6998,7 +6998,7 @@ async def menuarms(self, ctx):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
             return
     else:
         newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
@@ -7303,7 +7303,7 @@ async def menublacksmith(self, ctx):
 
         if button_ctx.custom_id in exp_boost_buttons:
             if price > balance:
-                await button_ctx.send("You're too broke to buy. Get your money up.", hidden=True)
+                await button_ctx.send("You're too broke to buy. Get your money up.", ephemeral=True)
                 await msg.edit(components=[])
                 return
 
@@ -7315,7 +7315,7 @@ async def menublacksmith(self, ctx):
             lvl = card_info['LVL']
             max_lvl = 700
             if lvl >= max_lvl:
-                await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", hidden=True)
+                await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", ephemeral=True)
                 await msg.edit(components=[])
                 return
 
@@ -7335,18 +7335,18 @@ async def menublacksmith(self, ctx):
             await button_ctx.send(f"🔋🎴 | **{str(current_card)}** gained {levels_gained} levels!")
             await msg.edit(components=[])
             if button_ctx.custom_id == "cancel":
-                await button_ctx.send("Sell ended.", hidden=True)
+                await button_ctx.send("Sell ended.", ephemeral=True)
                 await msg.edit(components=[])
                 return
 
         if button_ctx.custom_id == "4":
             price = 25000000
             if price > balance:
-                await button_ctx.send("Insufficent funds.", hidden=True)
+                await button_ctx.send("Insufficent funds.", ephemeral=True)
                 await msg.edit(components=[])
                 return
             if has_gabes_purse:
-                await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", hidden=True)
+                await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", ephemeral=True)
                 await msg.edit(components=[])
                 return
             else:
@@ -7359,11 +7359,11 @@ async def menublacksmith(self, ctx):
         if button_ctx.custom_id == "7":
             price = 10000000
             if price > balance:
-                await button_ctx.send("Insufficent funds.", hidden=True)
+                await button_ctx.send("Insufficent funds.", ephemeral=True)
                 await msg.edit(components=[])
                 return
             if preset_upgrade:
-                await button_ctx.send("You already have 5 Presets!", hidden=True)
+                await button_ctx.send("You already have 5 Presets!", ephemeral=True)
                 await msg.edit(components=[])
                 return
             else:
@@ -7382,15 +7382,15 @@ async def menublacksmith(self, ctx):
             if abyss_arm:
                 price = 1000000
             if boss_arm:
-                await button_ctx.send("Sorry I can't repair **Boss** Arms ...", hidden=True)
+                await button_ctx.send("Sorry I can't repair **Boss** Arms ...", ephemeral=True)
                 await msg.edit(components=[])
                 return
             if price > balance:
-                await button_ctx.send("Insufficent funds.", hidden=True)
+                await button_ctx.send("Insufficent funds.", ephemeral=True)
                 await msg.edit(components=[])
                 return
             if current_durability >= 100:
-                await button_ctx.send(f"🦾 | {current_arm} is already at Max Durability. ⚒️",hidden=True)
+                await button_ctx.send(f"🦾 | {current_arm} is already at Max Durability. ⚒️",ephemeral=True)
                 await msg.edit(components=[])
                 return
             else:
@@ -7413,21 +7413,21 @@ async def menublacksmith(self, ctx):
                     await msg.edit(components=[])
                     return
                 except:
-                    await ctx.send("Unsuccessful to purchase durability boost.", hidden=True)
+                    await ctx.send("Unsuccessful to purchase durability boost.", ephemeral=True)
 
         if button_ctx.custom_id == "6":
             if storage_pricing > balance:
-                await button_ctx.send("Insufficent funds.", hidden=True)
+                await button_ctx.send("Insufficent funds.", ephemeral=True)
                 await msg.edit(components=[])
                 return
                 
             if not patron_flag and storage_type >= 2:
-                await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", hidden=True)
+                await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", ephemeral=True)
                 await msg.edit(components=[])
                 return
                 
             if storage_type == 10:
-                await button_ctx.send("💼 | You already have max storage.", hidden=True)
+                await button_ctx.send("💼 | You already have max storage.", ephemeral=True)
                 await msg.edit(components=[])
                 return
                 
@@ -7438,7 +7438,7 @@ async def menublacksmith(self, ctx):
                 await msg.edit(components=[])
                 return
     except asyncio.TimeoutError:
-        await ctx.send("Blacksmith closed.", hidden=True)
+        await ctx.send("Blacksmith closed.", ephemeral=True)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -7454,7 +7454,7 @@ async def menublacksmith(self, ctx):
             'message': str(ex),
             'trace': trace
         }))
-        await ctx.send("Blacksmith closed unexpectedly. Seek support.", hidden=True)
+        await ctx.send("Blacksmith closed unexpectedly. Seek support.", ephemeral=True)
 
 
 async def menusummons(self, ctx):
@@ -7794,7 +7794,7 @@ async def menusummons(self, ctx):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("There's an issue with your Summons list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            await ctx.send("There's an issue with your Summons list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
             return
     else:
         newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
@@ -8000,7 +8000,7 @@ async def quests(self, ctx):
     exchange = int(100 - (prestige * 10))
     # server = db.queryServer({"GNAME": str(ctx.author.guild)})
     if not vault['QUESTS']:
-        await ctx.send("You have no quests available at this time!", hidden=True)
+        await ctx.send("You have no quests available at this time!", ephemeral=True)
         return
     if vault:
         try:
@@ -8190,7 +8190,7 @@ async def quests(self, ctx):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("There's an issue with your Quest list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+            await ctx.send("There's an issue with your Quest list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
             return
     else:
         newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
@@ -8397,7 +8397,7 @@ async def menupreset(self, ctx):
                 button_ctx  = await self.bot.wait_for_component(components=[util_action_row], timeout=30,check=check)
 
                 if  button_ctx.custom_id == "0":
-                    await button_ctx.send(f"{ctx.author.mention}, No change has been made", hidden=True)
+                    await button_ctx.send(f"{ctx.author.mention}, No change has been made", ephemeral=True)
                     return
                 elif  button_ctx.custom_id == "1":
                     equipped_items = []
@@ -8663,7 +8663,7 @@ async def menupreset(self, ctx):
                     await button_ctx.send(embed=embed)
 
             except asyncio.TimeoutError:
-                await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+                await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", ephemeral=True)
             except Exception as ex:
                 trace = []
                 tb = ex.__traceback__
@@ -8679,11 +8679,11 @@ async def menupreset(self, ctx):
                     'message': str(ex),
                     'trace': trace
                 }))
-                await ctx.send("Preset Issue Seek support.", hidden=True)
+                await ctx.send("Preset Issue Seek support.", ephemeral=True)
         else:
             newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
     except asyncio.TimeoutError:
-        await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", hidden=True)
+        await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", ephemeral=True)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -8699,7 +8699,7 @@ async def menupreset(self, ctx):
             'message': str(ex),
             'trace': trace
         }))
-        await ctx.send("Preset Issue Seek support.", hidden=True)
+        await ctx.send("Preset Issue Seek support.", ephemeral=True)
 
 
 # async def menushop(self, ctx):

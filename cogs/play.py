@@ -13,7 +13,6 @@ import uuid
 import asyncio
 import random
 # import bot as main
-from .classes.custom_paginator import CustomPaginator
 import cogs.tactics as tactics
 from cogs.universe_traits.death_note import set_deathnote_message
 from cogs.universe_traits.solo_leveling import activate_solo_leveling_trait
@@ -64,11 +63,17 @@ class Play(Extension):
             h_gametime = starttime[11:13]
             m_gametime = starttime[14:16]
             s_gametime = starttime[17:19]
+            if hasattr(self, 'bot'):
+                pass
+            else:
+                self.bot = self.client
 
             while battle_config.continue_fighting:
                 await battle_config.configure_battle_players(ctx, pvp_opponent, partner1)
                 start_buttons_action_rows = config_battle_starting_buttons(battle_config)
                 battle_config.set_who_starts_match()
+
+                # await ctx.send(f"<@{battle_config.player1.did}> time to fight")
                 
                 user1, user2, opponent_ping, user3 = await get_users_and_opponent_ping(self, battle_config)
 
@@ -449,6 +454,10 @@ def config_battle_starting_buttons(battle_config):
 
 
 async def get_users_and_opponent_ping(self, battle_config):
+    if hasattr(self, 'bot'):
+        pass
+    else:
+        self.bot = self.client
     user1 = await self.bot.fetch_user(battle_config.player1.did)
     user2 = None
     user3 = None

@@ -4,6 +4,8 @@ import uuid
 import db
 from typing import Callable, Coroutine, List, Optional, Sequence, TYPE_CHECKING, Union
 import crown_utilities
+import custom_logging
+from cogs.battle_config import BattleConfig as bc
 
 import attrs
 
@@ -100,6 +102,8 @@ class CustomPaginator(Paginator):
         self.universe_dungeon_duo_start = False
         self.universe_dungeon_delete_save = False
 
+        self.quit = False
+
 
 
     """
@@ -136,6 +140,16 @@ class CustomPaginator(Paginator):
                     f"{self._uuid}|trade",
                     f"{self._uuid}|storage",
                     f"{self._uuid}|charge",
+                    f"{self._uuid}|start",
+                    f"{self._uuid}|co-op start",
+                    f"{self._uuid}|duo start",
+                    f"{self._uuid}|delete save",
+                    f"{self._uuid}|universe_dungeon_start",
+                    f"{self._uuid}|universe_dungeon_co_op_start",
+                    f"{self._uuid}|universe_dungeon_duo_start",
+                    f"{self._uuid}|universe_dungeon_delete_save",
+                    f"{self._uuid}|scenario_start",
+                    f"{self._uuid}|quit",
                     
                 ],
             )
@@ -241,6 +255,20 @@ class CustomPaginator(Paginator):
                         await self._message.edit(embeds=[response], components=[])
                     else:
                         await self._message.delete()
+            case "start":
+                if self.universe_tale_action or self.universe_dungeon_action:
+                    if self.universe_tale_action:
+                        self.universe_tale_start = True
+                    if self.universe_dungeon_action:
+                        self.universe_dungeon_start = True
+                    response = await self.activate_universe_action(ctx, self._message.embeds[0].title)
+                    await self._message.delete()
+            case "quit":
+                print("Quit was selected")
+                if self.universe_tale_action:
+                    self.quit = True
+                    response = await self.activate_universe_action(ctx, self._message.embeds[0].title)
+                    await self._message.delete()
         
         if original_buttons:
             await ctx.edit_origin(**self.to_dict())
@@ -303,7 +331,7 @@ class CustomPaginator(Paginator):
         if action_type == "Summons":
             self.summon_action = True
 
-        if action_type == "Universe Tale":
+        if action_type == "Universe Tales":
             self.universe_tale_action = True
         
         if action_type == "Universe Dungeon":
@@ -1126,7 +1154,7 @@ class CustomPaginator(Paginator):
                         'message': str(ex),
                         'trace': trace
                     }))
-                    await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+                    await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                     return
 
 
@@ -1550,17 +1578,88 @@ class CustomPaginator(Paginator):
     UNIVERSE FUNCTIONS
     This section contains all the functions related to universe selections
     """
-
-    async def activate_universe_action(self, ctx, universe, action: str):
+    async def activate_universe_action(self, ctx, universe):
+        print("activate_universe_action has been called")
         if self.universe_tale_action:
             mode = "Tales"
         else:
             mode = "Dungeon"
 
-        if self.universe_tale_start:
-            response = await self.start_tale(ctx, universe, mode)
+        if self.universe_tale_start or self.universe_dungeon_start:
+            await self.start_tale_or_dungeon(ctx, universe, mode)
             self.universe_tale_start = False
-        
+
+        if self.quit:
+            await self.quit_universe_selection(ctx)
+            self.quit = False
+
+
+    async def quit_universe_selection(self, ctx):
+        user_data = db.queryUser({'DID': str(ctx.author.id)})
+        player = crown_utilities.create_player_from_data(user_data)
+        player.make_available()
+        embed = Embed(title= f"Match Making Cancelled.", description="You have cancelled the match making process.")
+        await ctx.send(embed=embed, ephemeral=True)
+
+
+    async def start_tale_or_dungeon(self, ctx, universe_title, mode):
+        print("Start Tale has been called")
+        user_data = db.queryUser({'DID': str(ctx.author.id)})
+        player = crown_utilities.create_player_from_data(user_data)
+
+        try:
+            _uuid = uuid.uuid4()
+            save_spot_check = crown_utilities.TALE_M
+            currentopponent = 0
+            entrance_fee = 5000
+            mode_check = "HAS_CROWN_TALES"
+            universe = db.queryUniverse({"TITLE": universe_title})
+            if mode in crown_utilities.DUNGEON_M:
+                entrance_fee = 20000
+                save_spot_check = crown_utilities.DUNGEON_M
+                mode_check = "HAS_DUNGEON"
+
+            if universe[mode_check] == True:
+                if player.difficulty != "EASY":
+                    for save in player.save_spot:
+                        if save['UNIVERSE'] == universe['TITLE'] and save['MODE'] in save_spot_check:
+                            currentopponent = save['CURRENTOPPONENT']
+
+            if self.universe_tale_start or self.universe_dungeon_start:
+                await bc.create_universe_battle(self, ctx, mode, universe, player, currentopponent, entrance_fee)
+                return
+
+            # if button_ctx.ctx.custom_id == f"{_uuid}|coop":
+            #     await button_ctx.ctx.send("Starting")
+            #     await msg.edit(components=[])
+
+            # if button_ctx.ctx.custom_id == f"{_uuid}|duo":
+            #     await button_ctx.ctx.send("Starting")
+            #     await msg.edit(components=[])
+
+            # if button_ctx.ctx.custom_id == f"{_uuid}|deletesave":
+            #     player.make_available()
+            #     await button_ctx.ctx.send("Deleting Save")
+            #     gs.delete_save_spot(player, universe['TITLE'], mode, currentopponent)
+            #     await msg.edit(components=[])
+            
+            # if button_ctx.ctx.custom_id == f"{_uuid}|quit":
+            #     player.make_available()
+            #     embed = Embed(title= f"{universe['TITLE']} Match Making Cancelled.", description="You have cancelled the match making process.")
+            #     await button_ctx.ctx.send(embed=embed)
+            #     await msg.edit(components=[])
+            #     return
+                
+
+            else:
+                player.make_available()
+                embed = Embed(title= f"{universe['TITLE']} Match Making Cancelled.", description="You have cancelled the match making process due to the universe not having characters in this mode.", ephemeral=True)
+                await ctx.send(embed=embed)
+
+        except Exception as ex:
+            player.make_available()
+            custom_logging.debug(ex)
+            await ctx.send("There was an error starting the tale. Please try again later.", ephemeral=True)
 
 
 

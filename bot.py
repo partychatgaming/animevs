@@ -287,7 +287,7 @@ async def enhancers(ctx):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("Hmm something ain't right. Check with support.", hidden=True)
+            await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
             return
 
 
@@ -1101,7 +1101,7 @@ async def register(ctx):
                                     destiny_message.append(f"**{destiny['NAME']}** : Earn 🎴 **{destiny['EARN']}**.!")
                                     counter = counter - 1
                                     # await button_ctx.send(
-                                    #    f"✨**{destiny['NAME']}** addes to **/destinylist**.", hidden=True)
+                                    #    f"✨**{destiny['NAME']}** addes to **/destinylist**.", ephemeral=True)
                         count = count + 1
                      title_drop_message_into_embded = "\n".join(title_message)
                      arm_drop_message_into_embded = "\n".join(arm_message)
@@ -1821,7 +1821,7 @@ async def rebirth(ctx):
                                                    if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
                                                          db.updateUserNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
                                                          await button_ctx.send(
-                                                            f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.", hidden=True)
+                                                            f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.", ephemeral=True)
                                              count = count + 1
                                           await button_ctx.send(f"Nice choice {ctx.author.mention}!\n\nCreate your first **Build**!\n**/cards** Select your 🎴  Card\n**/titles** Select your 🎗️ Title\n**/arms** Select your 🦾  Arm\n\nOnce you're done, run **/tutorial** to begin the **Tutorial Battle**! ⚔️")
                                           self.stop = True
@@ -2245,7 +2245,7 @@ async def invest(ctx, amount):
    balance = vault['BALANCE']
    if family:
       if balance <= int(amount):
-         await ctx.send("You do not have that amount to invest.", hidden=True)
+         await ctx.send("You do not have that amount to invest.", ephemeral=True)
       else:
          await crown_utilities.blessfamily_Alt(int(amount), user['DID'])
          await crown_utilities.curse(int(amount), ctx.author.id)
@@ -2599,7 +2599,7 @@ async def traits(ctx: InteractionContext, universe: str = ""):
          'message': str(ex),
          'trace': trace
       }))
-      await ctx.send("There's an issue with your Traits List. Check with support.", hidden=True)
+      await ctx.send("There's an issue with your Traits List. Check with support.", ephemeral=True)
       return
 
 
@@ -2675,7 +2675,7 @@ async def allowance(ctx, player, amount):
          'message': str(ex),
          'trace': trace
       }))
-      await ctx.send("There's an issue with your Allowance. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", hidden=True)
+      await ctx.send("There's an issue with your Allowance. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
       return
    
       
@@ -2707,7 +2707,7 @@ async def performance(ctx):
             'message': str(ex),
             'trace': trace
       }))
-      await ctx.send("There's an issue with your Performance Mode. Seek support in the Anime 🆚+ support server", hidden=True)
+      await ctx.send("There's an issue with your Performance Mode. Seek support in the Anime 🆚+ support server", ephemeral=True)
    
       
 
@@ -2741,7 +2741,7 @@ async def autosave(ctx):
             'message': str(ex),
             'trace': trace
       }))
-      await ctx.send("There's an issue with your Autosave. Seek support in the Anime 🆚+ support server", hidden=True)
+      await ctx.send("There's an issue with your Autosave. Seek support in the Anime 🆚+ support server", ephemeral=True)
    
       
 
@@ -2983,7 +2983,7 @@ async def createcode(ctx, code_input, coin, gems):
    if ctx.author.guild_permissions.administrator == True:
       is_creator = db.queryUser({'DID': str(ctx.author.id)})['CREATOR']
       if not is_creator:
-         await ctx.send("Creator only command.", hidden=True)
+         await ctx.send("Creator only command.", ephemeral=True)
          return
          
       code_exist = db.queryCodes({'CODE_INPUT': code_input})
@@ -3003,7 +3003,7 @@ async def createcode(ctx, code_input, coin, gems):
          except Exception as e:
             print(e)
    else:
-      await ctx.send("Creator only command.", hidden=True)
+      await ctx.send("Creator only command.", ephemeral=True)
 
 
 @slash_command(description="Input Codes", options=[

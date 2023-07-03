@@ -10,7 +10,6 @@ import help_commands as h
 import uuid
 import asyncio
 import random
-from .classes.custom_paginator import CustomPaginator
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 class RewardDrops(Extension):
@@ -181,7 +180,7 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
     user_query = {'DID': str(player.did)}
     reward_money_message = await reward_money(battle_config, player)
     if drop_type == "GOLD" or drop_type == None:
-            return f"You earned 🪙 **{reward_money_message}**!"
+            return f"**{reward_money_message}**!"
     else:
         if drop_type == "RIFT":
             response = db.updateUserNoFilter(user_query, {'$set': {'RIFT': 1}})

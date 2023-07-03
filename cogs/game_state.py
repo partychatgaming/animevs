@@ -21,6 +21,7 @@ class GameState(Extension):
         Update this with the bot.py function that updates save_spot as well as to not store duplicate save spots
         """
         try:
+            player.make_available()
             for save_spot in player.save_spot:
                 if save_spot['UNIVERSE'] == universe_title and save_spot['MODE'] == mode:
                     query = {"DID": player.did}

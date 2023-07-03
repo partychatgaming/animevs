@@ -1,17 +1,7 @@
-import textwrap
 import crown_utilities
 import db
-import uuid
-import asyncio
-import random
 from cogs.play import Play as play
-from cogs.classes.custom_paginator import CustomPaginator
-from cogs.classes.arm_class import Arm
-from cogs.classes.card_class import Card
-from cogs.classes.title_class import Title
-from cogs.classes.player_class import Player
 from cogs.classes.battle_class import Battle
-from cogs.classes.summon_class import Summon
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 class BattleConfig(Extension):

@@ -536,7 +536,7 @@ class GameModes(Extension):
             battle.set_tutorial(p2.did)
             
             if p1.did == p2.did:
-                await ctx.send("You cannot PVP against yourself.", hidden=True)
+                await ctx.send("You cannot PVP against yourself.", ephemeral=True)
                 return
             await ctx.send("🆚 Building PVP Match...", delete_after=10)
 
@@ -1583,7 +1583,7 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
                 custom_function.selected_universe = str(button_ctx.origin_message.embeds[0].title)
                 self.stop = True
             else:
-                await ctx.send("This is not your button.", hidden=True)
+                await ctx.send("This is not your button.", ephemeral=True)
         await Paginator(bot=self.bot, ctx=ctx, useQuitButton=True, deleteAfterTimeout=True, pages=available_bosses, timeout=120,  customButton=[
             custom_button,
             custom_function,
@@ -1623,7 +1623,7 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
                     'COMPLETED_DUNGEONS': p.completed_dungeons, 'OGUILD': p.association_info, 'BOSS_NAME': universe['UNIVERSE_BOSS'],
                     'CURRENTOPPONENT': currentopponent}
         except asyncio.TimeoutError:
-            await ctx.send(f"**{str(ctx.author)}** Boss Arena Timed Out", hidden=True)
+            await ctx.send(f"**{str(ctx.author)}** Boss Arena Timed Out", ephemeral=True)
         except Exception as ex:
             custom_logging.debug(ex)
             #embedVar = Embed(title=f"Unable to start boss fight. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", delete_after=30, color=0xe91e63)

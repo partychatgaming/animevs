@@ -58,7 +58,7 @@ class Views(Extension):
             embed = Embed(title=f"🎴 Card Successfully Equipped", description=f"{card_name} has been equipped.", color=0x00ff00)
             await ctx.send(embed=embed)
         else:
-            await ctx.send(m.USER_DOESNT_HAVE_THE_CARD, hidden=True)
+            await ctx.send(m.USER_DOESNT_HAVE_THE_CARD, ephemeral=True)
 
 
     @slash_command(description="Type a card name, title, arm, universe, house, hall, or boss to view it!")
@@ -259,7 +259,7 @@ class Views(Extension):
                                     'message': str(ex),
                                     'trace': trace
                                 }))
-                                await ctx.send("You took too long to respond.", hidden=True)
+                                await ctx.send("You took too long to respond.", ephemeral=True)
                                 return
                         else:
                             pass
@@ -419,7 +419,7 @@ class Views(Extension):
                                 'message': str(ex),
                                 'trace': trace
                             }))
-                            await ctx.send("You took too long to respond.", hidden=True)
+                            await ctx.send("You took too long to respond.", ephemeral=True)
                             return
                     else:
                         pass
@@ -441,7 +441,7 @@ class Views(Extension):
                     return
 
                 
-                await ctx.send("No results found.", hidden=True)
+                await ctx.send("No results found.", ephemeral=True)
                 return
 
             if not advanced_search and not name:
@@ -597,7 +597,7 @@ class Views(Extension):
                 'message': str(ex),
                 'trace': trace
             }))
-            await ctx.send("You took too long to respond.", hidden=True)
+            await ctx.send("You took too long to respond.", ephemeral=True)
             return
 
 
@@ -801,7 +801,7 @@ async def viewcard(self, ctx, data):
             arm = {'ARM': 'CARD PREVIEW'}
 
             if c.is_universe_unbound():
-                await ctx.send("You cannot view this card at this time. ", hidden=True)
+                await ctx.send("You cannot view this card at this time. ", ephemeral=True)
                 return
             c.set_tip_and_view_card_message()
             evasion = c.get_evasion()
@@ -945,7 +945,7 @@ async def viewarm(self, ctx, data):
             await ctx.send(embed=embedVar)
 
         else:
-            await ctx.send(m.ARM_DOESNT_EXIST, hidden=True)
+            await ctx.send(m.ARM_DOESNT_EXIST, ephemeral=True)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -983,7 +983,7 @@ async def viewsummon(self, ctx, data):
             await ctx.send(file=summon_file)
 
         else:
-            await ctx.send(m.PET_DOESNT_EXIST, hidden=True)
+            await ctx.send(m.PET_DOESNT_EXIST, ephemeral=True)
     except Exception as ex:
         trace = []
         tb = ex.__traceback__

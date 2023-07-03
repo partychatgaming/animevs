@@ -5,7 +5,6 @@ import custom_logging
 from interactions import Embed
 import textwrap
 import random
-from .custom_paginator import CustomPaginator
 import uuid
 from interactions import ActionRow, Button, ButtonStyle, Embed
 
