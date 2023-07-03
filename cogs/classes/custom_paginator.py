@@ -264,7 +264,6 @@ class CustomPaginator(Paginator):
                     response = await self.activate_universe_action(ctx, self._message.embeds[0].title)
                     await self._message.delete()
             case "quit":
-                print("Quit was selected")
                 if self.universe_tale_action:
                     self.quit = True
                     response = await self.activate_universe_action(ctx, self._message.embeds[0].title)
