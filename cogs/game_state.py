@@ -3,7 +3,7 @@ import custom_logging
 import crown_utilities
 import asyncio
 import textwrap
-from cogs.reward_drops import reward_drop
+from cogs.reward_drops import reward_drop, scenario_drop
 import time
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
@@ -68,12 +68,12 @@ class GameState(Extension):
                         pvp_response = await battle_config.pvp_victory_embed(battle_config.player2, battle_config.player2_card, battle_config.player2_arm, battle_config.player2_title, battle_config.player1, battle_config.player1_card)
 
                 talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
-                arm_durability_message = crown_utilities.crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
+                arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
                 if arm_durability_message != False:
                     await private_channel.send(f"{arm_durability_message}")
                 if not battle_config.is_tutorial_game_mode:
                     co_op_talisman_response = crown_utilities.decrease_talisman_count(battle_config.player2.did, battle_config.player2.equipped_talisman)
-                    co_op_arm_durability_message = crown_utilities.crown_utilities.update_arm_durability(battle_config.player2, battle_config.player2_arm, battle_config.player2_card)
+                    co_op_arm_durability_message = crown_utilities.update_arm_durability(battle_config.player2, battle_config.player2_arm, battle_config.player2_card)
                     if co_op_arm_durability_message != False:
                         await private_channel.send(f"{co_op_arm_durability_message}")
 
@@ -138,13 +138,13 @@ class GameState(Extension):
             play_again_buttons_action_row = ActionRow(*play_again_buttons)
 
             talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
-            arm_durability_message = crown_utilities.crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
+            arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
             if arm_durability_message != False:
                 await private_channel.send(f"{arm_durability_message}")
             if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                 if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
                     co_op_talisman_response = crown_utilities.decrease_talisman_count(battle_config.player3.did, battle_config.player3.equipped_talisman)
-                    co_op_arm_durability_message = crown_utilities.crown_utilities.update_arm_durability(battle_config.player3, battle_config.player3_arm, battle_config.player3_card)
+                    co_op_arm_durability_message = crown_utilities.update_arm_durability(battle_config.player3, battle_config.player3_arm, battle_config.player3_card)
                     if co_op_arm_durability_message != False:
                         await private_channel.send(f"{co_op_arm_durability_message}")
                 loss_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
@@ -540,17 +540,14 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 battle_config.continue_fighting = True
             
             if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                battle_config.player1.make_available()
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                # if battle_config.scenario_has_drops:
-                #     response = await scenario_drop(self, ctx, battle_config.player1, battle_config.scenario_data, battle_config.difficulty)
-                #     bless_amount = 50000
-                # else:
-                #     response = "No drops this time!"
-                #     bless_amount = 200000
+                if battle_config.scenario_has_drops:
+                    response = await scenario_drop(battle_config.player1, battle_config.scenario_data, battle_config.difficulty)
+                
                 save_scen = battle_config.player1.save_scenario(battle_config.scenario_data['TITLE'])
                 unlock_message = battle_config.get_unlocked_scenario_text()
-                await crown_utilities.bless(bless_amount, battle_config.player1.did)
                 embedVar = Embed(title=f"Scenario Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
                 Good luck on your next adventure!
 

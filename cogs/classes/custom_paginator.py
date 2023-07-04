@@ -258,6 +258,8 @@ class CustomPaginator(Paginator):
             case "start":
                 if self.scenario_action:
                     self.scenario_start = True 
+                    embed = Embed(title="Starting Scenario...", description="Please wait...")
+                    await ctx.send(embed=embed, components=[], delete_after=5)
                     response = await self.activate_scenario_action(ctx, self._message.embeds[0].title)
                     await self._message.delete()
                 if self.universe_tale_action or self.universe_dungeon_action:

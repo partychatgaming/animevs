@@ -2153,11 +2153,25 @@ class Battle:
                 """), color=0xe91e63)
 
 
-    def add_stat_fields_to_embed(self, embedVar, *cards):
-        for name, action in zip(['🌀 | Focus Count', '💥 | Damage Dealt', '❤️‍🩹 | Healing'],
-                                [self.get_most_focused, self.get_most_damage_dealt, self.get_most_damage_healed]):
-            values = "\n".join([f"**{card.name}**: {action(card)}" for card in cards])
-            embedVar.add_field(name=name, value=values)
+    def add_stat_fields_to_embed(self, embedVar, winner_card, opponent_card, companion_card=None):
+        # for name, action in zip(['🌀 | Focus Count', '💥 | Damage Dealt', '❤️‍🩹 | Healing'],
+        #                         [self.get_most_focused, self.get_most_damage_dealt, self.get_most_damage_healed]):
+        #     values = "\n".join([f"**{card.name}**: {action(player_card, opponent_card)}" for card, player_card, opponent_card in zip(cards, player_cards, opponent_cards)])
+        #     embedVar.add_field(name=name, value=values)
+
+        f_message = self.get_most_focused(winner_card, opponent_card)
+        embedVar.add_field(name=f"🌀 | Focus Count",
+                        value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{winner_card.name}**: {winner_card.focus_count}")
+        #Most Damage Dealth
+        d_message = self.get_most_damage_dealt(winner_card, opponent_card)
+        embedVar.add_field(name=f"💥 | Damage Dealt",
+                        value=f"**{opponent_card.name}**: {opponent_card.damage_dealt}\n**{winner_card.name}**: {winner_card.damage_dealt}")
+        #Most Healed
+        h_message = self.get_most_damage_healed(winner_card, opponent_card)
+        embedVar.add_field(name=f"❤️‍🩹 | Healing",
+                        value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}")
+        
+
 
 
     def format_game_clock(self, gameClock):

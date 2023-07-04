@@ -300,14 +300,15 @@ class Player:
             
             if card.card_lvl > 1:
                 if (card.card_lvl + 1) % 2 == 0:
-                    atk_def_buff = crown_utilities.level_sync["ATK_DEF"]
+                    atk_def_buff = crown_utilities.level_sync["ATK_DEF"] or 2
                 if (card.card_lvl + 1) % 3 == 0:
-                    ap_buff = crown_utilities.level_sync["AP"]
+                    ap_buff = crown_utilities.level_sync["AP"] or 2
                 if (card.card_lvl + 1) % 20 == 0:
-                    hlt_buff = crown_utilities.level_sync["HLT"]
+                    hlt_buff = crown_utilities.level_sync["HLT"] or 10
 
                 update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
-                                '$inc': {'CARD_LEVELS.$[type].' + "LVL": card.card_lvl, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
+                                '$inc': {'CARD_LEVELS.$[type].' + "LVL": card.card_lvl, 
+                                        'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
                 filter_query = [{'type.' + "CARD": str(card.name)}]

@@ -25,22 +25,14 @@ class RewardDrops(Extension):
         return await self.bot.validate_user(ctx)
         
 
-async def scenario_drop(self, ctx, player, scenario, difficulty):
+async def scenario_drop(player, scenario, difficulty):
     try:
-        vault_query = {'DID': str(ctx.author.id)}
-        vault = db.queryVault(vault_query)
         scenario_level = scenario["ENEMY_LEVEL"]
         fight_count = len(scenario['ENEMIES'])
-        scenario_gold = crown_utilities.scenario_gold_drop(scenario_level,fight_count)
-        # player_info = db.queryUser({'DID': str(vault['DID'])})
-        
-        owned_destinies = []
-        for destiny in vault['DESTINY']:
-            owned_destinies.append(destiny['NAME'])
-
+        scenario_gold = crown_utilities.scenario_gold_drop(scenario_level, fight_count, scenario['TITLE'], player.scenario_history, player.difficulty)
 
         owned_arms = []
-        for arm in vault['ARMS']:
+        for arm in player.arms:
             owned_arms.append(arm['ARM'])
 
         easy = "EASY_DROPS"
@@ -68,52 +60,38 @@ async def scenario_drop(self, ctx, player, scenario, difficulty):
         else:
             rewarded = rewards[0]
 
-        if scenario['TITLE'] in player.scenario_history:
-            scenario_gold = round(scenario_gold / 2)
         
-        await crown_utilities.bless(scenario_gold, ctx.author.id)
-        # Add Card Check
+        await crown_utilities.bless(scenario_gold, player.did)
+        reward_money_message = f"You earned 🪙 **{scenario_gold}**!"
         arm = db.queryArm({"ARM": rewarded})
         if arm:
-            arm_name = arm['ARM']
-            element_emoji = crown_utilities.set_emoji(arm['ELEMENT'])
-            arm_passive = arm['ABILITIES'][0]
-            arm_passive_type = list(arm_passive.keys())[0]
-            arm_passive_value = list(arm_passive.values())[0]
-            reward = f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** dmg"
-
-            if len(vault['ARMS']) >= 25:
-                return f"You're maxed out on Arms! You earned 🪙**{scenario_gold}** instead!"
-            elif rewarded in owned_arms:
-                return f"You already own {reward}! You earn 🪙 **{scenario_gold}**."
+            if rewarded in owned_arms:
+                return f"You already own 🦾 **{rewarded}**!\n{reward_money_message}"
             else:
-                response = db.updateUserNoFilter(vault_query, {'$addToSet': {'ARMS': {'ARM': rewarded, 'DUR': 100}}})
-                return f"You earned _Arm:_ {reward} with ⚒️**{str(100)} Durability** and 🪙 **{scenario_gold}**!"
+                durability = random.randint(5, 125)
+                arm = crown_utilities.create_arm_from_data(arm)
+                arm.durability = durability
+                response = player.save_arm(arm)
+                if not response:
+                    return f"You are maxed out on 🦾 Arms!\n{reward_money_message}"
+                else:
+                    return f"You earned 🦾 **{rewarded}** with ⚒️**{str(durability)} Durability**!\n{reward_money_message}"
         else:
-            card = db.queryCard({"NAME": rewarded})
-            u = await self.bot.bot.fetch_user(str(ctx.author.id))
-            response = await crown_utilities.store_drop_card(str(ctx.author.id), card["NAME"], card["UNIVERSE"], vault, owned_destinies, 3000, 1000, mode, False, 0, "cards")
-            response = f"{response}\nYou earned 🪙 **{scenario_gold}**!"
-            if not response:
-                await crown_utilities.bless(15000, str(ctx.author.id))
-                return f"You earned 🪙 **{scenario_gold}**!"
-            return response
+            card_data = db.queryCard({"NAME": rewarded})
+            if rewarded in (player.cards or player.storage):
+                return f"You already own 🎴 **{rewarded}**!\n{reward_money_message}"
+            else:
+                lvl = random.randint(1, 100)
+                card = crown_utilities.create_card_from_data(card_data)
+                card.card_lvl = lvl
+                response = player.save_card(card)
+                if not response:
+                    return f"You are maxed out on 🎴 Cards!\n{reward_money_message}"
+                else:
+                    return f"You earned 🎴 {card.name}!\n{reward_money_message}"
 
     except Exception as ex:
-        trace = []
-        tb = ex.__traceback__
-        while tb is not None:
-            trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-        print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-        }))
+        custom_logging.debug(ex)
 
 
 async def reward_money(battle_config, player):
@@ -194,11 +172,14 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
             if reward_item in owned:
                 return f"You already own 🦾 **{reward_item}**!\n{reward_money_message}"
             else:
-                durability = random.randint(5, 100)
+                durability = random.randint(5, 150)
                 arm = crown_utilities.create_arm_from_data(reward_item)
                 arm.durability = durability
                 response = player.save_arm(arm)
-                return f"You earned an 🦾 Arm!\n{reward_money_message}"
+                if not response:
+                    return f"You are maxed out on 🦾 Arms!\n{reward_money_message}"
+                else:
+                    return f"You earned 🦾 **{reward_item}** with ⚒️**{str(durability)} Durability**!\n{reward_money_message}"
 
         if drop_type == "SUMMON":
             if len(player.summons) >= 25:
@@ -227,7 +208,10 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 card = crown_utilities.create_card_from_data(reward_item)
                 card.card_lvl = lvl
                 response = player.save_card(card)
-                return f"You earned 🎴 {card.name}!\n{reward_money_message}"
+                if not response:
+                    return f"You are maxed out on 🎴 Cards!\n{reward_money_message}"
+                else:
+                    return f"You earned 🎴 {card.name}!\n{reward_money_message}"
 
 
 async def reward_drop(self, battle_config, player, guranteed_drop=None, guranteed_drop_type=None):
