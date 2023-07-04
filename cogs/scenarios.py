@@ -37,7 +37,7 @@ class Scenario(Extension):
                 embed = create_scenario_embed(scenario, player)
                 embed_list.append(embed)
 
-            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start"])
+            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
             paginator.show_select_menu = True
             await paginator.send(ctx)
         except Exception as ex:

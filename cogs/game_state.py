@@ -485,181 +485,181 @@ class GameState(Extension):
                 await self.raid_win(battle_config, battle_msg, private_channel, user1)
 
             if battle_config.is_scenario_game_mode:
-                await self.scenario_win(battle_config, battle_msg, private_channel, user1)
+                await scenario_win(battle_config, battle_msg, private_channel, user1)
 
             if battle_config.is_abyss_game_mode:
-                await self.abyss_win(battle_config, battle_msg, private_channel, user1)
+                await abyss_win(battle_config, battle_msg, private_channel, user1)
         else:
             return
 
 
-    async def explore_win(self, battle_config, battle_msg, private_channel, user1):
-        if battle_config.is_explore_game_mode:
-            explore_response =  await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
-            await battle_msg.delete(delay=2)
-            await asyncio.sleep(2)
-            battle_msg = await private_channel.send(embed=explore_response)
+async def explore_win(battle_config, battle_msg, private_channel, user1):
+    if battle_config.is_explore_game_mode:
+        explore_response =  await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
+        await battle_msg.delete(delay=2)
+        await asyncio.sleep(2)
+        battle_msg = await private_channel.send(embed=explore_response)
+        return True
+    else:
+        return False
+
+
+async def raid_win(battle_config, battle_msg, private_channel, user1):
+    if battle_config.is_raid_game_mode:
+        shield_response = battle_config.raid_victory()
+        raid_response = await battle_config.pvp_victory_embed(battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
+        await battle_msg.delete(delay=2)
+        await asyncio.sleep(2)
+        battle_msg = await private_channel.send(embed=raid_response)
+        return True
+    else:
+        return False
+
+
+async def scenario_win(battle_config, battle_msg, private_channel, user1):
+    try:
+        if battle_config.is_scenario_game_mode:
+            total_complete = False
+            if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
+                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                cardlogger = await crown_utilities.cardlevel(user1, battle_config.player1_card.name, battle_config.player1.did, "Tales", battle_config.selected_universe)
+
+                embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
+                {battle_config.get_previous_moves_embed()}
+                
+                """),color=0x1abc9c)
+
+                embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
+                
+
+                await battle_msg.delete(delay=2)
+                await asyncio.sleep(2)
+                battle_msg = await private_channel.send(embed=embedVar)
+                battle_config.current_opponent_number = battle_config.current_opponent_number + 1
+                battle_config.reset_game()
+                battle_config.continue_fighting = True
+            
+            if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                total_complete = True
+                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                # if battle_config.scenario_has_drops:
+                #     response = await scenario_drop(self, ctx, battle_config.player1, battle_config.scenario_data, battle_config.difficulty)
+                #     bless_amount = 50000
+                # else:
+                #     response = "No drops this time!"
+                #     bless_amount = 200000
+                save_scen = battle_config.player1.save_scenario(battle_config.scenario_data['TITLE'])
+                unlock_message = battle_config.get_unlocked_scenario_text()
+                await crown_utilities.bless(bless_amount, battle_config.player1.did)
+                embedVar = Embed(title=f"Scenario Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
+                Good luck on your next adventure!
+
+                {save_scen}
+                {unlock_message}
+                """),color=0xe91e63)
+
+                embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
+                embedVar.add_field(
+                name=f"Scenario Reward",
+                value=f"{response}")
+
+                await private_channel.send(embed=embedVar)
+
+                battle_config.continue_fighting = False
             return True
         else:
             return False
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return
 
 
-    async def raid_win(self, battle_config, battle_msg, private_channel, user1):
-        if battle_config.is_raid_game_mode:
-            shield_response = battle_config.raid_victory()
-            raid_response = await battle_config.pvp_victory_embed(battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
-            await battle_msg.delete(delay=2)
-            await asyncio.sleep(2)
-            battle_msg = await private_channel.send(embed=raid_response)
+async def abyss_win(battle_config, battle_msg, private_channel, user1):
+    try:
+        if battle_config.is_abyss_game_mode:
+            total_complete = False
+            if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
+                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
+                {battle_config.get_previous_moves_embed()}
+                
+                """),color=0x1abc9c)
+
+                embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
+                
+
+                await battle_msg.delete(delay=2)
+                await asyncio.sleep(2)
+                battle_msg = await private_channel.send(embed=embedVar)
+                battle_config.reset_game()
+                battle_config.current_opponent_number = battle_config.current_opponent_number + 1
+                battle_config.continue_fighting = True
+            
+            if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                total_complete = True
+                battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                await battle_config.save_abyss_win(user1, battle_config.player1, battle_config.player1_card)
+                abyss_message = await abyss_level_up_message(battle_config.player1.did, battle_config.abyss_floor, battle_config.player2_card.name, battle_config.player2_title.name, battle_config.player2_arm.name)
+                abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
+                prestige = battle_config.player1.prestige
+                aicon = ":new_moon:"
+                if prestige == 1:
+                    aicon = ":waxing_crescent_moon:"
+                elif prestige == 2:
+                    aicon = ":first_quarter_moon:"
+                elif prestige == 3:
+                    aicon = ":waxing_gibbous_moon:"
+                elif prestige == 4:
+                    aicon = ":full_moon:"
+                elif prestige == 5:
+                    aicon = ":waning_gibbous_moon:"
+                elif prestige == 6:
+                    aicon = ":last_quarter_moon:"
+                elif prestige == 7:
+                    aicon = ":waning_crescent_moon:"
+                elif prestige == 8:
+                    aicon = ":crescent_moon:"
+                elif prestige == 9:
+                    aicon = ":crown:"
+                elif prestige >= 10:
+                    aicon = ":japanese_ogre:"
+                prestige_message = "Conquer the **Abyss** to unlock **Abyssal Rewards** and **New Game Modes.**"
+                if battle_config.player1.prestige > 0:
+                    prestige_message = f"{aicon} | Prestige Activated! Conquer the **Abyss** to unlock **Abyssal Rewards** and earn another **/exchange**"
+                embedVar = Embed(title=f"🌑 Floor **{battle_config.abyss_floor}** Cleared\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
+                {prestige_message}
+                
+                🎊**Abyss Floor Unlocks**
+                **{max(0, (3 - (3 * battle_config.player1.prestige))) if max(0, (3 - (3 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *PvP and Guilds*
+                **{max(0, (10 - (10 * battle_config.player1.prestige))) if max(0, (10 - (10 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Trading*
+                **{max(0, (15 - (15 * battle_config.player1.prestige))) if max(0, (15 - (15 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Associations and Raids*
+                **{max(0, (20 - (20 * battle_config.player1.prestige))) if max(0, (20 - (20 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Gifting*
+                **{max(0, (25 - (25 * battle_config.player1.prestige))) if max(0, (25 - (25 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Explore Mode*
+                **{max(0, (30 - (30 * battle_config.player1.prestige))) if max(0, (30 - (30 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Marriage*
+                **{max(0, (40 - (40 * battle_config.player1.prestige))) if max(0, (40 - (40 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Dungeons*
+                **{max(0, (50 - (50 * battle_config.player1.prestige))) if max(0, (50 - (50 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Bosses*
+                **{max(0, 100 - (10 * battle_config.player1.prestige)) if max(0, 100 - (10 * battle_config.player1.prestige)) > 0 else "Prestige Unlocked"}** - *Boss Soul Exchange*
+                """),color=0xe91e63)
+
+                embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
+                embedVar.set_footer(text=f"Traverse 🌑 The Abyss in /solo to unlock new game modes and features!")
+                floor_list = [0,2,3,6,7,8,9,10,20,25,40,60,100]
+                if battle_config.abyss_floor in floor_list:
+                    embedVar.add_field(
+                    name=f"Abyssal Unlock",
+                    value=f"{abyss_message['MESSAGE']}")
+                embedVar.add_field(
+                name=f"Abyssal Rewards",
+                value=f"{abyss_drop_message}")
+
+                battle_msg = await private_channel.send(embed=embedVar)
+                battle_config.continue_fighting = False
             return True
         else:
             return False
-
-
-    async def scenario_win(self, battle_config, battle_msg, private_channel, user1):
-        try:
-            if battle_config.is_scenario_game_mode:
-                total_complete = False
-                if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
-                    battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                    cardlogger = await crown_utilities.cardlevel(user1, battle_config.player1_card.name, battle_config.player1.did, "Tales", battle_config.selected_universe)
-
-                    embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
-                    {battle_config.get_previous_moves_embed()}
-                    
-                    """),color=0x1abc9c)
-
-                    embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
-                    
-
-                    await battle_msg.delete(delay=2)
-                    await asyncio.sleep(2)
-                    battle_msg = await private_channel.send(embed=embedVar)
-                    battle_config.current_opponent_number = battle_config.current_opponent_number + 1
-                    battle_config.reset_game()
-                    battle_config.continue_fighting = True
-                
-                if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
-                    total_complete = True
-                    battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                    if battle_config.scenario_has_drops:
-                        response = await scenario_drop(self, ctx, battle_config.player1, battle_config.scenario_data, battle_config.difficulty)
-                        bless_amount = 50000
-                    else:
-                        response = "No drops this time!"
-                        bless_amount = 200000
-                    save_scen = battle_config.player1.save_scenario(battle_config.scenario_data['TITLE'])
-                    unlock_message = battle_config.get_unlocked_scenario_text()
-                    await crown_utilities.bless(bless_amount, battle_config.player1.did)
-                    embedVar = Embed(title=f"Scenario Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
-                    Good luck on your next adventure!
-
-                    {save_scen}
-                    {unlock_message}
-                    """),color=0xe91e63)
-
-                    embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
-                    embedVar.add_field(
-                    name=f"Scenario Reward",
-                    value=f"{response}")
-
-                    await private_channel.send(embed=embedVar)
-
-                    battle_config.continue_fighting = False
-                return True
-            else:
-                return False
-        except Exception as ex:
-            custom_logging.debug(ex)
-            return
-
-
-    async def abyss_win(self, battle_config, battle_msg, private_channel, user1):
-        try:
-            if battle_config.is_abyss_game_mode:
-                total_complete = False
-                if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
-                    battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                    embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
-                    {battle_config.get_previous_moves_embed()}
-                    
-                    """),color=0x1abc9c)
-
-                    embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
-                    
-
-                    await battle_msg.delete(delay=2)
-                    await asyncio.sleep(2)
-                    battle_msg = await private_channel.send(embed=embedVar)
-                    battle_config.reset_game()
-                    battle_config.current_opponent_number = battle_config.current_opponent_number + 1
-                    battle_config.continue_fighting = True
-                
-                if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
-                    total_complete = True
-                    battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                    await battle_config.save_abyss_win(user1, battle_config.player1, battle_config.player1_card)
-                    abyss_message = await abyss_level_up_message(battle_config.player1.did, battle_config.abyss_floor, battle_config.player2_card.name, battle_config.player2_title.name, battle_config.player2_arm.name)
-                    abyss_drop_message = "\n".join(abyss_message['DROP_MESSAGE'])
-                    prestige = battle_config.player1.prestige
-                    aicon = ":new_moon:"
-                    if prestige == 1:
-                        aicon = ":waxing_crescent_moon:"
-                    elif prestige == 2:
-                        aicon = ":first_quarter_moon:"
-                    elif prestige == 3:
-                        aicon = ":waxing_gibbous_moon:"
-                    elif prestige == 4:
-                        aicon = ":full_moon:"
-                    elif prestige == 5:
-                        aicon = ":waning_gibbous_moon:"
-                    elif prestige == 6:
-                        aicon = ":last_quarter_moon:"
-                    elif prestige == 7:
-                        aicon = ":waning_crescent_moon:"
-                    elif prestige == 8:
-                        aicon = ":crescent_moon:"
-                    elif prestige == 9:
-                        aicon = ":crown:"
-                    elif prestige >= 10:
-                        aicon = ":japanese_ogre:"
-                    prestige_message = "Conquer the **Abyss** to unlock **Abyssal Rewards** and **New Game Modes.**"
-                    if battle_config.player1.prestige > 0:
-                        prestige_message = f"{aicon} | Prestige Activated! Conquer the **Abyss** to unlock **Abyssal Rewards** and earn another **/exchange**"
-                    embedVar = Embed(title=f"🌑 Floor **{battle_config.abyss_floor}** Cleared\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
-                    {prestige_message}
-                    
-                    🎊**Abyss Floor Unlocks**
-                    **{max(0, (3 - (3 * battle_config.player1.prestige))) if max(0, (3 - (3 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *PvP and Guilds*
-                    **{max(0, (10 - (10 * battle_config.player1.prestige))) if max(0, (10 - (10 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Trading*
-                    **{max(0, (15 - (15 * battle_config.player1.prestige))) if max(0, (15 - (15 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Associations and Raids*
-                    **{max(0, (20 - (20 * battle_config.player1.prestige))) if max(0, (20 - (20 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Gifting*
-                    **{max(0, (25 - (25 * battle_config.player1.prestige))) if max(0, (25 - (25 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Explore Mode*
-                    **{max(0, (30 - (30 * battle_config.player1.prestige))) if max(0, (30 - (30 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Marriage*
-                    **{max(0, (40 - (40 * battle_config.player1.prestige))) if max(0, (40 - (40 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Dungeons*
-                    **{max(0, (50 - (50 * battle_config.player1.prestige))) if max(0, (50 - (50 * battle_config.player1.prestige))) > 0 else "Prestige Unlocked"}** - *Bosses*
-                    **{max(0, 100 - (10 * battle_config.player1.prestige)) if max(0, 100 - (10 * battle_config.player1.prestige)) > 0 else "Prestige Unlocked"}** - *Boss Soul Exchange*
-                    """),color=0xe91e63)
-
-                    embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
-                    embedVar.set_footer(text=f"Traverse 🌑 The Abyss in /solo to unlock new game modes and features!")
-                    floor_list = [0,2,3,6,7,8,9,10,20,25,40,60,100]
-                    if battle_config.abyss_floor in floor_list:
-                        embedVar.add_field(
-                        name=f"Abyssal Unlock",
-                        value=f"{abyss_message['MESSAGE']}")
-                    embedVar.add_field(
-                    name=f"Abyssal Rewards",
-                    value=f"{abyss_drop_message}")
-
-                    battle_msg = await private_channel.send(embed=embedVar)
-                    battle_config.continue_fighting = False
-                return True
-            else:
-                return False
-        except Exception as ex:
-            custom_logging.debug(ex)
-            return
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return
 
 
 async def movecrest(universe, guild):

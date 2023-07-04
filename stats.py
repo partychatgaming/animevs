@@ -66,7 +66,7 @@ def update_stats(player, battle_config, damage_dealt, damage_received, damage_he
                             universe_stats['DAMAGE_HEALED'] += damage_healed
                             break
                     else:
-                        player_stats[stat_name].append(create_stat_entry(battle_config, damage_dealt, damage_received, damage_healed, total_completion))
+                        player_stats[stat_name].append(create_stat_entry(battle_config, damage_dealt, damage_received, damage_healed, total_complete))
 
             for i in range(3):
                 move_element = moves[i]['element']

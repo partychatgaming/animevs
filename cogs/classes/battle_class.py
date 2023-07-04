@@ -31,6 +31,8 @@ class Battle:
         self.is_duo_mode = False
         self.is_ai_opponent = False
         self.is_raid_scenario = False
+        self.is_destiny = False
+        self.destiny_cards = []
         self._uuid = None
 
         self.is_auto_battle_game_mode = False
@@ -491,9 +493,10 @@ class Battle:
         try:
             self.scenario_data = scenario_data
             self.is_scenario_game_mode = True
+            self.is_ai_opponent = True
             if scenario_data['IS_RAID']:
                 self.is_raid_scenario = True
-                self._tactics = ['DAMAGE_CHECK', 'BLOODLUST', 'INTIMIDATION']
+            self._tactics = scenario_data['TACTICS']
             self.list_of_opponents_by_name = scenario_data['ENEMIES']
             self.total_number_of_opponents = len(self.list_of_opponents_by_name)
             self._ai_opponent_card_lvl = int(scenario_data['ENEMY_LEVEL'])
@@ -502,6 +505,9 @@ class Battle:
             self.scenario_easy_drops = scenario_data['EASY_DROPS']
             self.scenario_normal_drops = scenario_data['NORMAL_DROPS']
             self.scenario_hard_drops = scenario_data['HARD_DROPS']
+            self.is_destiny = scenario_data['IS_DESTINY']
+            self.destiny_cards = scenario_data['DESTINY_CARDS']
+
             if any((self.scenario_easy_drops, self.scenario_normal_drops, self.scenario_hard_drops)):
                 self.scenario_has_drops = True
 
@@ -700,7 +706,7 @@ class Battle:
     def get_ai_battle_ready(self, player1_card_level):
         try:
             if not self.is_boss_game_mode:
-                if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self. is_explore_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode)):
+                if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self.is_explore_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode)):
                     self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
                     universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
                     dungeon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}
@@ -728,13 +734,13 @@ class Battle:
 
                     if any((self.is_scenario_game_mode, self.is_explore_game_mode)):
                         if self._ai_opponent_card_lvl < 150:
-                            self._ai_title = universe_data['UTITLE']
-                            self._ai_arm = universe_data['UARM']
-                            self._ai_summon = universe_data['UPET']
+                            self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']})
+                            self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""})
+                            self._ai_summon = db.get_random_summon_name(tales_query)
                         if self._ai_opponent_card_lvl >= 150:
-                            self._ai_title = universe_data['DTITLE']
-                            self._ai_arm = universe_data['DARM']
-                            self._ai_summon = universe_data['DPET']
+                            self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']})
+                            self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON", 'ELEMENT': ""})
+                            self._ai_summon = db.get_random_summon_name(dungeon_query)
                 self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
                 self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
                 self._ai_opponentsummon_data = db.querySummon({'PET': self._ai_summon})
@@ -2028,15 +2034,13 @@ class Battle:
                 self.is_tales_game_mode = False
             # if self.is_explore_game_mode:
             #     self.player2_card = _custom_explore_card
-            else:
-                self.get_ai_battle_ready(self.player1_card.card_lvl)
-                self.player2_card = crown_utilities.create_card_from_data(self._ai_opponent_card_data, self._ai_is_boss)
-                self.get_aisummon_ready(self.player2_card)
-                self.player2_card.set_ai_card_buffs(self._ai_opponent_card_lvl, self.stat_buff, self.stat_debuff, self.health_buff, self.health_debuff, self.ap_buff, self.ap_debuff, self.player1.prestige, self.player1.rebirth, self.mode)
+            self.get_ai_battle_ready(self.player1_card.card_lvl)
+            self.player2_card = crown_utilities.create_card_from_data(self._ai_opponent_card_data, self._ai_is_boss)
+            self.get_aisummon_ready(self.player2_card)
+            self.player2_card.set_ai_card_buffs(self._ai_opponent_card_lvl, self.stat_buff, self.stat_debuff, self.health_buff, self.health_debuff, self.ap_buff, self.ap_debuff, self.player1.prestige, self.player1.rebirth, self.mode)
             if self.abyss_player_card_tier_is_banned:
                 await ctx.send(f"Tier {str(self.player2_card.tier)} cards are banned on Floor {str(self.abyss_floor)} of the abyss. Please try again with another card.")
                 return
-
             self.player2_title = crown_utilities.create_title_from_data(self._ai_opponent_title_data)
             self.player2_arm = crown_utilities.create_arm_from_data(self._ai_opponent_arm_data)
             self.player2_card.set_talisman(self)

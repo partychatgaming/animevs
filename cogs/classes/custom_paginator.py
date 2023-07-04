@@ -102,6 +102,7 @@ class CustomPaginator(Paginator):
         self.universe_dungeon_duo_start = False
         self.universe_dungeon_delete_save = False
 
+        self.scenario_start = False
         self.quit = False
 
 
@@ -148,7 +149,6 @@ class CustomPaginator(Paginator):
                     f"{self._uuid}|universe_dungeon_co_op_start",
                     f"{self._uuid}|universe_dungeon_duo_start",
                     f"{self._uuid}|universe_dungeon_delete_save",
-                    f"{self._uuid}|scenario_start",
                     f"{self._uuid}|quit",
                     
                 ],
@@ -256,6 +256,10 @@ class CustomPaginator(Paginator):
                     else:
                         await self._message.delete()
             case "start":
+                if self.scenario_action:
+                    self.scenario_start = True 
+                    response = await self.activate_scenario_action(ctx, self._message.embeds[0].title)
+                    await self._message.delete()
                 if self.universe_tale_action or self.universe_dungeon_action:
                     if self.universe_tale_action:
                         self.universe_tale_start = True
@@ -264,6 +268,9 @@ class CustomPaginator(Paginator):
                     response = await self.activate_universe_action(ctx, self._message.embeds[0].title)
                     await self._message.delete()
             case "quit":
+                if self.scenario_action:
+                    self.quit = True
+                    response = await self.activate_scenario_action(ctx, self._message.embeds[0].title)
                 if self.universe_tale_action:
                     self.quit = True
                     response = await self.activate_universe_action(ctx, self._message.embeds[0].title)
@@ -1571,8 +1578,6 @@ class CustomPaginator(Paginator):
             await msg.edit(embed=embed)
 
 
-
-
     """
     UNIVERSE FUNCTIONS
     This section contains all the functions related to universe selections
@@ -1642,14 +1647,6 @@ class CustomPaginator(Paginator):
             #     gs.delete_save_spot(player, universe['TITLE'], mode, currentopponent)
             #     await msg.edit(components=[])
             
-            # if button_ctx.ctx.custom_id == f"{_uuid}|quit":
-            #     player.make_available()
-            #     embed = Embed(title= f"{universe['TITLE']} Match Making Cancelled.", description="You have cancelled the match making process.")
-            #     await button_ctx.ctx.send(embed=embed)
-            #     await msg.edit(components=[])
-            #     return
-                
-
             else:
                 player.make_available()
                 embed = Embed(title= f"{universe['TITLE']} Match Making Cancelled.", description="You have cancelled the match making process due to the universe not having characters in this mode.", ephemeral=True)
@@ -1659,6 +1656,31 @@ class CustomPaginator(Paginator):
             player.make_available()
             custom_logging.debug(ex)
             await ctx.send("There was an error starting the tale. Please try again later.", ephemeral=True)
+
+
+    """
+    SCENARIO FUNCTIONS
+    This section contains all the functions related to scenario selections
+    """
+    async def activate_scenario_action(self, ctx, scenario):
+        print("activate_scenario_action has been called")
+        if self.scenario_start:
+            await self.start_scenario(ctx, scenario)
+            self.scenario_start = False
+
+        if self.quit:
+            await self.quit_universe_selection(ctx)
+            self.quit = False
+
+
+    async def start_scenario(self, ctx, scenario_title):
+        user_data = db.queryUser({'DID': str(ctx.author.id)})
+        player = crown_utilities.create_player_from_data(user_data)
+        scenario = db.queryScenario({"TITLE": scenario_title})
+        mode = "SCENARIO"
+
+        await bc.create_scenario_battle(self, ctx, mode, player, scenario)
+
 
 
 
