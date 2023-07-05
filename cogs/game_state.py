@@ -151,9 +151,9 @@ class GameState(Extension):
             else:
                 loss_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, None)
             
-            await battle_msg.delete(delay=2)
-            await asyncio.sleep(2)
-            battle_msg = await private_channel.send(embed=loss_response, components=[play_again_buttons_action_row])
+            # await battle_msg.delete()
+            await asyncio.sleep(1)
+            end_msg = await private_channel.send(embed=loss_response, components=[play_again_buttons_action_row])
 
             def check(component: Button) -> bool:
                 return component.ctx.author == user1
@@ -162,20 +162,20 @@ class GameState(Extension):
                 button_ctx  = await self.bot.wait_for_component(components=play_again_buttons_action_row, timeout=300, check=check)
 
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|play_again_no":
-                    # await battle_msg.edit(components=[])
                     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                         loss_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
                     else:
                         loss_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, None)
-                    await battle_msg.delete(delay=2)
-                    await asyncio.sleep(2)
-                    battle_msg = await private_channel.send(embed=loss_response)
-                    battle_config.continue_fighting = False
+                    # await battle_msg.delete()
+                    await end_msg.edit(embed=loss_response, components=[])
+                    
                     
                     if battle_config.player1.autosave and battle_config.match_can_be_saved:
-                        await button_ctx.ctx.send(embed = battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
+                        await end_msg.edit(embed = battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
+                        
                     else:
-                        await button_ctx.ctx.send(embed = battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+                        await end_msg.edit(embed = battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+                    battle_config.continue_fighting = False
                     return
 
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|play_again_yes":
@@ -217,6 +217,8 @@ class GameState(Extension):
                     if battle_config.is_co_op_mode or battle_config.is_duo_mode:
                         battle_config.player3.used_focus = False
                         battle_config.player3.used_resolve = False
+            
+            
             except Exception as ex:
                 custom_logging.debug(ex)
                 return

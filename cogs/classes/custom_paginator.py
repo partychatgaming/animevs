@@ -1665,7 +1665,6 @@ class CustomPaginator(Paginator):
     This section contains all the functions related to scenario selections
     """
     async def activate_scenario_action(self, ctx, scenario):
-        print("activate_scenario_action has been called")
         if self.scenario_start:
             await self.start_scenario(ctx, scenario)
             self.scenario_start = False

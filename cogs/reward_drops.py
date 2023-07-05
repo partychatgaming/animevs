@@ -62,7 +62,7 @@ async def scenario_drop(player, scenario, difficulty):
 
         
         await crown_utilities.bless(scenario_gold, player.did)
-        reward_money_message = f"You earned 🪙 **{scenario_gold}**!"
+        reward_money_message = f"You earned 🪙 **{round(scenario_gold)}**!"
         arm = db.queryArm({"ARM": rewarded})
         if arm:
             if rewarded in owned_arms:

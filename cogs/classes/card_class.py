@@ -2637,6 +2637,7 @@ class Card:
                     opponent_card._arm_message = ""
                     residue_damage = abs(opponent_card._shield_value)
                     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🌐 **{opponent_card.name}'s**: Shield Shattered and they were hit with **{str(residue_damage)} DMG**")
+                    self.stats_incrimintation(dmg, residue_damage)
                     decrease_solo_leveling_temp_values_self(self, 'SHIELD', battle_config)
                     opponent_card.health = opponent_card.health - residue_damage
                     self.damage_dealt = self.damage_dealt +  residue_damage
@@ -2709,6 +2710,10 @@ class Card:
                 self.damage_dealt = self.damage_dealt +  (parry_damage * .75)
                 opponent_card._parry_value = opponent_card._parry_value - 1
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{opponent_card.name}** Parried 🔄 {self.name}'s attack\nAfter dealing **{round(parry_damage * .75)}** dmg, {self.name} takes {round(parry_damage * .40)} dmg\n{opponent_card._parry_value} Parries left")
+                dmg['DMG'] = parry_damage * .75
+                self.stats_incrimintation(dmg)
+                if opponent_card.health <= 0 and self.health <= 0:
+                    opponent_card.health = 1
                 if opponent_card.barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                     opponent_card.barrier_active = False
                     opponent_card._barrier_value = 0
@@ -2720,6 +2725,10 @@ class Card:
                 opponent_card.health = round(opponent_card.health - (parry_damage * .75))
                 self.health = round(self.health - (parry_damage * parry_damage_percentage))
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) {self.name} penetrated **{opponent_card.name}**'s Final Parry 🔄\nAfter dealing **{round(parry_damage * .75)} dmg**, {self.name} takes {round(parry_damage * .40)} dmg")
+                dmg['DMG'] = parry_damage * .75
+                self.stats_incrimintation(dmg)
+                if opponent_card.health <= 0 and self.health <= 0:
+                    opponent_card.health = 1
                 opponent_card._parry_value = opponent_card._parry_value - 1
                 if opponent_card.barrier_active and dmg['ELEMENT'] == "PSYCHIC":
                     opponent_card.barrier_active = False
@@ -2781,13 +2790,13 @@ class Card:
                 opponent_card.health = 0
 
     
-    def stats_incrimintation(self, dmg):
+    def stats_incrimintation(self, dmg, residue_damage=0):
         if dmg['STAMINA_USED'] == 10:
-            self.move1_damage_dealt = self.move1_damage_dealt + dmg['DMG']
+            self.move1_damage_dealt = self.move1_damage_dealt + dmg['DMG'] + residue_damage
         if dmg['STAMINA_USED'] == 30:
-            self.move2_damage_dealt = self.move2_damage_dealt + dmg['DMG']
+            self.move2_damage_dealt = self.move2_damage_dealt + dmg['DMG'] + residue_damage
         if dmg['STAMINA_USED'] == 80:
-            self.move3_damage_dealt = self.move3_damage_dealt + dmg['DMG']
+            self.move3_damage_dealt = self.move3_damage_dealt + dmg['DMG'] + residue_damage
                 
 
     def attack_handler(self, battle_config, dmg, opponent_card):
