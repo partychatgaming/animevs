@@ -1934,9 +1934,9 @@ def update_arm_durability(player, player_arm, player_card):
                 if new_durability <= 0:
                     arm_name = player_arm.name
                     selected_universe = arm_universe
-                    # for gems in player._gems:
+                    # for gems in player.gems:
                     #     print(gems)
-                    current_gems = [gems['UNIVERSE'] for gems in player._gems]
+                    current_gems = [gems['UNIVERSE'] for gems in player.gems]
 
                     # Update gems if selected universe exists in current gems
                     if selected_universe in current_gems:

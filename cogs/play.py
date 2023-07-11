@@ -160,7 +160,7 @@ class Play(Extension):
 
                                     try:
                                         button_ctx = await self.bot.wait_for_component(components=components, timeout=300, check=check)
-
+                                        await button_ctx.ctx.defer(edit_origin=True)
                                         save_and_end = await player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx)
                                         if save_and_end:
                                             battle_config.player1.make_available()
@@ -213,7 +213,7 @@ class Play(Extension):
 
                                         try:
                                             button_ctx  = await self.bot.wait_for_component(components=[components], timeout=300, check=check)
-
+                                            await button_ctx.ctx.defer(edit_origin=True)
                                             save_and_end = await player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx)
                                             if save_and_end:
                                                 battle_config.player1.make_available()

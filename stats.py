@@ -139,3 +139,5 @@ def create_stat_entry(battle_config, damage_dealt, damage_received, damage_heale
         'DAMAGE_HEALED': damage_healed
     }
     return stat_entry
+
+

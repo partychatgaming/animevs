@@ -76,7 +76,6 @@ class Player:
         self.card_storage_full = self.cards_length == (self.storage_length * self.storage_type)
 
 
-
         self.talisman_message = "📿 | No Talisman Equipped"
         self.summon_power_message = ""
         self.summon_lvl_message = ""
@@ -349,7 +348,136 @@ class Player:
             custom_logging.debug(ex)
             return False
 
+
+    def save_title(self, universe):
+        titles = [x for x in db.queryAllTitles() if x['UNIVERSE'] == universe and x['TITLE'] not in self.titles and x['TITLE'] not in self.tstorage]
+        stats = db.query_stats_by_player(self.did)
+        message = ""
+        for title in titles:
+            if title['UNLOCK_METHOD'] and title['AVAILABLE']:
+                unlock_method = title['UNLOCK_METHOD']['METHOD']
+                value = title['UNLOCK_METHOD']['VALUE']
+                element = title['UNLOCK_METHOD']['ELEMENT']
+                scenario_drop = title['UNLOCK_METHOD']['SCENARIO_DROP']
+                tale_title_unlock_message = self.tales_title_unlock_check(stats, universe, unlock_method, value, title)
+                dungeon_title_unlock_message = self.dungeon_title_unlock_check(stats, universe, unlock_method, value, title)
+                boss_title_unlock_message = self.boss_title_unlock_check(stats, universe, unlock_method, value, title)
+                elemental_damage_unlock_message = self.elemental_damage_unlock_check(unlock_method, stats, universe, value, title, element)
+                if tale_title_unlock_message:
+                    message += tale_title_unlock_message
+                if dungeon_title_unlock_message:
+                    message += dungeon_title_unlock_message
+                if boss_title_unlock_message:
+                    message += boss_title_unlock_message
+                if elemental_damage_unlock_message:
+                    message += elemental_damage_unlock_message
+
+        return message
+
+    def tales_title_unlock_check(self, stats, universe, unlock_method, value, title):
+        message = ""
+        for tale in stats['TALES_STATS']:
+            if tale['UNIVERSE'] == universe:
+                if unlock_method == "TALES COMPLETED" and tale['TOTAL_CLEARS'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+                
+                if unlock_method == "TALES RUN" and tale['TOTAL_RUNS'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "HEALED IN TALES" and tale['DAMAGE_HEALED'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "DAMAGE TAKEN IN TALES" and tale['DAMAGE_TAKEN'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "DAMAGE DEALT IN TALES" and round(tale['DAMAGE_DEALT']) >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+        return message
+
+
+    def dungeon_title_unlock_check(self, stats, universe, unlock_method, value, title):
+        message = ""
+        for dungeon in stats['DUNGEON_STATS']:
+            if dungeon['UNIVERSE'] == universe:
+                if unlock_method == "DUNGEONS COMPLETED" and dungeon['TOTAL_CLEARS'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+                
+                if unlock_method == "DUNGEONS RUN" and dungeon['TOTAL_RUNS'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "HEALED IN DUNGEONS" and dungeon['DAMAGE_HEALED'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "DAMAGE TAKEN IN DUNGEONS" and dungeon['DAMAGE_TAKEN'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "DAMAGE DEALT IN DUNGEONS" and dungeon['DAMAGE_DEALT'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+        return message
+
+
+    def boss_title_unlock_check(self, stats, universe, unlock_method, value, title):
+        message = ""
+        for boss in stats['BOSS_STATS']:
+            if boss['UNIVERSE'] == universe:
+                if unlock_method == "BOSSES COMPLETED" and boss['TOTAL_CLEARS'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+                
+                if unlock_method == "BOSSES RUN" and boss['TOTAL_RUNS'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "HEALED IN BOSSES" and boss['DAMAGE_HEALED'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "DAMAGE TAKEN IN BOSSES" and boss['DAMAGE_TAKEN'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+                if unlock_method == "DAMAGE DEALT IN BOSSES" and boss['DAMAGE_DEALT'] >= value:
+                    update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                    response = db.updateUserNoFilter(self.user_query, update_query)
+                    message = f"🎗️ {title['TITLE']} Unlocked!\n"
+
+
+    def elemental_damage_unlock_check(self, unlock_method, stats, universe, value, title, element):
+        message = " "
+        if unlock_method == "ELEMENTAL DAMAGE DEALT":
+            for elemental_damage in stats[f'{element}_DAMAGE_DONE']:
+                if elemental_damage['UNIVERSE'] == universe:
+                    if elemental_damage['DAMAGE'] >= value:
+                        update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+                        response = db.updateUserNoFilter(self.user_query, update_query)
+                        message = f"🎗️ {title['TITLE']} Unlocked!\n"
+        return message
     
+
     def save_arm(self, arm):
         for a in self.arms:
             if arm.name == a['ARM']:
