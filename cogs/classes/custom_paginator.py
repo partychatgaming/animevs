@@ -198,7 +198,7 @@ class CustomPaginator(Paginator):
                     await self._message.edit(embeds=[response], components=[])
                 if self.titles_action:
                     self.equip_title = True
-                    response = self.activate_title_action(ctx, self._message.embeds[0].title, self.equip_title)
+                    response = await self.activate_title_action(ctx, self._message.embeds[0].title, self.equip_title)
                     await self._message.edit(embeds=[response], components=[])
                 if self.cards_action:
                     self.equip_card = True
@@ -206,13 +206,14 @@ class CustomPaginator(Paginator):
                 if self.arms_action:
                     self.equip_arm = True
                     response = await self.activate_arm_action(ctx, self._message.embeds[0].title, self.equip_arm)
+                    await self._message.edit(embeds=[response], components=[])
                 if self.summon_action:
                     self.equip_summon = True
                     response = await self.activate_summon_action(ctx, self._message.embeds[0].title, self.equip_summon)
             case "storage":
                 if self.titles_action:
                     self.title_storage = True
-                    response = self.activate_title_action(ctx, self._message.embeds[0].title, self.title_storage)
+                    response = await self.activate_title_action(ctx, self._message.embeds[0].title, self.title_storage)
                     if response:
                         await self._message.edit(embeds=[response], components=[])
                 if self.cards_action:
@@ -974,7 +975,8 @@ class CustomPaginator(Paginator):
     This section contains all the functions for the arm commands
     """
     async def activate_arm_action(self, ctx, arm, action):
-        if action == self.equip_arm:
+        if self.equip_arm:
+            print("equip arm")
             response = self.equip_arm_function(ctx, arm)
             return response
         
@@ -987,37 +989,25 @@ class CustomPaginator(Paginator):
             return response
 
 
-    def equip_arm_function(self, ctx, arm):
+    def equip_arm_function(self, ctx, arm_name):
         try:
-            user = db.queryVault({'DID': str(ctx.author.id)})
-            if arm in user['ARMS']:
-                user_query = {'DID': str(ctx.author.id)}
-                response = db.updateUserNoFilter(user_query, {'$set': {'ARM': arm}})
-                if response:
-                    embed = Embed(title=f"🦾 Arm Equipped", description=f"Arm {arm} equipped")
-                    return embed
-                else:
-                    embed = Embed(title=f"🦾 Arm Not Equipped", description=f"Failed to equip arm {arm}")
-                    return embed
-            else:
-                embed = Embed(title=f"🦾 Arm Not Equipped", description=f"Failed to equip arm {arm} - Arm not available")
-                return embed
+            user_query = {'DID': str(ctx.author.id)}
+            user = db.queryUser(user_query)
+            player = crown_utilities.create_player_from_data(user)
+            for arm in player.arms:
+                if arm['ARM'] == arm_name:
+                    response = db.updateUserNoFilter(user_query, {'$set': {'ARM': arm_name}})
+                    if response:
+                        embed = Embed(title=f"🦾 Arm Equipped", description=f"Arm {arm_name} equipped")
+                        return embed
+                    else:
+                        embed = Embed(title=f"🦾 Arm Not Equipped", description=f"Failed to equip arm {arm_name}")
+                        return embed
+            embed = Embed(title=f"🦾 Arm Not Equipped", description=f"Failed to equip arm {arm_name} - Arm not available")
+            return embed
         except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                    trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-            print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-            }))
-            embed = Embed(title=f"🦾 Arm Not Equipped", description=f"Failed to equip arm {arm} - Error Logged")
+            custom_logging.debug(ex)
+            embed = Embed(title=f"🦾 Arm Not Equipped", description=f"Failed to equip arm {arm_name} - Error Logged")
             return embed
         
 
@@ -1148,20 +1138,7 @@ class CustomPaginator(Paginator):
                             return
                 
                 except Exception as ex:
-                    trace = []
-                    tb = ex.__traceback__
-                    while tb is not None:
-                        trace.append({
-                            "filename": tb.tb_frame.f_code.co_filename,
-                            "name": tb.tb_frame.f_code.co_name,
-                            "lineno": tb.tb_lineno
-                        })
-                        tb = tb.tb_next
-                    print(str({
-                        'type': type(ex).__name__,
-                        'message': str(ex),
-                        'trace': trace
-                    }))
+                    custom_logging.debug(ex)
                     await ctx.send("There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
                     return
 

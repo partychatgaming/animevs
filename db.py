@@ -1816,7 +1816,7 @@ def updateUser(query, new_value, arrayFilters):
 def updateUserNoFilter(query, new_value):
     try:
         update = users_col.update_one(query, new_value)
-        return "Update completed. "
+        return True
     except:
         return False
 

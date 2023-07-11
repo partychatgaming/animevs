@@ -20,12 +20,12 @@ from .game_modes import enhancer_mapping, title_enhancer_mapping, enhancer_suffi
 import random
 import textwrap
 import uuid
-
+import custom_logging
 import destiny as d
 import random
 from .classes.custom_paginator import CustomPaginator
 from interactions.ext.paginators import Paginator
-from interactions import Client, ActionRow, Button, ButtonStyle, File, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import Client, ActionRow, Button, ButtonStyle, File, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, slash_option
 
 
 emojis = ['👍', '👎']
@@ -1012,13 +1012,21 @@ class Profile(Extension):
             return
 
 
-    @slash_command(description="View all of your titles")
-    async def titles(self, ctx):
+    @slash_command(description="View all of your titles", options=[
+        SlashCommandOption(
+            name="filtered",
+            description="Filter by Universe of the card you have equipped",
+            type=OptionType.BOOLEAN,
+            required=True,
+        )
+    ])
+    async def titles(self, ctx, filtered):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
         player = crown_utilities.create_player_from_data(a_registered_player)
+        card = crown_utilities.create_card_from_data(db.queryCard({"NAME": player.equipped_card}))
         try:
             """
             Unlock Methods
@@ -1032,214 +1040,111 @@ class Profile(Extension):
             {TYPE: "", "VALUE": ""}
             """
             embed_list = []
-            for title in sorted(player.titles):
+            for title in sorted(player.titles):                
                 resp = db.queryTitle({"TITLE": str(title)})
+                if filtered:
+                    if resp['UNIVERSE'] != card.universe:
+                        continue
                 index = player.titles.index(title)
                 t = crown_utilities.create_title_from_data(resp)
                 embedVar = Embed(title=f"{t.name}", description=f"{crown_utilities.crest_dict[t.universe]} | {t.universe} Title", color=0x7289da)
                 embedVar.add_field(name=f"**Title Effects**", value="\n".join(t.title_messages), inline=False)
-                embedVar.add_field(name=f"**How To Unlock**", value=f"{t.unlock_method_message}", inline=False)                
+                # embedVar.add_field(name=f"**How To Unlock**", value=f"{t.unlock_method_message}", inline=False)                
                 embed_list.append(embedVar)
             
-            buttons = ["Equip", "Charge"]
+            buttons = ["Equip"]
             
             custom_action_row = ActionRow(*buttons)
 
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=buttons, paginator_type="Titles")
             paginator.show_select_menu = True
             await paginator.send(ctx)
-
-            # async def custom_function(self, button_ctx):
-            #     if button_ctx.author == ctx.author:
-            #         updated_vault = db.queryVault({'DID': d['DID']})
-            #         sell_price = 0
-            #         selected_title = str(button_ctx.origin_message.embeds[0].title)
-
-            #         if button_ctx.custom_id == "Storage":
-            #             await button_ctx.defer(ignore=True)
-            #             storage_buttons = [
-            #                         Button(
-            #                             style=ButtonStyle.GREEN,
-            #                             label="Swap Storage Title",
-            #                             custom_id="swap"
-            #                         ),
-            #                         Button(
-            #                             style=ButtonStyle.RED,
-            #                             label="Add to Storage",
-            #                             custom_id="store"
-            #                         )
-            #                     ]
-            #             storage_buttons_action_row = ActionRow(*storage_buttons)
-            #             msg = await ctx.send(f"Would you like to Swap Titles or Add Title to Storage", components=[storage_buttons_action_row])
-            #             def check(button_ctx):
-            #                 return button_ctx.author == ctx.author
-            #             try:
-            #                 button_ctx: ComponentContextStorage = await self.bot.wait_for_component(components=[storage_buttons_action_row], timeout=120, check=check)
-
-            #                 if button_ctx.custom_id == "swap":
-            #                     await button_ctx.defer(ignore=True)
-            #                     await msg.delete()
-            #                     await ctx.send(f"{ctx.author.mention}, Which title number would you like to swap with in storage?")
-            #                     def check(msg):
-            #                         return msg.author == ctx.author
-
-            #                     try:
-            #                         msg = await self.bot.wait_for('on_message_create', check=check, timeout=30)
-            #                         author = msg.author
-            #                         content = msg.content
-
-            #                         if storage[int(msg.content)]:
-            #                             swap_with = storage[int(msg.content)]
-            #                             query = {'DID': str(msg.author.id)}
-            #                             update_storage_query = {
-            #                                 '$pull': {'TITLES': selected_title},
-            #                                 '$addToSet': {'TSTORAGE': selected_title},
-            #                             }
-            #                             response = db.updateUserNoFilter(query, update_storage_query)
-
-            #                             update_storage_query = {
-            #                                 '$pull': {'TSTORAGE': swap_with},
-            #                                 '$addToSet': {'TCARDS': swap_with}
-            #                             }
-            #                             response = db.updateUserNoFilter(query, update_storage_query)
-
-            #                             await msg.delete()
-            #                             await ctx.send(f"**{selected_title}** has been swapped with **{swap_with}**")
-            #                             return
-            #                         else:
-            #                             await ctx.send("The card number you want to swap with does not exist.")
-            #                             return
-
-            #                     except Exception as e:
-            #                         return False
-            #                 if button_ctx.custom_id == "store":
-            #                     await button_ctx.defer(ignore=True)
-                                
-            #                     try:
-            #                         author = msg.author
-            #                         content = msg.content
-            #                         # print("Author: " + str(author))
-            #                         # print("Content: " + str(content))
-            #                         if len(storage) <= (storage_type * 15):
-            #                             query = {'DID': str(ctx.author.id)}
-            #                             update_storage_query = {
-            #                                 '$pull': {'TITLES': selected_title},
-            #                                 '$addToSet': {'TSTORAGE': selected_title},
-            #                             }
-            #                             response = db.updateUserNoFilter(query, update_storage_query)
-                                        
-            #                             await msg.delete()
-            #                             await ctx.send(f"**{selected_title}** has been added to storage")
-            #                             return
-            #                         else:
-            #                             await ctx.send("Not enough space in storage")
-            #                             return
-
-            #                     except Exception as e:
-            #                         return False
-            #             except Exception as ex:
-            #                 trace = []
-            #                 tb = ex.__traceback__
-            #                 while tb is not None:
-            #                     trace.append({
-            #                         "filename": tb.tb_frame.f_code.co_filename,
-            #                         "name": tb.tb_frame.f_code.co_name,
-            #                         "lineno": tb.tb_lineno
-            #                     })
-            #                     tb = tb.tb_next
-            #                 print(str({
-            #                     'type': type(ex).__name__,
-            #                     'message': str(ex),
-            #                     'trace': trace
-            #                 }))
-                        
-            #             self.stop = True
-            #     else:
-            #         await ctx.send("This is not your Title list.")
-
-
         except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-            await ctx.send("There's an issue with your Titles list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
-            return
-
-
-    @slash_command(description="View all of your arms")
-    async def arms(self, ctx):
-        await ctx.defer()
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
-
-        query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)
-        player = crown_utilities.create_player_from_data(d)
-        card = db.queryCard({"NAME": player.equipped_card})
-        if player:
-            try:
-                current_gems = []
-                for gems in player.gems:
-                    current_gems.append(gems['UNIVERSE'])
-
-                embed_list = []
-                sorted_arms = sorted(player.arms, key=lambda arm: arm['ARM'])
-                for index, arm in enumerate(sorted_arms):
-                    resp = db.queryArm({"ARM": arm['ARM']})
-                    arm_data = crown_utilities.create_arm_from_data(resp)
-                    arm_data.set_durability(arm_data.name, player.arms)
-                    arm_data.set_arm_message(player.performance, card['UNIVERSE'])
-
-                    embedVar = Embed(title= f"{arm_data.name}", description=textwrap.dedent(f"""
-                    {arm_data.armicon} **[{index}]**
-
-                    {arm_data.arm_type}
-                    {arm_data.arm_message}
-                    {arm_data.universe_crest} **Universe:** {arm_data.universe}
-                    ⚒️ {arm_data.durability}
-                    """), 
-                    color=0x7289da)
-
-                    embedVar.set_footer(text=f"{arm_data.footer}")
-                    embed_list.append(embedVar)
-                
-                paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage'], paginator_type="Arms")
-                if len(embed_list) <= 25:
-                    paginator.show_select_menu = True
-                await paginator.send(ctx)
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-                embed = discord.Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
-                await ctx.send(embed=embed)
-                return
-        else:
-            embed = discord.Embed(title="You are not registered.", description="Please register with the command /register", color=0x00ff00)
+            custom_logging.debug(ex)
+            embed = Embed(title="🎗️ Titles Error", description="There's an issue with loading your titles. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0xff0000)
             await ctx.send(embed=embed)
+
+
+    @slash_command(description="View all of your arms", options=[
+        SlashCommandOption(
+            name="filtered",
+            description="Filter by Universe of the card you have equipped",
+            type=OptionType.BOOLEAN,
+            required=True,
+        )
+    ])
+    async def arms(self, ctx, filtered):
+        await ctx.defer()
+        try:
+            a_registered_player = await crown_utilities.player_check(ctx)
+            if not a_registered_player:
+                return
+
+            query = {'DID': str(ctx.author.id)}
+            d = db.queryUser(query)
+            player = crown_utilities.create_player_from_data(d)
+            card = db.queryCard({"NAME": player.equipped_card})
+            if player:
+                try:
+                    current_gems = []
+                    for gems in player.gems:
+                        current_gems.append(gems['UNIVERSE'])
+
+                    embed_list = []
+                    sorted_arms = sorted(player.arms, key=lambda arm: arm['ARM'])
+                    for index, arm in enumerate(sorted_arms):
+                        resp = db.queryArm({"ARM": arm['ARM']})
+                        if filtered:
+                            if resp['UNIVERSE'] != card['UNIVERSE']:
+                                continue
+                        arm_data = crown_utilities.create_arm_from_data(resp)
+                        arm_data.set_durability(arm_data.name, player.arms)
+                        arm_data.set_arm_message(player.performance, card['UNIVERSE'])
+
+                        embedVar = Embed(title= f"{arm_data.name}", description=textwrap.dedent(f"""
+                        {arm_data.armicon} **[{index}]**
+
+                        {arm_data.arm_type}
+                        {arm_data.arm_message}
+                        {arm_data.universe_crest} **Universe:** {arm_data.universe}
+                        ⚒️ {arm_data.durability}
+                        """), 
+                        color=0x7289da)
+
+                        embedVar.set_footer(text=f"{arm_data.footer}")
+                        embed_list.append(embedVar)
+                    
+                    paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage'], paginator_type="Arms")
+                    if len(embed_list) <= 25:
+                        paginator.show_select_menu = True
+                    await paginator.send(ctx)
+                except Exception as ex:
+                    trace = []
+                    tb = ex.__traceback__
+                    while tb is not None:
+                        trace.append({
+                            "filename": tb.tb_frame.f_code.co_filename,
+                            "name": tb.tb_frame.f_code.co_name,
+                            "lineno": tb.tb_lineno
+                        })
+                        tb = tb.tb_next
+                    print(str({
+                        'type': type(ex).__name__,
+                        'message': str(ex),
+                        'trace': trace
+                    }))
+                    embed = discord.Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
+                    await ctx.send(embed=embed)
+                    return
+            else:
+                embed = Embed(title="You are not registered.", description="Please register with the command /register", color=0x00ff00)
+                await ctx.send(embed=embed)
+        except Exception as ex:
+            custom_logging.debug(ex)
+            embed = Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
+            await ctx.send(embed=embed)
+            return
+            
 
 
     @slash_command(description="View all of your gems")
@@ -1276,6 +1181,7 @@ class Profile(Extension):
                     embed_list.append(embedVar)
 
                 paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+                paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
                 embed = Embed(title="Gems", description="You currently own no 💎.", color=0x7289da)
