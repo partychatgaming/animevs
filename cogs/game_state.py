@@ -236,11 +236,11 @@ class GameState(Extension):
                 p1_win_rewards = await battle_config.get_non_drop_rewards(battle_config.player1)
                 # questlogger = await quest(user1, battle_config.player2_card, battle_config.mode)
                 petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
-                cardlogger = await crown_utilities.cardlevel(user1, battle_config.player1_card.name, battle_config.player1.did, battle_config.mode, battle_config.selected_universe)
+                cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
 
                 if not battle_config.is_easy_difficulty:
                     petlogger = await crown_utilities.summonlevel(battle_config.player1, battle_config.player1_card)
-                    cardlogger = await crown_utilities.cardlevel(user1, battle_config.player1_card.name, battle_config.player1.did, battle_config.mode, battle_config.selected_universe)
+                    cardlogger = await crown_utilities.cardlevel(user1, battle_config.mode)
                     talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
                     arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
                     if arm_durability_message != False:
@@ -258,7 +258,7 @@ class GameState(Extension):
                     p3_win_rewards = await battle_config.get_non_drop_rewards(battle_config.player3)
                     # p3_questlogger = await quest(user2, battle_config.player2_card, battle_config.mode)
                     p3_petlogger = await crown_utilities.summonlevel(battle_config.player3, battle_config.player3_card)
-                    p3_cardlogger = await crown_utilities.cardlevel(user2, battle_config.player1_card.name, battle_config.player1.did, battle_config.mode, battle_config.selected_universe)
+                    p3_cardlogger = await crown_utilities.cardlevel(user2, battle_config.mode)
                     p3_co_op_bonuses = battle_config.get_co_op_bonuses(battle_config.player3, battle_config.player1)
 
 
@@ -524,7 +524,7 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
             total_complete = False
             if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                cardlogger = await crown_utilities.cardlevel(user1, battle_config.player1_card.name, battle_config.player1.did, "Tales", battle_config.selected_universe)
+                cardlogger = await crown_utilities.cardlevel(user1, "Tales")
 
                 embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
                 {battle_config.get_previous_moves_embed()}

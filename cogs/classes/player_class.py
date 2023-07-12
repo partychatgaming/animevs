@@ -44,6 +44,7 @@ class Player:
         self.pvp_loss = pvp_loss
         self.retries = retries
         self.prestige = prestige
+        self.prestige_buff = prestige * 10
         self.patron = True
         self.family_pet = family_pet
         self._is_locked_feature = False

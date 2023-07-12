@@ -1697,7 +1697,7 @@ class Battle:
         await crown_utilities.bless(bless_amount, player.did)
         new_level = int(self.abyss_floor) + 1
         response = db.updateUserNoFilter({'DID': player.did}, {'$set': {'LEVEL': new_level}})
-        cardlogger = await crown_utilities.cardlevel(user, player1_card.name, player.did, "Purchase", "n/a")
+        cardlogger = await crown_utilities.cardlevel(user, "Purchase")
 
 
     def get_most_focused(self, player_card, opponent_card, companion_card=None):

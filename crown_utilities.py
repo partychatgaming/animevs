@@ -1014,44 +1014,38 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
         }))
 
     
-async def cardlevel(user, card: str, player, mode: str, universe: str):
+async def cardlevel(user, mode: str):
     try:
-        vault = db.queryVault({'DID': str(player)})
-        player_info = db.queryUser({'DID': str(player)})
-        rebirth_buff = player_info['REBIRTH']
-        prestige_buff = (player_info['PRESTIGE'] * 10)
-        guild_buff = await guild_buff_update_function(player_info['TEAM'].lower())
-        if player_info['DIFFICULTY'] == "EASY":
+        player_info = db.queryUser({'DID': str(user.id)})
+        player = create_player_from_data(player_info)
+        card_info = db.queryCard({'NAME': player.equipped_card})
+        card = create_card_from_data(card_info)
+        guild_buff = await guild_buff_update_function(player.guild.lower())
+        arm = db.queryArm({'ARM': player.equipped_arm})
+        title = db.queryTitle({'TITLE': player.equipped_title})
+        a = create_arm_from_data(arm)
+        t = create_title_from_data(title)
+        card.set_card_level_buffs(player.card_levels)
+        if player.difficulty == "EASY":
             return
-
-
-        card_uni = db.queryCard({'NAME': card})['UNIVERSE']
-
-        cardinfo = {}
-        for x in vault['CARD_LEVELS']:
-            if x['CARD'] == str(card):
-                cardinfo = x
         
         has_universe_heart = False
         has_universe_soul = False
 
-        if universe != "n/a":
-            for gems in vault['GEMS']:
-                if gems['UNIVERSE'] == card_uni and gems['UNIVERSE_HEART']:
-                    has_universe_heart = True
-                if gems['UNIVERSE'] == card_uni and gems['UNIVERSE_SOUL']:
-                    has_universe_soul = True
+        for gems in player.gems:
+            if gems['UNIVERSE'] == card.universe and gems['UNIVERSE_HEART']:
+                has_universe_heart = True
+            if gems['UNIVERSE'] == card.universe and gems['UNIVERSE_SOUL']:
+                has_universe_soul = True
 
-        lvl = cardinfo['LVL']
-        new_lvl = lvl + 1
+        new_lvl = card.card_lvl + 1
         x = 0.099
         y = 1.25
-        lvl_req = round((float(lvl)/x)**y)
-        exp = cardinfo['EXP']
+        lvl_req = round((float(card.card_lvl)/x)**y)
         exp_gain = 0
-        t_exp_gain = 25 + (rebirth_buff) + prestige_buff
-        d_exp_gain = ((100 + prestige_buff) * (1 + rebirth_buff))
-        b_exp_gain = 50000 + ((100 + prestige_buff) * (1 + rebirth_buff))
+        t_exp_gain = 100 + (player.rebirth) + player.prestige_buff
+        d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
+        b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
         if has_universe_soul:
             if mode in DUNGEON_M:
                 exp_gain = d_exp_gain * 4
@@ -1076,93 +1070,94 @@ async def cardlevel(user, card: str, player, mode: str, universe: str):
         atk_def_buff = 0
         ap_buff = 0
 
-        if lvl < 200:
+        if card.card_lvl < 200:
             if guild_buff:
                 if guild_buff['Level']:
                     exp_gain = 150
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
 
             # Experience Code
-            if exp < (lvl_req - 1):
-                query = {'DID': str(player)}
+            if card.card_exp < (lvl_req - 1):
                 update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
-                filter_query = [{'type.' + "CARD": str(card)}]
-                response = db.updateUser(query, update_query, filter_query)
+                filter_query = [{'type.' + "CARD": card.name}]
+                response = db.updateUser(player.user_query, update_query, filter_query)
 
             # Level Up Code
-            if exp >= (lvl_req - exp_gain):
-                if (lvl + 1) % 2 == 0:
+            if card.card_exp >= (lvl_req - exp_gain):
+                if (card.card_lvl + 1) % 2 == 0:
                     atk_def_buff = level_sync["ATK_DEF"]
-                if (lvl + 1) % 3 == 0:
+                if (card.card_lvl + 1) % 3 == 0:
                     ap_buff = level_sync["AP"]
-                if (lvl + 1) % 20 == 0:
+                if (card.card_lvl + 1) % 20 == 0:
                     hlt_buff = level_sync["HLT"]
-                query = {'DID': str(player)}
                 update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
                                 '$inc': {'CARD_LEVELS.$[type].' + "LVL": 1, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                filter_query = [{'type.' + "CARD": str(card)}]
-                response = db.updateUser(query, update_query, filter_query)
-                await user.send(f"**{card}** leveled up!")
-        
+                filter_query = [{'type.' + "CARD": card.name}]
+                response = db.updateUser(player.user_query, update_query, filter_query)
 
-        if lvl < 500 and lvl >= 200 and has_universe_heart:
+                embed = Embed(title=f"🎴 **{card.name}** leveled up", description=f"🎊 New level - {new_lvl} 🎊", color=0x00ff00)
+                embed.set_image(url="attachment://image.png")
+                image_binary = card.showcard("non-battle", a, t, 0, 0)
+                image_binary.seek(0)
+                card_file = File(file_name="image.png", file=image_binary)
+                await user.send(embed=embed, file=card_file)
+                image_binary.close()
+                return
+        
+        # REMOVED  and has_universe_heart from each conditional below for now
+        if card.card_lvl < 500 and card.card_lvl >= 200:
             if guild_buff:
                 if guild_buff['Level']:
                     exp_gain = round(lvl_req)
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-        elif lvl < 700 and lvl >= 500 and has_universe_heart:
+        elif card.card_lvl < 700 and card.card_lvl >= 500:
             if guild_buff:
                 if guild_buff['Level']:
                     exp_gain = round(lvl_req/2)
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
                     
-        elif lvl < 1000 and lvl >= 700 and has_universe_heart:
+        elif card.card_lvl < 1000 and card.card_lvl >= 700:
             if guild_buff:
                 if guild_buff['Level']:
                     exp_gain = round(lvl_req/3)
                     update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-        if lvl > 200 and has_universe_heart:
+        if card.card_lvl > 200:
             # Experience Code
-            if exp < (lvl_req - 1):
-                query = {'DID': str(player)}
+            if card.card_exp < (lvl_req - 1):
                 update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
-                filter_query = [{'type.' + "CARD": str(card)}]
-                response = db.updateUser(query, update_query, filter_query)
+                filter_query = [{'type.' + "CARD": card.name}]
+                response = db.updateUser(player.user_query, update_query, filter_query)
 
             # Level Up Code
-            if exp >= (lvl_req - exp_gain) and lvl <1000:
-                if (lvl + 1) % 2 == 0:
+            if card.card_exp >= (lvl_req - exp_gain) and card.card_lvl <1000:
+                if (card.card_lvl + 1) % 2 == 0:
                     atk_def_buff = 1
-                if (lvl + 1) % 3 == 0:
+                if (card.card_lvl + 1) % 3 == 0:
                     ap_buff = 1
-                if (lvl + 1) % 20 == 0:
+                if (card.card_lvl + 1) % 20 == 0:
                     hlt_buff = 25
-                query = {'DID': str(player)}
                 update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
                                 '$inc': {'CARD_LEVELS.$[type].' + "LVL": 1, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
                 filter_query = [{'type.' + "CARD": str(card)}]
-                response = db.updateUser(query, update_query, filter_query)
-                await user.send(f"**{card}** leveled up to level **{new_lvl}**!")
+                response = db.updateUser(player.user_query, update_query, filter_query)
+
+                embed = Embed(title=f"🎴 **{card.name}** leveled up", description=f"🎊 New level - {new_lvl} 🎊", color=0x00ff00)
+                embed.set_image(url="attachment://image.png")
+                image_binary = card.showcard("non-battle", a, t, 0, 0)
+                image_binary.seek(0)
+                card_file = File(file_name="image.png", file=image_binary)
+                await user.send(embed=embed, file=card_file)
+                image_binary.close()
+                return
+        return
     except Exception as ex:
-        trace = []
-        tb = ex.__traceback__
-        while tb is not None:
-            trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-        print(str({
-            'player': str(player),
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-        }))
+        custom_logging.debug(ex)
+        await user.send("Issue with leveling up card")
+        return
 
 
 async def guild_buff_update_function(team):

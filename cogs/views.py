@@ -427,9 +427,16 @@ class Views(Extension):
                 regex_pattern = r'.*\belements\b.*'
                 
                 if re.match(regex_pattern, name):
-                    embedVar = Embed(title= f"What does each element do?", description=h.ELEMENTS, color=0x7289da)
-                    embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
-                    await ctx.send(embed=embedVar)
+                    embed_list = []
+                    for i in range(0, len(h.ELEMENTS_LIST), 5):
+                            sublist = h.ELEMENTS_LIST[i:i + 5]
+                            embedVar = Embed(title=f"What does each element do?",description="\n".join(sublist), color=0x7289da)
+                            embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
+                            embed_list.append(embedVar)
+
+                    paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+                    paginator.show_select_menu = True
+                    await paginator.send(ctx)
                     return
 
                 if re.search(r"(manual|help|guide)", name):

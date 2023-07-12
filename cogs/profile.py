@@ -360,7 +360,7 @@ class Profile(Extension):
                         embedVar.set_image(url="attachment://image.png")
                         embedVar.set_author(name=textwrap.dedent(f"""\
                         Equipment
-                        {a.arm_message}
+                        {a.arm_message} | ⚒️ {a.durability}
                         {player.talisman_message}
                         {player.summon_power_message}
                         {player.summon_lvl_message}
@@ -378,20 +378,7 @@ class Profile(Extension):
                         await ctx.send(file=card_file, embed=embedVar)
                         image_binary.close()
                 except Exception as ex:
-                    trace = []
-                    tb = ex.__traceback__
-                    while tb is not None:
-                        trace.append({
-                            "filename": tb.tb_frame.f_code.co_filename,
-                            "name": tb.tb_frame.f_code.co_name,
-                            "lineno": tb.tb_lineno
-                        })
-                        tb = tb.tb_next
-                    print(str({
-                        'type': type(ex).__name__,
-                        'message': str(ex),
-                        'trace': trace
-                    }))
+                    custom_logging.debug(ex)
                     embed = Embed(title="Build Error", description="There was an error with your build command. Please try again later.", color=000000)
                     await ctx.send(embed=embed)
                     return
@@ -399,22 +386,84 @@ class Profile(Extension):
                 embed = Embed(title="Build Error", description="You do not have a card registered. Please register a card before using /register.", color=000000)
                 await ctx.send(embed=embed)
         except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
+            custom_logging.debug(ex)
             embed = Embed(title="Build Error", description="There was an error with your build command. Please try again later.", color=000000)
             await ctx.send(embed=embed)
+
+
+    @slash_command(description="Generate build")
+    async def quickbuild(self, ctx):
+        await ctx.defer()
+        a_registered_player = await crown_utilities.player_check(ctx)
+        if not a_registered_player:
+            return
+        try:
+            player = crown_utilities.create_player_from_data(a_registered_player)
+
+            # Find random card from the list of cards in player.cards, queryCard using the random card name, and create_card_from_data
+            random_card = random.choice(player.cards)
+            card = db.queryCard({'NAME': random_card})
+            c = crown_utilities.create_card_from_data(card)
+
+            # For each title in player.titles list queryTitle using the title name and select a random title from only the titles that have the same universe as card.universe
+            
+            title_list = []
+            for title in player.titles:
+                t = db.queryTitle({'TITLE': title})
+                if t["UNIVERSE"] == c.universe:
+                    title_list.append(t)
+            if not title_list:
+                embed = Embed(title="🎗️ Quick Build Cancelled", description=f"Your card was {c.name} - You do not have any titles from {c.universe_crest} {c.universe}.", color=000000)
+                await ctx.send(embed=embed, ephemeral=True)
+                return
+            
+            random_title = random.choice(title_list)
+            t = crown_utilities.create_title_from_data(random_title)
+
+            # For each arm in player.arms list queryArm using the arm name and select a random arm from only the arms that have the same universe as card.universe
+            arm_list = []
+            for arm in player.arms:
+                a = db.queryArm({'ARM': arm["ARM"]})
+                if a["UNIVERSE"] == c.universe:
+                    arm_list.append(a)
+            
+            if not arm_list:
+                embed = Embed(title="🦾 Quick Build Cancelled", description=f"Your card was {c.name} - You do not have any arms from {c.universe_crest} {c.universe}.", color=000000)
+                await ctx.send(embed=embed, ephemeral=True)
+                return
+            
+            random_arm = random.choice(arm_list)
+            a = crown_utilities.create_arm_from_data(random_arm)
+
+
+            random_summon = random.choice(player.summons)
+            summon = db.querySummon({'PET': random_summon["NAME"]})
+            s = crown_utilities.create_summon_from_data(summon)
+
+            # Equip the card, title, arm and summon
+            db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': c.name, 'TITLE': t.name, 'ARM': a.name, 'PET': s.name}})
+            
+            # Create embed that tells what has been equipped
+            embed = Embed(title="Quick Build Complete", description=f"A build has been generated for you based on your inventory.", color=000000)
+            embed.add_field(name="🎴 Card", value=f"{c.name}")
+            embed.add_field(name="🎗️ Title", value=f"{t.name}")
+            embed.add_field(name="🦾 Arm", value=f"{a.name}")
+            embed.add_field(name="🧬 Summon", value=f"{s.name}")
+            embed.set_image(url="attachment://image.png")
+            embed.set_footer(text=f"Use /build to view your new build in more detail.")
+            embed.set_thumbnail(url=ctx.author.avatar_url)
+            image_binary = c.showcard("non-battle", a, t, 0, 0)
+            image_binary.seek(0)
+            card_file = File(file_name="image.png", file=image_binary)
+            await ctx.send(embed=embed, file=card_file)
+            return
+        
+        except Exception as ex:
+            custom_logging.debug(ex)
+            embed = Embed(title="Quick Build Error", description=f"There was an error with your quick build command. Please try again later.", color=000000)
+            await ctx.send(embed=embed, ephemeral=True)
+            return
+    
 
     
     @slash_command(description="Infuse Elemental Essence into Talisman's for aid",
@@ -816,7 +865,6 @@ class Profile(Extension):
                     c.set_evasion_message(player)
                     c.set_card_level_icon(player)
 
-
                     embedVar = Embed(title= f"{c.name}", description=textwrap.dedent(f"""\
                     {c.drop_emoji} **[{index}]** 
                     {c.class_emoji} {c.class_message}
@@ -1055,7 +1103,10 @@ class Profile(Extension):
             buttons = ["Equip"]
             
             custom_action_row = ActionRow(*buttons)
-
+            if not embed_list and filtered:
+                embed = Embed(title="🎗️ Titles", description=f"You currently own no Titles in {card.universe_crest} {card.universe}.", color=0x7289da)
+                await ctx.send(embed=embed, ephemeral=True)
+                return
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=buttons, paginator_type="Titles")
             paginator.show_select_menu = True
             await paginator.send(ctx)
@@ -1083,7 +1134,8 @@ class Profile(Extension):
             query = {'DID': str(ctx.author.id)}
             d = db.queryUser(query)
             player = crown_utilities.create_player_from_data(d)
-            card = db.queryCard({"NAME": player.equipped_card})
+            c = db.queryCard({"NAME": player.equipped_card})
+            card = crown_utilities.create_card_from_data(c)
             if player:
                 try:
                     current_gems = []
@@ -1095,7 +1147,7 @@ class Profile(Extension):
                     for index, arm in enumerate(sorted_arms):
                         resp = db.queryArm({"ARM": arm['ARM']})
                         if filtered:
-                            if resp['UNIVERSE'] != card['UNIVERSE']:
+                            if resp['UNIVERSE'] != card.universe:
                                 continue
                         arm_data = crown_utilities.create_arm_from_data(resp)
                         arm_data.set_durability(arm_data.name, player.arms)
@@ -1114,26 +1166,17 @@ class Profile(Extension):
                         embedVar.set_footer(text=f"{arm_data.footer}")
                         embed_list.append(embedVar)
                     
+                    if not embed_list and filtered:
+                        embed = Embed(title="🦾 Arms", description=f"You currently own no Arms in {card.universe_crest} {card.universe}.", color=0x7289da)
+                        await ctx.send(embed=embed, ephemeral=True)
+                        return
                     paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage'], paginator_type="Arms")
                     if len(embed_list) <= 25:
                         paginator.show_select_menu = True
                     await paginator.send(ctx)
                 except Exception as ex:
-                    trace = []
-                    tb = ex.__traceback__
-                    while tb is not None:
-                        trace.append({
-                            "filename": tb.tb_frame.f_code.co_filename,
-                            "name": tb.tb_frame.f_code.co_name,
-                            "lineno": tb.tb_lineno
-                        })
-                        tb = tb.tb_next
-                    print(str({
-                        'type': type(ex).__name__,
-                        'message': str(ex),
-                        'trace': trace
-                    }))
-                    embed = discord.Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
+                    custom_logging.debug(ex)
+                    embed = Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
                     await ctx.send(embed=embed)
                     return
             else:
@@ -2637,7 +2680,7 @@ class Profile(Extension):
                     await msg.edit(embed=embed, components=[])
                     return
                 except asyncio.TimeoutError:
-                    await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", ephemeral=True)
+                    await ctx.send(f"{ctx.author.mention} Preset Menu closed.", ephemeral=True)
                 except Exception as ex:
                     trace = []
                     tb = ex.__traceback__
