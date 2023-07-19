@@ -148,8 +148,8 @@ class Universe(Extension):
                         count += 1   
                 else:
                     break
-            
-            paginator = CustomPaginator.create_from_embeds(self.bot, *universe_embed_list, custom_buttons=["Start", "Co-op Start", "Duo Start", "Delete Save", "Quit"], paginator_type=universe_paginator_type)
+            # paginator = CustomPaginator.create_from_embeds(self.bot, *universe_embed_list, custom_buttons=["Start", "Co-op Start", "Duo Start", "Delete Save", "Quit"], paginator_type=universe_paginator_type)
+            paginator = CustomPaginator.create_from_embeds(self.bot, *universe_embed_list, custom_buttons=["Start", "Delete Save", "Quit"], paginator_type=universe_paginator_type)
             paginator.show_select_menu = True
             await paginator.send(ctx)
         except Exception as ex:

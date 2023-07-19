@@ -292,6 +292,16 @@ def queryAllScenariosByUniverse(universe):
     except Exception as e:
         return e
 
+def queryAllRaidByUniverse(universe):
+    try:
+        data = scenario_col.find({'UNIVERSE': universe, 'IS_RAID': True})
+        if data:
+            return data
+        else:
+            return False
+    except Exception as e:
+        return e
+
 def queryRaids(universe):
     try:
         data = scenario_col.find({'UNIVERSE': universe, 'IS_RAID': True})

@@ -31,7 +31,7 @@ class Play(Extension):
         return await self.bot.validate_user(ctx)
         
 
-    async def battle_commands(self, ctx, battle_config, pvp_opponent=None, partner1=None):
+    async def battle_commands(self, ctx, battle_config, opponent_1=None, partner1=None):
         """
         Handles the logic for a battle in the game.
 
@@ -39,7 +39,7 @@ class Play(Extension):
         - self: The instance of the class.
         - ctx: The context of the command.
         - battle_config: Configuration object for the battle.
-        - pvp_opponent: Optional PvP opponent.
+        - opponent_1: Optional PvP opponent.
         - partner1: Optional partner in co-op mode.
 
         Returns:
@@ -69,7 +69,7 @@ class Play(Extension):
                 self.bot = self.client
 
             while battle_config.continue_fighting:
-                await battle_config.configure_battle_players(ctx, pvp_opponent, partner1)
+                await battle_config.configure_battle_players(ctx, opponent_1, partner1)
                 start_buttons_action_rows = config_battle_starting_buttons(battle_config)
                 battle_config.set_who_starts_match()
 

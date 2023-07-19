@@ -52,6 +52,7 @@ class CustomPaginator(Paginator):
         self.universe_tale_action = False
         self.universe_dungeon_action = False
         self.scenario_action = False
+        self.raid_action = False
 
         # Cards Functions
         self.equip_card = False
@@ -103,6 +104,7 @@ class CustomPaginator(Paginator):
         self.universe_dungeon_delete_save = False
 
         self.scenario_start = False
+        self.raid_start = False
         self.quit = False
 
 
@@ -263,6 +265,12 @@ class CustomPaginator(Paginator):
                     await ctx.send(embed=embed, components=[], delete_after=5)
                     response = await self.activate_scenario_action(ctx, self._message.embeds[0].title)
                     await self._message.delete()
+                if self.raid_action:
+                    self.raid_start = True
+                    embed = Embed(title="Starting Raid...", description="Please wait...")
+                    await ctx.send(embed=embed, components=[], delete_after=5)
+                    response = await self.activate_raid_action(ctx, self._message.embeds[0].title)
+                    await self._message.delete()
                 if self.universe_tale_action or self.universe_dungeon_action:
                     if self.universe_tale_action:
                         self.universe_tale_start = True
@@ -274,6 +282,9 @@ class CustomPaginator(Paginator):
                 if self.scenario_action:
                     self.quit = True
                     response = await self.activate_scenario_action(ctx, self._message.embeds[0].title)
+                if self.raid_action:
+                    self.quit = True
+                    response = await self.activate_raid_action(ctx, self._message.embeds[0].title)
                 if self.universe_tale_action:
                     self.quit = True
                     response = await self.activate_universe_action(ctx, self._message.embeds[0].title)
@@ -348,6 +359,9 @@ class CustomPaginator(Paginator):
         
         if action_type == "Scenario":
             self.scenario_action = True
+
+        if action_type == "Raid":
+            self.raid_action = True
 
     
     def activate_talisman_action(self, ctx, data, action: str):
@@ -1660,5 +1674,25 @@ class CustomPaginator(Paginator):
         await bc.create_scenario_battle(self, ctx, mode, player, scenario)
 
 
+    """
+    RAID FUNCTIONS
+    This section contains all the functions related to raid selections
+    """
+    async def activate_raid_action(self, ctx, raid):
+        if self.raid_start:
+            await self.start_raid(ctx, raid)
+            self.raid_start = False
 
+        if self.quit:
+            await self.quit_universe_selection(ctx)
+            self.quit = False
+
+
+    async def start_raid(self, ctx, raid_title):
+        user_data = db.queryUser({'DID': str(ctx.author.id)})
+        player = crown_utilities.create_player_from_data(user_data)
+        raid = db.queryScenario({"TITLE": raid_title})
+        mode = "SCENARIO"
+
+        await bc.create_raid_battle(self, ctx, mode, player, raid)
 

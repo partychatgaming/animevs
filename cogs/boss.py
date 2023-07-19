@@ -134,7 +134,6 @@ class Boss(Extension):
             for universe in universes:
                 if universe["TITLE"] in player.completed_dungeons:
                     all_universes.append(universe)
-                    #print(universe["TITLE"])
             if not all_universes:
                 return None
             else:

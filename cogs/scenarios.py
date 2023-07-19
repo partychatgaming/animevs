@@ -37,9 +37,41 @@ class Scenario(Extension):
                 embed = create_scenario_embed(scenario, player)
                 embed_list.append(embed)
 
-            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
-            paginator.show_select_menu = True
-            await paginator.send(ctx)
+            if embed_list:
+                paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
+                paginator.show_select_menu = True
+                await paginator.send(ctx)
+            else:
+                player.make_available()
+                embed = Embed(title= f"{universe_title} Scenarios", description="There are no Scenarios available for this Universe. Check back later!", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
+        except Exception as ex:
+            player.make_available()
+            custom_logging.debug(ex)
+
+
+    """
+    Creates the raid embed list for the selected universe
+    """
+    async def raid_selector(self, ctx, universe_title, player):
+        try:
+            scenarios = db.queryAllRaidByUniverse(universe_title)
+
+            embed_list = []
+            for scenario in scenarios:
+                embed = create_scenario_embed(scenario, player)
+                embed_list.append(embed)
+
+            if embed_list:
+                paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Raid")
+                paginator.show_select_menu = True
+                await paginator.send(ctx)
+            else:
+                player.make_available()
+                embed = Embed(title= f"{universe_title} Raids", description="There are no Raids available for this Universe. Check back later!", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
         except Exception as ex:
             player.make_available()
             custom_logging.debug(ex)
@@ -113,13 +145,13 @@ def create_scenario_messages(universe, enemy_level, scenario_gold, is_raid, is_d
         type_of_battle = f"<:Raid_Emblem:1088707240917221399> **{universe} RAID BATTLE!**"
         enemy_level_message = f"👹 **NEMESIS LEVEL:** {enemy_level}"
         gold_reward_message = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
-        difficulty_message = f"<a🔥777975890172837898> **DIFFICULTY:** {player.difficulty.title()}"
+        difficulty_message = f"🔥 **Difficulty:** {player.difficulty.title()}"
 
     if is_destiny:
         type_of_battle = f"✨ **{universe} RAID BATTLE!**"
-        enemy_level_message = f"✨ **NEMESIS LEVEL:** {enemy_level}"
+        enemy_level_message = f"✨ **DESTINY LEVEL:** {enemy_level}"
         gold_reward_message = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
-        difficulty_message = f"✨**DIFFICULTY:** {player.difficulty.title()}"
+        difficulty_message = f"✨**Difficulty:** {player.difficulty.title()}"
 
     return rewards, type_of_battle, enemy_level_message, gold_reward_message, difficulty_message
 

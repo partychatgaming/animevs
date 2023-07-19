@@ -402,10 +402,6 @@ class GameModes(Extension):
                 value="Tutorial"
             ),
             SlashCommandChoice(
-                name="🌑 The Abyss",
-                value="Abyss"
-            ),
-            SlashCommandChoice(
                 name="⚔️ Tales Run",
                 value="Tales"
             ),
@@ -420,10 +416,6 @@ class GameModes(Extension):
             SlashCommandChoice(
                 name="💀 Raid Battle",
                 value="Raid_Scenario"
-            ),
-            SlashCommandChoice(
-                name="👹 Boss Encounter",
-                value="Boss"
             ),
         ]
     )
@@ -470,6 +462,10 @@ class GameModes(Extension):
                 await scenario_cog.scenario_selector(self, ctx, universe, player)
                 return
 
+            if mode == "Raid_Scenario":
+                await scenario_cog.raid_selector(self, ctx, universe, player)
+                return
+
             if mode in crown_utilities.REG_MODES:
                 if universe:
                     await universe_cog.universe_selector(self, ctx, mode, universe, player)
@@ -478,8 +474,8 @@ class GameModes(Extension):
                     await universe_cog.universe_selector_paginator(self, ctx, mode, player)
                     return
             
-            if mode in crown_utilities.BOSS:
-                print("boss")
+            # if mode in crown_utilities.BOSS:
+            #     print("boss")
 
 
             # if player1.get_locked_feature(mode):

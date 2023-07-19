@@ -2631,7 +2631,7 @@ REG_MODES = ['Tales', 'Dungeon']
 OPPONENT_SUMMON_M = ['Dungeon', 'DDungeon', 'CDungeon']
 
 # Raid mode
-RAID_M = ['Raid']
+RAID_M = ['Raid', 'RAID']
 
 # Abyss, scenario, and explore modes
 ABYSS = "Abyss"

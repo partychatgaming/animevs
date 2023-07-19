@@ -677,6 +677,7 @@ async def movecrest(universe, guild):
     else:
         print("Association not found: Crest")
 
+
 def setup(bot):
     GameState(bot)
 

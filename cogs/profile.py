@@ -1151,7 +1151,7 @@ class Profile(Extension):
                                 continue
                         arm_data = crown_utilities.create_arm_from_data(resp)
                         arm_data.set_durability(arm_data.name, player.arms)
-                        arm_data.set_arm_message(player.performance, card['UNIVERSE'])
+                        arm_data.set_arm_message(player.performance, card.universe)
 
                         embedVar = Embed(title= f"{arm_data.name}", description=textwrap.dedent(f"""
                         {arm_data.armicon} **[{index}]**
