@@ -404,6 +404,7 @@ class Profile(Extension):
             random_card = random.choice(player.cards)
             card = db.queryCard({'NAME': random_card})
             c = crown_utilities.create_card_from_data(card)
+            c.set_card_level_buffs(player.card_levels)
 
             # For each title in player.titles list queryTitle using the title name and select a random title from only the titles that have the same universe as card.universe
             
@@ -1272,33 +1273,21 @@ class Profile(Extension):
     @slash_command(description="Open the blacksmith")
     async def blacksmith(self, ctx):
         try:
+            _uuid = uuid.uuid4()
             user_query = {'DID': str(ctx.author.id)}
-            user = db.queryUser(user_query)
-            #    if user['LEVEL'] < 11:
-            #       await ctx.send(f"🔓 Unlock the Trinket Shop by completing Floor 10 of the 🌑 Abyss! Use /solo to enter the abyss.")
-            #       return
-            patron_flag = user['PATRON']
-            current_arm = user['ARM']
-            storage_type = user['STORAGE_TYPE'] #Storage Update
-            storage_pricing = (storage_type + 1) * 1500000
-            storage_pricing_text = f"{'{:,}'.format(storage_pricing)}" 
-            storage_tier_message = (storage_type + 1)
-            preset_upgrade = user['U_PRESET']
+            u = db.queryUser(user_query)
+            user = crown_utilities.create_player_from_data(u)
+            c = db.queryCard({"NAME": user.equipped_card})
+            card = crown_utilities.create_card_from_data(c)
+            card.set_card_level_buffs(user.card_levels)
+            a = db.queryArm({"ARM": user.equipped_arm})
+            arm = crown_utilities.create_arm_from_data(a)
+            arm.set_durability(user.equipped_arm, user.arms)
+
             preset_message = "Preset Upgraded!"
-            if preset_upgrade == False:
+            if not user.preset_upgraded:
                 preset_message = "10,000,000"
-            gabes = user['TOURNAMENT_WINS']
-            gabes_message = "Purse Purchased!"
-            gabes_explain = ""
-            
-            storage_message = f"{str(storage_type + 1)}"
-            
-            if storage_type >=10:
-                storage_pricing_text = "Max Storage Level"
-                storage_tier_message = "MAX"
-                storage_message = "MAX"
-            
-            arm_info = db.queryArm({'ARM': str(current_arm)})
+
             boss_arm = False
             dungeon_arm = False
             boss_message = "Nice Arm!"
@@ -1306,13 +1295,14 @@ class Profile(Extension):
             boss_message = "Nice Arm!"
             arm_cost = '{:,}'.format(100000)
             durability_message = f"{arm_cost}"
-            if arm_info['UNIVERSE'] == "Unbound":
+            if arm.universe == "Unbound":
                 abyss_arm= True
                 arm_cost = '{:,}'.format(1000000)
                 durability_message = f"{arm_cost}"
-            elif arm_info['AVAILABLE'] == False and arm_info['EXCLUSIVE'] == False:
+            if arm.drop_style == "Boss Drop":
                 boss_arm = True
-            elif arm_info['AVAILABLE'] == True and arm_info['EXCLUSIVE'] == True:
+            
+            if arm.drop_style == "Dungeon Drop":
                 dungeon_arm= True
                 arm_cost = '{:,}'.format(250000)
                 durability_message = f"{arm_cost}"
@@ -1324,117 +1314,81 @@ class Profile(Extension):
                 boss_message = "Dungeon eh?!"
             elif abyss_arm:
                 boss_message = "That's Abyssal!!"
-            vault_query = {'DID' : str(ctx.author.id)}
-            vault = db.altQueryVault(vault_query)
-            current_card = user['CARD']
-            current_title = user['TITLE']
-            current_pet = user['PET']
-            current_talisman = user['TALISMAN']
-            has_gabes_purse = user['TOURNAMENT_WINS']
-            if not has_gabes_purse:
-                gabes_message = "25,000,000"
-                gabes_explain = "Purchase **Gabe's Purse** to Keep ALL ITEMS during **/rebirth**"
-            balance = vault['BALANCE']
-            icon = "🪙"
-            if balance >= 1000000:
-                icon = "💸"
-            elif balance >=650000:
-                icon = "💰"
-            elif balance >= 150000:
-                icon = "💵"
-            
-            owned_arms = []
-            current_durability = 0
-            for arms in vault['ARMS']:
-                if arms['ARM'] == current_arm:
-                    current_durability = arms['DUR']
 
-            card_info = {}
-            for level in vault['CARD_LEVELS']:
-                if level['CARD'] == current_card:
-                    card_info = level
+            # has_gabes_purse = user['TOURNAMENT_WINS']
+            # if not has_gabes_purse:
+            #     gabes_message = "25,000,000"
+            #     gabes_explain = "Purchase **Gabe's Purse** to Keep ALL ITEMS during **/rebirth**"
+            balance = 0
+            icon = "💎"
 
-            lvl = card_info['LVL']
+            for gems in user.gems:
+                if gems['UNIVERSE'] == card.universe:
+                    balance = gems['GEMS']
+                    break   
             
+            if not balance:
+                embed = Embed(title="Blacksmith", description=f"You currently own no 💎 in {card.universe}.", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
+            
+            def get_level_icons(level):
+                levels_icons = {
+                    200: "🔱",
+                    700: "⚜️",
+                    999: "🏅"
+                }
+                for threshold, icon in sorted(levels_icons.items(), reverse=True):
+                    if card.card_lvl >= threshold:
+                        return icon
+                return "🔰"
 
-            
-            hundred_levels = 5000000
-            thirty_levels = 1600000
-            ten_levels = 500000
-            
-            licon = "🔰"
-            if lvl>= 200:
-                licon ="🔱"
-            if lvl>= 700:
-                licon ="⚜️"
-            if lvl >= 999:
-                licon = "🏅"
+            def get_level_values(level):
+                levels_values = {
+                    200: (30000000, 20000000, 10000000),
+                    300: (70000000, 50000000, 25000000),
+                    400: (90000000, 75000000, 50000000),
+                    500: (150000000, 100000000, 75000000),
+                    600: (300000000, 200000000, 100000000),
+                    700: (750000000, 500000000, 250000000),
+                    800: (1000000000, 800000000, 500000000),
+                    900: (5000000000, 2500000000, 1000000000),
+                    1000: (20000000000, 5000000000, 5000000000),
+                    2000: (80000000000, 13000000000, 9000000000)
+                }
+                for threshold, values in sorted(levels_values.items(), reverse=True):
+                    if card.card_lvl >= threshold:
+                        return values
+                return 5000000, 1600000, 500000
 
-            if lvl >= 200 and lvl < 299:
-                hundred_levels = 30000000
-                thirty_levels = 20000000
-                ten_levels = 10000000
-            elif lvl >= 300 and lvl < 399:
-                hundred_levels = 70000000
-                thirty_levels = 50000000
-                ten_levels = 25000000
-            elif lvl >= 400 and lvl < 499:
-                hundred_levels = 90000000
-                thirty_levels = 75000000
-                ten_levels = 50000000
-            elif lvl >= 500 and lvl < 599:
-                hundred_levels = 150000000
-                thirty_levels = 100000000
-                ten_levels = 75000000
-            elif lvl >= 600 and lvl < 699:
-                hundred_levels = 300000000
-                thirty_levels = 200000000
-                ten_levels = 100000000
-            elif lvl >= 700 and lvl <= 799:
-                hundred_levels = 750000000
-                thirty_levels = 500000000
-                ten_levels = 250000000
-            elif lvl >= 800 and lvl <= 899:
-                hundred_levels = 1000000000
-                thirty_levels = 800000000
-                ten_levels = 500000000
-            elif lvl >= 900 and lvl <= 999:
-                hundred_levels = 5000000000
-                thirty_levels = 2500000000
-                ten_levels = 1000000000
-            elif lvl >= 1000 and lvl <= 1999:
-                hundred_levels = 20000000000
-                thirty_levels = 5000000000
-                ten_levels = 5000000000
-            elif lvl >= 2000 and lvl <= 2999:
-                hundred_levels = 80000000000
-                thirty_levels = 13000000000
-                ten_levels = 9000000000
+            licon = get_level_icons(card.card_lvl)
+            hundred_levels, thirty_levels, ten_levels = get_level_values(card.card_lvl)
+
             sell_buttons = [
                     Button(
                         style=ButtonStyle.GREEN,
                         label="🔋 1️⃣",
-                        custom_id="1"
+                        custom_id=f"{_uuid}|1"
                     ),
                     Button(
                         style=ButtonStyle.BLUE,
                         label="🔋 2️⃣",
-                        custom_id="2"
+                        custom_id=f"{_uuid}|2"
                     ),
                     Button(
                         style=ButtonStyle.RED,
                         label="🔋 3️⃣",
-                        custom_id="3"
+                        custom_id=f"{_uuid}|3"
                     ),
                     Button(
                         style=ButtonStyle.RED,
                         label="⚒️ 4️⃣",
-                        custom_id="5"
+                        custom_id=f"{_uuid}|5"
                     ),
                     Button(
                         style=ButtonStyle.GREY,
                         label="Cancel",
-                        custom_id="cancel"
+                        custom_id=f"{_uuid}|cancel"
                     )
                 ]
             
@@ -1442,27 +1396,27 @@ class Profile(Extension):
                     Button(
                         style=ButtonStyle.GREY,
                         label="Gabe's Purse 👛",
-                        custom_id="4"
+                        custom_id=f"{_uuid}|4"
                     ),
                     Button(
                         style=ButtonStyle.GREY,
                         label="Storage 💼",
-                        custom_id="6"
+                        custom_id=f"{_uuid}|6"
                     ),
                     Button(
                         style=ButtonStyle.GREY,
                         label="Preset 🔖",
-                        custom_id="7"
+                        custom_id=f"{_uuid}|7"
                     )
             ]
             
             sell_buttons_action_row = ActionRow(*sell_buttons)
             util_sell_buttons_action_row = ActionRow(*util_sell_buttons)
-            embedVar = Embed(title=f"🔨 | **Blacksmith** - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
+            embedVar = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
             Welcome {ctx.author.mention}!
-            Purchase **Card XP** and **Arm Durability**!
-            🎴 Card:  **{current_card}** {licon}**{lvl}**
-            🦾 Arm: **{current_arm}** *{boss_message}* ⚒️*{current_durability}*
+            Use Universe Gems to purchase **Card XP** and **Arm Durability**!
+            🎴 Card:  **{card.name}** {licon}**{str(card.card_lvl)}**
+            🦾 Arm: **{arm.name}** ⚒️*{str(arm.durability)}*
             
             **Card Level Boost**
             🔋 1️⃣ **10 Levels** for 🪙 **{'{:,}'.format(ten_levels)}**
@@ -1470,88 +1424,74 @@ class Profile(Extension):
             🔋 3️⃣ **100 Levels** for 💰 **{'{:,}'.format(hundred_levels)}**
             ⚒️ 4️⃣ **50 Durability** for 💵 **{durability_message}**
             
-            **Vault Upgrades**
-            💼 **Storage Tier {storage_message}**: 💸 **{storage_pricing_text}**
+            **Miscellaneous Upgrades**
+            💼 **Storage Tier {user.storage_message}**: 💸 **{user.storage_pricing_text}**
             🔖 **Preset Upgrade**: 💸 **{preset_message}**
-            👛 **Gabe's Purse**: 💸 **{gabes_message}**
-            {gabes_explain}
             
             What would you like to buy?
             """), color=0xf1c40f)
             embedVar.set_footer(text="Boosts are used immediately upon purchase. Click cancel to exit purchase.", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
             msg = await ctx.send(embed=embedVar, components=[sell_buttons_action_row, util_sell_buttons_action_row])
 
-            def check(button_ctx):
-                return button_ctx.author == ctx.author
+            def check(component: Button) -> bool:
+                return component.ctx.author == ctx.author
 
             try:
-                button_ctx  = await self.bot.wait_for_component(components=[sell_buttons_action_row, util_sell_buttons_action_row], timeout=120,check=check)
+                button_ctx = await self.bot.wait_for_component(components=[sell_buttons_action_row, util_sell_buttons_action_row], timeout=120,check=check)
+                await button_ctx.ctx.defer(edit_origin=True)
+                option = button_ctx.ctx.custom_id
                 levels_gained = 0
                 price = 0
-                exp_boost_buttons = ["1", "2", "3"]
-                if button_ctx.custom_id == "1":
-                    # if lvl >= 200:
-                    #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                    #     return
+                exp_boost_buttons = [f"{_uuid}|1", f"{_uuid}|2", f"{_uuid}|3"]
+                if option == f"{_uuid}|1":
                     levels_gained = 10
                     price = ten_levels
-                if button_ctx.custom_id == "2":
-                    # if lvl >= 200:
-                    #     await button_ctx.send("You can only purchase option 3 when leveling past level 200.")
-                    #     return
+                if option == f"{_uuid}|2":
                     levels_gained = 30
                     price = thirty_levels
-                if button_ctx.custom_id == "3":
+                if option == f"{_uuid}|3":
                     levels_gained = 100
                     price=hundred_levels
-                if button_ctx.custom_id == "5":
+                if option == f"{_uuid}|5":
                     levels_gained = 50
                     price=100000
-
-
-                if button_ctx.custom_id == "cancel":
-                    await msg.edit(components=[])
+                if option == f"{_uuid}|cancel":
+                    embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Blacksmith cancelled.", color=0xf1c40f)
+                    await msg.edit(embed=embed, components=[])
                     return
-
-                if button_ctx.custom_id in exp_boost_buttons:
+                if option in exp_boost_buttons:
+                    gems_left = balance - price
                     if price > balance:
-                        await button_ctx.send("You're too broke to buy. Get your money up.", ephemeral=True)
-                        await msg.edit(components=[])
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purcahse.", color=0xf1c40f)
+                        await msg.edit(embed=embed,components=[])
                         return
 
-                    card_info = {}
-                    for level in vault['CARD_LEVELS']:
-                        if level['CARD'] == current_card:
-                            card_info = level
-
-                    lvl = card_info['LVL']
                     max_lvl = 1000
-                    if lvl >= max_lvl:
-                        await button_ctx.send(f"🎴: **{current_card}** is already at max Smithing level. You may level up in **battle**, but you can no longer purchase levels for this card.", ephemeral=True)
-                        await msg.edit(components=[])
+                    if card.card_lvl >= max_lvl:
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** is already at max smithing level. You may level up in battle, but you can no longer purchase levels for this card.", color=0xf1c40f)
+                        await msg.edit(embed=embed, components=[])
                         return
 
-                    elif (levels_gained + lvl) > max_lvl:
-                        levels_gained =  max_lvl - lvl
+                    if (levels_gained + card.card_lvl) > max_lvl:
+                        levels_gained =  max_lvl - card.card_lvl
 
 
                     atk_def_buff = round(levels_gained / 2)
                     ap_buff = round(levels_gained / 3)
                     hlt_buff = (round(levels_gained / 20) * 25)
 
-                    query = {'DID': str(ctx.author.id)}
                     update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0}, '$inc': {'CARD_LEVELS.$[type].' + "LVL": levels_gained, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff, 'CARD_LEVELS.$[type].' + "DEF": atk_def_buff, 'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                    filter_query = [{'type.'+ "CARD": str(current_card)}]
-                    response = db.updateUser(query, update_query, filter_query)
-                    await crown_utilities.curse(price, str(ctx.author.id))
-                    await button_ctx.send(f"🔋🎴 | **{str(current_card)}** gained {levels_gained} levels!")
-                    await msg.edit(components=[])
-                    if button_ctx.custom_id == "cancel":
-                        await button_ctx.send("Sell ended.", ephemeral=True)
-                        await msg.edit(components=[])
+                    filter_query = [{'type.'+ "CARD": str(card.name)}]
+                    response = db.updateUser(user.user_query, update_query, filter_query)
+                    user.remove_gems(card.universe, price)
+                    embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** gained {levels_gained} levels!\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
+                    await msg.edit(embed=embed, components=[])
+                    if option == "cancel":
+                        embed = Embed(title=f"{card.universe_crest} | {card.universe} Blacksmith - {icon}{'{:,}'.format(balance)} ", description="Blacksmith cancelled.", color=0xf1c40f)
+                        await msg.edit(embed=embed, components=[])
                         return
 
-                if button_ctx.custom_id == "4":
+                if option == f"{_uuid}|4":
                     price = 25000000
                     if price > balance:
                         await button_ctx.send("Insufficent funds.", ephemeral=True)
@@ -1568,7 +1508,7 @@ class Profile(Extension):
                         await msg.edit(components=[])
                         return
                     
-                if button_ctx.custom_id == "7":
+                if option == f"{_uuid}|7":
                     price = 10000000
                     if price > balance:
                         await button_ctx.send("Insufficent funds.", ephemeral=True)
@@ -1588,102 +1528,78 @@ class Profile(Extension):
                         await msg.edit(components=[])
                         return
                 
-                if button_ctx.custom_id == "5":
+                if option == f"{_uuid}|5":
                     if dungeon_arm:
                         price = 250000
                     if abyss_arm:
                         price = 1000000
-                    if boss_arm:
-                        await button_ctx.send("Sorry I can't repair **Boss** Arms ...", ephemeral=True)
-                        await msg.edit(components=[])
-                        return
+
+                    gems_left = balance - price
+                    # if boss_arm:
+                    #     await button_ctx.send("Sorry I can't repair **Boss** Arms ...", ephemeral=True)
+                    #     await msg.edit(components=[])
+                    #     return
                     if price > balance:
-                        await button_ctx.send("Insufficent funds.", ephemeral=True)
-                        await msg.edit(components=[])
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purcahse.", color=0xf1c40f)
+                        await msg.edit(embed=embed,components=[])
                         return
-                    if current_durability >= 100:
-                        await button_ctx.send(f"🦾 | {current_arm} is already at Max Durability. ⚒️",ephemeral=True)
-                        await msg.edit(components=[])
+                    
+                    if arm.durability >= 100:
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"{arm.name} is already at Max Durability ⚒️", color=0xf1c40f)
+                        await msg.edit(embed=embed, components=[])
                         return
                     else:
                         try:
-                            new_durability = current_durability + levels_gained
+                            new_durability = arm.durability + levels_gained
                             full_repair = False
                             if new_durability > 100:
-                                levels_gained = 100 - current_durability
+                                levels_gained = 100 - arm.durability
                                 full_repair=True
-                            query = {'DID': str(ctx.author.id)}
                             update_query = {'$inc': {'ARMS.$[type].' + 'DUR': levels_gained}}
-                            filter_query = [{'type.' + "ARM": str(current_arm)}]
-                            resp = db.updateUser(query, update_query, filter_query)
+                            filter_query = [{'type.' + "ARM": str(arm.name)}]
+                            resp = db.updateUser(user.user_query, update_query, filter_query)
 
-                            await crown_utilities.curse(price, str(ctx.author.id))
+                            user.remove_gems(card.universe, price)
                             if full_repair:
-                                    await button_ctx.send(f"🦾 | {current_arm}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*")
+                                embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🦾 | {arm.name}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*\n\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
                             else:
-                                    await button_ctx.send(f"🦾 | {current_arm}'s ⚒️ durability has increased by **{levels_gained}**!")
-                            await msg.edit(components=[])
+                                embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🦾 | {arm.name}'s ⚒️ durability has increased by **{levels_gained}**!\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
+                            await msg.edit(embed=embed, components=[])
                             return
                         except:
                             await ctx.send("Unsuccessful to purchase durability boost.", ephemeral=True)
 
-                if button_ctx.custom_id == "6":
-                    if storage_pricing > balance:
+                if option == f"{_uuid}|6":
+                    if user.storage_pricing > balance:
                         await button_ctx.send("Insufficent funds.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                         
-                    if not patron_flag and storage_type >= 2:
+                    if not user.patron and user.storage_type >= 2:
                         await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                         
-                    if storage_type == 10:
+                    if user.storage_type == 10:
                         await button_ctx.send("💼 | You already have max storage.", ephemeral=True)
                         await msg.edit(components=[])
                         return
                         
                     else:
                         update = db.updateUserNoFilterAlt(user_query, {'$inc': {'STORAGE_TYPE': 1}})
-                        await crown_utilities.curse(storage_pricing, str(ctx.author.id))
-                        await button_ctx.send(f"💼 | Storage Tier {str(storage_type + 1)} has been purchased!")
+                        user.remove_gems(card.universe, user.storage_pricing)
+                        await button_ctx.send(f"💼 | Storage Tier {str(user.storage_type + 1)} has been purchased!")
                         await msg.edit(components=[])
                         return
             except asyncio.TimeoutError:
                 await ctx.send("Blacksmith closed.", ephemeral=True)
             except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
+                custom_logging.debug(ex)
                 await ctx.send("Blacksmith closed unexpectedly. Seek support.", ephemeral=True)
         except asyncio.TimeoutError:
             await ctx.send("Blacksmith closed.", ephemeral=True)
         except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
+            custom_logging.debug(ex)
             await ctx.send("Blacksmith closed unexpectedly. Seek support.", ephemeral=True)
     
 
@@ -1969,98 +1885,98 @@ class Profile(Extension):
             return
 
 
-    @slash_command(description="View your destinies")
-    async def destinies(self, ctx):
+    # @slash_command(description="View your destinies")
+    # async def destinies(self, ctx):
         
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
+    #     a_registered_player = await crown_utilities.player_check(ctx)
+    #     if not a_registered_player:
+    #         return
 
-        query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)
-        vault = db.queryVault({'DID': d['DID']})
-        if not vault['DESTINY']:
-            await ctx.send("No Destiny Lines available at this time!")
-            return
-        if vault:
-            try:
-                name = d['DISNAME'].split("#",1)[0]
-                avatar = d['AVATAR']
-                balance = vault['BALANCE']
-                destiny = vault['DESTINY']
+    #     query = {'DID': str(ctx.author.id)}
+    #     d = db.queryUser(query)
+    #     vault = db.queryVault({'DID': d['DID']})
+    #     if not vault['DESTINY']:
+    #         await ctx.send("No Destiny Lines available at this time!")
+    #         return
+    #     if vault:
+    #         try:
+    #             name = d['DISNAME'].split("#",1)[0]
+    #             avatar = d['AVATAR']
+    #             balance = vault['BALANCE']
+    #             destiny = vault['DESTINY']
 
-                destiny_messages = []
-                icon = "🪙"
-                if balance >= 150000:
-                    icon = "💸"
-                elif balance >=100000:
-                    icon = "💰"
-                elif balance >= 50000:
-                    icon = "💵"
-                for d in destiny:
-                    if not d['COMPLETED']:
-                        destiny_messages.append(textwrap.dedent(f"""\
-                        :sparkles: **{d["NAME"]}**
-                        Defeat **{d['DEFEAT']}** with **{" ".join(d['USE_CARDS'])}** | **Current Progress:** {d['WINS']}/{d['REQUIRED']}
-                        Win 🎴 **{d['EARN']}**
-                        """))
+    #             destiny_messages = []
+    #             icon = "🪙"
+    #             if balance >= 150000:
+    #                 icon = "💸"
+    #             elif balance >=100000:
+    #                 icon = "💰"
+    #             elif balance >= 50000:
+    #                 icon = "💵"
+    #             for d in destiny:
+    #                 if not d['COMPLETED']:
+    #                     destiny_messages.append(textwrap.dedent(f"""\
+    #                     :sparkles: **{d["NAME"]}**
+    #                     Defeat **{d['DEFEAT']}** with **{" ".join(d['USE_CARDS'])}** | **Current Progress:** {d['WINS']}/{d['REQUIRED']}
+    #                     Win 🎴 **{d['EARN']}**
+    #                     """))
 
-                if not destiny_messages:
-                    await ctx.send("No Destiny Lines available at this time!")
-                    return
-                # Adding to array until divisible by 10
-                while len(destiny_messages) % 10 != 0:
-                    destiny_messages.append("")
+    #             if not destiny_messages:
+    #                 await ctx.send("No Destiny Lines available at this time!")
+    #                 return
+    #             # Adding to array until divisible by 10
+    #             while len(destiny_messages) % 10 != 0:
+    #                 destiny_messages.append("")
 
-                # Check if divisible by 10, then start to split evenly
-                if len(destiny_messages) % 10 == 0:
-                    first_digit = int(str(len(destiny_messages))[:1])
-                    if len(destiny_messages) >= 89:
-                        if first_digit == 1:
-                            first_digit = 10
-                    destinies_broken_up = np.array_split(destiny_messages, first_digit)
+    #             # Check if divisible by 10, then start to split evenly
+    #             if len(destiny_messages) % 10 == 0:
+    #                 first_digit = int(str(len(destiny_messages))[:1])
+    #                 if len(destiny_messages) >= 89:
+    #                     if first_digit == 1:
+    #                         first_digit = 10
+    #                 destinies_broken_up = np.array_split(destiny_messages, first_digit)
                 
-                # If it's not an array greater than 10, show paginationless embed
-                if len(destiny_messages) < 10:
-                    embedVar = Embed(title= f"Destiny Lines\n**Balance**: 🪙{'{:,}'.format(balance)}", description="\n".join(destiny_messages), color=0x7289da)
-                    embedVar.set_thumbnail(url=avatar)
-                    # embedVar.set_footer(text=f".equippet pet name: Equip Pet\n.viewpet pet name: View Pet Details")
-                    await ctx.send(embed=embedVar)
+    #             # If it's not an array greater than 10, show paginationless embed
+    #             if len(destiny_messages) < 10:
+    #                 embedVar = Embed(title= f"Destiny Lines\n**Balance**: 🪙{'{:,}'.format(balance)}", description="\n".join(destiny_messages), color=0x7289da)
+    #                 embedVar.set_thumbnail(url=avatar)
+    #                 # embedVar.set_footer(text=f".equippet pet name: Equip Pet\n.viewpet pet name: View Pet Details")
+    #                 await ctx.send(embed=embedVar)
 
-                embed_list = []
-                for i in range(0, len(destinies_broken_up)):
-                    embedVar = Embed(title= f":sparkles: Destiny Lines\n**Balance**: {icon}{'{:,}'.format(balance)}", description="\n".join(destinies_broken_up[i]), color=0x7289da)
-                    embedVar.set_thumbnail(url=avatar)
-                    # embedVar.set_footer(text=f"{total_pets} Total Pets\n.equippet pet name: Equip Pet\n.viewpet pet name: View Pet Details")
-                    embed_list.append(embedVar)
+    #             embed_list = []
+    #             for i in range(0, len(destinies_broken_up)):
+    #                 embedVar = Embed(title= f":sparkles: Destiny Lines\n**Balance**: {icon}{'{:,}'.format(balance)}", description="\n".join(destinies_broken_up[i]), color=0x7289da)
+    #                 embedVar.set_thumbnail(url=avatar)
+    #                 # embedVar.set_footer(text=f"{total_pets} Total Pets\n.equippet pet name: Equip Pet\n.viewpet pet name: View Pet Details")
+    #                 embed_list.append(embedVar)
 
-                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
-                paginator.add_reaction('⏮️', "first")
-                paginator.add_reaction('⬅️', "back")
-                paginator.add_reaction('🔐', "lock")
-                paginator.add_reaction('➡️', "next")
-                paginator.add_reaction('⏭️', "last")
-                embeds = embed_list
-                await paginator.run(embeds)
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-                await ctx.send("There's an issue with your Destiny Line list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92")
-                return
-        else:
-            newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
+    #             paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+    #             paginator.add_reaction('⏮️', "first")
+    #             paginator.add_reaction('⬅️', "back")
+    #             paginator.add_reaction('🔐', "lock")
+    #             paginator.add_reaction('➡️', "next")
+    #             paginator.add_reaction('⏭️', "last")
+    #             embeds = embed_list
+    #             await paginator.run(embeds)
+    #         except Exception as ex:
+    #             trace = []
+    #             tb = ex.__traceback__
+    #             while tb is not None:
+    #                 trace.append({
+    #                     "filename": tb.tb_frame.f_code.co_filename,
+    #                     "name": tb.tb_frame.f_code.co_name,
+    #                     "lineno": tb.tb_lineno
+    #                 })
+    #                 tb = tb.tb_next
+    #             print(str({
+    #                 'type': type(ex).__name__,
+    #                 'message': str(ex),
+    #                 'trace': trace
+    #             }))
+    #             await ctx.send("There's an issue with your Destiny Line list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92")
+    #             return
+    #     else:
+    #         newVault = db.createVault({'OWNER': d['DISNAME'], 'DID' : d['DID']})
 
 
     @slash_command(description="View your quests")
@@ -2892,7 +2808,7 @@ class Profile(Extension):
                             return
 
                 except asyncio.TimeoutError:
-                    embed = Embed(title=f"🔖 | Whoops!", description=f"Timed out. Please try again later.", color=discord.Color.red())
+                    embed = Embed(title=f"🔖 | Whoops!", description=f"Timed out. Please try again later.")
                     await ctx.send(embed=embed)
                     return
                 except Exception as ex:
@@ -2910,11 +2826,11 @@ class Profile(Extension):
                         'message': str(ex),
                         'trace': trace
                     }))
-                    embed = Embed(title=f"🔖 | Whoops!", description=f"Something went wrong. Please try again later.", color=discord.Color.red())
+                    embed = Embed(title=f"🔖 | Whoops!", description=f"Something went wrong. Please try again later.")
                     await ctx.send(embed=embed)
                     return
             else:
-                embed = Embed(title=f"🔖 | Whoops!", description=f"You are unable to save presets without an account.", color=discord.Color.red())
+                embed = Embed(title=f"🔖 | Whoops!", description=f"You are unable to save presets without an account.")
                 await ctx.send(embed=embed)
                 return
         except Exception as ex:
@@ -2932,7 +2848,7 @@ class Profile(Extension):
                 'message': str(ex),
                 'trace': trace
             }))
-            embed = Embed(title=f"🔖 | Whoops!", description=f"Something went wrong. Please try again later.", color=discord.Color.red())
+            embed = Embed(title=f"🔖 | Whoops!", description=f"Something went wrong. Please try again later.")
             await ctx.send(embed=embed)
             return
 
@@ -4384,7 +4300,6 @@ class Profile(Extension):
             return
 
 
-
 async def craft_adjuster(self, player, vault, universe, price, item, skin_list, completed_tales):
     try:
         base_title = db.queryTitle({'TITLE':'Starter'})
@@ -4887,7 +4802,7 @@ async def craft_adjuster(self, player, vault, universe, price, item, skin_list, 
             'message': str(ex),
             'trace': trace
         }))
-        
+
 
 def price_adjuster(price, selected_universe, completed_tales, completed_dungeons):
     new_price = price

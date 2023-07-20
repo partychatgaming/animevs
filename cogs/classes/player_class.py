@@ -11,7 +11,7 @@ from interactions import ActionRow, Button, ButtonStyle, Embed
 
 
 class Player:
-    def __init__(self, auto_save, available, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history, balance, cards, titles, arms, summons, deck, card_levels, quests, destiny, gems, storage, talismans, essence, tstorage, astorage):
+    def __init__(self, auto_save, available, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history, balance, cards, titles, arms, summons, deck, card_levels, quests, destiny, gems, storage, talismans, essence, tstorage, astorage, u_preset):
         self.disname = disname
         self.is_available = available
         self.did = did
@@ -45,7 +45,7 @@ class Player:
         self.retries = retries
         self.prestige = prestige
         self.prestige_buff = prestige * 10
-        self.patron = True
+        self.patron = patron
         self.family_pet = family_pet
         self._is_locked_feature = False
         self._locked_feature_message = ""
@@ -75,6 +75,15 @@ class Player:
         self.tstorage_length = len(self.tstorage)
         self.astorage_length = len(self.astorage)
         self.card_storage_full = self.cards_length == (self.storage_length * self.storage_type)
+        self.storage_pricing = (self.storage_type + 1) * 1500000
+        self.storage_pricing_text = f"{'{:,}'.format(self.storage_pricing)}"
+        self.storage_tier_message = (self.storage_type + 1) 
+        self.preset_upgraded = u_preset
+        self.storage_message = f"{str(self.storage_type + 1)}"
+        if self.storage_type >=10:
+            self.storage_pricing_text = "Max Storage Level"
+            self.storage_tier_message = "MAX"
+            self.storage_message = "MAX"
 
 
         self.talisman_message = "📿 | No Talisman Equipped"
@@ -274,6 +283,25 @@ class Player:
 
         if current_gems:
             update_query = {'$inc': {'GEMS.$[type].' + "GEMS": amount}}
+            filter_query = [{'type.' + "UNIVERSE": universe_title}]
+            response = db.updateUser(self.user_query, update_query, filter_query)
+            return True
+        else:
+            gem_info = {'UNIVERSE': universe_title, 'GEMS' : 5000, 'UNIVERSE_HEART' : False, 'UNIVERSE_SOUL' : False}
+            response = db.updateUserNoFilter(self.user_query, {'$addToSet' : {'GEMS' :gem_info }})
+            return True
+
+
+    def remove_gems(self, universe_title, amount):
+        current_gems = 0
+        for gems in self.gems:
+            if universe_title == gems['UNIVERSE']:
+                current_gems = gems['GEMS']
+
+        negCurseAmount = 0 - abs(int(amount))
+
+        if current_gems:
+            update_query = {'$inc': {'GEMS.$[type].' + "GEMS": negCurseAmount}}
             filter_query = [{'type.' + "UNIVERSE": universe_title}]
             response = db.updateUser(self.user_query, update_query, filter_query)
             return True

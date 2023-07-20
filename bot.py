@@ -1,4 +1,5 @@
 import crown_utilities
+import custom_logging
 import datetime
 from cogs.classes.custom_paginator import CustomPaginator
 import db
@@ -2983,8 +2984,12 @@ async def blessguild_Alt(amount, guild):
    SlashCommandOption(name="code_input", description="Code to create", type=OptionType.STRING, required=True),
    SlashCommandOption(name="coin", description="Coin amount", type=OptionType.INTEGER, required=True),
    SlashCommandOption(name="gems", description="Gem amount", type=OptionType.INTEGER, required=True),
+   SlashCommandOption(name="card", description="Card to give", type=OptionType.STRING, required=False),
+   SlashCommandOption(name="arm", description="Arm to give", type=OptionType.STRING, required=False),
+   SlashCommandOption(name="summon", description="Summon to give", type=OptionType.STRING, required=False),
+
 ], scopes=guild_ids)
-async def createcode(ctx, code_input, coin, gems):
+async def createcode(ctx, code_input, coin, gems, card=None, arm=None, summon=None):
    if ctx.author.guild_permissions.administrator == True:
       is_creator = db.queryUser({'DID': str(ctx.author.id)})['CREATOR']
       if not is_creator:
@@ -2992,6 +2997,11 @@ async def createcode(ctx, code_input, coin, gems):
          return
          
       code_exist = db.queryCodes({'CODE_INPUT': code_input})
+      if card:
+         card_exist = db.queryCard({'NAME': card})
+         if not card_exist:
+            await ctx.send("Card does not exist")
+            return
       if code_exist:
          await ctx.send("Code already exist")
          return
@@ -3001,7 +3011,10 @@ async def createcode(ctx, code_input, coin, gems):
                'CODE_INPUT': code_input,
                'COIN': coin,
                'GEMS': gems,
-               'AVAILABLE': True
+               'AVAILABLE': True, 
+               'CARD': card,
+               'ARM': arm,
+               'SUMMON': summon
             }
             response = db.createCode(data.newCode(query))
             await ctx.send(f"**{code_input}** Code has been created")
@@ -3018,30 +3031,35 @@ async def createcode(ctx, code_input, coin, gems):
 async def code(ctx, code_input: str):
    try:
       query = {'DID': str(ctx.author.id)}
-      user = db.queryUser(query)
-      vault = db.queryVault(query)
+      user_data = db.queryUser(query)
+      user = crown_utilities.create_player_from_data(user_data)
       code = db.queryCodes({'CODE_INPUT': code_input})
-      gem_list = vault['GEMS']
+      
       if code and code['AVAILABLE']:
          coin = code['COIN']
          gems = code['GEMS']
+         card_drop = db.queryCard({'NAME': card['CARD']}) if code['CARD'] else ""
+         arm_drop = db.queryArm({'ARM': code['ARM']}) if code['ARM'] else ""
+         summon_drop = db.querySummon({'PET': code['SUMMON']}) if code['SUMMON'] else ""
          if code_input not in user['USED_CODES']:
             if gems != 0:
-               if gem_list:
-                  for universe in gem_list:
-                     query = {'DID': str(ctx.author.id)}
-                     update_query = {
-                        '$inc': {'GEMS.$[type].' + "GEMS": gems}
-                     }
-                     filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
-                     res = db.updateUser(query, update_query, filter_query)
-                  await ctx.send(f"The gems in each of your craftable universes have increased by 💎 **{'{:,}'.format(gems)}**")
+               if user.gems:
+                  for universe in user.gems:
+                     user.save_gems(universe, gems)
+                     embed = Embed(title="Gems Increased", description=f"{ctx.author.mention} has increased the gems in {universe} by 💎 **{'{:,}'.format(gems)}**", color=0x00ff00)
+                  await ctx.send(embed=embed)
                else:
-                  await ctx.send(f"{ctx.author.mention}, you do not have any universes that have gems to increase.")
+                  await ctx.send(f"{ctx.author.mention}, you do not have any universes that have gems to increase.", ephemeral=True)
                   return
             if coin != 0:
-               await crown_utilities.bless(int(coin), ctx.author.id)
-               await ctx.send(f"You've been rewarded 🪙 **{'{:,}'.format(coin)}**.")
+               await crown_utilities.bless(int(coin), user.did)
+               embed = Embed(title="Gold Increased", description=f"{ctx.author.mention} has increased the coin by 🪙 **{'{:,}'.format(coin)}**", color=0x00ff00)
+               await ctx.send(embed=embed)
+            if card_drop:
+               card = crown_utilities.create_card_from_data(card_drop)
+               if card not in user.cards or card not in user.storage:
+                  user.save_card(card)
+                  embed = Embed(title="🎴 Card Drop", description=f"{ctx.author.mention} has received a **{card.name}** from {card.universe_crest} {card.universe}", color=0x00ff00) 
             respond = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
          else:
             await ctx.send(f"**{code_input}** has already been used by {ctx.author.mention}")
@@ -3049,24 +3067,8 @@ async def code(ctx, code_input: str):
       else:
          await ctx.send(f'**{code_input}** is not a valid code.')
          return
-   except:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-      print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-      }))
-      guild = bot.get_guild(guild_id)
-      channel = guild.get_channel(guild_channel)
-      await channel.send(f"'PLAYER': **{str(ctx.author)}**, TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+   except Exception as ex:
+      custom_logging.debug(ex)
       return
 
 

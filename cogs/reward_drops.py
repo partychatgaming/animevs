@@ -96,7 +96,18 @@ async def scenario_drop(player, scenario, difficulty):
 
 async def reward_money(battle_config, player):
     amount = (10000 + (1000 * battle_config.current_opponent_number)) * (1 + player.rebirth)
+    gem_amount = 1000 + (100 * battle_config.current_opponent_number)
+
+    if battle_config.is_tales_game_mode:
+        gem_amount = gem_amount * 1.25
     
+    if battle_config.is_dungeon_game_mode:
+        amount = amount * 2
+        gem_amount = gem_amount * 2.25
+
+    if battle_config.is_scenario_game_mode:
+        gem_amount = gem_amount * 1.80
+
     if battle_config.is_hard_difficulty:
         amount = amount * 3
     
@@ -107,8 +118,9 @@ async def reward_money(battle_config, player):
         amount = 1000
 
     try:
+        player.save_gem(battle_config.selected_universe, gem_amount)
         await crown_utilities.bless(amount, player.did)
-        return f"You earned 🪙 **{amount}**!"
+        return f"You earned 🪙 **{'{:,}'.format(amount)}**\nYou earned 💎 **{'{:,}'.format(gem_amount)}** {battle_config.selected_universe} Gems"
     except Exception as e:
         custom_logging.debug(e)
         return "There was an issue with reward money function"

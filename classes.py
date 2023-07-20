@@ -67,6 +67,9 @@ class CODES():
     GEMS: int = field(default_factory=lambda: 0)
     AVAILABLE: bool = field(default_factory=lambda: False)
     TIMESTAMP: str = now
+    CARD: str = field(default_factory=lambda: '')
+    ARM: str = field(default_factory=lambda: '')
+    SUMMON: str = field(default_factory=lambda: '')
 
 
 @dataclass(frozen=True, order=True)
