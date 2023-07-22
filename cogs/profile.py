@@ -865,7 +865,7 @@ class Profile(Extension):
                     c.set_affinity_message()
                     c.set_evasion_message(player)
                     c.set_card_level_icon(player)
-
+                    currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": c.name})
                     embedVar = Embed(title= f"{c.name}", description=textwrap.dedent(f"""\
                     {c.drop_emoji} **[{index}]** 
                     {c.class_emoji} {c.class_message}
@@ -882,6 +882,8 @@ class Profile(Extension):
                     embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_thumbnail(url=c.universe_image)
                     embedVar.set_footer(text=f"/enhancers - 🩸 Enhancer Menu")
+                    if currently_on_market:
+                        embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
                     embed_list.append(embedVar)
                     count += 1
                 else:
@@ -891,7 +893,7 @@ class Profile(Extension):
                                 }
                     response = db.updateUserNoFilter(query, update_storage_query)
 
-            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage'], paginator_type="Cards")
+            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage', 'Market'], paginator_type="Cards")
             if len(embed_list) <= 25:
                 paginator.show_select_menu = True
             await paginator.send(ctx)
@@ -1163,15 +1165,18 @@ class Profile(Extension):
                         ⚒️ {arm_data.durability}
                         """), 
                         color=0x7289da)
-
                         embedVar.set_footer(text=f"{arm_data.footer}")
+                        currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": arm_data.name})
+                        if currently_on_market:
+                            embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
+
                         embed_list.append(embedVar)
                     
                     if not embed_list and filtered:
                         embed = Embed(title="🦾 Arms", description=f"You currently own no Arms in {card.universe_crest} {card.universe}.", color=0x7289da)
                         await ctx.send(embed=embed, ephemeral=True)
                         return
-                    paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage'], paginator_type="Arms")
+                    paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage', 'Market'], paginator_type="Arms")
                     if len(embed_list) <= 25:
                         paginator.show_select_menu = True
                     await paginator.send(ctx)
@@ -1189,7 +1194,6 @@ class Profile(Extension):
             await ctx.send(embed=embed)
             return
             
-
 
     @slash_command(description="View all of your gems")
     async def gems(self, ctx):
@@ -1632,9 +1636,13 @@ class Profile(Extension):
 
                 {summon.universe_crest} {summon.universe.capitalize()} Universe Summon
                 """))
+                currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
+                if currently_on_market:
+                    embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
+
                 embed_list.append(embedVar)
 
-            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Equip", "Trade", "Dismantle"], paginator_type="Summons")
+            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Equip", "Trade", "Dismantle", "Market"], paginator_type="Summons")
             
             if len(embed_list) <= 25:
                 paginator.show_select_menu = True

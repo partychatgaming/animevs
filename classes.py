@@ -73,6 +73,18 @@ class CODES():
 
 
 @dataclass(frozen=True, order=True)
+class MARKET():
+    MARKET_CODE: str = field(default_factory=lambda: '') # UUID Based
+    MARKET_TYPE: str = field(default_factory=lambda: '') # CARD, ARM, SUMMON
+    ITEM_NAME: str = field(default_factory=lambda: []) # CARD NAME, ARM NAME, SUMMON NAME
+    CARD_LEVEL: str = field(default_factory=lambda: []) # CARD LEVEL, if card
+    ARM_DURABILITY: int = field(default_factory=lambda: []) # ARM DURABILITY, if arm
+    PRICE: int = field(default_factory=lambda: 0) # CARD PRICE, ARM PRICE, SUMMON PRICE 
+    ITEM_OWNER: str = field(default_factory=lambda: '') # DID
+    TIMESTAMP: str = now
+
+
+@dataclass(frozen=True, order=True)
 class TRADE():
     MERCHANT: str = field(default_factory=lambda: '')
     MDID: str  = field(default_factory=lambda: '')
@@ -111,7 +123,7 @@ class SERVER():
     WAR_OPPONENT: str = field(default_factory=lambda: '')
     WAR_WINS: list[str] = field(default_factory=lambda: [])
     TIMESTAMP: str = now
-        
+
 
 @dataclass(frozen=True, order=True)
 class GUILD():
@@ -317,7 +329,6 @@ class CARDS():
     ABSORB: list[str] = field(default_factory=lambda: [])
 
     
-
 @dataclass(frozen=True, order=True)
 class TITLES():
     TITLE: str
@@ -624,3 +635,7 @@ def newTrade(trade):
 def newScenario(scenario):
     sc = SCENARIO(**scenario)
     return asdict(sc)
+
+def newMarket(market):
+    ma = MARKET(**market)
+    return asdict(ma)

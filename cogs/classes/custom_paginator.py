@@ -2,6 +2,7 @@ import asyncio
 import textwrap
 import uuid
 import db
+import classes as data
 from typing import Callable, Coroutine, List, Optional, Sequence, TYPE_CHECKING, Union
 import crown_utilities
 import custom_logging
@@ -59,6 +60,7 @@ class CustomPaginator(Paginator):
         self.dismantle_card = False
         self.trade_card = False
         self.card_storage = False
+        self.market_card = False
 
 
         # Talisman Functions
@@ -70,13 +72,15 @@ class CustomPaginator(Paginator):
         self.equip_arm = False
         self.arm_storage = False
         self.trade_arm = False
-        self.dismantle_arm = False 
+        self.dismantle_arm = False
+        self.market_arm = False
 
         # Summon Functions
         self.equip_summon = False
         self.summon_storage = False
         self.trade_summon = False
         self.dismantle_summon = False
+        self.market_summon = False
 
 
         # Title Functions
@@ -119,7 +123,6 @@ class CustomPaginator(Paginator):
     will call the set_paginator_action_type function to set the paginator_type attribute.
     """
 
-
     def __attrs_post_init__(self) -> None:
         self.client.add_component_callback(
             ComponentCommand(
@@ -152,6 +155,7 @@ class CustomPaginator(Paginator):
                     f"{self._uuid}|universe_dungeon_duo_start",
                     f"{self._uuid}|universe_dungeon_delete_save",
                     f"{self._uuid}|quit",
+                    f"{self._uuid}|market",
                     
                 ],
             )
@@ -237,6 +241,19 @@ class CustomPaginator(Paginator):
                     self.dismantle_summon = True
                     response = await self.activate_summon_action(ctx, self._message.embeds[0].title, self.dismantle_summon)
                 # await ctx.edit_origin(content="Dismantled!")
+            case "market":
+                if self.cards_action:
+                    self.market_card = True
+                    response = await self.activate_card_action(ctx, self._message.embeds[0].title, self.market_card)
+                    await self._message.delete()
+                if self.arms_action:
+                    self.market_arm = True
+                    response = await self.activate_arm_action(ctx, self._message.embeds[0].title, self.market_arm)
+                    await self._message.delete()
+                if self.summon_action:
+                    self.market_summon = True
+                    response = await self.activate_summon_action(ctx, self._message.embeds[0].title, self.market_summon)
+                    await self._message.delete()
             case "apply":
                 if self.guild_buff_action:
                     await paginator.guild_apply()
@@ -991,7 +1008,7 @@ class CustomPaginator(Paginator):
     async def activate_arm_action(self, ctx, arm, action):
         if self.equip_arm:
             print("equip arm")
-            response = self.equip_arm_function(ctx, arm)
+            response = await self.equip_arm_function(ctx, arm)
             return response
         
         if action == self.arm_storage:
@@ -1002,12 +1019,137 @@ class CustomPaginator(Paginator):
             response = await self.dismantle_arm_function(ctx, arm)
             return response
 
+        if self.market_arm:
+            response = await self.market_arm_function(ctx, arm)
+            return response
 
-    def equip_arm_function(self, ctx, arm_name):
+
+    async def market_arm_function(self, ctx, arm):
+        try:
+            _uuid = generate_6_digit_code()
+            user_query = {'DID': str(ctx.author.id)}
+            user = db.queryUser(user_query)
+            player = crown_utilities.create_player_from_data(user)
+            arm_data = db.queryArm({"ARM": arm})
+            arm = crown_utilities.create_arm_from_data(arm_data)
+            
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": arm.name})
+            confirm_buttons = [
+                        Button(
+                            style=ButtonStyle.GREEN,
+                            label="Yes",
+                            custom_id=f"{self._uuid}|yes"
+                        ),
+                        Button(
+                            style=ButtonStyle.RED,
+                            label="No",
+                            custom_id=f"{self._uuid}|no"
+                        )
+                    ]
+            if exists_on_market_already:
+                components = ActionRow(*confirm_buttons)
+                embed = Embed(title=f"🏷️ Arm is Currently On The Market", description=f"{arm.name} is still on the market. Would you like to remove it from the market?")
+                message = await ctx.send(embed=embed, components=[components])
+
+                def check(component: Button) -> bool:
+                    return component.ctx.author == ctx.author
+
+                try:
+                    button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
+
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        response = db.deleteMarketEntry({"ITEM_OWNER": player.did, "ITEM_NAME": arm.name})
+                        embed = Embed(title=f"🏷️ Success", description=f"{arm.name} has been removed from the market.")
+                        await message.edit(embed=embed, components=[])
+                        return
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
+                        await message.delete()
+                        return
+
+                except Exception as ex:
+                    custom_logging.debug(ex)
+                    embed = Embed(title=f"🏷️ Arm Not Removed from the Market", description=f"Failed to remove {arm.name} from the market - Error Logged")
+                    await ctx.send(embed=embed)
+                    return
+
+
+            if arm.name == player.equipped_arm:
+                embed = Embed(title=f"🏷️ Card Not Added to Market", description=f"Failed to add {arm.name} to the market as it is currently equipped")
+                await ctx.send(embed=embed)
+                return
+            
+             # Since the card is not currently on the market, create the market object and post it to the market
+            embed = Embed(title=f"🏷️ Price For Arm", description=f"How much would you like to sell {arm.name} for?")
+            message = await ctx.send(embed=embed)
+
+            def check(event):
+                return event.message.author.id == ctx.author.id
+
+            try:
+                response = await self.client.wait_for('on_message_create', checks=check, timeout=120)
+                price = int(response.message.content)
+
+                market_object = {
+                    "MARKET_CODE": str(_uuid),
+                    "MARKET_TYPE": "ARM",
+                    "ITEM_NAME": arm.name,
+                    "CARD_LEVEL": 0,
+                    "ARM_DURABILITY": 25,
+                    "PRICE": price,
+                    "ITEM_OWNER": player.did,
+                }
+
+                components = ActionRow(*confirm_buttons)
+
+                embed = Embed(title=f"🏷️ Market Code - {market_object['MARKET_CODE']}", description=f"Would you like to add {arm.name} to the market for 🪙 {'{:,}'.format(price)}")
+                msg = await ctx.send(embed=embed, components=[components])
+
+                def check(component: Button) -> bool:
+                    return component.ctx.author == ctx.author
+
+                try:
+                    button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
+
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        response = db.createMarketEntry(market_object)
+                        if response:
+                            embed = Embed(title=f"🏷️ Market Code - {market_object['MARKET_CODE']}", description=f"{arm.name} has been added to the market for 🪙 {'{:,}'.format(price)}")
+                            await msg.edit(embed=embed, components=[])
+                            return
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
+                        embed = Embed(title=f"🏷️ Arm Not Added to Market", description=f"Failed to add {arm.name} to the market as it is already on the market")
+                        await msg.edit(embed=embed, components=[])
+                        return
+
+                except Exception as ex:
+                    custom_logging.debug(ex)
+                    embed = Embed(title=f"🏷️ Arm Not Added to Market", description=f"Failed to add {arm.name} to the market - Error Logged")
+                    await ctx.send(embed=embed)
+                    return
+            except Exception as ex:
+                custom_logging.debug(ex)
+                embed = Embed(title=f"🏷️ Arm Not Added to Market", description=f"Failed to add {arm.name} to the market - Error Logged")
+                await ctx.send(embed=embed)
+                return
+
+        except Exception as ex:
+            custom_logging.debug(ex)
+            embed = Embed(title=f"🏷️ Arm Not Added to Market", description=f"Failed to add {arm.name} to the market - Error Logged")
+            await ctx.send(embed=embed)
+            return
+    
+
+    async def equip_arm_function(self, ctx, arm_name):
         try:
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
             player = crown_utilities.create_player_from_data(user)
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": arm_name})
+            if exists_on_market_already:
+                embed = Embed(title=f"🏷️ Arm is on the Market", description=f"{arm_name} is still on the market. Please remove it from the market before equipping it")
+                await ctx.send(embed=embed)
+                return
+
             for arm in player.arms:
                 if arm['ARM'] == arm_name:
                     response = db.updateUserNoFilter(user_query, {'$set': {'ARM': arm_name}})
@@ -1023,13 +1165,17 @@ class CustomPaginator(Paginator):
             custom_logging.debug(ex)
             embed = Embed(title=f"🦾 Arm Not Equipped", description=f"Failed to equip arm {arm_name} - Error Logged")
             return embed
-        
+    
 
     async def arm_storage_function(self, ctx, arm):
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
         player = crown_utilities.create_player_from_data(user)
-
+        exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": arm})
+        if exists_on_market_already:
+            embed = Embed(title=f"🏷️ Arm is on the Market", description=f"{arm} is still on the market. Please remove it from the market before equipping it")
+            await ctx.send(embed=embed)
+            return
         if arm == player.equipped_arm:
             embed = Embed(title=f"🦾 Arm Storage", description=f"Arm {arm} is equipped - Please unequip arm before storing")
             await ctx.send(embed=embed)
@@ -1167,6 +1313,11 @@ class CustomPaginator(Paginator):
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
             player = crown_utilities.create_player_from_data(user)
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": arm_title})
+            if exists_on_market_already:
+                embed = Embed(title=f"🏷️ Arm is on the Market", description=f"{arm_title} is still on the market. Please remove it from the market before equipping it")
+                await ctx.send(embed=embed)
+                return
             if arm_title == player.equipped_arm:
                 embed = Embed(title=f"🦾 Arm Storage", description=f"You can't dismantle your equipped arm")
                 await ctx.send(embed=embed)
@@ -1250,6 +1401,10 @@ class CustomPaginator(Paginator):
                 if action == self.trade_card:
                     response = self.trade_card_action(ctx, card)
                     self.trade_card = False
+
+                if self.market_card:
+                    response = await self.market_card_action(ctx, card)
+                    self.market_card = False
         except Exception as e:
             print(e)
             return None
@@ -1259,6 +1414,11 @@ class CustomPaginator(Paginator):
         try:
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": card})
+            if exists_on_market_already:
+                embed = Embed(title=f"🏷️ Card is on the Market", description=f"{card} is still on the market. Please remove it from the market before equipping it")
+                await ctx.send(embed=embed)
+                return
             if card == user['CARD']:
                 embed = Embed(title=f"🎴 Card Equipped", description=f"{card} is already equipped")
                 await ctx.send(embed=embed)
@@ -1275,17 +1435,138 @@ class CustomPaginator(Paginator):
                 embed = Embed(title=f"🎴 Card Not Equipped", description=f"Failed to equip {card} as it is not in your inventory")
                 await ctx.send(embed=embed)
         except Exception as ex:
-            print(ex)
+            custom_logging.debug(ex)
             embed = Embed(title=f"🎴 Card Not Equipped", description=f"Failed to equip {card} - Error Logged")
             await ctx.send(embed=embed)
-    
+            return
 
+
+    async def market_card_action(self, ctx, card):
+        try:
+            _uuid = generate_6_digit_code()
+            user_query = {'DID': str(ctx.author.id)}
+            user = db.queryUser(user_query)
+            player = crown_utilities.create_player_from_data(user)
+            card_data = db.queryCard({'NAME': card})
+            card = crown_utilities.create_card_from_data(card_data)
+            card.set_card_level_buffs(player.card_levels)
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": card.name})
+            confirm_buttons = [
+                        Button(
+                            style=ButtonStyle.GREEN,
+                            label="Yes",
+                            custom_id=f"{self._uuid}|yes"
+                        ),
+                        Button(
+                            style=ButtonStyle.RED,
+                            label="No",
+                            custom_id=f"{self._uuid}|no"
+                        )
+                    ]
+            if exists_on_market_already:
+                components = ActionRow(*confirm_buttons)
+                embed = Embed(title=f"🏷️ Card is Currently On The Market", description=f"{card.name} is still on the market. Would you like to remove it from the market?")
+                message = await ctx.send(embed=embed, components=[components])
+
+                def check(component: Button) -> bool:
+                    return component.ctx.author == ctx.author
+
+                try:
+                    button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
+
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        response = db.deleteMarketEntry({"ITEM_OWNER": player.did, "ITEM_NAME": card.name})
+                        embed = Embed(title=f"🏷️ Success", description=f"{card.name} has been removed from the market.")
+                        await message.edit(embed=embed, components=[])
+                        return
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
+                        await message.delete()
+                        return
+
+                except Exception as ex:
+                    custom_logging.debug(ex)
+                    embed = Embed(title=f"🏷️ Card Not Removed from the Market", description=f"Failed to remove {card.name} from the market - Error Logged")
+                    await ctx.send(embed=embed)
+                    return
+
+
+            if card.name == player.equipped_card:
+                embed = Embed(title=f"🏷️ Card Not Added to Market", description=f"Failed to add {card.name} to the market as it is currently equipped")
+                await ctx.send(embed=embed)
+                return
+            
+             # Since the card is not currently on the market, create the market object and post it to the market
+            embed = Embed(title=f"🏷️ Price For Card", description=f"How much would you like to sell your level {str(card.card_lvl)} {card.name} for?")
+            message = await ctx.send(embed=embed)
+
+            def check(event):
+                return event.message.author.id == ctx.author.id
+
+            try:
+                response = await self.client.wait_for('on_message_create', checks=check, timeout=120)
+                price = int(response.message.content)
+
+                market_object = {
+                    "MARKET_CODE": str(_uuid),
+                    "MARKET_TYPE": "CARD",
+                    "ITEM_NAME": card.name,
+                    "CARD_LEVEL": card.card_lvl,
+                    "ARM_DURABILITY": 0,
+                    "PRICE": price,
+                    "ITEM_OWNER": player.did,
+                }
+
+                components = ActionRow(*confirm_buttons)
+
+                embed = Embed(title=f"🏷️ Market Code - {market_object['MARKET_CODE']}", description=f"Would you like to add {card.name} to the market for 🪙 {'{:,}'.format(price)}")
+                msg = await ctx.send(embed=embed, components=[components])
+
+                def check(component: Button) -> bool:
+                    return component.ctx.author == ctx.author
+
+                try:
+                    button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
+
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        response = db.createMarketEntry(market_object)
+                        if response:
+                            embed = Embed(title=f"🏷️ Market Code - {market_object['MARKET_CODE']}", description=f"{card.name} has been added to the market for 🪙 {'{:,}'.format(price)}")
+                            await msg.edit(embed=embed, components=[])
+                            return
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
+                        embed = Embed(title=f"🏷️ Card Not Added to Market", description=f"Failed to add {card.name} to the market as it is already on the market")
+                        await msg.edit(embed=embed, components=[])
+                        return
+
+                except Exception as ex:
+                    custom_logging.debug(ex)
+                    embed = Embed(title=f"🏷️ Card Not Added to Market", description=f"Failed to add {card.name} to the market - Error Logged")
+                    await ctx.send(embed=embed)
+                    return
+            except Exception as ex:
+                custom_logging.debug(ex)
+                embed = Embed(title=f"🏷️ Card Not Added to Market", description=f"Failed to add {card.name} to the market - Error Logged")
+                await ctx.send(embed=embed)
+                return
+
+        except Exception as ex:
+            custom_logging.debug(ex)
+            embed = Embed(title=f"🏷️ Card Not Added to Market", description=f"Failed to add {card.name} to the market - Error Logged")
+            await ctx.send(embed=embed)
+            return
+             
+    
     async def dismantle_card_action(self, ctx, card):
         try:
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
             player = crown_utilities.create_player_from_data(user)
             card_data = db.queryCard({'NAME': card})
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": card})
+            if exists_on_market_already:
+                embed = Embed(title=f"🏷️ Card is on the Market", description=f"Failed to dismantle {card} as it is currently on the market")
+                await ctx.send(embed=embed)
+                return
             c = crown_utilities.create_card_from_data(card_data)
             c.set_card_level_buffs(player.card_levels)
             if c.card_lvl == 0:
@@ -1360,6 +1641,7 @@ class CustomPaginator(Paginator):
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
         player = crown_utilities.create_player_from_data(user)
+        exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": card})
         if card == player.equipped_card:
             embed = Embed(title=f"🎴 Card Not Stored", description=f"Failed to store {card} as it is currently equipped")
             await ctx.send(embed=embed)
@@ -1468,17 +1750,142 @@ class CustomPaginator(Paginator):
                     response = await self.dismantle_summon_action(ctx, summon)
                     self.dismantle_summon = False
 
+                if self.market_summon:
+                    response = await self.market_summon_action(ctx, summon)
+                    self.market_summon = False
+
         except Exception as ex:
             print(ex)
             embed = Embed(title=f"🔮 Summon Activation Failed", description=f"Failed to activate {summon} - Error Logged")
             await ctx.send(embed=embed)
 
+
+    async def market_summon_action(self, ctx, summon_title):
+        try:
+            _uuid = generate_6_digit_code()
+            user_query = {'DID': str(ctx.author.id)}
+            user = db.queryUser(user_query)
+            player = crown_utilities.create_player_from_data(user)
+            summon_data = db.querySummon({'PET': summon_title})
+            summon = crown_utilities.create_summon_from_data(summon_data)
+            
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
+            confirm_buttons = [
+                        Button(
+                            style=ButtonStyle.GREEN,
+                            label="Yes",
+                            custom_id=f"{self._uuid}|yes"
+                        ),
+                        Button(
+                            style=ButtonStyle.RED,
+                            label="No",
+                            custom_id=f"{self._uuid}|no"
+                        )
+                    ]
+            if exists_on_market_already:
+                components = ActionRow(*confirm_buttons)
+                embed = Embed(title=f"🏷️ Summon is Currently On The Market", description=f"{summon.name} is still on the market. Would you like to remove it from the market?")
+                message = await ctx.send(embed=embed, components=[components])
+
+                def check(component: Button) -> bool:
+                    return component.ctx.author == ctx.author
+
+                try:
+                    button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
+
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        response = db.deleteMarketEntry({"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
+                        embed = Embed(title=f"🏷️ Success", description=f"{summon.name} has been removed from the market.")
+                        await message.edit(embed=embed, components=[])
+                        return
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
+                        await message.delete()
+                        return
+
+                except Exception as ex:
+                    custom_logging.debug(ex)
+                    embed = Embed(title=f"🏷️ Summon Not Removed from the Market", description=f"Failed to remove {summon.name} from the market - Error Logged")
+                    await ctx.send(embed=embed)
+                    return
+
+
+            if summon.name == player.equipped_summon:
+                embed = Embed(title=f"🏷️ Summon Not Added to Market", description=f"Failed to add {summon.name} to the market as it is currently equipped")
+                await ctx.send(embed=embed)
+                return
+            
+             # Since the card is not currently on the market, create the market object and post it to the market
+            embed = Embed(title=f"🏷️ Price For Summon", description=f"How much would you like to sell {summon.name} for?")
+            message = await ctx.send(embed=embed)
+
+            def check(event):
+                return event.message.author.id == ctx.author.id
+
+            try:
+                response = await self.client.wait_for('on_message_create', checks=check, timeout=120)
+                price = int(response.message.content)
+
+                market_object = {
+                    "MARKET_CODE": str(_uuid),
+                    "MARKET_TYPE": "SUMMON",
+                    "ITEM_NAME": summon.name,
+                    "CARD_LEVEL": 0,
+                    "ARM_DURABILITY": 0,
+                    "PRICE": price,
+                    "ITEM_OWNER": player.did,
+                }
+
+                components = ActionRow(*confirm_buttons)
+
+                embed = Embed(title=f"🏷️ Market Code - {market_object['MARKET_CODE']}", description=f"Would you like to add {summon.name} to the market for 🪙 {'{:,}'.format(price)}")
+                msg = await ctx.send(embed=embed, components=[components])
+
+                def check(component: Button) -> bool:
+                    return component.ctx.author == ctx.author
+
+                try:
+                    button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
+
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        response = db.createMarketEntry(market_object)
+                        if response:
+                            embed = Embed(title=f"🏷️ Market Code - {market_object['MARKET_CODE']}", description=f"{summon.name} has been added to the market for 🪙 {'{:,}'.format(price)}")
+                            await msg.edit(embed=embed, components=[])
+                            return
+                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
+                        embed = Embed(title=f"🏷️ Summon Not Added to Market", description=f"Failed to add {summon.name} to the market as it is already on the market")
+                        await msg.edit(embed=embed, components=[])
+                        return
+
+                except Exception as ex:
+                    custom_logging.debug(ex)
+                    embed = Embed(title=f"🏷️ Summon Not Added to Market", description=f"Failed to add {summon.name} to the market - Error Logged")
+                    await ctx.send(embed=embed)
+                    return
+            except Exception as ex:
+                custom_logging.debug(ex)
+                embed = Embed(title=f"🏷️ Summon Not Added to Market", description=f"Failed to add {summon.name} to the market - Error Logged")
+                await ctx.send(embed=embed)
+                return
+
+        except Exception as ex:
+            custom_logging.debug(ex)
+            embed = Embed(title=f"🏷️ Summon Not Added to Market", description=f"Failed to add {summon.name} to the market - Error Logged")
+            await ctx.send(embed=embed)
+            return
     
+
     async def equip_summon_action(self, ctx, summon_title):
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
         player = crown_utilities.create_player_from_data(user)
         updated = False
+        exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon_title})
+        if exists_on_market_already:
+            embed = Embed(title=f"🏷️ Summon is on the Market", description=f"{summon_title} is still on the market. Please remove it from the market before equipping it")
+            await ctx.send(embed=embed)
+            return
+
         if summon_title == player.equipped_summon:
             embed = Embed(title=f"🐦 Summon Not Equipped", description=f"{summon_title} is already equipped")
             await ctx.send(embed=embed)
@@ -1505,6 +1912,12 @@ class CustomPaginator(Paginator):
         player = crown_utilities.create_player_from_data(user)
         summon = crown_utilities.create_summon_from_data(summon_data)
         available_to_dismantle = False
+        exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon_title})
+        if exists_on_market_already:
+            embed = Embed(title=f"🏷️ Summon is on the Market", description=f"{summon_title} is still on the market. Please remove it from the market before equipping it")
+            await ctx.send(embed=embed)
+            return
+
         for s in player.summons:
             if summon_title == s['NAME']:
                 available_to_dismantle = True
@@ -1696,3 +2109,15 @@ class CustomPaginator(Paginator):
 
         await bc.create_raid_battle(self, ctx, mode, player, raid)
 
+
+def generate_6_digit_code():
+    # Generate a UUID
+    unique_id = uuid.uuid4()
+
+    # Convert the UUID to a hexadecimal string and remove any dashes
+    hex_string = unique_id.hex.replace('-', '')
+
+    # Take the first 6 characters of the hexadecimal string
+    six_digit_code = hex_string[:6]
+
+    return six_digit_code

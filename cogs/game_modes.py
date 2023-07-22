@@ -68,13 +68,10 @@ class GameModes(Extension):
             setattr(message, 'guild_id', guild_id_value)
 
             if await self.level_up_cooldown.acquire_token(message):
-                # Didn't Level Up, return
-                print("Didn't Level Up")
                 return
             else:
                 # Level Up
                 try:
-                    print("Level Up")
                     player_that_leveled = db.queryUser({'DID': str(message.author.id)})
                     if player_that_leveled:
                         card_that_leveled = db.queryCard({'NAME': player_that_leveled['CARD']})

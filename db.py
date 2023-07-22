@@ -45,6 +45,7 @@ arena_col = db['ARENA']
 codes_col = db['CODES']
 scenario_col = db['SCENARIO']
 stats_col = db['STATS']
+market_col = db['MARKET']
 
 acceptable = [1, 2, 3, 4]
 arm_exclude_list = ['BASIC', 'SPECIAL', 'ULTIMATE']
@@ -191,6 +192,52 @@ def updateAbyss(query, new_value):
 def queryAbyss(query):
     try:
         data = abyss_col.find_one(query)
+        return data
+    except:
+        return False
+
+""" MARKET """
+def queryAllMarket():
+    try:
+        data = market_col.find()
+        return data
+    except:
+        return False
+
+
+def queryAllMarketByParam(query):
+    try:
+        data = market_col.find(query)
+        return data
+    except:
+        return False
+
+
+def queryMarket(query):
+    try:
+        data = market_col.find_one(query)
+        return data
+    except:
+        return False
+
+def updateMarket(query, new_value):
+    try:
+        data = market_col.update_one(query, new_value)
+        return data
+    except:
+        return False
+
+
+def createMarketEntry(market):
+    try:
+        data = market_col.insert_one(market)
+        return data
+    except:
+        return False
+
+def deleteMarketEntry(query):
+    try:
+        data = market_col.delete_one(query)
         return data
     except:
         return False
