@@ -4,6 +4,7 @@ import crown_utilities
 import asyncio
 import textwrap
 from cogs.reward_drops import reward_drop, scenario_drop
+from cogs.quests import Quests
 import time
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
@@ -55,6 +56,7 @@ class GameState(Extension):
     async def pvp_end_game(self, battle_config, private_channel, battle_msg):
         try:
             if battle_config.is_pvp_game_mode:
+                quest_response = Quests.quest_check(battle_config.player1, "PVP")
                 total_complete = False
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                 battle_config.player2_card.stats_handler(battle_config, battle_config.player2, total_complete)
@@ -263,6 +265,10 @@ class GameState(Extension):
 
 
                 if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
+                    if battle_config.is_dungeon_game_mode:
+                        quest_response = Quests.quest_check(battle_config.player1, "DUNGEONS")
+                    else:
+                        quest_response = Quests.quest_check(battle_config.player1, "TALES")
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     if not battle_config.is_co_op_mode:
                         embedVar = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence",description=textwrap.dedent(f"""
@@ -337,6 +343,10 @@ class GameState(Extension):
 
 
                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                    if battle_config.is_dungeon_game_mode:
+                        quest_response = Quests.quest_check(battle_config.player1, "FULL DUNGEONS")
+                    else:
+                        quest_response = Quests.quest_check(battle_config.player1, "FULL TALES")
                     total_complete = True
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     if battle_config.is_co_op_mode:
@@ -542,6 +552,10 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 battle_config.continue_fighting = True
             
             if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                if battle_config.is_raid_scenario:
+                    quest_response = Quests.quest_check(battle_config.player1, "RAIDS")
+                else:
+                    quest_response = Quests.quest_check(battle_config.player1, "SCENARIOS")
                 battle_config.player1.make_available()
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)

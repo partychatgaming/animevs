@@ -597,7 +597,7 @@ class Battle:
                 update_shielding = {'$set': {'SHIELDING': True}}
                 add_shield = db.updateTeam({'TEAM_NAME': str(self._player_guild)}, update_shielding)
         else:
-            transaction_message = f":vs: {self.player.disname} defeated {self._shield_name}! They claimed the 🪙 {'{:,}'.format(self._raid_bounty_plus_bonus)} Bounty!"
+            transaction_message = f"🆚 {self.player.disname} defeated {self._shield_name}! They claimed the 🪙 {'{:,}'.format(self._raid_bounty_plus_bonus)} Bounty!"
             update_query = {'$push': {'TRANSACTIONS': transaction_message}}
             response = db.updateGuildAlt(guild_query, update_query)
             guildloss = db.updateGuild(guild_query, {'$set': {'BOUNTY': fee, 'STREAK': 0}})
@@ -1497,7 +1497,7 @@ class Battle:
         if not self.is_abyss_game_mode and not self.is_scenario_game_mode:
             if not self.is_tutorial_game_mode:
                 if self.is_pvp_game_mode:
-                    response = f"Your :vs: timed out. Your channel has been closed"
+                    response = f"Your 🆚 timed out. Your channel has been closed"
                 elif self.is_boss_game_mode:
                     response = f"Your Boss Fight timed out. Your channel has been closed."
                 else:
@@ -1592,7 +1592,7 @@ class Battle:
     
 
     def close_pvp_embed(self, player, opponent):
-        picon = ":vs:"
+        picon = "🆚"
         icon1 = "1️⃣"
         icon2 = "2️⃣"
         close_message = "PVP"
@@ -1609,7 +1609,7 @@ class Battle:
 
                 
         embedVar = Embed(title=f"{picon} {close_message} Ended!", description=textwrap.dedent(f"""
-            {player.disname} :vs: {opponent.disname}
+            {player.disname} 🆚 {opponent.disname}
             """))
         embedVar.add_field(name=f"{icon1} | {player.disname}",
                                 value=f"🎴 | {player.equipped_card}\n🎗️ | {player.equipped_title}\n🦾 | {player.equipped_arm}\n🧬 | {player.equippedsummon}")

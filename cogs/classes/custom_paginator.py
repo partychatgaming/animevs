@@ -7,6 +7,8 @@ from typing import Callable, Coroutine, List, Optional, Sequence, TYPE_CHECKING,
 import crown_utilities
 import custom_logging
 from cogs.battle_config import BattleConfig as bc
+from cogs.quests import Quests
+import random
 
 import attrs
 
@@ -1058,6 +1060,7 @@ class CustomPaginator(Paginator):
                     button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
 
                     if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        quest_response = Quests.quest_check(player, "MARKETPLACE")
                         response = db.deleteMarketEntry({"ITEM_OWNER": player.did, "ITEM_NAME": arm.name})
                         embed = Embed(title=f"🏷️ Success", description=f"{arm.name} has been removed from the market.")
                         await message.edit(embed=embed, components=[])
@@ -1074,7 +1077,7 @@ class CustomPaginator(Paginator):
 
 
             if arm.name == player.equipped_arm:
-                embed = Embed(title=f"🏷️ Card Not Added to Market", description=f"Failed to add {arm.name} to the market as it is currently equipped")
+                embed = Embed(title=f"🏷️ Arm Not Added to Market", description=f"Failed to add {arm.name} to the market as it is currently equipped")
                 await ctx.send(embed=embed)
                 return
             
@@ -1095,6 +1098,8 @@ class CustomPaginator(Paginator):
                     "ITEM_NAME": arm.name,
                     "CARD_LEVEL": 0,
                     "ARM_DURABILITY": 25,
+                    "SUMMON_LEVEL": 0,
+                    "BOND_LEVEL": 0,
                     "PRICE": price,
                     "ITEM_OWNER": player.did,
                 }
@@ -1134,7 +1139,7 @@ class CustomPaginator(Paginator):
 
         except Exception as ex:
             custom_logging.debug(ex)
-            embed = Embed(title=f"🏷️ Arm Not Added to Market", description=f"Failed to add {arm.name} to the market - Error Logged")
+            embed = Embed(title=f"🏷️ Arm Not Added to Market", description=f"Failed to add arm to the market - Error Logged")
             await ctx.send(embed=embed)
             return
     
@@ -1475,6 +1480,7 @@ class CustomPaginator(Paginator):
                     button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
 
                     if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        quest_response = Quests.quest_check(player, "MARKETPLACE")
                         response = db.deleteMarketEntry({"ITEM_OWNER": player.did, "ITEM_NAME": card.name})
                         embed = Embed(title=f"🏷️ Success", description=f"{card.name} has been removed from the market.")
                         await message.edit(embed=embed, components=[])
@@ -1512,6 +1518,8 @@ class CustomPaginator(Paginator):
                     "ITEM_NAME": card.name,
                     "CARD_LEVEL": card.card_lvl,
                     "ARM_DURABILITY": 0,
+                    "SUMMON_LEVEL": 0,
+                    "BOND_LEVEL": 0,
                     "PRICE": price,
                     "ITEM_OWNER": player.did,
                 }
@@ -1768,7 +1776,10 @@ class CustomPaginator(Paginator):
             player = crown_utilities.create_player_from_data(user)
             summon_data = db.querySummon({'PET': summon_title})
             summon = crown_utilities.create_summon_from_data(summon_data)
-            
+            for s in player.summons:
+                if s['NAME'] == summon_title:
+                    summon.level = s['LVL']
+                    summon.bond = s['BOND']
             exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
             confirm_buttons = [
                         Button(
@@ -1794,6 +1805,7 @@ class CustomPaginator(Paginator):
                     button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
 
                     if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                        quest_response = Quests.quest_check(player, "MARKETPLACE")
                         response = db.deleteMarketEntry({"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
                         embed = Embed(title=f"🏷️ Success", description=f"{summon.name} has been removed from the market.")
                         await message.edit(embed=embed, components=[])
@@ -1831,6 +1843,8 @@ class CustomPaginator(Paginator):
                     "ITEM_NAME": summon.name,
                     "CARD_LEVEL": 0,
                     "ARM_DURABILITY": 0,
+                    "SUMMON_LEVEL": summon.level,
+                    "BOND_LEVEL": summon.bond,
                     "PRICE": price,
                     "ITEM_OWNER": player.did,
                 }
@@ -2111,13 +2125,4 @@ class CustomPaginator(Paginator):
 
 
 def generate_6_digit_code():
-    # Generate a UUID
-    unique_id = uuid.uuid4()
-
-    # Convert the UUID to a hexadecimal string and remove any dashes
-    hex_string = unique_id.hex.replace('-', '')
-
-    # Take the first 6 characters of the hexadecimal string
-    six_digit_code = hex_string[:6]
-
-    return six_digit_code
+    return random.randint(100000, 999999)

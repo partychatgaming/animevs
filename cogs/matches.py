@@ -136,7 +136,7 @@ class Matches(Extension):
                 arm = {'ARM': 'CARD PREVIEW'}
                 
                 
-                embedVar2 = Embed(title=f":vs: {card_info['NAME']} | _Crown Analysis_".format(self), description=f"**Card Master**\n{card_main}", color=0xe91e63) 
+                embedVar2 = Embed(title=f"🆚 {card_info['NAME']} | _Crown Analysis_".format(self), description=f"**Card Master**\n{card_main}", color=0xe91e63) 
                 embedVar2.add_field(name=f":crown:Tales Stats", value=f"{tale_message}", inline=False)
                 embedVar2.add_field(name=f"🔥Dungeon Stats", value=f"{dungeon_message}", inline=False)
                 embedVar2.add_field(name=f"👹Boss Stats", value=f"{boss_message}", inline=False)

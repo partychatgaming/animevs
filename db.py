@@ -200,7 +200,10 @@ def queryAbyss(query):
 def queryAllMarket():
     try:
         data = market_col.find()
-        return data
+        if data:
+            return data
+        else:
+            return False
     except:
         return False
 
@@ -208,7 +211,10 @@ def queryAllMarket():
 def queryAllMarketByParam(query):
     try:
         data = market_col.find(query)
-        return data
+        if data:
+            return data
+        else:
+            return False
     except:
         return False
 
@@ -216,14 +222,20 @@ def queryAllMarketByParam(query):
 def queryMarket(query):
     try:
         data = market_col.find_one(query)
-        return data
+        if data:
+            return data
+        else:
+            return False
     except:
         return False
 
 def updateMarket(query, new_value):
     try:
         data = market_col.update_one(query, new_value)
-        return data
+        if data:
+            return data
+        else:
+            return False
     except:
         return False
 
@@ -231,14 +243,20 @@ def updateMarket(query, new_value):
 def createMarketEntry(market):
     try:
         data = market_col.insert_one(market)
-        return data
+        if data:
+            return data
+        else:
+            return False
     except:
         return False
 
 def deleteMarketEntry(query):
     try:
         data = market_col.delete_one(query)
-        return data
+        if data:
+            return data
+        else:
+            return False
     except:
         return False
 
@@ -1088,12 +1106,12 @@ def updateUser(query, new_value, arrayFilters):
         return False
 
 '''Update Vault With No Array Filters'''
-def updateUserNoFilter(query, new_value):
-    try:
-        update = vault_col.update_one(query, new_value)
-        return True
-    except Exception as e:
-        return False
+# def updateUserNoFilter(query, new_value):
+#     try:
+#         update = vault_col.update_one(query, new_value)
+#         return True
+#     except Exception as e:
+#         return False
 
 
 def gods_exists(data):

@@ -344,7 +344,9 @@ async def animevs(ctx):
 
 
    embedVar1 = Embed(title= f"About Anime VS+",color=0x7289da)
+   
    embedVar1.set_thumbnail(url=avatar)
+   
    embedVar1.add_field(name="**About The Game!**", value=textwrap.dedent(f"""\
       
    **Anime VS+** is a Multiplatform Card Game exploring **Universes** from your favorite Video Game and Anime Series!
@@ -364,6 +366,7 @@ async def animevs(ctx):
    Play **Single Player** and **Multiplayer** Modes to earn 🪙
    Buy and equip better Items to Conquer the Multiverse!
    """), color=0x7289da)
+   
    embedVar2.set_thumbnail(url=avatar)
    
    class_embed = Embed(title= f"Cards", description=textwrap.dedent(f"""\
@@ -376,6 +379,7 @@ async def animevs(ctx):
    Play **Single Player** and **Multiplayer** Modes to earn 🪙
    Buy and equip better Items to Conquer the Multiverse!
    """), color=0x7289da)
+   
    embedVar2.set_thumbnail(url=avatar)
 
    embedVar3 = Embed(title= f"Card Mechanics", description=textwrap.dedent(f"""\
@@ -410,6 +414,7 @@ async def animevs(ctx):
    Doubles Defense for 1 turn
    🛡️ _uses 20 stamina_ 
    """), color=0x7289da)
+   
    embedVar3.set_thumbnail(url=avatar)
    
    embedVar11 = Embed(title= f"Card Types", description=textwrap.dedent(f"""                                                                           
@@ -460,6 +465,7 @@ async def animevs(ctx):
    Card Skins have different stats and abilities but can complete the main card **Destinies** !
  
    """), color=0x7289da)
+   
    embedVar11.set_thumbnail(url=avatar)
    
    embedVar17 = Embed(title= f"Damage, Elements & Talismans", description=textwrap.dedent(f"""                                                                           
@@ -494,6 +500,7 @@ async def animevs(ctx):
    **/attune** and equip /**talismans** from stored **Essence**
  
    """), color=0x7289da)
+   
    embedVar17.set_thumbnail(url=avatar)
 
    embedVar4 = Embed(title= f"Titles, Arms, and Summons ", description=textwrap.dedent(f"""\
@@ -524,6 +531,7 @@ async def animevs(ctx):
 
    Mix and Match Titles, Arms and Summons to gain the **Tactical Advantage**!
    """) ,color=0x7289da)
+   
    embedVar4.set_thumbnail(url=avatar)
 
    embedVar5 = Embed(title= f"Battle Mechanics", description=textwrap.dedent(f"""\
@@ -537,6 +545,7 @@ async def animevs(ctx):
 
    The Match is over when a players **Health** reaches 0.
    """) ,color=0x7289da)
+   
    embedVar5.set_thumbnail(url=avatar)
 
    embedVar6 = Embed(title= f"Focus & Resolve", description=textwrap.dedent(f"""\
@@ -555,6 +564,7 @@ async def animevs(ctx):
    🧬 Summon _uses 15 stamina_.
 
    """) ,color=0x7289da)
+   
    embedVar6.set_thumbnail(url=avatar)
    
    embedVar16 = Embed(title= f"Difficulty & Progression", description=textwrap.dedent(f"""\
@@ -592,6 +602,7 @@ async def animevs(ctx):
    **100** - *Boss Soul Exchange*
    **Earn 🪙100,000 * Floor**
    """),color=0x7289da)
+   
    embedVar16.set_thumbnail(url=avatar)
 
    embedVar7 = Embed(title= f"Single Player", description=textwrap.dedent(f"""\
@@ -610,6 +621,7 @@ async def animevs(ctx):
    Mash-Up Universes featuring heroes and villians connected through common traits and themes!
    *Pay attention, Rifts will not stay open if you continue through your Tale!*
    """),color=0x7289da)
+   
    embedVar7.set_thumbnail(url=avatar)
 
    embedVar8 = Embed(title= f"Multiplayer", description=textwrap.dedent(f"""\
@@ -633,6 +645,7 @@ async def animevs(ctx):
    Grind Those Rifts Together!
    
    """),color=0x7289da)
+   
    embedVar8.set_thumbnail(url=avatar)
 
    embedVar9 = Embed(title= f"Presets",description=textwrap.dedent(f"""\
@@ -643,6 +656,7 @@ async def animevs(ctx):
    **Preset Builds**
    You can bring your preset builds into Duo Battles!
    """) ,color=0x7289da)
+   
    embedVar9.set_thumbnail(url=avatar)
 
    embedVar10 = Embed(title= f"Economy",description=textwrap.dedent(f"""\
@@ -683,6 +697,7 @@ async def animevs(ctx):
    **Gems** are universe specific items that can be crafted into Skins, Trinkets or **Destinies**
    
    """) ,color=0x7289da)
+   
    embedVar10.set_thumbnail(url=avatar)
    
    embedVar15 = Embed(title= f"Guilds", description=textwrap.dedent(f"""\
@@ -715,6 +730,7 @@ async def animevs(ctx):
    - Captain: Can Toggly Buffs, Pay members
    - Member: No operations
    """),color=0x7289da)
+   
    embedVar15.set_thumbnail(url=avatar)
 
    embedVar12 = Embed(title= f"Families",description=textwrap.dedent(f"""\
@@ -748,6 +764,7 @@ async def animevs(ctx):
    - Partner: Can equip/update family summon, change equipped house.
    - Kids: Can equip family summon.
    """) ,color=0x7289da)
+   
    embedVar12.set_thumbnail(url=avatar)
 
    embedVar13 = Embed(title= f"Associations",description=textwrap.dedent(f"""\
@@ -779,6 +796,7 @@ async def animevs(ctx):
    - Increase the defense of the **Shield**
    - Increase the **Bounty** cost to raid the **Association**
    """) ,color=0x7289da)
+   
    embedVar13.set_thumbnail(url=avatar)
    
    embedVar14 = Embed(title= f"Raids",description=textwrap.dedent(f"""\
@@ -806,9 +824,8 @@ async def animevs(ctx):
    - Earn respect by increasing the Association victory streak 
    
    """) ,color=0x7289da)
+   
    embedVar14.set_thumbnail(url=avatar)
-
-
 
    embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
    paginator = CustomPaginator(bot, *embeds)
@@ -841,7 +858,7 @@ async def voted(ctx):
          
          response = requests.get(f"https://top.gg/api/bots/955704903198711808/check?userId={ctx.author.id}", headers=head)
          response_dict = json.loads(response.text)
-         retry_message = f":vs: Rematches : **{user['RETRIES']}**"
+         retry_message = f"🆚 Rematches : **{user['RETRIES']}**"
          if response_dict['voted'] == 1:
             if gem_list:
                for universe in gem_list:
@@ -853,9 +870,9 @@ async def voted(ctx):
 
             await crown_utilities.bless(int(voting_bonus), ctx.author.id)
             respond = db.updateUserNoFilter(query, {'$set': {'VOTED': True}})
-            retry_message = f":vs: Rematches : **{user['RETRIES']}**"  
+            retry_message = f"🆚 Rematches : **{user['RETRIES']}**"  
             db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
-            retry_message = f":vs: Rematches : {user['RETRIES']} **+ 3**!"
+            retry_message = f"🆚 Rematches : {user['RETRIES']} **+ 3**!"
 
 
             embedVar = Embed(title=f"✅ Daily Voter Rewards!", description=textwrap.dedent(f"""\
@@ -873,7 +890,7 @@ async def voted(ctx):
             await ctx.send(embed=embedVar)
 
          else:
-            retry_message = f":vs: Rematches : **+3**"
+            retry_message = f"🆚 Rematches : **+3**"
             embedVar = Embed(title=f"❌ Daily Voter Rewards!", description=textwrap.dedent(f"""\
             You have not voted for Anime VS+ today, {ctx.author.mention}!
             To earn your voter rewards, [Vote for Anime VS+!](https://top.gg/bot/955704903198711808/vote)
@@ -1223,7 +1240,7 @@ async def rebirth(ctx):
          
          
          if (rLevel > 4 and rLevel <10) and pLevel < (rLevel - 4):
-            embedVar1 = Embed(title= f":heart_on_fire:{user_is_validated['NAME']}'s Rebirth",color=0x7289da)
+            embedVar1 = Embed(title= f"❤️‍🔥{user_is_validated['NAME']}'s Rebirth",color=0x7289da)
             embedVar1.set_thumbnail(url=user_is_validated['AVATAR'])
             embedVar1.add_field(name=f":angel: Rebirth Level: {user_is_validated['REBIRTH']}\n{picon}Prestige Level: {pLevel}\n\nRebirth Cost: 🪙{'{:,}'.format(rebirthCost)}", value=textwrap.dedent(f"""\
             **Rebirth Effects**
@@ -1262,7 +1279,7 @@ async def rebirth(ctx):
             util_action_row = ActionRow(*util_buttons)
             components = [util_action_row]
 
-            embedVar1 = Embed(title= f":heart_on_fire:{user_is_validated['NAME']}'s Rebirth",color=0x7289da)
+            embedVar1 = Embed(title= f"❤️‍🔥{user_is_validated['NAME']}'s Rebirth",color=0x7289da)
             embedVar1.set_thumbnail(url=user_is_validated['AVATAR'])
             embedVar1.add_field(name=f"Rebirth Level: {user_is_validated['REBIRTH']}\nPrestige Level: {pLevel}\n\nRebirth Cost: 🪙{'{:,}'.format(rebirthCost)}", value=textwrap.dedent(f"""\
             **Rebirth Effects**
@@ -1298,7 +1315,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"OWNER" : user_is_validated['DISNAME']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1331,7 +1348,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")                              
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")                              
                            elif rLevel == 1:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1339,7 +1356,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1372,7 +1389,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            elif rLevel == 2:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1380,7 +1397,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1413,7 +1430,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            elif rLevel == 3:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1421,7 +1438,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1454,7 +1471,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            elif rLevel == 4:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1462,7 +1479,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1495,7 +1512,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            elif rLevel == 5:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1503,7 +1520,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1536,7 +1553,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            elif rLevel == 6:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1544,7 +1561,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1577,7 +1594,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            elif rLevel == 7:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1585,7 +1602,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1618,7 +1635,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            elif rLevel == 8:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1626,7 +1643,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1659,7 +1676,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            elif rLevel == 9:
                               if gabes_purse == 1:
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CROWN_TALES': ['']}})
@@ -1667,7 +1684,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
                                  db.updateUserNoFilter({"DID" : user_is_validated['DID']}, {'$set': {'BALANCE' : 1000000}})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                                  db.updateUserNoFilter(query, {'$set': {'TOURNAMENT_WINS': 0 }})
                                  return
                               card_level_list = vault['CARD_LEVELS']
@@ -1700,7 +1717,7 @@ async def rebirth(ctx):
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'BOSS_WINS': ['']}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'U_PRESET': False}})
                                  nRebirth = db.updateUserNoFilter(query, {'$inc': {'REBIRTH': 1 }})
-                                 await button_ctx.send(f":heart_on_fire: | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
+                                 await button_ctx.send(f"❤️‍🔥 | You are now Rebirth Level: {user_is_validated['REBIRTH'] + 1}")
                            #Starting Selection
                            try:
                               if gabes_purse == 1:
@@ -1888,7 +1905,7 @@ async def rebirth(ctx):
                      }))
                      await ctx.send("Rebirth Issue Seek support.")
                elif button_ctx.custom_id == "N":
-                  await button_ctx.send(f":heart_on_fire: | Ahhhh...another time then?", delete_after=5)
+                  await button_ctx.send(f"❤️‍🔥 | Ahhhh...another time then?", delete_after=5)
                   return
             except asyncio.TimeoutError:
                await ctx.send("Rebirth Menu Closed", hidden= True)
@@ -2005,140 +2022,55 @@ async def daily(ctx):
    try:
       query = {'DID': str(ctx.author.id)}
       user_data = db.queryUser(query)
-      prestige = int(user_data['PRESTIGE'])
-      aicon = crown_utilities.prestige_icon(prestige)
-      user_completed_tales = user_data['CROWN_TALES']
-      rebirth = int(user_data['REBIRTH'])
+      player = crown_utilities.create_player_from_data(user_data)
+
+      aicon = crown_utilities.prestige_icon(player.prestige)
       dailyamount = 1000000
-      daily_bonus = int(dailyamount * (rebirth + 1) + (1000000 * prestige))
-      boss_key_message = ""
-      
-      if user_data['BOSS_FOUGHT'] == True:
-         boss_key_message = ":key2: | Boss Arena Unlocked"
-      await crown_utilities.bless(daily_bonus, ctx.author.id)
-      
-      
+      daily_bonus = int(dailyamount * (player.rebirth + 1) + (1000000 * player.prestige))
+         
+      await crown_utilities.bless(daily_bonus, player.did)
       difference = daily_bonus - dailyamount
-      bonus_message = ""
-      if difference > 0:
-         bonus_message = f"**:heart_on_fire:** | *+🪙{'{:,}'.format(difference)}*"
-      universes = db.queryAllUniverse()
+
+      
       if ctx.author.guild:
-         server_query = {'GNAME': str(ctx.author.guild)}
+         server_query = {'GNAME': player.did}
          update_server_query = {
             '$inc': {'SERVER_BALANCE': daily_bonus}
          }
          updated_server = db.updateServer(server_query, update_server_query)
-
-
-      user_available_opponents = []
-
-
-      for x in universes:
-         user_available_opponents.append(x['CROWN_TALES'])
-
-      opponents = [x for x in user_available_opponents for x in x]
-      oppponent_len = len(opponents)
-      q1 = random.randint(0, oppponent_len)
-      q2 = random.randint(0, oppponent_len)
-      q3 = random.randint(3, oppponent_len)
-      q4 = random.randint(3, oppponent_len)
-      q5 = random.randint(5, oppponent_len)
-      q6 = random.randint(5, oppponent_len)
-      q7 = random.randint(7, oppponent_len)
-      q8 = random.randint(7, oppponent_len)
-      q9 = random.randint(10, oppponent_len)
-      q10 = random.randint(10, oppponent_len)
       
+      boss_key_message = "🗝️ | Boss Arena Unlocked" if player.boss_fought == True else ""
+      bonus_message = f"❤️‍🔥 | *+🪙{'{:,}'.format(difference)}*" if difference > 0 else ""
+      # prestige_message = f"**{aicon} Prestige {player.prestige} |** Quest Requirements Reduced!" if player.prestige > 0 else ""
 
-      q1_earn = round(random.randint(50000, 300000))
-      q2_earn = round(random.randint(200000, 500000))
-      q3_earn = round(random.randint(400000, 800000))
-      q4_earn = round(random.randint(700000, 1100000))
-      q5_earn = round(random.randint(1000000, 1500000))
-      q6_earn = round(random.randint(1400000, 2000000))
-      q7_earn = round(random.randint(1900000, 2500000))
-      q8_earn = round(random.randint(2300000, 2700000))
-      q9_earn = round(random.randint(2500000, 3500000))
-      q10_earn = round(random.randint(3000000, 5000000))
-      
-      q1_win = check_quest_wins(1, prestige)
-      q2_win = check_quest_wins(1, prestige)
-      q3_win = check_quest_wins(2, prestige)
-      q4_win = check_quest_wins(2, prestige)
-      q5_win = check_quest_wins(3, prestige)
-      q6_win = check_quest_wins(3, prestige)
-      q7_win = check_quest_wins(4, prestige)
-      q8_win = check_quest_wins(4, prestige) #casperjayden
-      q9_win = check_quest_wins(5, prestige)
-      q10_win = check_quest_wins(10, prestige)
-      
-      prestige_message = ""
-      if prestige > 0:
-         prestige_message = f"**{aicon} Prestige {prestige} |** Quest Requirements Reduced!"
-         
-
-      quests = [{'OPPONENT': opponents[q1], 'TYPE': 'Tales', 'GOAL': q1_win, 'WINS': 0, 'REWARD': q1_earn },
-                {'OPPONENT': opponents[q2], 'TYPE': 'Tales', 'GOAL': q2_win, 'WINS': 0, 'REWARD': q2_earn },
-                {'OPPONENT': opponents[q3], 'TYPE': 'Tales', 'GOAL': q3_win, 'WINS': 0, 'REWARD': q3_earn },
-                {'OPPONENT': opponents[q4], 'TYPE': 'Tales', 'GOAL': q4_win, 'WINS': 0, 'REWARD': q4_earn },
-                {'OPPONENT': opponents[q5], 'TYPE': 'Tales', 'GOAL': q5_win, 'WINS': 0, 'REWARD': q5_earn },
-                {'OPPONENT': opponents[q6], 'TYPE': 'Tales', 'GOAL': q6_win, 'WINS': 0, 'REWARD': q6_earn },
-                {'OPPONENT': opponents[q7], 'TYPE': 'Tales', 'GOAL': q7_win, 'WINS': 0, 'REWARD': q7_earn },
-                {'OPPONENT': opponents[q8], 'TYPE': 'Tales', 'GOAL': q8_win, 'WINS': 0, 'REWARD': q8_earn },
-                {'OPPONENT': opponents[q9], 'TYPE': 'Tales', 'GOAL': q9_win, 'WINS': 0, 'REWARD': q9_earn },
-                {'OPPONENT': opponents[q10], 'TYPE': 'Tales', 'GOAL': q10_win, 'WINS': 0, 'REWARD': q10_earn }]
-      db.updateUserNoFilter(query, {'$set': {'QUESTS': quests}})
+      db.updateUserNoFilter(query, {'$set': {'QUESTS': crown_utilities.quest_list}})
       db.updateUserNoFilter(query, {'$set': {'BOSS_FOUGHT': False}})
       db.updateUserNoFilter(query, {'$set': {'VOTED': False}})
-      retry_message = f":vs: | Rematches : **{user_data['RETRIES']}**"
-      if user_data['RETRIES'] >= 25:  
+      retry_message = f"🆚 | Rematches : {player.retries}"
+      if player.retries >= 25:  
          db.updateUserNoFilter(query, {'$set': {'RETRIES': 25}})
-         retry_message = f":vs: | Rematches : **{user_data['RETRIES']}**!"
+         retry_message = f"🆚 | Rematches : {player.retries}"
       else:
          db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
-         retry_message = f":vs: | Rematches : {user_data['RETRIES']} **+ 2**!"
+         retry_message = f"🆚 | Rematches : {player.retries} **+ 2**"
+      
+
+      quest_messages = []
+      for quest in crown_utilities.quest_list:
+         quest_messages.append(f"🆕 {quest['NAME']} 💎 {quest['REWARD']:,}")
+
       embedVar = Embed(title=f"☀️ Daily Rewards!", description=textwrap.dedent(f"""\
       Welcome back, {ctx.author.mention}!
-      **Daily Earnings**
-      {retry_message} 
-      🪙 | +{'{:,}'.format(daily_bonus)} 
+      {retry_message}
+      🪙 | +{'{:,}'.format(daily_bonus)}
       {boss_key_message}
-      
-      📜 **New Quests** */quest*
-      {prestige_message}
-      Defeat **{opponents[q1]}**: 🪙 {'{:,}'.format(q1_earn)}
-      Defeat **{opponents[q2]}**: 🪙 {'{:,}'.format(q2_earn)}
-      Defeat **{opponents[q3]}**: 🪙 {'{:,}'.format(q3_earn)}
-      Defeat **{opponents[q4]}**: 🪙 {'{:,}'.format(q4_earn)}
-      Defeat **{opponents[q5]}**: 🪙 {'{:,}'.format(q5_earn)}
-      Defeat **{opponents[q6]}**: 🪙 {'{:,}'.format(q6_earn)}
-      Defeat **{opponents[q7]}**: 🪙 {'{:,}'.format(q7_earn)}
-      Defeat **{opponents[q8]}**: 🪙 {'{:,}'.format(q8_earn)}
-      Defeat **{opponents[q9]}**: 🪙 {'{:,}'.format(q9_earn)}
-      Defeat **{opponents[q10]}**: 🪙 {'{:,}'.format(q10_earn)}
-      
-      **/voted** to receive Daily Voting Rewards!
       """), color=0xf1c40f)
+      embedVar.add_field(name="📜 **New Quests** */quest*", value="\n".join(quest_messages), inline=False)
+      embedVar.add_field(name="Vote for Anime VS+!", value="🗳️ | **/vote** to earn daily rewards!", inline=False)
       embedVar.set_footer(text=f"☀️ | You can vote twice a Day with /daily!")
       await ctx.send(embed=embedVar)
-   
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'PLAYER': str(ctx.author),
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
+      custom_logging.debug(ex)
       return
    
 

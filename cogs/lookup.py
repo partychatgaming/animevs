@@ -200,7 +200,7 @@ class Lookup(Extension):
                     prestige_message = f"**Prestige:** *{prestige}*"
                 #print(day_joined + " " + year_joined)
                 birthday = f"🎉 | Registered on {day_joined}, {year_joined}"
-                icon = ':heart_on_fire:'
+                icon = '❤️‍🔥'
                 if rebirth == 0:
                     icon = ':triangular_flag_on_post:'
                 elif rebirth >= 6:
@@ -294,7 +294,7 @@ class Lookup(Extension):
 
                 embed1 = Embed(title=f"{name}'s Profile".format(self), description=textwrap.dedent(f"""\
                 {aicon} | **Abyss Rank**: {abyss_level}
-                :heart_on_fire: | **Rebirth**: {rebirth}
+                ❤️‍🔥 | **Rebirth**: {rebirth}
                 
                 🎴 | **Card:** {card}
                 🎗️** | Title:** {titles}
@@ -526,6 +526,22 @@ class Lookup(Extension):
                 storage = team['STORAGE']
                 balance = team['BANK']
 
+                if balance >= 0:
+                    stars = "⭐"
+                    rank = "D Rank Guild"
+                if balance >= 1000000:
+                    stars = "⭐⭐"
+                    rank = "C Rank Guild"
+                if balance >= 100000000:
+                    stars = "⭐⭐⭐"
+                    rank = "B Rank Guild"
+                if balance >= 1000000000:
+                    stars = "⭐⭐⭐⭐"
+                    rank = "A Rank Guild"
+                if balance >= 100000000000:
+                    stars = "✨✨✨✨✨"
+                    rank = "S Rank Guild"
+
                 guild_buff_available = team['GUILD_BUFF_AVAILABLE']
                 guild_buff_on = team['GUILD_BUFF_ON']
                 gbon_status = ""
@@ -598,6 +614,9 @@ class Lookup(Extension):
 
 
                 first_page = Embed(title=f"{team_display_name}", description=textwrap.dedent(f"""
+                {stars}
+                **{rank}**
+                
                 👑 **Owner** 
                 {formatted_owner}
                 

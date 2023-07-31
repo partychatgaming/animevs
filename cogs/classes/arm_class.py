@@ -38,7 +38,7 @@ class Arm:
         if self.element:
             self.element_emoji = crown_utilities.set_emoji(self.element)
         else:
-            self.element_emoji = "🦠"
+            self.element_emoji = crown_utilities.set_emoji(self.passive_type)
         
         if(self.universe != "Unbound"):
             self.show_img = db.queryUniverse({'TITLE': self.universe})['PATH']

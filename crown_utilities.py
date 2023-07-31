@@ -1447,6 +1447,7 @@ async def cursefamily(amount, family):
                 'trace': trace
         }))
 
+
 async def prestige_icon(prestige = int):
     aicon = ":new_moon:"
 
@@ -1472,6 +1473,7 @@ async def prestige_icon(prestige = int):
         aicon = ":japanese_ogre:"
 
     return aicon
+
 
 async def blessguild(amount, guild):
     try:
@@ -1573,26 +1575,13 @@ async def curse(amount, user):
         curseAmount = int(amount)
         negCurseAmount = 0 - abs(int(curseAmount))
         query = {'DID': str(user)}
-        vaultOwner = db.queryUser(query)
-        if vaultOwner:
-            vault = db.queryVault({'DID' : vaultOwner['DID']})
+        user_data = db.queryUser(query)
+        if user_data:
             update_query = {"$inc": {'BALANCE': int(negCurseAmount)}}
-            db.updateUserNoFilter(vault, update_query)
+            db.updateUserNoFilter(query, update_query)
+            return True
     except Exception as ex:
-        trace = []
-        tb = ex.__traceback__
-        while tb is not None:
-                trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-        print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-        }))
+        custom_logging.debug(ex)
 
 
 async def player_check(ctx):
@@ -2640,3 +2629,98 @@ EXPLORE = "Explore"
 TUTORIAL = "Tutorial"
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
+
+quest_list = [
+    {
+    "TYPE": "TRADE",
+    "AMOUNT": 0,
+    "COMPLETE": 1,
+    "REWARD": 50000,
+    "COMPLETED": False,
+    "NAME": "Complete 1 Trade",
+    "MODE": "TRADE",
+    "RANK": "D",
+    },
+    {
+    "TYPE": "MARKETPLACE",
+    "AMOUNT": 0,
+    "COMPLETE": 1,
+    "REWARD": 50000,
+    "COMPLETED": False,
+    "NAME": "Add 1 Item to Marketplace",
+    "MODE": "MARKETPLACE",
+    "RANK": "D",
+    },
+    {
+    "TYPE": "TALES",
+    "AMOUNT": 0,
+    "COMPLETE": 5,
+    "REWARD": 100000,
+    "COMPLETED": False,
+    "NAME": "Complete 5 Tales Battles",
+    "MODE": "TALES",
+    "RANK": "C",
+    },
+    {
+    "TYPE": "SCENARIOS",
+    "AMOUNT": 0,
+    "COMPLETE": 2,
+    "REWARD": 100000,
+    "COMPLETED": False,
+    "NAME": "Complete 2 Scenarios",
+    "MODE": "SCENARIOS",
+    "RANK": "C",
+    },
+    {
+    "TYPE": "DUNGEONS",
+    "AMOUNT": 0,
+    "COMPLETE": 5,
+    "REWARD": 300000,
+    "COMPLETED": False,
+    "NAME": "Complete 5 Dungeon Battles",
+    "MODE": "DUNGEONS",
+    "RANK": "B",
+    },
+    {
+    "TYPE": "PVP",
+    "AMOUNT": 0,
+    "COMPLETE": 2,
+    "REWARD": 300000,
+    "COMPLETED": False,
+    "NAME": "Complete 2 PVP Battles",
+    "MODE": "PVP",
+    "RANK": "B",
+    },
+    {
+    "TYPE": "FULL DUNGEONS",
+    "AMOUNT": 0,
+    "COMPLETE": 1,
+    "REWARD": 2000000,
+    "COMPLETED": False,
+    "NAME": "Complete a Full Dungeon",
+    "MODE": "FULL DUNGEONS",
+    "RANK": "A",
+    },
+    {
+    "TYPE": "FULL TALES",
+    "AMOUNT": 0,
+    "COMPLETE": 1,
+    "REWARD": 500000,
+    "COMPLETED": False,
+    "NAME": "Copmlete a Full Tale",
+    "MODE": "FULL TALES",
+    "RANK": "A",
+    },
+    {
+    "TYPE": "RAIDS",
+    "AMOUNT": 0,
+    "COMPLETE": 1,
+    "REWARD": 20000000,
+    "COMPLETED": False,
+    "NAME": "Complete a Raid",
+    "MODE": "RAIDS",
+    "RANK": "S",
+    }
+]
+
+
