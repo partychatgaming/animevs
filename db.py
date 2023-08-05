@@ -1098,13 +1098,6 @@ def deleteVault(query):
     except:
         return False
 
-def updateUser(query, new_value, arrayFilters):
-    try:
-        update = vault_col.update_one(query, new_value, array_filters=arrayFilters)
-        return True
-    except Exception as e:
-        return False
-
 '''Update Vault With No Array Filters'''
 # def updateUserNoFilter(query, new_value):
 #     try:
@@ -1884,7 +1877,7 @@ def deleteUser(user):
 def updateUser(query, new_value, arrayFilters):
     try:
         update = users_col.update_one(query, new_value, array_filters=arrayFilters)
-        return "Update completed. "
+        return "Update completed."
     except:
         return False
 
@@ -2119,54 +2112,17 @@ def deleteSession(session):
     except:
         return False
 
-
-
-def updateSession(query, update_query):
-    exists = session_exist({'OWNER': session['OWNER'], 'AVAILABLE': True})
-    if exists:
-        sessions_col.update_one(query, update_query)
-        return True
-    else:
-        return False
-
-
-
-
-''' KINGS GAMBIT '''
-def updatekg(session, query, update_query, arrayFilter):
-    exists = session_exist({'OWNER': session['OWNER'], 'AVAILABLE': True, "KINGSGAMBIT": True})
-    if exists:
-        sessions_col.update_one(query, update_query,  array_filters=arrayFilter)
-        return True
-    else:
-        return False
-    
     
 ''' TRADES '''
-def trade_exists(data):
-    collection_exists = col_exists("TRADE")
-    print(collection_exists)
-    if collection_exists:
-        trade_does_exist = trade_col.find_one(data)
-        if trade_does_exist:
-            return True
-        else:
-            return False
-    else:
-        return False
-
 def updateManyTrade(new_value):
     trade_col.update_many({}, new_value)
     return True
 
 def createTrade(trade):
     try:
-        tradeexists = trade_exists({'MDID': trade['MDID'], 'BDID': trade['BDID'], 'OPEN': trade['OPEN']})
-        if tradeexists:
-            return "Trade already exists."
-        else:
-            trade_col.insert_one(trade)
-            return trade
+        print(trade)
+        trade_col.insert_one(trade)
+        return trade
     except:
         return "Cannot create Trade."
 
@@ -2179,12 +2135,8 @@ def updateTrade(trade_query, new_value):
 
 def deleteTrade(query):
     try:
-        tradeexists = trade_exists({'MDID': query['MDID'], 'BDID': query['BDID'], 'OPEN': query['OPEN']})
-        if tradeexists:
-            trade_col.delete_one(query)
-            return True
-        else:
-            return False
+        trade_col.delete_one(query)
+        return True
     except:
         return False
 

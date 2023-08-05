@@ -247,9 +247,22 @@ class Card:
             self.scheduled_death_message = False
             self.focus_icon = "❤️"
             self.resolve_icon = "🌀"
-            self.class_message = self.card_class.title()
+            # self.class_message = self.card_class.title()
             self.class_emoji = crown_utilities.class_emojis[self.card_class]
             self.level_icon = "🔰"
+            self.class_tier = ""
+            if self.universe == "Fate":
+                self.class_tier = "Elite"
+            if self.tier in [4,5]:
+                self.class_tier = "Elite"
+                if self.universe == "Fate":
+                    self.class_tier = "Legendary"
+            elif self.tier in [6,7]:
+                self.class_tier = "Legendary"
+                if self.universe == "Fate":
+                    self.class_tier = "Mythical"
+            
+            self.class_message = f"{self.class_tier} {self.card_class.title()}"
 
 
             # Talisman Info
@@ -1446,7 +1459,7 @@ class Card:
 
                 with Pilmoji(im) as pilmoji:
                     # pilmoji.text((945, 445), crown_utilities.class_emojis[self.card_class], (0, 0, 0), font=health_and_stamina_font, align="left")
-                    pilmoji.text((602, 138), f"{crown_utilities.class_emojis[self.card_class]} {self.class_message} Class", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
+                    pilmoji.text((602, 138), f"{crown_utilities.class_emojis[self.card_class]} {self.class_message}", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
                     pilmoji.text((602, 180), f"🩸{card_message}{card_suffix}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")

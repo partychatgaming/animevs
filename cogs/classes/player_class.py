@@ -327,6 +327,9 @@ class Player:
                 db.updateUserNoFilter(self.user_query, update_query)
             
             if card.card_lvl > 1:
+                atk_def_buff = 0
+                ap_buff = 0
+                hlt_buff = 0
                 if (card.card_lvl + 1) % 2 == 0:
                     atk_def_buff = crown_utilities.level_sync["ATK_DEF"] or 2
                 if (card.card_lvl + 1) % 3 == 0:
@@ -338,9 +341,10 @@ class Player:
                                 '$inc': {'CARD_LEVELS.$[type].' + "LVL": card.card_lvl, 
                                         'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
-                                        'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
+                                        'CARD_LEVELS.$[type].' + "AP": ap_buff, 
+                                        'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
                 filter_query = [{'type.' + "CARD": str(card.name)}]
-                db.updateUser(self.user_query, update_query, filter_query)
+                response = db.updateUser(self.user_query, update_query, filter_query)
         
             return True
         except Exception as ex:
@@ -402,6 +406,7 @@ class Player:
                     message += elemental_damage_unlock_message
 
         return message
+
 
     def tales_title_unlock_check(self, stats, universe, unlock_method, value, title):
         message = ""
@@ -556,10 +561,10 @@ class Player:
             if self.storage_length == 25:
                 return False
             else:
-                update_query = {'$addToSet': {'STORAGE': {"NAME": summon.name, "LVL": summon.lvl, "EXP": summon.exp, "TYPE": summon.type, "BOND": summon.bond, "BONDEXP": summon.bondexp, "PATH": summon.path}}}
+                update_query = {'$addToSet': {'STORAGE': {"NAME": summon.name, "LVL": summon.level, "EXP": summon.exp, "TYPE": summon.type, "BOND": summon.bond, "BONDEXP": summon.bond_exp, "PATH": summon.path}}}
                 response = db.updateUserNoFilter(self.user_query, update_query)
         else:
-            update_query = {'$addToSet': {'SUMMONS': {"NAME": summon.name, "LVL": summon.lvl, "EXP": summon.exp, "TYPE": summon.type, "BOND": summon.bond, "BONDEXP": summon.bondexp, "PATH": summon.path}}}
+            update_query = {'$addToSet': {'SUMMONS': {"NAME": summon.name, "LVL": summon.level, "EXP": summon.exp, "TYPE": summon.type, "BOND": summon.bond, "BONDEXP": summon.bond_exp, "PATH": summon.path}}}
             response = db.updateUserNoFilter(self.user_query, update_query)
 
 

@@ -1961,7 +1961,6 @@ def update_arm_durability(player, player_arm, player_card):
         custom_logging.debug(ex)
 
 
-
 def get_battle_positions(battle_config):
     """
     Retrieves the positions of players, cards, titles, and arms for the battle.
@@ -2048,6 +2047,49 @@ def get_battle_positions(battle_config):
     partner_arm = getattr(battle_config, partner[3])
 
     return turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm
+
+
+def get_trade_eligibility(trader, trade_player):
+    if trader.level < 11 and trader.prestige == 0:
+        return "🔓 Unlock Trading by completeing Floor 10 of the 🌑 Abyss! Use /solo to enter the abyss."
+
+    if trade_player.level < 11 and trade_player.prestige == 0:
+        return f"🔓 <@{trade_player.did}> has not unlocked Trading by completing Floor 10 of the 🌑."
+    
+    return False
+
+
+def card_being_traded(player_did, card_name):
+    trade_data = db.queryTrade({'MERCHANT': player_did, 'OPEN': True})
+    if not trade_data:
+        return False
+    being_traded = False
+    for card in trade_data['CARDS']:
+        if card['NAME'] == card_name and card['DID'] == player_did:
+            being_traded = True
+    return being_traded
+
+
+def arm_being_traded(player_did, arm_name):
+    trade_data = db.queryTrade({'MERCHANT': player_did, 'OPEN': True})
+    if not trade_data:
+        return False
+    being_traded = False
+    for arm in trade_data['ARMS']:
+        if arm['NAME'] == arm_name and arm['DID'] == player_did:
+            being_traded = True
+    return being_traded
+
+
+def summon_being_traded(player_did, arm_name):
+    trade_data = db.queryTrade({'MERCHANT': player_did, 'OPEN': True})
+    if not trade_data:
+        return False
+    being_traded = False
+    for summon in trade_data['SUMMONS']:
+        if summon['NAME'] == arm_name and summon['DID'] == player_did:
+            being_traded = True
+    return being_traded
 
 
 def get_balance_icon(balance):

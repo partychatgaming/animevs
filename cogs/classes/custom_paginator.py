@@ -256,6 +256,19 @@ class CustomPaginator(Paginator):
                     self.market_summon = True
                     response = await self.activate_summon_action(ctx, self._message.embeds[0].title, self.market_summon)
                     await self._message.delete()
+            case "trade":
+                if self.cards_action:
+                    self.trade_card = True
+                    response = await self.activate_card_action(ctx, self._message.embeds[0].title, self.trade_card)
+                    await self._message.delete()
+                if self.arms_action:
+                    self.trade_arm = True
+                    response = await self.activate_arm_action(ctx, self._message.embeds[0].title, self.trade_arm)
+                    await self._message.delete()
+                if self.summon_action:
+                    self.trade_summon = True
+                    response = await self.activate_summon_action(ctx, self._message.embeds[0].title, self.trade_summon)
+                    await self._message.delete()
             case "apply":
                 if self.guild_buff_action:
                     await paginator.guild_apply()
@@ -1025,6 +1038,10 @@ class CustomPaginator(Paginator):
             response = await self.market_arm_function(ctx, arm)
             return response
 
+        if self.trade_arm:
+            response = await self.trade_arm_function(ctx, arm)
+            return response
+
 
     async def market_arm_function(self, ctx, arm):
         try:
@@ -1034,7 +1051,11 @@ class CustomPaginator(Paginator):
             player = crown_utilities.create_player_from_data(user)
             arm_data = db.queryArm({"ARM": arm})
             arm = crown_utilities.create_arm_from_data(arm_data)
-            
+            exists_on_trade_already = crown_utilities.arm_being_traded(user['DID'], arm.name)
+            if exists_on_trade_already:
+                embed = Embed(title=f"🦾 Arm is currently being Traded", description=f"{arm.name} is currently being traded. Please remove it from the trade before adding it to the market.")
+                await ctx.send(embed=embed)
+                return
             exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": arm.name})
             confirm_buttons = [
                         Button(
@@ -1149,6 +1170,12 @@ class CustomPaginator(Paginator):
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
             player = crown_utilities.create_player_from_data(user)
+            exists_on_trade_already = crown_utilities.arm_being_traded(user['DID'], arm_name)
+            if exists_on_trade_already:
+                embed = Embed(title=f"🦾 Arm is currently being Traded", description=f"{arm_name} is currently being traded. Please remove it from the trade before equipping it.")
+                await ctx.send(embed=embed)
+                return
+
             exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": arm_name})
             if exists_on_market_already:
                 embed = Embed(title=f"🏷️ Arm is on the Market", description=f"{arm_name} is still on the market. Please remove it from the market before equipping it")
@@ -1176,6 +1203,12 @@ class CustomPaginator(Paginator):
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
         player = crown_utilities.create_player_from_data(user)
+        exists_on_trade_already = crown_utilities.arm_being_traded(user['DID'], arm)
+        if exists_on_trade_already:
+            embed = Embed(title=f"🦾 Arm is currently being Traded", description=f"{arm} is currently being traded. Please remove it from the trade before storaging it.")
+            await ctx.send(embed=embed)
+            return
+
         exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": arm})
         if exists_on_market_already:
             embed = Embed(title=f"🏷️ Arm is on the Market", description=f"{arm} is still on the market. Please remove it from the market before equipping it")
@@ -1308,9 +1341,62 @@ class CustomPaginator(Paginator):
                     return
 
 
-    def trade_arm_function(self, ctx, arm):
-        return "Trade Arm under construction"
+    async def trade_arm_function(self, ctx, arm):
+        try:
+            user_query = {'DID': str(ctx.author.id)}
+            user = db.queryUser(user_query)
+            player = crown_utilities.create_player_from_data(user)
+            arm_data = db.queryArm({"ARM": arm})
+            arm = crown_utilities.create_arm_from_data(arm_data)
+            if arm.name == player.equipped_arm:
+                embed = Embed(title=f"🦾 Arm Storage", description=f"Arm {arm.name} is equipped - Please unequip arm before trading")
+                await ctx.send(embed=embed)
+                return
+            exists_on_trade_already = crown_utilities.arm_being_traded(user['DID'], arm.name)
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": arm.name})
+            if exists_on_market_already:
+                embed = Embed(title=f"🏷️ Arm is on the Market", description=f"{arm.name} is still on the market. Please remove it from the market before trading it")
+                await ctx.send(embed=embed)
+                return
 
+
+            if exists_on_trade_already:
+                embed = Embed(title=f"🦾 Arm is currently being Traded", description=f"{arm.name} is currently being traded. Please remove it from the trade before adding it to the market.")
+                await ctx.send(embed=embed)
+                return
+            trade_query = {'MERCHANT': player.did, 'OPEN': True}
+            trade_data = db.queryTrade(trade_query)
+            if not trade_data:
+                trade_query = {'BUYER': player.did, 'OPEN': True}
+                trade_data = db.queryTrade(trade_query)
+            if trade_data:
+                for a in player.arms:
+                    if a['ARM'] == arm.name:
+                        arm.durability = a['DUR']
+
+                trade_object = {
+                    "DID": player.did,
+                    "NAME": arm.name,
+                    "DUR": arm.durability,
+                }
+                response = db.updateTrade(trade_query, {'$push': {'ARMS': trade_object}})
+                if response:
+                    # Make embed for being added to Trade
+                    embed = Embed(title=f"🦾 Arm Added to Trade", description=f"{arm.name} has been added to the trade")
+                    await ctx.send(embed=embed)
+                    return
+            else:
+                # Make embed for there not being a Trade open at this time
+                embed = Embed(title=f"🦾 Arm Not Added to Trade", description=f"There is no trade open at this time")
+                await ctx.send(embed=embed)
+                return
+        except Exception as ex:
+            custom_logging.debug(ex)
+            # Make embed for not being added to Trade
+            embed = Embed(title=f"🦾 Arm Not Added to Trade", description=f"Failed to add arm to the trade - Error Logged")
+            await ctx.send(embed=embed)
+            return
+        
 
     async def dismantle_arm_function(self, ctx, arm_title):
         await ctx.defer()
@@ -1318,6 +1404,12 @@ class CustomPaginator(Paginator):
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
             player = crown_utilities.create_player_from_data(user)
+            exists_on_trade_already = crown_utilities.arm_being_traded(user['DID'], arm_title)
+            if exists_on_trade_already:
+                embed = Embed(title=f"🦾 Arm is currently being Traded", description=f"{arm_title} is currently being traded. Please remove it from the trade before dismantling it.")
+                await ctx.send(embed=embed)
+                return
+
             exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": arm_title})
             if exists_on_market_already:
                 embed = Embed(title=f"🏷️ Arm is on the Market", description=f"{arm_title} is still on the market. Please remove it from the market before equipping it")
@@ -1404,7 +1496,7 @@ class CustomPaginator(Paginator):
                     self.dismantle_card = False
 
                 if action == self.trade_card:
-                    response = self.trade_card_action(ctx, card)
+                    response = await self.trade_card_action(ctx, card)
                     self.trade_card = False
 
                 if self.market_card:
@@ -1419,6 +1511,11 @@ class CustomPaginator(Paginator):
         try:
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
+            exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], card)
+            if exists_on_trade_already:
+                embed = Embed(title=f"🎴 Card is being Traded", description=f"{card} is still being traded. Please remove it from the trade before equipping it")
+                await ctx.send(embed=embed)
+                return
             exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": card})
             if exists_on_market_already:
                 embed = Embed(title=f"🏷️ Card is on the Market", description=f"{card} is still on the market. Please remove it from the market before equipping it")
@@ -1451,6 +1548,12 @@ class CustomPaginator(Paginator):
             _uuid = generate_6_digit_code()
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
+            exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], card)
+            if exists_on_trade_already:
+                embed = Embed(title=f"🎴 Card is being Traded", description=f"{card} is still being traded. Please remove it from the trade before addint it to the market")
+                await ctx.send(embed=embed)
+                return
+
             player = crown_utilities.create_player_from_data(user)
             card_data = db.queryCard({'NAME': card})
             card = crown_utilities.create_card_from_data(card_data)
@@ -1570,6 +1673,12 @@ class CustomPaginator(Paginator):
             user = db.queryUser(user_query)
             player = crown_utilities.create_player_from_data(user)
             card_data = db.queryCard({'NAME': card})
+            exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], card)
+            if exists_on_trade_already:
+                embed = Embed(title=f"🎴 Card is being Traded", description=f"{card} is still being traded. Please remove it from the trade before dismantling it")
+                await ctx.send(embed=embed)
+                return
+
             exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": card})
             if exists_on_market_already:
                 embed = Embed(title=f"🏷️ Card is on the Market", description=f"Failed to dismantle {card} as it is currently on the market")
@@ -1637,18 +1746,64 @@ class CustomPaginator(Paginator):
             await ctx.send(embed=embed)
 
 
-    def trade_card_action(self, ctx, card):
+    async def trade_card_action(self, ctx, card):
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
-        if card in user['CARDS']:
-            card_data = db.queryCard({'NAME': card})
-            c = crown_utilities.create_card_from_data(card_data)
-            # Come back to this later
+        player = crown_utilities.create_player_from_data(user)
+        card_data = db.queryCard({'NAME': card})
+        c = crown_utilities.create_card_from_data(card_data)
+        c.set_card_level_buffs(player.card_levels)
+        if c.name == player.equipped_card:
+            embed = Embed(title=f"🎴 Card Not Added to Trade", description=f"Failed to add {c.name} to the trade as it is currently equipped")
+            await ctx.send(embed=embed)
+            return
+        exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], card)
+        if exists_on_trade_already:
+            embed = Embed(title=f"🎴 Card is being Traded", description=f"{card} is already being traded.")
+            await ctx.send(embed=embed)
+            return
+
+        exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": card})
+        if exists_on_market_already:
+            embed = Embed(title=f"🏷️ Card is on the Market", description=f"{card} is still on the market. Please remove it from the market before trading it")
+            await ctx.send(embed=embed)
+            return
+
+        trade_query = {'MERCHANT': player.did, 'OPEN': True}
+        trade_data = db.queryTrade(trade_query)
+        if not trade_data:
+            trade_query = {'BUYER': player.did, 'OPEN': True}
+            trade_data = db.queryTrade(trade_query)
+
+        if trade_data:
+            trade_object = {
+                "DID": player.did,
+                "NAME": c.name,
+                "LVL": c.card_lvl,
+            }
+            response = db.updateTrade(trade_query, {'$push': {'CARDS': trade_object}})
+            if response:
+                # Make embed for being added to Trade
+                embed = Embed(title=f"🎴 Card Added to Trade", description=f"{c.name} has been added to the trade")
+                await ctx.send(embed=embed)
+                return
+        else:
+            # Make embed for there not being a Trade open at this time
+            embed = Embed(title=f"🎴 Card Not Added to Trade", description=f"There is no trade open at this time")
+            await ctx.send(embed=embed)
+            return
+
 
     async def card_storage_function(self, ctx, card):
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
         player = crown_utilities.create_player_from_data(user)
+        exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], card)
+        if exists_on_trade_already:
+            embed = Embed(title=f"🎴 Card is being Traded", description=f"{card} is still being traded. Please remove it from the trade before storaging it")
+            await ctx.send(embed=embed)
+            return
+
         exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": card})
         if card == player.equipped_card:
             embed = Embed(title=f"🎴 Card Not Stored", description=f"Failed to store {card} as it is currently equipped")
@@ -1762,6 +1917,10 @@ class CustomPaginator(Paginator):
                     response = await self.market_summon_action(ctx, summon)
                     self.market_summon = False
 
+                if self.trade_summon:
+                    response = await self.trade_summon_action(ctx, summon)
+                    self.trade_summon = False
+
         except Exception as ex:
             print(ex)
             embed = Embed(title=f"🔮 Summon Activation Failed", description=f"Failed to activate {summon} - Error Logged")
@@ -1780,6 +1939,11 @@ class CustomPaginator(Paginator):
                 if s['NAME'] == summon_title:
                     summon.level = s['LVL']
                     summon.bond = s['BOND']
+            exists_on_trade_already = crown_utilities.summon_being_traded(user['DID'], summon_title)
+            if exists_on_trade_already:
+                embed = Embed(title=f"🧬 Summon is being Traded", description=f"{summon_title} is still being traded. Please remove it from the trade before adding it to the market")
+                await ctx.send(embed=embed)
+                return
             exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
             confirm_buttons = [
                         Button(
@@ -1894,6 +2058,11 @@ class CustomPaginator(Paginator):
         user = db.queryUser(user_query)
         player = crown_utilities.create_player_from_data(user)
         updated = False
+        exists_on_trade_already = crown_utilities.summon_being_traded(user['DID'], summon_title)
+        if exists_on_trade_already:
+            embed = Embed(title=f"🧬 Summon is being Traded", description=f"{summon_title} is still being traded. Please remove it from the trade before equipping it")
+            await ctx.send(embed=embed)
+            return
         exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon_title})
         if exists_on_market_already:
             embed = Embed(title=f"🏷️ Summon is on the Market", description=f"{summon_title} is still on the market. Please remove it from the market before equipping it")
@@ -1901,7 +2070,7 @@ class CustomPaginator(Paginator):
             return
 
         if summon_title == player.equipped_summon:
-            embed = Embed(title=f"🐦 Summon Not Equipped", description=f"{summon_title} is already equipped")
+            embed = Embed(title=f"🧬 Summon Not Equipped", description=f"{summon_title} is already equipped")
             await ctx.send(embed=embed)
             return
         for summon in player.summons:
@@ -1910,12 +2079,12 @@ class CustomPaginator(Paginator):
                                 '$set': {'PET': summon_title},
                             }
                 response = db.updateUserNoFilter(user_query, update_summon_query)
-                embed = Embed(title=f"🐦 Summon Equipped", description=f"Successfully equipped {summon_title}")
+                embed = Embed(title=f"🧬 Summon Equipped", description=f"Successfully equipped {summon_title}")
                 updated = True
                 await ctx.send(embed=embed)
         
         if not updated:
-            embed = Embed(title=f"🐦 Summon Not Equipped", description=f"Failed to equip {summon_title} as it is not in your inventory")
+            embed = Embed(title=f"🧬 Summon Not Equipped", description=f"Failed to equip {summon_title} as it is not in your inventory")
             await ctx.send(embed=embed)
 
 
@@ -1926,6 +2095,11 @@ class CustomPaginator(Paginator):
         player = crown_utilities.create_player_from_data(user)
         summon = crown_utilities.create_summon_from_data(summon_data)
         available_to_dismantle = False
+        exists_on_trade_already = crown_utilities.summon_being_traded(user['DID'], summon_title)
+        if exists_on_trade_already:
+            embed = Embed(title=f"🧬 Summon is being Traded", description=f"{summon_title} is still being traded. Please remove it from the trade before dismantling it")
+            await ctx.send(embed=embed)
+            return
         exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon_title})
         if exists_on_market_already:
             embed = Embed(title=f"🏷️ Summon is on the Market", description=f"{summon_title} is still on the market. Please remove it from the market before equipping it")
@@ -1938,12 +2112,12 @@ class CustomPaginator(Paginator):
                 break
 
         if summon_title == player.equipped_summon:
-            embed = Embed(title=f"🐦 Summon Not Dismantled", description=f"{summon_title} is equipped and cannot be dismantled.")
+            embed = Embed(title=f"🧬 Summon Not Dismantled", description=f"{summon_title} is equipped and cannot be dismantled.")
             await ctx.send(embed=embed)
             return
 
         if not available_to_dismantle:
-            embed = Embed(title=f"🐦 Summon Not Dismantled", description=f"{summon_title} is not in your inventory.")
+            embed = Embed(title=f"🧬 Summon Not Dismantled", description=f"{summon_title} is not in your inventory.")
             await ctx.send(embed=embed)
             return
 
@@ -1962,7 +2136,7 @@ class CustomPaginator(Paginator):
                     ]
 
             components = ActionRow(*dismantle_buttons)
-            embed = Embed(title=f"🐦 Dismantle Card", description=f"Are you sure you want to dismantle {summon.name} for 💎 {summon.dismantle_amount} gems?")
+            embed = Embed(title=f"🧬 Dismantle Card", description=f"Are you sure you want to dismantle {summon.name} for 💎 {summon.dismantle_amount} gems?")
             msg = await ctx.send(embed=embed, components=[components])
 
             def check(component: Button) -> bool:
@@ -1972,7 +2146,7 @@ class CustomPaginator(Paginator):
                 button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
 
                 if button_ctx.ctx.custom_id == f"{self._uuid}|no":
-                    embed = Embed(title=f"🐦 Summon Not Dismantled", description=f"Cancelled dismantle of {summon.name}")
+                    embed = Embed(title=f"🧬 Summon Not Dismantled", description=f"Cancelled dismantle of {summon.name}")
                     await msg.edit(embed=embed, components=[])
                     return
 
@@ -1982,20 +2156,74 @@ class CustomPaginator(Paginator):
                     if response:
                         remove_card_response = player.remove_summon(summon.name)
                         if remove_card_response:
-                            embed = Embed(title=f"🐦 Summon Dismantled", description=f"{summon.name} has been dismantled for 💎 {summon.dismantle_amount} {summon.universe_crest} {summon.universe} Gems")
+                            embed = Embed(title=f"🧬 Summon Dismantled", description=f"{summon.name} has been dismantled for 💎 {summon.dismantle_amount} {summon.universe_crest} {summon.universe} Gems")
                             await msg.edit(embed=embed, components=[])
                     else:
-                        embed = Embed(title=f"🐦 Summon Not Dismantled", description=f"Failed to dismantle {summon.name} - Error Logged")
+                        embed = Embed(title=f"🧬 Summon Not Dismantled", description=f"Failed to dismantle {summon.name} - Error Logged")
                         await msg.edit(embed=embed, components=[])
 
             except asyncio.TimeoutError:
-                embed = Embed(title=f"🐦 Summon Not Dismantled", description=f"Failed to dismantle {summon.name} - Timed Out")
+                embed = Embed(title=f"🧬 Summon Not Dismantled", description=f"Failed to dismantle {summon.name} - Timed Out")
                 await msg.edit(embed=embed, components=[])
                 return
         except Exception as ex:
             print(ex)
             embed = Embed(title=f"🔮 Summon Dismantle Failed", description=f"Failed to dismantle {summon.name} - Error Logged")
             await msg.edit(embed=embed)
+
+
+    async def trade_summon(self, ctx, summon_title):
+        '''
+        Trade a summon
+        '''
+        user_query = {'DID': str(ctx.author.id)}
+        user = db.queryUser(user_query)
+        player = crown_utilities.create_player_from_data(user)
+        summon_data = db.querySummon({'PET': summon_title})
+        summon = crown_utilities.create_summon_from_data(summon_data)
+        if summon.name == player.equipped_summon:
+            embed = Embed(title=f"🧬 Summon Not Added to Trade", description=f"Failed to add {summon.name} to the trade as it is currently equipped")
+            await ctx.send(embed=embed)
+            return
+        exists_on_trade_already = crown_utilities.summon_being_traded(user['DID'], summon_title)
+        if exists_on_trade_already:
+            embed = Embed(title=f"🧬 Summon is being Traded", description=f"{summon_title} is still being traded. Please remove it from the trade before trading it")
+            await ctx.send(embed=embed)
+            return
+        
+        exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon_title})
+        if exists_on_market_already:
+            embed = Embed(title=f"🏷️ Summon is on the Market", description=f"{summon_title} is still on the market. Please remove it from the market before trading it")
+            await ctx.send(embed=embed)
+            return
+        
+        trade_query = {'MERCHANT': player.did, 'OPEN': True}
+        trade_data = db.queryTrade(trade_query)
+        if not trade_data:
+            trade_query = {'BUYER': player.did, 'OPEN': True}
+            trade_data = db.queryTrade(trade_query)
+        if trade_data:
+            for s in player.summons:
+                if s['NAME'] == summon_title:
+                    summon.level = s['LVL']
+                    summon.bond = s['BOND']
+            trade_object = {
+                "DID": player.did,
+                "NAME": summon.name,
+                "LVL": summon.level,
+                "BOND": summon.bond,
+            }
+            response = db.updateTrade(trade_query, {'$push': {'SUMMONS': trade_object}})
+            if response:
+                # Make embed for being added to Trade
+                embed = Embed(title=f"🧬 Summon Added to Trade", description=f"{summon.name} has been added to the trade")
+                await ctx.send(embed=embed)
+                return
+        else:
+            # Make embed for there not being a Trade open at this time
+            embed = Embed(title=f"🧬 Summon Not Added to Trade", description=f"There is no trade open at this time")
+            await ctx.send(embed=embed)
+            return
 
 
     """
