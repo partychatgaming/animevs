@@ -70,6 +70,7 @@ class CODES():
     CARD: str = field(default_factory=lambda: '')
     ARM: str = field(default_factory=lambda: '')
     SUMMON: str = field(default_factory=lambda: '')
+    EXP: int = field(default_factory=lambda: 0)
 
 
 @dataclass(frozen=True, order=True)

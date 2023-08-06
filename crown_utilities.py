@@ -64,261 +64,6 @@ def storage_limit_hit(player_info, vault, type):
     return limit_hit
     
 
-async def store_drop_card(player, card_name, card_universe, vault, owned_destinies, bless_amount_if_max_cards, bless_amount_if_card_owned, mode, is_shop, price, item_override):
-    try:
-        
-        player_info = db.queryUser({"DID": str(player)})
-        user = await main.bot.fetch_user(player)
-        if item_override == "cards":
-            storage_limit_has_been_hit = storage_limit_hit(player_info, vault, "cards")
-
-            current_storage = vault['STORAGE']
-            current_cards_in_vault = vault['CARDS']
-
-            vault_query = {'DID': str(player)}
-            hand_length = len(current_cards_in_vault)
-
-
-            # Combine the current storage and cards in the vault into a single list
-            current_cards = current_storage + current_cards_in_vault
-
-            # Check if the card is already owned
-            card_owned = card_name in current_cards
-
-            if card_owned:
-                if is_shop:
-                    await cardlevel(user, card_name, player, mode, card_universe)
-                    await curse(int(price), str(player))
-                    return f"You earned experience points for 🎴: **{card_name}**"
-                await cardlevel(user, card_name, player, mode, card_universe)
-                await bless(int(bless_amount_if_card_owned), player)
-                return f"You earned experience points for 🎴: **{card_name}** & 🪙 **{'{:,}'.format(bless_amount_if_card_owned)}**"
-            else:
-                if hand_length < 25:
-                    response = db.updateUserNoFilter(vault_query,{'$addToSet': {'CARDS': str(card_name)}})
-                    if is_shop:
-                        await curse(int(price), str(player))
-
-                    # Add Card Level config
-                    if not card_owned:
-                        update_query = {'$addToSet': {
-                            'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 0, 'TIER': 0,
-                                            'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
-                        r = db.updateUserNoFilter(vault_query, update_query)
-
-                    # Add Destiny
-                    for destiny in d.destiny:
-                        if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
-                            db.updateUserNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
-                            await user.send(
-                                f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
-                    if mode == "Boss":
-                        return f"You earned the Exclusive Boss Card 🎴: **{card_name}**!"
-                    elif mode == "Ex":
-                        return f":japanese_ogre: **SOUL EXCHANGE:**  🎴: **{card_name}**"
-                    elif mode == "Abyss":
-                        return f"🎴 **{card_name}**!"
-                    return f"You earned 🎴: **{card_name}**!"
-
-                
-                if hand_length >= 25 and not storage_limit_has_been_hit:
-                    if is_shop:
-                        response = await route_to_storage(user, player, card_name, current_cards, card_owned, price, card_universe, owned_destinies, "Purchase", "cards")
-                        return response
-                    else:
-                        update_query = {'$addToSet': {
-                            'CARD_LEVELS': {'CARD': card_name, 'LVL': 0, 'TIER': 0, 'EXP': 0, 'HLT': 0,
-                                            'ATK': 0, 'DEF': 0, 'AP': 0}}}
-                        response = db.updateUserNoFilter(vault_query, {'$addToSet': {'STORAGE': card_name}})
-                        r = db.updateUserNoFilter(vault_query, update_query)
-                        message = ""
-                        for destiny in d.destiny:
-                            if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
-                                db.updateUserNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
-                                await user.send(
-                                    f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
-                        if mode == "Abyss":
-                            return f"💼🎴 **{card_name}**!"
-                        elif mode == "Ex":
-                            return f":japanese_ogre: **SOUL EXCHANGE:**  🎴: **{card_name}** has been added to your storage 💼!"
-                        else:
-                            return f"🎴: **{card_name}** has been added to your storage 💼!\n{message}"
-
-
-                if hand_length >= 25 and storage_limit_has_been_hit:
-                    if is_shop:
-                        return "You have max amount of 🎴: Cards. Transaction cancelled."   
-                    else:
-                        await bless(int(bless_amount_if_max_cards), player)
-                        if mode == "Abyss":
-                            return f"💼🎴 Storage Full"
-                        else:
-                            return f"You're maxed out on 🎴: Cards! You earned 🪙 {str(bless_amount_if_max_cards)} instead!"
-        elif item_override =="titles":
-            title_name = card_name
-            title_universe = card_universe
-            bless_amount_if_max_titles = bless_amount_if_max_cards
-            bless_amount_if_title_owned = bless_amount_if_card_owned
-            
-            storage_limit_has_been_hit = storage_limit_hit(player_info, vault, "titles")
-
-            current_storage = vault['TSTORAGE']
-            current_titles_in_vault = vault['TITLES']
-
-            vault_query = {'DID': str(player)}
-            hand_length = len(current_titles_in_vault)
-
-
-            list1 = current_titles_in_vault
-            list2 = current_storage
-            list2.extend(list1)
-            current_titles = list2
-
-            title_owned = False
-            for owned_title in current_titles:
-                if owned_title == title_name:
-                    title_owned = True
-            for owned_title in current_storage:
-                if owned_title == title_name:
-                    title_owned = True
-
-            if title_owned:
-                if is_shop:
-                    await curse(int(price), str(player))
-                    return f"You already own 🎗️: **{title_name}**. You get a 🪙**{'{:,}'.format(bless_amount_if_title_owned)}** refund!"
-                await bless(int(bless_amount_if_title_owned), player)
-                return f"You already own 🎗️: **{title_name}**! You earn  🪙**{'{:,}'.format(bless_amount_if_title_owned)}**."
-            else:
-                if hand_length < 25:
-                    response = db.updateUserNoFilter(vault_query,{'$addToSet': {'TITLES': str(title_name)}})
-                    if is_shop:
-                        await curse(int(price), str(player))
-                    if mode == "Boss":
-                        return f"You earned the Exclusive Boss Title 🎗️: **{title_name}**!"
-                    elif mode == "Abyss":
-                        return f"🎗️ **{title_name}**!"
-                    return f"You earned 🎗️: **{title_name}**!"
-                if hand_length >= 25 and not storage_limit_has_been_hit:
-
-                    if is_shop:
-                        response = await route_to_storage(user, player, title_name, current_titles, title_owned, price, title_universe, owned_destinies, "Purchase", "titles")
-                        return response
-                    else:
-                        response = db.updateUserNoFilter(vault_query, {'$addToSet': {'TSTORAGE': title_name}})
-                        message = ""
-                        if mode == "Abyss":
-                            return f"💼🎗️ **{title_name}**!"
-                        else:
-                            return f"🎗️: **{title_name}** has been added to your storage 💼!\n{message}"
-
-
-                if hand_length >= 25 and storage_limit_has_been_hit:
-                    if is_shop:
-                        return "You have max amount of 🎗️: Titles. Transaction cancelled."   
-                    else:
-                        await bless(int(bless_amount_if_max_cards), player)
-                        if mode == "Abyss":
-                            return f"💼🎗️ Storage Full"
-                        else:
-                            return f"You're maxed out on 🎗️: Titles! You earned 🪙 {str(bless_amount_if_max_titles)} instead!"
-        elif item_override == "arms":
-            arm_name = card_name
-            arm_universe = card_universe
-            bless_amount_if_max_arms = bless_amount_if_max_cards
-            bless_amount_if_arm_owned = bless_amount_if_card_owned
-            durability = owned_destinies
-            storage_limit_has_been_hit = storage_limit_hit(player_info, vault, "arms")
-
-            current_storage = vault['ASTORAGE']
-            current_arms_in_vault = vault['ARMS']
-
-            vault_query = {'DID': str(player)}
-            hand_length = len(current_arms_in_vault)
-
-
-            list1 = current_arms_in_vault
-            list2 = current_storage
-            list2.extend(list1)
-            current_arms = list2
-
-            arm_owned = False
-            for owned_arm in current_arms:
-                if owned_arm == arm_name:
-                    arm_owned = True
-                    
-            for owned_arm in current_storage:
-                if owned_arm['ARM'] == arm_name:
-                    arm_owned = True
-
-            if arm_owned:
-                update_query = {'$inc': {'ARMS.$[type].' + 'DUR': 10}}
-                filter_query = [{'type.' + "ARM": str(arm_name)}]
-                resp = db.updateUser(vault_query, update_query, filter_query)
-                if is_shop:
-                    await curse(int(price), str(player))
-                    return f"You purchased 🦾: **{arm_name}**. Increased durability for the arm by 10 as you already own it."
-                await bless(int(bless_amount_if_arm_owned), player)
-                return f"You already own 🦾: **{arm_name}**. Increased durability for the arm by 10 as you already own it."
-            else:
-                if hand_length < 25:
-                    if is_shop:
-                        await curse(int(price), str(player))
-                        response = db.updateUserNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': 25}}})
-                    if mode == "Boss":
-                        durability = random.randint(100, 150)
-                        response = db.updateUserNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': durability}}})
-                        return f"You earned the Exclusive Boss Arm 🦾: **{arm_name}**!"
-                    elif mode == "Abyss":
-                        response = db.updateUserNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': 100}}})
-                        return f"💼🦾 **{arm_name}**!"
-                    else:
-                        response = db.updateUserNoFilter(vault_query,{'$addToSet': {'ARMS': {'ARM': str(arm_name), 'DUR': 25}}})
-                    return f"You earned 🦾: **{arm_name}**!"
-                if hand_length >= 25 and not storage_limit_has_been_hit:
-
-                    if is_shop:
-                        response = await route_to_storage(user, player, arm_name, current_arms, arm_owned, price, arm_universe, durability, "Purchase", "arms")
-                        return response
-                    else:
-                        response = db.updateUserNoFilter(vault_query, {'$addToSet': {'ASTORAGE': {'ARM': str(arm_name), 'DUR': durability}}})
-                        message = ""
-                        if is_shop == "Abyss":
-                            return f"💼🦾 **{arm_name}**!"
-                        else:
-                            return f"🦾: **{arm_name}** has been added to your storage 💼!\n{message}"
-
-
-                if hand_length >= 25 and storage_limit_has_been_hit:
-                    if is_shop:
-                        return "You have max amount of 🦾: Arms. Transaction cancelled."   
-                    else:
-                        await bless(int(bless_amount_if_max_arms), player)
-                        if mode == "Abyss":
-                            return f"💼🦾 Storage Full"
-                        else:
-                            return f"You're maxed out on 🦾: Arms! You earned 🪙 {str(bless_amount_if_max_arms)} instead!"
-            # print("Arm storage coming soon")
-        
-        else:
-            print("Cannot find items of that type")
-    except Exception as ex:
-        trace = []
-        tb = ex.__traceback__
-        while tb is not None:
-            trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-        print(str({
-            'player': str(player),
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-        }))
-
-
 def update_save_spot(ctx, saved_spots, selected_universe, modes):
     try:
         currentopponent = 0
@@ -1014,150 +759,154 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
         }))
 
     
-async def cardlevel(user, mode: str):
+async def cardlevel(user, mode: str, extra_exp = 0):
     try:
-        player_info = db.queryUser({'DID': str(user.id)})
-        player = create_player_from_data(player_info)
-        card_info = db.queryCard({'NAME': player.equipped_card})
-        card = create_card_from_data(card_info)
+        player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
+        card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
         guild_buff = await guild_buff_update_function(player.guild.lower())
-        arm = db.queryArm({'ARM': player.equipped_arm})
-        title = db.queryTitle({'TITLE': player.equipped_title})
-        a = create_arm_from_data(arm)
-        t = create_title_from_data(title)
+        arm = create_arm_from_data(db.queryArm({'ARM': player.equipped_arm}))
+        title = create_title_from_data(db.queryTitle({'TITLE': player.equipped_title}))
         card.set_card_level_buffs(player.card_levels)
+        has_universe_heart, has_universe_soul = get_level_boosters(player, card)
+        exp_gain, lvl_req = get_exp_gain(player, mode, card, has_universe_soul, extra_exp)
+
         if player.difficulty == "EASY":
             return
-        
-        has_universe_heart = False
-        has_universe_soul = False
 
-        for gems in player.gems:
-            if gems['UNIVERSE'] == card.universe and gems['UNIVERSE_HEART']:
-                has_universe_heart = True
-            if gems['UNIVERSE'] == card.universe and gems['UNIVERSE_SOUL']:
-                has_universe_soul = True
+        number_of_level_ups, card = await update_experience(card, player, exp_gain, lvl_req)
 
-        new_lvl = card.card_lvl + 1
-        x = 0.099
-        y = 1.25
-        lvl_req = round((float(card.card_lvl)/x)**y)
-        exp_gain = 0
-        t_exp_gain = 100 + (player.rebirth) + player.prestige_buff
-        d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
-        b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
-        if has_universe_soul:
-            if mode in DUNGEON_M:
-                exp_gain = d_exp_gain * 4
-            if mode in TALE_M:
-                exp_gain = t_exp_gain * 4
-            if mode in BOSS_M:
-                exp_gain = b_exp_gain * 4
-            if mode == "Purchase":
-                exp_gain = lvl_req
+        if number_of_level_ups > 0:
+            print(f"Card {card.name} leveled up {str(number_of_level_ups)} times!")
+            lvl_req = get_level_up_exp_req(card)
+            embed = Embed(title=f"🎴 **{card.name}** leveled up {str(number_of_level_ups)} times!", color=0x00ff00)
+            embed.set_footer(text=f"{lvl_req} EXP to next level")
+            embed.set_image(url="attachment://image.png")
+            image_binary = card.showcard("non-battle", arm, title)
+            image_binary.seek(0)
+            card_file = File(file_name="image.png", file=image_binary)
+            await user.send(embed=embed, file=card_file)
+            image_binary.close()
+            return
         else:
-            if mode in DUNGEON_M:
-                exp_gain = d_exp_gain
-            if mode in TALE_M:
-                exp_gain = t_exp_gain
-            if mode in BOSS_M:
-                exp_gain = b_exp_gain 
-            if mode == "Purchase":
-                exp_gain = lvl_req
-
-
-        hlt_buff = 0
-        atk_def_buff = 0
-        ap_buff = 0
-
-        if card.card_lvl < 200:
-            if guild_buff:
-                if guild_buff['Level']:
-                    exp_gain = 150
-                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-
-            # Experience Code
-            if card.card_exp < (lvl_req - 1):
-                update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
-                filter_query = [{'type.' + "CARD": card.name}]
-                response = db.updateUser(player.user_query, update_query, filter_query)
-
-            # Level Up Code
-            if card.card_exp >= (lvl_req - exp_gain):
-                if (card.card_lvl + 1) % 2 == 0:
-                    atk_def_buff = level_sync["ATK_DEF"]
-                if (card.card_lvl + 1) % 3 == 0:
-                    ap_buff = level_sync["AP"]
-                if (card.card_lvl + 1) % 20 == 0:
-                    hlt_buff = level_sync["HLT"]
-                update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
-                                '$inc': {'CARD_LEVELS.$[type].' + "LVL": 1, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
-                                        'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
-                                        'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                filter_query = [{'type.' + "CARD": card.name}]
-                response = db.updateUser(player.user_query, update_query, filter_query)
-
-                embed = Embed(title=f"🎴 **{card.name}** leveled up", description=f"🎊 New level - {new_lvl} 🎊", color=0x00ff00)
-                embed.set_image(url="attachment://image.png")
-                image_binary = card.showcard("non-battle", a, t, 0, 0)
-                image_binary.seek(0)
-                card_file = File(file_name="image.png", file=image_binary)
-                await user.send(embed=embed, file=card_file)
-                image_binary.close()
-                return
-        
-        # REMOVED  and has_universe_heart from each conditional below for now
-        if card.card_lvl < 500 and card.card_lvl >= 200:
-            if guild_buff:
-                if guild_buff['Level']:
-                    exp_gain = round(lvl_req)
-                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-        elif card.card_lvl < 700 and card.card_lvl >= 500:
-            if guild_buff:
-                if guild_buff['Level']:
-                    exp_gain = round(lvl_req/2)
-                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-                    
-        elif card.card_lvl < 1000 and card.card_lvl >= 700:
-            if guild_buff:
-                if guild_buff['Level']:
-                    exp_gain = round(lvl_req/3)
-                    update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-        if card.card_lvl > 200:
-            # Experience Code
-            if card.card_exp < (lvl_req - 1):
-                update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
-                filter_query = [{'type.' + "CARD": card.name}]
-                response = db.updateUser(player.user_query, update_query, filter_query)
-
-            # Level Up Code
-            if card.card_exp >= (lvl_req - exp_gain) and card.card_lvl <1000:
-                if (card.card_lvl + 1) % 2 == 0:
-                    atk_def_buff = 1
-                if (card.card_lvl + 1) % 3 == 0:
-                    ap_buff = 1
-                if (card.card_lvl + 1) % 20 == 0:
-                    hlt_buff = 25
-                update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
-                                '$inc': {'CARD_LEVELS.$[type].' + "LVL": 1, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
-                                        'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
-                                        'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                filter_query = [{'type.' + "CARD": str(card)}]
-                response = db.updateUser(player.user_query, update_query, filter_query)
-
-                embed = Embed(title=f"🎴 **{card.name}** leveled up", description=f"🎊 New level - {new_lvl} 🎊", color=0x00ff00)
-                embed.set_image(url="attachment://image.png")
-                image_binary = card.showcard("non-battle", a, t, 0, 0)
-                image_binary.seek(0)
-                card_file = File(file_name="image.png", file=image_binary)
-                await user.send(embed=embed, file=card_file)
-                image_binary.close()
-                return
-        return
+            return
     except Exception as ex:
         custom_logging.debug(ex)
         await user.send("Issue with leveling up card")
         return
+
+
+# if card.card_lvl < 500 and card.card_lvl >= 200:
+#     if guild_buff:
+#         if guild_buff['Level']:
+#             exp_gain = round(lvl_req)
+#             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+# elif card.card_lvl < 700 and card.card_lvl >= 500:
+#     if guild_buff:
+#         if guild_buff['Level']:
+#             exp_gain = round(lvl_req/2)
+#             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+            
+# elif card.card_lvl < 1000 and card.card_lvl >= 700:
+#     if guild_buff:
+#         if guild_buff['Level']:
+#             exp_gain = round(lvl_req/3)
+#             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
+
+
+def get_buffs(card_lvl, level_sync):
+    atk_def_buff = 1 if (card_lvl + 1) % 2 == 0 else 0
+    ap_buff = 1 if (card_lvl + 1) % 3 == 0 else 0
+    hlt_buff = 25 if (card_lvl + 1) % 20 == 0 else 0
+    if card_lvl < 200:
+        atk_def_buff = level_sync["ATK_DEF"] if atk_def_buff else 0
+        ap_buff = level_sync["AP"] if ap_buff else 0
+        hlt_buff = level_sync["HLT"] if hlt_buff else 0
+    return atk_def_buff, ap_buff, hlt_buff
+
+
+async def update_experience(card, player, exp, lvl_req):
+    number_of_level_ups = 0
+    exp_gain = exp
+    while exp_gain >= 0:
+        atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync)
+        if card.card_lvl < 200 or (200 < card.card_lvl < 1000):
+            # Experience Code
+            if exp_gain <= (lvl_req - 1):
+                update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
+                filter_query = [{'type.' + "CARD": card.name}]
+                response = db.updateUser(player.user_query, update_query, filter_query)
+                break
+                
+            # Level Up Code
+            if exp_gain >= (lvl_req - exp_gain):
+                atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync)
+                update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
+                                '$inc': {'CARD_LEVELS.$[type].' + "LVL": 1, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
+                                         'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
+                                         'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
+                filter_query = [{'type.' + "CARD": card.name}]
+                response = db.updateUser(player.user_query, update_query, filter_query)
+                exp_gain = exp_gain - lvl_req
+                number_of_level_ups += 1
+                card.card_lvl += 1
+                lvl_req = get_level_up_exp_req(card)
+                print(f"New Level Required - {lvl_req}")
+
+    return number_of_level_ups, card
+
+
+def get_level_boosters(player, card):
+    has_universe_heart = False
+    has_universe_soul = False
+
+    for gems in player.gems:
+        if gems['UNIVERSE'] == card.universe and gems['UNIVERSE_HEART']:
+            has_universe_heart = True
+        if gems['UNIVERSE'] == card.universe and gems['UNIVERSE_SOUL']:
+            has_universe_soul = True
+
+    return has_universe_heart, has_universe_soul
+
+
+def get_level_up_exp_req(card):
+    x = 0.099
+    y = 1.25
+    lvl_req = round((float(card.card_lvl)/x)**y)
+    return lvl_req
+
+
+def get_exp_gain(player, mode, card, has_universe_soul, extra_exp):
+    lvl_req = get_level_up_exp_req(card)
+    exp_gain = 0
+    t_exp_gain = 100 + (player.rebirth) + player.prestige_buff
+    d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
+    b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
+    if has_universe_soul:
+        if mode in DUNGEON_M:
+            exp_gain = (d_exp_gain * 5) + extra_exp
+        elif mode in TALE_M:
+            exp_gain = (t_exp_gain * 5) + extra_exp
+        elif mode in BOSS_M:
+            exp_gain = (b_exp_gain * 5) + extra_exp
+        else:
+            exp_gain = extra_exp
+    else:
+        if mode in DUNGEON_M:
+            exp_gain = d_exp_gain + extra_exp
+        elif mode in TALE_M:
+            exp_gain = t_exp_gain + extra_exp
+        elif mode in BOSS_M:
+            exp_gain = b_exp_gain + extra_exp
+        else:
+            exp_gain = extra_exp
+
+    if mode == "Purchase":
+        exp_gain = lvl_req + 100 + extra_exp
+
+    print(f"Extra Exp: {extra_exp}")
+    print(f"Exp Gain: {exp_gain} | Level Req: {lvl_req}")
+
+    return exp_gain, lvl_req
 
 
 async def guild_buff_update_function(team):

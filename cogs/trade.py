@@ -6,6 +6,7 @@ import uuid
 from interactions import User
 from interactions import ActionRow, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Embed, Extension
 from cogs.classes.trade_class import Trading
+from cogs.quests import Quests
 
 class Trade(Extension):
     def __init__(self, bot):
@@ -211,7 +212,13 @@ class Trade(Extension):
                         if self.receive_trade_items(trade_info):
                             trade_info.set_open(False)
                             db.updateTrade(trade_info.get_query(), {"$set": trade_info.get_trade_data()})
-                            embed = Embed(title=f"🤝 Trade Completed", description=f"🎊 Trade between <@{executioner}> and <@{friend}> has been completed! 🎊")
+                            user = await self.bot.fetch_user(str(executioner))
+                            user2 = await self.bot.fetch_user(str(friend))
+                            Quests.quest_check(trade_info.merchant, "TRADE")
+                            Quests.quest_check(trade_info.buyer, "TRADE")
+                            await user.send(embed=trade_info.get_trade_message())
+                            await user2.send(embed=trade_info.get_trade_message())
+                            embed = Embed(title=f"🤝 Trade Completed", description=f"🎊 Trade between <@{executioner}> and <@{friend}> has been completed! 🎊. A reciept has been sent to both indiviuals dm's. 📨")
                             await confimation_msg.edit(embed=embed, components=[])
                             return
                         else:

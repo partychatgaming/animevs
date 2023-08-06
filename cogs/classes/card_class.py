@@ -1147,7 +1147,7 @@ class Card:
                     self.evasion_message = f"{self.speed} : {self.evasion}% evasion"
 
 
-    def showcard(self, mode, arm, title, turn_total, opponent_card_defense):   
+    def showcard(self, mode, arm, title, turn_total=0, opponent_card_defense=0):   
         try:    
             if self.health <= 0:
                 im = get_card(self.path, self.name, "base")
