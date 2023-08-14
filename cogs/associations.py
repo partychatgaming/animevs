@@ -28,7 +28,7 @@ class Guild(Extension):
         return await self.bot.validate_user(ctx)
 
 
-    @slash_command(description="Swear into Association!")
+    # @slash_command(description="Swear into Association!")
     async def oath(self, ctx, sworn: User, association: str):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
@@ -459,7 +459,7 @@ class Guild(Extension):
             return
             
            
-    @slash_command(description="Betray your Association (Association Sworn)")
+    # @slash_command(description="Betray your Association (Association Sworn)")
     async def betray(self, ctx, founder: User):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
@@ -551,7 +551,7 @@ class Guild(Extension):
             }))
 
 
-    @slash_command(description="Ask Guild Owner to join Association! (Association Owner)")
+    # @slash_command(description="Ask Guild Owner to join Association! (Association Owner)")
     async def ally(self, ctx, owner: User):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
@@ -663,7 +663,7 @@ class Guild(Extension):
             return    
                 
     
-    @slash_command(description="Knight your Association Shield! (Association Owner)")
+    # @slash_command(description="Knight your Association Shield! (Association Owner)")
     async def knight(self, ctx, blade: User):
         try:
             registered_player = await crown_utilities.player_check(ctx)
@@ -822,7 +822,7 @@ class Guild(Extension):
             return
     
     
-    @slash_command(description="Exile Guild from Association (Association Owner)")
+    # @slash_command(description="Exile Guild from Association (Association Owner)")
     async def exile(self, ctx, owner: User):
         try:
             leader_profile = db.queryUser({'DID': str(ctx.author.id)})
@@ -898,7 +898,7 @@ class Guild(Extension):
             return
     
     
-    @slash_command(description="Abandon Association (Guild Owner)")
+    # @slash_command(description="Abandon Association (Guild Owner)")
     async def renounce(self, ctx):
         try:
             sword_profile = db.queryUser({'DID': str(ctx.author.id)})
@@ -984,7 +984,7 @@ class Guild(Extension):
             return
     
 
-    @slash_command(description="Disband your Association (Association Founder)")
+    # @slash_command(description="Disband your Association (Association Founder)")
     async def disband(self, ctx):
         try:
             guild_query = {'FDID': str(ctx.author.id)}
@@ -1066,5 +1066,5 @@ class Guild(Extension):
                 "There's an issue with your commnads. Alert support.")
             return
 
-def setup(bot):
-    Guild(bot)
+# def setup(bot):
+#     Guild(bot)

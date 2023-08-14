@@ -3283,6 +3283,44 @@ async def updatefamilies(ctx, password, key):
    await ctx.send(f"Updated {counter} families")
 
 
+@slash_command(description="update families to dids", options=[
+   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
+], scopes=guild_ids)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
+async def updatefamilymembers(ctx, password, key):
+    await ctx.defer()
+    
+    if password != 'casperjayden' or key != '937':
+        return await ctx.send("Admin Only")
+
+    all_families = db.queryAllFamily()
+    counter = 0
+
+    for family in all_families:
+        head_did = family['HEAD']
+        head = db.queryUser({'DID': head_did})
+        partner_did = ""
+        kid_list = []
+            
+        if family['PARTNER']:
+            p = db.queryUser({'DISNAME': family['PARTNER']})
+            if p:
+                partner_did = p['DID']
+
+        if family['KIDS']:
+            for kid in family['KIDS']:
+                kid_disname = kid
+                k = db.queryUser({'DISNAME': kid_disname})
+                if k:
+                    kid_did = k['DID']
+                    kid_list.append(kid_did)
+
+        db.updateFamily({'HEAD': family['HEAD']}, {'$set': {'PARTNER': partner_did, 'KIDS': kid_list}})
+        counter += 1
+   
+    await ctx.send(f"Updated {counter} families")
+
 @slash_command(description="update title abilities", options=[
    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
@@ -3588,97 +3626,97 @@ async def updateplayervaults(ctx, password, key):
       print(f"Error: {e}")
 
 
-@slash_command(description="update moves", scopes=guild_ids)
-@slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updateclass(ctx, password, key):
-   await ctx.defer()
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
+# @slash_command(description="update moves", scopes=guild_ids)
+# @slash_default_member_permission(Permissions.ADMINISTRATOR)
+# async def updateclass(ctx, password, key):
+#    await ctx.defer()
+#    if password != 'casperjayden':  
+#       return await ctx.send("Admin Only")
    
-   if key != '937':
-      return await ctx.send("Admin Only")
+#    if key != '937':
+#       return await ctx.send("Admin Only")
 
-   counter = 0
+#    counter = 0
 
-   fighter_list = [
-      'ATK',
-      'BZRK',
-      'STANCE',
-      'BLAST',
-      'DESTRUCTION',
-      'GROWTH',
-   ]
+#    fighter_list = [
+#       'ATK',
+#       'BZRK',
+#       'STANCE',
+#       'BLAST',
+#       'DESTRUCTION',
+#       'GROWTH',
+#    ]
 
-   tank_list = [
-      'DEF',
-      'WITHER',
-      'CRYSTAL',
-      'GAMBLE'
-   ]
+#    tank_list = [
+#       'DEF',
+#       'WITHER',
+#       'CRYSTAL',
+#       'GAMBLE'
+#    ]
 
-   mage_list = [
-      'STAM',
-      'DRAIN',
-      'RAGE',
-      'BRACE',
-      'FEAR',
-      'CONFUSE',
-   ]
+#    mage_list = [
+#       'STAM',
+#       'DRAIN',
+#       'RAGE',
+#       'BRACE',
+#       'FEAR',
+#       'CONFUSE',
+#    ]
 
-   healer_list = [
-      'HLT',
-      'CREATION',
-      'HASTE'
-   ]
+#    healer_list = [
+#       'HLT',
+#       'CREATION',
+#       'HASTE'
+#    ]
 
-   ranger_list = [
-      'SOULCHAIN',
-      'WAVE',
-      'SLOW'
-   ]
+#    ranger_list = [
+#       'SOULCHAIN',
+#       'WAVE',
+#       'SLOW'
+#    ]
 
-   assassin_list = [
-      'FLOG',
-      'BLINK'
-      'STANCE',
-      'LIFE',
+#    assassin_list = [
+#       'FLOG',
+#       'BLINK'
+#       'STANCE',
+#       'LIFE',
 
-   ]
+#    ]
 
-   try:
-      for card in db.queryAllCards():
-         if card['MOVESET'][3]['TYPE'] in fighter_list:
-            card_class = 'FIGHTER'
-         if card['MOVESET'][3]['TYPE'] in tank_list:
-            card_class = 'TANK'
-         if card['MOVESET'][3]['TYPE'] in mage_list:
-            card_class = 'MAGE'
-         if card['MOVESET'][3]['TYPE'] in healer_list:
-            card_class = 'HEALER'
-         if card['MOVESET'][3]['TYPE'] in ranger_list:
-            card_class = 'RANGER'
-         if card['MOVESET'][3]['TYPE'] in assassin_list:
-            card_class = 'ASSASSIN'
+#    try:
+#       for card in db.queryAllCards():
+#          if card['MOVESET'][3]['TYPE'] in fighter_list:
+#             card_class = 'FIGHTER'
+#          if card['MOVESET'][3]['TYPE'] in tank_list:
+#             card_class = 'TANK'
+#          if card['MOVESET'][3]['TYPE'] in mage_list:
+#             card_class = 'MAGE'
+#          if card['MOVESET'][3]['TYPE'] in healer_list:
+#             card_class = 'HEALER'
+#          if card['MOVESET'][3]['TYPE'] in ranger_list:
+#             card_class = 'RANGER'
+#          if card['MOVESET'][3]['TYPE'] in assassin_list:
+#             card_class = 'ASSASSIN'
 
-         db.updateCard({'NAME': card['NAME']}, {'$set': {'CLASS': card_class}})
-         counter += 1
+#          db.updateCard({'NAME': card['NAME']}, {'$set': {'CLASS': card_class}})
+#          counter += 1
          
-      await ctx.send(f"Updated {counter} cards")
-   except Exception as ex:
-         trace = []
-         tb = ex.__traceback__
-         while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-         print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-         }))
+#       await ctx.send(f"Updated {counter} cards")
+#    except Exception as ex:
+#          trace = []
+#          tb = ex.__traceback__
+#          while tb is not None:
+#             trace.append({
+#                "filename": tb.tb_frame.f_code.co_filename,
+#                "name": tb.tb_frame.f_code.co_name,
+#                "lineno": tb.tb_lineno
+#             })
+#             tb = tb.tb_next
+#          print(str({
+#             'type': type(ex).__name__,
+#             'message': str(ex),
+#             'trace': trace
+#          }))
 
 
 if config('ENV') == "production":

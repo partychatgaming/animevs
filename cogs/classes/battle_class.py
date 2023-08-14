@@ -1658,9 +1658,9 @@ class Battle:
             if self.are_teammates:
                 bonus_message = f":checkered_flag:**{player1.guild}:** 🗡️**+{self.co_op_stat_bonus}** 🛡️**+{self.co_op_stat_bonus}**"
                 if self.are_family_members:
-                    bonus_message = f":family_mwgb:**{player1.family}:** ❤️**+{self.co_op_health_bonus}**\n:checkered_flag:**{player1.guild}:**🗡️**+{self.co_op_stat_bonus}** 🛡️**+{self.co_op_stat_bonus}**"
+                    bonus_message = f"👨‍👩‍👧‍👦**{player1.family}:** ❤️**+{self.co_op_health_bonus}**\n:checkered_flag:**{player1.guild}:**🗡️**+{self.co_op_stat_bonus}** 🛡️**+{self.co_op_stat_bonus}**"
             elif self.are_family_members:
-                    bonus_message = f":family_mwgb:**{player1.family}:** ❤️**+{self.co_op_health_bonus}**"
+                    bonus_message = f"👨‍👩‍👧‍👦**{player1.family}:** ❤️**+{self.co_op_health_bonus}**"
             else:
                 bonus_message = f"Join a Guild or Create a Family for Coop Bonuses!"
 

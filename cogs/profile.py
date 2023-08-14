@@ -62,7 +62,7 @@ class Profile(Extension):
         ]
         accept_buttons_action_row = ActionRow(*accept_buttons)
 
-        team = db.queryTeam({'TEAM_NAME': user_is_validated['TEAM'].lower()})
+        team = db.queryTeam({'TEAM_NAME': player.guild.lower()})
 
         msg = await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account?\nAll of your stats, purchases and other earnings will be removed from the system and can not be recovered.", ephemeral=True, components=[accept_buttons_action_row])
 
@@ -70,7 +70,7 @@ class Profile(Extension):
             return component.ctx.author == ctx.author
 
         try:
-            button_ctx = await bot.wait_for_component(components=[accept_buttons_action_row], timeout=300, check=check)
+            button_ctx = await self.bot.wait_for_component(components=[accept_buttons_action_row], timeout=300, check=check)
 
             if button_ctx.ctx.custom_id == f"{_uuid}|no":
                 await button_ctx.send("Account not deleted.")
@@ -91,6 +91,10 @@ class Profile(Extension):
                         '$inc': {'MEMBER_COUNT': -1}
                         }
                     response = db.deleteTeamMember(team_query, new_value_query, str(ctx.author.id))
+                market_items = db.queryAllMarketByParam({'ITEM_OWNER': player.did})
+                if market_items:
+                    for market_item in market_items:
+                        db.deleteMarketEntry({"ITEM_OWNER": player.did, "MARKET_CODE": market_item['MARKET_CODE']})
                 embed = Embed(title="Account Deleted", description="Your account has been deleted. Thank you for playing!", color=0x00ff00)
                 await button_ctx.ctx.send(embed=embed)
         except Exception as ex:

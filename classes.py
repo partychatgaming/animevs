@@ -263,6 +263,7 @@ class FAMILY():
     SUMMON: list[str] = field(default_factory=lambda: ['N/A'])
     UNIVERSE: str = field(default_factory=lambda: 'Unbound')
     TIMESTAMP: str = now
+    HDID: str = field(default_factory=lambda: '')
 
 
 @dataclass(frozen=True, order=True)
