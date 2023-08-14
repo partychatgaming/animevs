@@ -225,13 +225,13 @@ class Player:
         
         if universe.lower() == "all":
             db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True, 'EXPLORE_LOCATION': 'NULL'}})
-            return f":milky_way: | Exploring **All universes!**"
+            return f"🌌 | Exploring **All universes!**"
 
         universe_selected = db.queryUniverse({"TITLE": {"$regex": f"^{universe}$", "$options": "i"}})
 
         if universe_selected:
             db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'EXPLORE': True, 'EXPLORE_LOCATION': universe_selected['TITLE']}})
-            return f":milky_way: | You are Exploring **{universe_selected['TITLE']}**"
+            return f"🌌 | You are Exploring **{universe_selected['TITLE']}**"
 
     
     def save_scenario(self, scenario):
@@ -595,7 +595,7 @@ class Player:
         if self.level < 26 and mode == "EXPLORE":
             self._locked_feature_message = "Explore fights are blocked until level 26"
             self._is_locked_feature = True
-            return
+            return True
 
         if mode in crown_utilities.DUNGEON_M and self.level < 41 and int(self.prestige) == 0:
             self._locked_feature_message = "🔓 Unlock **Dungeons** by completing **Floor 40** of the 🌑 **Abyss**! Use **Abyss** in /solo to enter the abyss."

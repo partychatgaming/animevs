@@ -1075,7 +1075,7 @@ async def viewuniverse(self, ctx, data):
             :japanese_ogre: | **Universe Boss**
             🎴 | **Card** - {boss}
             {bossmessage}
-            :infinity: | **Universe Trait** - {traitmessage}
+            ♾️ | **Universe Trait** - {traitmessage}
             """), color=000000)
             embedVar.set_image(url=universe_image)
             embedVar.set_footer(text=f"{universe_title} Details")
@@ -1213,7 +1213,7 @@ async def viewboss(self, ctx, data):
             🦾 | **Arm** - {uboss_arm}: **{arm_passive_type}** - {arm_passive_value}
             🧬 | **Summon** - {uboss_pet}: **{pet_ability_type}**: {pet_ability_value}
             
-            :infinity: | **Universe Trait** - {traitmessage}
+            ♾️ | **Universe Trait** - {traitmessage}
             """), color=000000)
             if uboss_show != "Unbound":
                 embedVar.set_thumbnail(url=uboss_show_img)

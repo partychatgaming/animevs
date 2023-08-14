@@ -66,6 +66,10 @@ class BattleConfig(Extension):
         selected_raid = db.queryScenario({"TITLE": selected_raid["TITLE"]})
         battle.set_scenario_config(selected_raid)
         await play.battle_commands(self, ctx, battle)
+
+    
+    async def create_explore_battle(self, ctx, battle):
+        await play.battle_commands(self, ctx, battle)
         
 
 def setup(bot):

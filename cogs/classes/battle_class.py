@@ -605,22 +605,22 @@ class Battle:
         
     def set_explore_config(self, universe_data, card_data):
         try:
+            self.is_explore_game_mode = True
             self.selected_universe_full_data = universe_data
             self._ai_opponent_card_data = card_data
             self.selected_universe = universe_data['TITLE']
-
             if self.is_dungeon_game_mode or self._ai_opponent_card_lvl >= 350:
-                title = 'DTITLE'
-                arm = 'DARM'
-                summon = 'DPET'
-            if self.is_tales_game_mode or self._ai_opponent_card_lvl < 350:
-                title = 'UTITLE'
-                arm = 'UARM'
-                summon = 'UPET'
+                summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}
+                arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON", 'ELEMENT': ""}
 
-            self._ai_opponent_title_data = db.queryTitle({'TITLE': self.selected_universe_full_data[title]})
-            self._ai_opponent_arm_data = db.queryArm({'ARM': self.selected_universe_full_data[arm]})
-            self._ai_opponentsummon_data = db.querySummon({'PET': self.selected_universe_full_data[summon]})
+            if self.is_tales_game_mode or self._ai_opponent_card_lvl < 350:
+                summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
+                arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""}
+
+            self._ai_opponent_title_data = db.get_random_title({"UNIVERSE": universe_data['TITLE']})
+            self._ai_opponent_arm_data = db.get_random_arm(arm_query)
+            self._ai_summon = db.get_random_summon_name(summon_query)
+            self._ai_opponentsummon_data = db.querySummon({'PET': self._ai_summon})
             self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
             self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
             self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
@@ -629,6 +629,7 @@ class Battle:
             self._ai_opponentsummon_power = list(summon_passive.values())[0]
             self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
             self._ai_opponentsummon_type = summon_passive['TYPE']
+            self.is_ai_opponent = True
 
         except Exception as ex:
             trace = []
@@ -706,7 +707,7 @@ class Battle:
     def get_ai_battle_ready(self, player1_card_level):
         try:
             if not self.is_boss_game_mode:
-                if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self.is_explore_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode)):
+                if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode)):
                     self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
                     universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
                     dungeon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}
@@ -1566,7 +1567,7 @@ class Battle:
             f_message = f"💀 | The Abyss Claims Another..."
         if self.is_explore_game_mode:
             close_message = "Explore Battle"
-            picon = ":milky_way:"
+            picon = "🌌"
             f_message = f"💀 | Explore Battle Failed!"
         if self.is_scenario_game_mode:
             close_message = "Scenario Battle"
@@ -1766,12 +1767,13 @@ class Battle:
         
     async def explore_embed(self, ctx, winner, winner_card, opponent_card):
         talisman_response = crown_utilities.decrease_talisman_count(winner.did, winner.equipped_talisman)
-        
         if self.player1_wins:
             if self.explore_type == "glory":
                 bounty_amount = self.bounty * 2
                 await crown_utilities.bless(bounty_amount, winner.did)
-                drop_response = await crown_utilities.store_drop_card(winner.did, opponent_card.name, self.selected_universe, winner.vault, winner.owned_destinies, 3000, 1000, "Purchase", False, 0, "cards")
+                opponent_card.card_lvl = 100
+                winner.save_card(opponent_card)
+                drop_response = f"You won 🎴 {opponent_card.name}!"
             
                 message = f"VICTORY\n🪙 {'{:,}'.format(bounty_amount)} Bounty Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
             if self.explore_type == "gold":
@@ -2036,8 +2038,18 @@ class Battle:
         try:
             if self.is_scenario_game_mode:
                 self.is_tales_game_mode = False
-            # if self.is_explore_game_mode:
-            #     self.player2_card = _custom_explore_card
+            if self.is_explore_game_mode:
+                self.player2_card = self._ai_opponent_card_data
+                self.get_aisummon_ready(self.player2_card)
+                self.player2_title = crown_utilities.create_title_from_data(db.queryTitle({"TITLE": self._ai_opponent_title_data}))
+                self.player2_arm = crown_utilities.create_arm_from_data(db.queryArm({"ARM": self._ai_opponent_arm_data}))
+                self.player2_card.set_talisman(self)
+                opponent_talisman_emoji = ""
+                self.player2_card.set_arm_config(self.player2_arm.passive_type, self.player2_arm.name, self.player2_arm.passive_value, self.player2_arm.element)
+                self.player2_card.set_affinity_message()
+                self.player2_card.get_tactics(self)
+                return
+
             self.get_ai_battle_ready(self.player1_card.card_lvl)
             self.player2_card = crown_utilities.create_card_from_data(self._ai_opponent_card_data, self._ai_is_boss)
             self.get_aisummon_ready(self.player2_card)

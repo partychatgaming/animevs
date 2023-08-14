@@ -27,13 +27,14 @@ from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
+from cogs.battle_config import BattleConfig
 import typing
 from pilmoji import Pilmoji
 import destiny as d
 import interactions
 from .classes.custom_paginator import CustomPaginator
 from interactions.api.events import MessageCreate
-from interactions import Client, User, Cooldown, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, slash_option, AutocompleteContext
+from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Buckets, Embed, Extension, slash_option, AutocompleteContext
 
 
 
@@ -43,6 +44,7 @@ class GameModes(Extension):
         # self._cd = commands.CooldownMapping.from_cooldown(1, 900, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
         # self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)
         self.level_up_cooldown = Cooldown(Buckets.MEMBER, 10, 3600)
+        self.explore_cooldown = Cooldown(Buckets.MEMBER, 1, 3600)
     max_items = 150
 
     @listen()
@@ -60,17 +62,14 @@ class GameModes(Extension):
     @listen()
     async def on_message_create(self, event: MessageCreate):
         try:
+        
             message = event.message
             if message.author == self.bot.user:
                 return
-
             guild_id_value = getattr(message, '_guild_id')
             setattr(message, 'guild_id', guild_id_value)
 
-            if await self.level_up_cooldown.acquire_token(message):
-                return
-            else:
-                # Level Up
+            if not await self.level_up_cooldown.acquire_token(message):
                 try:
                     player_that_leveled = db.queryUser({'DID': str(message.author.id)})
                     if player_that_leveled:
@@ -87,137 +86,129 @@ class GameModes(Extension):
                     custom_logging.debug(ex)
                     return
 
-            # ratelimit="Hi"
-            # if ratelimit is None:
-              
-            #     if isinstance(message.channel, discord.channel.DMChannel):
-                 
-            #         return
+            if not await self.explore_cooldown.acquire_token(message):              
+                if isinstance(message.channel, interactions.DMChannel):
+                    return
     
-            #     g = message.author.guild
-            #     channel_list = message.author.guild.text_channels
-            #     channel_names = []
-            #     for channel in channel_list:
-            #         channel_names.append(channel.name)
-    
-            #     server_channel_response = db.queryServer({'GNAME': str(g)})
-            #     server_channel = ""
-            #     if server_channel_response:
-            #         server_channel = str(server_channel_response['EXP_CHANNEL'])
-                
-            #     if "explore-encounters" in channel_names:
-            #         server_channel = "explore-encounters"
-                
-            #     if not server_channel:
-            #         return
-    
-            #     mode = "EXPLORE"
-    
-            #     # Pull Character Information
-            
-            #     player = db.queryUser({'DID': str(message.author.id)})
-              
-            #     if not player:
-            #         return
-            #     p = Player(player['AUTOSAVE'], player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'], player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'], player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'], player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'], player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'], player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'], player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY'])
-           
-            #     battle = Battle(mode, p)
-                 
-            #     if p.get_locked_feature(mode):
-            #         return
-               
-            #     if p.explore is False:
-            #         return
+                g = message.author.guild.name
+                channel_list = message.author.guild.channels
+                channel_names = []
+                for channel in channel_list:
+                    channel_names.append(channel.name)
 
-    
-            #     if p.explore_location == "NULL":
-            #         all_universes = db.queryExploreUniverses()
-            #         available_universes = [x for x in all_universes]
-    
-            #         u = len(available_universes) - 1
-            #         rand_universe = random.randint(1, u)
-            #         universetitle = available_universes[rand_universe]['TITLE']
-            #         universe = available_universes[rand_universe]
-            #     else:
-            #         universe = db.queryUniverse({"TITLE": p.explore_location})
-            #         universetitle = universe['TITLE']
-    
-    
-            #     # Select Card at Random
-            #     all_available_drop_cards = db.querySpecificDropCards(universetitle)
-            #     cards = [x for x in all_available_drop_cards]
-    
-            #     c = len(cards) - 1
-            #     rand_card = random.randint(1, c)
-            #     selected_card = Card(cards[rand_card]['NAME'], cards[rand_card]['PATH'], cards[rand_card]['PRICE'], cards[rand_card]['AVAILABLE'], cards[rand_card]['SKIN_FOR'], cards[rand_card]['HLT'], cards[rand_card]['HLT'], cards[rand_card]['STAM'], cards[rand_card]['STAM'], cards[rand_card]['MOVESET'], cards[rand_card]['ATK'], cards[rand_card]['DEF'], cards[rand_card]['TYPE'], cards[rand_card]['PASS'][0], cards[rand_card]['SPD'], cards[rand_card]['UNIVERSE'], cards[rand_card]['TIER'], cards[rand_card]['WEAKNESS'], cards[rand_card]['RESISTANT'], cards[rand_card]['REPEL'], cards[rand_card]['ABSORB'], cards[rand_card]['IMMUNE'], cards[rand_card]['GIF'], cards[rand_card]['FPATH'], cards[rand_card]['RNAME'], cards[rand_card]['RPATH'], False, cards[rand_card]['CLASS'], cards[rand_card]['DROP_STYLE'])
-            #     selected_card.set_affinity_message()
-            #     selected_card.set_explore_bounty_and_difficulty(battle)
-    
-            #     battle.set_explore_config(universe, selected_card)
-            #     battle.bounty = selected_card.bounty
-    
-            #     random_battle_buttons = [
-            #         Button(
-            #             style=ButtonStyle.BLUE,
-            #             label="🪙 Gold",
-            #             custom_id="gold"
-            #         ),
-            #         Button(
-            #             style=ButtonStyle.GREEN,
-            #             label="👑 Glory",
-            #             custom_id="glory"
-            #         ),
-            #         Button(
-            #             style=ButtonStyle.RED,
-            #             label="Ignore",
-            #             custom_id="ignore"
-            #         )
-            #     ]
-    
-            #     random_battle_buttons_action_row = ActionRow(*random_battle_buttons)
-    
-    
-            #     # Send Message
-            #     embedVar = Embed(title=f"**{selected_card.approach_message}{selected_card.name}** has a bounty!",
-            #                              description=textwrap.dedent(f"""\
-            #     **Bounty** **{selected_card.bounty_message}**
-            #     {selected_card.battle_message}
-            #     """), color=0xf1c40f)
-             
-            #     embedVar.set_image(url="attachment://image.png")
-            #     embedVar.set_thumbnail(url=message.author.avatar_url)
-            #     embedVar.set_footer(text=f"Use /explore to exit Explore Mode",icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
+
+                server_channel_response = db.queryServer({'GNAME': str(g)})
+                server_channel = ""
+                if server_channel_response:
+                    server_channel = str(server_channel_response['EXP_CHANNEL'])
+
+                print(f"Server Channel: {server_channel}")
                 
+                if "explore-encounters" in channel_names:
+                    server_channel = "explore-encounters"
+                
+                if not server_channel:
+                    print("No explore channel set for this server.")
+                    return
     
-            #     setchannel = discord.utils.get(channel_list, name=server_channel)
-            #     await setchannel.send(f":milky_way:{message.author.mention}") 
-            #     msg = await setchannel.send(embed=embedVar, file=selected_card.showcard("non-battle", "none", {'TITLE': 'EXPLORE TITLE'}, 0, 0), components=[random_battle_buttons_action_row])     
+                mode = "EXPLORE"
     
-            #     def check(button_ctx):
-            #         return button_ctx.author == message.author
+                # Pull Character Information
+        
+                player = db.queryUser({'DID': str(message.author.id)})
+                if not player:
+                    print("No player found.")
+                    return
+                p = crown_utilities.create_player_from_data(player)
+           
+                battle = Battle(mode, p)
+                 
+                if p.get_locked_feature(mode) or not p.explore:
+                    print("Player is locked from exploring.")
+                    return
     
-            #     try:
-            #         button_ctx  = await self.bot.wait_for_component(components=[
-            #             random_battle_buttons_action_row], timeout=300, check=check)
+                if p.explore_location == "NULL":
+                    all_universes = db.queryExploreUniverses()
+                    available_universes = [x for x in all_universes]
     
-            #         if button_ctx.custom_id == "glory":
-            #             await button_ctx.defer(ignore=True)
-            #             battle.explore_type = "glory"
-            #             await battle_commands(self, button_ctx, battle, p, selected_card, player2=None, player3=None)
-            #             await msg.edit(components=[])
+                    u = len(available_universes) - 1
+                    rand_universe = random.randint(1, u)
+                    universe = available_universes[rand_universe]
+                else:
+                    universe = db.queryUniverse({"TITLE": p.explore_location})
+
+
+                # Select Card at Random
+                all_available_drop_cards = db.querySpecificDropCards(universe['TITLE'])
+                cards = [x for x in all_available_drop_cards]
+                selected_card = crown_utilities.create_card_from_data(random.choice(cards))
+                selected_card.set_affinity_message()
+                selected_card.set_explore_bounty_and_difficulty(battle)
     
-            #         if button_ctx.custom_id == "gold":
-            #             await button_ctx.defer(ignore=True)
-            #             battle.explore_type = "gold"
-            #             await battle_commands(self, button_ctx, battle, p, selected_card, player2=None, player3=None)
-            #             await msg.edit(components=[])
-            #         if button_ctx.custom_id == "ignore":
-            #             await button_ctx.defer(ignore=True)
-            #             await msg.edit(components=[])
+                battle.set_explore_config(universe, selected_card)
+                battle.bounty = selected_card.bounty
     
-            #     except Exception as ex:
-            #         await msg.edit(components=[])
-            #         custom_logging.debug(ex)
+                random_battle_buttons = [
+                    Button(
+                        style=ButtonStyle.BLUE,
+                        label="🪙 Gold",
+                        custom_id="gold"
+                    ),
+                    Button(
+                        style=ButtonStyle.GREEN,
+                        label="👑 Glory",
+                        custom_id="glory"
+                    ),
+                    Button(
+                        style=ButtonStyle.RED,
+                        label="Ignore",
+                        custom_id="ignore"
+                    )
+                ]
+    
+                random_battle_buttons_action_row = ActionRow(*random_battle_buttons)
+    
+    
+                # Send Message
+                embedVar = Embed(title=f"**{selected_card.approach_message}{selected_card.name}** has a bounty!",
+                                         description=textwrap.dedent(f"""\
+                **Bounty** **{selected_card.bounty_message}**
+                {selected_card.battle_message}
+                """), color=0xf1c40f)
+
+                embedVar.set_image(url="attachment://image.png")
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.set_footer(text=f"Use /explore to exit Explore Mode",icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
+                
+                image_binary = selected_card.showcard("non-battle", "none", {'TITLE': 'EXPLORE TITLE'})
+                image_binary.seek(0)
+                card_file = File(file_name="image.png", file=image_binary)
+    
+                setchannel = interactions.utils.get(channel_list, name=server_channel)
+                await setchannel.send(f"🌌{message.author.mention}") 
+                msg = await setchannel.send(embed=embedVar, file=card_file, components=[random_battle_buttons_action_row])     
+                print("Message sent")
+                def check(component: Button) -> bool:
+                    return component.ctx.author == message.author
+    
+                try:
+                    button_ctx  = await self.bot.wait_for_component(components=[random_battle_buttons_action_row], timeout=300, check=check)
+                    await button_ctx.ctx.defer(edit_origin=True)
+                    if button_ctx.ctx.custom_id == "glory":
+                        battle.explore_type = "glory"
+                        await BattleConfig.create_explore_battle(self, message, battle)
+                        await msg.edit(components=[])
+    
+                    if button_ctx.ctx.custom_id == "gold":
+                        battle.explore_type = "gold"
+                        await BattleConfig.create_explore_battle(self, message, battle)
+                        await msg.edit(components=[])
+                    if button_ctx.ctx.custom_id == "ignore":
+                        await msg.edit(components=[])
+    
+                except Exception as ex:
+                    await msg.edit(components=[])
+                    custom_logging.debug(ex)
         
         except Exception as ex:
             # await msg.edit(components=[])

@@ -22,7 +22,6 @@ class USER():
     DECK: list[str] = field(default_factory=lambda: [''])
     TALISMAN: str = field(default_factory=lambda: 'NULL')
     PET: str = field(default_factory=lambda: "Chick")
-    MATCHES: list = field(default_factory=lambda: [{'1V1': [0, 0]}, {'2V2': [0, 0]}, {'3V3': [0, 0]}, {'4V4': [0, 0]}, {'5V5': [0, 0]}])
     TOURNAMENT_WINS: int = field(default_factory=lambda: 0)
     TOURNAMENT_LOSSES: int = field(default_factory=lambda: 0)
     AVAILABLE: bool = field(default_factory=lambda: True)
@@ -46,6 +45,7 @@ class USER():
     SAVE_SPOT: list[str] = field(default_factory=lambda: [])
     PERFORMANCE: bool = field(default_factory=lambda: False)
     TRADING: bool = field(default_factory=lambda: False)
+    TEXT_ONLY: bool = field(default_factory=lambda: False)
     BOSS_FOUGHT: bool = field(default_factory=lambda: True)
     AUTOSAVE: bool = field(default_factory=lambda: False)
     SERVER: str = field(default_factory=lambda: "N/A")
@@ -58,6 +58,53 @@ class USER():
     SCENARIO_HISTORY: list[str] = field(default_factory=lambda: [""])
     FAMILY_PET: bool = field(default_factory=lambda: False)
     EXPLORE_LOCATION: str = field(default_factory=lambda: "NULL")
+    FAMILY_DID: str = field(default_factory=lambda: "NULL")
+    BALANCE: int = field(default_factory=lambda: 5000000)
+    CARDS: list[str] = field(default_factory=lambda: ['Ochaco Uraraka', 'Eevee', 'Garen'])
+    TITLES: list[str] = field(default_factory=lambda: ['Starter', 'Iron 4', 'UA 1st Year', 'Pokemon Trainer'])
+    ARMS: list[str] = field(default_factory=lambda: [{'ARM':'Stock', 'DUR': 999999}, {'ARM': 'Poke Ball', 'DUR': 50}, {'ARM': 'Hyper-Density Seals', 'DUR': 50}, {'ARM': 'Dorans Shield', 'DUR': 50}])
+    ESSENCE: list[str] = field(default_factory=lambda: [
+        {"ELEMENT": "PHYSICAL", "ESSENCE": 5000},
+        {"ELEMENT": "FIRE", "ESSENCE": 5000},
+        {"ELEMENT": "ICE", "ESSENCE": 5000},
+        {"ELEMENT": "WATER", "ESSENCE": 5000},
+        {"ELEMENT": "EARTH", "ESSENCE": 5000},
+        {"ELEMENT": "ELECTRIC", "ESSENCE": 5000},
+        {"ELEMENT": "WIND", "ESSENCE": 5000},
+        {"ELEMENT": "PSYCHIC", "ESSENCE": 5000},
+        {"ELEMENT": "DEATH", "ESSENCE": 5000},
+        {"ELEMENT": "LIFE", "ESSENCE": 5000},
+        {"ELEMENT": "LIGHT", "ESSENCE": 5000},
+        {"ELEMENT": "DARK", "ESSENCE": 5000},
+        {"ELEMENT": "POISON", "ESSENCE": 5000},
+        {"ELEMENT": "RANGED", "ESSENCE": 5000},
+        {"ELEMENT": "SPIRIT", "ESSENCE": 5000},
+        {"ELEMENT": "RECOIL", "ESSENCE": 5000},
+        {"ELEMENT": "TIME", "ESSENCE": 5000},
+        {"ELEMENT": "BLEED", "ESSENCE": 5000},
+        {"ELEMENT": "GRAVITY", "ESSENCE": 5000}
+    ])
+    PETS: list[str] = field(default_factory=lambda: [
+        {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Peck': 100, 'TYPE': 'PHYSICAL', 'BOND': 0, 'BONDEXP': 0,
+         'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}])
+    DECK: list[str] = field(
+        default_factory=lambda: [{'CARD': 'Eevee', 'TITLE': 'Pokemon Trainer', 'ARM': 'Poke Ball', 'PET': 'Chick', 'TALISMAN': 'NULL'},
+                                 {'CARD': 'Ochaco Uraraka', 'TITLE': 'UA 1st Year', 'ARM': 'Hyper-Density Seals',
+                                  'PET': 'Chick', 'TALISMAN': 'NULL'},
+                                 {'CARD': 'Garen', 'TITLE': 'Iron 4', 'ARM': 'Dorans Shield', 'PET': 'Chick', 'TALISMAN': 'NULL'}])
+    CARD_LEVELS: list[str] = field(default_factory=lambda: [
+        {'CARD': 'Eevee', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Ochaco Uraraka', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Garen', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36}])
+    QUESTS: list[str] = field(default_factory=lambda: [])
+    DESTINY: list[str] = field(default_factory=lambda: [])
+    GEMS: list[str] = field(default_factory=lambda: [])
+    STORAGE: list[str] = field(default_factory=lambda: [])
+    TSTORAGE: list[str] = field(default_factory=lambda: [])
+    ASTORAGE: list[str] = field(default_factory=lambda: [])
+    TALISMANS: list[str] = field(default_factory=lambda: [])
+    EQUIPPED_SUMMON: str = field(default_factory=lambda: 'NULL')
+
     
 
 @dataclass(frozen=True, order=True)

@@ -42,22 +42,14 @@ class Explore(Extension):
     async def explore(self, ctx: InteractionContext, universe=None):
         try:
             player = db.queryUser({"DID": str(ctx.author.id)})
-            p = Player(player['AUTOSAVE'],
-                player['DISNAME'], player['DID'], player['AVATAR'], player['GUILD'], player['TEAM'], player['FAMILY'],
-                player['TITLE'], player['CARD'], player['ARM'], player['PET'], player['TALISMAN'], player['CROWN_TALES'],
-                player['DUNGEONS'], player['BOSS_WINS'], player['RIFT'], player['REBIRTH'], player['LEVEL'],
-                player['EXPLORE'], player['SAVE_SPOT'], player['PERFORMANCE'], player['TRADING'], player['BOSS_FOUGHT'],
-                player['DIFFICULTY'], player['STORAGE_TYPE'], player['USED_CODES'], player['BATTLE_HISTORY'], player['PVP_WINS'],
-                player['PVP_LOSS'], player['RETRIES'], player['PRESTIGE'], player['PATRON'], player['FAMILY_PET'],
-                player['EXPLORE_LOCATION'], player['SCENARIO_HISTORY']
-            )
+            p = crown_utilities.create_player_from_data(player)
             message = None
             if p.explore == 0:
                 db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': True}})
-                message = f":milky_way: | Entering Explore Mode"
+                message = f"🌌 | Entering Explore Mode"
             elif p.explore == 1:
                 db.updateUserNoFilter({'DID': str(p.did)}, {'$set': {'EXPLORE': False, 'EXPLORE_LOCATION': "NULL"}})
-                message = ":rotating_light: | Exiting Explore Mode"
+                message = "🚨 | Exiting Explore Mode"
 
             if universe is not None:
                 message = p.set_explore(universe)

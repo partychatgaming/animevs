@@ -489,12 +489,12 @@ class GameState(Extension):
             if battle_config.is_explore_game_mode:
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                await self.explore_win(battle_config, battle_msg, private_channel, user1)
+                await explore_win(battle_config, battle_msg, private_channel, user1)
 
             if battle_config.is_raid_game_mode:
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                await self.raid_win(battle_config, battle_msg, private_channel, user1)
+                await raid_win(battle_config, battle_msg, private_channel, user1)
 
             if battle_config.is_scenario_game_mode:
                 await scenario_win(battle_config, battle_msg, private_channel, user1)

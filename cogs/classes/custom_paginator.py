@@ -109,6 +109,12 @@ class CustomPaginator(Paginator):
         self.universe_dungeon_duo_start = False
         self.universe_dungeon_delete_save = False
 
+        # Register Functions
+        self.register_start = False
+        self.register_select = False
+        self.register_action = True
+
+
         self.scenario_start = False
         self.raid_start = False
         self.quit = False
@@ -193,6 +199,11 @@ class CustomPaginator(Paginator):
                     self.page_index -= 1
                 original_buttons = True
             case "select":
+                if self.register_action:
+                    self.register_select = True
+                    response = await self.activate_register_action(ctx, self._message.embeds[0].title)
+                    await self._message.delete()
+                    return
                 self.page_index = int(ctx.values[0])
                 original_buttons = True
             case "callback":
@@ -394,6 +405,9 @@ class CustomPaginator(Paginator):
 
         if action_type == "Raid":
             self.raid_action = True
+        
+        if action_type == "Register":
+            self.register_action = True
 
     
     def activate_talisman_action(self, ctx, data, action: str):
@@ -2352,5 +2366,78 @@ class CustomPaginator(Paginator):
         await bc.create_raid_battle(self, ctx, mode, player, raid)
 
 
+    """
+    REGISTER FUNCTIONS
+    This section contains all the functions related to registering a user
+    """
+    async def activate_register_action(self, ctx, universe_title):
+        if self.register_select:
+            await self.start_register(ctx, universe_title)
+            self.register_select = False
+
+
+    async def start_register(self, ctx, universe_title):
+        user_data = db.queryUser({'DID': str(ctx.author.id)})
+        player = crown_utilities.create_player_from_data(user_data)
+        acceptable = [1,2,3,4,5]
+        arm_message = []
+        card_message = []
+        current_arms = []
+
+        list_of_arms = [x for x in db.queryAllArmsBasedOnUniverses({'UNIVERSE': universe_title}) if x["DROP_STYLE"] ==  "TALES" and x['AVAILABLE'] and x['ARM'] not in current_arms]
+        count = 0
+        selected_arms = [1000]
+        while count < 3:
+            for arm in player.arms:
+                current_arms.append(arm['ARM'])
+            selectable_arms = list(range(0, len(list(list_of_arms))))
+            for selected in selected_arms:
+                if selected in selectable_arms:
+                    selectable_arms.remove(selected)
+            selection = random.choice(selectable_arms)
+            selected_arms.append(selection)
+            arm = list_of_arms[selection]['ARM']
+            db.updateUserNoFilter(player.user_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 75}}})        
+            arm_message.append(f"**{arm}**!")                   
+            count = count + 1
+
+        list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_title), 'TIER': {'$in': acceptable}}) if x['DROP_STYLE'] == "TALES" and not x['HAS_COLLECTION'] and x['NAME'] not in player.cards]
+        count = 0
+        selected_cards = [1000]
+        while count < 3:
+            selectable_cards = list(range(0, len(list(list_of_cards))))
+            for selected in selected_cards:
+                if selected in selectable_cards:
+                    selectable_cards.remove(selected)
+            selection = random.choice(selectable_cards)
+            selectable_cards.append(selection)
+            card = crown_utilities.create_card_from_data(db.queryCard({'NAME': list_of_cards[selection]['NAME']}))
+            player.save_card(card)
+            card_message.append(f"**{card.name}**!")
+
+
+        arm_drop_message_into_embded = "\n".join(arm_message)
+        card_drop_message_into_embded = "\n".join(card_message)
+        embed_list = []
+        embedVar = Embed(title=f"Welcome to Anime VS+",description=textwrap.dedent(f"""
+        **Let's get started** {ctx.author.mention}!
+        1️⃣**/build** with **{universe_title} Items**
+        
+        2️⃣**/menu** for **🎴Cards**, **🎗️Titles**, and **🦾Arms**!
+        
+        3️⃣**/play** and select **🆘 The Tutorial**!
+
+        **The /help command is your ❤️ Friend!**
+        Use the /help to learn how to play Anime VS+!
+        """),color=0x1abc9c)
+        embedVar.add_field(name=f"🎴 My Cards*/cards*", value=f"{card_drop_message_into_embded}", inline=True)
+        embedVar.add_field(name=f"🦾 My Arms*/arms*", value=f"{arm_drop_message_into_embded}", inline=True)
+        embedVar.add_field(name=f"🆘 Support!", value=f"[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)", inline=False)
+        embedVar.set_author(name=f"Registration Complete")
+        embedVar.set_footer(text="📜Use /daily for Daily Reward and Quest\n🔥/difficulty - Change difficulty setting of the game!", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
+
+        await ctx.send(embed=embedVar)
+        return
+        
 def generate_6_digit_code():
     return random.randint(100000, 999999)

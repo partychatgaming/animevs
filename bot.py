@@ -299,43 +299,37 @@ async def enhancers(ctx):
 
 async def classes(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
-   embedVar3 = Embed(title= f"Classes", description=textwrap.dedent(f"""\
+    
+   class_descriptions = [
+        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use summon from start of battle"),
+        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Initial Attacks cost 0 Stamina\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks"),
+        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\nCommon - 3 Parry, Rare - 5 Parries, Legendary - 6 Parries"),
+        (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 3 barriers, can attack through barrier\nCommon - 2 Barrier, Rare - 3 Barriers, Legendary - 4 Barriers"),
+        (crown_utilities.class_emojis['TANK'], "Tank", "Starts each fight with Card Tier * 500 Shield, gain same shield on resolve\nCommon - 500/1000/1500 Shield, Rare - 2000/2500, Legendary - 3000/3500"),
+        (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 3 Critical Strikes\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks"),
+        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 3 Double Strikes\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks"),
+        (crown_utilities.class_emojis['MAGE'], "Mage", "Increases elemental damage by up to 50%\nCommon - 35%, Rare - 45%, Legendary - 50%"),
+        (crown_utilities.class_emojis['HEALER'], "Healer", "Stores up to 40% of damage taken and heals for the total amount each Focus\nCommon - 25%, Rare - 35%, Legendary - 45%")
+    ]
+    
+   embed_list = []
+   embedVar = Embed(title= f"Classes", description=textwrap.dedent(f"""\
    🥋 **Card Class**
-   Your Class grants you a boost when you enter the battle
-   The **Boost** is determined by your Card Tier Range
+   Your Class grants you a boost in battle
+   The boost is determined by your Card Tier Range
    Common : [1 - 3]
    Rare : [4 - 5]
    Legendary : [6 - 7]
-   
-   {crown_utilities.class_emojis['SUMMONER']} *Summoner* // Can use summon from start of battle
-   
-   {crown_utilities.class_emojis['ASSASSIN']} *Assasin* // Initial Attacks cost 0 Stamina
-   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
-   
-   {crown_utilities.class_emojis['FIGHTER']} *Fighter* // Starts each fight with up to 6 Parries
-   *Common - 3 Parry, Rare - 5 Parries, Legendary - 6 Parries*
-   
-   {crown_utilities.class_emojis['RANGER']} *Ranger* // Starts each fight with up to 3 barriers, can attack through barrier
-   *Common - 2 Barrier, Rare - 3 Barriers, Legendary - 4 Barriers*
-   
-   {crown_utilities.class_emojis['TANK']} *Tank* // Starts each fight with Card Tier * 500 Shield, gain same shield on resolve
-   *Common - 500/1000/1500 Shield, Rare - 2000/2500, Legendary - 3000/3500*
-   
-   {crown_utilities.class_emojis['SWORDSMAN']} *Swordsman* // On Resolve, Gain up to 3 Critical Strikes
-   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
-   
-   {crown_utilities.class_emojis['MONSTROSITY']} *Monstrosity* // On Resolve gain up to 3 Double Strikes
-   *Common - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks*
+   """),color=0x7289da)
+   embed_list.append(embedVar)
+   for emoji, title, description in class_descriptions:
+        embedVar = Embed(title=title, description=f"{emoji} {description}", color=0x7289da)
+        embedVar.set_thumbnail(url=avatar)
+        embed_list.append(embedVar)
 
-   {crown_utilities.class_emojis['MAGE']} *Mage* // Increases elemental damage by up to 50%
-   *Common - 35%, Rare - 45%, Legendary - 50%*
-   
-   {crown_utilities.class_emojis['HEALER']} *Healer* // Stores up to 40% of damage taken and heals for the total amount each Focus 
-   *Common - 25%, Rare - 35%, Legendary - 45%*
-   """), color=0x7289da)
-   embedVar3.set_thumbnail(url=avatar)
-   
-   await ctx.send(embed=embedVar3)
+   paginator = CustomPaginator.create_from_embeds(bot, *embed_list)
+   paginator.show_select_menu = True
+   await paginator.send(ctx)
 
 
 # @slash_command(description="Anime VS+ Manual", scopes=guild_ids)
@@ -913,20 +907,16 @@ async def voted(ctx):
 async def register(ctx):
    reg_query = {'DID' : str(ctx.author.id)}
    applied = db.queryUser(reg_query)
+   player = crown_utilities.create_player_from_data(applied)
    server_created = db.queryServer({"GNAME": str(ctx.author.guild)})
    if applied:
-      vault_query = {'DID':str(ctx.author.id)}
-      registered = db.queryVault(vault_query)
-      if registered:
+      if player:
          await ctx.send(f"{ctx.author.mention} You already have a Anime VS+ Account!")
          return 
-      else:
-         await ctx.author.send(f"Previous Registration Failed...Lets try again!")
-         await ctx.send(f"{ctx.author.mention} Previous Registration Failed...Lets try again!")
-         r_response = applied
-         disname = str(ctx.author)
+
    else:
       disname = str(ctx.author)
+      did = str(ctx.author.id)
       name = disname.split("#",1)[0]
       summon_info = {
          "NAME": "Chick",
@@ -938,47 +928,41 @@ async def register(ctx):
          "BONDEXP": 0,
          "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
       }
-      family = db.createFamily(data.newFamily({'HEAD': str(disname), 'SUMMON': summon_info}), str(disname))
-      update_summon = db.updateFamily({'HEAD': str(disname)}, {'$set' : {'SUMMON': summon_info}})
-      user = {'DISNAME': disname, 'NAME': name, 'DID' : str(ctx.author.id), 'AVATAR': str(ctx.author.avatar_url), 'SERVER': str(ctx.author.guild), 'FAMILY': str(disname)}
+      family = db.createFamily(data.newFamily({'HEAD': did, 'SUMMON': summon_info}), did)
+      update_summon = db.updateFamily({'HEAD': did}, {'$set' : {'SUMMON': summon_info}})
+      user = {
+         'DISNAME': disname, 
+         'NAME': name, 
+         'DID': did, 
+         'AVATAR': str(ctx.author.avatar_url), 
+         'SERVER': str(ctx.author.guild), 
+         'FAMILY': did,
+         'FAMILY_DID': did,
+         'BALANCE': 1500000,
+      }
       r_response = db.createUsers(data.newUser(user))
 
       if not server_created:
-         create_server_query = {'GNAME': str(ctx.author.guild)}
+         create_server_query = {'GNAME': str(ctx.author.guild.name)}
          created_server = db.createServer(data.newServer(create_server_query))
          await asyncio.sleep(1)
          server_query = {'GNAME': str(ctx.author.guild)}
          update_server_query = {
-            '$inc': {'SERVER_BALANCE': 1000},
+            '$inc': {'SERVER_BALANCE': 10000},
             '$addToSet': {'SERVER_PLAYERS': str(ctx.author.id)}
          }
          updated_server = db.updateServer(server_query, update_server_query)
 
 
    if r_response:
-      try:
-         await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
-         vault = db.createVault(data.newVault({'OWNER': str(ctx.author), 'DID' : str(ctx.author.id)}))
-         await asyncio.sleep(2)
-         await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
-         await asyncio.sleep(2)
-      except Exception as ex:
-         trace = []
-         tb = ex.__traceback__
-         while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-         print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-         }))  
+      await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
+      await asyncio.sleep(2)
+      await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
+      await asyncio.sleep(2)
+
 
       try:
+         _uuid = str(uuid.uuid4())
          universe_data = db.queryAllUniverse()
          universe_embed_list = []
          for uni in universe_data:
@@ -999,221 +983,25 @@ async def register(ctx):
                   traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
                available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
                
-               tales_list = ", ".join(uni['CROWN_TALES'])
-
                embedVar = Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
-               **Select A Starting Universe, {ctx.author.mention}!**
+               **{available} Select A Starting Universe, {ctx.author.mention}!**
 
-               Selecting a Starter Universe will give you *3* 🎴 Cards, 🎗️ Titles, and 🦾 Arms to begin!
+               Selecting a Starter Universe will give you *3* 🎴 Cards and 🦾 Arms to begin!
                
-               :infinity: - Unique Universe Trait
+               ♾️ - Unique Universe Trait
                {traitmessage}
                """))
                embedVar.set_image(url=uni['PATH'])
                embedVar.set_footer(text="You can earn or purchase items after Abyss floor 0")
                universe_embed_list.append(embedVar)
                
-         buttons = [
-               Button(style=3, label="Select This Starter Universe", custom_id="Select")
-            ]
-         custom_action_row = ActionRow(*buttons)
-         # custom_button = Button(style=3, label="Equip")
-
-         async def custom_function(self, button_ctx):
-            try:
-               if button_ctx.author == ctx.author:
-                  universe = str(button_ctx.origin_message.embeds[0].title)
-                  user_info = db.queryUser({'DID':str(ctx.author.id)})
-                  
-                  vault_query = {'DID' : str(ctx.author.id)}
-                  vault = db.altQueryVault(vault_query)
-                  current_titles = vault['TITLES']
-                  current_cards = vault['CARDS']
-                  current_arms = []
-                  for arm in vault['ARMS']:
-                     current_arms.append(arm['ARM'])
-
-                  owned_card_levels_list = []
-                  for c in vault['CARD_LEVELS']:
-                     owned_card_levels_list.append(c['CARD'])
-                  owned_destinies = []
-                  for destiny in vault['DESTINY']:
-                     owned_destinies.append(destiny['NAME'])
-                  
-                  if button_ctx.custom_id == "Select":
-                     acceptable = [1,2,3,4]
-                     list_of_titles =[x for x in db.queryAllTitlesBasedOnUniverses({'UNIVERSE': str(universe)}) if not x['EXCLUSIVE'] and x['AVAILABLE'] and x['TITLE'] not in current_titles]
-                     count = 0
-                     selected_titles = [1000]
-                     
-                     title_message = []
-                     arm_message = []
-                     card_message = []
-                     gem_message = []
-                     gem_info = {'UNIVERSE': str(universe), 'GEMS' : 1000, 'UNIVERSE_HEART' : False, 'UNIVERSE_SOUL' : False}
-                     response = db.updateUserNoFilter(vault_query, {'$addToSet' : {'GEMS' :gem_info }})
-                     while count < 3:
-                        selectable_titles = list(range(0, len(list(list_of_titles))))
-                        for selected in selected_titles:
-                           if selected in selectable_titles:
-                              selectable_titles.remove(selected)
-                        selection = random.choice(selectable_titles)
-                        selected_titles.append(selection)
-                        title = list_of_titles[selection]
-                        response = db.updateUserNoFilter(vault_query,{'$addToSet':{'TITLES': str(title['TITLE'])}})
-                        title_message.append(f"**{title['TITLE']}**!")
-                        #await button_ctx.send(f"You collected 🎗️ **{title['TITLE']}**.")
-                        count = count + 1
-                     
-                     
-                     list_of_arms = [x for x in db.queryAllArmsBasedOnUniverses({'UNIVERSE': str(universe)}) if not x['EXCLUSIVE'] and x['AVAILABLE'] and x['ARM'] not in current_arms]
-                     count = 0
-                     selected_arms = [1000]
-                     while count < 3:
-                        current_arms = vault['ARMS']
-                        selectable_arms = list(range(0, len(list(list_of_arms))))
-                        for selected in selected_arms:
-                           if selected in selectable_arms:
-                              selectable_arms.remove(selected)
-                        selection = random.choice(selectable_arms)
-                        selected_arms.append(selection)
-                        arm = list_of_arms[selection]['ARM']
-                        db.updateUserNoFilter(vault_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 75}}})        
-                        arm_message.append(f"**{arm}**!")                   
-                        #await button_ctx.send(f"You collected 🦾 **{arm}**.")
-                        count = count + 1
-                        
-                     list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe), 'TIER': {'$in': acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION'] and x['AVAILABLE'] and x['NAME'] not in current_cards]
-                     count = 0
-                     selected_cards = [1000]
-                     counter = 1
-                     destiny_counter = 0
-                     destiny_message = []
-                     has_destiny=False
-                     while count < 3:
-                        current_cards = vault['CARDS']
-                        selectable_cards = list(range(0, len(list(list_of_cards))))
-                        for selected in selected_cards:
-                           if selected in selectable_cards:
-                              selectable_cards.remove(selected)
-                        selection = random.choice(selectable_cards)
-                        selectable_cards.append(selection)
-                        card = list_of_cards[selection]
-                        card_name = card['NAME']
-                        tier = 0
-
-                        cresponse = db.updateUserNoFilter(vault_query, {'$addToSet': {'CARDS': str(card_name)}})
-                        cardname_list = []
-                        if cresponse:
-                           if card_name not in cardname_list:
-                              update_query = {'$addToSet': {
-                                    'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 30, 'TIER': int(tier),
-                                                   'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36}}}
-                              r = db.updateUserNoFilter(vault_query, update_query)
-                           cardname_list.append(card_name)
-                           card_message.append(f"**{card_name}**!")
-                           #await button_ctx.send(f"You collected 🎴 **{card_name}**!")
-
-                           # Add Destiny
-                           for destiny in d.destiny:
-                              if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
-                                 destiny_counter = destiny_counter + 1
-                                 db.updateUserNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
-                                 has_destiny=True
-                                 if counter > 0:
-                                    destiny_message.append(f"**{destiny['NAME']}** : Earn 🎴 **{destiny['EARN']}**.!")
-                                    counter = counter - 1
-                                    # await button_ctx.send(
-                                    #    f"✨**{destiny['NAME']}** addes to **/destinylist**.", ephemeral=True)
-                        count = count + 1
-                     title_drop_message_into_embded = "\n".join(title_message)
-                     arm_drop_message_into_embded = "\n".join(arm_message)
-                     card_drop_message_into_embded = "\n".join(card_message)
-                     destiny_drop_message_into_embded = "\n".join(destiny_message)
-                     
-                     #Make Random Build
-                     bcard = card_name
-                     btitle = title['TITLE']
-                     barm = arm
-
-                     # Update user with selected card, title and arm
-                     query = {'DID': button_ctx.author.id}
-                     update = {'$set': {'CARD': bcard, 'TITLE': btitle, 'ARM': barm}}
-                     firstbuild = db.updateUserNoFilter(query, update)
-                     embedVar = Embed(title=f"**Welcome to Anime VS+**!",description=textwrap.dedent(f"""
-                     **Let's get started** {ctx.author.mention}!
-                     :one:**/build** with **{universe} Items**
-                     
-                     :two:**/menu** for **🎴Cards**, **🎗️Titles**, and **🦾Arms**!
-                     
-                     :three:**/solo** and select **:sos: The Tutorial**!
-   
-                     **The /help command is your ❤️ Friend!**
-                     Use the /help to learn how to play Anime VS+!
-                     """),color=0x1abc9c)
-                     embedVar.add_field(name=f"🎴 My Cards*/cards*", value=f"{card_drop_message_into_embded}", inline=True)
-                     embedVar.add_field(name=f"🎗️ My Titles*/titles*", value=f"{title_drop_message_into_embded}", inline=True)
-                     embedVar.add_field(name=f"🦾 My Arms*/arms*", value=f"{arm_drop_message_into_embded}", inline=True)
-                     if has_destiny:
-                        embedVar.add_field(name=f"✨ **Destinies***/destnies to view destinies*", value=f"{destiny_drop_message_into_embded}", inline=False)
-                     embedVar.add_field(name=f":sos: Support!", value=f"[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)", inline=False)
-                     embedVar.set_author(name=f"Registration Complete!", icon_url=user_info['AVATAR'])
-                     embedVar.set_footer(text="📜Use /daily for Daily Reward and Quest\n🔥/difficulty - Change difficulty setting!",
-                                 icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
-                     await button_ctx.send(embed=embedVar)
-                     await ctx.author.send(embed=embedVar)
-                     await asyncio.sleep(3)
-
-                     self.stop = True
-            except Exception as ex:
-               trace = []
-               tb = ex.__traceback__
-               while tb is not None:
-                  trace.append({
-                     "filename": tb.tb_frame.f_code.co_filename,
-                     "name": tb.tb_frame.f_code.co_name,
-                     "lineno": tb.tb_lineno
-                  })
-                  tb = tb.tb_next
-               print(str({
-                  'type': type(ex).__name__,
-                  'message': str(ex),
-                  'trace': trace
-               }))   
-         
-         await Paginator(bot=bot, ctx=ctx, disableAfterTimeout=True, timeout=5000, pages=universe_embed_list, customActionRow=[
-            custom_action_row,
-            custom_function,
-         ]).run()
-         
-         #family = {'HEAD': disname, 'HOUSE': 'Cave', 'BANK' : 1000000, 'UNIVERSE': 'Unbound'}
-         #new_family = db.createFamily(data.newFamily(family))
+         paginator = CustomPaginator.create_from_embeds(bot, *universe_embed_list, custom_buttons=["Select"], paginator_type="Register")
+         await paginator.send(ctx)
 
       except Exception as ex:
-         user = str(ctx.author)
-         query = {'DID': str(ctx.author.id)}
-         response = db.deleteVault({'DID': str(ctx.author.id)})
-         delete_user_resp = db.deleteUser(user)
-         await ctx.author.send(f"{ctx.author.mention} your Registration was cancelled. You must interact before the timeout!")
+         custom_logging.debug(ex)
          await ctx.send(f"{ctx.author.mention} your Registration was cancelled. You must interact before the timeout!")
          
-      
-         trace = []
-         tb = ex.__traceback__
-         while tb is not None:
-            trace.append({
-                  "filename": tb.tb_frame.f_code.co_filename,
-                  "name": tb.tb_frame.f_code.co_name,
-                  "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-         print(str({
-               'type': type(ex).__name__,
-               'message': str(ex),
-               'trace': trace
-         }))
-      # await ctx.send(m.USER_HAS_REGISTERED, delete_after=5)
-      
    else:
       await ctx.send(m.RESPONSE_NOT_DETECTED, delete_after=3)
 
@@ -1749,7 +1537,7 @@ async def rebirth(ctx):
                                     **Select A Starting Universe, {ctx.author.mention}!**
                                     Selecting a Starter Universe will give you *3* 🎴 Cards, 🎗️ Titles, and 🦾 Arms to begin!
                                     
-                                    :infinity: - Unique Universe Trait
+                                    ♾️ - Unique Universe Trait
                                     {traitmessage}
                                     """))
                                     embedVar.set_image(url=uni['PATH'])
@@ -1942,78 +1730,6 @@ async def rebirth(ctx):
          'message': str(ex),
          'trace': trace
       }))
-
-# @listen()
-# async def on_slash_command_error(ctx, ex):
-#    if isinstance(ex, commands.CommandOnCooldown): # Checks Cooldown
-#       remaining_time = str(datetime.timedelta(seconds=int(ex.retry_after)))
-#       msg = f'You have already used this command... Try again in {remaining_time} *hh:mm:ss*'
-#       await ctx.send(msg)
-
-
-# @listen()
-# async def on_message(message):
-#     if bot.user.mentioned_in(message):
-#         await message.channel.send("Hello 👋. **Anime VS+** uses / Slash commands! Use `/register` to get started or `/help` for additional assistance. Cheers!")
-
-
-# @listen()
-# async def on_command_error(ctx, error):
-#     if isinstance(error, discord.HTTPException):
-#       guild = bot.get_guild(guild_id)
-#       channel = guild.get_channel(guild_channel)
-#       await ctx.send(f"Anime VS+ has been Rate Limited")
-
-
-# @tasks.loop(hours=3)
-# async def called_once_a_day():
-#    guild = bot.get_guild(guild_id)
-#    channel = guild.get_channel(966810770987966484)
-
-#    message_channel = channel
-
-#    universes = db.queryAllUniverse()
-#    corruption = False
-
-#    for u in universes:
-#       if u['CORRUPTED']:
-#          corruption = True
-
-#    if corruption:
-#       update_query = {'$set': {'CORRUPTED': False, 'CORRUPTION_LEVEL': 0}}
-#       db.updateManyUniverses(update_query)
-#       message = "Corruption Hour has ended..."
-#       raid_message = f"<:Raid_Emblem:1088707240917221399> *Raid are no longer available*"
-#    else:
-#       update_query = {'$set': {'CORRUPTED': True, 'CORRUPTION_LEVEL': 1}}
-#       db.updateManyUniverses(update_query)
-#       message = "Corruption Hour has started!"
-#       raid_message = f"<:Raid_Emblem:1088707240917221399> *RAIDS ARE NOW AVAILABLE DURING CORRUPTION HOUR!*"
-   
-#    embedVar = Embed(title= f"👾 {message}", description=textwrap.dedent(f"""
-#    👾 Corruption Hour
-
-#    During Corruption Hour defeat cards in solo, duo, or coop battle to earn 💎150,000 Craftable Gems!
-#    Earn 💎300,000 when playing on Hard difficulty!
-
-#    {raid_message}
-#    """))
-
-#    await message_channel.send(embed=embedVar)
-
-
-# @listen
-# async def on_command_error(ctx, error):
-#     if isinstance(error, commands.CommandOnCooldown):
-#         await ctx.send(f'Your Daily Reward is on cooldown! You can use it in {round(error.retry_after/3600)} hours!')
-
-
-# @called_once_a_day.before_loop
-# async def before():
-#    await bot.wait_until_ready()
-#    print("Finished waiting")
-
-# called_once_a_day.start()
 
 
 @slash_command(name="daily", description="Receive your daily reward and quests", scopes=guild_ids)

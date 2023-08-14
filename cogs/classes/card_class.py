@@ -3280,6 +3280,15 @@ class Card:
         else:
             return f"{self.move1_emoji} 10 | *{self.move1}* **{self.move1ap}**\n{self.move2_emoji} 30 | *{self.move2}* **{self.move2ap}**\n{self.move3_emoji} 80 | *{self.move3}* **{self.move3ap}**\n:microbe: 20 | *{self.move4}* **{self.move4enh.title()} {self.move4ap}**"
         
+    def get_card_dict(self):
+        '''
+        Returns the card class as a dictionary
+        Capitalize all keys
+        '''
+        card_dict = {}
+        for key, value in self.__dict__.items():
+            card_dict[key.upper()] = value
+        return card_dict
 
 def get_card(url, cardname, cardtype):
         try:
@@ -3287,4 +3296,6 @@ def get_card(url, cardname, cardtype):
             return im   
         except Exception as ex:
             custom_logging.debug(ex)
+
+
             

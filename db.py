@@ -36,7 +36,6 @@ house_col = db["HOUSE"]
 hall_col = db["HALL"]
 boss_col = db['BOSS']
 pet_col = db['PET']
-vault_col =db["VAULT"]
 menu_col = db['MENU']
 abyss_col = db['ABYSS']
 trade_col = db['TRADE']
@@ -873,19 +872,13 @@ def queryAllFamily():
 
 def createFamily(family, user):
     try:
-        find_user = queryUser({'DISNAME': user})
-        exists = family_exists({'HEAD': family['HEAD']})
-        if exists:
-            return queryFamily({'HEAD': user})
-        else:
-            print("Inserting new Family.")
-            family_col.insert_one(family)
+        family_col.insert_one(family)
 
-            # Add Guild to User Profile as well
-            query = {'DISNAME': user}
-            new_value = {'$set': {'FAMILY': family['HEAD']}}
-            users_col.update_one(query, new_value)
-            return "Family has been created. "
+        # Add Guild to User Profile as well
+        query = {'DID': user}
+        new_value = {'$set': {'FAMILY': family['HEAD']}}
+        users_col.update_one(query, new_value)
+        return "Family has been created. "
     except:
         return "Cannot create Family."
 
@@ -1245,7 +1238,7 @@ def updateAllCards(update_query):
    
 
 def querySpecificDropCards(args):
-    data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, 'HAS_COLLECTION': False, 'VUL': False})
+    data = cards_col.find({'UNIVERSE': args, 'AVAILABLE': True, "DROP_STYLE": {"$in": ["TALES", "DUNGEONS"]}})
     return data 
 
 def queryExclusiveDropCards(args):
@@ -1867,9 +1860,9 @@ def createUsers(users):
         data = users_col.insert_one(users)
         return True
     
-def deleteUser(user):
+def deleteUser(did):
     try:
-        users_col.delete_one({'DISNAME': user})
+        users_col.delete_one({'DID': did})
         return "User removed from the system. "
     except:
         print("Delete User failed.")

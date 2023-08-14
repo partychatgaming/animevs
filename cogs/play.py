@@ -922,15 +922,23 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
         await start_of_moves_config(battle_config)
         embedVar = await tactics.auto_battle_embed_and_starting_traits(ctx, turn_card, turn_title, opponent_card, opponent_title, battle_config, partner_card, partner_title)
         image_binary = turn_card.showcard(battle_config.mode, turn_arm, turn_title, battle_config.turn_total, opponent_card.defense)
-        image_binary.seek(0)
-        card_file = File(file_name="image.png", file=image_binary)
-
-        if battle_msg is None:
-            # If the message does not exist, send a new message
-            battle_msg = await private_channel.send(embed=embedVar, components=[], file=card_file)
+        print(f"Image Binary: {image_binary}")
+        if image_binary.seekable():
+            image_binary.seek(0)
+            card_file = File(file_name="image.png", file=image_binary)
+            if battle_msg is None:
+                # If the message does not exist, send a new message
+                battle_msg = await private_channel.send(embed=embedVar, components=[], file=card_file)
+            else:
+                # If the message exists, edit it
+                await battle_msg.edit(embed=embedVar, components=[], file=card_file)
         else:
-            # If the message exists, edit it
-            await battle_msg.edit(embed=embedVar, components=[], file=card_file)
+            if battle_msg is None:
+                # If the message does not exist, send a new message
+                battle_msg = await private_channel.send(embed=embedVar, components=[])
+            else:
+                # If the message exists, edit it
+                await battle_msg.edit(embed=embedVar, components=[])
         image_binary.close()
         await asyncio.sleep(2)
 

@@ -311,7 +311,7 @@ class Lookup(Extension):
                 embed2 = Embed(title=f"{name}'s Settings".format(self), description=textwrap.dedent(f"""\
                 🆚 | **Retries:** {retries} available
                 :crystal_ball: | **Rift:** {rift_message}
-                :milky_way: | **Explore:** {explore_message}
+                🌌 | **Explore:** {explore_message}
                 
                 ⚙️ | **Battle History Setting:** {str(battle_history)} messages
                 ⚙️ | **Difficulty:** {difficulty.lower().capitalize()}
