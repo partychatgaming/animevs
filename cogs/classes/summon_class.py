@@ -14,6 +14,7 @@ class Summon:
         self.is_dungeon_drop = False
         self.is_scenario_drop = False
         self.is_boss_drop = False
+        self.is_raid_drop = False
 
         self.passive = abilities[0]
         self.ability = list(self.passive.keys())[0]
@@ -55,6 +56,10 @@ class Summon:
         elif self.drop_style == "BOSS":
             self.is_boss_drop = True
             self.drop_emoji = f"👹"
+            self.dismantle_amount = 1000000
+        elif self.drop_style == "RAID":
+            self.is_raid_drop = True
+            self.drop_emoji = f"💀"
             self.dismantle_amount = 1000000
 
     def is_not_universe_unbound(self):

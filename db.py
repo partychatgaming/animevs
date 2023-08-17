@@ -1101,11 +1101,11 @@ def queryTournamentCards():
     return data
 
 def queryShopCards():
-    data = cards_col.find({'EXCLUSIVE': False, 'AVAILABLE': True, 'HAS_COLLECTION': False})
+    data = cards_col.find({'EXCLUSIVE': False, 'AVAILABLE': True})
     return data 
 
 def altQueryShopCards(args):
-    data = cards_col.find({'EXCLUSIVE': False, 'AVAILABLE': True, 'HAS_COLLECTION': False})
+    data = cards_col.find({'EXCLUSIVE': False, 'AVAILABLE': True})
     return data 
 
 def querySkins(args):
@@ -1731,6 +1731,21 @@ def deleteBoss(query):
 def queryAllBosses():
     data = boss_col.find()
     return data
+
+
+def queryAllBossesByUniverse(universe):
+    try:
+        data = boss_col.find({"UNIVERSE": universe})
+        if data:
+            return data
+        else:
+            return False
+    except Exception as e:
+        print(f"Error querying bosses: {e}")
+        return False
+
+
+
 
 def queryBoss(query):
     data = boss_col.find_one(query)

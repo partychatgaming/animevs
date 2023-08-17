@@ -44,7 +44,7 @@ class GameModes(Extension):
         # self._cd = commands.CooldownMapping.from_cooldown(1, 900, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
         # self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)
         self.level_up_cooldown = Cooldown(Buckets.MEMBER, 10, 3600)
-        self.explore_cooldown = Cooldown(Buckets.MEMBER, 1, 3600)
+        self.explore_cooldown = Cooldown(Buckets.MEMBER, 25, 3600)
     max_items = 150
 
     @listen()
@@ -180,7 +180,7 @@ class GameModes(Extension):
                 embedVar.set_thumbnail(url=message.author.avatar_url)
                 embedVar.set_footer(text=f"Use /explore to exit Explore Mode",icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
                 
-                image_binary = selected_card.showcard("non-battle", "none", {'TITLE': 'EXPLORE TITLE'})
+                image_binary = selected_card.showcard()
                 image_binary.seek(0)
                 card_file = File(file_name="image.png", file=image_binary)
     

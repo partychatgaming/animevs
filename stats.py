@@ -20,7 +20,8 @@ def update_stats(player, battle_config, damage_dealt, damage_received, damage_he
                 ('is_pvp_game_mode', 'PVP_STATS'),
                 ('is_explore_game_mode', 'EXPLORE_STATS'),
                 ('is_tales_game_mode', 'TALES_STATS'),
-                ('is_scenario_game_mode', 'SCENARIO_STATS')
+                ('is_scenario_game_mode', 'SCENARIO_STATS'),
+                ('self.is_raid_scenario', 'RAID_STATS')
             ]
 
             for game_mode, stat_name in game_modes:
@@ -49,7 +50,8 @@ def update_stats(player, battle_config, damage_dealt, damage_received, damage_he
                 ('is_pvp_game_mode', 'PVP_STATS'),
                 ('is_explore_game_mode', 'EXPLORE_STATS'),
                 ('is_tales_game_mode', 'TALES_STATS'),
-                ('is_scenario_game_mode', 'SCENARIO_STATS')
+                ('is_scenario_game_mode', 'SCENARIO_STATS'),
+                ('self.is_raid_scenario', 'RAID_STATS')
             ]
 
             for game_mode, stat_name in game_modes:
@@ -101,6 +103,7 @@ def create_initial_stats(player):
         'EXPLORE_STATS': [],
         'TALES_STATS': [],
         'SCENARIO_STATS': [],
+        'RAID_STATS': [],
         'DAMAGE_DONE': [],
         'FIRE_DAMAGE_DONE': [],
         'WATER_DAMAGE_DONE': [],

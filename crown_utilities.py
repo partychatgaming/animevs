@@ -94,108 +94,6 @@ def update_save_spot(ctx, saved_spots, selected_universe, modes):
         return
 
 
-async def route_to_storage(user, player, card_name, current_cards, card_owned, price, universe, owned_destinies, mode, storage_type):
-    try:
-        msg = ""
-        user_query = {"DID": str(player)}
-        vault_query = {"DID": str(player)}
-        if storage_type == "cards":
-            update_query = {
-                "$addToSet": {"STORAGE": card_name}
-            }
-            update_storage = db.updateUserNoFilter(user_query, update_query)
-            
-
-            if card_owned:
-                await cardlevel(user, card_name, str(player), mode, universe)
-                msg = f"You received a level up for 🎴: **{card_name}**!"
-                await curse(int(price), str(player))
-                return msg
-            else:
-                await curse(int(price), str(player))
-
-                update_query = {'$addToSet': {
-                    'CARD_LEVELS': {'CARD': str(card_name), 'LVL': 0, 'TIER': 0,
-                                    'EXP': 0, 'HLT': 0, 'ATK': 0, 'DEF': 0, 'AP': 0}}}
-                r = db.updateUserNoFilter(vault_query, update_query)
-
-                msg = f"🎴: **{card_name}** has been purchased and added to Storage!\n"
-
-                for destiny in d.destiny:
-                    if card_name in destiny["USE_CARDS"] and destiny['NAME'] not in owned_destinies:
-                        db.updateUserNoFilter(vault_query, {'$addToSet': {'DESTINY': destiny}})
-                        await user.send(
-                            f"✨: **DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault.")
-
-
-                msg = f"🎴:  **{card_name}** has been purchased and added to Storage!"
-                return msg
-        elif storage_type == "titles":
-            title_name = card_name
-            current_titles = current_cards
-            title_owned = card_owned
-            update_query = {
-                "$addToSet": {"TSTORAGE": title_name}
-            }
-            update_storage = db.updateUserNoFilter(user_query, update_query)
-            
-
-            if title_owned:
-                bless_amount = price
-                msg = f"You already own 🎗️: **{title_name}**. You get a 🪙**{'{:,}'.format(bless_amount)}** refund!"
-                await curse(int(bless_amount), str(player))
-                return msg
-            else:
-                await curse(int(price), str(player))
-
-                msg = f"🎗️: **{title_name}** has been purchased and added to Storage!\n"
-                return msg
-        elif storage_type == "arms":
-            arm_name = card_name
-            current_arms = current_cards
-            arm_owned = card_owned
-            durability = owned_destinies
-            update_query = {
-                '$addToSet': {'ASTORAGE': {'ARM': str(arm_name), 'DUR': durability}}
-            }
-            update_storage = db.updateUserNoFilter(user_query, update_query)
-            
-
-            if arm_owned:
-                bless_amount = price
-                update_query = {'$inc': {'ARMS.$[type].' + 'DUR': 10}}
-                filter_query = [{'type.' + "ARM": str(arm_name)}]
-                resp = db.updateUser(vault_query, update_query, filter_query)
-                msg = f"You purchased 🦾: **{arm_name}**. Increased durability for the arm by 10 as you already own it."
-                await curse(int(bless_amount), str(player))
-                return msg
-            else:
-                await curse(int(price), str(player))
-
-                msg = f"🦾: **{arm_name}** has been purchased and added to Storage!\n"
-                return msg
-        else:
-            await print("Could not find Storage of that Type")
-        
-
-    except Exception as ex:
-        trace = []
-        tb = ex.__traceback__
-        while tb is not None:
-            trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-        print(str({
-            'player': str(player),
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-        }))
-        
-
 def calculate_speed_modifier(speed):
     if speed <= 10:
         return 3
@@ -781,7 +679,7 @@ async def cardlevel(user, mode: str, extra_exp = 0):
             embed = Embed(title=f"🎴 **{card.name}** leveled up {str(number_of_level_ups)} times!", color=0x00ff00)
             embed.set_footer(text=f"{lvl_req} EXP to next level")
             embed.set_image(url="attachment://image.png")
-            image_binary = card.showcard("non-battle", arm, title)
+            image_binary = card.showcard()
             image_binary.seek(0)
             card_file = File(file_name="image.png", file=image_binary)
             await user.send(embed=embed, file=card_file)

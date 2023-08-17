@@ -79,7 +79,7 @@ class Play(Extension):
 
                 match_start_embed = build_match_start_embed(battle_config, user1, user2)
 
-                image_binary = battle_config.player2_card.showcard(battle_config.mode, battle_config.player2_arm, battle_config.player2_title, battle_config.turn_total, battle_config.player1_card.defense)
+                image_binary = battle_config.player2_card.showcard(battle_config.player2_arm, battle_config.turn_total, battle_config.player1_card.defense, battle_config.mode)
                 image_binary.seek(0)
                 card_file = File(file_name="image.png", file=image_binary)
                 battle_start_msg = await private_channel.send(
@@ -921,7 +921,7 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
         turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
         await start_of_moves_config(battle_config)
         embedVar = await tactics.auto_battle_embed_and_starting_traits(ctx, turn_card, turn_title, opponent_card, opponent_title, battle_config, partner_card, partner_title)
-        image_binary = turn_card.showcard(battle_config.mode, turn_arm, turn_title, battle_config.turn_total, opponent_card.defense)
+        image_binary = turn_card.showcard(turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
         print(f"Image Binary: {image_binary}")
         if image_binary.seekable():
             image_binary.seek(0)
@@ -1049,7 +1049,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         embedVar.add_field(name=f"**Moves**", value=f"{turn_card.get_performance_moveset()}")
         battle_msg = await private_channel.send(embed=embedVar, components=components)
     else:
-        image_binary = turn_card.showcard(battle_config.mode, turn_arm, turn_title, battle_config.turn_total, opponent_card.defense)
+        image_binary = turn_card.showcard(turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
         image_binary.seek(0)
         card_file = File(file_name="image.png", file=image_binary)
         battle_msg = await private_channel.send(embed=embedVar, components=components, file=card_file)

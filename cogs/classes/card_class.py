@@ -32,8 +32,6 @@ from cogs.universe_traits.one_punch_man import rank_hero, hero_reinforcements
 from cogs.universe_traits.seven_deadly_sins import increase_power
 from cogs.universe_traits.persona import summon_persona
 
-
-
 class Card:
     try:
         def __init__(self, name, path, price, available, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, card_type, passive, speed, universe, tier, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss, card_class, drop_style):
@@ -78,6 +76,7 @@ class Card:
             self.is_skin_drop = False
             self.is_boss_drop = False
             self.is_destiny_drop = False
+            self.is_raid_drop = False
             self.is_fighter = False
             self.is_mage = False
             self.is_ranger = False
@@ -431,6 +430,9 @@ class Card:
             elif self.drop_style == "DUNGEON":
                 self.is_dungeon_drop = True
                 self.drop_emoji = f"🔥"
+            elif self.drop_style == "RAID":
+                self.is_raid_drop = True
+                self.drop_emoji = f"💀"
             elif self.drop_style == "SCENARIO":
                 self.is_scenario_drop = True
                 self.drop_emoji = f"🎞️"
@@ -1147,7 +1149,7 @@ class Card:
                     self.evasion_message = f"{self.speed} : {self.evasion}% evasion"
 
 
-    def showcard(self, mode, arm, title, turn_total=0, opponent_card_defense=0):   
+    def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle"):   
         try:    
             if self.health <= 0:
                 im = get_card(self.path, self.name, "base")
@@ -1166,125 +1168,19 @@ class Card:
 
                 draw = ImageDraw.Draw(im)
 
-                # Font Size Adjustments
-                # Name not go over Card
-                name_font_size = 60
-                title_font_size = 35
-                basic_font_size = 30
-                super_font_size = 30
-                ultimate_font_size = 30
-                enhancer_font_size = 30
-                title_size = (600, 65)
-                if len(list( self.name)) >= 15 and not self.used_resolve:
-                    name_font_size = 45
-                if len(list( self.rname)) >= 15 and self.used_resolve:
-                    name_font_size = 45
-                if len(list( self.name)) >= 18 and not self.used_resolve:
-                    name_font_size = 40
-                    title_size = (600, 80)
-                if len(list( self.rname)) >= 18 and self.used_resolve:
-                    name_font_size = 40
-                    title_size = (600, 80)
-                if len(list( self.name)) >= 25 and not self.used_resolve:
-                    name_font_size = 35
-                    title_size = (600, 80)
-                if len(list( self.rname)) >= 25 and self.used_resolve:
-                    name_font_size = 35
-                    title_size = (600, 80)
+                star = Image.open("STARS.png")
+                paste_stars(im, star, self.tier)
+
+                name_font_size, title_font_size, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size, title_size = calculate_font_sizes(self.name, self.rname, self.used_resolve)
 
                 self.set_passive_num(self.passive_num)
                 card_message = f"{self.passive_type.title()} {self.passive_num}"
                 
-                #Evasion
+                # Evasion
                 evasion = self.get_evasion()
                 evasion_message = f"{self.speed}"
                 if self.speed >= 70 or self.speed <=30:
                     evasion_message = f"{self.speed} *{self.evasion}%*"
-                    
-                #Moveset Emojis
-                    
-                engagement_basic = 0
-                engagement_special = 0
-                engagement_ultimate = 0
-                ebasic = '💢'
-                especial = '💢'
-                eultimate = '🗯️'
-                if opponent_card_defense is None:
-                    ebasic = ' '
-                    especial = ' '
-                    eultimate = ' '
-                else:
-                    defensepower = opponent_card_defense - self.attack
-                    if defensepower <=0:
-                        defensepower = 1
-                    
-                    basic_ability_power =  self.attack - opponent_card_defense + self.move1ap
-                    if basic_ability_power <= 0:
-                        basic_ability_power = self.move1ap
-                    
-                    basic = round((basic_ability_power / defensepower))
-                    if basic > (self.move1ap * 2):
-                        engagement_basic = 5
-                        ebasic = '❌x2'
-                    elif basic > (self.move1ap * 1.5):
-                        engagement_basic = 4
-                        ebasic = '〽️x1.5'
-                    elif basic >= (self.move1ap * 1.1):
-                        engagement_basic = 3
-                        ebasic = '‼️'
-                    elif basic < (self.move1ap / 2)  and basic > (self.move1ap / 3):
-                        engagement_basic = 2
-                        ebasic = '❕'
-                    elif basic < (self.move1ap / 3):
-                        engagement_basic = 1
-                        ebasic = '💢'
-                
-                    special_ability_power =  self.attack - opponent_card_defense + self.move2ap
-                    if special_ability_power <= 0:
-                        special_ability_power = self.move2ap
-                        
-                    special = round(special_ability_power/ defensepower)
-                    if special > (self.move2ap * 2):
-                        engagement_special = 5
-                        especial = '❌x2'
-                    elif special > (self.move2ap * 1.5):
-                        engagement_special = 4
-                        especial = '〽️x1.5'
-                    elif special >= (self.move2ap * 1.1):
-                        engagement_special = 3
-                        especial = '‼️'
-                    elif special < (self.move2ap / 2) and special > (self.move2ap / 3):
-                        engagement_special = 2
-                        especial = '❕'
-                    elif special < (self.move2ap / 3):
-                        engagement_special = 1
-                        especial = '💢'
-                    
-            
-                    ultimate_ability_power =  self.attack - opponent_card_defense + self.move3ap
-                    if ultimate_ability_power <= 0:
-                        ultimate_ability_power = self.move3ap
-                    ultimate = round(ultimate_ability_power / defensepower)
-                    if ultimate > (self.move3ap * 2):
-                        engagement_ultimate = 5
-                        eultimate = '❌x2'
-                    elif ultimate > (self.move3ap * 1.5):
-                        engagement_ultimate = 4
-                        eultimate = '〽️x1.5'
-                    elif ultimate >= (self.move3ap * 1.1):
-                        engagement_ultimate = 3
-                        eultimate = '‼️'
-                    elif ultimate < (self.move3ap / 2) and ultimate > (self.move3ap / 3):
-                        engagement_ultimate = 2
-                        eultimate = '❕'
-                    elif ultimate < (self.move3ap / 3):
-                        engagement_ultimate = 1
-                        eultimate = '💢'
-                    # self.d_emoji_1 = ebasic
-                    # self.d_emoji_2 = especial
-                    # self.d_emoji_3 = eultimate
-                    
-
 
                 if arm != "none":
                     arm_message = f"{arm.passive_type.title()} | {arm.passive_value}"
@@ -1292,98 +1188,14 @@ class Card:
                         arm_element_icon = crown_utilities.set_emoji(arm.element)
                         arm_message = f"{arm_element_icon} {arm.passive_type.title()}"
                         #self.element = arm.element
-                 
-                if mode == "non-battle":
-                    ebasic = ""
-                    especial = ""
-                    eultimate = ""
-
-                if len(self.move1) > 40:
-                    self.move1 = self.move1[:37] + "..."
-                if len(self.move2) > 40:
-                    self.move2 = self.move2[:37] + "..."
-                if len(self.move3) > 40:
-                    self.move3 = self.move3[:37] + "..."
-                move1_text = f"{self.move1_emoji} {self.move1}: {self.move1ap} {ebasic}"
-                move2_text = f"{self.move2_emoji} {self.move2}: {self.move2ap} {especial}"
-                move3_text = f"{self.move3_emoji} {self.move3}: {self.move3ap} {eultimate}"
-                
-
-                turn_crit = False
-                if self.move4enh in crown_utilities.Turn_Enhancer_Check:
-                    if turn_total == 0:
-                        self.move4ap = round(self.move4base)
-                        turn_crit = True
-                    elif turn_total % 10 == 0:
-                        self.move4ap = round(self.move4base)
-                        turn_crit = True
-                    elif turn_total >= 1:
-                        self.move4ap = round(self.move4base / turn_total)
-
-                elif self.move4enh in crown_utilities.Damage_Enhancer_Check:
-                    if turn_total > 0:
-                        self.move4ap = round(self.move4base * turn_total)
-                        if self.move4ap >= (100 * self.tier):
-                            if self.move4enh == "BLAST":
-                                self.move4ap = (100 * self.tier)
-                            else:
-                                self.move4ap = (100 * self.tier)
-                            turn_crit = True
-                
-                # move4enh is the TYPE of enhancer
-                if not turn_crit:
-                    move_enhanced_text = f"🦠 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
-                elif self.move4enh in crown_utilities.Damage_Enhancer_Check and self.move4ap == (100 * self.tier):
-                    move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
-                elif self.move4enh in crown_utilities.Turn_Enhancer_Check and (turn_total % 10 == 0 or turn_total == 0):
-                    move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
-                else:
-                    move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
-
-
-                #Moveset Length
-                
-                basic_length = int(len(move1_text))
-                super_length = int(len(move2_text))
-                ultimate_length = int(len(move3_text))
-                enhancer_length = int(len(move_enhanced_text))
-                
-                if basic_length >= 53:
-                    basic_font_size = 27
-                if basic_length >= 60:
-                    basic_font_size = 25
-                if basic_length >= 65:
-                    basic_font_size = 23
                     
-                if super_length >= 53:
-                    super_font_size = 27
-                if super_length >= 60:
-                    super_font_size = 25
-                if super_length >= 65:
-                    super_font_size = 23
-                    
-                if ultimate_length >= 53:
-                    ultimate_font_size = 27
-                if ultimate_length >= 60:
-                    ultimate_font_size = 25
-                if ultimate_length >= 65:
-                    ultimate_font_size = 23
-                    
-                if enhancer_length >= 53:
-                    enhancer_font_size = 27
-                if enhancer_length >= 60:
-                    enhancer_font_size = 25
-                if enhancer_length >= 65:
-                    enhancer_font_size = 23
-                    
-                
+                ebasic, especial, eultimate, engagement_basic, engagement_special, engagement_ultimate = calculate_engagement_levels(opponent_card_defense, mode, self)
+                move1_text, move2_text, move3_text, move_enhanced_text, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size = calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eultimate)
+
+
                 header = ImageFont.truetype("YesevaOne-Regular.ttf", name_font_size)
                 title_font = ImageFont.truetype("YesevaOne-Regular.ttf", title_font_size)
                 passive_font = ImageFont.truetype("YesevaOne-Regular.ttf", 35)
-                s = ImageFont.truetype("Roboto-Bold.ttf", 22)
-                h = ImageFont.truetype("YesevaOne-Regular.ttf", 37)
-                m = ImageFont.truetype("Roboto-Bold.ttf", 25)
-                r = ImageFont.truetype("Freedom-10eM.ttf", 40)
                 lvl_font = ImageFont.truetype("Neuton-Bold.ttf", 68)
                 health_and_stamina_font = ImageFont.truetype("Neuton-Light.ttf", 41)
                 attack_and_shield_font = ImageFont.truetype("Neuton-Bold.ttf", 48)
@@ -1391,39 +1203,11 @@ class Card:
                 moveset_font_2 = ImageFont.truetype("antonio.regular.ttf", super_font_size)
                 moveset_font_3 = ImageFont.truetype("antonio.regular.ttf", ultimate_font_size)
                 moveset_font_4 = ImageFont.truetype("antonio.regular.ttf", enhancer_font_size)
-                rhs = ImageFont.truetype("destructobeambb_bold.ttf", 35)
-                stats = ImageFont.truetype("Freedom-10eM.ttf", 30)
-                card_details_font_size = ImageFont.truetype("destructobeambb_bold.ttf", 25)
-                card_levels = ImageFont.truetype("destructobeambb_bold.ttf", 40)
                 
 
-                if self.health == self.max_health:
-                    health_bar = f"{round(self.max_health)}"
-                else:
-                    health_bar = f"{round(self.health)}/{round(self.max_health)}"
+                health_bar, character_name = get_character_name_and_health_bar(self, draw, header, title_size)
 
-                # Character & Title Name
-                if not self.resolved:
-                    draw.text(title_size,  self.name, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
-                            align="left")
-                if self.resolved:
-                    if  self.rname != "":
-                        draw.text(title_size,  self.rname, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
-                                align="left")
-                    else:
-                        draw.text(title_size,  self.name, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
-                                align="left")
-
-                # Level
-                lvl_sizing = (89, 70)
-                if int(self.card_lvl) > 9:
-                    lvl_sizing = (75, 70)
-                if int(self.card_lvl) > 99:
-                    lvl_sizing = (55, 70)
-                if int(self.card_lvl) > 999:
-                    lvl_sizing = (45, 70)
-                draw.text(lvl_sizing, f"{self.card_lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
-                        align="center")
+                lvl_sizing = get_lvl_sizing(self, draw, lvl_font)
 
                 # Health & Stamina
                 rift_universes = ['Crown Rift Awakening']
@@ -3298,4 +3082,240 @@ def get_card(url, cardname, cardtype):
             custom_logging.debug(ex)
 
 
-            
+def calculate_font_sizes(name, rname, used_resolve):
+    name_font_size = 60
+    title_font_size = 35
+    basic_font_size = 30
+    super_font_size = 30
+    ultimate_font_size = 30
+    enhancer_font_size = 30
+    title_size = (600, 65)
+
+    name_length = max(len(name), len(rname))
+
+    if name_length >= 25:
+        name_font_size = 35
+        title_size = (600, 80)
+    elif name_length >= 18:
+        name_font_size = 40
+        title_size = (600, 80)
+    elif name_length >= 15:
+        name_font_size = 45
+
+    return name_font_size, title_font_size, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size, title_size
+
+
+def calculate_engagement_levels(opponent_card_defense, mode, self):
+    engagement_basic = 0
+    engagement_special = 0
+    engagement_ultimate = 0
+    ebasic = '💢'
+    especial = '💢'
+    eultimate = '🗯️'
+
+    if opponent_card_defense is None:
+        ebasic = ' '
+        especial = ' '
+        eultimate = ' '
+    else:
+        defensepower = opponent_card_defense - self.attack
+        if defensepower <= 0:
+            defensepower = 1
+
+        def calculate_ability_power(ability_power, move_ap):
+            return max(ability_power - opponent_card_defense + move_ap, move_ap)
+
+        basic_ability_power = calculate_ability_power(self.attack, self.move1ap)
+        basic = round((basic_ability_power / defensepower))
+        if basic > (self.move1ap * 2):
+            engagement_basic = 5
+            ebasic = '❌x2'
+        elif basic > (self.move1ap * 1.5):
+            engagement_basic = 4
+            ebasic = '〽️x1.5'
+        elif basic >= (self.move1ap * 1.1):
+            engagement_basic = 3
+            ebasic = '‼️'
+        elif basic < (self.move1ap / 2) and basic > (self.move1ap / 3):
+            engagement_basic = 2
+            ebasic = '❕'
+        elif basic < (self.move1ap / 3):
+            engagement_basic = 1
+            ebasic = '💢'
+
+        special_ability_power = calculate_ability_power(self.attack, self.move2ap)
+        special = round(special_ability_power / defensepower)
+        if special > (self.move2ap * 2):
+            engagement_special = 5
+            especial = '❌x2'
+        elif special > (self.move2ap * 1.5):
+            engagement_special = 4
+            especial = '〽️x1.5'
+        elif special >= (self.move2ap * 1.1):
+            engagement_special = 3
+            especial = '‼️'
+        elif special < (self.move2ap / 2) and special > (self.move2ap / 3):
+            engagement_special = 2
+            especial = '❕'
+        elif special < (self.move2ap / 3):
+            engagement_special = 1
+            especial = '💢'
+
+        ultimate_ability_power = calculate_ability_power(self.attack, self.move3ap)
+        ultimate = round(ultimate_ability_power / defensepower)
+        if ultimate > (self.move3ap * 2):
+            engagement_ultimate = 5
+            eultimate = '❌x2'
+        elif ultimate > (self.move3ap * 1.5):
+            engagement_ultimate = 4
+            eultimate = '〽️x1.5'
+        elif ultimate >= (self.move3ap * 1.1):
+            engagement_ultimate = 3
+            eultimate = '‼️'
+        elif ultimate < (self.move3ap / 2) and ultimate > (self.move3ap / 3):
+            engagement_ultimate = 2
+            eultimate = '❕'
+        elif ultimate < (self.move3ap / 3):
+            engagement_ultimate = 1
+            eultimate = '💢'
+
+    if mode == "non-battle":
+        ebasic = ""
+        especial = ""
+        eultimate = ""     
+
+    return ebasic, especial, eultimate, engagement_basic, engagement_special, engagement_ultimate
+
+
+def calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eultimate):
+    if len(self.move1) > 40:
+        self.move1 = self.move1[:37] + "..."
+    if len(self.move2) > 40:
+        self.move2 = self.move2[:37] + "..."
+    if len(self.move3) > 40:
+        self.move3 = self.move3[:37] + "..."
+    move1_text = f"{self.move1_emoji} {self.move1}: {self.move1ap} {ebasic}"
+    move2_text = f"{self.move2_emoji} {self.move2}: {self.move2ap} {especial}"
+    move3_text = f"{self.move3_emoji} {self.move3}: {self.move3ap} {eultimate}"
+
+    turn_crit = False
+    if self.move4enh in crown_utilities.Turn_Enhancer_Check:
+        if turn_total == 0:
+            self.move4ap = round(self.move4base)
+            turn_crit = True
+        elif turn_total % 10 == 0:
+            self.move4ap = round(self.move4base)
+            turn_crit = True
+        elif turn_total >= 1:
+            self.move4ap = round(self.move4base / turn_total)
+    
+    if self.move4enh in crown_utilities.Damage_Enhancer_Check:
+        if turn_total > 0:
+            self.move4ap = round(self.move4base * turn_total)
+            if self.move4ap >= (100 * self.tier):
+                if self.move4enh == "BLAST":
+                    self.move4ap = (100 * self.tier)
+                else:
+                    self.move4ap = (100 * self.tier)
+                turn_crit = True
+
+    if not turn_crit:
+        move_enhanced_text = f"🦠 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
+    elif self.move4enh in crown_utilities.Damage_Enhancer_Check and self.move4ap == (100 * self.tier):
+        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
+    elif self.move4enh in crown_utilities.Turn_Enhancer_Check and (turn_total % 10 == 0 or turn_total == 0):
+        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
+    else:
+        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
+    
+    basic_length = int(len(move1_text))
+    super_length = int(len(move2_text))
+    ultimate_length = int(len(move3_text))
+    enhancer_length = int(len(move_enhanced_text))
+    
+    if basic_length >= 53 or basic_length <= 53:
+        basic_font_size = 27
+    if basic_length >= 60:
+        basic_font_size = 25
+    if basic_length >= 65:
+        basic_font_size = 23
+        
+    if super_length >= 53 or super_length <= 53:
+        super_font_size = 27
+    if super_length >= 60:
+        super_font_size = 25
+    if super_length >= 65:
+        super_font_size = 23
+        
+    if ultimate_length >= 53 or ultimate_length <= 53:
+        ultimate_font_size = 27
+    if ultimate_length >= 60:
+        ultimate_font_size = 25
+    if ultimate_length >= 65:
+        ultimate_font_size = 23
+        
+    if enhancer_length >= 53 or ultimate_length <= 53:
+        enhancer_font_size = 27
+    if enhancer_length >= 60:
+        enhancer_font_size = 25
+    if enhancer_length >= 65:
+        enhancer_font_size = 23
+
+    return move1_text, move2_text, move3_text, move_enhanced_text, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size
+
+
+def get_character_name_and_health_bar(self, draw, header, title_size):
+    if self.health == self.max_health:
+        health_bar = f"{round(self.max_health)}"
+    else:
+        health_bar = f"{round(self.health)}/{round(self.max_health)}"
+    
+    if not self.resolved:
+        character_name = self.name
+    else:
+        if self.rname != "":
+            character_name = self.rname
+        else:
+            character_name = self.name
+    
+    draw.text(title_size, character_name, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
+              align="left")
+    
+    return health_bar, character_name
+
+
+def get_lvl_sizing(self, draw, lvl_font):
+    if int(self.card_lvl) <= 9:
+        lvl_sizing = (90, 70)
+    if int(self.card_lvl) > 9:
+        lvl_sizing = (75, 70)
+    if int(self.card_lvl) > 99:
+        lvl_sizing = (55, 70)
+    if int(self.card_lvl) > 999:
+        lvl_sizing = (45, 70)
+    
+    draw.text(lvl_sizing, f"{self.card_lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
+              align="center")
+    
+    return lvl_sizing
+
+
+def paste_stars(im, star, tier):
+    star_positions = [
+        (230, 520), (310, 515), (380, 490), (437, 452), 
+        (475, 395), (507, 325), (518, 250), (512, 170), 
+        (485, 100), (435, 40)
+    ]
+    
+    for i in range(int(tier)):
+        if i >= len(star_positions):
+            break  # Ensure we don't exceed available positions
+        position = star_positions[i]
+        im.paste(star, position, star)
+        
+    return im
+
+
+
+
+
