@@ -1567,7 +1567,7 @@ class Card:
                 #Evasion Modifier
                 hit_roll = self.adjust_hit_roll(hit_roll, _opponent_card, summon_used, true_dmg, move_element, battle_config, low_hit, med_hit, standard_hit, high_hit, miss_hit)
 
-                if move_element == "RECOIL" and hit_roll > miss_hit:
+                if move_element == "RECKLESS" and hit_roll > miss_hit:
                     true_dmg = round(true_dmg * 3)
 
                 if turn_title.elemental_buff_effect:
@@ -1622,7 +1622,7 @@ class Card:
                 else:
                     message = f"{move_emoji} {move} used! Dealt {true_dmg} dmg to {_opponent_card.name}!"
 
-                if self._magic_active and move_element not in ['PHYSICAL', 'RANGED', 'RECOIL']:
+                if self._magic_active and move_element not in ['PHYSICAL', 'RANGED', 'RECKLESS']:
                     true_dmg = round(true_dmg + (true_dmg * .40))
 
                 if is_physical_element:
@@ -1736,7 +1736,7 @@ class Card:
             hit_roll = hit_roll + 3
             self.health = self.health + (.35 * true_dmg)
 
-        if (move_element == "SPIRIT" or self.stagger) and hit_roll >= 13:
+        if (move_element == "ENERGY" or self.stagger) and hit_roll >= 13:
             hit_roll = hit_roll + 7
 
         if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
@@ -2743,12 +2743,12 @@ class Card:
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
             battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} gained {str(round(dmg['DMG'] * .35))} Health*")
 
-        elif dmg['ELEMENT'] == "RECOIL":
+        elif dmg['ELEMENT'] == "RECKLESS":
             self.health = self.health - (dmg['DMG'] * .40)
             if self.health <= 0:
                 self.health = 1
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} took {str(round(dmg['DMG'] * .40))} Recoil Damage*")
+            battle_config.add_to_battle_log(f"{name} {dmg['MESSAGE']}\n*{self.name} took {str(round(dmg['DMG'] * .40))} Reckless Damage*")
 
         elif dmg['ELEMENT'] == "PSYCHIC":
             self.barrier_meter = self.barrier_meter + 1

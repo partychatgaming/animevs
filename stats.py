@@ -121,8 +121,8 @@ def create_initial_stats(player):
         'PSYCHIC_DAMAGE_DONE': [],
         'RANGED_DAMAGE_DONE': [],
         'PHYSICAL_DAMAGE_DONE': [],
-        'SPIRIT_DAMAGE_DONE': [],
-        'RECOIL_DAMAGE_DONE': [],
+        'ENERGY_DAMAGE_DONE': [],
+        'RECKLESS_DAMAGE_DONE': [],
         'DEATH_DAMAGE_DONE': [],
         'LIFE_DAMAGE_DONE': [],
     }

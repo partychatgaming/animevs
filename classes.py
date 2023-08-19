@@ -78,8 +78,8 @@ class USER():
         {"ELEMENT": "DARK", "ESSENCE": 5000},
         {"ELEMENT": "POISON", "ESSENCE": 5000},
         {"ELEMENT": "RANGED", "ESSENCE": 5000},
-        {"ELEMENT": "SPIRIT", "ESSENCE": 5000},
-        {"ELEMENT": "RECOIL", "ESSENCE": 5000},
+        {"ELEMENT": "ENERGY", "ESSENCE": 5000},
+        {"ELEMENT": "RECKLESS", "ESSENCE": 5000},
         {"ELEMENT": "TIME", "ESSENCE": 5000},
         {"ELEMENT": "BLEED", "ESSENCE": 5000},
         {"ELEMENT": "GRAVITY", "ESSENCE": 5000}
@@ -536,8 +536,8 @@ class VAULT():
         {"ELEMENT": "DARK", "ESSENCE": 5000},
         {"ELEMENT": "POISON", "ESSENCE": 5000},
         {"ELEMENT": "RANGED", "ESSENCE": 5000},
-        {"ELEMENT": "SPIRIT", "ESSENCE": 5000},
-        {"ELEMENT": "RECOIL", "ESSENCE": 5000},
+        {"ELEMENT": "ENERGY", "ESSENCE": 5000},
+        {"ELEMENT": "RECKLESS", "ESSENCE": 5000},
         {"ELEMENT": "TIME", "ESSENCE": 5000},
         {"ELEMENT": "BLEED", "ESSENCE": 5000},
         {"ELEMENT": "GRAVITY", "ESSENCE": 5000}

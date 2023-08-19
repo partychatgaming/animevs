@@ -341,11 +341,11 @@ def set_emoji(element):
         emoji = "🌕"
     if element == "DARK":
         emoji = "🌑"
-    if element == "SPIRIT":
+    if element == "ENERGY":
         emoji = "🧿"
     if element == "BLEED":
         emoji = "🅱️"
-    if element == "RECOIL":
+    if element == "RECKLESS":
         emoji = "♻️"
     if element == "TIME":
         emoji = "⌛"
@@ -2017,8 +2017,8 @@ element_mapping = {
 'DARK': 'Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.',
 'POISON': 'Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).',
 'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%',
-'SPIRIT': 'Has higher 35% higher chance of Crit.',
-'RECOIL': 'Deals Incredible Bonus Damage, take 60% as recoil. If Recoil would kill you reduce HP to 1',
+'ENERGY': 'Has higher 35% higher chance of Crit.',
+'RECKLESS': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
 'TIME': 'Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.',
 'BLEED': 'Every 2 Attacks deal 10x turn count damage to opponent.',
 'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.',
@@ -2047,8 +2047,8 @@ elements = [
     "DARK",
     "POISON",
     "RANGED",
-    "SPIRIT",
-    "RECOIL",
+    "ENERGY",
+    "RECKLESS",
     "TIME",
     "BLEED",
     "GRAVITY"
@@ -2147,9 +2147,9 @@ autocomplete_advanced_search = [
     {'name': 'LIGHT', 'value': 'LIGHT'},
     {'name': 'DARK', 'value': 'DARK'},
     {'name': 'POISON', 'value': 'POISON'},
-    {'name': 'SPIRIT', 'value': 'SPIRIT'},
+    {'name': 'ENERGY', 'value': 'ENERGY'},
     {'name': 'RANGED', 'value': 'RANGED'},
-    {'name': 'RECOIL', 'value': 'RECOIL'},
+    {'name': 'RECKLESS', 'value': 'RECKLESS'},
     {'name': 'BLEED', 'value': 'BLEED'},
     {'name': 'GRAVITY', 'value': 'GRAVITY'},
     {'name': 'TIME', 'value': 'TIME'},

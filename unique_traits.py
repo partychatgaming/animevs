@@ -24,8 +24,8 @@ traits = [{
     'TRAIT': 'Devilization : When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. Fearful : Strong Fear Infliction.'
 },{
     'NAME': 'Bleach',
-    'EFFECT': 'Bankai, Spiritual Pressure',
-    'TRAIT': 'Bankai : On Resolve, Gain 2x Attack. Spiritual Pressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
+    'EFFECT': 'Bankai, Energyual Pressure',
+    'TRAIT': 'Bankai : On Resolve, Gain 2x Attack. Energyual Pressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
@@ -68,24 +68,24 @@ traits = [{
     'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death 150 Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to Increase Turn by (3 + Card Tier).'
 },{
     'NAME': 'Dragon Ball Z',
-    'EFFECT': 'Final Stand, Saiyan Spirit',
-    'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Spirit :  On Focus, heal for opponent Stamina amount + turn count.'
+    'EFFECT': 'Final Stand, Saiyan Energy',
+    'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Energy :  On Focus, heal for opponent Stamina amount + turn count.'
 },{
     'NAME': 'Persona',
     'EFFECT': 'Summon Persona, Summoners Battle',
     'TRAIT': 'Summon Persona : Summon also deals Damage equal to your Basic Attack. Summoners Battle : Summoning disables Opp summon. '
 },{
     'NAME': 'YuYu Hakusho',
-    'EFFECT': 'Spirit Resolved!',
-    'TRAIT': 'Spirit Resolved : Upon Resolve, Gain 2x ATK and all AP is doubled, but defense remains at 100 for remainder of the match.'
+    'EFFECT': 'Energy Resolved!',
+    'TRAIT': 'Energy Resolved : Upon Resolve, Gain 2x ATK and all AP is doubled, but defense remains at 100 for remainder of the match.'
 },{
     'NAME': 'One Piece',
     'EFFECT': 'Haki : Tier Based Trait',
     'TRAIT': 'Observation: 1-7: 40% DMG Reduction. Armament: 4-7: 2x Focus. Conquerors: 6-7 Decrease OPP AP by 150'
 },{
     'NAME': 'Crown Rift Slayers',
-    'EFFECT': 'Feint Attack, Spiritual Weapons',
-    'TRAIT': 'Feint Attack : If you miss, Crit! Spiritual Weapons : Can use Arms from all Uninverses'
+    'EFFECT': 'Feint Attack, Energyual Weapons',
+    'TRAIT': 'Feint Attack : If you miss, Crit! Energyual Weapons : Can use Arms from all Uninverses'
 },{
     'NAME': 'Crown Rift Madness',
     'EFFECT': 'Madness, Beast Blood',

@@ -498,12 +498,12 @@ class Profile(Extension):
                                     value="RANGED",
                                 ),
                                 SlashCommandChoice(
-                                    name="🧿 Spirit",
-                                    value="SPIRIT",
+                                    name="🧿 Energy",
+                                    value="ENERGY",
                                 ),
                                 SlashCommandChoice(
-                                    name="♻️ Recoil",
-                                    value="RECOIL",
+                                    name="♻️ Reckless",
+                                    value="RECKLESS",
                                 ),
                                 SlashCommandChoice(
                                     name="⌛ Time",

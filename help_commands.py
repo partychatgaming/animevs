@@ -91,8 +91,8 @@ ELEMENTS_LIST = [
     "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",
     "🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).\n",
     "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%\n",
-    "🧿 Spirit - Has higher 35% higher chance of Crit.\n",
-    "♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1\n",
+    "🧿 Energy - Has higher 35% higher chance of Crit.\n",
+    "♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless. If Reckless would kill you reduce HP to 1\n",
     "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and lower opponent protections and goes through parry.\n",
     "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.\n",
     "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 30% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n"
@@ -129,9 +129,9 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%
 
-🧿 Spirit - Has higher 35% higher chance of Crit.
+🧿 Energy - Has higher 35% higher chance of Crit.
 
-♻️ Recoil - Deals Incredible Bonus Damage, take 40% as recoil. If Recoil would kill you reduce HP to 1
+♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless. If Reckless would kill you reduce HP to 1
 
 ⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and lower opponent protections and goes through parry.
 

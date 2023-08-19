@@ -80,9 +80,9 @@ import textwrap
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage 
 
-💙 Spirit - Has higher chance of Crit.
+💙 Energy - Has higher chance of Crit.
 
-♻️ Recoil - Deals 60% damage back to you while dealing significantly more damage to opponent.
+♻️ Reckless - Deals 60% damage back to you while dealing significantly more damage to opponent.
 
 ⌛ Time - If ST is less than 80, You Block and Focus for 1 Turn. 
 
