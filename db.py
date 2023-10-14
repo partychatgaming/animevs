@@ -1260,12 +1260,8 @@ def createTitle(title):
 
 def updateTitle(query, new_value):
     try:
-        titleexists = title_exists({'TITLE': query['TITLE']})
-        if titleexists:
-            titles_col.update_one(query, new_value)
-            return True
-        else:
-            return False
+        titles_col.update_one(query, new_value)
+        return True
     except:
         return False
 

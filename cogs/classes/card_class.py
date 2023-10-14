@@ -260,6 +260,18 @@ class Card:
                 self.class_tier = "Legendary"
                 if self.universe == "Fate":
                     self.class_tier = "Mythical"
+            elif self.tier in [8]:
+                self.class_tier = "Mythical"
+                if self.universe == "Fate":
+                    self.class_tier = "Apex"
+            elif self.tier in [9]:
+                self.class_tier = "Apex"
+                if self.universe == "Fate":
+                    self.class_tier = "God"
+            elif self.tier in [10]:
+                self.class_tier = "God"
+                if self.universe == "Fate":
+                    self.class_tier = "Creator God"
             
             self.class_message = f"{self.class_tier} {self.card_class.title()}"
 
@@ -1168,7 +1180,10 @@ class Card:
 
                 draw = ImageDraw.Draw(im)
 
-                star = Image.open("STARS.png")
+                if self.tier > 8:
+                    star = Image.open("DARK STARS.png")
+                else:
+                    star = Image.open("STARS.png")
                 paste_stars(im, star, self.tier)
 
                 name_font_size, title_font_size, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size, title_size = calculate_font_sizes(self.name, self.rname, self.used_resolve)
@@ -3303,8 +3318,8 @@ def get_lvl_sizing(self, draw, lvl_font):
 def paste_stars(im, star, tier):
     star_positions = [
         (230, 520), (310, 515), (380, 490), (437, 452), 
-        (475, 395), (507, 325), (518, 250), (512, 170), 
-        (485, 100), (435, 40)
+        (480, 395), (507, 325), (521, 250), (512, 170), 
+        (485, 100), (430, 40)
     ]
     
     for i in range(int(tier)):

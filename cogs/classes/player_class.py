@@ -391,7 +391,7 @@ class Player:
                 unlock_method = title['UNLOCK_METHOD']['METHOD']
                 value = title['UNLOCK_METHOD']['VALUE']
                 element = title['UNLOCK_METHOD']['ELEMENT']
-                scenario_drop = title['UNLOCK_METHOD']['SCENARIO_DROP']
+                # scenario_drop = title['UNLOCK_METHOD']['SCENARIO_DROP']
                 tale_title_unlock_message = self.tales_title_unlock_check(stats, universe, unlock_method, value, title)
                 dungeon_title_unlock_message = self.dungeon_title_unlock_check(stats, universe, unlock_method, value, title)
                 boss_title_unlock_message = self.boss_title_unlock_check(stats, universe, unlock_method, value, title)

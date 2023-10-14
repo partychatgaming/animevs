@@ -2749,7 +2749,13 @@ async def code(ctx, code_input: str):
       return
 
 
-@slash_command(description="admin only", scopes=guild_ids)
+@slash_command(description="admin only", options=[
+   SlashCommandOption(name="collection", description="Collection to update", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="new_field", description="New Field to add", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="field_type", description="Field Type", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
+], scopes=guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def addfield(ctx, collection, new_field, field_type, password, key):
    if password != 'casperjayden':  
@@ -2760,7 +2766,7 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
    if field_type == "fix":
       field_type = True
    elif field_type == 'string':
-      field_type = "NULL"
+      field_type = ""
    elif field_type == 'int':
       field_type = 0
    elif field_type == 'list':
@@ -2792,6 +2798,9 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
       field_type = []
    elif field_type == 'bool':
       field_type = False
+
+   elif field_type == 'dict':
+      field_type = {}
       
    if collection == 'fix':
       response = db.updateManyUsers({'$set': {'BOSS_FOUGHT': True}})
@@ -2802,7 +2811,6 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
    elif collection == 'titles':
       response = db.updateManyTitles({'$set': {new_field: field_type}})
    elif collection == 'vault':
-      # response = db .updateUserNoFilter({'DID' : str(ctx.author.id)}, {new_field: field_type})
       print(response)
       response = db.updateManyVaults({'$set': {new_field: field_type}})
    elif collection == 'users':
@@ -3099,8 +3107,6 @@ async def updatesaves(ctx, password, key):
       await ctx.send("Issue with command. Please contact casperjayden#0001")
 
 
-
-
 @slash_command(description="admin only", options=[
    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
@@ -3173,23 +3179,21 @@ async def updatemoves(ctx, password, key):
                   # Create a new arm if the arm name doesn't already exist
                   if not db.queryArm({'ARM': list(move.keys())[0]}):
                      power = list(move.values())[0]
-                     exclusive = False
+                     drop_style = "TALES"
                      # Determine the price and abilities of the arm based on the move's STAM value
                      if move['STAM'] == 10:
                         price = 10000
                         ability = 'BASIC'
                         if power > 250:
-                           exclusive = True
+                           drop_style = "DUNGEONS"
                      elif move['STAM'] == 30:
-                        price = 30000
                         ability = 'SPECIAL'
                         if power > 325:
-                           exclusive = True
+                           drop_style = "DUNGEONS"
                      elif move['STAM'] == 80:
-                        price = 80000
                         ability = 'ULTIMATE'
                         if power > 550:
-                           exclusive = True
+                           drop_style = "DUNGEONS"
 
                      # Create the new arm document
                      arm = {
@@ -3197,14 +3201,11 @@ async def updatemoves(ctx, password, key):
                            ability: power
                         }],
                         'ARM': list(move.keys())[0],
-                        'PRICE': price,
                         'UNIVERSE': card['UNIVERSE'],
-                        'COLLECTION': 'N/A',
-                        'STOCK': 99,
                         'AVAILABLE': True,
-                        'EXCLUSIVE': exclusive,
                         'TIMESTAMP': now,
-                        'ELEMENT': move['ELEMENT']
+                        'ELEMENT': move['ELEMENT'],
+                        'DROP_STYLE': drop_style
                      }
                      
                      # Insert the new arm document into the ARMS collection
@@ -3392,41 +3393,43 @@ async def updatecarddropstyles(ctx, password, key):
 
       for card in all_cards:
          if 'DROP_STYLE' not in card:
-            if 'HAS_COLLECTION' in card:
-               if 'EXCLUSIVE' in card and not card['AVAILABLE'] and not 'HAS_COLLECTION' in card:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
-               elif 'EXCLUSIVE' in card and card['AVAILABLE']:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
-               elif not 'EXCLUSIVE' in card and not card['AVAILABLE'] and 'HAS_COLLECTION' in card:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DESTINY"}})
-               elif not 'EXCLUSIVE' in card and card['AVAILABLE'] and not 'HAS_COLLECTION' in card:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "TALES"}})
-               elif card['IS_SKIN']:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "SKIN"}})
-               elif not 'EXCLUSIVE' in card and not card['AVAILABLE'] and not 'HAS_COLLECTION' in card:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "SCENARIO"}})
-               counter += 1
-            if 'HAS_COLLECTION' not in card:
-               if 'EXCLUSIVE' in card and not card['AVAILABLE']:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
-               elif 'EXCLUSIVE' in card and card['AVAILABLE']:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
-               elif not 'EXCLUSIVE' in card and not card['AVAILABLE']:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DESTINY"}})
-               elif not 'EXCLUSIVE' in card and card['AVAILABLE']:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "TALES"}})
-               elif card['IS_SKIN']:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "SKIN"}})
-               elif not 'EXCLUSIVE' in card and not card['AVAILABLE']:
-                  db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "SCENARIO"}})
-               counter += 1
+            db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
+            counter += 1
+            # if 'HAS_COLLECTION' in card:
+            #    if 'EXCLUSIVE' in card and not card['AVAILABLE'] and not 'HAS_COLLECTION' in card:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
+            #    elif 'EXCLUSIVE' in card and card['AVAILABLE']:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
+            #    elif not 'EXCLUSIVE' in card and not card['AVAILABLE'] and 'HAS_COLLECTION' in card:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DESTINY"}})
+            #    elif not 'EXCLUSIVE' in card and card['AVAILABLE'] and not 'HAS_COLLECTION' in card:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "TALES"}})
+            #    elif card['IS_SKIN']:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "SKIN"}})
+            #    elif not 'EXCLUSIVE' in card and not card['AVAILABLE'] and not 'HAS_COLLECTION' in card:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "SCENARIO"}})
+            #    counter += 1
+            # if 'HAS_COLLECTION' not in card:
+            #    if 'EXCLUSIVE' in card and not card['AVAILABLE']:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
+            #    elif 'EXCLUSIVE' in card and card['AVAILABLE']:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DUNGEON"}})
+            #    elif not 'EXCLUSIVE' in card and not card['AVAILABLE']:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "DESTINY"}})
+            #    elif not 'EXCLUSIVE' in card and card['AVAILABLE']:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "TALES"}})
+            #    elif card['IS_SKIN']:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "SKIN"}})
+            #    elif not 'EXCLUSIVE' in card and not card['AVAILABLE']:
+            #       db.updateCard({'NAME': card['NAME']}, {'$set': {'DROP_STYLE': "SCENARIO"}})
+            #    counter += 1
          
-      # db.updateAllCards({'$unset': {'EXCLUSIVE': 1}})
-      # db.updateAllCards({'$unset': {'IS_SKIN': 1}})
-      # db.updateAllCards({'$unset': {'HAS_COLLECTION': 1}})
-      # db.updateAllCards({'$unset': {'VUL': 1}})
-      # db.updateAllCards({'$unset': {'COLLECTION': 1}})
-      # db.updateAllCards({'$unset': {'TOURNAMENT_REQUIREMENTS': 1}})
+      db.updateAllCards({'$unset': {'EXCLUSIVE': 1}})
+      db.updateAllCards({'$unset': {'IS_SKIN': 1}})
+      db.updateAllCards({'$unset': {'HAS_COLLECTION': 1}})
+      db.updateAllCards({'$unset': {'VUL': 1}})
+      db.updateAllCards({'$unset': {'COLLECTION': 1}})
+      db.updateAllCards({'$unset': {'TOURNAMENT_REQUIREMENTS': 1}})
 
       await ctx.send(f"Updated {counter} cards")
    except Exception as e:
@@ -3504,6 +3507,61 @@ async def updatearmandsummondropstyles(ctx, password, key):
       await ctx.send(f"Error: {e}")
 
 
+@slash_command(description="update card levels", options=[
+   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
+], scopes=guild_ids)
+async def updatetitleremovables(ctx, password, key):
+    await ctx.defer()
+    if password != 'casperjayden':  
+        return await ctx.send("Admin Only")
+   
+    if key != '937':
+        return await ctx.send("Admin Only")
+
+    counter = 0
+
+    # For each title, remove the specified fields
+    all_titles = db.queryAllTitles()
+
+    for title in all_titles:
+        db.updateTitle({'TITLE': title['TITLE']}, {
+            '$unset': {
+                'METHOD': "",
+                'VALUE': "",
+                'ELEMENT': "",
+                'SCENARIO_DROP': "",
+            }
+        })
+        counter += 1
+
+    await ctx.send(f"Updated {counter} titles")
+
+
+@slash_command(description="update methods", options=[
+   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
+], scopes=guild_ids)
+async def updatetitlemethods(ctx, password, key):
+    await ctx.defer()
+    if password != 'casperjayden':  
+        return await ctx.send("Admin Only")
+   
+    if key != '937':
+        return await ctx.send("Admin Only")
+
+    counter = 0
+
+    # For each title, remove the specified fields
+    all_titles = db.queryAllTitles()
+
+    for title in all_titles:
+        db.updateTitle({'TITLE': title['TITLE']}, {"$set": {"UNLOCK_METHOD":{"METHOD": "TALES", "VALUE": 999, "ELEMENT": "N/A", "SCENARIO_DROP": False}}})
+        counter += 1
+
+    await ctx.send(f"Updated {counter} titles")
+
+
 @slash_command(description="Add ids to all Cards, Titles, and Arms", options=[
    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
@@ -3546,8 +3604,6 @@ async def updateitemids(ctx, password, key):
       print(f"Error: {e}")
       await ctx.send(f"Error: {e}")
    
-      
-
    
 @slash_command(description="update player vaults", options=[
    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),

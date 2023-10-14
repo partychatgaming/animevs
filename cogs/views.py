@@ -890,8 +890,7 @@ async def viewcard(self, ctx, data):
 
             else:
                 embedVar = Embed(title=f"", color=000000)
-                embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
-                embedVar.add_field(name="__Class__", value=f"{crown_utilities.class_emojis[c.card_class]} {c.class_message}", inline=False)
+                embedVar.add_field(name=" ", value=f"{c.set_affinity_message()}")
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=c.set_universe_image())
                 embedVar.set_author(name=textwrap.dedent(f"""\
