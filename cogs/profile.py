@@ -676,7 +676,7 @@ class Profile(commands.Cog):
                     first_digit = int(str(len(all_cards))[:1])
                     if len(all_cards) >= 89:
                         if first_digit == 1:
-                            first_digit = 10
+                            first_digit = len(all_cards) / 10
                     # first_digit = 10
                     cards_broken_up = np.array_split(all_cards, first_digit)
 
@@ -773,7 +773,7 @@ class Profile(commands.Cog):
                     first_digit = int(str(len(all_titles))[:1])
                     if len(all_titles) >= 89:
                         if first_digit == 1:
-                            first_digit = 10
+                            first_digit = len(all_titles) / 10
                     # first_digit = 10
                     titles_broken_up = np.array_split(all_titles, first_digit)
 
@@ -897,7 +897,7 @@ class Profile(commands.Cog):
                     first_digit = int(str(len(all_arms))[:1])
                     if len(all_arms) >= 89:
                         if first_digit == 1:
-                            first_digit = 10
+                            first_digit = len(all_titles) / 10
                     # first_digit = 10
                     arms_broken_up = np.array_split(all_arms, first_digit)
 
