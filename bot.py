@@ -992,7 +992,7 @@ async def register(ctx):
                embedVar.set_footer(text="You can earn or purchase items after Abyss floor 0")
                universe_embed_list.append(embedVar)
                
-         paginator = CustomPaginator.create_from_embeds(bot, *universe_embed_list, custom_buttons=["Select"], paginator_type="Register")
+         paginator = CustomPaginator.create_from_embeds(bot, *universe_embed_list, custom_buttons=["Register"], paginator_type="Register")
          await paginator.send(ctx)
 
       except Exception as ex:

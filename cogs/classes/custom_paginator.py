@@ -112,7 +112,7 @@ class CustomPaginator(Paginator):
         # Register Functions
         self.register_start = False
         self.register_select = False
-        self.register_action = True
+        self.register_action = False
 
 
         self.scenario_start = False
@@ -138,6 +138,7 @@ class CustomPaginator(Paginator):
                 callback=self._on_button,
                 listeners=[
                     f"{self._uuid}|select",
+                    f"{self._uuid}|register",
                     f"{self._uuid}|first",
                     f"{self._uuid}|back",
                     f"{self._uuid}|callback",
@@ -199,13 +200,14 @@ class CustomPaginator(Paginator):
                     self.page_index -= 1
                 original_buttons = True
             case "select":
+                self.page_index = int(ctx.values[0])
+                original_buttons = True
+            case "register":
                 if self.register_action:
                     self.register_select = True
                     response = await self.activate_register_action(ctx, self._message.embeds[0].title)
                     await self._message.delete()
                     return
-                self.page_index = int(ctx.values[0])
-                original_buttons = True
             case "callback":
                 if self.callback:
                     return await self.callback(ctx)
@@ -478,7 +480,7 @@ class CustomPaginator(Paginator):
             
             guild_apply_action_row = ActionRow(*team_buttons)
             
-            embed = Embed(title=f"{ctx.author.display_name} wants to join {team_profile['TEAM_DISPLAY_NAME']}", description=f"Owner, Officers, or Captains - Please accept or deny")
+            embed = Embed(title=f"{ctx.author.display_name} wants to join {guild['TEAM_DISPLAY_NAME']}", description=f"Owner, Officers, or Captains - Please accept or deny")
             
             msg = await ctx.send(embed=embed, components=[guild_apply_action_row])
 
@@ -494,9 +496,9 @@ class CustomPaginator(Paginator):
                     return
 
                 if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
-                    team_query = {'TEAM_NAME': team_profile['TEAM_NAME'].lower()}
+                    team_query = {'TEAM_NAME': guild['TEAM_NAME'].lower()}
                     new_value_query = {'$push': {'MEMBERS': player['DID']}}
-                    response = db.addTeamMember(team_query, new_value_query, player['DID'], team_profile['TEAM_DISPLAY_NAME'])
+                    response = db.addTeamMember(team_query, new_value_query, player['DID'], guild['TEAM_DISPLAY_NAME'])
                     
                     transaction_query = {'$addToSet': {'TRANSACTIONS': f"{ctx.author.display_name} joined the guild."}}
                     response = db.updateTeam(team_query, transaction_query)
