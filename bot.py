@@ -905,14 +905,10 @@ async def voted(ctx):
 # Update Later
 @slash_command(description="Register for Anime VS+", scopes=guild_ids)
 async def register(ctx):
-   reg_query = {'DID' : str(ctx.author.id)}
-   applied = db.queryUser(reg_query)
-   player = crown_utilities.create_player_from_data(applied)
    server_created = db.queryServer({"GNAME": str(ctx.author.guild)})
-   if applied:
-      if player:
-         await ctx.send(f"{ctx.author.mention} You already have a Anime VS+ Account!")
-         return 
+   if db.queryUser({"DID": str(ctx.author.id)}):
+      await ctx.send(f"{ctx.author.mention} You already have a Anime VS+ Account!")
+      return 
 
    else:
       disname = str(ctx.author)
@@ -960,7 +956,8 @@ async def register(ctx):
       await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
       await asyncio.sleep(2)
 
-
+      # Write code that gives freely all titles in a universe that has 
+      # unlock method as Tales and unlock value as 0
       try:
          _uuid = str(uuid.uuid4())
          universe_data = db.queryAllUniverse()
@@ -1602,7 +1599,7 @@ async def rebirth(ctx):
                                              await button_ctx.send(f"🦾 **{arm}**.")
                                              count = count + 1
                                              
-                                          list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe), 'TIER': {'$in': acceptable}}) if not x['EXCLUSIVE'] and not x['HAS_COLLECTION'] and x['AVAILABLE'] and x['NAME'] not in current_cards]
+                                          list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe), 'TIER': {'$in': acceptable}}) if not x['EXCLUSIVE'] and x['AVAILABLE'] and x['NAME'] not in current_cards]
                                           count = 0
                                           selected_cards = [1000]
                                           while count < 3:
@@ -3682,97 +3679,39 @@ async def updateplayervaults(ctx, password, key):
       print(f"Error: {e}")
 
 
-# @slash_command(description="update moves", scopes=guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
-# async def updateclass(ctx, password, key):
-#    await ctx.defer()
-#    if password != 'casperjayden':  
-#       return await ctx.send("Admin Only")
-   
-#    if key != '937':
-#       return await ctx.send("Admin Only")
+@slash_command(description="update moves", scopes=guild_ids)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
+async def updateclass(ctx):
+   await ctx.defer()
+   counter = 0
 
-#    counter = 0
-
-#    fighter_list = [
-#       'ATK',
-#       'BZRK',
-#       'STANCE',
-#       'BLAST',
-#       'DESTRUCTION',
-#       'GROWTH',
-#    ]
-
-#    tank_list = [
-#       'DEF',
-#       'WITHER',
-#       'CRYSTAL',
-#       'GAMBLE'
-#    ]
-
-#    mage_list = [
-#       'STAM',
-#       'DRAIN',
-#       'RAGE',
-#       'BRACE',
-#       'FEAR',
-#       'CONFUSE',
-#    ]
-
-#    healer_list = [
-#       'HLT',
-#       'CREATION',
-#       'HASTE'
-#    ]
-
-#    ranger_list = [
-#       'SOULCHAIN',
-#       'WAVE',
-#       'SLOW'
-#    ]
-
-#    assassin_list = [
-#       'FLOG',
-#       'BLINK'
-#       'STANCE',
-#       'LIFE',
-
-#    ]
-
-#    try:
-#       for card in db.queryAllCards():
-#          if card['MOVESET'][3]['TYPE'] in fighter_list:
-#             card_class = 'FIGHTER'
-#          if card['MOVESET'][3]['TYPE'] in tank_list:
-#             card_class = 'TANK'
-#          if card['MOVESET'][3]['TYPE'] in mage_list:
-#             card_class = 'MAGE'
-#          if card['MOVESET'][3]['TYPE'] in healer_list:
-#             card_class = 'HEALER'
-#          if card['MOVESET'][3]['TYPE'] in ranger_list:
-#             card_class = 'RANGER'
-#          if card['MOVESET'][3]['TYPE'] in assassin_list:
-#             card_class = 'ASSASSIN'
-
-#          db.updateCard({'NAME': card['NAME']}, {'$set': {'CLASS': card_class}})
-#          counter += 1
+   try:
+      mlist = ['RECOIL']
+      for card in db.queryAllCards():
+         if card['MOVESET'][0]['ELEMENT'] in mlist:
+            db.updateCard({'NAME': card['NAME']}, {'$set': {'MOVESET.0.ELEMENT': "RECKLESS"}})
+         if card['MOVESET'][1]['ELEMENT'] in mlist:
+            db.updateCard({'NAME': card['NAME']}, {'$set': {'MOVESET.1.ELEMENT': "RECKLESS"}})
+         if card['MOVESET'][2]['ELEMENT'] in mlist:
+            db.updateCard({'NAME': card['NAME']}, {'$set': {'MOVESET.2.ELEMENT': "RECKLESS"}})
+         counter += 1
          
-#       await ctx.send(f"Updated {counter} cards")
-#    except Exception as ex:
-#          trace = []
-#          tb = ex.__traceback__
-#          while tb is not None:
-#             trace.append({
-#                "filename": tb.tb_frame.f_code.co_filename,
-#                "name": tb.tb_frame.f_code.co_name,
-#                "lineno": tb.tb_lineno
-#             })
-#             tb = tb.tb_next
-#          print(str({
-#             'type': type(ex).__name__,
-#             'message': str(ex),
-#             'trace': trace
-#          }))
+      await ctx.send(f"Updated {counter} cards")
+   except Exception as ex:
+         trace = []
+         tb = ex.__traceback__
+         while tb is not None:
+            trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+         print(str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+         }))
 
 
 if config('ENV') == "production":

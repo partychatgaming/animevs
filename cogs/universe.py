@@ -185,16 +185,16 @@ class Universe(Extension):
                     label="Start Tales",
                     custom_id = f"{_uuid}|start"
                 ),
-                Button(
-                    style=ButtonStyle.BLUE,
-                    label="Start Co-op Tales",
-                    custom_id = f"{_uuid}|coop"
-                ),
-                Button(
-                    style=ButtonStyle.BLUE,
-                    label="Start Duo Tales",
-                    custom_id = f"{_uuid}|duo"
-                ),
+                # Button(
+                #     style=ButtonStyle.BLUE,
+                #     label="Start Co-op Tales",
+                #     custom_id = f"{_uuid}|coop"
+                # ),
+                # Button(
+                #     style=ButtonStyle.BLUE,
+                #     label="Start Duo Tales",
+                #     custom_id = f"{_uuid}|duo"
+                # ),
                 Button(
                     style=ButtonStyle.GRAY,
                     label="Quit",

@@ -230,17 +230,43 @@ class Title:
         """
         if self.name in player.titles or self.name in player.tstorage:
             self.unlock_method_message = f"🔷 You already unlocked {self.name}"
+            return
 
         if not self.unlock_method:
             return
+        formatted_number = format(int(self.unlock_method['VALUE']), ',')
+        if self.unlock_method['METHOD'] == "TALES" or self.unlock_method['METHOD'] == "TALES COMPLETED":
+            self.unlock_method_message = f"🔹 Complete {formatted_number} Tales in {self.universe_crest} {self.universe}"
+            
+        if self.unlock_method['METHOD'] == "TALES RUN":
+            self.unlock_method_message = f"🔹 Complete {formatted_number} Tales matches in {self.universe_crest} {self.universe}"
+        
+        if self.unlock_method['METHOD'] == "HEALED IN TALES":
+            self.unlock_method_message = f"🔹 Heal {formatted_number} health in {self.universe_crest} {self.universe} Tales matches"
+        
+        if self.unlock_method['METHOD'] == "DAMAGE TAKEN IN TALES":
+            self.unlock_method_message = f"🔹 Take {formatted_number} damage in {self.universe_crest} {self.universe} Tales matches"
+        
+        if self.unlock_method['METHOD'] == "DAMAGE DEALT IN TALES":
+            self.unlock_method_message = f"🔹 Deal {formatted_number} damage in {self.universe_crest} {self.universe} Tales matches"
+                    
+        if self.unlock_method['METHOD'] == "DUNGEONS" or self.unlock_method['METHOD'] == "DUNGEONS COMPLETED":
+            self.unlock_method_message = f"🔹 Complete {formatted_number} Dungeons in {self.universe_crest} {self.universe}"
+        
+        if self.unlock_method['METHOD'] == "DUNGEONS RUN":
+            self.unlock_method_message = f"🔹 Complete {formatted_number} Dungeons matches in {self.universe_crest} {self.universe}"
 
-        if self.unlock_method['TYPE'] == "TALES":
-            self.unlock_method_message = f"🔹 Complete {self.unlock_method['VALUE']} Tales matches in {self.universe_crest} {self.universe}"
+        if self.unlock_method['METHOD'] == "HEALED IN DUNGEONS":
+            self.unlock_method_message = f"🔹 Heal {formatted_number} health in {self.universe_crest} {self.universe} Dungeons matches"
+        
+        if self.unlock_method['METHOD'] == "DAMAGE TAKEN IN DUNGEONS":
+            self.unlock_method_message = f"🔹 Take {formatted_number} damage in {self.universe_crest} {self.universe} Dungeons matches"
 
-        if self.unlock_method['TYPE'] == "DUNGEONS":
-            self.unlock_method_message = f"🔹 Complete {self.unlock_method['VALUE']} Dungeons matches in {self.universe_crest} {self.universe}"
+        if self.unlock_method['METHOD'] == "DAMAGE DEALT IN DUNGEONS":
+            self.unlock_method_message = f"🔹 Deal {formatted_number} damage in {self.universe_crest} {self.universe} Dungeons matches"
 
-        if self.unlock_method['TYPE'] == "SCENARIOS":
+
+        if self.unlock_method['METHOD'] == "SCENARIOS":
             r1 = db.queryScenarios({"NORMAL_DROPS": self.name})
             r2 = db.queryScenarios({"HARD_DROPS": self.name})
 
@@ -256,17 +282,21 @@ class Title:
             self.unlock_method_message = f"**Complete any of the following scenarios:**\n{message}"
 
 
-        if self.unlock_method['TYPE'] in crown_utilities.elements:
+        if self.unlock_method['METHOD'] == "ELEMENTAL DAMAGE DEALT":
             formatted_number = format(int(self.unlock_method['VALUE']), ',')
             self.unlock_method_message = f"🔹 Deal {formatted_number} {crown_utilities.set_emoji(self.unlock_method['TYPE'])} {self.unlock_method['TYPE'].capitalize()} damage in {self.universe_crest} {self.universe}"
     
-        if self.unlock_method['TYPE'] == "TOTAL_DAMAGE":
+        if self.unlock_method['METHOD'] == "TOTAL_DAMAGE":
             formatted_number = format(int(self.unlock_method['VALUE']), ',')
             self.unlock_method_message = f"🔹 Deal {formatted_number} total damage in {self.universe_crest} {self.universe}"
     
 
-        if self.unlock_method['TYPE'] == "BOSS":
+        if self.unlock_method['METHOD'] == "BOSS":
             self.unlock_method_message = f"🔹 Defeat the boss in {self.universe_crest} {self.universe} for a chance to earn this title"
+
+        return
+
+
 
 
     def set_title_suffix(self):

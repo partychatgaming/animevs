@@ -162,6 +162,7 @@ def get_scenario_reward_list(rewards):
     for reward in rewards:
         # Add Check for Cards and make Cards available in Easy Drops
         arm = db.queryArm({"ARM": reward})
+        card = db.queryCard({"NAME": reward})
         if arm:
             arm_name = arm['ARM']
             element_emoji = crown_utilities.set_emoji(arm['ELEMENT'])
@@ -182,18 +183,22 @@ def get_scenario_reward_list(rewards):
                 reward_list.append(f"〽️ {arm_passive_type.title()} **{arm_name}** Ultimax: Increase all move AP by **{arm_passive_value}**.")
             else:
                 reward_list.append(f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** Damage.")
-        else:
+        if card:
             card = db.queryCard({"NAME": reward})
-            senario_only_message = "🌟" if card['DROP_STYLE'] == "SCENARIO" else "" 
-            moveset = card['MOVESET']
-            move3 = moveset[2]
-            move2 = moveset[1]
-            move1 = moveset[0]
-            basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
-            super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
-            ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
-            reward_list.append(f"🀄 {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}{senario_only_message}\n❤️ {card['HLT']} 🗡️ {card['ATK']}  🛡️ {card['DEF']}")
-
+            if card:
+                senario_only_message = "🌟" if card['DROP_STYLE'] == "SCENARIO" else "" 
+                moveset = card['MOVESET']
+                move3 = moveset[2]
+                move2 = moveset[1]
+                move1 = moveset[0]
+                basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
+                super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
+                ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
+                reward_list.append(f"🀄 {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}{senario_only_message}\n❤️ {card['HLT']} 🗡️ {card['ATK']}  🛡️ {card['DEF']}")
+        if not reward_list:
+            reward_list.append(f"No Reward")
+    if not rewards:
+        reward_list.append(f"🪙 Reward Only")
     reward_message = "\n\n".join(reward_list)
     return reward_message
 

@@ -2377,12 +2377,24 @@ class CustomPaginator(Paginator):
 
 
     async def start_register(self, ctx, universe_title):
+        await ctx.defer()
         user_data = db.queryUser({'DID': str(ctx.author.id)})
         player = crown_utilities.create_player_from_data(user_data)
         acceptable = [1,2,3,4,5]
         arm_message = []
         card_message = []
         current_arms = []
+
+        list_of_titles = [x['TITLE'] for x in db.queryAllTitlesBasedOnUniverses({'UNIVERSE': universe_title}) if x['UNLOCK_METHOD']['METHOD'] == "TALES" and x['UNLOCK_METHOD']['VALUE'] == 0]
+
+        # if not list_of_titles:
+        #     embed = Embed(title=f"🎴 Registration Failed", description=f"Failed to register for {universe_title} as it is not available")
+        #     await ctx.send(embed=embed)
+        #     return
+        for title in list_of_titles:
+             db.updateUserNoFilter(player.user_query,{'$addToSet':{'TITLES': title}})  
+        
+
 
         list_of_arms = [x for x in db.queryAllArmsBasedOnUniverses({'UNIVERSE': universe_title}) if x["DROP_STYLE"] ==  "TALES" and x['AVAILABLE'] and x['ARM'] not in current_arms]
         count = 0
@@ -2401,7 +2413,7 @@ class CustomPaginator(Paginator):
             arm_message.append(f"**{arm}**!")                   
             count = count + 1
 
-        list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_title), 'TIER': {'$in': acceptable}}) if x['DROP_STYLE'] == "TALES" and not x['HAS_COLLECTION'] and x['NAME'] not in player.cards]
+        list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_title), 'TIER': {'$in': acceptable}}) if x['DROP_STYLE'] == "TALES" and x['NAME'] not in player.cards]
         count = 0
         selected_cards = [1000]
         while count < 3:
@@ -2414,6 +2426,7 @@ class CustomPaginator(Paginator):
             card = crown_utilities.create_card_from_data(db.queryCard({'NAME': list_of_cards[selection]['NAME']}))
             player.save_card(card)
             card_message.append(f"**{card.name}**!")
+            count = count + 1
 
 
         arm_drop_message_into_embded = "\n".join(arm_message)

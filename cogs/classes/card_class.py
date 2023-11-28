@@ -86,6 +86,27 @@ class Card:
             self.is_swordsman = False
             self.is_summoner = False
             self.is_monstrosity = False
+            if self.drop_style == "TALES":
+                self.is_tale_drop = True
+                self.drop_emoji = f"🎴"
+            elif self.drop_style == "DUNGEON":
+                self.is_dungeon_drop = True
+                self.drop_emoji = f"🔥"
+            elif self.drop_style == "RAID":
+                self.is_raid_drop = True
+                self.drop_emoji = f"💀"
+            elif self.drop_style == "SCENARIO":
+                self.is_scenario_drop = True
+                self.drop_emoji = f"🎞️"
+            elif self.drop_style == "SKIN":
+                self.is_skin_drop = True
+                self.drop_emoji = f"✨"
+            elif self.drop_style == "BOSS":
+                self.is_boss_drop = True
+                self.drop_emoji = f"👹"
+            elif self.drop_style == "DESTINY":
+                self.is_destiny_drop = True
+                self.drop_style = f"✨"
 
             # Tactics & Classes
             self._swordsman_active = False
@@ -502,47 +523,47 @@ class Card:
                 message_to = ""
 
                 for weakness in self.weaknesses:
-                    if weakness:
+                    if weakness and weakness != "N/A":
                         emoji = crown_utilities.set_emoji(weakness)
                         weakness_list.append(emoji)
 
                 for resistance in self.resistances:
-                    if resistance:
+                    if resistance and resistance != "N/A":
                         emoji = crown_utilities.set_emoji(resistance)
                         resistance_list.append(emoji)
 
                 for repel in self.repels:
-                    if repel:
+                    if repel and repel != "N/A":
                         emoji = crown_utilities.set_emoji(repel)
                         repels_list.append(emoji)
 
                 for absorb in self.absorbs:
-                    if absorb:
+                    if absorb and absorb != "N/A":
                         emoji = crown_utilities.set_emoji(absorb)
                         absorb_list.append(emoji)
 
                 for immune in self.immunity:
-                    if immune:
+                    if immune and immune != "N/A":
                         emoji = crown_utilities.set_emoji(immune)
                         immune_list.append(emoji)
 
-                if weakness_list:
+                if weakness_list and "N/A" not in weakness_list:
                     weakness_msg = " ".join(weakness_list)
                     message_list.append(f"**Weaknesses:** {weakness_msg}")
                 
-                if resistance_list:
+                if resistance_list and "N/A" not in resistance_list:
                     resistances_msg = " ".join(resistance_list)
                     message_list.append(f"**Resistances:** {resistances_msg}")
                 
-                if repels_list:
+                if repels_list and "N/A" not in repels_list:
                     repels_msg = " ".join(repels_list)
                     message_list.append(f"**Repels:** {repels_msg}")
 
-                if absorb_list:
+                if absorb_list and "N/A" not in absorb_list:
                     absorb_msg = " ".join(absorb_list)
                     message_list.append(f"**Absorbs:** {absorb_msg}")
 
-                if immune_list:
+                if immune_list and "N/A" not in immune_list:
                     immune_msg = " ".join(immune_list)
                     message_list.append(f"**Immunity:** {immune_msg}")
 
@@ -878,7 +899,8 @@ class Card:
         
         if self.is_destiny_drop:
             self.view_card_message = f"{self.name} is a Destiny card. "
-            self.tip = f"Complete {self.universe} Destiny: {self.collection} to unlock this card."
+            # self.tip = f"Complete {self.universe} Destiny: {self.collection} to unlock this card."
+            self.tip = f"Complete the proper {self.universe} Destiny to unlock this card."
         
         if self.is_dungeon_drop:
             self.view_card_message = f"{self.name} is a Dungeon card. "
@@ -1161,6 +1183,7 @@ class Card:
                     self.evasion_message = f"{self.speed} : {self.evasion}% evasion"
 
 
+
     def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle"):   
         try:    
             if self.health <= 0:
@@ -1226,7 +1249,9 @@ class Card:
 
                 # Health & Stamina
                 rift_universes = ['Crown Rift Awakening']
-                if self.universe in rift_universes or self.is_skin_drop:
+                print(self.is_scenario_drop)
+                print(self.drop_style)
+                if self.universe in rift_universes or self.is_skin_drop or self.is_scenario_drop:
                     draw.text((730, 417), health_bar, (0, 0, 0), font=health_and_stamina_font, align="left")
                     draw.text((730, 457), f"{round(self.stamina)}", (0, 0, 0), font=health_and_stamina_font, align="left")
                 else:
@@ -1248,9 +1273,9 @@ class Card:
                     d_sizing = (1040, 515)
 
 
-                draw.text(a_sizing, f"{round(self.attack)}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
+                draw.text(a_sizing, f"{format_number(round(self.attack))}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
                         stroke_fill=(0, 0, 0), align="center")
-                draw.text(d_sizing, f"{round(self.defense)}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
+                draw.text(d_sizing, f"{format_number(round(self.defense))}", (255, 255, 255), font=attack_and_shield_font, stroke_width=1,
                         stroke_fill=(0, 0, 0), align="center")
 
 
@@ -3331,6 +3356,12 @@ def paste_stars(im, star, tier):
     return im
 
 
-
+def format_number(num):
+    if num >= 1_000_000:
+        return "{:.1f}M".format(num / 1_000_000)
+    elif num >= 1_000:
+        return "{:.1f}K".format(num / 1_000)
+    else:
+        return str(num)  # or just return num for a numeric value
 
 

@@ -431,10 +431,10 @@ class GameModes(Extension):
             player = crown_utilities.create_player_from_data(registered_player)
             await player.set_guild_data()
             
-            if not player.is_available:
-                embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
+            # if not player.is_available:
+            #     embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
+            #     await ctx.send(embed=embed)
+            #     return
 
             player.make_unavailable()
 
