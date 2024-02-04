@@ -52,7 +52,7 @@ class Card:
             self.attack = attack
             self.defense = defense
             self.type = card_type
-            self.passive = passive
+            self.passive = passive # card passives are deprecated but don't delete
             self.speed = speed
             self.evasion = 0
             self.evasion_message = ""
@@ -145,8 +145,6 @@ class Card:
             self.petrified_fear = False
             self.regeneration = False
             self.bloodlust = False
-
-
             self.almighty_will_turn = []
             self.damage_check_counter = 0
             self.damage_check_limit = 0
@@ -313,12 +311,6 @@ class Card:
             self.summon_exp = 0
             self.summon_emoji = ""
 
-            # Passive Ability
-            self.passive_name  = list(passive.keys())[0]
-            self.passive_num = list(passive.values())[0]
-            self.passive_type = list(passive.values())[1]
-            self.passive_suffix = crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]
-
             # Each move
             self.m1 = moveset[0]
             self.m2 = moveset[1]
@@ -405,57 +397,7 @@ class Card:
             self.view_card_message = ""
             self.universe_crest = crown_utilities.crest_dict[self.universe]
             self.index = ""
-            if self.passive_type:
-                value_for_passive = self.tier * .9
-                flat_for_passive = round(10 * self.tier)
-                stam_for_passive = 5 * (self.tier * .5)
-                if self.passive_type == "HLT":
-                    self.passive_num = value_for_passive * 2
-                if self.passive_type == "LIFE":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "ATK":
-                    self.passive_num = value_for_passive * 2
-                if self.passive_type == "DEF":
-                    self.passive_num = value_for_passive * 2
-                if self.passive_type == "STAM":
-                    self.passive_num = stam_for_passive * 2
-                if self.passive_type == "DRAIN":
-                    self.passive_num = stam_for_passive
-                if self.passive_type == "FLOG":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "WITHER":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "RAGE":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "BRACE":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "BZRK":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "CRYSTAL":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "FEAR":
-                    self.passive_num = flat_for_passive
-                if self.passive_type == "GROWTH":
-                    self.passive_num = flat_for_passive
-                if self.passive_type == "CREATION":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "DESTRUCTION":
-                    self.passive_num = value_for_passive
-                if self.passive_type == "SLOW":
-                    self.passive_num = self.passive_num
-                if self.passive_type == "HASTE":
-                    self.passive_num = self.passive_num
-                if self.passive_type == "STANCE":
-                    self.passive_num = flat_for_passive * 2
-                if self.passive_type == "CONFUSE":
-                    self.passive_num = flat_for_passive * 2
-                if self.passive_type == "BLINK":
-                    self.passive_num = stam_for_passive
-                if self.passive_type == "SOULCHAIN":
-                    self.passive_num = self.passive_num + 90
-                if self.passive_type == "GAMBLE":
-                    self.passive_num = self.passive_num
-            
+
         def set_drop_style(self):
             if self.drop_style == "TALES":
                 self.is_tale_drop = True
@@ -620,58 +562,6 @@ class Card:
             self.level_icon ="⚜️"
         if self.card_lvl >=999:
             self.level_icon ="🏅"
-
-
-    def set_passive_num(self, passive_type):
-        value_for_passive = self.tier * .5
-        flat_for_passive = round(10 * (self.tier * .5))
-        stam_for_passive = 5 * (self.tier * .5)
-        if passive_type == "HLT":
-            self.passive_num = value_for_passive * 2
-        if passive_type == "LIFE":
-            self.passive_num = value_for_passive
-        if passive_type == "ATK":
-            self.passive_num = value_for_passive * 2
-        if passive_type == "DEF":
-            self.passive_num = value_for_passive * 2
-        if passive_type == "STAM":
-            self.passive_num = stam_for_passive * 2
-        if passive_type == "DRAIN":
-            self.passive_num = stam_for_passive
-        if passive_type == "FLOG":
-            self.passive_num = value_for_passive
-        if passive_type == "WITHER":
-            self.passive_num = value_for_passive
-        if passive_type == "RAGE":
-            self.passive_num = value_for_passive
-        if passive_type == "BRACE":
-            self.passive_num = value_for_passive
-        if passive_type == "BZRK":
-            self.passive_num = value_for_passive
-        if passive_type == "CRYSTAL":
-            self.passive_num = value_for_passive
-        if passive_type == "FEAR":
-            self.passive_num = flat_for_passive
-        if passive_type == "GROWTH":
-            self.passive_num = flat_for_passive
-        if passive_type == "CREATION":
-            self.passive_num = value_for_passive
-        if passive_type == "DESTRUCTION":
-            self.passive_num = value_for_passive
-        if passive_type == "SLOW":
-            self.passive_num = self.passive_num
-        if passive_type == "HASTE":
-            self.passive_num = self.passive_num
-        if passive_type == "STANCE":
-            self.passive_num = flat_for_passive
-        if passive_type == "CONFUSE":
-            self.passive_num = flat_for_passive
-        if passive_type == "BLINK":
-            self.passive_num = stam_for_passive
-        if passive_type == "SOULCHAIN":
-            self.passive_num = self.passive_num
-        if passive_type == "GAMBLE":
-            self.passive_num = self.passive_num
 
 
     def set_class_buffs(self):
@@ -1211,8 +1101,7 @@ class Card:
 
                 name_font_size, title_font_size, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size, title_size = calculate_font_sizes(self.name, self.rname, self.used_resolve)
 
-                self.set_passive_num(self.passive_num)
-                card_message = f"{self.passive_type.title()} {self.passive_num}"
+                card_message = f""
                 
                 # Evasion
                 evasion = self.get_evasion()
@@ -1279,13 +1168,11 @@ class Card:
                         stroke_fill=(0, 0, 0), align="center")
 
 
-                card_suffix = crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]
-
                 with Pilmoji(im) as pilmoji:
                     # pilmoji.text((945, 445), crown_utilities.class_emojis[self.card_class], (0, 0, 0), font=health_and_stamina_font, align="left")
                     pilmoji.text((602, 138), f"{crown_utilities.class_emojis[self.card_class]} {self.class_message}", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
-                    pilmoji.text((602, 180), f"🩸{card_message}{card_suffix}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
+                    pilmoji.text((602, 180), f"{self.universe_crest} {self.universe}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
                     pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
                                 stroke_fill=(0, 0, 0))
@@ -2955,116 +2842,6 @@ class Card:
         ]
         stats.update_stats(player, battle_config, self.damage_dealt, self.damage_received, self.damage_healed, moves, total_complete)
 
-    def activate_card_passive(self, player2_card, battle_config):
-        if self.passive_type:
-            value_for_passive = self.tier * .9
-            flat_value_for_passive = 10 * self.tier
-            if self.passive_type in ["FEAR", "GROWTH"]:
-                flat_value_for_passive = 7 * self.tier
-            if self.passive_type in ['ATK', 'DEF']:
-                value_for_passive = value_for_passive * 2
-            stam_for_passive = 5 * (self.tier * .5)
-            if self.passive_type == "HLT":
-                if self.max_health > self.health:
-                    self.health = round(round(self.health + ((value_for_passive / 100) * self.health)))
-            if self.passive_type == "CREATION":
-                self.max_health = round(round(self.max_health + ((value_for_passive / 100) * self.max_health)))
-            if self.passive_type == "DESTRUCTION":
-                player2_card.max_health = round(round(player2_card.max_health - ((value_for_passive / 100) * player2_card.max_health)))
-            if self.passive_type == "LIFE":
-                dmg = round((value_for_passive / 100) * player2_card.health)
-                if (self.health + dmg ) < self.max_health:
-                    self.health = round(self.health + dmg)
-                    player2_card.health = player2_card.health - dmg
-                else:
-                    dmg = round(self.max_health - self.health)
-                    self.health = round(self.health + dmg)
-                    player2_card.health = player2_card.health - dmg
-            if self.passive_type == "ATK":
-                self.attack = round(self.attack + ((value_for_passive / 100) * self.attack))
-            if self.passive_type == "DEF":
-                self.defense = round(self.defense + ((value_for_passive / 100) * self.defense))
-            if self.passive_type == "STAM":
-                if self.stamina > 15:
-                    self.stamina = self.stamina + stam_for_passive
-            if self.passive_type == "DRAIN":
-                if self.stamina > 15:
-                    player2_card.stamina = player2_card.stamina - stam_for_passive
-                    self.stamina = self.stamina + stam_for_passive
-            if self.passive_type == "FLOG":
-                player2_card.attack = round(player2_card.attack - ((value_for_passive / 100) * player2_card.attack))
-                self.attack = round(self.attack + ((value_for_passive / 100) * player2_card.attack))
-            if self.passive_type == "WITHER":
-                player2_card.defense = round(player2_card.defense - ((value_for_passive / 100) * player2_card.defense))
-                self.defense = round(self.defense + ((value_for_passive / 100) * player2_card.defense))
-            if self.passive_type == "RAGE":
-                self.defense = round(self.defense - ((value_for_passive / 100) * self.defense))
-                self.card_lvl_ap_buff = round(self.card_lvl_ap_buff + ((value_for_passive / 100) * self.defense))
-            if self.passive_type == "BRACE":
-                self.card_lvl_ap_buff  = round(self.card_lvl_ap_buff + ((value_for_passive / 100) * self.attack))
-                self.attack = round(self.attack - ((value_for_passive / 100) * self.attack))
-            if self.passive_type == "BZRK":
-                self.health = round(self.health - ((value_for_passive / 100) * self.health))
-                self.attack = round(self.attack + ((value_for_passive / 100) * self.health))
-            if self.passive_type == "CRYSTAL":
-                self.health = round(self.health - ((value_for_passive / 100) * self.health))
-                self.defense = round(self.defense + ((value_for_passive / 100) * self.health))
-            if self.passive_type == "FEAR":
-                if self.universe != "Chainsawman":
-                    self.max_health = self.max_health - (self.max_health * .03)
-                    if self.health > self.max_health:
-                        self.health = self.max_health
-                player2_card.defense = player2_card.defense - flat_value_for_passive
-                player2_card.attack = player2_card.attack - flat_value_for_passive
-                if player2_card.card_lvl_ap_buff > 0:
-                    player2_card.card_lvl_ap_buff = player2_card.card_lvl_ap_buff - flat_value_for_passive
-                if player2_card.card_lvl_ap_buff <= 0:
-                    player2_card.card_lvl_ap_buff = 1
-            if self.passive_type == "GROWTH":
-                self.max_health = self.max_health - (self.max_health * .03)
-                if self.health > self.max_health:
-                    self.health = self.max_health
-                self.defense = self.defense + flat_value_for_passive
-                self.attack = self.attack + flat_value_for_passive
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + flat_value_for_passive
-            if self.passive_type == "SLOW":
-                battle_config.turn_total = battle_config.turn_total - self.passive_num
-                if battle_config.turn_total <= 0:
-                    battle_config.turn_total = 0
-            if self.passive_type == "HASTE":
-                battle_config.turn_total = battle_config.turn_total + self.passive_num
-            if self.passive_type == "STANCE":
-                tempattack = self.attack + flat_value_for_passive
-                self.attack = self.defense
-                self.defense = tempattack
-            if self.passive_type == "CONFUSE":
-                tempattack = player2_card.attack - flat_value_for_passive
-                player2_card.attack = player2_card.defense
-                player2_card.defense = tempattack
-            if self.passive_type == "BLINK":
-                self.stamina = self.stamina - stam_for_passive
-                if player2_card.stamina >=10:
-                    player2_card.stamina = player2_card.stamina + stam_for_passive
-            if self.passive_type == "BLAST":
-                player2_card.health = round(player2_card.health - value_for_passive)
-            if self.passive_type == "WAVE":
-                if battle_config.turn_total % 10 == 0:
-                    player2_card.health = round(player2_card.health - 100)
-                    value_for_passive = 100
-            if  self.passive_type == "SOULCHAIN":
-                self.stamina_focus_recovery_amount  = self.passive_num + 90 #hello1
-                player2_card.stamina_focus_recovery_amount = self.passive_num + 90
-                
-            if self.passive_type in ['HLT','CREATION']:
-                self.damage_healed = self.damage_healed + ((value_for_passive / 100) * self.health )
-            if self.passive_type in ['BLAST','WAVE','DESTRUCTION']:       
-                self.damage_dealt = self.damage_dealt + value_for_passive 
-            if self.passive_type == "DESTRUCTION":
-                self.damage_dealt = self.damage_dealt + ((value_for_passive /100) * player2_card.max_health)
-            if self.passive_type == "LIFE":
-                self.damage_dealt = self.damage_dealt + dmg
-                self.damage_healed = self.damage_healed + dmg
-
                         
     def set_stat_icons(self):
         if self.used_focus:
@@ -3074,11 +2851,9 @@ class Card:
 
 
     def get_performance_stats(self):
-        if len(self.passive_name) > 20:
-            self.passive_name = self.passive_name[:17] + "..."
         if round(self.health) == round(self.max_health):
-            return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** *Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*\n🩸 | *{self.passive_name}* **{self.passive_type.title()} {self.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]}**"
-        return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** / *{round(self.max_health)} Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*\n🩸 | *{self.passive_name}* **{self.passive_type.title()} {self.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[self.passive_type]}**"
+            return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** *Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*"
+        return f"**Current Stats**\n{self.focus_icon} | **{round(self.health)}** / *{round(self.max_health)} Health*\n{self.resolve_icon} | **{self.stamina}** *Stamina*"
     
 
     def get_perfomance_header(self, player_title):

@@ -341,7 +341,7 @@ def set_emoji(element):
         emoji = "🌕"
     if element == "DARK":
         emoji = "🌑"
-    if element == "ENERGY" or element == "SPIRIT":
+    if element == "ENERGY" or element == "SPIRIT" or element == "SPIRIT ENERGY":
         emoji = "🧿"
     if element == "BLEED":
         emoji = "🅱️"

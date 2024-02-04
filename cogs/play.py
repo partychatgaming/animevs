@@ -556,8 +556,6 @@ Opponent Affinities:
         else:
             embed.set_thumbnail(url=user1.avatar_url)
         
-        # embed.set_footer(text="🩸 card passives and 🎗️ titles are applied every turn or Focus.")
-
         return embed
     except Exception as ex:
         custom_logging.debug(ex)

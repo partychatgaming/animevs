@@ -49,15 +49,15 @@ class Arm:
         if self.drop_style == "TALES":
             self.is_tale_drop = True
             self.drop_emoji = f"🎴"
-            self.dismantle_amount = 5000
+            self.dismantle_amount = 10000
         elif self.drop_style == "DUNGEON":
             self.is_dungeon_drop = True
             self.drop_emoji = f"🔥"
-            self.dismantle_amount = 25000
+            self.dismantle_amount = 50000
         elif self.drop_style == "SCENARIO":
             self.is_scenario_drop = True
             self.drop_emoji = f"🎞️"
-            self.dismantle_amount = 20000
+            self.dismantle_amount = 80000
         elif self.drop_style == "RAID":
             self.is_raid_drop = True
             self.drop_emoji = f"💀"
@@ -65,7 +65,7 @@ class Arm:
         elif self.drop_style == "BOSS":
             self.is_boss_drop = True
             self.drop_emoji = f"👹"
-            self.dismantle_amount = 150000
+            self.dismantle_amount = 10000000
         if self.is_dungeon_drop:
             self.price_message = "Dungeon Drop"
         else:

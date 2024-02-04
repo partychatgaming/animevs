@@ -196,7 +196,6 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     player_card.set_gravity_hit()
     if not opponent_card.wind_element_activated:
         player_title.activate_title_passive(battle_config, player_card, opponent_card)
-        player_card.activate_card_passive(opponent_card, battle_config)
     opponent_card.wind_element_activated = False
     
     activate_demon_slayer_trait(player_card, battle_config, opponent_card)

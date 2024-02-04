@@ -869,7 +869,7 @@ async def viewcard(self, ctx, data):
 
             # Temporarily removed ♾️ {c.set_trait_message()}
             if d['PERFORMANCE']:
-                embedVar = Embed(title=f"{c.drop_emoji} {c.price_message} {c.name} [{crown_utilities.class_emojis[c.card_class]}]", description=textwrap.dedent(f"""\
+                embedVar = Embed(title=f"{c.drop_emoji} {c.name} [{crown_utilities.class_emojis[c.card_class]}]", description=textwrap.dedent(f"""\
                 {crown_utilities.class_emojis[c.card_class]} | {c.class_message}
                 🀄 | {c.tier}
                 ❤️ | {c.max_health}
@@ -882,7 +882,6 @@ async def viewcard(self, ctx, data):
                 {c.move3_emoji} | {c.move3}: {c.move3ap}
                 🦠 | {c.move4}: {c.move4enh} {c.move4ap} {crown_utilities.enhancer_suffix_mapping[c.move4enh]}
 
-                🩸 | {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
                 """), color=000000)
                 embedVar.add_field(name="__Affinities__", value=f"{c.set_affinity_message()}")
                 embedVar.set_footer(text=f"{c.tip}")
@@ -890,15 +889,12 @@ async def viewcard(self, ctx, data):
 
             else:
                 embedVar = Embed(title=f"", color=000000)
-                embedVar.add_field(name=" ", value=f"{c.set_affinity_message()}")
+                embedVar.add_field(name="Evasion", value=f"🏃 {evasion_message}")
+                embedVar.add_field(name="Affinities", value=f"{c.set_affinity_message()}")
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=c.set_universe_image())
                 embedVar.set_author(name=textwrap.dedent(f"""\
-                {c.drop_emoji} {c.price_message}
-                
-                Passive
-                🩸 {c.passive_name}: {c.passive_type} {c.passive_num}{crown_utilities.passive_enhancer_suffix_mapping[c.passive_type]}
-                🏃 {evasion_message}
+                Can be acquired in {c.drop_style.title()}
                 """))
                 embedVar.set_footer(text=f"{c.tip}")
                 image_binary = c.showcard()

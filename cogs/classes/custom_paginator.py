@@ -1417,6 +1417,7 @@ class CustomPaginator(Paginator):
     async def dismantle_arm_function(self, ctx, arm_title):
         await ctx.defer()
         try:
+            print("started dismantle arm function")
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
             player = crown_utilities.create_player_from_data(user)
@@ -1437,11 +1438,13 @@ class CustomPaginator(Paginator):
                 return
             
             for arm in player.arms:
+                print("in for loop")
                 arm_data = db.queryArm({'ARM': arm['ARM']})
                 a = crown_utilities.create_arm_from_data(arm_data)
                 a.set_drop_style()
                 dismantle_amount = a.dismantle_amount
                 if arm['ARM'] == arm_title:
+                    print("found arm")
                     dismantle_buttons = [
                                 Button(
                                     style=ButtonStyle.PRIMARY,

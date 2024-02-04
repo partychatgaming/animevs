@@ -1969,7 +1969,6 @@ class Lookup(Extension):
                                                                     card_lvl_hlt_buff = crown_utilities.level_sync_stats(card_lvl, "HLT")
                                                                     
                                                             
-                                                            o_passive = resp['PASS'][0] 
                                                             o_moveset = resp['MOVESET']
                                                             o_1 = o_moveset[0]
                                                             o_2 = o_moveset[1]
@@ -2004,62 +2003,7 @@ class Lookup(Extension):
                                                             move4ap = list(o_enhancer.values())[0]
                                                             move4_stamina = list(o_enhancer.values())[1]
                                                             move4enh = list(o_enhancer.values())[2]
-
-                                                            passive_name = list(o_passive.keys())[0]
-                                                            passive_num = list(o_passive.values())[0]
-                                                            passive_type = list(o_passive.values())[1]
                                                         
-                                                            if passive_type:
-                                                                value_for_passive = resp['TIER'] * .5
-                                                                flat_for_passive = round(10 * (resp['TIER'] * .5))
-                                                                stam_for_passive = 5 * (resp['TIER'] * .5)
-                                                                if passive_type == "HLT":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "LIFE":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "ATK":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "DEF":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "STAM":
-                                                                    passive_num = stam_for_passive
-                                                                if passive_type == "DRAIN":
-                                                                    passive_num = stam_for_passive
-                                                                if passive_type == "FLOG":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "WITHER":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "RAGE":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "BRACE":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "BZRK":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "CRYSTAL":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "FEAR":
-                                                                    passive_num = flat_for_passive
-                                                                if passive_type == "GROWTH":
-                                                                    passive_num = flat_for_passive
-                                                                if passive_type == "CREATION":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "DESTRUCTION":
-                                                                    passive_num = value_for_passive
-                                                                if passive_type == "SLOW":
-                                                                    passive_num = passive_num
-                                                                if passive_type == "HASTE":
-                                                                    passive_num = passive_num
-                                                                if passive_type == "GAMBLE":
-                                                                    passive_num = passive_num
-                                                                if passive_type == "SOULCHAIN":
-                                                                    passive_num = passive_num + 90
-                                                                if passive_type == "STANCE":
-                                                                    passive_num = flat_for_passive
-                                                                if passive_type == "CONFUSE":
-                                                                    passive_num = flat_for_passive
-                                                                if passive_type == "BLINK":
-                                                                    passive_num = stam_for_passive
-
                                                             traits = ut.traits
                                                             mytrait = {}
                                                             traitmessage = ''
@@ -2083,7 +2027,6 @@ class Lookup(Extension):
                                                             {move3_emoji} **{move3}:** {move3ap}
                                                             🦠 **{move4}:** {move4enh} {move4ap}{enhancer_suffix_mapping[move4enh]}
 
-                                                            🩸 **{passive_name}:** {passive_type.title()} {passive_num}{passive_enhancer_suffix_mapping[passive_type]}
                                                             ♾️ {traitmessage}
                                                             """), color=0x7289da)
                                                             embedVar.add_field(name="__Affinities__", value=f"{affinity_message}")

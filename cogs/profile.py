@@ -303,7 +303,6 @@ class Profile(Extension):
                         {c.move3_emoji} | **{c.move3}:** {c.move3ap}
                         🦠 | **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
 
-                        🩸 | **{c.passive_name}:** {c.passive_type} {c.passive_num} {passive_enhancer_suffix_mapping[c.passive_type]}
                         """),color=000000)
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                         embedVar.set_image(url="attachment://image.png")
@@ -331,8 +330,7 @@ class Profile(Extension):
                         {player.summon_power_message}
                         {player.summon_lvl_message}
                         
-                        Passives
-                        🩸 | {c.passive_name}      
+                        Evasion
                         🏃 | {c.evasion_message}
                         """))
                         embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -843,7 +841,6 @@ class Profile(Extension):
                     {c.move3_emoji} **{c.move3}:** {c.move3ap}
                     🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{c.move4enh_suffix}
 
-                    🩸 **{c.passive_name}:** {c.passive_type.title()} {c.passive_num}{c.passive_suffix}
                     """), color=0x7289da)
                     embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_thumbnail(url=c.universe_image)
