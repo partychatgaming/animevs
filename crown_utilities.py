@@ -1510,8 +1510,12 @@ async def savematch(player, card, path, title, arm, universe, universe_type, exc
 
 
 def create_card_from_data(card_data, is_boss = False):
-    card = Card(card_data['NAME'], card_data['PATH'], card_data['PRICE'], card_data['AVAILABLE'], card_data['SKIN_FOR'], card_data['HLT'], card_data['HLT'], card_data['STAM'], card_data['STAM'], card_data['MOVESET'], card_data['ATK'], card_data['DEF'], card_data['TYPE'], card_data['PASS'][0], card_data['SPD'], card_data['UNIVERSE'], card_data['TIER'], card_data['WEAKNESS'], card_data['RESISTANT'], card_data['REPEL'], card_data['ABSORB'], card_data['IMMUNE'], card_data['GIF'], card_data['FPATH'], card_data['RNAME'], card_data['RPATH'], is_boss, card_data['CLASS'], card_data['DROP_STYLE'])
-    return card
+    try:
+        card = Card(card_data['NAME'], card_data['PATH'], card_data['PRICE'], card_data['AVAILABLE'], card_data['SKIN_FOR'], card_data['HLT'], card_data['HLT'], card_data['STAM'], card_data['STAM'], card_data['MOVESET'], card_data['ATK'], card_data['DEF'], card_data['TYPE'], card_data['PASS'], card_data['SPD'], card_data['UNIVERSE'], card_data['TIER'], card_data['WEAKNESS'], card_data['RESISTANT'], card_data['REPEL'], card_data['ABSORB'], card_data['IMMUNE'], card_data['GIF'], card_data['FPATH'], card_data['RNAME'], card_data['RPATH'], is_boss, card_data['CLASS'], card_data['DROP_STYLE'])
+        return card
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return False
 
 def create_title_from_data(title_data):
     title = Title(title_data['TITLE'], title_data['UNIVERSE'], title_data['ABILITIES'], title_data['RARITY'], title_data['UNLOCK_METHOD'], title_data['AVAILABLE'], title_data['ID'])
@@ -2018,7 +2022,10 @@ element_mapping = {
 'POISON': 'Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).',
 'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%',
 'ENERGY': 'Has higher 35% higher chance of Crit.',
+'SPIRIT': 'Has higher 35% higher chance of Crit.',
+'SPIRIT ENERGY': 'Has higher 35% higher chance of Crit.',
 'RECKLESS': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
+'RECOIL': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
 'TIME': 'Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.',
 'BLEED': 'Every 2 Attacks deal 10x turn count damage to opponent.',
 'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.',

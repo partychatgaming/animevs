@@ -739,7 +739,6 @@ class Profile(Extension):
                     element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
                     arm_name = arm['ARM']
                     arm_show = arm['UNIVERSE']
-                    exclusive = arm['EXCLUSIVE']
                     available = arm['AVAILABLE']
                     element = arm['ELEMENT']
                     if element:
@@ -768,7 +767,7 @@ class Profile(Extension):
 
                     if arm_show == "Unbound":
                         emoji = "👑"
-                    elif exclusive and available:
+                    elif available:
                         emoji = "🔥"
                     elif available:
                         emoji = "🦾"

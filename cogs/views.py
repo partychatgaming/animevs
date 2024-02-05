@@ -14,6 +14,7 @@ from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from interactions.ext.paginators import Paginator
+from .classes.custom_paginator import CustomPaginator
 from interactions import Client, ActionRow, Button, ButtonStyle, File, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, global_autocomplete, AutocompleteContext, slash_option
 import re
 import io
@@ -658,10 +659,10 @@ class Views(Extension):
             guild_owner = "None!" if not universe_data['GUILD'] else universe_data['GUILD']
             tales_list, tales_completed, number_of_tales_fights, tales_order_embed = get_tales_info(universe_data, player)
             dungeon_list, dungeon_completed, number_of_dungeon_fights, dungeon_order_embed = get_dungeon_info(universe_data, player)
-            scenario_embed, number_of_scenarios, number_of_raids, number_of_destinies = get_scenario_info(scenario_data, player)
+            scenario_embed, number_of_scenarios, number_of_raids, number_of_destinies = get_scenario_info(scenario_data, player, universe_data['TITLE'])
 
-            front_page_embed = Embed(title= f"🌍 Universe View", description=textwrap.dedent(f"""
-            Welcome to {unimoji} {universe_data['TITLE']}!
+            front_page_embed = Embed(title= f"{universe_data['TITLE']}", description=textwrap.dedent(f"""
+            Welcome to {unimoji} {universe_data['TITLE']} home page
 
             **Guild Owner**: {guild_owner}
             {tales_completed} **Number of Tales Fights**: ⚔️ **{number_of_tales_fights}**
@@ -678,21 +679,15 @@ class Views(Extension):
             embed_list.append(dungeon_order_embed)
 
             if player_stats:
-                tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed = get_player_stats(universe_data, player, player_stats)
+                tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed = get_player_stats(universe_data, player, player_stats, universe_data['TITLE'])
                 embed_list.append(tales_stats_embed)
                 embed_list.append(dungeon_stats_embed)
                 embed_list.append(scenario_stats_embed)
                 embed_list.append(explore_stats_embed)
                 embed_list.append(raid_stats_embed)
-            # buttons = [
-            #     Button(style=3, label="🎴 Cards", custom_id=f"cards"),
-            #     Button(style=1, label="🎗️ Titles", custom_id=f"titles"),
-            #     Button(style=1, label="🦾 Arms", custom_id=f"arms"),
-            #     Button(style=1, label="🧬 Summons", custom_id=f"summons"),
-            #     Button(style=2, label="✨ Destinies", custom_id="destinies")
-            # ]
-            # custom_action_row = ActionRow(*buttons)
-            pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
+            
+            pagination = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['🎴 Cards', '🎗️ Titles', '🦾 Arms', '🧬 Summons'], paginator_type="UniverseLists")
+
             pagination.show_select_menu = True
             await pagination.send(ctx)
         except Exception as ex:
@@ -839,6 +834,7 @@ async def viewcard(self, ctx, data):
                 card['FPATH'] = card['PATH']
 
             c = crown_utilities.create_card_from_data(card)
+            print(c)
             title = {'TITLE': 'CARD PREVIEW'}
             arm = {'ARM': 'CARD PREVIEW'}
 
@@ -964,7 +960,7 @@ async def viewarm(self, ctx, data):
     arm = data
     try:
         if arm:
-            a = Arm(arm['ARM'], arm['UNIVERSE'], arm['PRICE'], arm['ABILITIES'], arm['EXCLUSIVE'], arm['AVAILABLE'], arm['ELEMENT'])
+            a = crown_utilities.create_arm_from_data(arm)
             embedVar = Embed(title=f"🦾 | {a.name}\n{crown_utilities.crest_dict[a.universe]} | {a.universe}\n{a.price_message}".format(self), color=000000)
             if a.universe != "Unbound":
                 embedVar.set_thumbnail(url=a.show_img)
@@ -1226,7 +1222,7 @@ async def viewuniverse(self, ctx: InteractionContext, universe: str=""):
         guild_owner = "None!" if not universe_data['GUILD'] else universe_data['GUILD']
         tales_list, tales_completed, number_of_tales_fights, tales_order_embed = get_tales_info(universe_data, player)
         dungeon_list, dungeon_completed, number_of_dungeon_fights, dungeon_order_embed = get_dungeon_info(universe_data, player)
-        scenario_embed, number_of_scenarios, number_of_raids, number_of_destinies = get_scenario_info(scenario_data, player)
+        scenario_embed, number_of_scenarios, number_of_raids, number_of_destinies = get_scenario_info(scenario_data, player, universe_data['TITLE'])
 
         front_page_embed = Embed(title= f"🌍 Universe View", description=textwrap.dedent(f"""
         Welcome to {unimoji} {universe_data['TITLE']}!
@@ -1246,7 +1242,7 @@ async def viewuniverse(self, ctx: InteractionContext, universe: str=""):
         embed_list.append(dungeon_order_embed)
 
         if player_stats:
-            tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed = get_player_stats(universe_data, player, player_stats)
+            tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed = get_player_stats(universe_data, player, player_stats, universe_data['TITLE'])
             embed_list.append(tales_stats_embed)
             embed_list.append(dungeon_stats_embed)
             embed_list.append(scenario_stats_embed)
@@ -1349,7 +1345,7 @@ def get_tales_info(universe_data, player):
     tales_completed = crown_utilities.utility_emojis['ON'] if universe_data['TITLE'] in player.completed_tales else crown_utilities.utility_emojis['OFF']
     number_of_tales_fights = len(universe_data['CROWN_TALES']) if universe_data['CROWN_TALES'] else "TBD"
 
-    tales_order_embed = Embed(title="Tales Order", description=f"Here is the order of the tales battles in this universe", color=0x7289da)
+    tales_order_embed = Embed(title=f"{universe_data['TITLE']}", description=f"Here is the order of the tales battles in this universe", color=0x7289da)
     tales_order_embed.add_field(name="⚔️ Tales Battles", value=tales_list, inline=False)
 
     return tales_list, tales_completed, number_of_tales_fights, tales_order_embed
@@ -1360,17 +1356,17 @@ def get_dungeon_info(universe_data, player):
     dungeon_completed = crown_utilities.utility_emojis['ON'] if universe_data['TITLE'] in player.completed_dungeons else crown_utilities.utility_emojis['OFF']
     number_of_dungeon_fights = len(universe_data['DUNGEONS']) if universe_data['DUNGEONS'] else "TBD"
 
-    dungeon_order_embed = Embed(title="Dungeon Order", description=f"Here is the order of the dungeon battles in this universe", color=0x7289da)
+    dungeon_order_embed = Embed(title=f"{universe_data['TITLE']}", description=f"Here is the order of the dungeon battles in this universe", color=0x7289da)
     dungeon_order_embed.add_field(name="⚔️ Dungeon Battles", value=dungeon_list, inline=False)
 
     return dungeon_list, dungeon_completed, number_of_dungeon_fights, dungeon_order_embed
 
 
-def get_scenario_info(scenario_data, player):
+def get_scenario_info(scenario_data, player, universe_title):
     if not scenario_data:
-        scenario_embed = Embed(title="Scenario Info", description=f"There are currently no scenarios available in this universe", color=0x7289da)
+        scenario_embed = Embed(title=f"{universe_title}", description=f"There are currently no scenarios available in this universe", color=0x7289da)
     else:
-        scenario_embed = Embed(title="Scenario Info", description=f"Here is the list of scenarios available in this universe", color=0x7289da)
+        scenario_embed = Embed(title=f"{universe_title}", description=f"Here is the list of scenarios available in this universe", color=0x7289da)
     number_of_scenarios = 0
     number_of_raids = 0
     number_of_destinies = 0
@@ -1387,11 +1383,11 @@ def get_scenario_info(scenario_data, player):
     return scenario_embed, number_of_scenarios, number_of_raids, number_of_destinies
     
 
-def get_boss_info(boss_data, player):
+def get_boss_info(boss_data, player, universe_title):
     if not boss_data:
-        boss_embed = Embed(title="Boss Info", description=f"There are currently no bosses available in this universe", color=0x7289da)
+        boss_embed = Embed(title=f"{universe_title}", description=f"There are currently no bosses available in this universe", color=0x7289da)
     else:
-        boss_embed = Embed(title="Boss Info", description=f"Here is the list of bosses available in this universe", color=0x7289da)
+        boss_embed = Embed(title=f"{universe_title}", description=f"Here is the list of bosses available in this universe", color=0x7289da)
     
     number_of_bosses = 0
 
@@ -1402,7 +1398,7 @@ def get_boss_info(boss_data, player):
     return boss_embed, number_of_bosses
 
 
-def get_player_stats(universe_data, player, stats):
+def get_player_stats(universe_data, player, stats, universe_title):
     if not stats:
         return False
     
@@ -1412,16 +1408,16 @@ def get_player_stats(universe_data, player, stats):
             if stat['UNIVERSE'] == universe_data['TITLE']:
                 tales_stats = stat
         if tales_stats:
-            tales_stats_embed = Embed(title="Your Tales Stats", description=f"Here are your stats for tales in this universe", color=0x7289da)
+            tales_stats_embed = Embed(title=f"{universe_title}", description=f"Here are your stats for tales in this universe", color=0x7289da)
             tales_stats_embed.add_field(name="⚔️ Tale Battles", value=f"{tales_stats['TOTAL_RUNS']:,}", inline=False)
             tales_stats_embed.add_field(name="🏆 Tale Runs Completed", value=f"{tales_stats['TOTAL_CLEARS']:,}", inline=False)
             tales_stats_embed.add_field(name="Total Damage Dealt", value=f"{round(tales_stats['DAMAGE_DEALT']):,}", inline=False)
             tales_stats_embed.add_field(name="Total Damage Taken", value=f"{round(tales_stats['DAMAGE_TAKEN']):,}", inline=False)
             tales_stats_embed.add_field(name="Total Healing Done", value=f"{round(tales_stats['DAMAGE_HEALED']):,}", inline=False)
         else:
-            tales_stats_embed = Embed(title="Your Tales Stats", description=f"You have no stats for tales in this universe", color=0x7289da)
+            tales_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for tales in this universe", color=0x7289da)
     else:
-        tales_stats_embed = Embed(title="Your Tales Stats", description=f"You have no stats for tales in this universe", color=0x7289da)
+        tales_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for tales in this universe", color=0x7289da)
 
     
     if stats['DUNGEON_STATS']:
@@ -1430,16 +1426,16 @@ def get_player_stats(universe_data, player, stats):
             if stat['UNIVERSE'] == universe_data['TITLE']:
                 dungeon_stats = stat
         if dungeon_stats:
-            dungeon_stats_embed = Embed(title="Your Dungeon Stats", description=f"Here are your stats for dungeons in this universe", color=0x7289da)
+            dungeon_stats_embed = Embed(title=f"{universe_title}", description=f"Here are your stats for dungeons in this universe", color=0x7289da)
             dungeon_stats_embed.add_field(name="⚔️ Dungeon Battles", value=f"{dungeon_stats['TOTAL_RUNS']:,}", inline=False)
             dungeon_stats_embed.add_field(name="🏆 Dungeon Runs Completed", value=f"{dungeon_stats['TOTAL_CLEARS']:,}", inline=False)
             dungeon_stats_embed.add_field(name="Total Damage Dealt", value=f"{round(dungeon_stats['DAMAGE_DEALT']):,}", inline=False)
             dungeon_stats_embed.add_field(name="Total Damage Taken", value=f"{round(dungeon_stats['DAMAGE_TAKEN']):,}", inline=False)
             dungeon_stats_embed.add_field(name="Total Healing Done", value=f"{round(dungeon_stats['DAMAGE_HEALED']):,}", inline=False)
         else:
-            dungeon_stats_embed = Embed(title="Your Dungeon Stats", description=f"You have no stats for dungeons in this universe", color=0x7289da)
+            dungeon_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for dungeons in this universe", color=0x7289da)
     else:
-        dungeon_stats_embed = Embed(title="Your Dungeon Stats", description=f"You have no stats for dungeons in this universe", color=0x7289da)
+        dungeon_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for dungeons in this universe", color=0x7289da)
     
     if stats['SCENARIO_STATS']:
         scenario_stats = {}
@@ -1447,16 +1443,16 @@ def get_player_stats(universe_data, player, stats):
             if stat['UNIVERSE'] == universe_data['TITLE']:
                 scenario_stats = stat
         if scenario_stats:
-            scenario_stats_embed = Embed(title="Your Scenario Stats", description=f"Here are your stats for scenarios in this universe", color=0x7289da)
+            scenario_stats_embed = Embed(title=f"{universe_title}", description=f"Here are your stats for scenarios in this universe", color=0x7289da)
             scenario_stats_embed.add_field(name="⚔️ Scenario Battles", value=f"{scenario_stats['TOTAL_RUNS']:,}", inline=False)
             scenario_stats_embed.add_field(name="🏆 Scenarios Completed", value=f"{round(scenario_stats['TOTAL_CLEARS']):,}", inline=False)
             scenario_stats_embed.add_field(name="Total Damage Dealt", value=f"{round(scenario_stats['DAMAGE_DEALT']):,}", inline=False)
             scenario_stats_embed.add_field(name="Total Damage Taken", value=f"{round(scenario_stats['DAMAGE_TAKEN']):,}", inline=False)
             scenario_stats_embed.add_field(name="Total Healing Done", value=f"{round(scenario_stats['DAMAGE_HEALED']):,}", inline=False)
         else:
-            scenario_stats_embed = Embed(title="Your Scenario Stats", description=f"You have no stats for scenarios in this universe", color=0x7289da)
+            scenario_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for scenarios in this universe", color=0x7289da)
     else:
-        scenario_stats_embed = Embed(title="Your Scenario Stats", description=f"You have no stats for scenarios in this universe", color=0x7289da)
+        scenario_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for scenarios in this universe", color=0x7289da)
 
 
     if stats['EXPLORE_STATS']:
@@ -1465,16 +1461,16 @@ def get_player_stats(universe_data, player, stats):
             if stat['UNIVERSE'] == universe_data['TITLE']:
                 explore_stats = stat
         if explore_stats:
-            explore_stats_embed = Embed(title="Your Explore Stats", description=f"Here are your stats for explores in this universe", color=0x7289da)
+            explore_stats_embed = Embed(title=f"{universe_title}", description=f"Here are your stats for explores in this universe", color=0x7289da)
             explore_stats_embed.add_field(name="⚔️ Explore Battles", value=f"{round(explore_stats['TOTAL_RUNS']):,}", inline=False)
             explore_stats_embed.add_field(name="🏆 Explore Battles Completed", value=f"{round(explore_stats['TOTAL_CLEARS']):,}", inline=False)
             explore_stats_embed.add_field(name="Total Damage Dealt", value=f"{round(explore_stats['DAMAGE_DEALT']):,}", inline=False)
             explore_stats_embed.add_field(name="Total Damage Taken", value=f"{round(explore_stats['DAMAGE_TAKEN']):,}", inline=False)
             explore_stats_embed.add_field(name="Total Healing Done", value=f"{round(explore_stats['DAMAGE_HEALED']):,}", inline=False)
         else:
-            explore_stats_embed = Embed(title="Your Explore Stats", description=f"You have no stats for explores in this universe", color=0x7289da)
+            explore_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for explores in this universe", color=0x7289da)
     else:
-        explore_stats_embed = Embed(title="Your Explore Stats", description=f"You have no stats for explores in this universe", color=0x7289da)
+        explore_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for explores in this universe", color=0x7289da)
 
     if stats['RAID_STATS']:
         raid_stats = {}
@@ -1482,16 +1478,16 @@ def get_player_stats(universe_data, player, stats):
             if stat['UNIVERSE'] == universe_data['TITLE']:
                 raid_stats = stat
         if raid_stats:
-            raid_stats_embed = Embed(title="Your Raid Stats", description=f"Here are your stats for raids in this universe", color=0x7289da)
+            raid_stats_embed = Embed(title=f"{universe_title}", description=f"Here are your stats for raids in this universe", color=0x7289da)
             raid_stats_embed.add_field(name="⚔️ Raid Battles", value=raid_stats['TOTAL_RUNS'], inline=False)
             raid_stats_embed.add_field(name="🏆 Raids Completed", value=raid_stats['TOTAL_CLEARS'], inline=False)
             raid_stats_embed.add_field(name="Total Damage Dealt", value=f"{round(raid_stats['DAMAGE_DEALT']):,}", inline=False)
             raid_stats_embed.add_field(name="Total Damage Taken", value=f"{round(raid_stats['DAMAGE_TAKEN']):,}", inline=False)
             raid_stats_embed.add_field(name="Total Healing Done", value=f"{round(raid_stats['DAMAGE_HEALED']):,}", inline=False)
         else:
-            raid_stats_embed = Embed(title="Your Raid Stats", description=f"You have no stats for raids in this universe", color=0x7289da)
+            raid_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for raids in this universe", color=0x7289da)
     else:
-        raid_stats_embed = Embed(title="Your Raid Stats", description=f"You have no stats for raids in this universe", color=0x7289da)
+        raid_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for raids in this universe", color=0x7289da)
     
     return tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed
 

@@ -114,12 +114,15 @@ class CustomPaginator(Paginator):
         self.register_select = False
         self.register_action = False
 
+        # Universe Lists Functions
+        self.cards_list_action = False
+        self.arms_list_action = False
+        self.summons_list_action = False
+        self.titles_list_action = False
 
         self.scenario_start = False
         self.raid_start = False
         self.quit = False
-
-
 
     """
     Paginators are a way to display multiple pages of information in a single message.
@@ -165,6 +168,10 @@ class CustomPaginator(Paginator):
                     f"{self._uuid}|universe_dungeon_delete_save",
                     f"{self._uuid}|quit",
                     f"{self._uuid}|market",
+                    f"{self._uuid}|🎴cards",
+                    f"{self._uuid}|🎗️titles",
+                    f"{self._uuid}|🦾arms",
+                    f"{self._uuid}|🧬summons",
                     
                 ],
             )
@@ -212,6 +219,22 @@ class CustomPaginator(Paginator):
                 if self.callback:
                     return await self.callback(ctx)
                 original_buttons = True
+            case "🎴cards":
+                if self.cards_list_action:
+                    response = await self.activate_cards_list(ctx, self._message.embeds[0].title)
+                    await self._message.edit(embeds=[response], components=[])
+            case "🦾arms":
+                if self.arms_list_action:
+                    response = await self.activate_arms_list(ctx, self._message.embeds[0].title)
+                    await self._message.edit(embeds=[response], components=[])
+            case "🧬summons":
+                if self.summons_list_action:
+                    response = await self.activate_summons_list(ctx, self._message.embeds[0].title)
+                    await self._message.edit(embeds=[response], components=[])
+            case "🎗️titles":
+                if self.titles_list_action:
+                    response = await self.activate_titles_list(ctx, self._message.embeds[0].title)
+                    await self._message.edit(embeds=[response], components=[])
             case "equip":
                 if self.talisman_action:
                     self.equip_talisman = True
@@ -410,6 +433,12 @@ class CustomPaginator(Paginator):
         
         if action_type == "Register":
             self.register_action = True
+
+        if action_type == "UniverseLists":
+            self.cards_list_action = True
+            self.arms_list_action = True
+            self.summons_list_action = True
+            self.titles_list_action = True
 
     
     def activate_talisman_action(self, ctx, data, action: str):
@@ -2457,5 +2486,87 @@ class CustomPaginator(Paginator):
         await ctx.send(embed=embedVar)
         return
         
+
+
+    """
+    UNIVERSE LIST FUNCTIONS
+    This section contains all the functions related to universe list selections
+    """
+    async def activate_cards_list(self, ctx, universe_title):
+        print("activate_cards_list has been called")
+        if self.cards_list_action:
+            await self.start_cards_list(ctx, universe_title)
+            self.cards_list_action = False
+
+    
+    async def activate_arms_list(self, ctx, universe_title):
+        print("activate_arms_list has been called")
+        if self.arms_list_action:
+            await self.start_arms_list(ctx, universe_title)
+            self.arms_list_action = False
+
+
+    async def start_arms_list(self, ctx, universe_title):
+        await ctx.defer()
+        list_of_arms = db.queryAllArmsBasedOnUniverses({'UNIVERSE': str(universe_title)})
+        try:
+            if not list_of_arms:
+                embed = Embed(title="No Arms Available", description="There are no arms available in this universe at this time.", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
+
+            arms = [x for x in list_of_arms]
+            all_arms = []
+            embed_list = []
+
+            sorted_arms = sorted(arms, key=lambda arm: arm["ARM"])
+            for index, arm in enumerate(sorted_arms):
+                arm_data = crown_utilities.create_arm_from_data(arm)
+                # if arm_data.element:
+                #     continue
+                arm_data.set_drop_style()
+                all_arms.append(f"{arm_data.universe_crest} {arm_data.element_emoji} {arm_data.drop_emoji} : **{arm_data.name}**\n**{arm_data.passive_type}** : *{arm_data.passive_value}*\n")
+
+            print(all_arms)
+            for i in range(0, len(all_arms), 10):
+                sublist = all_arms[i:i+10]
+                embedVar = Embed(title=f"🌍 {universe_title}'s List of Arms", description="\n".join(sublist), color=0x7289da)
+                embedVar.set_footer(text=f"{len(all_arms)} Total Arms")
+                embed_list.append(embedVar)
+                
+                pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
+                await pagination.send(ctx)
+        except Exception as ex:
+            # custom_logging.debug(ex)
+            embed = Embed(title="🌍 Universe List Error", description="There was an error getting the list of arms for this universe at this time.", color=0x7289da)
+            await ctx.send(embed=embed)
+
+
+    async def start_cards_list(self, ctx, universe_title):
+        list_of_cards = db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_title)})
+        if not list_of_cards:
+            embed = Embed(title="No Cards Available", description="There are no cards available for this universe at this time.", color=0x7289da)
+            await ctx.send(embed=embed)
+            return
+        
+        cards = [x for x in list_of_cards]
+        all_cards = []
+        embed_list = []
+        
+        sorted_card_list = sorted(cards, key=lambda card: card["NAME"])
+        for index, card in enumerate(sorted_card_list):
+            c = crown_utilities.create_card_from_data(card)
+            all_cards.append(f"{c.universe_crest} : 🀄 **{c.tier}** **{c.name}** [{c.class_emoji}] {c.move1_emoji} {c.move2_emoji} {c.move3_emoji}\n{c.drop_emoji}: {str(c.card_lvl)} ❤️ {c.health} 🗡️ {c.attack} 🛡️ {c.defense}\n")
+        
+        for i in range(0, len(all_cards), 10):
+            sublist = all_cards[i:i+10]
+            embedVar = Embed(title=f"🌍 {universe_title}'s List of Cards", description="\n".join(sublist), color=0x7289da)
+            embedVar.set_footer(text=f"{len(all_cards)} Total Cards")
+            embed_list.append(embedVar)
+
+        pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
+        await pagination.send(ctx)
+
+
 def generate_6_digit_code():
     return random.randint(100000, 999999)
