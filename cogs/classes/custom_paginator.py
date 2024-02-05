@@ -2506,6 +2506,18 @@ class CustomPaginator(Paginator):
             self.arms_list_action = False
 
 
+    async def activate_titles_list(self, ctx, universe_title):
+        if self.titles_list_action:
+            await self.start_titles_list(ctx, universe_title)
+            self.titles_list_action = False
+
+
+    async def activate_summons_list(self, ctx, universe_title):
+        if self.summons_list_action:
+            await self.start_summons_list(ctx, universe_title)
+            self.summons_list_action = False
+
+
     async def start_arms_list(self, ctx, universe_title):
         await ctx.defer()
         list_of_arms = db.queryAllArmsBasedOnUniverses({'UNIVERSE': str(universe_title)})
@@ -2567,6 +2579,58 @@ class CustomPaginator(Paginator):
         pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
         await pagination.send(ctx)
 
+
+    async def start_titles_list(self, ctx, universe_title):
+        list_of_titles = db.queryAllTitlesBasedOnUniverses({'UNIVERSE': str(universe_title)})
+        if not list_of_titles:
+            embed = Embed(title="No Titles Available", description="There are no titles available in this universe at this time.", color=0x7289da)
+            await ctx.send(embed=embed)
+            return
+
+        titles = [x for x in list_of_titles]
+        all_titles = []
+        embed_list = []
+
+        sorted_titles = sorted(titles, key=lambda title: title["TITLE"])
+        for index, title in enumerate(sorted_titles):
+            title_data = crown_utilities.create_title_from_data(title)                    
+            all_titles.append(f"{title_data.universe_crest}: **{title_data.name}** 🔸{str(len(title_data.abilities))}\n")
+
+        for i in range(0, len(all_titles), 10):
+            sublist = all_titles[i:i+10]           
+            embedVar = Embed(title=f"🌍 {universe_title}'s List of Titles", description="\n".join(sublist), color=0x7289da)
+            embedVar.set_footer(
+                text=f"{len(all_titles)} Total Titles")
+            embed_list.append(embedVar)
+
+        pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
+        await pagination.send(ctx)
+
+
+    async def start_summons_list(self, ctx, universe_title):
+        list_of_summons = db.queryAllSummonsBasedOnUniverse({'UNIVERSE': str(universe_title)})
+        if not list_of_summons:
+            embed = Embed(title="No Summons Available", description="There are no summons available in this universe at this time.", color=0x7289da)
+            await ctx.send(embed=embed)
+            return
+
+        summons = [x for x in list_of_summons]
+        all_summons = []
+        embed_list = []
+
+        sorted_summons = sorted(summons, key=lambda summon: summon["PET"])
+        for index, summon in enumerate(sorted_summons):
+            s = crown_utilities.create_summon_from_data(summon)
+            all_summons.append(f"{s.universe_crest} : 🎴 **{s.name}**\n{s.emoji} {s.ability_type.title()}\n")
+
+        for i in range(0, len(all_summons), 10):
+            sublist = all_summons[i:i+10]
+            embedVar = Embed(title=f"🌍 {universe_title}'s List of Summons", description="\n".join(sublist), color=0x7289da)
+            embedVar.set_footer(text=f"{len(all_summons)} Total Summons")
+            embed_list.append(embedVar)
+
+        pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
+        await pagination.send(ctx)
 
 def generate_6_digit_code():
     return random.randint(100000, 999999)

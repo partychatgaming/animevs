@@ -1575,6 +1575,10 @@ def queryAllSummonsBasedOnUniverses(query):
     data = pet_col.find(query)
     return data
 
+def queryAllSummonsBasedOnUniverse(query):
+    data = pet_col.find(query)
+    return data
+
 
 ''' UNIVERSE '''
 def universe_exists(data):

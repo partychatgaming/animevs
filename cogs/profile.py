@@ -683,27 +683,8 @@ class Profile(Extension):
 
                 sorted_titles = sorted(titles, key=lambda title: title["TITLE"])
                 for index, title in enumerate(sorted_titles):
-                    title_title = title['TITLE']
-                    title_show = title['UNIVERSE']
-                    exclusive = title['EXCLUSIVE']
-                    available = title['AVAILABLE']
-                    title_passive = title['ABILITIES'][0]
-                    title_passive_type = list(title_passive.keys())[0]
-                    title_passive_value = list(title_passive.values())[0]
-
-                    universe_crest = crown_utilities.crest_dict[title_show]
-                    index = player.tstorage.index(title_title)
-                    
-                    if title_show == "Unbound":
-                        emoji = "👑"
-                    elif exclusive and available:
-                        emoji = "🔥"
-                    elif available:
-                        emoji = "🎗️"
-                    else:
-                        emoji = "👹"   
-
-                    all_titles.append(f"[{str(index)}] {universe_crest} {emoji} : **{title_title}**\n**🦠 {title_passive_type}**:  *{title_passive_value}*\n")
+                    title_data = crown_utilities.create_title_from_data(title)                    
+                    all_titles.append(f"{title_data.universe_crest}: **{title_data.name}**\n")
 
                 for i in range(0, len(all_titles), 10):
                     sublist = all_titles[i:i+10]           
@@ -729,52 +710,20 @@ class Profile(Extension):
                 all_arms = []
                 embed_list = []
 
-                icon = ""
                 sorted_arms = sorted(arms, key=lambda arm: arm["ARM"])
                 for index, arm in enumerate(sorted_arms):
                     durability = 0
+                    arm_data = crown_utilities.create_arm_from_data(arm)
+                    arm_data.set_drop_style()
                     for name in user['ASTORAGE']:
-                        if name['ARM'] == arm['ARM']:
-                            durability = int(name['DUR'])
-                    element_available = ['BASIC', 'SPECIAL', 'ULTIMATE']
-                    arm_name = arm['ARM']
-                    arm_show = arm['UNIVERSE']
-                    available = arm['AVAILABLE']
-                    element = arm['ELEMENT']
-                    if element:
-                        element_name = element.title()
-                        element = crown_utilities.set_emoji(element)
-                    else:
-                        element = "🦠"
-                    arm_passive = arm['ABILITIES'][0]
-                        # Arm Passive
-                    arm_passive_type = list(arm_passive.keys())[0]
-                    arm_passive_value = list(arm_passive.values())[0]
-                    
-                    icon = element
-                    if arm_passive_type == "SHIELD":
-                        icon = "🌐"
-                    if arm_passive_type == "PARRY":
-                        icon = "🔄"
-                    if arm_passive_type == "BARRIER":
-                        icon = "💠"
-                    if arm_passive_type == "SIPHON":
-                        icon = "💉"
-
+                        if name['ARM'] == arm_data.name:
+                            arm_data.durability = int(name['DUR'])
                    
-                    universe_crest = crown_utilities.crest_dict[arm_show]
-                    index = user['ASTORAGE'].index({'ARM': arm_name, 'DUR' : durability})
+                    index = user['ASTORAGE'].index({'ARM': arm_data.name, 'DUR' : arm_data.durability})
 
-                    if arm_show == "Unbound":
-                        emoji = "👑"
-                    elif available:
-                        emoji = "🔥"
-                    elif available:
-                        emoji = "🦾"
-                    else:
-                        emoji = "👹"
 
-                    all_arms.append(f"[{str(index)}] {universe_crest} {emoji} {icon} : **{arm_name}** ⚒️*{durability}*\n**{arm_passive_type}** : *{arm_passive_value}*\n")
+
+                    all_arms.append(f"[{str(index)}] {arm_data.universe_crest} {arm_data.element_emoji}: **{arm_data.name}** ⚒️*{arm_data.durability}*\n**{arm_data.passive_type}** : *{arm_data.passive_value}*\n")
 
 
                 for i in range(0, len(all_arms), 10):
