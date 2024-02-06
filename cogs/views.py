@@ -93,6 +93,7 @@ class Views(Extension):
                 if response:
                     if len(response) == 1:
                         if response[0]['TYPE'] == "CARDS":
+                            print("Viewing Card")
                             await viewcard(self, ctx, response[0]['DATA'])
                         if response[0]['TYPE'] == "TITLES":
                             await viewtitle(self, ctx, response[0]['DATA'])
@@ -792,6 +793,7 @@ def setup(bot):
 
 async def view_selection(self, ctx, result):
     if result['TYPE'] == "CARD":
+        print("Viewing Card Selection")
         await viewcard(self, ctx, result['DATA'])
         return
     
@@ -825,6 +827,7 @@ async def view_selection(self, ctx, result):
 
 
 async def viewcard(self, ctx, data):
+    # await ctx.defer()
     query = {'DID': str(ctx.author.id)}
     d = db.queryUser(query)
     card = data
@@ -916,9 +919,9 @@ async def viewcard(self, ctx, data):
             'message': str(ex),
             'trace': trace
         }))
-        return
         embedVar = Embed(title=f"🎴 Whoops!", description=f"There was an issue with loading the card.", color=000000)
         await ctx.send(embed=embedVar)
+        return
 
 
 async def viewtitle(self, ctx, data):

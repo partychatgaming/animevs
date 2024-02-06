@@ -59,7 +59,7 @@ def viewQuery(search_string):
         "UNIVERSE": "TITLE",
         "HOUSE": "HOUSE",
         "HALL": "HALL",
-        "BOSS": "NAME",
+        # "BOSS": "NAME",
         "PET": 'PET'
     }
 

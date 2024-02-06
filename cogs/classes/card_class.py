@@ -797,7 +797,7 @@ class Card:
             self.tip = f"/craft or Find this card in the {self.universe} Dungeon"
         
         if self.is_boss_drop:
-            self.view_card_message = f"{self.name} is a Boss card. "
+            self.view_card_message = f"{self.name} is a Boss card."
             self.tip = f"Defeat {self.universe} Boss to earn this card."
         
         if self.attack > self.defense:
