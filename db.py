@@ -59,7 +59,7 @@ def viewQuery(search_string):
         "UNIVERSE": "TITLE",
         "HOUSE": "HOUSE",
         "HALL": "HALL",
-        # "BOSS": "NAME",
+        "BOSS": "NAME",
         "PET": 'PET'
     }
 
@@ -349,6 +349,25 @@ def queryUnlockedScenarios(title):
 def queryAllScenariosByUniverse(universe):
     try:
         data = scenario_col.find({'UNIVERSE': universe})
+        if data:
+            return data
+        else:
+            return False
+    except Exception as e:
+        return e
+    
+def queryAllScenariosByUniverseByLevel(universe, level):
+    try:
+        # Add the range query for ENEMY_LEVEL along with the existing UNIVERSE filter
+        data = scenario_col.find({
+            'UNIVERSE': universe,
+            'ENEMY_LEVEL': level
+            
+            # {
+            #     '$gte': lower,  # Greater than or equal to 1000
+            #     '$lte': upper   # Less than or equal to 5000
+            # }
+        })
         if data:
             return data
         else:

@@ -16,9 +16,9 @@ class USER():
     GUILD: str = field(default_factory=lambda: 'PCG')
     TEAM: str = field(default_factory=lambda: 'PCG')
     FAMILY: str = field(default_factory=lambda: 'PCG')
-    TITLE: str = field(default_factory=lambda: 'Starter')
-    CARD: str = field(default_factory=lambda: "Ochaco Uraraka")
-    ARM: str = field(default_factory=lambda: "Stock")
+    TITLE: str = field(default_factory=lambda: 'Genin')
+    CARD: str = field(default_factory=lambda: "Naruto Uzumaki")
+    ARM: str = field(default_factory=lambda: "Leaf Headband")
     DECK: list[str] = field(default_factory=lambda: [''])
     TALISMAN: str = field(default_factory=lambda: 'NULL')
     PET: str = field(default_factory=lambda: "Chick")
@@ -60,29 +60,29 @@ class USER():
     EXPLORE_LOCATION: str = field(default_factory=lambda: "NULL")
     FAMILY_DID: str = field(default_factory=lambda: "NULL")
     BALANCE: int = field(default_factory=lambda: 5000000)
-    CARDS: list[str] = field(default_factory=lambda: ['Ochaco Uraraka', 'Eevee', 'Garen'])
-    TITLES: list[str] = field(default_factory=lambda: ['Starter', 'Iron 4', 'UA 1st Year', 'Pokemon Trainer'])
-    ARMS: list[str] = field(default_factory=lambda: [{'ARM':'Stock', 'DUR': 999999}, {'ARM': 'Poke Ball', 'DUR': 50}, {'ARM': 'Hyper-Density Seals', 'DUR': 50}, {'ARM': 'Dorans Shield', 'DUR': 50}])
+    CARDS: list[str] = field(default_factory=lambda: ['Naruto Uzumaki', 'Ichigo Kurosaki', 'Luffy'])
+    TITLES: list[str] = field(default_factory=lambda: ['Starter', 'Substitute Soul Reaper', 'Genin', 'Strawhat Pirate'])
+    ARMS: list[str] = field(default_factory=lambda: [{'ARM':'Stock', 'DUR': 999999}, {'ARM': 'Leaf Headband', 'DUR': 100}, {'ARM': 'Zanpakuto', 'DUR': 50}, {'ARM': 'Noah', 'DUR': 50}])
     ESSENCE: list[str] = field(default_factory=lambda: [
-        {"ELEMENT": "PHYSICAL", "ESSENCE": 5000},
-        {"ELEMENT": "FIRE", "ESSENCE": 5000},
-        {"ELEMENT": "ICE", "ESSENCE": 5000},
-        {"ELEMENT": "WATER", "ESSENCE": 5000},
-        {"ELEMENT": "EARTH", "ESSENCE": 5000},
-        {"ELEMENT": "ELECTRIC", "ESSENCE": 5000},
-        {"ELEMENT": "WIND", "ESSENCE": 5000},
-        {"ELEMENT": "PSYCHIC", "ESSENCE": 5000},
-        {"ELEMENT": "DEATH", "ESSENCE": 5000},
-        {"ELEMENT": "LIFE", "ESSENCE": 5000},
-        {"ELEMENT": "LIGHT", "ESSENCE": 5000},
-        {"ELEMENT": "DARK", "ESSENCE": 5000},
-        {"ELEMENT": "POISON", "ESSENCE": 5000},
-        {"ELEMENT": "RANGED", "ESSENCE": 5000},
-        {"ELEMENT": "ENERGY", "ESSENCE": 5000},
-        {"ELEMENT": "RECKLESS", "ESSENCE": 5000},
-        {"ELEMENT": "TIME", "ESSENCE": 5000},
-        {"ELEMENT": "BLEED", "ESSENCE": 5000},
-        {"ELEMENT": "GRAVITY", "ESSENCE": 5000}
+        {"ELEMENT": "PHYSICAL", "ESSENCE":  25000},
+        {"ELEMENT": "FIRE", "ESSENCE":  25000},
+        {"ELEMENT": "ICE", "ESSENCE":  25000},
+        {"ELEMENT": "WATER", "ESSENCE":  25000},
+        {"ELEMENT": "EARTH", "ESSENCE":  25000},
+        {"ELEMENT": "ELECTRIC", "ESSENCE":  25000},
+        {"ELEMENT": "WIND", "ESSENCE":  25000},
+        {"ELEMENT": "PSYCHIC", "ESSENCE":  25000},
+        {"ELEMENT": "DEATH", "ESSENCE":  25000},
+        {"ELEMENT": "LIFE", "ESSENCE":  25000},
+        {"ELEMENT": "LIGHT", "ESSENCE":  25000},
+        {"ELEMENT": "DARK", "ESSENCE":  25000},
+        {"ELEMENT": "POISON", "ESSENCE":  25000},
+        {"ELEMENT": "RANGED", "ESSENCE":  25000},
+        {"ELEMENT": "ENERGY", "ESSENCE":  25000},
+        {"ELEMENT": "RECKLESS", "ESSENCE":  25000},
+        {"ELEMENT": "TIME", "ESSENCE":  25000},
+        {"ELEMENT": "BLEED", "ESSENCE":  25000},
+        {"ELEMENT": "GRAVITY", "ESSENCE":  25000}
     ])
     PETS: list[str] = field(default_factory=lambda: [
         {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Peck': 100, 'TYPE': 'PHYSICAL', 'BOND': 0, 'BONDEXP': 0,

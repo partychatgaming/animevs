@@ -1297,7 +1297,7 @@ def decrease_talisman_count(did, element):
     try:
         emoji = set_emoji(element)
         query = {'DID': str(did)}
-        vault = db.queryVault(query)
+        vault = db.queryUser(query)
         current_durability = 0
         for t in vault["TALISMANS"]:
             if t["TYPE"] == element.upper():
@@ -1514,6 +1514,7 @@ def create_card_from_data(card_data, is_boss = False):
         card = Card(card_data['NAME'], card_data['PATH'], card_data['PRICE'], card_data['AVAILABLE'], card_data['SKIN_FOR'], card_data['HLT'], card_data['HLT'], card_data['STAM'], card_data['STAM'], card_data['MOVESET'], card_data['ATK'], card_data['DEF'], card_data['TYPE'], card_data['PASS'], card_data['SPD'], card_data['UNIVERSE'], card_data['TIER'], card_data['WEAKNESS'], card_data['RESISTANT'], card_data['REPEL'], card_data['ABSORB'], card_data['IMMUNE'], card_data['GIF'], card_data['FPATH'], card_data['RNAME'], card_data['RPATH'], is_boss, card_data['CLASS'], card_data['DROP_STYLE'])
         return card
     except Exception as ex:
+        print(card_data['NAME'])
         custom_logging.debug(ex)
         return False
 
@@ -1820,6 +1821,8 @@ title_enhancer_suffix_mapping = {'ATK': '% each turn',
     'SPEED': '% each focus',
     'SLOW': ' Turn',
     'HASTE': ' Turn',
+    'WAVE': ' Turn',
+    'BLAST': ' Turn',
     'SOULCHAIN': '',
     'GAMBLE': '',
     'SINGULARITY': '%',
@@ -1868,6 +1871,8 @@ title_prefix_mapping = {
     'STANCE': 'Swaps your attack and defense stats, increasing your attack by ',
     'CONFUSE': 'Swaps opponents attack and defense stats, decreasing their attack by ',
     'CREATION': 'Increases your max health by ',
+    'WAVE': 'remove this',
+    'BLAST': 'remove this',
     'DESTRUCTION': 'Decreases opponent max health by',
     'SPEED': 'Increases your speed by ',
     'SLOW': ' Decreases turn count by ',

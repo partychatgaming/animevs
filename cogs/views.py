@@ -93,7 +93,6 @@ class Views(Extension):
                 if response:
                     if len(response) == 1:
                         if response[0]['TYPE'] == "CARDS":
-                            print("Viewing Card")
                             await viewcard(self, ctx, response[0]['DATA'])
                         if response[0]['TYPE'] == "TITLES":
                             await viewtitle(self, ctx, response[0]['DATA'])
@@ -148,6 +147,7 @@ class Views(Extension):
 
                             buttons = []
                             
+
                             for result in list_of_results:
                                 if result['TYPE'] == "CARD":
                                     buttons.append(
@@ -180,7 +180,7 @@ class Views(Extension):
                                     buttons.append(
                                         Button(
                                             style=ButtonStyle.BLUE,
-                                            label=f"🐦 {result['DATA']['PET']}",
+                                            label=f" 🧬 {result['DATA']['PET']}",
                                             custom_id=f"{str(result['NUMBER'])}"
                                         )
                                     )
@@ -233,18 +233,18 @@ class Views(Extension):
                             msg = await ctx.send(embed=embedVar, components=[buttons_action_row])
                             
                             def check(component: Button) -> bool:
-                                return button_ctx.author == ctx.author
+                                return component.ctx.author == ctx.author
 
                             try:
                                 button_ctx  = await self.bot.wait_for_component(components=[buttons_action_row, buttons], timeout=300, check=check)
                                 
                                 for result in list_of_results:
-                                    if button_ctx.custom_id == str(result['NUMBER']):
+                                    if button_ctx.ctx.custom_id == str(result['NUMBER']):
                                         await msg.edit(components=[])
                                         
                                         await view_selection(self, ctx, result)
                                         return                 
-                                if button_ctx.custom_id == "cancel":
+                                if button_ctx.ctx.custom_id == "cancel":
                                     await msg.edit(components=[])
                                     
                                     return
@@ -284,7 +284,7 @@ class Views(Extension):
                                 list_of_results.append({'TYPE': 'ARM', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the arm 🦾 {result['DATA']['ARM']}", 'DATA': result['DATA']})
                             
                             if result['TYPE'] == "PET":
-                                list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon 🐦 {result['DATA']['PET']}", 'DATA': result['DATA']})
+                                list_of_results.append({'TYPE': 'PET', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the summon  🧬 {result['DATA']['PET']}", 'DATA': result['DATA']})
                             
                             if result['TYPE'] == "UNIVERSE":
                                 list_of_results.append({'TYPE': 'UNIVERSE', 'NUMBER': result['INDEX'], 'TEXT': f"Did you mean the universe 🌍 {result['DATA']['TITLE']}", 'DATA': result['DATA']})
@@ -339,7 +339,7 @@ class Views(Extension):
                                 buttons.append(
                                     Button(
                                         style=ButtonStyle.BLUE,
-                                        label=f"🐦 {result['DATA']['PET']}",
+                                        label=f" 🧬 {result['DATA']['PET']}",
                                         custom_id=f"{str(result['NUMBER'])}"
                                     )
                                 )
@@ -489,7 +489,6 @@ class Views(Extension):
 
 
     async def direct_selection(self, ctx, results):
-        print("Hello Direct Selection")
         message = [f"{result['TEXT']}\n\n" for result in results]
         me = ''.join(message)
         embedVar = Embed(title="Did you mean?...", description=textwrap.dedent(f"""\
@@ -530,7 +529,7 @@ class Views(Extension):
                 buttons.append(
                     Button(
                         style=ButtonStyle.BLUE,
-                        label=f"🐦 {result['DATA']['PET']}",
+                        label=f" 🧬 {result['DATA']['PET']}",
                         custom_id=f"{str(result['NUMBER'])}"
                     )
                 )
@@ -663,7 +662,7 @@ class Views(Extension):
             scenario_embed, number_of_scenarios, number_of_raids, number_of_destinies = get_scenario_info(scenario_data, player, universe_data['TITLE'])
 
             front_page_embed = Embed(title= f"{universe_data['TITLE']}", description=textwrap.dedent(f"""
-            Welcome to {unimoji} {universe_data['TITLE']} home page
+            **The {unimoji} {universe_data['TITLE']} Universe**
 
             **Guild Owner**: {guild_owner}
             {tales_completed} **Number of Tales Fights**: ⚔️ **{number_of_tales_fights}**
@@ -687,7 +686,7 @@ class Views(Extension):
                 embed_list.append(explore_stats_embed)
                 embed_list.append(raid_stats_embed)
             
-            pagination = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['🎴 Cards', '🎗️ Titles', '🦾 Arms', '🧬 Summons'], paginator_type="UniverseLists")
+            pagination = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['🎴 Cards', '🎗️ Titles', '🦾 Ability Arms', '🦾 Protection Arms', '🧬 Summons'], paginator_type="UniverseLists")
 
             pagination.show_select_menu = True
             await pagination.send(ctx)
@@ -793,7 +792,6 @@ def setup(bot):
 
 async def view_selection(self, ctx, result):
     if result['TYPE'] == "CARD":
-        print("Viewing Card Selection")
         await viewcard(self, ctx, result['DATA'])
         return
     
@@ -837,7 +835,6 @@ async def viewcard(self, ctx, data):
                 card['FPATH'] = card['PATH']
 
             c = crown_utilities.create_card_from_data(card)
-            print(c)
             title = {'TITLE': 'CARD PREVIEW'}
             arm = {'ARM': 'CARD PREVIEW'}
 
@@ -1325,6 +1322,7 @@ async def advanced_card_search(self, ctx, advanced_search_item):
         pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
         await pagination.send(ctx)
     except Exception as ex:
+        print(card)
         trace = []
         tb = ex.__traceback__
         while tb is not None:

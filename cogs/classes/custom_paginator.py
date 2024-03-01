@@ -170,7 +170,8 @@ class CustomPaginator(Paginator):
                     f"{self._uuid}|market",
                     f"{self._uuid}|🎴cards",
                     f"{self._uuid}|🎗️titles",
-                    f"{self._uuid}|🦾arms",
+                    f"{self._uuid}|🦾abilityarms",
+                    f"{self._uuid}|🦾protectionarms",
                     f"{self._uuid}|🧬summons",
                     
                 ],
@@ -223,10 +224,16 @@ class CustomPaginator(Paginator):
                 if self.cards_list_action:
                     response = await self.activate_cards_list(ctx, self._message.embeds[0].title)
                     await self._message.edit(embeds=[response], components=[])
-            case "🦾arms":
+            case "🦾abilityarms":
                 if self.arms_list_action:
-                    response = await self.activate_arms_list(ctx, self._message.embeds[0].title)
+                    response = await self.activate_arms_list(ctx, self._message.embeds[0].title, "ability")
                     await self._message.edit(embeds=[response], components=[])
+                    return
+            case "🦾protectionarms":
+                if self.arms_list_action:
+                    response = await self.activate_arms_list(ctx, self._message.embeds[0].title, "protections")
+                    await self._message.edit(embeds=[response], components=[])
+                    return
             case "🧬summons":
                 if self.summons_list_action:
                     response = await self.activate_summons_list(ctx, self._message.embeds[0].title)
@@ -1067,7 +1074,6 @@ class CustomPaginator(Paginator):
     """
     async def activate_arm_action(self, ctx, arm, action):
         if self.equip_arm:
-            print("equip arm")
             response = await self.equip_arm_function(ctx, arm)
             return response
         
@@ -1446,7 +1452,6 @@ class CustomPaginator(Paginator):
     async def dismantle_arm_function(self, ctx, arm_title):
         await ctx.defer()
         try:
-            print("started dismantle arm function")
             user_query = {'DID': str(ctx.author.id)}
             user = db.queryUser(user_query)
             player = crown_utilities.create_player_from_data(user)
@@ -1467,13 +1472,11 @@ class CustomPaginator(Paginator):
                 return
             
             for arm in player.arms:
-                print("in for loop")
                 arm_data = db.queryArm({'ARM': arm['ARM']})
                 a = crown_utilities.create_arm_from_data(arm_data)
                 a.set_drop_style()
                 dismantle_amount = a.dismantle_amount
                 if arm['ARM'] == arm_title:
-                    print("found arm")
                     dismantle_buttons = [
                                 Button(
                                     style=ButtonStyle.PRIMARY,
@@ -2279,7 +2282,6 @@ class CustomPaginator(Paginator):
     This section contains all the functions related to universe selections
     """
     async def activate_universe_action(self, ctx, universe):
-        print("activate_universe_action has been called")
         if self.universe_tale_action:
             mode = "Tales"
         else:
@@ -2303,7 +2305,6 @@ class CustomPaginator(Paginator):
 
 
     async def start_tale_or_dungeon(self, ctx, universe_title, mode):
-        print("Start Tale has been called")
         user_data = db.queryUser({'DID': str(ctx.author.id)})
         player = crown_utilities.create_player_from_data(user_data)
 
@@ -2369,13 +2370,17 @@ class CustomPaginator(Paginator):
 
 
     async def start_scenario(self, ctx, scenario_title):
-        user_data = db.queryUser({'DID': str(ctx.author.id)})
-        player = crown_utilities.create_player_from_data(user_data)
-        scenario = db.queryScenario({"TITLE": scenario_title})
-        mode = "SCENARIO"
+        try:
+            user_data = db.queryUser({'DID': str(ctx.author.id)})
+            player = crown_utilities.create_player_from_data(user_data)
+            scenario = db.queryScenario({"TITLE": scenario_title})
+            mode = "SCENARIO"
 
-        await bc.create_scenario_battle(self, ctx, mode, player, scenario)
-
+            await bc.create_scenario_battle(self, ctx, mode, player, scenario)
+        except Exception as ex:
+            print(ex)
+            embed = Embed(title=f"🎴 Scenario Failed", description=f"Failed to start - Error Logged")
+            await ctx.send(embed=embed)
 
     """
     RAID FUNCTIONS
@@ -2493,16 +2498,14 @@ class CustomPaginator(Paginator):
     This section contains all the functions related to universe list selections
     """
     async def activate_cards_list(self, ctx, universe_title):
-        print("activate_cards_list has been called")
         if self.cards_list_action:
             await self.start_cards_list(ctx, universe_title)
             self.cards_list_action = False
 
     
-    async def activate_arms_list(self, ctx, universe_title):
-        print("activate_arms_list has been called")
+    async def activate_arms_list(self, ctx, universe_title, arm_type):
         if self.arms_list_action:
-            await self.start_arms_list(ctx, universe_title)
+            await self.start_arms_list(ctx, universe_title, arm_type)
             self.arms_list_action = False
 
 
@@ -2518,9 +2521,41 @@ class CustomPaginator(Paginator):
             self.summons_list_action = False
 
 
-    async def start_arms_list(self, ctx, universe_title):
+    async def start_arms_list(self, ctx, universe_title, arm_type):
         await ctx.defer()
-        list_of_arms = db.queryAllArmsBasedOnUniverses({'UNIVERSE': str(universe_title)})
+        if arm_type == "protections":
+            list_of_arms = db.queryAllArmsBasedOnUniverses({
+                "$and": [
+                    {"UNIVERSE": universe_title},
+                    {
+                        "$or": [
+                            {"ABILITIES.MANA": {"$exists": True}},
+                            {"ABILITIES.SHIELD": {"$exists": True}},
+                            {"ABILITIES.PARRY": {"$exists": True}},
+                            {"ABILITIES.SIPHON": {"$exists": True}},
+                            {"ABILITIES.BARRIER": {"$exists": True}},
+                            {"ABILITIES.ULTIMAX": {"$exists": True}}
+                        ]
+                    }
+                ]
+            })
+        if arm_type == "ability":
+            list_of_arms = db.queryAllArmsBasedOnUniverses(
+                {
+                    "$and": [
+                        {"UNIVERSE": universe_title},
+                        {
+                            "$nor": [
+                                {"ABILITIES.MANA": {"$exists": True}},
+                                {"ABILITIES.SHIELD": {"$exists": True}},
+                                {"ABILITIES.PARRY": {"$exists": True}},
+                                {"ABILITIES.SIPHON": {"$exists": True}},
+                                {"ABILITIES.BARRIER": {"$exists": True}},
+                                {"ABILITIES.ULTIMAX": {"$exists": True}}
+                            ]
+                        }
+                    ]
+                })
         try:
             if not list_of_arms:
                 embed = Embed(title="No Arms Available", description="There are no arms available in this universe at this time.", color=0x7289da)
@@ -2539,15 +2574,13 @@ class CustomPaginator(Paginator):
                 arm_data.set_drop_style()
                 all_arms.append(f"{arm_data.universe_crest} {arm_data.element_emoji} {arm_data.drop_emoji} : **{arm_data.name}**\n**{arm_data.passive_type}** : *{arm_data.passive_value}*\n")
 
-            print(all_arms)
             for i in range(0, len(all_arms), 10):
                 sublist = all_arms[i:i+10]
                 embedVar = Embed(title=f"🌍 {universe_title}'s List of Arms", description="\n".join(sublist), color=0x7289da)
                 embedVar.set_footer(text=f"{len(all_arms)} Total Arms")
                 embed_list.append(embedVar)
-                
-                pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
-                await pagination.send(ctx)
+            pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
+            await pagination.send(ctx)
         except Exception as ex:
             # custom_logging.debug(ex)
             embed = Embed(title="🌍 Universe List Error", description="There was an error getting the list of arms for this universe at this time.", color=0x7289da)
@@ -2556,6 +2589,7 @@ class CustomPaginator(Paginator):
 
     async def start_cards_list(self, ctx, universe_title):
         list_of_cards = db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_title)})
+        print(list_of_cards)
         if not list_of_cards:
             embed = Embed(title="No Cards Available", description="There are no cards available for this universe at this time.", color=0x7289da)
             await ctx.send(embed=embed)

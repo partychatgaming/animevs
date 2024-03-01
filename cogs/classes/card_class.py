@@ -106,7 +106,7 @@ class Card:
                 self.drop_emoji = f"👹"
             elif self.drop_style == "DESTINY":
                 self.is_destiny_drop = True
-                self.drop_style = f"✨"
+                self.drop_emoji = f"✨"
 
             # Tactics & Classes
             self._swordsman_active = False
@@ -1093,9 +1093,16 @@ class Card:
 
                 draw = ImageDraw.Draw(im)
 
-                if self.tier > 8:
+                if self.tier >= 9:
                     star = Image.open("DARK STARS.png")
-                else:
+
+                if self.tier >= 7 and self.tier <= 8:
+                    star = Image.open("RED STARS.png")
+                
+                if self.tier >= 4 and self.tier <= 6:
+                    star = Image.open("BLUE STARS.png")
+
+                if self.tier >= 1 and self.tier <= 3:
                     star = Image.open("STARS.png")
                 paste_stars(im, star, self.tier)
 
@@ -1138,15 +1145,13 @@ class Card:
 
                 # Health & Stamina
                 rift_universes = ['Crown Rift Awakening']
-                print(self.is_scenario_drop)
-                print(self.drop_style)
                 if self.universe in rift_universes or self.is_skin_drop or self.is_scenario_drop:
-                    draw.text((730, 417), health_bar, (0, 0, 0), font=health_and_stamina_font, align="left")
-                    draw.text((730, 457), f"{round(self.stamina)}", (0, 0, 0), font=health_and_stamina_font, align="left")
+                    draw.text((710, 417), health_bar, (0, 0, 0), font=health_and_stamina_font, align="left")
+                    draw.text((710, 457), f"{round(self.stamina)}", (0, 0, 0), font=health_and_stamina_font, align="left")
                 else:
-                    draw.text((730, 417), health_bar, (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
+                    draw.text((710, 417), health_bar, (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
                             stroke_fill=(0, 0, 0), align="left")
-                    draw.text((730, 457), f"{round(self.stamina)}", (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
+                    draw.text((710, 457), f"{round(self.stamina)}", (255, 255, 255), font=health_and_stamina_font, stroke_width=1,
                             stroke_fill=(0, 0, 0), align="left")
 
                 # Attack & Shield (Defense)
@@ -1170,7 +1175,7 @@ class Card:
 
                 with Pilmoji(im) as pilmoji:
                     # pilmoji.text((945, 445), crown_utilities.class_emojis[self.card_class], (0, 0, 0), font=health_and_stamina_font, align="left")
-                    pilmoji.text((602, 138), f"{crown_utilities.class_emojis[self.card_class]} {self.class_message}", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
+                    pilmoji.text((602, 133), f"{crown_utilities.class_emojis[self.card_class]} {self.class_message}", (255, 255, 255), font=title_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
                     pilmoji.text((602, 180), f"{self.universe_crest} {self.universe}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
@@ -3085,13 +3090,15 @@ def get_character_name_and_health_bar(self, draw, header, title_size):
     else:
         health_bar = f"{round(self.health)}/{round(self.max_health)}"
     
-    if not self.resolved:
-        character_name = self.name
-    else:
-        if self.rname != "":
-            character_name = self.rname
-        else:
-            character_name = self.name
+    # if not self.resolved:
+    #     character_name = self.name.title()
+    # else:
+    #     if self.rname != "":
+    #         character_name = self.rname.title()
+    #     else:
+    #         character_name = self.name
+        
+    character_name = self.name.title()
     
     draw.text(title_size, character_name, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),
               align="left")

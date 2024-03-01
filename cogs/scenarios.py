@@ -28,14 +28,18 @@ class Scenario(Extension):
     """
     Creates the embed list for the selected universe
     """
-    async def scenario_selector(self, ctx, universe_title, player):
+    async def scenario_selector(self, ctx, universe_title, player, level = None):
         try:
-            scenarios = db.queryAllScenariosByUniverse(universe_title)
+            if level:
+                scenarios = db.queryAllScenariosByUniverseByLevel(universe_title, level)
+            else:
+                scenarios = db.queryAllScenariosByUniverse(universe_title)
 
             embed_list = []
             for scenario in scenarios:
                 embed = create_scenario_embed(scenario, player)
-                embed_list.append(embed)
+                if embed:
+                    embed_list.append(embed)
 
             if embed_list:
                 paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
@@ -115,8 +119,9 @@ def create_scenario_embed(scenario, player):
             color=0x7289da)
             embedVar.add_field(name="__**Potential Rewards**__", value=f"{reward_message}")
             embedVar.set_image(url=image)
-            # embedVar.set_footer(text=f"")
             return embedVar
+        else:
+            return
 
     except Exception as ex:
         player.make_available()
