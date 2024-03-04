@@ -2588,30 +2588,104 @@ class CustomPaginator(Paginator):
 
 
     async def start_cards_list(self, ctx, universe_title):
-        list_of_cards = db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_title)})
-        print(list_of_cards)
-        if not list_of_cards:
-            embed = Embed(title="No Cards Available", description="There are no cards available for this universe at this time.", color=0x7289da)
-            await ctx.send(embed=embed)
-            return
-        
-        cards = [x for x in list_of_cards]
-        all_cards = []
-        embed_list = []
-        
-        sorted_card_list = sorted(cards, key=lambda card: card["NAME"])
-        for index, card in enumerate(sorted_card_list):
-            c = crown_utilities.create_card_from_data(card)
-            all_cards.append(f"{c.universe_crest} : 🀄 **{c.tier}** **{c.name}** [{c.class_emoji}] {c.move1_emoji} {c.move2_emoji} {c.move3_emoji}\n{c.drop_emoji}: {str(c.card_lvl)} ❤️ {c.health} 🗡️ {c.attack} 🛡️ {c.defense}\n")
-        
-        for i in range(0, len(all_cards), 10):
-            sublist = all_cards[i:i+10]
-            embedVar = Embed(title=f"🌍 {universe_title}'s List of Cards", description="\n".join(sublist), color=0x7289da)
-            embedVar.set_footer(text=f"{len(all_cards)} Total Cards")
-            embed_list.append(embedVar)
+        try:
+            card_list_type_buttons = [
+                Button(
+                    style=ButtonStyle.PRIMARY,
+                    label="All Cards",
+                    custom_id=f"{self._uuid}|all"
+                ),
+                Button(
+                    style=ButtonStyle.PRIMARY,
+                    label="🎴 Tale Cards",
+                    custom_id=f"{self._uuid}|tale"
+                ),
+                Button(
+                    style=ButtonStyle.PRIMARY,
+                    label="🔥 Dungeon Cards",
+                    custom_id=f"{self._uuid}|dungeon"
+                ),
+                Button(
+                    style=ButtonStyle.PRIMARY,
+                    label="🎞️ Scenario Cards",
+                    custom_id=f"{self._uuid}|scenario"
+                ),
+                Button(
+                    style=ButtonStyle.PRIMARY,
+                    label="🌟 Destiny Cards",
+                    custom_id=f"{self._uuid}|destiny"
+                )
+            ]
 
-        pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
-        await pagination.send(ctx)
+            components = ActionRow(*card_list_type_buttons)
+            embed = Embed(title=f"🎴 Which cards would you like to view?", description="Please select the type of cards you would like to view.", color=0x7289da)
+            msg = await ctx.send(embed=embed, components=[components])
+
+            def check(component: Button) -> bool:
+                return component.ctx.author == ctx.author
+            
+            try:
+                button_ctx = await self.client.wait_for_component(components=[components], timeout=1200, check=check)
+
+                # Mapping of custom_id suffix to DROP_STYLE
+                drop_style_map = {
+                    "all": None,
+                    "tale": "TALES",
+                    "dungeon": "DUNGEON",
+                    "scenario": "SCENARIO",
+                    "destiny": "DESTINY"
+                }
+
+                # Extracting the action from the custom_id
+                action = button_ctx.ctx.custom_id.split("|")[1]
+
+                # Determine the DROP_STYLE based on the action
+                drop_style = drop_style_map.get(action)
+
+                # Build the query parameters
+                query_params = {'UNIVERSE': str(universe_title)}
+                if drop_style:
+                    query_params['DROP_STYLE'] = drop_style
+
+                # Query the database based on the parameters
+                list_of_cards = db.queryAllCardsBasedOnUniverse(query_params)
+
+                # Clean up after ourselves
+                await msg.delete()
+                
+                if not list_of_cards:
+                    embed = Embed(title="No Cards Available", description="There are no cards available for this universe at this time.", color=0x7289da)
+                    await ctx.send(embed=embed)
+                    return
+                
+                cards = [x for x in list_of_cards]
+                all_cards = []
+                embed_list = []
+                
+                sorted_card_list = sorted(cards, key=lambda card: card["NAME"])
+                for index, card in enumerate(sorted_card_list):
+                    try:
+                        c = crown_utilities.create_card_from_data(card)
+                        all_cards.append(f"{c.universe_crest} : 🀄 **{c.tier}** **{c.name}** [{c.class_emoji}] {c.move1_emoji} {c.move2_emoji} {c.move3_emoji}\n{c.drop_emoji}: {str(c.card_lvl)} ❤️ {c.health} 🗡️ {c.attack} 🛡️ {c.defense}\n")
+                    except Exception as ex:
+                        print(ex)
+                        print(c)
+                        continue
+                for i in range(0, len(all_cards), 10):
+                    sublist = all_cards[i:i+10]
+                    embedVar = Embed(title=f"🌍 {universe_title}'s List of Cards", description="\n".join(sublist), color=0x7289da)
+                    embedVar.set_footer(text=f"{len(all_cards)} Total Cards")
+                    embed_list.append(embedVar)
+
+                pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
+                await pagination.send(ctx)
+            except asyncio.TimeoutError:
+                embed = Embed(title="🎴 Card List Error", description="There was an error getting the list of cards for this universe at this time.", color=0x7289da)
+                await ctx.send(embed=embed)
+        except Exception as ex:
+            # custom_logging.debug(ex)
+            embed = Embed(title="🎴 Card List Error", description="There was an error getting the list of cards for this universe at this time.", color=0x7289da)
+            await ctx.send(embed=embed)
 
 
     async def start_titles_list(self, ctx, universe_title):
@@ -2627,9 +2701,13 @@ class CustomPaginator(Paginator):
 
         sorted_titles = sorted(titles, key=lambda title: title["TITLE"])
         for index, title in enumerate(sorted_titles):
-            title_data = crown_utilities.create_title_from_data(title)                    
-            all_titles.append(f"{title_data.universe_crest}: **{title_data.name}** 🔸{str(len(title_data.abilities))}\n")
-
+            try:
+                title_data = crown_utilities.create_title_from_data(title)                    
+                all_titles.append(f"{title_data.universe_crest}: **{title_data.name}** 🔸{str(len(title_data.abilities))}\n")
+            except Exception as ex:
+                print(ex)
+                print(title)
+                continue
         for i in range(0, len(all_titles), 10):
             sublist = all_titles[i:i+10]           
             embedVar = Embed(title=f"🌍 {universe_title}'s List of Titles", description="\n".join(sublist), color=0x7289da)

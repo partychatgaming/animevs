@@ -783,6 +783,8 @@ class Card:
     
 
     def set_tip_and_view_card_message(self):
+        has_scenario = db.queryScenario({"DESTINY_CARDS": self.name})
+
         if self.is_skin_drop:
             self.view_card_message = f"{self.name} is a card Skin. "
             self.tip = f"Earn the {self.skin_for} card and use gems to /craft this Skin!"
@@ -810,6 +812,9 @@ class Card:
         else:
             self.view_card_message = f"{self.name} is a balanced card. "
             self.tip = f"Tip: Equip {self.universe} /titles and /arms that will maximize your Enhancer"
+
+        if has_scenario:
+            self.tip = f"This card has 🌟 Destiny battles available in Scenarios. To access, just type /play and select scenarios in the {self.universe.capitalize()} universe."
 
     
     def set_arm_config(self, arm_type, arm_name, arm_value, arm_element=None):
