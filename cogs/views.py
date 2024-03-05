@@ -841,27 +841,9 @@ async def viewcard(self, ctx, data):
             if c.is_universe_unbound():
                 await ctx.send("You cannot view this card at this time. ", ephemeral=True)
                 return
+            player_class = crown_utilities.create_player_from_data(d)
             c.set_tip_and_view_card_message()
-            evasion = c.get_evasion()
-            evasion_message = f"{c.speed}"
-            if c.speed >= 70 or c.speed <=30:
-                if c.speed >= 70:     
-                    if d['PERFORMANCE']:
-                        evasion_message = f"{c.speed}: *{round(c.evasion)}% evasion*"
-                    else:
-                        evasion_message = f"{c.speed}: {round(c.evasion)}% evasion"
-                elif c.speed <= 30:
-                    if d['PERFORMANCE']:
-                        evasion_message = f"{c.speed}: *{c.evasion}% evasion*"
-                    else:
-                        evasion_message = f"{c.speed}: {c.evasion}% evasion"
-            att = 0
-            defe = 0
-            turn = 0
-
-            active_pet = {}
-            pet_ability_power = 0
-            card_exp = 150
+            evasion_message = c.set_evasion_message(player_class)
 
             # Temporarily removed ♾️ {c.set_trait_message()}
             if d['PERFORMANCE']:

@@ -1518,6 +1518,7 @@ def create_card_from_data(card_data, is_boss = False):
         custom_logging.debug(ex)
         return False
 
+
 def create_title_from_data(title_data):
     title = Title(title_data['TITLE'], title_data['UNIVERSE'], title_data['ABILITIES'], title_data['RARITY'], title_data['UNLOCK_METHOD'], title_data['AVAILABLE'], title_data['ID'])
     return title
@@ -2223,7 +2224,10 @@ crest_dict = { 'Unbound': '🉐',
               'One Piece': '<:one_piece:1088702665581670451>',
               'Overlord': '<:overlord:1091223691729305681>',
               'Fairy Tail': '<:FairyTail:1091223690445865062>',
-              'That Time I Got Reincarnated as a Slime': '<:slime:1091223689007210517>'
+              'That Time I Got Reincarnated as a Slime': '<:slime:1091223689007210517>',
+              'Soul Eater': '<:souleater:1214430692050468864>',
+              'Kill La Kill': '<:killlakill:1214431376070410281>',
+              'Gurren Lagann': '<:gurren:1214432235927773205>'
 }
 
 

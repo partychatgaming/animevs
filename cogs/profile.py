@@ -320,6 +320,7 @@ class Profile(Extension):
                         card_file = File(file_name="image.png", file=image_binary)
 
                         embedVar = Embed(title=f"".format(self), color=000000)
+                        embedVar.add_field(name="__Evasion__", value=f"🏃 | {c.evasion_message}")
                         embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                         embedVar.add_field(name=f"__Title Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=False)
                         embedVar.set_image(url="attachment://image.png")
@@ -329,11 +330,8 @@ class Profile(Extension):
                         {player.talisman_message}
                         {player.summon_power_message}
                         {player.summon_lvl_message}
-                        
-                        Evasion
-                        🏃 | {c.evasion_message}
                         """))
-                        embedVar.set_thumbnail(url=ctx.author.avatar_url)
+                        embedVar.set_thumbnail(url=player.avatar)
                         if c.card_lvl < 1000:
                             embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
                         else:

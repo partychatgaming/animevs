@@ -1065,18 +1065,36 @@ class Card:
     def set_evasion_message(self, player):
         self.get_evasion()
         self.evasion_message = f"{self.speed}"
-        if self.speed >= 70 or self.speed <=30:
-            if self.speed >= 70:     
-                if player.performance:
-                    self.evasion_message = f"{self.speed} : *{round(self.evasion)}% evasion*"
-                else:
-                    self.evasion_message = f"{self.speed} : {round(self.evasion)}% evasion"
-            elif self.speed <= 30:
-                if player.performance:
-                    self.evasion_message = f"{self.speed} : *{self.evasion}% evasion*"
-                else:
-                    self.evasion_message = f"{self.speed} : {self.evasion}% evasion"
+        speed_type = "Slow"
+        # Assign "Slow Speed" for speeds >= 25
+        if self.speed >= 0 and self.speed <= 25:
+            speed_type = "Slow Speed"
 
+        # Assign "Average Speed" for speeds between 50 and 74 (inclusive)
+        if self.speed >=26 and self.speed <= 50:
+            speed_type = "Average Speed"
+
+        # Assign "Fast Speed" for speeds between 75 and 99 (inclusive)
+        if self.speed >= 51 and self.speed <= 75:
+            speed_type = "Fast Speed"
+
+        # Assign "God Speed" for speeds >= 100
+        if self.speed >= 76 and self.speed <= 100:
+            speed_type = "God Speed"
+
+        if self.speed >= 70:
+            if player.performance:
+                self.evasion_message = f"*{speed_type}\n{round(self.evasion)}% evasion boost*"
+            else:
+                self.evasion_message = f"*{speed_type}\n{round(self.evasion)}% evasion boost*"
+        if self.speed <= 69:
+            if player.performance:
+                self.evasion_message = f"*{speed_type}\nNo evasion boost*"
+            else:
+                self.evasion_message = f"*{speed_type}\nNo evasion boost*"
+
+
+        return self.evasion_message
 
 
     def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle"):   
