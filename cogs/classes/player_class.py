@@ -208,10 +208,10 @@ class Player:
             else:    
                 summon_ability_power = (bond * lvl) + power
 
-            self.summon_power_message = f"🧬 | {self.equipped_summon}: {crown_utilities.set_emoji(s_type)} {s_type.title()}: {summon_ability_power}"
+            self.summon_power_message = f"{crown_utilities.set_emoji(s_type)} {s_type.title()} Damage: {summon_ability_power}"
 
 
-            self.summon_lvl_message = f"🧬 | Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"
+            self.summon_lvl_message = f"Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"
 
         except:
             print("Error setting summon message")

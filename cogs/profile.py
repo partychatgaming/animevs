@@ -319,25 +319,70 @@ class Profile(Extension):
                         image_binary.seek(0)
                         card_file = File(file_name="image.png", file=image_binary)
 
-                        embedVar = Embed(title=f"".format(self), color=000000)
-                        embedVar.add_field(name="__Evasion Stat & Boost__", value=f"🏃 | {c.evasion_message}")
-                        embedVar.add_field(name="__Affinity List__", value=f"{c.affinity_message}")
-                        embedVar.add_field(name=f"__Arm Name & Effects__\n🦾 {a.name.capitalize()}", value=f"{a.arm_message}\n⚒️ {a.durability} *Durability*", inline=True)
-                        embedVar.add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=True)
-                        embedVar.set_image(url="attachment://image.png")
-                        embedVar.set_author(name=textwrap.dedent(f"""\
-                        Equipment
-                        {player.talisman_message}
-                        {player.summon_power_message}
-                        {player.summon_lvl_message}
-                        """))
-                        embedVar.set_thumbnail(url=player.avatar)
-                        if c.card_lvl < 1000:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}\n♾️ | {c.set_trait_message()}")
-                        else:
-                            embedVar.set_footer(text=f"{level_up_message}\n♾️ | {c.set_trait_message()}")
+                        # Create embed pages for players build rather than showing everything on one page
+
+                        # page 1 (title view)
+                        # page 2 (arm view)
+                        # page 3 (summon view)
+                        # page 4 (talisman view)
+                        # page 5 (evasion view)
+                        # page 6 (affinity view)
+                        # page 7 (level up view)
+                        # page 8 (trait page)
+                        embedVar0 = Embed(title=f"Build Home View".format(self), color=000000)
+                        embedVar0.add_field(name=f"__Welcome to Build View__", value=f"You can use this window to view what you have equipped.", inline=True)
+                        embedVar0.set_image(url="attachment://image.png")
+                        embedVar0.set_thumbnail(url=player.avatar)
+
+                        embedVar1 = Embed(title=f"Build Title View".format(self), color=000000)
+                        embedVar1.add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=True)
+                        embedVar1.set_image(url="attachment://image.png")
+                        embedVar1.set_thumbnail(url=player.avatar)
+
+                        embedVar2 = Embed(title=f"Build Arm View".format(self), color=000000)
+                        embedVar2.add_field(name=f"__Arm Name & Effects__\n🦾 {a.name.capitalize()}", value=f"{a.arm_message}\n⚒️ {a.durability} *Durability*", inline=True)
+                        embedVar2.set_image(url="attachment://image.png")
+                        embedVar2.set_thumbnail(url=player.avatar)
+
+                        embedVar3 = Embed(title=f"Build Summon View".format(self), color=000000)
+                        embedVar3.add_field(name=f"__Summon Name & Effects__\n🧬 {player.equipped_summon}", value=f"{player.summon_power_message}\n📶 {player.summon_lvl_message}", inline=True)
+                        embedVar3.set_image(url="attachment://image.png")
+                        embedVar3.set_thumbnail(url=player.avatar)
+
+                        embedVar4 = Embed(title=f"Build Talisman View".format(self), color=000000)
+                        embedVar4.add_field(name=f"__Talisman Name & Effects__", value=f"{player.talisman_message}", inline=True)
+                        embedVar4.set_image(url="attachment://image.png")
+                        embedVar4.set_thumbnail(url=player.avatar)
+
+                        embedVar5 = Embed(title=f"Build Evasion View".format(self), color=000000)
+                        embedVar5.add_field(name="__Evasion Stat & Boost__", value=f"🏃 | {c.evasion_message}")
+                        embedVar5.set_image(url="attachment://image.png")
+                        embedVar5.set_thumbnail(url=player.avatar)
+
+                        embedVar6 = Embed(title=f"Build Affinity View".format(self), color=000000)
+                        embedVar6.add_field(name="__Affinity List__", value=f"{c.affinity_message}")
+                        embedVar6.set_image(url="attachment://image.png")
+                        embedVar6.set_thumbnail(url=player.avatar)
                         
-                        await ctx.send(file=card_file, embed=embedVar)
+                        embedVar7 = Embed(title=f"Build Level Up View".format(self), color=000000)
+                        embedVar7.set_thumbnail(url=player.avatar)
+                        if c.card_lvl < 1000:
+                            embedVar7.add_field(name="__Level Up Information__", value=f"EXP Until Next Level: {level_up_message}")
+                            embedVar7.add_field(name="__EXP Buff__", value=f"{trebirth_message} | {drebirth_message}")
+                            embedVar7.set_image(url="attachment://image.png")
+                        else:
+                            embedVar7.add_field(name="__Level Up Information__", value=f"{level_up_message}")
+                            embedVar7.set_image(url="attachment://image.png")
+
+                        embedVar8 = Embed(title=f"Build Trait View".format(self), color=000000)
+                        embedVar8.add_field(name="__Trait List__", value=f"♾️ | {c.set_trait_message()}")
+                        embedVar8.set_image(url="attachment://image.png")
+                        embedVar8.set_thumbnail(url=player.avatar)
+                        
+                        embed_list = [embedVar0, embedVar1, embedVar2, embedVar3, embedVar4, embedVar5, embedVar6, embedVar7, embedVar8]
+                        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+                        paginator.show_select_menu = True
+                        await paginator.send(ctx, file=card_file)
                         image_binary.close()
                 except Exception as ex:
                     custom_logging.debug(ex)
