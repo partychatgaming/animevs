@@ -357,9 +357,11 @@ class CustomPaginator(Paginator):
                 if self.scenario_action:
                     self.quit = True
                     response = await self.activate_scenario_action(ctx, self._message.embeds[0].title)
+                    await self._message.delete()
                 if self.raid_action:
                     self.quit = True
                     response = await self.activate_raid_action(ctx, self._message.embeds[0].title)
+                    await self._message.delete()
                 if self.universe_tale_action:
                     self.quit = True
                     response = await self.activate_universe_action(ctx, self._message.embeds[0].title)
@@ -2662,7 +2664,7 @@ class CustomPaginator(Paginator):
                 all_cards = []
                 embed_list = []
                 
-                sorted_card_list = sorted(cards, key=lambda card: card["NAME"])
+                sorted_card_list = sorted(cards, key=lambda card: card["TIER"])
                 for index, card in enumerate(sorted_card_list):
                     try:
                         c = crown_utilities.create_card_from_data(card)
@@ -2671,6 +2673,7 @@ class CustomPaginator(Paginator):
                         print(ex)
                         print(c)
                         continue
+
                 for i in range(0, len(all_cards), 10):
                     sublist = all_cards[i:i+10]
                     embedVar = Embed(title=f"🌍 {universe_title}'s List of Cards", description="\n".join(sublist), color=0x7289da)

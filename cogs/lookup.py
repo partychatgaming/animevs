@@ -67,9 +67,8 @@ class Lookup(Extension):
             query = {'DID': str(player)}
             
             d = db.queryUser(query)
-            
+            player_class = crown_utilities.create_player_from_data(d)
             m = db.queryManyMatchesPerPlayer({'PLAYER': d['DISNAME']})
-            v = db.queryVault({'DID': str(player)})
             b = db.queryAllBosses()
             user = await self.bot.fetch_user(d['DID'])
             if d:

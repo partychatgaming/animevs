@@ -320,13 +320,13 @@ class Profile(Extension):
                         card_file = File(file_name="image.png", file=image_binary)
 
                         embedVar = Embed(title=f"".format(self), color=000000)
-                        embedVar.add_field(name="__Evasion__", value=f"🏃 | {c.evasion_message}")
-                        embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
-                        embedVar.add_field(name=f"__Title Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=False)
+                        embedVar.add_field(name="__Evasion Stat & Boost__", value=f"🏃 | {c.evasion_message}")
+                        embedVar.add_field(name="__Affinity List__", value=f"{c.affinity_message}")
+                        embedVar.add_field(name=f"__Arm Name & Effects__\n🦾 {a.name.capitalize()}", value=f"{a.arm_message}\n⚒️ {a.durability} *Durability*", inline=True)
+                        embedVar.add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=True)
                         embedVar.set_image(url="attachment://image.png")
                         embedVar.set_author(name=textwrap.dedent(f"""\
                         Equipment
-                        {a.arm_message} | ⚒️ {a.durability}
                         {player.talisman_message}
                         {player.summon_power_message}
                         {player.summon_lvl_message}
@@ -780,7 +780,7 @@ class Profile(Extension):
                     {c.drop_emoji} **[{index}]** 
                     {c.class_emoji} {c.class_message}
                     🀄 {c.tier}: {c.level_icon} {c.card_lvl}
-                    ❤️ **{c.health}** 🗡️ **{c.attack}** 🛡️ **{c.defense}** 🏃 **{c.evasion_message}**
+                    ❤️ **{c.health}** 🗡️ **{c.attack}** 🛡️ **{c.defense}**
                     
                     {c.move1_emoji} **{c.move1}:** {c.move1ap}
                     {c.move2_emoji} **{c.move2}:** {c.move2ap}
@@ -788,6 +788,7 @@ class Profile(Extension):
                     🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{c.move4enh_suffix}
 
                     """), color=0x7289da)
+                    embedVar.add_field(name="__Evasion__", value=f"🏃 | {c.evasion_message}")
                     embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                     embedVar.set_thumbnail(url=c.universe_image)
                     embedVar.set_footer(text=f"/enhancers - 🩸 Enhancer Menu")
