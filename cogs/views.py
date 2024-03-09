@@ -1356,9 +1356,13 @@ def get_scenario_info(scenario_data, player, universe_title):
 
     if scenario_data:
         for scenario in scenario_data:
-            if not scenario['IS_RAID'] and not scenario['IS_DESTINY']:
+            is_raid = False
+            if scenario["ENEMY_LEVEL"] > crown_utilities.scenario_level_config:
+                is_raid = True
+
+            if not is_raid and not scenario['IS_DESTINY']:
                 number_of_scenarios += 1
-            if scenario['IS_RAID']:
+            if is_raid:
                 number_of_raids += 1
             if scenario['IS_DESTINY']:
                 number_of_destinies += 1

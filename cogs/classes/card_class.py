@@ -1116,8 +1116,8 @@ class Card:
 
                 draw = ImageDraw.Draw(im)
 
-                if self.tier >= 9:
-                    star = Image.open("DARK STARS.png")
+                if self.tier == 9:
+                    star = Image.open("PURPLE STARS.png")
 
                 if self.tier >= 7 and self.tier <= 8:
                     star = Image.open("RED STARS.png")
@@ -1127,6 +1127,12 @@ class Card:
 
                 if self.tier >= 1 and self.tier <= 3:
                     star = Image.open("STARS.png")
+
+                if self.tier >= 10:
+                    star = Image.open("DARK STARS.png")
+
+
+
                 paste_stars(im, star, self.tier)
 
                 name_font_size, title_font_size, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size, title_size = calculate_font_sizes(self.name, self.rname, self.used_resolve)

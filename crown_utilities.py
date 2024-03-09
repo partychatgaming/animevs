@@ -2230,6 +2230,8 @@ crest_dict = { 'Unbound': '🉐',
               'Gurren Lagann': '<:gurren:1214432235927773205>'
 }
 
+scenario_level_config = 1500
+
 
 EASY_BLOCKED = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon', 'Boss', 'CBoss', 'Abyss', 'PVP', 'EXPLORE']
 
@@ -2325,7 +2327,7 @@ REG_MODES = ['Tales', 'Dungeon']
 OPPONENT_SUMMON_M = ['Dungeon', 'DDungeon', 'CDungeon']
 
 # Raid mode
-RAID_M = ['Raid', 'RAID']
+RAID_M = ['Raid', 'RAID', 'Raid_Scenario']
 
 # Abyss, scenario, and explore modes
 ABYSS = "Abyss"

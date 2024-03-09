@@ -30,18 +30,20 @@ class Scenario(Extension):
     """
     async def scenario_selector(self, ctx, universe_title, player, level = None):
         try:
-            if level:
-                scenarios = db.queryAllScenariosByUniverseByLevel(universe_title, level)
-            else:
-                scenarios = db.queryAllScenariosByUniverse(universe_title)
+            scenarios = db.queryAllScenariosByUniverse(universe_title)
 
-            embed_list = []
-            for scenario in scenarios:
-                embed = create_scenario_embed(scenario, player)
-                if embed:
-                    embed_list.append(embed)
+            if scenarios:
+                embed_list = []
+                sorted_scenarios = sorted(scenarios, key=lambda x: x["ENEMY_LEVEL"])
+                for scenario in sorted_scenarios:
+                    if scenario["ENEMY_LEVEL"] <= crown_utilities.scenario_level_config:
+                        embed = create_scenario_embed(scenario, player)
+                        if embed:
+                            embed_list.append(embed)
+                    else:
+                        pass
 
-            if embed_list:
+                
                 paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
@@ -60,12 +62,17 @@ class Scenario(Extension):
     """
     async def raid_selector(self, ctx, universe_title, player):
         try:
-            scenarios = db.queryAllRaidByUniverse(universe_title)
+            scenarios = db.queryAllScenariosByUniverse(universe_title)
 
             embed_list = []
-            for scenario in scenarios:
-                embed = create_scenario_embed(scenario, player)
-                embed_list.append(embed)
+            sorted_scenarios = sorted(scenarios, key=lambda x: x["ENEMY_LEVEL"])
+            for scenario in sorted_scenarios:
+                if scenario["ENEMY_LEVEL"] > crown_utilities.scenario_level_config:
+                    embed = create_scenario_embed(scenario, player)
+                    if embed:
+                        embed_list.append(embed)
+                else:
+                    pass
 
             if embed_list:
                 paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Raid")
@@ -92,7 +99,6 @@ def create_scenario_embed(scenario, player):
         enemy_level = scenario['ENEMY_LEVEL']
         universe = scenario['UNIVERSE']
         available = scenario['AVAILABLE']
-        is_raid = scenario['IS_RAID']
         is_destiny = scenario['IS_DESTINY']
         destiny_cards = scenario['DESTINY_CARDS']
         easy_drops = scenario['EASY_DROPS']
@@ -103,7 +109,7 @@ def create_scenario_embed(scenario, player):
         completed_scenarios = player.scenario_history
         difficulty = player.difficulty
         scenario_gold = crown_utilities.scenario_gold_drop(enemy_level, number_of_fights, title, completed_scenarios, difficulty)
-        rewards, type_of_battle, enemey_level_message, gold_reward_message, difficulty_message = create_scenario_messages(universe, enemy_level, scenario_gold, is_raid, is_destiny, easy_drops, normal_drops, hard_drops, player)
+        rewards, type_of_battle, enemey_level_message, gold_reward_message, difficulty_message = create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, easy_drops, normal_drops, hard_drops, player)
         reward_message = get_scenario_reward_list(rewards)
         
         if (is_destiny and player.equipped_card in destiny_cards) or not is_destiny:
@@ -128,25 +134,29 @@ def create_scenario_embed(scenario, player):
         custom_logging.debug(ex)
 
 
-def create_scenario_messages(universe, enemy_level, scenario_gold, is_raid, is_destiny, easy_drops, normal_drops, hard_drops, player):
+def create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, easy_drops, normal_drops, hard_drops, player):
     if player.difficulty == "EASY":
         scenario_gold = round(scenario_gold / 5)
         rewards = easy_drops
     
     if player.difficulty == "NORMAL":
         scenario_gold = round(scenario_gold / 2)
+        if enemy_level > crown_utilities.scenario_level_config:
+            scenario_gold = scenario_gold * 2
         rewards = normal_drops
 
     if player.difficulty == "HARD":
         scenario_gold = round(scenario_gold * 1.5)
+        if enemy_level > crown_utilities.scenario_level_config:
+            scenario_gold = scenario_gold * 2
         rewards = hard_drops
-    
+
     type_of_battle = f"📽️ **{universe} Scenario Battle!**"
     enemy_level_message = f"🔱 **Enemy Level:** {enemy_level}"
     gold_reward_message = f"🪙 **Reward** {'{:,}'.format(scenario_gold)}"
     difficulty_message = f"⚙️ **Difficulty:** {player.difficulty.lower().capitalize()}"
 
-    if is_raid:
+    if enemy_level > crown_utilities.scenario_level_config:
         type_of_battle = f"<:Raid_Emblem:1088707240917221399> **{universe} RAID BATTLE!**"
         enemy_level_message = f"👹 **NEMESIS LEVEL:** {enemy_level}"
         gold_reward_message = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
@@ -157,6 +167,10 @@ def create_scenario_messages(universe, enemy_level, scenario_gold, is_raid, is_d
         enemy_level_message = f"✨ **DESTINY LEVEL:** {enemy_level}"
         gold_reward_message = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
         difficulty_message = f"✨**Difficulty:** {player.difficulty.title()}"
+
+
+
+
 
     return rewards, type_of_battle, enemy_level_message, gold_reward_message, difficulty_message
 
