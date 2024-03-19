@@ -71,7 +71,7 @@ class Lookup(Extension):
             m = db.queryManyMatchesPerPlayer({'PLAYER': d['DISNAME']})
             b = db.queryAllBosses()
             user = await self.bot.fetch_user(d['DID'])
-            if d:
+            if player_class:
                 balance = v['BALANCE']
                 bal_icon = "🪙"
                 if balance >= 50000000:

@@ -125,7 +125,7 @@ class Player:
         self._equipped_summon_ability_name = ""
         self._equipped_summon_image = ""
         self._equipped_summon_universe = ""
-        self.user_query = {'DID': self.did}
+        self.user_query = {'DID': str(self.did)}
         
         self._universe_buff_msg = ""
 
@@ -321,10 +321,17 @@ class Player:
                     return False
                 else:
                     update_query = {'$addToSet': {'STORAGE': card.name}}
+                    # Check if the card.name is in 'CARD' field of the CARD_LEVELS array
+                    # If not, add it to the CARD_LEVELS array
+                    if not any(card.name in d['CARD'] for d in self.card_levels):
+                        update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
                     response = db.updateUserNoFilter(self.user_query, update_query)
             else:
                 update_query = {'$addToSet': {'CARDS': card.name}}
-                db.updateUserNoFilter(self.user_query, update_query)
+                if not any(card.name in d['CARD'] for d in self.card_levels):
+                    update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
+                db.updateUserNoFilter(self.user_query,{'$addToSet':{'CARDS': card.name}})
+                response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
             
             if card.card_lvl > 1:
                 atk_def_buff = 0

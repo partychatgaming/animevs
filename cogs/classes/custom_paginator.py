@@ -57,6 +57,12 @@ class CustomPaginator(Paginator):
         self.scenario_action = False
         self.raid_action = False
 
+        # Storage Functions
+        self.storage_card = False
+        self.storage_arm = False
+        self.storage_summon = False
+        self.storage_title = False
+
         # Cards Functions
         self.equip_card = False
         self.dismantle_card = False
@@ -173,6 +179,7 @@ class CustomPaginator(Paginator):
                     f"{self._uuid}|🦾abilityarms",
                     f"{self._uuid}|🦾protectionarms",
                     f"{self._uuid}|🧬summons",
+                    f"{self._uuid}|draw",
                     
                 ],
             )
@@ -270,6 +277,9 @@ class CustomPaginator(Paginator):
                 if self.cards_action:
                     self.card_storage = True
                     response = await self.activate_card_action(ctx, self._message.embeds[0].title, self.card_storage)
+                if self.arms_action:
+                    self.arm_storage = True
+                    response = await self.activate_arm_action(ctx, self._message.embeds[0].title, self.arm_storage)
             case "unequip":
                 if self.talisman_action:
                     self.equip_talisman = True
@@ -298,6 +308,13 @@ class CustomPaginator(Paginator):
                 if self.summon_action:
                     self.market_summon = True
                     response = await self.activate_summon_action(ctx, self._message.embeds[0].title, self.market_summon)
+                    await self._message.delete()
+            case "draw":
+                if self.storage_card:
+                    response = await self.activate_storage_action(ctx, "draw", "card")
+                    await self._message.delete()
+                if self.storage_arm:
+                    response = await self.activate_storage_action(ctx, "draw", "arm")
                     await self._message.delete()
             case "trade":
                 if self.cards_action:
@@ -449,10 +466,23 @@ class CustomPaginator(Paginator):
             self.summons_list_action = True
             self.titles_list_action = True
 
+        if action_type == "Card Storage":
+            self.storage_card = True
+        
+        if action_type == "Arm Storage":
+            self.storage_arm = True
+
+        if action_type == "Summon Storage":
+            self.storage_summon = True
+
+        if action_type == "Title Storage":
+            self.storage_title = True
+
     
     def activate_talisman_action(self, ctx, data, action: str):
         user_query = {'DID': str(ctx.author.id)}
-        embed = Embed(title=f"{data.title} Talisman {action.capitalize()} Successfully Completed")
+        # data.title is the talisman name
+        embed = Embed(title=f"{data.title} Talisman {data.title.capitalize()} Successfully Completed")
 
         if action == self.equip_talisman:
             db.updateUserNoFilter(user_query, {'$set': {'TALISMAN': data.title.upper()}})
@@ -1253,6 +1283,7 @@ class CustomPaginator(Paginator):
     
 
     async def arm_storage_function(self, ctx, arm):
+        print("Arm Storage Function")
         user_query = {'DID': str(ctx.author.id)}
         user = db.queryUser(user_query)
         player = crown_utilities.create_player_from_data(user)
@@ -1272,8 +1303,9 @@ class CustomPaginator(Paginator):
             await ctx.send(embed=embed)
             return
         
-        for arm in player.arms:
-            if arm['ARM']:
+        for arms in player.arms:
+            if arms['ARM'].strip() == arm.strip():
+                print(f"Arm: {arms['ARM']}")
                 storage_buttons = [
                             Button(
                                 style=ButtonStyle.PRIMARY,
@@ -1309,6 +1341,10 @@ class CustomPaginator(Paginator):
                             response = await self.client.wait_for('on_message_create', checks=check, timeout=120)
                             option = int(response.message.content)
                             storage_arm = player.astorage[option]
+                            if player.equipped_arm == arm['ARM']:
+                                embed = Embed(title=f"🦾 Arm Storage", description=f"Arm {arm['ARM']} is equipped - Please unequip arm before storing")
+                                await msg.edit(embed=embed, components=[])
+                                return
                             if storage_arm:
                                 query = {'DID': str(ctx.author.id)}
                                 update_storage_query = {
@@ -1351,17 +1387,18 @@ class CustomPaginator(Paginator):
                             return
                     
                     if button_ctx.ctx.custom_id == f"{self._uuid}|store":
-                        
                         try:
-                            if len(player.astorage_length) <= (player.storage_type * 15):
+                            if player.astorage_length <= (player.storage_type * 15):
                                 query = {'DID': str(ctx.author.id)}
+                                print(f"Arm: {arms['ARM']}")
+
                                 update_storage_query = {
-                                    '$pull': {'ARMS': {'ARM' : arm['ARM']}},
-                                    '$addToSet': {'ASTORAGE': { 'ARM' : arm['ARM'], 'DUR' : int(arm['DUR'])}},
+                                    '$pull': {'ARMS': {'ARM' : arms['ARM']}},
+                                    '$addToSet': {'ASTORAGE': { 'ARM' : arms['ARM'], 'DUR' : int(arms['DUR'])}},
                                 }
                                 response = db.updateUserNoFilter(query, update_storage_query)
                                 
-                                embed = Embed(title=f"🦾 Arm Storage", description=f"{arm['ARM']} has been added to storage")
+                                embed = Embed(title=f"🦾 Arm Storage", description=f"{arms['ARM']} has been added to storage")
                                 await msg.edit(embed=embed, components=[])
                                 return
                             else:
@@ -1636,7 +1673,7 @@ class CustomPaginator(Paginator):
                     button_ctx = await self.client.wait_for_component(components=[components], check=check, timeout=120)
 
                     if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
-                        quest_response = Quests.quest_check(player, "MARKETPLACE")
+                        # quest_response = Quests.quest_check(player, "MARKETPLACE")
                         response = db.deleteMarketEntry({"ITEM_OWNER": player.did, "ITEM_NAME": card.name})
                         embed = Embed(title=f"🏷️ Success", description=f"{card.name} has been removed from the market.")
                         await message.edit(embed=embed, components=[])
@@ -1949,6 +1986,132 @@ class CustomPaginator(Paginator):
         else:
             embed = Embed(title=f"🎴 Card Storage", description=f"Failed to add {card} to storage - Card not in inventory")
             await ctx.send(embed=embed)
+
+
+    """
+    STORAGE FUNCTIONS
+    This section contains all the functions related to storage
+    """
+    async def activate_storage_action(self, ctx, action, action_type):
+        try:
+            if action == "draw":
+                response = await self.draw_storage_action(ctx, action_type)
+                self.storage_card = False
+                self.storage_arm = False
+                self.storage_summon = False
+                self.storage_title = False
+        except Exception as ex:
+            print(ex)
+            embed = Embed(title=f"📦 Storage Activation Failed", description=f"Failed to activate storage - Error Logged")
+            await ctx.send(embed=embed)
+
+
+    async def draw_storage_action(self, ctx, action_type):
+        try:
+            user_query = {'DID': str(ctx.author.id)}
+            user = db.queryUser(user_query)
+            player = crown_utilities.create_player_from_data(user)
+            if action_type == "card":
+                embed = Embed(title=f"🎴 Card Storage", description=f"Which card would you like to move from storage?\nPlease use the [number] from the storage card list.")
+                message = await ctx.send(embed=embed)
+
+                def check(event):
+                    return event.message.author.id == ctx.author.id
+
+                try:
+                    response = await self.client.wait_for('on_message_create', checks=check, timeout=120)
+                    option = validate_and_convert(response.message.content)
+                    # If the option variable is a string and not an array then it's an error message
+                    # Create an embed and edit the message with the error message
+                    if isinstance(option, str):
+                        embed = Embed(title=f"🎴 Card Storage", description=f"{option}")
+                        await message.edit(embed=embed)
+                        return
+                    return_message = ""
+
+                    for number in option:    
+                        storage_card = player.storage[number]
+                        exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": storage_card})
+                        if exists_on_market_already:
+                            embed = Embed(title=f"🏷️ Card is on the Market", description=f"{storage_card} is still on the market. Please remove it from the market before drawing it")
+                            await message.edit(embed=embed)
+                            return
+                        
+                        exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], storage_card)
+                        if exists_on_trade_already:
+                            embed = Embed(title=f"🎴 Card is being Traded", description=f"{storage_card} is still being traded. Please remove it from the trade before storaging it")
+                            await ctx.send(embed=embed)
+                            return
+                        if storage_card:
+                            # Draw Card
+                            update_storage_query = {
+                                            '$pull': {'STORAGE': storage_card},
+                                            '$addToSet': {'CARDS': storage_card},
+                                        }
+                            response = db.updateUserNoFilter(user_query, update_storage_query)
+                            return_message += f"🎴 {storage_card} has been drawn from storage\n"
+                        else:
+                            return_message += f"🎴 Failed to draw {storage_card} - Invalid card number\n"
+                    embed = Embed(title=f"🎴 Card Storage", description=f"{return_message}")
+                    await message.edit(embed=embed)
+                    return
+
+                except asyncio.TimeoutError:
+                    embed = Embed(title=f"🎴 Card Storage", description=f"Failed to draw cards - Timed Out")
+                    await message.edit(embed=embed, components=[])
+                    return                
+            if action_type == "arm":
+                embed = Embed(title=f"🦾 Arm Storage", description=f"Which arm would you like to move from storage?\nPlease use the [number] from the storage arm list.")
+                message = await ctx.send(embed=embed)
+
+                def check(event):
+                    return event.message.author.id == ctx.author.id
+
+                try:
+                    response = await self.client.wait_for('on_message_create', checks=check, timeout=120)
+                    option = validate_and_convert(response.message.content)
+                    # If the option variable is a string and not an array then it's an error message
+                    # Create an embed and edit the message with the error message
+                    if isinstance(option, str):
+                        embed = Embed(title=f"🦾 Arm Storage", description=f"{option}")
+                        await message.edit(embed=embed)
+                        return
+                    return_message = ""
+
+                    for number in option:    
+                        storage_arm = player.astorage[number]
+                        exists_on_market_already = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": storage_arm['ARM']})
+                        if exists_on_market_already:
+                            embed = Embed(title=f"🏷️ Arm is on the Market", description=f"{storage_arm['ARM']} is still on the market. Please remove it from the market before drawing it")
+                            await message.edit(embed=embed)
+                            return
+                        
+                        exists_on_trade_already = crown_utilities.arm_being_traded(user['DID'], storage_arm['ARM'])
+                        if exists_on_trade_already:
+                            embed = Embed(title=f"🦾 Arm is being Traded", description=f"{storage_arm['ARM']} is still being traded. Please remove it from the trade before storaging it")
+                            await ctx.send(embed=embed)
+                            return
+                        if storage_arm:
+                            # Draw Card
+                            update_storage_query = {
+                                            '$pull': {'ASTORAGE': {'ARM': storage_arm['ARM']}},
+                                            '$addToSet': {'ARMS': {'ARM': storage_arm['ARM'], 'DUR': storage_arm['DUR']}},
+                                        }
+                            response = db.updateUserNoFilter(user_query, update_storage_query)
+                            return_message += f"🦾 {storage_arm['ARM']} has been drawn from storage\n"
+                        else:
+                            return_message += f"🦾 Failed to draw {storage_arm['ARM']} - Invalid arm number\n"
+                    embed = Embed(title=f"🦾 Arm Storage", description=f"{return_message}")
+                    await message.edit(embed=embed)
+                    return
+                except asyncio.TimeoutError:
+                    embed = Embed(title=f"🦾 Arm Storage", description=f"Failed to draw item from Storage - Error Logged")
+        except Exception as ex:
+            print(ex)
+            embed = Embed(title=f"Storage Failure", description=f"Failed to draw item from Storage - Error Logged")
+            await ctx.send(embed=embed)
+            return
+
 
 
     """
@@ -2465,6 +2628,7 @@ class CustomPaginator(Paginator):
             selection = random.choice(selectable_cards)
             selectable_cards.append(selection)
             card = crown_utilities.create_card_from_data(db.queryCard({'NAME': list_of_cards[selection]['NAME']}))
+            # db.updateUserNoFilter(player.user_query,{'$addToSet':{'CARDS': card.name}})
             player.save_card(card)
             card_message.append(f"**{card.name}**!")
             count = count + 1
@@ -2749,3 +2913,19 @@ class CustomPaginator(Paginator):
 
 def generate_6_digit_code():
     return random.randint(100000, 999999)
+
+def validate_and_convert(option):
+    # Check if 'option' contains only numbers and commas
+    if all(char.isdigit() or char == ',' for char in option):
+        # Split by commas
+        numbers = option.split(',')
+        try:
+            # Convert to int, filter out empty strings for cases like "3,"
+            numbers_int = [int(num) for num in numbers if num]
+            # Return as a single int if only one number, else as a list
+            return [numbers_int[0]] if len(numbers_int) == 1 else numbers_int
+        except ValueError:
+            # Handle the case where conversion to int fails (should not happen due to checks)
+            return "Invalid input; contains non-numeric values. Please type only numbers and commas."
+    else:
+        return "Invalid input; contains forbidden characters. Please type only numbers and commas."

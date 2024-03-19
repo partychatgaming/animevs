@@ -139,14 +139,14 @@ async def help(ctx: InteractionContext, selection):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
    
    if selection == "menu":
-      embedVar = Embed(title= f"Your stuff, your way!", description=h.CTAP_COMMANDS, color=0x7289da)
+      embedVar = Embed(title=f"Your stuff, your way!", description=h.CTAP_COMMANDS, color=0x7289da)
       embedVar.set_thumbnail(url=avatar)
       embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "legend":
-      embedVar = Embed(title= f"What do these emoji's mean?", description=h.LEGEND, color=0x7289da)
+      embedVar = Embed(title=f"What do these emoji's mean?", description=h.LEGEND, color=0x7289da)
       embedVar.set_thumbnail(url=avatar)
       embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
@@ -165,7 +165,7 @@ async def help(ctx: InteractionContext, selection):
       await paginator.send(ctx)
 
    if selection == "play":
-      embedVar = Embed(title= f"Start playing now!", description=h.CROWN_UNLIMITED_GAMES, color=0x7289da)
+      embedVar = Embed(title=f"Start playing now!", description=h.CROWN_UNLIMITED_GAMES, color=0x7289da)
       embedVar.set_thumbnail(url=avatar)
       embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
@@ -173,14 +173,14 @@ async def help(ctx: InteractionContext, selection):
 
 
    if selection == "universe":
-      embedVar = Embed(title= f"🌍 Universe Info!", description=h.UNIVERSE_STUFF, color=0x7289da)
+      embedVar = Embed(title=f"🌍 Universe Info!", description=h.UNIVERSE_STUFF, color=0x7289da)
       embedVar.set_thumbnail(url=avatar)
       embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
       return
 
    if selection == "teams":
-      embedVar = Embed(title= f"Gang up and play!", description=h.BOT_COMMANDS, color=0x7289da)
+      embedVar = Embed(title=f"Gang up and play!", description=h.BOT_COMMANDS, color=0x7289da)
       embedVar.set_thumbnail(url=avatar)
       embedVar.set_footer(text=f"/animevs - Anime VS+ Manual")
       await ctx.send(embed=embedVar)
@@ -215,57 +215,57 @@ async def enhancers(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
 
    try:
-      embedVar1 = Embed(title= f"Enhancer Type: Boosts",color=0x7289da)
+      embedVar1 = Embed(title=f"Enhancer Type: Boosts",color=0x7289da)
       embedVar1.set_thumbnail(url=avatar)
       embedVar1.add_field(name="`BOOSTS`", value="**ATK**\n**Title, Arm, Card Passive Effect:** Increase Attack by Flat AP value.\n**Card Active Enhancer Effect:** Increase Attack By AP %.\n\n**DEF**\n**Title, Arm, Card Passive Effect:** Increase Defense by Flat AP value.\n**Card Active Enhancer Effect:** Increase Defense By AP %.\n\n**HLT**\n**Title, Arm, Card Passive Effect:** Increase Health by Flat AP value.\n**Card Active Enhancer Effect:** Increase Health By Flat AP + 16% of Current Health.\n\n**STAM** - Increase Stamina by Flat AP\n\n")
       embedVar1.set_footer(text=f"/help - Bot Help")
 
-      embedVar2 = Embed(title= f"Enhancer Type: Steals",color=0x7289da)
+      embedVar2 = Embed(title=f"Enhancer Type: Steals",color=0x7289da)
       embedVar2.set_thumbnail(url=avatar)
       embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\n**Title, Arm, Card Passive Effect:** Steal Opponent Health and Add it to your Max Health by AP %\n**Card Active Enhancer Effect:** Steal Opponent Health and Add it to your Current Health by Flat AP + 9% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
       embedVar2.set_footer(text=f"/help - Bot Help")
 
-      embedVar3 = Embed(title= f"Enhancer Type: Sacrifice",color=0x7289da)
+      embedVar3 = Embed(title=f"Enhancer Type: Sacrifice",color=0x7289da)
       embedVar3.set_thumbnail(url=avatar)
       embedVar3.add_field(name="`SACRIFICE`", value="**RAGE** - Decrease Your Defense by AP %, Increase All Moves AP by Amount of Decreased Defense\n\n**BRACE** - Decrease Your Attack by AP %, Increase All Moves AP By Amount of Decreased Attack\n\n**BZRK** - Decrease Your Current Health by AP %,  Increase Your Attack by Amount of Decreased Health\n\n**CRYSTAL** - Decrease Your Health by AP %, Increase Your Defense by Amount of Decreased Health\n\n")
       embedVar3.set_footer(text=f"/help - Bot Help")
 
-      embedVar4 = Embed(title= f"Enhancer Type: Conversion",color=0x7289da)
+      embedVar4 = Embed(title=f"Enhancer Type: Conversion",color=0x7289da)
       embedVar4.set_thumbnail(url=avatar)
       embedVar4.add_field(name="`CONVERSION`", value="**STANCE** - Swap Your Attack and Defense, Increase Your Defense By Flat AP\n\n**CONFUSE** - Swap Opponenet Attack and Defense, Decrease Opponent Defense by Flat AP\n\n")
       embedVar4.set_footer(text=f"/help - Bot Help")
 
-      embedVar5 = Embed(title= f"Enhancer Type: Time Manipulation",color=0x7289da)
+      embedVar5 = Embed(title=f"Enhancer Type: Time Manipulation",color=0x7289da)
       embedVar5.set_thumbnail(url=avatar)
       embedVar5.add_field(name="`TIME MANIPULATION`", value="**BLINK**  - Decrease Your Stamina by Flat AP, Increase Opponent Stamina by Flat AP\n\n**SLOW** - Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent\n\n**HASTE** - Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent\n\n")
       embedVar5.set_footer(text=f"/help - Bot Help")
 
-      embedVar6 = Embed(title= f"Enhancer Type: Control",color=0x7289da)
+      embedVar6 = Embed(title=f"Enhancer Type: Control",color=0x7289da)
       embedVar6.set_thumbnail(url=avatar)
       embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN** - You and Your Opponent's Stamina Equal Flat AP\n\n**GAMBLE** - You and Your Opponent's Health Equal Flat AP\n\n")
       embedVar6.set_footer(text=f"/help - Bot Help")
 
-      embedVar7 = Embed(title= f"Enhancer Type: Fortitude",color=0x7289da)
+      embedVar7 = Embed(title=f"Enhancer Type: Fortitude",color=0x7289da)
       embedVar7.set_thumbnail(url=avatar)
       embedVar7.add_field(name="`FORTITUDE`", value="**GROWTH**- Decrease Your Max Health by 10%, Increase Your Attack, Defense and AP Buff by GROWTH AP\n\n**FEAR** - Decrease Your Max Health by 10%, Decrease Opponent Attack, Defense, and reduce Opponent AP Buffs by AP\n\n")
       embedVar7.set_footer(text=f"/help - Bot Help")
 
-      embedVar8 = Embed(title= f"Enhancer Type: Damage",color=0x7289da)
+      embedVar8 = Embed(title=f"Enhancer Type: Damage",color=0x7289da)
       embedVar8.set_thumbnail(url=avatar)
       embedVar8.add_field(name="`DAMAGE`", value="**WAVE** - Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal 75% AP Damage.*\n\n**BLAST** - Deal Flat AP Damage to Opponent. AP Increases each turn.\n\n")
       embedVar8.set_footer(text=f"/help - Bot Help")
 
-      embedVar9 = Embed(title= f"Enhancer Type: Divinity",color=0x7289da)
+      embedVar9 = Embed(title=f"Enhancer Type: Divinity",color=0x7289da)
       embedVar9.set_thumbnail(url=avatar)
       embedVar9.add_field(name="`DIVINITY`", value="**CREATION** - Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for 75% AP.*\n\n**DESTRUCTION** - Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn.\n\n")
       embedVar9.set_footer(text=f"/help - Bot Help")
       
-      embedVar10 = Embed(title= f"Arm Enhancer Type: Offensive",color=0x7289da)
+      embedVar10 = Embed(title=f"Arm Enhancer Type: Offensive",color=0x7289da)
       embedVar10.set_thumbnail(url=avatar)
       embedVar10.add_field(name="`OFFENSE`", value="**BASIC** - Equip a new Basic Attack and Element \n\n**SPECIAL** - Equip a new Special Attack and Element \n\n**ULTIMATE** - Equip a new Ultimate Attack and Element \n\n**ULTIMAX** - Increase **ALL** Attack Move Ability Power by Value \n\n**MANA** - Increase 🦠 Enhancer Ability Power by Percentage \n\n💉 **SIPHON** - Heal for 10% DMG + AP\n\n")
       embedVar10.set_footer(text=f"/help - Bot Help")
       
-      embedVar11 = Embed(title= f"Arm Enhancer Type: Defensive",color=0x7289da)
+      embedVar11 = Embed(title=f"Arm Enhancer Type: Defensive",color=0x7289da)
       embedVar11.set_thumbnail(url=avatar)
       embedVar11.add_field(name="`DEFENSE`", value="🌐 **SHIELD**- Grant Damage absorbing Shield until destroyed \n\n💠 **BARRIER** - Blocks all Attack Damage until player Attacks or is Destoyed (Enhancers Exempt)\n\n🔄 **PARRY** - Reflects 25% Damage back to Attacker\n\n")
       embedVar11.set_footer(text=f"/help - Bot Help")
@@ -313,7 +313,7 @@ async def classes(ctx):
     ]
     
    embed_list = []
-   embedVar = Embed(title= f"Classes", description=textwrap.dedent(f"""\
+   embedVar = Embed(title=f"Classes", description=textwrap.dedent(f"""\
    🥋 **Card Class**
    Your Class grants you a boost in battle
    The boost is determined by your Card Tier Range
@@ -334,498 +334,516 @@ async def classes(ctx):
 
 # @slash_command(description="Anime VS+ Manual", scopes=guild_ids)
 async def animevs(ctx):
-   avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
+   try:
+      avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
 
 
-   embedVar1 = Embed(title= f"About Anime VS+",color=0x7289da)
-   
-   embedVar1.set_thumbnail(url=avatar)
-   
-   embedVar1.add_field(name="**About The Game!**", value=textwrap.dedent(f"""\
+      embedVar1 = Embed(title=f"About Anime VS+",color=0x7289da)
       
-   **Anime VS+** is a Multiplatform Card Game exploring **Universes** from your favorite Video Game and Anime Series!
-
-   Explore Tales, Dungeons, and Bosses! Play **Solo**, or with **Friends**!
-   
-   Customize your experince by setting your personal /difficulty!
-   """))
-
-   embedVar2 = Embed(title= f"Getting Started", description=textwrap.dedent(f"""\
-   Players begin with 3 cards from the **Starter Universes**.
-   
-   The Title **Starter** and the Arm **Stock** are equipped.
-   
-   Your first Summon **Chick** will be joining as well!
+      embedVar1.set_thumbnail(url=avatar)
       
-   Play **Single Player** and **Multiplayer** Modes to earn 🪙
-   Buy and equip better Items to Conquer the Multiverse!
-   """), color=0x7289da)
-   
-   embedVar2.set_thumbnail(url=avatar)
-   
-   class_embed = Embed(title= f"Cards", description=textwrap.dedent(f"""\
-   Players begin with 3 cards from the **Starter Universes**.
-   
-   The Title **Starter** and the Arm **Stock** are equipped.
-   
-   Your first Summon **Chick** will be joining as well!
+      embedVar1.add_field(name="**About The Game!**", value=textwrap.dedent(f"""\
+         
+      **Anime VS+** is a Multiplatform Card Game exploring **Universes** from your favorite Video Game and Anime Series!
+
+      Explore Tales, Dungeons, and Bosses! Play **Solo**, or with **Friends**!
       
-   Play **Single Player** and **Multiplayer** Modes to earn 🪙
-   Buy and equip better Items to Conquer the Multiverse!
-   """), color=0x7289da)
-   
-   embedVar2.set_thumbnail(url=avatar)
+      Customize your experince by setting your personal /difficulty!
+      """))
 
-   embedVar3 = Embed(title= f"Card Mechanics", description=textwrap.dedent(f"""\
-   **Card Stats** 
-   Health (**HLT**) Stamina (**STAM**) Attack (**ATK**) Defense(**DEF**)
-   
-   🥋 **Card Class**
-   Your Class determines how you enter the battle
-   Use /help to find information on **Classes**
-   
-   **Cards Have 5 Abilities** 
-   3 Attack Moves
-   1 Enhancer
-   1 Block
-   
-   **Attack Moves**
-   Attacks inflict damage on the opponent.
-   Each Attack matches an **Emoji** and **Stamina Cost** in the Movelist.
-   💥 Basic Attack _uses 10 stamina_
-   ☄️ Special Attack _uses 30 stamina_
-   🏵️ Ultimate Attack _uses 80 stamina_
-   
-   🔅**Elemental Damage**
-   Attacks have bonus effects based on the 🔅**Element** Type
-   Use /help to find information on **Elements**
-   
-   **Enhancer**
-   Enhancers either boost your stats or inflict status effects on your opponent. Use **/help** for full list of **Enhancers** and their effects.
-   🦠 Enhancer _uses 20 stamina_
-   
-   **Block**
-   Doubles Defense for 1 turn
-   🛡️ _uses 20 stamina_ 
-   """), color=0x7289da)
-   
-   embedVar3.set_thumbnail(url=avatar)
-   
-   embedVar11 = Embed(title= f"Card Types", description=textwrap.dedent(f"""                                                                           
-   🎴 **Universe Cards** - Purchasable in the **Shop** and Drops in **Tales**
-   🃏 **Card Skins** - Create in the **/craft**
-   🔥 **Dungeon Cards** - Drops in **Dungeons**
-   ✨ **Destiny Cards** - Earned via **Destinies**
-   👹 **Boss Cards** - Exchange for **Boss Souls**
-   
-   **Cards Have 7 Passive Elements** 
-   Card Type
-   Card Tier
-   Affinities
-   1 Unique Passive
-   1 Universe Trait
-   Card Level
-   Destinies
-   
-   🀄 **Card Tier**
-   Card Tier Determines Base Stats and Enhancer Types/Values.
-   Common : Tier 1 - 3
-   Rare : Tier 4 - 5
-   Legendary : Tier 6 - 7
-   
-   🔅 **Affinities**
-   Affinities determine how you card reacts to **Damage types**
-   Weaknesses - Take more damage
-   Resistances - Take less damage
-   Immunities - Immune to damage
-   Repels - Reflects damage back
-   Absorb - Absorbs damage as Health
-   
-   🩸 **Unique Passive**
-   Enhancers that take effect **at the beginning** of the battle.
+      embedVar2 = Embed(title=f"Getting Started", description=textwrap.dedent(f"""\
+      Players begin with 3 cards from the **Starter Universes**.
+      
+      The Title **Starter** and the Arm **Stock** are equipped.
+      
+      Your first Summon **Chick** will be joining as well!
+         
+      Play **Single Player** and **Multiplayer** Modes to earn 🪙
+      Buy and equip better Items to Conquer the Multiverse!
+      """), color=0x7289da)
+      
+      embedVar2.set_thumbnail(url=avatar)
+      
+      embedVar0 = Embed(title=f"Cards", description=textwrap.dedent(f"""\
+      Players begin with 3 cards from the **Starter Universes**.
+      
+      The Title **Starter** and the Arm **Stock** are equipped.
+      
+      Your first Summon **Chick** will be joining as well!
+         
+      Play **Single Player** and **Multiplayer** Modes to earn 🪙
+      Buy and equip better Items to Conquer the Multiverse!
+      """), color=0x7289da)
+      
+      embedVar2.set_thumbnail(url=avatar)
 
-   ♾️ **Universe Traits**
-   Universe specific abilities activated during battle. 
-   Use **/traits** for a full list.
-   
-   🎇 **Card Level**
-   As you battle your card will level up, increasing Stats and Ability Power 
-   Cards Start at **Level 0** and Max out at **Level 999**
+      embedVar3 = Embed(title=f"Card Mechanics", description=textwrap.dedent(f"""\
+      **Card Stats** 
+      Health (**HLT**) Stamina (**STAM**) Attack (**ATK**) Defense(**DEF**)
+      
+      🥋 **Card Class**
+      Your Class determines how you enter the battle
+      Use /help to find information on **Classes**
+      
+      **Cards Have 5 Abilities** 
+      3 Attack Moves
+      1 Enhancer
+      1 Block
+      
+      **Attack Moves**
+      Attacks inflict damage on the opponent.
+      Each Attack matches an **Emoji** and **Stamina Cost** in the Movelist.
+      💥 Basic Attack _uses 10 stamina_
+      ☄️ Special Attack _uses 30 stamina_
+      🏵️ Ultimate Attack _uses 80 stamina_
+      
+      🔅**Elemental Damage**
+      Attacks have bonus effects based on the 🔅**Element** Type
+      Use /help to find information on **Elements**
+      
+      **Enhancer**
+      Enhancers either boost your stats or inflict status effects on your opponent. Use **/help** for full list of **Enhancers** and their effects.
+      🦠 Enhancer _uses 20 stamina_
+      
+      **Block**
+      Doubles Defense for 1 turn
+      🛡️ _uses 20 stamina_ 
+      """), color=0x7289da)
+      
+      embedVar3.set_thumbnail(url=avatar)
+      
+      embedVar11 = Embed(title=f"Card Types", description=textwrap.dedent(f"""                                                                           
+      🎴 **Universe Cards** - Purchasable in the **Shop** and Drops in **Tales**
+      🃏 **Card Skins** - Create in the **/craft**
+      🔥 **Dungeon Cards** - Drops in **Dungeons**
+      ✨ **Destiny Cards** - Earned via **Destinies**
+      👹 **Boss Cards** - Exchange for **Boss Souls**
+      
+      **Cards Have 7 Passive Elements** 
+      Card Type
+      Card Tier
+      Affinities
+      1 Unique Passive
+      1 Universe Trait
+      Card Level
+      Destinies
+      
+      🀄 **Card Tier**
+      Card Tier Determines Base Stats and Enhancer Types/Values.
+      Common : Tier 1 - 3
+      Rare : Tier 4 - 5
+      Legendary : Tier 6 - 7
+      
+      🔅 **Affinities**
+      Affinities determine how you card reacts to **Damage types**
+      Weaknesses - Take more damage
+      Resistances - Take less damage
+      Immunities - Immune to damage
+      Repels - Reflects damage back
+      Absorb - Absorbs damage as Health
+      
+      🩸 **Unique Passive**
+      Enhancers that take effect **at the beginning** of the battle.
 
-   ✨ **Destinies**
-   Card Specific Quest that earn **Destiny Cards**
-   
-   🃏 **Skins**
-   Card Skins have different stats and abilities but can complete the main card **Destinies** !
- 
-   """), color=0x7289da)
-   
-   embedVar11.set_thumbnail(url=avatar)
-   
-   embedVar17 = Embed(title= f"Damage, Elements & Talismans", description=textwrap.dedent(f"""                                                                           
-   🗯️**Engagement** Each of you Attack Moves deals damage based on the **Engagement**.
-   
-   💢: **Desperate Engagement**: Your opponent has overwhelming defense... Deal %33-%50 of AP
-   ❕: **Brave Engagement**: Your opponent's defense is strong. Deal %50-%75 AP
-   ‼️: **Nuetral Engagement**: Your attack and defense are nuetral. Deal %75-%120 AP
-   〽️x1.5: **Aggressive Engagement**: Your attacks deal additional damage. Deal %120-%150 AP
-   ❌x2: **Lethal Engagement**: Your attacks are lethal! Deal $150-%200 AP
-   
-   The Engagement is a factor of Attack + Move Ap vs Opponent Defense
-   When your attack is higher than your oppoenents defense you will deal more damage
-   
-   🏃**Evasion**
-   Your cards speed determines your evasion stat.
-   **Fast** Cards SPD [70-100] increase their evasion by 5% every 10 Speed STAT i.e SPD 80 = 10% Evasion
-   **Slow** Cards SPD [0-30] decrease their evasion by 5% i.e SPD 10 = -15% Evasion
-   **Nuetral** Cards SPD [31-69] do not modify evasion
-   
-   🧮**Strike Calculation** Strike calcalation adds variance and balance to Engagements.
-   Your ability also deals damage based on the type of **Strike**
-   Strike is determined by your Move Accuracy vs Opponent Evasion
-   :palm_down_hand: **Miss** - You completely miss... No Damage
-   :anger: **Chip** - You barely strike. 30% Damage Reduction
-   :bangbang: **Connects** - Your ability strikes. No Reduction
-   🗯️ **Hits** - Land a significant Strike. 20% Increase
-   💥 **Critical Hit** - You land a lethal blow. 250% Increase
-   
-   📿**Talismans**
-   Talismans nullify the affinities of the chosen **Element**. 
-   **/attune** and equip /**talismans** from stored **Essence**
- 
-   """), color=0x7289da)
-   
-   embedVar17.set_thumbnail(url=avatar)
+      ♾️ **Universe Traits**
+      Universe specific abilities activated during battle. 
+      Use **/traits** for a full list.
+      
+      🎇 **Card Level**
+      As you battle your card will level up, increasing Stats and Ability Power 
+      Cards Start at **Level 0** and Max out at **Level 999**
 
-   embedVar4 = Embed(title= f"Titles, Arms, and Summons ", description=textwrap.dedent(f"""\
-   **Titles** & **Arms** 
-   Modify you or the Opponents **Stats** by applying **Enhancers** during battle.
+      ✨ **Destinies**
+      Card Specific Quest that earn **Destiny Cards**
+      
+      🃏 **Skins**
+      Card Skins have different stats and abilities but can complete the main card **Destinies** !
    
-   🎗️ **Title Exlusivity**
-   **Titles** apply enhancers at the **start** of your turn or during **Focus State**
-   ⚠️ Titles are only effective on cards from the same Universe or Unbound!
-   Buy **Titles** and **Arms** with 🪙 or Earn them via **Drops**
+      """), color=0x7289da)
+      
+      embedVar11.set_thumbnail(url=avatar)
+      
+      embedVar17 = Embed(title=f"Damage, Elements & Talismans", description=textwrap.dedent(f"""                                                                           
+      🗯️**Engagement** Each of you Attack Moves deals damage based on the **Engagement**.
+      
+      💢: **Desperate Engagement**: Your opponent has overwhelming defense... Deal %33-%50 of AP
+      ❕: **Brave Engagement**: Your opponent's defense is strong. Deal %50-%75 AP
+      ‼️: **Nuetral Engagement**: Your attack and defense are nuetral. Deal %75-%120 AP
+      〽️x1.5: **Aggressive Engagement**: Your attacks deal additional damage. Deal %120-%150 AP
+      ❌x2: **Lethal Engagement**: Your attacks are lethal! Deal $150-%200 AP
+      
+      The Engagement is a factor of Attack + Move Ap vs Opponent Defense
+      When your attack is higher than your oppoenents defense you will deal more damage
+      
+      🏃**Evasion**
+      Your cards speed determines your evasion stat.
+      **Fast** Cards SPD [70-100] increase their evasion by 5% every 10 Speed STAT i.e SPD 80 = 10% Evasion
+      **Slow** Cards SPD [0-30] decrease their evasion by 5% i.e SPD 10 = -15% Evasion
+      **Nuetral** Cards SPD [31-69] do not modify evasion
+      
+      🧮**Strike Calculation** Strike calcalation adds variance and balance to Engagements.
+      Your ability also deals damage based on the type of **Strike**
+      Strike is determined by your Move Accuracy vs Opponent Evasion
+      :palm_down_hand: **Miss** - You completely miss... No Damage
+      :anger: **Chip** - You barely strike. 30% Damage Reduction
+      :bangbang: **Connects** - Your ability strikes. No Reduction
+      🗯️ **Hits** - Land a significant Strike. 20% Increase
+      💥 **Critical Hit** - You land a lethal blow. 250% Increase
+      
+      📿**Talismans**
+      Talismans nullify the affinities of the chosen **Element**. 
+      **/attune** and equip /**talismans** from stored **Essence**
    
-   🦾 **Arm Durability**
-   Arms are effective across the Multiverse, however they do break! Turning into **Gems**
-   ⚠️ Arms from a different universe will break at a faster rate!
-   Stock up on **Asrms** and repair **Durability** in the **/blacksmith**
-   🪔 Elemental Arms also provide **Essence**. Use **Essence** to craft **Talismans**
+      """), color=0x7289da)
+      
+      embedVar17.set_thumbnail(url=avatar)
 
-   👑 **Universe Buff** :Match Your Titles and Arms to your **Card Universe**.
-   **Buff**: **Base Stats** + 300 **HLT** , 30 **ATK** & 30 **DEF**.
+      embedVar4 = Embed(title=f"Titles, Arms, and Summons ", description=textwrap.dedent(f"""\
+      **Titles** & **Arms** 
+      Modify you or the Opponents **Stats** by applying **Enhancers** during battle.
+      
+      🎗️ **Title Exlusivity**
+      **Titles** apply enhancers at the **start** of your turn or during **Focus State**
+      ⚠️ Titles are only effective on cards from the same Universe or Unbound!
+      Buy **Titles** and **Arms** with 🪙 or Earn them via **Drops**
+      
+      🦾 **Arm Durability**
+      Arms are effective across the Multiverse, however they do break! Turning into **Gems**
+      ⚠️ Arms from a different universe will break at a faster rate!
+      Stock up on **Asrms** and repair **Durability** in the **/blacksmith**
+      🪔 Elemental Arms also provide **Essence**. Use **Essence** to craft **Talismans**
 
-   ✨ **Destiny Universe Buff** Destiny Cards gain an additional **Buff**.
-   **Buff**: **Universe Buff** + 200 **HLT**, 20 **ATK** and 20 **DEF**.
+      👑 **Universe Buff** :Match Your Titles and Arms to your **Card Universe**.
+      **Buff**: **Base Stats** + 300 **HLT** , 30 **ATK** & 30 **DEF**.
 
-   🧬 **Summons**
-   Can assist during battle with an **Elemntal Attack** or **Defensive Boost**.
-   Earn **Summons** through Tales, Dungeon and Boss **Drops** or through trade with other Players!
-   Battle with your **Summon** to gain **EXP** to increase Summon **Ability Power**. 
+      ✨ **Destiny Universe Buff** Destiny Cards gain an additional **Buff**.
+      **Buff**: **Universe Buff** + 200 **HLT**, 20 **ATK** and 20 **DEF**.
 
-   Mix and Match Titles, Arms and Summons to gain the **Tactical Advantage**!
-   """) ,color=0x7289da)
-   
-   embedVar4.set_thumbnail(url=avatar)
+      🧬 **Summons**
+      Can assist during battle with an **Elemntal Attack** or **Defensive Boost**.
+      Earn **Summons** through Tales, Dungeon and Boss **Drops** or through trade with other Players!
+      Battle with your **Summon** to gain **EXP** to increase Summon **Ability Power**. 
 
-   embedVar5 = Embed(title= f"Battle Mechanics", description=textwrap.dedent(f"""\
-   Players take turns dealing damage using one of their 5 **Abilities**.
-   
-   🌀 **Stamina** costs are standard across all Cards 
-   _See Card Mechanics page for details_.
-   
-   ⚕️ **Recovery**
-   When Players have used all of their **Stamina** they enter **Focus State**.
+      Mix and Match Titles, Arms and Summons to gain the **Tactical Advantage**!
+      """) ,color=0x7289da)
+      
+      embedVar4.set_thumbnail(url=avatar)
 
-   The Match is over when a players **Health** reaches 0.
-   """) ,color=0x7289da)
-   
-   embedVar5.set_thumbnail(url=avatar)
+      embedVar5 = Embed(title=f"Battle Mechanics", description=textwrap.dedent(f"""\
+      Players take turns dealing damage using one of their 5 **Abilities**.
+      
+      🌀 **Stamina** costs are standard across all Cards 
+      _See Card Mechanics page for details_.
+      
+      ⚕️ **Recovery**
+      When Players have used all of their **Stamina** they enter **Focus State**.
 
-   embedVar6 = Embed(title= f"Focus & Resolve", description=textwrap.dedent(f"""\
-   ⚕️ **Focus**
-   Players can take advantage of **Focus State** to **Recover**.
-   **Focus State** sacrifices a turn to Level Up Stats, increase **Stamina** to 90, and **Recover** some **Health**.
-   
-   ⚡**Resolve**
-   Once in **Focus State** players can **Resolve**!
-   **Resolved Characters** transform to greatly increase attack and health while sacrificing defense.
-   **Resolved Characters** can call on Summons to aid them in battle.
-   ⚡ Resolve _uses 1 turn_. You no longer stack Focus Stats
+      The Match is over when a players **Health** reaches 0.
+      """) ,color=0x7289da)
+      
+      embedVar5.set_thumbnail(url=avatar)
 
-   **Summon Assistance!**
-   Summons Enhancers either use an Elemental Attack or Grant the player a Defensive Arm. Summon moves do not end the player turn!
-   🧬 Summon _uses 15 stamina_.
+      embedVar6 = Embed(title=f"Focus & Resolve", description=textwrap.dedent(f"""\
+      ⚕️ **Focus**
+      Players can take advantage of **Focus State** to **Recover**.
+      **Focus State** sacrifices a turn to Level Up Stats, increase **Stamina** to 90, and **Recover** some **Health**.
+      
+      ⚡**Resolve**
+      Once in **Focus State** players can **Resolve**!
+      **Resolved Characters** transform to greatly increase attack and health while sacrificing defense.
+      **Resolved Characters** can call on Summons to aid them in battle.
+      ⚡ Resolve _uses 1 turn_. You no longer stack Focus Stats
 
-   """) ,color=0x7289da)
-   
-   embedVar6.set_thumbnail(url=avatar)
-   
-   embedVar16 = Embed(title= f"Difficulty & Progression", description=textwrap.dedent(f"""\
-   ⚙️**Difficulty**
-   Anime VS+ allows you to tailor your experience to your desired level.
-   
-   **3 Difficulties**
-   **Easy** *Play the game freely and casually*
-   - Lower Enemy Scaling
-   - No Destinies, Dungeons, Bosses, Drops, Raids or Abyss
-   
-   **Normal** *Play Anime VS+ the Intended Way*
-   - Traverse the **/solo** to earn levels and unlock modes
-   - Standard drop rates for items in game modes
-   - Rebirth for increase in base stats and drop rates
-   
-   **Hard** *Not for the faint of Heart*
-   - Normal Mode but with increasing scaling, drops and rewards
-   - Clout
-   
-   🌑**Abyss** *Seasonal Ranking System*
-   - Climb the Abyss each season for new Rewards!
-   - 100 Floors with customized battles
-   - Earn unqiue Abyssal build every 10 floors
-   - Earn Title of God on completion of Floor 100
-   
-   🎊**Abyss Floor Unlocks**
-   **3** - *PvP and Guilds*
-   **10** - *Trading*
-   **15** - *Associations and Raids*
-   **20** - *Gifting*
-   **25** - *Explore Mode*
-   **40** - *Dungeons*
-   **60** - *Bosses*
-   **100** - *Boss Soul Exchange*
-   **Earn 🪙100,000 * Floor**
-   """),color=0x7289da)
-   
-   embedVar16.set_thumbnail(url=avatar)
+      **Summon Assistance!**
+      Summons Enhancers either use an Elemental Attack or Grant the player a Defensive Arm. Summon moves do not end the player turn!
+      🧬 Summon _uses 15 stamina_.
 
-   embedVar7 = Embed(title= f"Single Player", description=textwrap.dedent(f"""\
-   **Single Player**
-   
-   👤 **Solo**/solo
-   **Tales:** Single player adventures where you traverse through your favorite universes as characters from various worlds!
-   **Dungeon:** Hard version of tales with better loot and better drop rates! (Unlocks after completing **Anime VS+ Tale**)
-   **Boss:** End Game battles featuring Iconic Villians from Anime VS+ Universes. (Unlocks after completing **Anime VS+ Dungeon**)
-   
-   👥 **Duo**/duo *Beta*
-   **Tales Deck(1-5):** Battle with your favorite AI preset in this Duo Tale!
-   **Dungeon Deck(1-5):** Bring your strongest builds through the Darkest Duo Dungeons.
- 
-   🔮 **Anime VS+ Rifts**
-   Mash-Up Universes featuring heroes and villians connected through common traits and themes!
-   *Pay attention, Rifts will not stay open if you continue through your Tale!*
-   """),color=0x7289da)
-   
-   embedVar7.set_thumbnail(url=avatar)
+      """) ,color=0x7289da)
+      
+      embedVar6.set_thumbnail(url=avatar)
+      
+      embedVar16 = Embed(title=f"Difficulty & Progression", description=textwrap.dedent(f"""\
+      ⚙️**Difficulty**
+      Anime VS+ allows you to tailor your experience to your desired level.
+      
+      **3 Difficulties**
+      **Easy** *Play the game freely and casually*
+      - Lower Enemy Scaling
+      - No Destinies, Dungeons, Bosses, Drops, Raids or Abyss
+      
+      **Normal** *Play Anime VS+ the Intended Way*
+      - Traverse the **/solo** to earn levels and unlock modes
+      - Standard drop rates for items in game modes
+      - Rebirth for increase in base stats and drop rates
+      
+      **Hard** *Not for the faint of Heart*
+      - Normal Mode but with increasing scaling, drops and rewards
+      - Clout
+      
+      🌑**Abyss** *Seasonal Ranking System*
+      - Climb the Abyss each season for new Rewards!
+      - 100 Floors with customized battles
+      - Earn unqiue Abyssal build every 10 floors
+      - Earn Title of God on completion of Floor 100
+      
+      🎊**Abyss Floor Unlocks**
+      **3** - *PvP and Guilds*
+      **10** - *Trading*
+      **15** - *Associations and Raids*
+      **20** - *Gifting*
+      **25** - *Explore Mode*
+      **40** - *Dungeons*
+      **60** - *Bosses*
+      **100** - *Boss Soul Exchange*
+      **Earn 🪙100,000 * Floor**
+      """),color=0x7289da)
+      
+      embedVar16.set_thumbnail(url=avatar)
 
-   embedVar8 = Embed(title= f"Multiplayer", description=textwrap.dedent(f"""\
-   **Multiplayer**
+      embedVar7 = Embed(title=f"Single Player", description=textwrap.dedent(f"""\
+      **Single Player**
+      
+      👤 **Solo**/solo
+      **Tales:** Single player adventures where you traverse through your favorite universes as characters from various worlds!
+      **Dungeon:** Hard version of tales with better loot and better drop rates! (Unlocks after completing **Anime VS+ Tale**)
+      **Boss:** End Game battles featuring Iconic Villians from Anime VS+ Universes. (Unlocks after completing **Anime VS+ Dungeon**)
+      
+      👥 **Duo**/duo *Beta*
+      **Tales Deck(1-5):** Battle with your favorite AI preset in this Duo Tale!
+      **Dungeon Deck(1-5):** Bring your strongest builds through the Darkest Duo Dungeons.
    
-   :people_hugging: **Co-Op**/coop *Beta*
-   **Tales @partner:** Take a companion with your through your favorite tales with higher stakes!
-   **Dungeon @partner:** Bring a companion through the darkest dungeons to earn awesome loot together.
-   **Boss @partner:** Epic battles between two high level companions and one Incredible Boss.
-   
-   **Coop Mechanics**
-   Coop Adds two new mechanics to gameplayer
-   **Defending** - Your **Block** becomes **Defend** You will gain the **Block** bonus and take damage for your **Companion**
-   **Assist** - Assist applies your enhancer to buff your **Companion**. *Damage dealing enhancers apply to enemy*
+      🔮 **Anime VS+ Rifts**
+      Mash-Up Universes featuring heroes and villians connected through common traits and themes!
+      *Pay attention, Rifts will not stay open if you continue through your Tale!*
+      """),color=0x7289da)
+      
+      embedVar7.set_thumbnail(url=avatar)
 
-   🤼 **PVP**
-   **/pvp @player:** Select your Build and Challenge any Anime VS+ Player to a quick match!
-   
-   🔮 **Anime VS+ Rifts**
-   Anime VS+ Rifts are Co-Op Compatable and Helping other players in Co-Op **WILL NOT** close your open Rift!
-   Grind Those Rifts Together!
-   
-   """),color=0x7289da)
-   
-   embedVar8.set_thumbnail(url=avatar)
+      embedVar8 = Embed(title=f"Multiplayer", description=textwrap.dedent(f"""\
+      **Multiplayer**
+      
+      :people_hugging: **Co-Op**/coop *Beta*
+      **Tales @partner:** Take a companion with your through your favorite tales with higher stakes!
+      **Dungeon @partner:** Bring a companion through the darkest dungeons to earn awesome loot together.
+      **Boss @partner:** Epic battles between two high level companions and one Incredible Boss.
+      
+      **Coop Mechanics**
+      Coop Adds two new mechanics to gameplayer
+      **Defending** - Your **Block** becomes **Defend** You will gain the **Block** bonus and take damage for your **Companion**
+      **Assist** - Assist applies your enhancer to buff your **Companion**. *Damage dealing enhancers apply to enemy*
 
-   embedVar9 = Embed(title= f"Presets",description=textwrap.dedent(f"""\
-   Save your favorite builds in your **Preset**
-   **/menu** tselect **View Preset** option, select a preset with **1-3**
-   *Select **Save Preset** to save a new Build!
-   
-   **Preset Builds**
-   You can bring your preset builds into Duo Battles!
-   """) ,color=0x7289da)
-   
-   embedVar9.set_thumbnail(url=avatar)
+      🤼 **PVP**
+      **/pvp @player:** Select your Build and Challenge any Anime VS+ Player to a quick match!
+      
+      🔮 **Anime VS+ Rifts**
+      Anime VS+ Rifts are Co-Op Compatable and Helping other players in Co-Op **WILL NOT** close your open Rift!
+      Grind Those Rifts Together!
+      
+      """),color=0x7289da)
+      
+      embedVar8.set_thumbnail(url=avatar)
 
-   embedVar10 = Embed(title= f"Economy",description=textwrap.dedent(f"""\
-   **Shop**
-   Use **/menu** to access the **Shop**!
-   The shop sells Cards, Titles and Arms.
+      embedVar9 = Embed(title=f"Presets",description=textwrap.dedent(f"""\
+      Save your favorite builds in your **Preset**
+      **/menu** tselect **View Preset** option, select a preset with **1-3**
+      *Select **Save Preset** to save a new Build!
+      
+      **Preset Builds**
+      You can bring your preset builds into Duo Battles!
+      """) ,color=0x7289da)
+      
+      embedVar9.set_thumbnail(url=avatar)
 
-   **Trading**
-   **/trade** will allow you to trade Cards, Titles, Arms and Summons with other players.
-   Add items to the open trade using the buttons on the item menu *ex. /cards*
-   **/tradecoins** allows you to add or remove coins from the trade
-   
-   **Resell**
-   Sell Cards, Titles, and Arms back to the market for 🪙**Coins**.
-   
-   **Crafting**b
-   **/menu** to **Start Crafting!** Craft **Card Skins**, **Summons**, and **Destinies**!
+      embedVar10 = Embed(title=f"Economy",description=textwrap.dedent(f"""\
+      **Shop**
+      Use **/menu** to access the **Shop**!
+      The shop sells Cards, Titles and Arms.
 
-   **Dismantle**
-   Dismantle Cards, Titles and Arms into :gem:**Gems**. and 🪔**Essense**
-   
-   **Universe Trinkets**
-   Craftable Boost that increase the limits of your cards levels!
-   💟 **Universe Heart** - will allow you to level cards past 200!
-   🌹 **Universe Soul** - Grants 2x XP for all cards in Universe!
-   
-   **Blacksmith**
-   **/menu** to purchase Card Levels, Arm Durability and **Storage**!
-   
-   **Storage**
-   **/storage** to access Card, Title and Arm Storage, purchase additional storage in the Blacksmith
-   
-    👛 **Gabe's Purse** - will allow you to keep all items after a **Rebirth**
-   
-   **Currency**
-   🪙 - Coins can be used to purchase Cards, Titles and Arms. You can use them to trade and sell items to other players!
-   :gem: - When Arms break they turn into **Gems**, You can also dismantle items from your inventory into **Gems**! 
-   **Gems** are universe specific items that can be crafted into Skins, Trinkets or **Destinies**
-   
-   """) ,color=0x7289da)
-   
-   embedVar10.set_thumbnail(url=avatar)
-   
-   embedVar15 = Embed(title= f"Guilds", description=textwrap.dedent(f"""\
-   **Guilds Explained**
-   - Use **/guild** to lookup any Anime VS+ Guild!
-   - **Guild Members** earn extra 🪙 towards the **Guild Bank** 
+      **Trading**
+      **/trade** will allow you to trade Cards, Titles, Arms and Summons with other players.
+      Add items to the open trade using the buttons on the item menu *ex. /cards*
+      **/tradecoins** allows you to add or remove coins from the trade
+      
+      **Resell**
+      Sell Cards, Titles, and Arms back to the market for 🪙**Coins**.
+      
+      **Crafting**b
+      **/menu** to **Start Crafting!** Craft **Card Skins**, **Summons**, and **Destinies**!
 
-   **Creating A Guild**
-   - Use **/createguild** and create a **Guild Name**
-   - **/recruit** your friends to join your newly named **Guild** !
-   - Players can use **/apply** to join as well!
-   
-   **Guild Bonusus**
-   - Guildmates gain an extra **50 Attack** and **Defense** playing Co-Op Together !
-   - Guilds earn additional 🪙 for every **Tales**, **Dungeon** and **Boss** Victory
-   
-   **Guild Economy**
-   - Players across **Anime VS+** can **/donate** 🪙 to their favorite Guilds!
-   - Guild Owners can ****/pay**** their members a wage.
-   
-   **Guild Buffs**
-   - Quest Buff: Start Quest from the required fight in the Tale, not for dungeons
-   - Level Buff: Each fight will grant you a level up
-   - Stat Buff: Add 100 ATK & DEF, 100 AP, and 500 HLT
-   - Rift Buff: Rifts will always be available
+      **Dismantle**
+      Dismantle Cards, Titles and Arms into :gem:**Gems**. and 🪔**Essense**
+      
+      **Universe Trinkets**
+      Craftable Boost that increase the limits of your cards levels!
+      💟 **Universe Heart** - will allow you to level cards past 200!
+      🌹 **Universe Soul** - Grants 2x XP for all cards in Universe!
+      
+      **Blacksmith**
+      **/menu** to purchase Card Levels, Arm Durability and **Storage**!
+      
+      **Storage**
+      **/storage** to access Card, Title and Arm Storage, purchase additional storage in the Blacksmith
+      
+      👛 **Gabe's Purse** - will allow you to keep all items after a **Rebirth**
+      
+      **Currency**
+      🪙 - Coins can be used to purchase Cards, Titles and Arms. You can use them to trade and sell items to other players!
+      :gem: - When Arms break they turn into **Gems**, You can also dismantle items from your inventory into **Gems**! 
+      **Gems** are universe specific items that can be crafted into Skins, Trinkets or **Destinies**
+      
+      """) ,color=0x7289da)
+      
+      embedVar10.set_thumbnail(url=avatar)
+      
+      embedVar15 = Embed(title=f"Guilds", description=textwrap.dedent(f"""\
+      **Guilds Explained**
+      - Use **/guild** to lookup any Anime VS+ Guild!
+      - **Guild Members** earn extra 🪙 towards the **Guild Bank** 
 
-   Guild Position Explanations
-   - Owner: All operations
-   - Officer: Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
-   - Captain: Can Toggly Buffs, Pay members
-   - Member: No operations
-   """),color=0x7289da)
-   
-   embedVar15.set_thumbnail(url=avatar)
+      **Creating A Guild**
+      - Use **/createguild** and create a **Guild Name**
+      - **/recruit** your friends to join your newly named **Guild** !
+      - Players can use **/apply** to join as well!
+      
+      **Guild Bonusus**
+      - Guildmates gain an extra **50 Attack** and **Defense** playing Co-Op Together !
+      - Guilds earn additional 🪙 for every **Tales**, **Dungeon** and **Boss** Victory
+      
+      **Guild Economy**
+      - Players across **Anime VS+** can **/donate** 🪙 to their favorite Guilds!
+      - Guild Owners can ****/pay**** their members a wage.
+      
+      **Guild Buffs**
+      - Quest Buff: Start Quest from the required fight in the Tale, not for dungeons
+      - Level Buff: Each fight will grant you a level up
+      - Stat Buff: Add 100 ATK & DEF, 100 AP, and 500 HLT
+      - Rift Buff: Rifts will always be available
 
-   embedVar12 = Embed(title= f"Families",description=textwrap.dedent(f"""\
-   **Families Explained**
-   - When you create an AnimeVs+ account you start a family
-   - Use **/family** to lookup any Anime VS+ Family!
-   
-   **Marriage**
-   - Two players with a strong bond can come together and form a **Family**
-   - Use **/marry** to start a marriage proposal to your chosen **Partner**
-   - If they accept, they will join your dfamily
-   - **2 Kids** can be adopted into the family to create a 4 player Maximum.
-   
-   **Family Bonuses**
-   - Family Members gain an extra **100 Health** when playing Co-Op Together !
-   - Family Members earn extra 🪙 towards the **Family Bank**.
-   - Families can **/invest** their income together.
-   - Heads of Household and Partners can pay **/allowance** to Family members. 
-   
-   **Housing**
-   - The **Family Bank** can be used to buy **Houses**
-   - **Houses** increase your 🪙 earned via **Mutlipliers**
-   - **/invest** your income to buy bigger **Houses** and earn more 🪙 across the game.
-   - Use the *Real Estate Menu** to buy and sell Estates
-   
-   **Family Summon**
-   - Family members can equip the Family Summon to aid them in battle!
-   
-   Family Position Explanations
-   - Head of Household: All operations.
-   - Partner: Can equip/update family summon, change equipped house.
-   - Kids: Can equip family summon.
-   """) ,color=0x7289da)
-   
-   embedVar12.set_thumbnail(url=avatar)
+      Guild Position Explanations
+      - Owner: All operations
+      - Officer: Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
+      - Captain: Can Toggly Buffs, Pay members
+      - Member: No operations
+      """),color=0x7289da)
+      
+      embedVar15.set_thumbnail(url=avatar)
 
-   embedVar13 = Embed(title= f"Associations",description=textwrap.dedent(f"""\
-   **Association Explained**
-   - Associations in Anime VS+ are formed by an Oath between two Guild Owners
-   - The Oathgiver becomes the **Founder** and the Oathreciever becomes the ****Sworn and Shield****.
-   - The **Shield** defends the Association from raiding players.
-   - Both teams become enlisted as **Swords** of the new **Association**
-   - Their respective members become **Blades**
-   - The Founder & Sworn may /ally with other Teams increasing the size and power of the Association.
-   - These are the **Owners** and can **/sponsor** other teams allied with the Association.
-   - **Associations** earn money by winning **PvP** matches, Income from **Universe Crest** and defending against **Raids**
-   
-   **Universe Crest** 
-   - When a member of a Association defeats a **Dungeon** or **Boss** they earn the **Universe Crest** from that Universe.
-   - This Crest will earn the Association **Passive Income** whenever someone goes into that universe in all servers!
-   
-   **Association Bonuses**
-   - Associations earn extra income towards the **Association Bank**
-   - Associations increase the earned income in **PvP**
-   - Associations can Raid
-   - Associations can earn passive income owning **Universe Crest**
-   - Associations can purchase **Halls**
-   
-   **Halls**
-   - The **Association Bank** can be used to purchase **Halls**
-   - Increase the Income earned to Associations via **Multipliers**
-   - Increase the income earned to **Blades** via **Splits**
-   - Increase the defense of the **Shield**
-   - Increase the **Bounty** cost to raid the **Association**
-   """) ,color=0x7289da)
-   
-   embedVar13.set_thumbnail(url=avatar)
-   
-   embedVar14 = Embed(title= f"Raids",description=textwrap.dedent(f"""\
-   **Raids Explained**
-   - Players aligned with a Association can use /raid to claim bounties from other guilds
-   - Victory claims the bounty and resets the Associations victory multiplier !
-   - Income from Raids is limited to the bounty offered from the Association.
-   - To take money from a **Association Bank** players must compete in PvP
-   
-   Raiding an Association is no easy feat and must be done **Without Summons**
-   
-   **Raid Benefits**
-   - Earn Large Bounties from guilds.
-   - Earn Wins for your Anime VS+ **Guild**
-   
-   **Shield  Defense Explained**
-   - The **Shield** has a big repsonsible to defend the **Association** from raids, earning income from **Challengers**.
-   - The **Shield** exist within the Association hall as the **Current Equipped Build** of the **Shield Player**.
-   - As the **Shield**, whenever your Avatar succesfully defends a raid you earn 🪙
-   - With each victory you will build a streak earning both respect and more 🪙 via **Multipliers**.
-   
-   **Shield Benefits**
-   - Earn income by defending your Association from raiders
-   - Guild has a 30% reduction in buff cost
-   - Earn respect by increasing the Association victory streak 
-   
-   """) ,color=0x7289da)
-   
-   embedVar14.set_thumbnail(url=avatar)
+      embedVar12 = Embed(title=f"Families",description=textwrap.dedent(f"""\
+      **Families Explained**
+      - When you create an AnimeVs+ account you start a family
+      - Use **/family** to lookup any Anime VS+ Family!
+      
+      **Marriage**
+      - Two players with a strong bond can come together and form a **Family**
+      - Use **/marry** to start a marriage proposal to your chosen **Partner**
+      - If they accept, they will join your dfamily
+      - **2 Kids** can be adopted into the family to create a 4 player Maximum.
+      
+      **Family Bonuses**
+      - Family Members gain an extra **100 Health** when playing Co-Op Together !
+      - Family Members earn extra 🪙 towards the **Family Bank**.
+      - Families can **/invest** their income together.
+      - Heads of Household and Partners can pay **/allowance** to Family members. 
+      
+      **Housing**
+      - The **Family Bank** can be used to buy **Houses**
+      - **Houses** increase your 🪙 earned via **Mutlipliers**
+      - **/invest** your income to buy bigger **Houses** and earn more 🪙 across the game.
+      - Use the *Real Estate Menu** to buy and sell Estates
+      
+      **Family Summon**
+      - Family members can equip the Family Summon to aid them in battle!
+      
+      Family Position Explanations
+      - Head of Household: All operations.
+      - Partner: Can equip/update family summon, change equipped house.
+      - Kids: Can equip family summon.
+      """) ,color=0x7289da)
+      
+      embedVar12.set_thumbnail(url=avatar)
 
-   embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13,embedVar14]
-   paginator = CustomPaginator(bot, *embeds)
-   paginator.show_select_menu = True
-   await paginator.send(ctx)
-  
+      embedVar13 = Embed(title=f"Associations",description=textwrap.dedent(f"""\
+      **Association Explained**
+      - Associations in Anime VS+ are formed by an Oath between two Guild Owners
+      - The Oathgiver becomes the **Founder** and the Oathreciever becomes the ****Sworn and Shield****.
+      - The **Shield** defends the Association from raiding players.
+      - Both teams become enlisted as **Swords** of the new **Association**
+      - Their respective members become **Blades**
+      - The Founder & Sworn may /ally with other Teams increasing the size and power of the Association.
+      - These are the **Owners** and can **/sponsor** other teams allied with the Association.
+      - **Associations** earn money by winning **PvP** matches, Income from **Universe Crest** and defending against **Raids**
+      
+      **Universe Crest** 
+      - When a member of a Association defeats a **Dungeon** or **Boss** they earn the **Universe Crest** from that Universe.
+      - This Crest will earn the Association **Passive Income** whenever someone goes into that universe in all servers!
+      
+      **Association Bonuses**
+      - Associations earn extra income towards the **Association Bank**
+      - Associations increase the earned income in **PvP**
+      - Associations can Raid
+      - Associations can earn passive income owning **Universe Crest**
+      - Associations can purchase **Halls**
+      
+      **Halls**
+      - The **Association Bank** can be used to purchase **Halls**
+      - Increase the Income earned to Associations via **Multipliers**
+      - Increase the income earned to **Blades** via **Splits**
+      - Increase the defense of the **Shield**
+      - Increase the **Bounty** cost to raid the **Association**
+      """) ,color=0x7289da)
+      
+      embedVar13.set_thumbnail(url=avatar)
+      
+      embedVar14 = Embed(title=f"Raids",description=textwrap.dedent(f"""\
+      **Raids Explained**
+      - Players aligned with a Association can use /raid to claim bounties from other guilds
+      - Victory claims the bounty and resets the Associations victory multiplier !
+      - Income from Raids is limited to the bounty offered from the Association.
+      - To take money from a **Association Bank** players must compete in PvP
+      
+      Raiding an Association is no easy feat and must be done **Without Summons**
+      
+      **Raid Benefits**
+      - Earn Large Bounties from guilds.
+      - Earn Wins for your Anime VS+ **Guild**
+      
+      **Shield  Defense Explained**
+      - The **Shield** has a big repsonsible to defend the **Association** from raids, earning income from **Challengers**.
+      - The **Shield** exist within the Association hall as the **Current Equipped Build** of the **Shield Player**.
+      - As the **Shield**, whenever your Avatar succesfully defends a raid you earn 🪙
+      - With each victory you will build a streak earning both respect and more 🪙 via **Multipliers**.
+      
+      **Shield Benefits**
+      - Earn income by defending your Association from raiders
+      - Guild has a 30% reduction in buff cost
+      - Earn respect by increasing the Association victory streak 
+      
+      """) ,color=0x7289da)
+      
+      embedVar14.set_thumbnail(url=avatar)
+
+      # embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13, embedVar0, embedVar14]
+      embeds = [embedVar1, embedVar2]
+      paginator = Paginator(bot, *embeds)
+      paginator.show_select_menu = True
+      await paginator.send(ctx)
+   except Exception as ex:
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+         trace.append({
+            "filename": tb.tb_frame.f_code.co_filename,
+            "name": tb.tb_frame.f_code.co_name,
+            "lineno": tb.tb_lineno
+         })
+         tb = tb.tb_next
+      print(str({
+         'type': type(ex).__name__,
+         'message': str(ex),
+         'trace': trace
+      }))
+      await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
+      return
 
 @slash_command(description="rewards for voting", scopes=guild_ids)
 async def voted(ctx):
@@ -852,7 +870,7 @@ async def voted(ctx):
          
          response = requests.get(f"https://top.gg/api/bots/955704903198711808/check?userId={ctx.author.id}", headers=head)
          response_dict = json.loads(response.text)
-         retry_message = f"🆚 Rematches : **{user['RETRIES']}**"
+         retry_message =f"🆚 Rematches : **{user['RETRIES']}**"
          if response_dict['voted'] == 1:
             if gem_list:
                for universe in gem_list:
@@ -864,9 +882,9 @@ async def voted(ctx):
 
             await crown_utilities.bless(int(voting_bonus), ctx.author.id)
             respond = db.updateUserNoFilter(query, {'$set': {'VOTED': True}})
-            retry_message = f"🆚 Rematches : **{user['RETRIES']}**"  
+            retry_message =f"🆚 Rematches : **{user['RETRIES']}**"  
             db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
-            retry_message = f"🆚 Rematches : {user['RETRIES']} **+ 3**!"
+            retry_message =f"🆚 Rematches : {user['RETRIES']} **+ 3**!"
 
 
             embedVar = Embed(title=f"✅ Daily Voter Rewards!", description=textwrap.dedent(f"""\
@@ -884,7 +902,7 @@ async def voted(ctx):
             await ctx.send(embed=embedVar)
 
          else:
-            retry_message = f"🆚 Rematches : **+3**"
+            retry_message =f"🆚 Rematches : **+3**"
             embedVar = Embed(title=f"❌ Daily Voter Rewards!", description=textwrap.dedent(f"""\
             You have not voted for Anime VS+ today, {ctx.author.mention}!
             To earn your voter rewards, [Vote for Anime VS+!](https://top.gg/bot/955704903198711808/vote)
@@ -973,14 +991,14 @@ async def register(ctx):
                for trait in traits:
                   if trait['NAME'] == o_show:
                         mytrait = trait
-                  if o_show == 'Kanto Region' or o_show == 'Johto Region' or o_show == 'Kalos Region' or o_show == 'Unova Region' or o_show == 'Sinnoh Region' or o_show == 'Hoenn Region' or o_show == 'Galar Region' or o_show == 'Alola Region':
+                  if o_show == 'Pokemon':
                         if trait['NAME'] == 'Pokemon':
                            mytrait = trait
                if mytrait:
-                  traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
-               available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
+                  traitmessage =f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
+               available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
                
-               embedVar = Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
+               embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
                **{available} Select A Starting Universe, {ctx.author.mention}!**
 
                Selecting a Starter Universe will give you *3* 🎴 Cards and 🦾 Arms to begin!
@@ -993,6 +1011,7 @@ async def register(ctx):
                universe_embed_list.append(embedVar)
                
          paginator = CustomPaginator.create_from_embeds(bot, *universe_embed_list, custom_buttons=["Register"], paginator_type="Register")
+         paginator.show_select_menu = True
          await paginator.send(ctx)
 
       except Exception as ex:
@@ -1025,7 +1044,7 @@ async def rebirth(ctx):
          
          
          if (rLevel > 4 and rLevel <10) and pLevel < (rLevel - 4):
-            embedVar1 = Embed(title= f"❤️‍🔥{user_is_validated['NAME']}'s Rebirth",color=0x7289da)
+            embedVar1 = Embed(title=f"❤️‍🔥{user_is_validated['NAME']}'s Rebirth",color=0x7289da)
             embedVar1.set_thumbnail(url=user_is_validated['AVATAR'])
             embedVar1.add_field(name=f":angel: Rebirth Level: {user_is_validated['REBIRTH']}\n{picon}Prestige Level: {pLevel}\n\nRebirth Cost: 🪙{'{:,}'.format(rebirthCost)}", value=textwrap.dedent(f"""\
             **Rebirth Effects**
@@ -1064,7 +1083,7 @@ async def rebirth(ctx):
             util_action_row = ActionRow(*util_buttons)
             components = [util_action_row]
 
-            embedVar1 = Embed(title= f"❤️‍🔥{user_is_validated['NAME']}'s Rebirth",color=0x7289da)
+            embedVar1 = Embed(title=f"❤️‍🔥{user_is_validated['NAME']}'s Rebirth",color=0x7289da)
             embedVar1.set_thumbnail(url=user_is_validated['AVATAR'])
             embedVar1.add_field(name=f"Rebirth Level: {user_is_validated['REBIRTH']}\nPrestige Level: {pLevel}\n\nRebirth Cost: 🪙{'{:,}'.format(rebirthCost)}", value=textwrap.dedent(f"""\
             **Rebirth Effects**
@@ -1124,7 +1143,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Charmander', 'TITLE': 'Reborn', 'ARM':'Reborn Stock'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1165,7 +1184,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Malphite', 'TITLE': 'Reborn Soldier', 'ARM':'Deadgun'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1206,7 +1225,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Mineta', 'TITLE': 'Reborn Legion', 'ARM':'Glaive'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1247,7 +1266,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Clefairy', 'TITLE': 'Reborn King', 'ARM':'Kings Glaive'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1288,7 +1307,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Xayah And Rakan', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1329,7 +1348,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Kratos And Atreus', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1370,7 +1389,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Asuna', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1411,7 +1430,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Omnimon', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1452,7 +1471,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Kurama', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1493,7 +1512,7 @@ async def rebirth(ctx):
                                     for destiny in d.destiny:
                                        if card in destiny["USE_CARDS"]:
                                           db.updateUserNoFilter({'DID': user_is_validated['DID']},{'$addToSet':{'DESTINY': destiny}})
-                                          message = f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
+                                          message =f"**DESTINY AWAITS!**\n**{destiny['NAME']}** has been added to your vault."
                                           await button_ctx.send(message)
                                  nCard = db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'CARD': 'Cthulhu', 'TITLE': 'Reborn Legend', 'ARM':'Legendary Weapon'}})
                                  db.updateUserNoFilter({'DID': str(ctx.author.id)}, {'$set': {'PET': 'Chick'}})
@@ -1525,12 +1544,12 @@ async def rebirth(ctx):
                                              if trait['NAME'] == 'Pokemon':
                                                 mytrait = trait
                                     if mytrait:
-                                       traitmessage = f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
-                                    available = f"{crown_utilities.crest_dict[uni['TITLE']]}"
+                                       traitmessage =f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
+                                    available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
                                     
                                     tales_list = ", ".join(uni['CROWN_TALES'])
 
-                                    embedVar = Embed(title= f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
+                                    embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
                                     **Select A Starting Universe, {ctx.author.mention}!**
                                     Selecting a Starter Universe will give you *3* 🎴 Cards, 🎗️ Titles, and 🦾 Arms to begin!
                                     
@@ -1729,6 +1748,26 @@ async def rebirth(ctx):
       }))
 
 
+# @slash_command(description="Upt", scopes=guild_ids)
+# async def updateloredb(ctx):
+#    await ctx.defer()
+#    all_docs = db.lore_col.find()
+#    try:
+#       # For each document in all_docs, update the "title" and "description" fields by removing all spaces from each field and saving the updated document
+#       count = 0
+#       for doc in all_docs:
+#          original_title = doc["title"]
+#          original_description = doc["description"]
+#          title = doc["title"].replace(" ", "")
+#          description = doc["description"].replace(" ", "")
+#          db.lore_col.update_one({"_id": doc["_id"]}, {"$set": {"title": title, "description": description, "original_title": original_title, "original_description": original_description}})
+#          count += 1
+
+#       await ctx.send(f"Updated {count} documents")
+#       return
+#    except Exception as e:
+#       await ctx.s
+
 @slash_command(name="daily", description="Receive your daily reward and quests", scopes=guild_ids)
 @cooldown(Buckets.USER, 1, 86400)
 async def daily(ctx):
@@ -1753,19 +1792,19 @@ async def daily(ctx):
          updated_server = db.updateServer(server_query, update_server_query)
       
       boss_key_message = "🗝️ | Boss Arena Unlocked" if player.boss_fought == True else ""
-      bonus_message = f"❤️‍🔥 | *+🪙{'{:,}'.format(difference)}*" if difference > 0 else ""
-      # prestige_message = f"**{aicon} Prestige {player.prestige} |** Quest Requirements Reduced!" if player.prestige > 0 else ""
+      bonus_message =f"❤️‍🔥 | *+🪙{'{:,}'.format(difference)}*" if difference > 0 else ""
+      # prestige_message =f"**{aicon} Prestige {player.prestige} |** Quest Requirements Reduced!" if player.prestige > 0 else ""
 
       db.updateUserNoFilter(query, {'$set': {'QUESTS': crown_utilities.quest_list}})
       db.updateUserNoFilter(query, {'$set': {'BOSS_FOUGHT': False}})
       db.updateUserNoFilter(query, {'$set': {'VOTED': False}})
-      retry_message = f"🆚 | Rematches : {player.retries}"
+      retry_message =f"🆚 | Rematches : {player.retries}"
       if player.retries >= 25:  
          db.updateUserNoFilter(query, {'$set': {'RETRIES': 25}})
-         retry_message = f"🆚 | Rematches : {player.retries}"
+         retry_message =f"🆚 | Rematches : {player.retries}"
       else:
          db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
-         retry_message = f"🆚 | Rematches : {player.retries} **+ 2**"
+         retry_message =f"🆚 | Rematches : {player.retries} **+ 2**"
       
 
       quest_messages = []
@@ -1900,7 +1939,7 @@ async def invest(ctx, amount):
       else:
          await crown_utilities.blessfamily_Alt(int(amount), user['DID'])
          await crown_utilities.curse(int(amount), ctx.author.id)
-         transaction_message = f"🪙 | {user['DISNAME']} invested 🪙{amount} "
+         transaction_message =f"🪙 | {user['DISNAME']} invested 🪙{amount} "
          update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
          await ctx.send(f"**🪙{amount}** invested into **{user['NAME']}'s Family**.")
          return
@@ -1964,7 +2003,7 @@ async def pay(ctx, player, amount):
          await crown_utilities.bless(int(amount), player.id)
          await crown_utilities.curseteam(int(payment), team['TEAM_NAME'])
          await ctx.send(f"{icon} **{'{:,}'.format(int(amount))}** has been paid to {player.mention}.\n*Taxes & Fees:* **{taxicon}{'{:,}'.format(int(tax))}**")
-         transaction_message = f"🪙 | {str(ctx.author)} paid {str(player)} {'{:,}'.format(int(amount))}."
+         transaction_message =f"🪙 | {str(ctx.author)} paid {str(player)} {'{:,}'.format(int(amount))}."
          team_query = {'TEAM_NAME': team['TEAM_NAME']}
          new_value_query = {
                '$addToSet': {'TRANSACTIONS': transaction_message},
@@ -2069,43 +2108,43 @@ async def guildoperations(ctx, player, operation: str):
             await ctx.send("You can not promote a guild member higher than an Officer position.")
             return
          elif operation == "Demote":
-            transaction_message = f"⏬ | {str(player)} was demoted to Captain"
+            transaction_message =f"⏬ | {str(player)} was demoted to Captain"
             team_query = {
                '$pull': {'OFFICERS': str(player.id)},
                '$push': {'CAPTAINS': str(player.id)},
                '$addToSet': {'TRANSACTIONS': transaction_message}
             }
-            update_message = f"{player.mention} has been demoted to a **Captain** of **{team['TEAM_DISPLAY_NAME']}**"
+            update_message =f"{player.mention} has been demoted to a **Captain** of **{team['TEAM_DISPLAY_NAME']}**"
 
 
       if str(player) in team_captains:
          is_captain = True
          if operation == "Promote":
-            transaction_message = f"⏫ | {str(player)} was promoted to Officer"
+            transaction_message =f"⏫ | {str(player)} was promoted to Officer"
             team_query = {
                '$pull': {'CAPTAINS': str(player.id)},
                '$push': {'OFFICERS': str(player.id)},
                '$addToSet': {'TRANSACTIONS': transaction_message}
             }
-            update_message = f"{player.mention} has been promoted to an **Officer** of **{team['TEAM_DISPLAY_NAME']}**"
+            update_message =f"{player.mention} has been promoted to an **Officer** of **{team['TEAM_DISPLAY_NAME']}**"
          
          elif operation == "Demote":
-            transaction_message = f"⏬ | {str(player)} was demoted to basic membership"
+            transaction_message =f"⏬ | {str(player)} was demoted to basic membership"
             team_query = {
                '$pull': {'CAPTAINS': str(player)},
                '$addToSet': {'TRANSACTIONS': transaction_message}
             }
-            update_message = f"{player.mention} has been demoted to a **Member** of **{team['TEAM_DISPLAY_NAME']}**"
+            update_message =f"{player.mention} has been demoted to a **Member** of **{team['TEAM_DISPLAY_NAME']}**"
            
 
       if not is_captain and not is_officer and not is_owner:
          if operation == "Promote":
-            transaction_message = f"⏫ | {str(player)} was promoted to Captain"
+            transaction_message =f"⏫ | {str(player)} was promoted to Captain"
             team_query = {
                '$push': {'CAPTAINS': str(player.id)},
                '$addToSet': {'TRANSACTIONS': transaction_message}
             }
-            update_message = f"{player.mention} has been promoted to a **Captain** of **{team['TEAM_DISPLAY_NAME']}**"
+            update_message =f"{player.mention} has been promoted to a **Captain** of **{team['TEAM_DISPLAY_NAME']}**"
          elif operation == "Demote":
             await ctx.send("Guild Members can not be demoted from basic membership.")
             return
@@ -2151,7 +2190,7 @@ async def deletemember(ctx, member):
                   custom_id=f"{_uuid}|no"
                )
             ]
-            transaction_message = f"❌ | {str(member)} was removed from guild."
+            transaction_message =f"❌ | {str(member)} was removed from guild."
             team_buttons_action_row = ActionRow(*team_buttons)
             msg = await ctx.send(f"Do you want to remove {member.mention} from the **{team_profile['TEAM_DISPLAY_NAME']}**?".format(bot), components=[team_buttons_action_row])
 
@@ -2161,12 +2200,12 @@ async def deletemember(ctx, member):
             try:
                button_ctx  = await bot.wait_for_component(components=[team_buttons_action_row], timeout=120, check=check)
                
-               if button_ctx.ctx.custom_id == f"{_uuid}|no":
+               if button_ctx.ctx.custom_id ==f"{_uuid}|no":
                   embed = Embed(title="Member Not Deleted.", description=f"{member.mention} was not removed from {team_profile['TEAM_DISPLAY_NAME']}", color=0x00ff00)
                   await msg.edit(embed=embed, components=[])
                   return
 
-               if button_ctx.ctx.custom_id == f"{_uuid}|yes":   
+               if button_ctx.ctx.custom_id ==f"{_uuid}|yes":   
                   team_query = {'TEAM_NAME': team_profile['TEAM_NAME']}
                   new_value_query = {
                         '$pull': {
@@ -2307,7 +2346,7 @@ async def allowance(ctx, player, amount):
       else:
          await crown_utilities.bless(int(amount), user2.id)
          await crown_utilities.cursefamily(int(amount), family['HEAD'])
-         transaction_message = f"🪙 | {user['DISNAME']} paid 🪙{amount}  allowance to {user2_info['DISNAME']}"
+         transaction_message =f"🪙 | {user['DISNAME']} paid 🪙{amount}  allowance to {user2_info['DISNAME']}"
          update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
          await ctx.send(f"🪙{amount} has been gifted to {user2.mention}.")
          return
@@ -2571,7 +2610,7 @@ async def sponsor(ctx, guild, amount):
       return
 
    team_bank = team_data['BANK']
-   transaction_message = f"{guild_name} sponsored {team_name} 🪙{amount}"
+   transaction_message =f"{guild_name} sponsored {team_name} 🪙{amount}"
    update_query = {'$push': {'TRANSACTIONS': transaction_message}}
    response = db.updateGuildAlt(guild_query, update_query)
    await crown_utilities.blessteam(int(amount), team_name)
@@ -2604,7 +2643,7 @@ async def fund(ctx, amount):
          await crown_utilities.curseteam(int(amount), team['TEAM_NAME'])
          await blessguild_Alt(int(amount), str(team_guild))
          #guild_query = {"GNAME": {str(team_guild)}}
-         transaction_message = f"{team['TEAM_DISPLAY_NAME']} funded 🪙{amount}"
+         transaction_message =f"{team['TEAM_DISPLAY_NAME']} funded 🪙{amount}"
          update_query = {'$push': {'TRANSACTIONS': transaction_message}}
          response = db.updateGuildAlt(guild_query, update_query)
          await ctx.send(f"{team_guild} has been funded 🪙 {amount}.")
@@ -3086,6 +3125,79 @@ async def updatesaves(ctx, password, key):
                      count += 1
 
       await ctx.send(f"Updated {count} saves.")
+   except Exception as ex:
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+         trace.append({
+            "filename": tb.tb_frame.f_code.co_filename,
+            "name": tb.tb_frame.f_code.co_name,
+            "lineno": tb.tb_lineno
+         })
+         tb = tb.tb_next
+      print(str({
+         'type': type(ex).__name__,
+         'message': str(ex),
+         'trace': trace
+      }))
+      await ctx.send("Issue with command. Please contact casperjayden#0001")
+
+
+@slash_command(description="admin only", options=[
+   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
+],scopes=guild_ids)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
+async def updatepokemonuniverses(ctx, password, key):
+   await ctx.defer()
+
+   if password != 'casperjayden':  
+      return await ctx.send("Admin Only")
+   if key != '937':
+      return await ctx.send("Admin Only")
+
+
+   try:
+      cards = db.queryAllCardsBasedOnUniverse({
+               "UNIVERSE": { "$in": ["Kanto Region", "Johto Region", "Hoenn Region", "Sinnoh Region", "POKEMON"] }
+               })
+      
+      titles = db.queryAllTitlesBasedOnUniverses({
+               "UNIVERSE": { "$in": ["Kanto Region", "Johto Region", "Hoenn Region", "Sinnoh Region", "POKEMON"] }
+               })
+      
+      arms = db.queryAllArmsBasedOnUniverses({
+               "UNIVERSE": { "$in": ["Kanto Region", "Johto Region", "Hoenn Region", "Sinnoh Region", "POKEMON"] }
+               })
+      
+      summons = db.queryAllSummonsBasedOnUniverses({
+               "UNIVERSE": { "$in": ["Kanto Region", "Johto Region", "Hoenn Region", "Sinnoh Region", "POKEMON"] }
+               })
+
+      count = 0
+
+      # Update each card in the cards list to have {"UNIVERSE": "Pokemon"}
+      # for card in cards:
+      #    db.updateCard({'NAME': card['NAME']}, {'$set': {'UNIVERSE': 'Pokemon'}})
+      #    count += 1
+
+      # Update each title in the titles list to have {"UNIVERSE": "Pokemon"}
+      for title in titles:
+         db.updateTitle({'TITLE': title['TITLE']}, {'$set': {'UNIVERSE': 'Pokemon'}})
+         count += 1
+      
+      # Update each arm in the arms list to have {"UNIVERSE": "Pokemon"}
+      for arm in arms:
+         db.updateArm({'ARM': arm['ARM']}, {'$set': {'UNIVERSE': 'Pokemon'}})
+         count += 1
+
+      # Update each summon in the summons list to have {"UNIVERSE": "Pokemon"}
+      for summon in summons:
+         db.updateSummon({'PET': summon['PET']}, {'$set': {'UNIVERSE': 'Pokemon'}})
+         count += 1
+         
+
+      await ctx.send(f"Updated {count} items.")
    except Exception as ex:
       trace = []
       tb = ex.__traceback__

@@ -673,8 +673,10 @@ async def cardlevel(user, mode: str, extra_exp = 0):
 
         number_of_level_ups, card = await update_experience(card, player, exp_gain, lvl_req)
 
+        print(f"Number of Level Ups - {number_of_level_ups}")
+
+
         if number_of_level_ups > 0:
-            print(f"Card {card.name} leveled up {str(number_of_level_ups)} times!")
             lvl_req = get_level_up_exp_req(card)
             embed = Embed(title=f"🎴 **{card.name}** leveled up {str(number_of_level_ups)} times!", color=0x00ff00)
             embed.set_footer(text=f"{lvl_req} EXP to next level")
@@ -725,6 +727,7 @@ def get_buffs(card_lvl, level_sync):
 async def update_experience(card, player, exp, lvl_req):
     number_of_level_ups = 0
     exp_gain = exp
+    
     while exp_gain >= 0:
         atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync)
         if card.card_lvl < 200 or (200 < card.card_lvl < 1000):
@@ -748,7 +751,7 @@ async def update_experience(card, player, exp, lvl_req):
                 number_of_level_ups += 1
                 card.card_lvl += 1
                 lvl_req = get_level_up_exp_req(card)
-                print(f"New Level Required - {lvl_req}")
+                print(f"EXP Required For Next Level - {lvl_req}")
 
     return number_of_level_ups, card
 
@@ -800,9 +803,6 @@ def get_exp_gain(player, mode, card, has_universe_soul, extra_exp):
 
     if mode == "Purchase":
         exp_gain = lvl_req + 100 + extra_exp
-
-    print(f"Extra Exp: {extra_exp}")
-    print(f"Exp Gain: {exp_gain} | Level Req: {lvl_req}")
 
     return exp_gain, lvl_req
 
@@ -2197,24 +2197,22 @@ pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnoh Regio
 crest_dict = { 'Unbound': '🉐',
               'My Hero Academia': '<:mha:1088699056420835419>',
               'League Of Legends': '<:3873_league_of_legends_logo:1088701143921729567>',
-              'Kanto Region': '<:pokemon:1088966251541450752>',
+              'Pokemon': '<:pokemon:1088966251541450752>',
               'Naruto': '<:naruto_103:1088703639973015573>',
               'Bleach': '<:bleach:1088701142487285781>',
               'God Of War': '<:kratos:1088701141753274408>',
               'Chainsawman': '<:denji:1088701139886817311>',
               'One Punch Man': '<:pngaaa:1085072765587030027>',
-              'Johto Region': '<:johto:1090448443723501729>',
               'Black Clover': '<:Black_Clover:1088699058262114314>',
               'Demon Slayer': '<:Demon_Slayer:1088702009709973565>',
               'Attack On Titan': '<:AOT:1088702007717658674>',
               '7ds': '<:7ds:1088702006581006377>',
-              'Hoenn Region': '<:hoenn:1090448753233756292>',
               'Digimon': '<:digimon_sparkle:1088702667703988316>',
               'Fate': '<:fate:1092176982277632032>',
               'Solo Leveling': '<:jin:1090240014891352114>',
               'Souls': '<:dark_souls_icon:1088702666688966726>',
               'Dragon Ball Z': '<:dbz:1088698675338952774>',
-              'Sinnoh Region': '<:sinnoh:1090448834435481650>',
+              'Pokemon': '<:sinnoh:1090448834435481650>',
               'Death Note': '<:death_note:1088702980682956800>',
               'Crown Rift Awakening': ':u7a7a:',
               'Crown Rift Slayers': ':sa:',

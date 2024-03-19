@@ -920,7 +920,7 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
         await start_of_moves_config(battle_config)
         embedVar = await tactics.auto_battle_embed_and_starting_traits(ctx, turn_card, turn_title, opponent_card, opponent_title, battle_config, partner_card, partner_title)
         image_binary = turn_card.showcard(turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
-        print(f"Image Binary: {image_binary}")
+
         if image_binary.seekable():
             image_binary.seek(0)
             card_file = File(file_name="image.png", file=image_binary)

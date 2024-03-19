@@ -710,7 +710,7 @@ class Profile(Extension):
                     embedVar.set_footer(text=f"{len(all_cards)} Total Cards\n{str(storage_allowed_amount - len(user['STORAGE']))} Storage Available")
                     embed_list.append(embedVar)
 
-                pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
+                pagination = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Draw", "Market", "Dismantle"], paginator_type="Card Storage")
                 await pagination.send(ctx)
 
             if mode == "title":
@@ -775,7 +775,7 @@ class Profile(Extension):
                     embedVar.set_footer(text=f"{len(all_arms)} Total Arms\n{str(storage_allowed_amount - len(user['ASTORAGE']))} Storage Available")
                     embed_list.append(embedVar)
                     
-                    pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
+                    pagination = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Draw", "Market", "Dismantle"], paginator_type="Arm Storage")
                     await pagination.send(ctx)
             
         except Exception as ex:
@@ -1457,18 +1457,21 @@ class Profile(Extension):
         try:
             query = {'DID': str(ctx.author.id)}
             user = db.queryUser(query)
-            icon = "🪙"
             balance = int(user['BALANCE'])
+            tbal = 0
+            fbal = 0
+
 
             if user['TEAM'] != 'PCG':
                 t = db.queryTeam({'TEAM_NAME' : user['TEAM'].lower()})
                 tbal = round(t['BANK'])
 
-            if user['FAMILY'] != 'PCG':
-                f = db.queryFamily({'HEAD': user['DID']})
-                fbal = round(f['BANK'])
+            # if user['FAMILY'] != 'PCG':
+            #     f = db.queryFamily({'HEAD': user['DID']})
+            #     fbal = round(f['BANK'])
 
             def get_balance_emoji(balance):
+                icon = "🪙"
                 if balance >= 50000000:
                     icon = "💸"
                 elif balance >=10000000:
@@ -1480,7 +1483,6 @@ class Profile(Extension):
             embedVar = Embed(title= f"Account Balances", description=textwrap.dedent(f"""
             **Account Balance:** {get_balance_emoji(balance)}{'{:,}'.format(balance)}
             **Team Bank Balance:** {get_balance_emoji(tbal)}{'{:,}'.format(tbal)}
-            **Family Bank Balance:** {get_balance_emoji(fbal)}{'{:,}'.format(fbal)}
             """))
             await ctx.send(embed=embedVar)
 
@@ -2002,7 +2004,7 @@ class Profile(Extension):
             
                 embedVar = Embed(title=f"📝 | Save Current Build", description=textwrap.dedent(f"""
                 {"".join(listed_options)}
-                """), color=discord.Color.green())
+                """))
                 util_buttons = [
                     Button(
                         style=ButtonStyle.GREEN,
@@ -2051,7 +2053,7 @@ class Profile(Extension):
                         return
                     
                     if button_ctx.ctx.custom_id in [f"{_uuid}|1", f"{_uuid}|2", f"{_uuid}|3", f"{_uuid}|4", f"{_uuid}|5"]:
-                        preset_number = button_ctx.ctx.custom_id
+                        preset_number = button_ctx.ctx.custom_id.split('|')[-1]
                         response = db.updateUserNoFilter(query, {'$set': {f'DECK.{int(preset_number) - 1}.CARD': str(current_card), f'DECK.{int(preset_number) - 1}.TITLE': str(current_title), f'DECK.{int(preset_number) - 1}.ARM': str(current_arm), f'DECK.{int(preset_number) - 1}.PET': str(current_pet), f'DECK.{int(preset_number) - 1}.TALISMAN': str(current_talisman)}})
                         if response:
                             talisman_message = crown_utilities.set_emoji(current_talisman)
@@ -2665,228 +2667,228 @@ class Profile(Extension):
             return
 
 
-    @slash_command(description="Draw Items from Association Armory",
-                options=[
-                    SlashCommandOption(
-                        name="mode",
-                        description="Draw: Draw card, Dismantle:  Dismantle storage card, Resll: Resell storage card",
-                        type=OptionType.STRING,
-                        required=True,
-                        choices=[
-                            SlashCommandChoice(
-                                name="🕋 🎴 Draw Armory Card",
-                                value="cdraw"
-                            ),SlashCommandChoice(
-                                name="🕋 🎗️ Draw Armory Title",
-                                value="tdraw"
-                            ),SlashCommandChoice(
-                                name="🕋 🦾 Draw Armory Arm",
-                                value="adraw"
-                            ),
-                        ]
-                    ),SlashCommandOption(
-                        name="item",
-                        description="Storage Item Name",
-                        type=OptionType.STRING,
-                        required=True,
-                    )
-                ]
-        )
-    async def armory(self, ctx, mode:str, item:str):
+    # @slash_command(description="Draw Items from Association Armory",
+    #             options=[
+    #                 SlashCommandOption(
+    #                     name="mode",
+    #                     description="Draw: Draw card, Dismantle:  Dismantle storage card, Resll: Resell storage card",
+    #                     type=OptionType.STRING,
+    #                     required=True,
+    #                     choices=[
+    #                         SlashCommandChoice(
+    #                             name="🕋 🎴 Draw Armory Card",
+    #                             value="cdraw"
+    #                         ),SlashCommandChoice(
+    #                             name="🕋 🎗️ Draw Armory Title",
+    #                             value="tdraw"
+    #                         ),SlashCommandChoice(
+    #                             name="🕋 🦾 Draw Armory Arm",
+    #                             value="adraw"
+    #                         ),
+    #                     ]
+    #                 ),SlashCommandOption(
+    #                     name="item",
+    #                     description="Storage Item Name",
+    #                     type=OptionType.STRING,
+    #                     required=True,
+    #                 )
+    #             ]
+    #     )
+    # async def armory(self, ctx, mode:str, item:str):
         
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
-        query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)#Storage Update
-        team = db.queryTeam({'TEAM_NAME': d['TEAM'].lower()})
-        guild = db.queryGuildAlt({'GNAME': team['GUILD']})
-        guild_name = ""
-        if guild:
-            guild_name = guild['GNAME']
-            #in_guild = True
-            guild_query = {"GNAME": guild['GNAME']}
-        else:
-            await ctx.send("Your Guild is not Associated.")
-            return
-        storage_type = d['STORAGE_TYPE']
-        vault = db.queryVault({'DID': d['DID']})
-        card_name = item
-        title_name = item
-        arm_name = item
-        current_gems = []
-        try: 
-            if vault:
-                for gems in vault['GEMS']:
-                    current_gems.append(gems['UNIVERSE'])
-                cards_list = vault['CARDS']
-                card_levels = vault['CARD_LEVELS']
-                title_list = vault['TITLES']
-                arm_list = vault['ARMS']
-                arm_list_names = []
-                for names in arm_list:
-                    arm_list_names.append(names['ARM'])
-                total_cards = len(cards_list)
-                total_titles = len(title_list)
-                total_arms = len(arm_list)
-                cstorage = guild['CSTORAGE']
-                cstorage_levels = guild['S_CARD_LEVELS']
-                tstorage = guild['TSTORAGE']
-                astorage = guild['ASTORAGE']
-                storage_arm_names = []
-                item_owned = False
-                levels_owned = False
-                for snames in astorage:
-                    storage_arm_names.append(snames['ARM'])
+    #     a_registered_player = await crown_utilities.player_check(ctx)
+    #     if not a_registered_player:
+    #         return
+    #     query = {'DID': str(ctx.author.id)}
+    #     d = db.queryUser(query)#Storage Update
+    #     team = db.queryTeam({'TEAM_NAME': d['TEAM'].lower()})
+    #     guild = db.queryGuildAlt({'GNAME': team['GUILD']})
+    #     guild_name = ""
+    #     if guild:
+    #         guild_name = guild['GNAME']
+    #         #in_guild = True
+    #         guild_query = {"GNAME": guild['GNAME']}
+    #     else:
+    #         await ctx.send("Your Guild is not Associated.")
+    #         return
+    #     storage_type = d['STORAGE_TYPE']
+    #     vault = db.queryVault({'DID': d['DID']})
+    #     card_name = item
+    #     title_name = item
+    #     arm_name = item
+    #     current_gems = []
+    #     try: 
+    #         if vault:
+    #             for gems in vault['GEMS']:
+    #                 current_gems.append(gems['UNIVERSE'])
+    #             cards_list = vault['CARDS']
+    #             card_levels = vault['CARD_LEVELS']
+    #             title_list = vault['TITLES']
+    #             arm_list = vault['ARMS']
+    #             arm_list_names = []
+    #             for names in arm_list:
+    #                 arm_list_names.append(names['ARM'])
+    #             total_cards = len(cards_list)
+    #             total_titles = len(title_list)
+    #             total_arms = len(arm_list)
+    #             cstorage = guild['CSTORAGE']
+    #             cstorage_levels = guild['S_CARD_LEVELS']
+    #             tstorage = guild['TSTORAGE']
+    #             astorage = guild['ASTORAGE']
+    #             storage_arm_names = []
+    #             item_owned = False
+    #             levels_owned = False
+    #             for snames in astorage:
+    #                 storage_arm_names.append(snames['ARM'])
                 
-                storage_card = db.queryCard({'NAME': {"$regex": f"^{str(item)}$", "$options": "i"}})
-                storage_title = db.queryTitle({'TITLE':{"$regex": f"^{str(item)}$", "$options": "i"} })
-                storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"}})
-                lvl = 0
-                tier = 0
-                exp = 0
-                ap_buff = 0
-                atk_buff = 0
-                def_buff = 0
-                hlt_buff = 0
-                if mode == 'cdraw':
-                    if total_cards > 24:
-                        await ctx.send("You already have 25 cards.")
-                        return
-                    if storage_card:                  
-                        if storage_card['NAME'] in cstorage:
-                            if storage_card['NAME'] in cards_list:
-                                item_owned = True
-                            if not item_owned:
-                                for levels in cstorage_levels:
-                                    if levels['CARD'] == storage_card['NAME']:
-                                        lvl = levels['LVL']
-                                        tier = levels['TIER']
-                                        exp = levels['EXP']
-                                        ap_buff = levels['AP']
-                                        atk_buff = levels['ATK']
-                                        def_buff = levels['DEF']
-                                        hlt_buff = levels['HLT']
-                                for c in card_levels:
-                                    if c['CARD'] == storage_card['NAME']:
-                                        levels_owned = True
+    #             storage_card = db.queryCard({'NAME': {"$regex": f"^{str(item)}$", "$options": "i"}})
+    #             storage_title = db.queryTitle({'TITLE':{"$regex": f"^{str(item)}$", "$options": "i"} })
+    #             storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"}})
+    #             lvl = 0
+    #             tier = 0
+    #             exp = 0
+    #             ap_buff = 0
+    #             atk_buff = 0
+    #             def_buff = 0
+    #             hlt_buff = 0
+    #             if mode == 'cdraw':
+    #                 if total_cards > 24:
+    #                     await ctx.send("You already have 25 cards.")
+    #                     return
+    #                 if storage_card:                  
+    #                     if storage_card['NAME'] in cstorage:
+    #                         if storage_card['NAME'] in cards_list:
+    #                             item_owned = True
+    #                         if not item_owned:
+    #                             for levels in cstorage_levels:
+    #                                 if levels['CARD'] == storage_card['NAME']:
+    #                                     lvl = levels['LVL']
+    #                                     tier = levels['TIER']
+    #                                     exp = levels['EXP']
+    #                                     ap_buff = levels['AP']
+    #                                     atk_buff = levels['ATK']
+    #                                     def_buff = levels['DEF']
+    #                                     hlt_buff = levels['HLT']
+    #                             for c in card_levels:
+    #                                 if c['CARD'] == storage_card['NAME']:
+    #                                     levels_owned = True
                                                             
                             
-                            if not item_owned:
-                                transaction_message = f"{ctx.author} claimed 🎴**{storage_card['NAME']}**."
-                                query = {'DID': str(ctx.author.id)}
-                                update_gstorage_query = {
-                                    '$pull': {'CSTORAGE': storage_card['NAME'], 'S_CARD_LEVELS' : {'CARD' :  storage_card['NAME']}},
-                                    '$push': {'TRANSACTIONS': transaction_message}
-                                }
-                                response = db.updateGuildAlt(guild_query, update_gstorage_query)
-                                update_storage_query = {
-                                    '$addToSet': {'CARDS': storage_card['NAME']},
-                                }
-                                response = db.updateUserNoFilter(query, update_storage_query)
-                                if not levels_owned:
-                                    update_glevel_query = {
-                                    '$addToSet' : {
-                                            'CARD_LEVELS': {'CARD': str(storage_card['NAME']), 'LVL': lvl, 'TIER': tier, 'EXP': exp,
-                                                            'HLT': hlt_buff, 'ATK': atk_buff, 'DEF': def_buff, 'AP': ap_buff}}
-                                    }
-                                    response = db.updateUserNoFilter(query, update_glevel_query)
-                            else:
-                                await ctx.send(f"🎴**{storage_card['NAME']}** already owned**")
-                                return
-                            await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
-                            return
-                        else:
-                            await ctx.send(f"🎴:{storage_card['NAME']} does not exist in storage.")
-                            return
-                    else:
-                        await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
-                        return
-                if mode == 'tdraw':
-                    if total_titles > 24:
-                        await ctx.send("You already have 25 titles.")
-                        return
-                    if storage_title:                  
-                        if storage_title['TITLE'] in tstorage: #title storage update
-                            if storage_title['TITLE'] in title_list:
-                                item_owned = True
-                            if not item_owned:
-                                transaction_message = f"{ctx.author} claimed 🎗️ **{storage_title['TITLE']}**."
-                                query = {'DID': str(ctx.author.id)}
-                                update_storage_query = {
-                                    '$addToSet': {'TITLES': storage_title['TITLE']},
-                                }
-                                response = db.updateUserNoFilter(query, update_storage_query)
-                                update_gstorage_query = {
-                                        '$pull': {'TSTORAGE': storage_title['TITLE']},
-                                        '$push': {'TRANSACTIONS': transaction_message}
-                                    }
-                                response = db.updateGuildAlt(guild_query, update_gstorage_query)
-                                transaction_message = f"{ctx.author} claimed 🎗️ **{storage_title['TITLE']}****."
-                            else:
-                                await ctx.send(f"🎗️ **{storage_title['TITLE']}** already owned**")
-                                return
+    #                         if not item_owned:
+    #                             transaction_message = f"{ctx.author} claimed 🎴**{storage_card['NAME']}**."
+    #                             query = {'DID': str(ctx.author.id)}
+    #                             update_gstorage_query = {
+    #                                 '$pull': {'CSTORAGE': storage_card['NAME'], 'S_CARD_LEVELS' : {'CARD' :  storage_card['NAME']}},
+    #                                 '$push': {'TRANSACTIONS': transaction_message}
+    #                             }
+    #                             response = db.updateGuildAlt(guild_query, update_gstorage_query)
+    #                             update_storage_query = {
+    #                                 '$addToSet': {'CARDS': storage_card['NAME']},
+    #                             }
+    #                             response = db.updateUserNoFilter(query, update_storage_query)
+    #                             if not levels_owned:
+    #                                 update_glevel_query = {
+    #                                 '$addToSet' : {
+    #                                         'CARD_LEVELS': {'CARD': str(storage_card['NAME']), 'LVL': lvl, 'TIER': tier, 'EXP': exp,
+    #                                                         'HLT': hlt_buff, 'ATK': atk_buff, 'DEF': def_buff, 'AP': ap_buff}}
+    #                                 }
+    #                                 response = db.updateUserNoFilter(query, update_glevel_query)
+    #                         else:
+    #                             await ctx.send(f"🎴**{storage_card['NAME']}** already owned**")
+    #                             return
+    #                         await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
+    #                         return
+    #                     else:
+    #                         await ctx.send(f"🎴:{storage_card['NAME']} does not exist in storage.")
+    #                         return
+    #                 else:
+    #                     await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
+    #                     return
+    #             if mode == 'tdraw':
+    #                 if total_titles > 24:
+    #                     await ctx.send("You already have 25 titles.")
+    #                     return
+    #                 if storage_title:                  
+    #                     if storage_title['TITLE'] in tstorage: #title storage update
+    #                         if storage_title['TITLE'] in title_list:
+    #                             item_owned = True
+    #                         if not item_owned:
+    #                             transaction_message = f"{ctx.author} claimed 🎗️ **{storage_title['TITLE']}**."
+    #                             query = {'DID': str(ctx.author.id)}
+    #                             update_storage_query = {
+    #                                 '$addToSet': {'TITLES': storage_title['TITLE']},
+    #                             }
+    #                             response = db.updateUserNoFilter(query, update_storage_query)
+    #                             update_gstorage_query = {
+    #                                     '$pull': {'TSTORAGE': storage_title['TITLE']},
+    #                                     '$push': {'TRANSACTIONS': transaction_message}
+    #                                 }
+    #                             response = db.updateGuildAlt(guild_query, update_gstorage_query)
+    #                             transaction_message = f"{ctx.author} claimed 🎗️ **{storage_title['TITLE']}****."
+    #                         else:
+    #                             await ctx.send(f"🎗️ **{storage_title['TITLE']}** already owned**")
+    #                             return
                             
-                            await ctx.send(f"🎗️ **{storage_title['TITLE']}** has been added to **/titles**")
-                            return
-                        else:
-                            await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist in storage.")
-                            return
-                    else:
-                        await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist.")
-                        return
-                if mode == 'adraw':
-                    if total_arms > 24:
-                        await ctx.send("You already have 25 arms.")
-                        return
-                    if storage_arm:                  
-                        if storage_arm['ARM'] in storage_arm_names: #title storage update
-                            if storage_arm['ARM'] in arm_list_names:
-                                item_owned = True
-                            durability = 0
-                            for arms in astorage:
-                                if storage_arm['ARM'] == arms['ARM']:
-                                    durability = arms['DUR']
-                                    #print(durability)
-                            if not item_owned:
-                                transaction_message = f"{ctx.author} claimed 🦾 **{storage_arm['ARM']}**."
-                                query = {'DID': str(ctx.author.id)}
-                                update_storage_query = {
-                                    '$addToSet': {'ARMS': {'ARM' : str(storage_arm['ARM']) , 'DUR': int(durability)}},
-                                }
-                                response = db.updateUserNoFilter(query, update_storage_query)
-                                update_gstorage_query = {
-                                    '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
-                                    '$push': {'TRANSACTIONS': transaction_message}
-                                }
-                                response = db.updateGuildAlt(guild_query, update_gstorage_query)
-                            else:
-                                await ctx.send(f"🦾 **{storage_arm['ARM']}** already owned**")
-                                return
-                            await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/arms**")
-                            return
-                        else:
-                            await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist in storage.")
-                            return
-                    else:
-                        await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist.")
-        except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-            await ctx.send(f"Error with Armory. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
-            return
+    #                         await ctx.send(f"🎗️ **{storage_title['TITLE']}** has been added to **/titles**")
+    #                         return
+    #                     else:
+    #                         await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist in storage.")
+    #                         return
+    #                 else:
+    #                     await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist.")
+    #                     return
+    #             if mode == 'adraw':
+    #                 if total_arms > 24:
+    #                     await ctx.send("You already have 25 arms.")
+    #                     return
+    #                 if storage_arm:                  
+    #                     if storage_arm['ARM'] in storage_arm_names: #title storage update
+    #                         if storage_arm['ARM'] in arm_list_names:
+    #                             item_owned = True
+    #                         durability = 0
+    #                         for arms in astorage:
+    #                             if storage_arm['ARM'] == arms['ARM']:
+    #                                 durability = arms['DUR']
+    #                                 #print(durability)
+    #                         if not item_owned:
+    #                             transaction_message = f"{ctx.author} claimed 🦾 **{storage_arm['ARM']}**."
+    #                             query = {'DID': str(ctx.author.id)}
+    #                             update_storage_query = {
+    #                                 '$addToSet': {'ARMS': {'ARM' : str(storage_arm['ARM']) , 'DUR': int(durability)}},
+    #                             }
+    #                             response = db.updateUserNoFilter(query, update_storage_query)
+    #                             update_gstorage_query = {
+    #                                 '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
+    #                                 '$push': {'TRANSACTIONS': transaction_message}
+    #                             }
+    #                             response = db.updateGuildAlt(guild_query, update_gstorage_query)
+    #                         else:
+    #                             await ctx.send(f"🦾 **{storage_arm['ARM']}** already owned**")
+    #                             return
+    #                         await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/arms**")
+    #                         return
+    #                     else:
+    #                         await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist in storage.")
+    #                         return
+    #                 else:
+    #                     await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist.")
+    #     except Exception as ex:
+    #         trace = []
+    #         tb = ex.__traceback__
+    #         while tb is not None:
+    #             trace.append({
+    #                 "filename": tb.tb_frame.f_code.co_filename,
+    #                 "name": tb.tb_frame.f_code.co_name,
+    #                 "lineno": tb.tb_lineno
+    #             })
+    #             tb = tb.tb_next
+    #         print(str({
+    #             'type': type(ex).__name__,
+    #             'message': str(ex),
+    #             'trace': trace
+    #         }))
+    #         await ctx.send(f"Error with Armory. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
+    #         return
 
 
     @slash_command(description="Equip an Arm")

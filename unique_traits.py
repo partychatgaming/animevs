@@ -24,8 +24,8 @@ traits = [{
     'TRAIT': 'Devilization : When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. Fearful : Strong Fear Infliction.'
 },{
     'NAME': 'Bleach',
-    'EFFECT': 'Bankai, Energyual Pressure',
-    'TRAIT': 'Bankai : On Resolve, Gain 2x Attack. Energyual Pressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
+    'EFFECT': 'Bankai, SpiritualPressure',
+    'TRAIT': 'Bankai : On Resolve, Gain 2x Attack. SpiritualPressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
@@ -84,8 +84,8 @@ traits = [{
     'TRAIT': 'Observation: 1-7: 40% DMG Reduction. Armament: 4-7: 2x Focus. Conquerors: 6-7 Decrease OPP AP by 150'
 },{
     'NAME': 'Crown Rift Slayers',
-    'EFFECT': 'Feint Attack, Energyual Weapons',
-    'TRAIT': 'Feint Attack : If you miss, Crit! Energyual Weapons : Can use Arms from all Uninverses'
+    'EFFECT': 'Feint Attack, SpiritualWeapons',
+    'TRAIT': 'Feint Attack : If you miss, Crit! SpiritualWeapons : Can use Arms from all Uninverses'
 },{
     'NAME': 'Crown Rift Madness',
     'EFFECT': 'Madness, Beast Blood',

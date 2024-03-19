@@ -2954,86 +2954,24 @@ def calculate_font_sizes(name, rname, used_resolve):
     return name_font_size, title_font_size, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size, title_size
 
 
-def calculate_engagement_levels(opponent_card_defense, mode, self):
-    engagement_basic = 0
-    engagement_special = 0
-    engagement_ultimate = 0
-    ebasic = '💢'
-    especial = '💢'
-    eultimate = '🗯️'
-
-    if opponent_card_defense is None:
-        ebasic = ' '
-        especial = ' '
-        eultimate = ' '
-    else:
-        defensepower = opponent_card_defense - self.attack
-        if defensepower <= 0:
-            defensepower = 1
-
-        def calculate_ability_power(ability_power, move_ap):
-            return max(ability_power - opponent_card_defense + move_ap, move_ap)
-
-        basic_ability_power = calculate_ability_power(self.attack, self.move1ap)
-        basic = round((basic_ability_power / defensepower))
-        if basic > (self.move1ap * 2):
-            engagement_basic = 5
-            ebasic = '❌x2'
-        elif basic > (self.move1ap * 1.5):
-            engagement_basic = 4
-            ebasic = '〽️x1.5'
-        elif basic >= (self.move1ap * 1.1):
-            engagement_basic = 3
-            ebasic = '‼️'
-        elif basic < (self.move1ap / 2) and basic > (self.move1ap / 3):
-            engagement_basic = 2
-            ebasic = '❕'
-        elif basic < (self.move1ap / 3):
-            engagement_basic = 1
-            ebasic = '💢'
-
-        special_ability_power = calculate_ability_power(self.attack, self.move2ap)
-        special = round(special_ability_power / defensepower)
-        if special > (self.move2ap * 2):
-            engagement_special = 5
-            especial = '❌x2'
-        elif special > (self.move2ap * 1.5):
-            engagement_special = 4
-            especial = '〽️x1.5'
-        elif special >= (self.move2ap * 1.1):
-            engagement_special = 3
-            especial = '‼️'
-        elif special < (self.move2ap / 2) and special > (self.move2ap / 3):
-            engagement_special = 2
-            especial = '❕'
-        elif special < (self.move2ap / 3):
-            engagement_special = 1
-            especial = '💢'
-
-        ultimate_ability_power = calculate_ability_power(self.attack, self.move3ap)
-        ultimate = round(ultimate_ability_power / defensepower)
-        if ultimate > (self.move3ap * 2):
-            engagement_ultimate = 5
-            eultimate = '❌x2'
-        elif ultimate > (self.move3ap * 1.5):
-            engagement_ultimate = 4
-            eultimate = '〽️x1.5'
-        elif ultimate >= (self.move3ap * 1.1):
-            engagement_ultimate = 3
-            eultimate = '‼️'
-        elif ultimate < (self.move3ap / 2) and ultimate > (self.move3ap / 3):
-            engagement_ultimate = 2
-            eultimate = '❕'
-        elif ultimate < (self.move3ap / 3):
-            engagement_ultimate = 1
-            eultimate = '💢'
-
-    if mode == "non-battle":
-        ebasic = ""
-        especial = ""
-        eultimate = ""     
-
-    return ebasic, especial, eultimate, engagement_basic, engagement_special, engagement_ultimate
+def calculate_engagement_levels(opponent_card_defense, mode, player):
+    if mode == "non-battle" or opponent_card_defense is None:
+        return "", "", "", 0, 0, 0
+    
+    def calculate_engagement(attack_power, move_ap):
+        defense_power = max(opponent_card_defense - attack_power, 1)
+        ability_power = max(attack_power - opponent_card_defense + move_ap, move_ap)
+        ratio = round(ability_power / defense_power)
+        
+        if ratio > 2 * move_ap: return '❌x2', 5
+        if ratio > 1.5 * move_ap: return '〽️x1.5', 4
+        if ratio >= 1.1 * move_ap: return '‼️', 3
+        if move_ap / 2 > ratio > move_ap / 3: return '❕', 2
+        if ratio < move_ap / 3: return '💢', 1
+        return '💢', 1  # Default case if none above match
+    
+    results = [calculate_engagement(player.attack, getattr(player, f"move{idx}ap")) for idx in range(1, 4)]
+    return (*[res[0] for res in results], *[res[1] for res in results])
 
 
 def calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eultimate):

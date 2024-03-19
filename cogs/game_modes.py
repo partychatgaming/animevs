@@ -43,7 +43,7 @@ class GameModes(Extension):
         self.bot = bot
         # self._cd = commands.CooldownMapping.from_cooldown(1, 900, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
         # self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)
-        self.level_up_cooldown = Cooldown(Buckets.MEMBER, 10, 3600)
+        self.level_up_cooldown = Cooldown(Buckets.MEMBER, 10, 3600) # (Buckets.MEMBER, 10, 3600)
         self.explore_cooldown = Cooldown(Buckets.MEMBER, 25, 3600)
     max_items = 150
 
@@ -310,72 +310,72 @@ class GameModes(Extension):
             custom_logging.debug(ex)
 
 
-    @slash_command(description="Co-op pve to earn cards, accessories, gold, gems, and more with friends",
-                       options=[
-                           SlashCommandOption(
-                               name="user",
-                               description="player you want to co-op with",
-                               type=OptionType.USER,
-                               required=True
-                           ),
-                           SlashCommandOption(
-                               name="mode",
-                               description="Difficulty Level",
-                               type=OptionType.STRING,
-                               required=True,
-                               choices=[
-                                   SlashCommandChoice(
-                                       name="⚔️ Co-Op Tales (Normal)",
-                                       value="CoopTales"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="🔥 Co-Op Dungeon (Hard)",
-                                       value="CoopDungeon"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="👹 Co-Op Boss Enounter (Extreme)",
-                                       value="CBoss"
-                                   ),
-                               ]
-                           )
-                       ]
-        )
-    async def coop(self, ctx: InteractionContext, user: User, mode: str):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
+    # @slash_command(description="Co-op pve to earn cards, accessories, gold, gems, and more with friends",
+    #                    options=[
+    #                        SlashCommandOption(
+    #                            name="user",
+    #                            description="player you want to co-op with",
+    #                            type=OptionType.USER,
+    #                            required=True
+    #                        ),
+    #                        SlashCommandOption(
+    #                            name="mode",
+    #                            description="Difficulty Level",
+    #                            type=OptionType.STRING,
+    #                            required=True,
+    #                            choices=[
+    #                                SlashCommandChoice(
+    #                                    name="⚔️ Co-Op Tales (Normal)",
+    #                                    value="CoopTales"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="🔥 Co-Op Dungeon (Hard)",
+    #                                    value="CoopDungeon"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="👹 Co-Op Boss Enounter (Extreme)",
+    #                                    value="CBoss"
+    #                                ),
+    #                            ]
+    #                        )
+    #                    ]
+    #     )
+    # async def coop(self, ctx: InteractionContext, user: User, mode: str):
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
 
-        try:
-            player = db.queryUser({'DID': str(ctx.author.id)})
-            player3 = db.queryUser({'DID': str(user.id)})
-            p1 = crown_utilities.create_player_from_data(player)
-            p3 = crown_utilities.create_player_from_data(player3)
+    #     try:
+    #         player = db.queryUser({'DID': str(ctx.author.id)})
+    #         player3 = db.queryUser({'DID': str(user.id)})
+    #         p1 = crown_utilities.create_player_from_data(player)
+    #         p3 = crown_utilities.create_player_from_data(player3)
 
-            if not p1.is_available:
-                embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
+    #         if not p1.is_available:
+    #             embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
+    #             await ctx.send(embed=embed)
+    #             return
 
-            if not p3.is_available:
-                embed = Embed(title="⚠️ Your Co-op player is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
-
-
-            battle = Battle(mode, p1)
+    #         if not p3.is_available:
+    #             embed = Embed(title="⚠️ Your Co-op player is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
+    #             await ctx.send(embed=embed)
+    #             return
 
 
-            universe_selection = await select_universe(self, ctx, p1, mode, p3)
-            if not universe_selection:
-                return
-            battle.set_universe_selection_config(universe_selection)
-            battle.is_co_op_mode = True
+    #         battle = Battle(mode, p1)
 
-            await battle_commands(self, ctx, battle, p1, None, None, p3)
+
+    #         universe_selection = await select_universe(self, ctx, p1, mode, p3)
+    #         if not universe_selection:
+    #             return
+    #         battle.set_universe_selection_config(universe_selection)
+    #         battle.is_co_op_mode = True
+
+    #         await battle_commands(self, ctx, battle, p1, None, None, p3)
         
-        except Exception as ex:
-            custom_logging.debug(ex)
-            return
+    #     except Exception as ex:
+    #         custom_logging.debug(ex)
+    #         return
 
 
     @slash_command(description="pve to earn cards, accessories, gold, gems, and more as a solo player")
@@ -420,6 +420,11 @@ class GameModes(Extension):
         if not registered_player:
             return
 
+        if not universe:
+            # Create embed that says to select a universe 
+            embed = Embed(title="Select a Universe", description="Please select a universe to play in.", color=0x696969)
+            await ctx.send(embed=embed)
+            return
 
         """
         This command will be used to send all modes to either unvierse selection or battle commands
@@ -429,6 +434,12 @@ class GameModes(Extension):
         
         try:
             player = crown_utilities.create_player_from_data(registered_player)
+            if player.difficulty == "EASY" and mode == "Scenario":
+                player.difficulty = "NORMAL"
+            
+            if player.difficulty in ["EASY", "NORMAL"] and mode == "Raid_Scenario":
+                player.difficulty = "HARD"
+
             await player.set_guild_data()
             
             # if not player.is_available:
@@ -438,13 +449,13 @@ class GameModes(Extension):
 
             player.make_unavailable()
 
-            if mode == crown_utilities.ABYSS:
-                await abyss(self, ctx, registered_player, mode)
-                return
+            # if mode == crown_utilities.ABYSS:
+            #     await abyss(self, ctx, registered_player, mode)
+            #     return
 
-            if mode == crown_utilities.TUTORIAL:
-                await tutorial(self, ctx, registered_player, mode)
-                return
+            # if mode == crown_utilities.TUTORIAL:
+            #     await tutorial(self, ctx, registered_player, mode)
+            #     return
 
             if mode == crown_utilities.SCENARIO:
                 await scenario_cog.scenario_selector(self, ctx, universe, player)

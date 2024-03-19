@@ -17,6 +17,8 @@ MONGO = config('MONGO_LOGIN')
 mongo = MongoClient(MONGO, tlsCAFile=certifi.where())
 
 # mongo = pymongo.MongoClient(TOKEN)
+# lore_db = mongo["Lore"]
+# lore_col = lore_db["lore"]
 
 db = mongo[use_database]
 users_col = db["USERS"]
@@ -1360,12 +1362,7 @@ def createArm(arm):
 
 def updateArm(query, new_value):
     try:
-        armexists = arm_exists({'ARM': query['ARM']})
-        if armexists:
-            arm_col.update_one(query, new_value)
-            return True
-        else:
-            return False
+        arm_col.update_one(query, new_value)
     except:
         return False
 
@@ -1555,12 +1552,7 @@ def pet_exists(data):
 
 def updateSummon(query, new_value):
     try:
-        petexists = pet_exists({'PET': query['PET']})
-        if petexists:
-            pet_col.update_one(query, new_value)
-            return True
-        else:
-            return False
+        pet_col.update_one(query, new_value)
     except:
         return False
 

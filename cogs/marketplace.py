@@ -2,6 +2,7 @@ import crown_utilities
 import custom_logging
 import db
 import asyncio
+import uuid
 import messages as m
 from interactions import User
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
@@ -74,10 +75,15 @@ class Marketplace(Extension):
                     embedVar.set_footer(text=f"{len(all_cards)} Total Cards on the Marketplace\nTo purchase a card, use the /buy command and enter the Market Code for the card.")
                     embed_list.append(embedVar)
 
-                pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
-                pagination.show_select_menu = True
-                await pagination.send(ctx)
-
+                if embed_list:
+                    pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
+                    pagination.show_select_menu = True
+                    await pagination.send(ctx)
+                else:
+                    embed = Embed(title="🏷️ Marketplace", description="There are no cards on the marketplace.", color=0x7289da)
+                    await ctx.send(embed=embed)
+                    return
+                
             if market == "summon":
                 list_of_summons = db.queryAllMarketByParam({"MARKET_TYPE": "SUMMON"})
                 if not list_of_summons:
@@ -101,9 +107,14 @@ class Marketplace(Extension):
                     embedVar.set_footer(text=f"{len(all_summons)} Total Summons on the Marketplace\nTo purchase a summon, use the /buy command and enter the Market Code for the summon.")
                     embed_list.append(embedVar)
 
-                pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
-                pagination.show_select_menu = True
-                await pagination.send(ctx)
+                if embed_list:
+                    pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
+                    pagination.show_select_menu = True
+                    await pagination.send(ctx)
+                else:
+                    embed = Embed(title="🏷️ Marketplace", description="There are no summons on the marketplace.", color=0x7289da)
+                    await ctx.send(embed=embed)
+                    return
 
             if market == "arm":
                 list_of_arms = db.queryAllMarketByParam({"MARKET_TYPE": "ARM"})
@@ -128,11 +139,16 @@ class Marketplace(Extension):
                     embedVar = Embed(title=f"🏷️ Arms on the Marketplace", description="\n".join(sublist), color=0x7289da)
                     embedVar.set_footer(text=f"{len(all_arms)} Total Arms on the Marketplace\nTo purchase a arm, use the /buy command and enter the Market Code for the arm.")
                     embed_list.append(embedVar)
-                    
+
+                if embed_list:
                     pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
                     pagination.show_select_menu = True
                     await pagination.send(ctx)
-            
+                else:
+                    embed = Embed(title="🏷️ Marketplace", description="There are no arms on the marketplace.", color=0x7289da)
+                    await ctx.send(embed=embed)
+                    return
+                
         except Exception as ex:
             custom_logging.debug(ex)
             embed = Embed(title="🏷️ Error", description="Something went wrong with the Marketplace command. Please try again later.", color=0xff0000)
@@ -176,7 +192,7 @@ class Marketplace(Extension):
             return
 
         try:
-            _uuid = _uuid.uuid4()
+            _uuid = uuid.uuid4()
             market_item_info = db.queryMarket({"MARKET_CODE": code})
             if not market_item_info:
                 embed = Embed(title="🏷️ Marketplace", description="There are no items on the marketplace with this code number.", color=0x7289da)
@@ -186,12 +202,12 @@ class Marketplace(Extension):
             confirmation_buttons = [
                 Button(
                     style=ButtonStyle.GREEN,
-                    label="1️⃣",
+                    label="Yes",
                     custom_id = f"{_uuid}|yes"
                 ),
                 Button(
                     style=ButtonStyle.RED,
-                    label="2️⃣",
+                    label="No",
                     custom_id = f"{_uuid}|no"
                 )
             ]
@@ -216,11 +232,11 @@ class Marketplace(Extension):
                 try:
                     button_ctx = await self.client.wait_for_component(components=[row], check=check, timeout=120)
 
-                    if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
+                    if button_ctx.ctx.custom_id == f"{_uuid}|yes":
                         response = player.save_card(c)
                         if response:
                             removal = db.deleteMarketEntry({"MARKET_CODE": code})
-                            purchase = crown_utilities.curse(price, player.did)
+                            purchase = await crown_utilities.curse(price, player.did)
                             embed = Embed(title=f"🏷️ Success", description=f"{c.name} has been removed from the market.")
                             await message.edit(embed=embed, components=[])
                             return
@@ -229,7 +245,7 @@ class Marketplace(Extension):
                             await message.edit(embed=embed, components=[])
                             return
                     
-                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
+                    if button_ctx.ctx.custom_id == f"{_uuid}|no":
                         await message.delete()
                         return
 

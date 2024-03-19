@@ -88,14 +88,14 @@ class USER():
         {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Peck': 100, 'TYPE': 'PHYSICAL', 'BOND': 0, 'BONDEXP': 0,
          'PATH': "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"}])
     DECK: list[str] = field(
-        default_factory=lambda: [{'CARD': 'Eevee', 'TITLE': 'Pokemon Trainer', 'ARM': 'Poke Ball', 'PET': 'Chick', 'TALISMAN': 'NULL'},
-                                 {'CARD': 'Ochaco Uraraka', 'TITLE': 'UA 1st Year', 'ARM': 'Hyper-Density Seals',
+        default_factory=lambda: [{'CARD': 'Naruto Uzumaki', 'TITLE': 'Genin', 'ARM': 'Leaf Headband', 'PET': 'Chick', 'TALISMAN': 'NULL'},
+                                 {'CARD': 'Ichigo Kurosaki', 'TITLE': 'Substitute Soul Reaper', 'ARM': 'Zanpakuto',
                                   'PET': 'Chick', 'TALISMAN': 'NULL'},
-                                 {'CARD': 'Garen', 'TITLE': 'Iron 4', 'ARM': 'Dorans Shield', 'PET': 'Chick', 'TALISMAN': 'NULL'}])
+                                 {'CARD': 'Luffy', 'TITLE': 'Strawhat Pirate', 'ARM': 'Noah', 'PET': 'Chick', 'TALISMAN': 'NULL'}])
     CARD_LEVELS: list[str] = field(default_factory=lambda: [
-        {'CARD': 'Eevee', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
-        {'CARD': 'Ochaco Uraraka', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
-        {'CARD': 'Garen', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36}])
+        {'CARD': 'Naruto Uzumaki', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Ichigo Kurosaki', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Luffy', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36} ])
     QUESTS: list[str] = field(default_factory=lambda: [])
     DESTINY: list[str] = field(default_factory=lambda: [])
     GEMS: list[str] = field(default_factory=lambda: [])
