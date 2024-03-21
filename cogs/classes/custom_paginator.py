@@ -316,6 +316,12 @@ class CustomPaginator(Paginator):
                 if self.storage_arm:
                     response = await self.activate_storage_action(ctx, "draw", "arm")
                     await self._message.delete()
+                if self.storage_summon:
+                    response = await self.activate_storage_action(ctx, "draw", "summon")
+                    await self._message.delete()
+                if self.storage_title:
+                    response = await self.activate_storage_action(ctx, "draw", "title")
+                    await self._message.delete()
             case "trade":
                 if self.cards_action:
                     self.trade_card = True
@@ -1054,10 +1060,7 @@ class CustomPaginator(Paginator):
             
             if button_ctx.ctx.custom_id == f"{self._uuid}|store":                
                 try:
-                    
-                    author = msg.author
-                    content = msg.content
-                    user = db.queryUser({'DID': str(author.id)})
+                    user = db.queryUser({'DID': str(ctx.author.id)})
                     storage_type = user['STORAGE_TYPE']
 
                     if len(storage) <= (storage_type * 15):
@@ -2106,6 +2109,44 @@ class CustomPaginator(Paginator):
                     return
                 except asyncio.TimeoutError:
                     embed = Embed(title=f"🦾 Arm Storage", description=f"Failed to draw item from Storage - Error Logged")
+            if action_type == "title":
+                embed = Embed(title=f"🎗️ Title Storage", description=f"Which title would you like to move from storage?\nPlease use the [number] from the storage title list.")
+                message = await ctx.send(embed=embed)
+
+                def check(event):
+                    return event.message.author.id == ctx.author.id
+
+                try:
+                    response = await self.client.wait_for('on_message_create', checks=check, timeout=120)
+                    option = validate_and_convert(response.message.content)
+                    # If the option variable is a string and not an array then it's an error message
+                    # Create an embed and edit the message with the error message
+                    if isinstance(option, str):
+                        embed = Embed(title=f"🎗️ Title Storage", description=f"{option}")
+                        await message.edit(embed=embed)
+                        return
+                    return_message = ""
+
+                    for number in option:    
+                        storage_title = player.tstorage[number]
+                        if storage_title:
+                            # Draw Card
+                            update_storage_query = {
+                                            '$pull': {'TSTORAGE': storage_title},
+                                            '$addToSet': {'TITLES': storage_title},
+                                        }
+                            response = db.updateUserNoFilter(user_query, update_storage_query)
+                            return_message += f"🎗️ {storage_title} has been drawn from storage\n"
+                        else:
+                            return_message += f"🎗️ Failed to draw {storage_title} - Invalid title number\n"
+                    embed = Embed(title=f"🎗️ Title Storage", description=f"{return_message}")
+                    await message.edit(embed=embed)
+                    return
+
+                except asyncio.TimeoutError:
+                    embed = Embed(title=f"🎗️ Title Storage", description=f"Failed to draw item from Storage - Error Logged")
+                    await message.edit(embed=embed)
+                    return
         except Exception as ex:
             print(ex)
             embed = Embed(title=f"Storage Failure", description=f"Failed to draw item from Storage - Error Logged")
@@ -2652,7 +2693,7 @@ class CustomPaginator(Paginator):
         embedVar.add_field(name=f"🦾 My Arms*/arms*", value=f"{arm_drop_message_into_embded}", inline=True)
         embedVar.add_field(name=f"🆘 Support!", value=f"[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)", inline=False)
         embedVar.set_author(name=f"Registration Complete")
-        embedVar.set_footer(text="📜Use /daily for Daily Reward and Quest\n🔥/difficulty - Change difficulty setting of the game!", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
+        embedVar.set_footer(text="🎗️Use /daily for Daily Reward and Quest\n🔥/difficulty - Change difficulty setting of the game!", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
 
         await ctx.send(embed=embedVar)
         return

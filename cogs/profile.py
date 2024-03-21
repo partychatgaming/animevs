@@ -727,7 +727,7 @@ class Profile(Extension):
                 sorted_titles = sorted(titles, key=lambda title: title["TITLE"])
                 for index, title in enumerate(sorted_titles):
                     title_data = crown_utilities.create_title_from_data(title)                    
-                    all_titles.append(f"{title_data.universe_crest}: **{title_data.name}**\n")
+                    all_titles.append(f"{title_data.universe_crest} [{str(index)}] **{title_data.name}**\n")
 
                 for i in range(0, len(all_titles), 10):
                     sublist = all_titles[i:i+10]           
@@ -736,7 +736,7 @@ class Profile(Extension):
                         text=f"{len(all_titles)} Total Titles\n{str(storage_allowed_amount - len(player.tstorage))} Storage Available")
                     embed_list.append(embedVar)
 
-                pagination = Paginator.create_from_embeds(self.bot, *embed_list, timeout=160)
+                pagination = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Draw", "Market", "Dismantle"], paginator_type="Title Storage")
                 await pagination.send(ctx)
 
             if mode == "arm":
@@ -899,7 +899,7 @@ class Profile(Extension):
                 # embedVar.add_field(name=f"**How To Unlock**", value=f"{t.unlock_method_message}", inline=False)                
                 embed_list.append(embedVar)
             
-            buttons = ["Equip"]
+            buttons = ["Equip", "Storage"]
             
             custom_action_row = ActionRow(*buttons)
             if not embed_list and filtered:

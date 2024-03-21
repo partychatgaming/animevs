@@ -375,7 +375,7 @@ async def animevs(ctx):
       Buy and equip better Items to Conquer the Multiverse!
       """), color=0x7289da)
       
-      embedVar2.set_thumbnail(url=avatar)
+      embedVar0.set_thumbnail(url=avatar)
 
       embedVar3 = Embed(title=f"Card Mechanics", description=textwrap.dedent(f"""\
       **Card Stats** 
@@ -822,9 +822,8 @@ async def animevs(ctx):
       
       embedVar14.set_thumbnail(url=avatar)
 
-      # embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13, embedVar0, embedVar14]
-      embeds = [embedVar1, embedVar2]
-      paginator = Paginator(bot, *embeds)
+      embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13, embedVar0, embedVar14]
+      paginator = Paginator.create_from_embeds(bot, *embeds)
       paginator.show_select_menu = True
       await paginator.send(ctx)
    except Exception as ex:
