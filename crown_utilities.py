@@ -385,6 +385,11 @@ def getTime(hgame, mgame, sgame, hnow, mnow, snow):
 
 
 def showsummon(url, summon, message, lvl, bond):
+    print(f"The url for the summon is {url}")
+    print(f"The summon is {summon}")
+    print(f"The message is {message}")
+    print(f"The lvl is {lvl}")
+    print(f"The bond is {bond}")
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
     try:
@@ -673,10 +678,13 @@ async def cardlevel(user, mode: str, extra_exp = 0):
 
         number_of_level_ups, card = await update_experience(card, player, exp_gain, lvl_req)
 
-        print(f"Number of Level Ups - {number_of_level_ups}")
+        # print(f"Number of Level Ups - {number_of_level_ups}")
 
 
         if number_of_level_ups > 0:
+            player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
+            card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
+            card.set_card_level_buffs(player.card_levels)
             lvl_req = get_level_up_exp_req(card)
             embed = Embed(title=f"🎴 **{card.name}** leveled up {str(number_of_level_ups)} times!", color=0x00ff00)
             embed.set_footer(text=f"{lvl_req} EXP to next level")
@@ -751,7 +759,7 @@ async def update_experience(card, player, exp, lvl_req):
                 number_of_level_ups += 1
                 card.card_lvl += 1
                 lvl_req = get_level_up_exp_req(card)
-                print(f"EXP Required For Next Level - {lvl_req}")
+                # print(f"EXP Required For Next Level - {lvl_req}")
 
     return number_of_level_ups, card
 
@@ -1699,6 +1707,7 @@ def get_battle_positions(battle_config):
     partner_title = getattr(battle_config, partner[2])
     partner_arm = getattr(battle_config, partner[3])
 
+    # print(turn_player.summon_image)
     return turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm
 
 

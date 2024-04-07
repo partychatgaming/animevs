@@ -2981,9 +2981,15 @@ def calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eulti
         self.move2 = self.move2[:37] + "..."
     if len(self.move3) > 40:
         self.move3 = self.move3[:37] + "..."
-    move1_text = f"{self.move1_emoji} {self.move1}: {self.move1ap} {ebasic}"
-    move2_text = f"{self.move2_emoji} {self.move2}: {self.move2ap} {especial}"
-    move3_text = f"{self.move3_emoji} {self.move3}: {self.move3ap} {eultimate}"
+
+    # Original with move engagement emojis
+    # move1_text = f"{self.move1_emoji} {self.move1}: {self.move1ap} {ebasic}"
+    # move2_text = f"{self.move2_emoji} {self.move2}: {self.move2ap} {especial}"
+    # move3_text = f"{self.move3_emoji} {self.move3}: {self.move3ap} {eultimate}"
+        
+    move1_text = f"{self.move1_emoji} {self.move1}: {self.move1ap}"
+    move2_text = f"{self.move2_emoji} {self.move2}: {self.move2ap}"
+    move3_text = f"{self.move3_emoji} {self.move3}: {self.move3ap}"
 
     turn_crit = False
     if self.move4enh in crown_utilities.Turn_Enhancer_Check:
@@ -3019,34 +3025,30 @@ def calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eulti
     super_length = int(len(move2_text))
     ultimate_length = int(len(move3_text))
     enhancer_length = int(len(move_enhanced_text))
-    
-    if basic_length >= 53 or basic_length <= 53:
-        basic_font_size = 27
-    if basic_length >= 60:
-        basic_font_size = 25
-    if basic_length >= 65:
-        basic_font_size = 23
         
-    if super_length >= 53 or super_length <= 53:
-        super_font_size = 27
-    if super_length >= 60:
-        super_font_size = 25
-    if super_length >= 65:
-        super_font_size = 23
-        
-    if ultimate_length >= 53 or ultimate_length <= 53:
-        ultimate_font_size = 27
-    if ultimate_length >= 60:
-        ultimate_font_size = 25
-    if ultimate_length >= 65:
-        ultimate_font_size = 23
-        
-    if enhancer_length >= 53 or ultimate_length <= 53:
-        enhancer_font_size = 27
-    if enhancer_length >= 60:
-        enhancer_font_size = 25
-    if enhancer_length >= 65:
-        enhancer_font_size = 23
+    def calculate_font_size(length):
+        if length >= 65:
+            return 23
+        elif length >= 60:
+            return 25
+        elif length >= 53:  # This implicitly covers the case where length <= 53 too
+            return 27
+        else:
+            return 27  # Default font size if none of the above conditions are met
+
+    basic_length = 54  # Example length
+    super_length = 61  # Example length
+    ultimate_length = 66  # Example length
+    enhancer_length = 53  # Example length
+
+    # Calculate font sizes using the function
+    basic_font_size = calculate_font_size(basic_length)
+    super_font_size = calculate_font_size(super_length)
+    ultimate_font_size = calculate_font_size(ultimate_length)
+    enhancer_font_size = calculate_font_size(enhancer_length)
+
+    # Now, basic_font_size, super_font_size, ultimate_font_size, and enhancer_font_size 
+    # will have values based on their respective lengths.
 
     return move1_text, move2_text, move3_text, move_enhanced_text, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size
 

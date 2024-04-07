@@ -1201,7 +1201,7 @@ async def player_use_resolve(battle_config, private_channel, button_ctx):
 
 async def player_use_summon_ability(battle_config, private_channel, button_ctx, battle_msg):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-
+    print(turn_card.summon_universe)
     if turn_card.used_resolve and turn_card.used_focus or turn_card._summoner_active:
         if not turn_card.usedsummon:
             if battle_config.is_turn == 1:
@@ -1216,6 +1216,7 @@ async def player_use_summon_ability(battle_config, private_channel, button_ctx, 
             
             """), color=0xe74c3c)
             embedVar.set_image(url="attachment://pet.png")
+            print(f"The summon image url is {turn_card.summon_image}")
             image_binary = crown_utilities.showsummon(turn_card.summon_image, turn_card.summon_name, summon_response['MESSAGE'], turn_card.summon_lvl, turn_card.summon_bond)
             image_binary.seek(0)
             summon_file = File(file_name="pet.png", file=image_binary)

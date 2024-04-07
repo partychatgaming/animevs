@@ -2740,8 +2740,12 @@ async def code(ctx, code_input: str):
          coin = code['COIN']
          gems = code['GEMS']
          exp = code['EXP']
+         card = code['CARD']
+         arm = code['ARM']
+         summon = code['SUMMON']
          equipped_card = crown_utilities.create_card_from_data(db.queryCard({'NAME': user.equipped_card}))
-         card_drop = db.queryCard({'NAME': card['CARD']}) if code['CARD'] else ""
+         card_drop = db.queryCard({'NAME': card}) if card else ""
+         arm_drop = db.queryArm({'NAME': arm}) if arm else ""
          embed_list = []
          if code_input not in user.used_codes:
             if gems != 0:
@@ -2760,11 +2764,18 @@ async def code(ctx, code_input: str):
                   user.save_card(card)
                   embed = Embed(title="🎴 Card Drop", description=f"You received **{card.name}** from {card.universe_crest} {card.universe}!", color=0x00ff00)
                   embed_list.append(embed)
+            if arm_drop:
+               arm = crown_utilities.create_arm_from_data(arm_drop)
+               if arm not in user.arms or arm not in user.storage:
+                  user.save_arm(arm)
+                  embed = Embed(title="🛡️ Arm Drop", description=f"You received **{arm.name}** from {arm.universe_crest} {arm.universe}!", color=0x00ff00)
+                  embed_list.append(embed)
             if exp:
+               print(f"exp: {exp}")
                user = await bot.fetch_user(ctx.author.id)
                mode = "Purchase"
                await crown_utilities.cardlevel(user, mode, exp)
-               embed = Embed(title="Level Up", description=f"Your 🎴 **{equipped_card}** card leveled up!", color=0x00ff00)
+               embed = Embed(title="Level Up", description=f"Your 🎴 **{equipped_card.name}** card leveled up!", color=0x00ff00)
                embed_list.append(embed)
             respond = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
             if embed_list:

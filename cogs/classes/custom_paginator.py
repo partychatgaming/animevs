@@ -2667,6 +2667,7 @@ class CustomPaginator(Paginator):
                 if selected in selectable_cards:
                     selectable_cards.remove(selected)
             selection = random.choice(selectable_cards)
+            # print(selection)
             selectable_cards.append(selection)
             card = crown_utilities.create_card_from_data(db.queryCard({'NAME': list_of_cards[selection]['NAME']}))
             # db.updateUserNoFilter(player.user_query,{'$addToSet':{'CARDS': card.name}})

@@ -330,7 +330,7 @@ class Profile(Extension):
                         # page 7 (level up view)
                         # page 8 (trait page)
                         embedVar0 = Embed(title=f"Build Home View".format(self), color=000000)
-                        embedVar0.add_field(name=f"__Welcome to Build View__", value=f"You can use this window to view what you have equipped.", inline=True)
+                        embedVar0.add_field(name=f"__Welcome to Build View__", value=f"View and learn your build and how each item works. ➡️", inline=True)
                         embedVar0.set_image(url="attachment://image.png")
                         embedVar0.set_thumbnail(url=player.avatar)
 
@@ -338,34 +338,41 @@ class Profile(Extension):
                         embedVar1.add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=True)
                         embedVar1.set_image(url="attachment://image.png")
                         embedVar1.set_thumbnail(url=player.avatar)
+                        embedVar1.set_footer(text=f"Titles are buffs or boosts initiated each turn, focus, or resolve.")
 
                         embedVar2 = Embed(title=f"Build Arm View".format(self), color=000000)
                         embedVar2.add_field(name=f"__Arm Name & Effects__\n🦾 {a.name.capitalize()}", value=f"{a.arm_message}\n⚒️ {a.durability} *Durability*", inline=True)
                         embedVar2.set_image(url="attachment://image.png")
                         embedVar2.set_thumbnail(url=player.avatar)
+                        embedVar2.set_footer(text=f"Arms are protections that are initated by themselves until broken in battle, or they swappable abilities.")
 
                         embedVar3 = Embed(title=f"Build Summon View".format(self), color=000000)
                         embedVar3.add_field(name=f"__Summon Name & Effects__\n🧬 {player.equipped_summon}", value=f"{player.summon_power_message}\n📶 {player.summon_lvl_message}", inline=True)
                         embedVar3.set_image(url="attachment://image.png")
                         embedVar3.set_thumbnail(url=player.avatar)
+                        embedVar3.set_footer(text=f"Summons are powerful creatures that can be called upon to aid you in battle after you resolve, unless you're a summoner.")
 
                         embedVar4 = Embed(title=f"Build Talisman View".format(self), color=000000)
                         embedVar4.add_field(name=f"__Talisman Name & Effects__", value=f"{player.talisman_message}", inline=True)
                         embedVar4.set_image(url="attachment://image.png")
                         embedVar4.set_thumbnail(url=player.avatar)
+                        embedVar4.set_footer(text=f"Talismans are powerful items that can be attuned to your card to bypass a single affinity.")
 
                         embedVar5 = Embed(title=f"Build Evasion View".format(self), color=000000)
                         embedVar5.add_field(name="__Evasion Stat & Boost__", value=f"🏃 | {c.evasion_message}")
                         embedVar5.set_image(url="attachment://image.png")
                         embedVar5.set_thumbnail(url=player.avatar)
+                        embedVar5.set_footer(text=f"Evasion is a stat that improves your evasiveness against attacks.")
 
                         embedVar6 = Embed(title=f"Build Affinity View".format(self), color=000000)
                         embedVar6.add_field(name="__Affinity List__", value=f"{c.affinity_message}")
                         embedVar6.set_image(url="attachment://image.png")
                         embedVar6.set_thumbnail(url=player.avatar)
+                        embedVar6.set_footer(text=f"Affinities are elemental strengths and weaknesses that can be exploited in battle.")
                         
                         embedVar7 = Embed(title=f"Build Level Up View".format(self), color=000000)
                         embedVar7.set_thumbnail(url=player.avatar)
+                        embedVar7.set_footer(text=f"Leveling up your card will increase its stats and abilities.")
                         if c.card_lvl < 1000:
                             embedVar7.add_field(name="__Level Up Information__", value=f"EXP Until Next Level: {level_up_message}")
                             embedVar7.add_field(name="__EXP Buff__", value=f"{trebirth_message} | {drebirth_message}")
@@ -378,6 +385,7 @@ class Profile(Extension):
                         embedVar8.add_field(name="__Trait List__", value=f"♾️ | {c.set_trait_message()}")
                         embedVar8.set_image(url="attachment://image.png")
                         embedVar8.set_thumbnail(url=player.avatar)
+                        embedVar8.set_footer(text=f"Traits are unique universe based abilities or passives that can be activated in battle. Please read your trait carefully.")
                         
                         embed_list = [embedVar0, embedVar1, embedVar2, embedVar3, embedVar4, embedVar5, embedVar6, embedVar7, embedVar8]
                         paginator = Paginator.create_from_embeds(self.bot, *embed_list)
