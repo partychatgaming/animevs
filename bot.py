@@ -2695,6 +2695,7 @@ async def createcode(ctx, code_input, coin, gems, card=None, exp_to_give=0):
          }
          response = db.createCode(data.newCode(query))
          await ctx.send(f"**{code_input}** Code has been created")
+         loggy.info(f"Code {code_input} has been created by {ctx.author}")
       except Exception as e:
          loggy.error(f"Error in Create Code command: {e}")
          await ctx.send("There's an issue with your Code. Seek support in the Anime 🆚+ support server", ephemeral=True)
@@ -2714,6 +2715,7 @@ async def code(ctx, code_input: str):
       code = db.queryCodes({'CODE_INPUT': code_input})
       
       if code and code['AVAILABLE']:
+         loggy.info(f"Code {code_input} has been used by {ctx.author}")
          coin = code['COIN']
          gems = code['GEMS']
          exp = code['EXP']
@@ -2748,9 +2750,9 @@ async def code(ctx, code_input: str):
                   embed = Embed(title="🛡️ Arm Drop", description=f"You received **{arm.name}** from {arm.universe_crest} {arm.universe}!", color=0x00ff00)
                   embed_list.append(embed)
             if exp:
-               user = await bot.fetch_user(ctx.author.id)
+               # user = await bot.fetch_user(ctx.author.id)
                mode = "Purchase"
-               await crown_utilities.cardlevel(user, mode, exp)
+               await crown_utilities.cardlevel(ctx.author, mode, exp)
                embed = Embed(title="Level Up", description=f"Your 🎴 **{equipped_card.name}** card leveled up!", color=0x00ff00)
                embed_list.append(embed)
             respond = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
@@ -3822,9 +3824,9 @@ async def savecards(ctx):
    try:
       d = db.queryUser({'DID': str(ctx.author.id)})
       loggy.debug(d)
-      me = crown_utilities.create_player_from_data()
+      me = crown_utilities.create_player_from_data(d)
       cards = db.queryAllCards()
-      loggy.info(cards)
+      # loggy.info(cards)
       count = 0
       for card in cards:
          loggy.info(f"Saving card: {card['NAME']}")

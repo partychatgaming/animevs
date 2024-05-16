@@ -30,7 +30,7 @@ def quirk_awakening(player_card, battle_config, player_title):
         player_card.used_resolve = True
         player_card.usedsummon = False
         
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 Resolved: Quirk Awakening! Ap has been increased by **{player_card.my_hero_academia_buff}** 🔺{title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name}  resolved with their quirk awakening. Ap has been increased by {player_card.my_hero_academia_buff} 🔺{title_message}")
 
         battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
@@ -40,7 +40,7 @@ def quirk_awakening(player_card, battle_config, player_title):
 def plus_ultra(player_card, battle_config):
     if player_card.universe == "My Hero Academia" and not player_card.used_block:
         player_card.my_hero_academia_buff_counter += 20
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 went Plus Ultra, increasing their dormant ap to {player_card.my_hero_academia_buff_counter}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} went plus ultra increasing their ap to {player_card.my_hero_academia_buff_counter}")
 
 
 def activate_my_hero_academia_trait(player_card):

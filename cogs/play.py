@@ -738,7 +738,7 @@ async def boss_focusing(battle_config, private_channel):
                 await private_channel.send(embed=embedVar)
 
                 if battle_config.player2_card.universe == "Digimon" and battle_config.player2_card.used_resolve is False:
-                    embedVar = Embed(title=f"(**{battle_config.turn_total}**) ⚡ **{battle_config.player2_card.name}** Resolved!", description=f"{battle_config._rmessage_boss_description}",
+                    embedVar = Embed(title=f"({battle_config.turn_total}) ⚡ **{battle_config.player2_card.name}** Resolved!", description=f"{battle_config._rmessage_boss_description}",
                                             color=0xe91e63)
                     embedVar.set_footer(text=f"{battle_config.player1_card.name} this will not be easy...")
                     await private_channel.send(embed=embedVar)
@@ -1022,17 +1022,15 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
     turn_card.set_stat_icons()
 
 
-    footer_text = battle_config.get_battle_footer_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
+    author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
 
     embedVar = Embed(title=f"", color=0xe74c3c)
     if turn_player.performance:
         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{ctx.author.mention}'s move!\n{turn_card.get_perfomance_header(turn_title)}")
     else:
-        embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{footer_text}")
+        embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{ctx.author.mention} Select move below!")
     
-    updated_list = crown_utilities.replace_matching_numbers_with_arrow(battle_config.previous_moves)
-
     # ai_results = summarize_last_moves(battle_config.previous_moves)
     embedVar.set_image(url="attachment://image.png")
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -1324,7 +1322,7 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
         # else:
         #     emessage = m.CANNOT_USE_RESOLVE
         #     embedVar = Embed(title=emessage, color=0xe91e63)
-        #     battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{turn_card.name}** cannot resolve")
+        #     battle_config.add_to_battle_log(f"({battle_config.turn_total}) **{turn_card.name}** cannot resolve")
         #     await private_channel.defer(ignore=True)
     
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|6":
@@ -1433,7 +1431,7 @@ async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_conf
             turn_player.make_available()
             turn_card.health = 0
             battle_config.game_over = True
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 💨 **{turn_card.name}** Fled...")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 💨 **{turn_card.name}** Fled...")
             await battle_msg.delete()
             await exit_battle_embed(battle_config, button_ctx)
             return

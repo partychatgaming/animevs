@@ -29,7 +29,7 @@ def titan_mode(player_card, battle_config, player_title):
         player_card.health = player_card.health + health_boost
         player_card.damage_healed = player_card.damage_healed + resolve_health + health_boost
 
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 Resolved: Titan Mode! Health increased by **{health_boost}**!{title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} resolved, entering their titan form, healing for {health_boost} {title_message}")
 
         battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
@@ -38,6 +38,6 @@ def titan_mode(player_card, battle_config, player_title):
 
 def rally(player_card, battle_config):
     if player_card.universe == "Attack On Titan":
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **Rally** 🩸 ! **{player_card.name}** Gained {(100 * player_card.tier)} Health & Max Health ❤️")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} gained {(100 * player_card.tier)} health and max health rallying the survey corps ❤️")
         player_card.max_health = round(player_card.max_health + (100 * player_card.tier))
         player_card.health = player_card.health + (100 * player_card.tier)

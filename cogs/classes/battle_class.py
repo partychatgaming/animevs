@@ -895,7 +895,7 @@ class Battle:
             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}\n{partner_card.name}: {y_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}"
 
 
-    def get_battle_footer_text(self, opponent_card, opponent_title, your_card, your_title, partner_card=None, partner_title=None):
+    def get_battle_author_text(self, opponent_card, opponent_title, your_card, your_title, partner_card=None, partner_title=None):
         emojis = {
             'resolve': '🌀',
             'focus': '❤️',
@@ -924,61 +924,25 @@ class Battle:
 
         if self.is_co_op_mode or self.is_duo_mode:
             if self.is_turn in [1, 0]:
-                return '\n'.join(map(format_card, ['opponent', 'partner', 'your']))
+                return '\n'.join(map(format_card, ['opponent']))
             elif self.is_turn == 3:
-                return '\n'.join(map(format_card, ['opponent', 'your', 'partner']))
+                return '\n'.join(map(format_card, ['opponent']))
             else:
-                return '\n'.join(map(format_card, ['opponent', 'partner', 'your']))
+                return '\n'.join(map(format_card, ['opponent']))
         else:
-            return '\n'.join(map(format_card, ['opponent', 'your']))
-
-
-    # def get_battle_footer_text(self, opponent_card, opponent_title, your_card, your_title, partner_card=None, partner_title=None):
-    #     o_resolve = '🌀'
-    #     y_resolve = '🌀'
-    #     p_resolve = '🌀'
-    #     o_focus = '❤️'
-    #     y_focus = '❤️'
-    #     p_focus = '❤️'
-    #     title_emoji = '🎗️'
+            return '\n'.join(map(format_card, ['opponent']))    
         
-    #     if opponent_card.used_focus:
-    #         o_focus = '💖'
-    #     if your_card.used_focus:
-    #         y_focus = '💖'
         
-    #     if opponent_card.used_resolve:
-    #         o_resolve = '⚡'
-    #     if your_card.used_resolve:
-    #         y_resolve = '⚡'
-            
-    #     if partner_card:
-    #         if partner_card.used_focus:
-    #             p_focus = '💖'
-    #         if partner_card.used_resolve:
-    #             p_resolve = '⚡'
-            
-    #     if self.is_turn == 1:
-    #         if self.is_co_op_mode or self.is_duo_mode:
-    #             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)}\n{opponent_title.name} {opponent_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
-    #         else:
-    #             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)}\n{opponent_title.name} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
-    #     elif self.is_turn == 3:
-    #         if self.is_co_op_mode or self.is_duo_mode:
-    #             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)}\n{opponent_title.name} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}"
-    #         else:
-    #             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)}\n{opponent_title.name} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
-    #     elif self.is_turn == 0:
-    #         if self.is_co_op_mode or self.is_duo_mode:
-    #             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)}\n{opponent_title.name} {opponent_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
-    #         else:
-    #             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)}\n{opponent_title.name} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
-    #     else:
-    #         if self.is_co_op_mode or self.is_duo_mode:
-    #             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)}\n{opponent_title.name} {opponent_card._arm_message}\n{partner_card.name}: {p_focus}{round(partner_card.health)} {p_resolve}{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
-    #         else:
-    #             return f"{opponent_card.name}: {o_focus}{round(opponent_card.health)} {o_resolve}{round(opponent_card.stamina)} 🗡️{round(opponent_card.attack)}/🛡️{round(opponent_card.defense)}\n{opponent_title.name} {opponent_card._arm_message}\n{your_card.name}: {y_focus}{round(your_card.health)} {y_resolve}{round(your_card.stamina)} 🗡️{round(your_card.attack)}/🛡️{round(your_card.defense)} {your_card._arm_message}"
-    
+        # The original
+        # if self.is_co_op_mode or self.is_duo_mode:
+        #     if self.is_turn in [1, 0]:
+        #         return '\n'.join(map(format_card, ['opponent', 'partner', 'your']))
+        #     elif self.is_turn == 3:
+        #         return '\n'.join(map(format_card, ['opponent', 'your', 'partner']))
+        #     else:
+        #         return '\n'.join(map(format_card, ['opponent', 'partner', 'your']))
+        # else:
+        #     return '\n'.join(map(format_card, ['opponent', 'your']))  
 
     def ai_battle_command(self, your_card, opponent_card):
         aiMove = 0

@@ -5,8 +5,8 @@ def handle_card(card, other_card, battle_config, dmg):
     if card.health <= 0 and card._final_stand and card.universe == "Dragon Ball Z":
         if card.barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not dmg['SUMMON_USED']:
             card.barrier_active = False
-            battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{card.name}** **{card.name}** disengaged their barrier to engage with an attack")
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{card.name}** 🩸 Transformation: Last Stand!!!")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {card.name} disengaged their barrier to engage with an attack")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {card.name} is undergoing a transformation")
         card.health = 1 + round(.75 * (card.attack + card.defense))
         if card.health < 0:
             card.health = 100 + round(.75 * (card.base_attack + card.base_defense))
@@ -30,7 +30,7 @@ def final_stand(player_card, battle_config, dmg, opponent_card):
 def saiyan_spirit(player_card, battle_config, opponent_card):
     if player_card.universe == "Dragon Ball Z":
         player_card.health = player_card.health + opponent_card.stamina + battle_config.turn_total
-        battle_config.add_to_battle_log(f"(**🌀**) 🩸 Saiyan Spirit... You heal for **{opponent_card.stamina + battle_config.turn_total}** ❤️")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name}'s fighting spirit healted them for {opponent_card.stamina + battle_config.turn_total} health ❤️")
 
 
 

@@ -38,7 +38,7 @@ def tactics_petrified_fear_check(boss_card, player_card, battle_config):
     if boss_card.petrified_fear and boss_card.petrified_fear_counter < boss_card.petrified_fear_turns:
         boss_card.petrified_fear_counter = boss_card.petrified_fear_counter + 1
         battle_config.is_turn = 1
-        petrified_fear_message = f"(🆚)**[{player_card.name} is petrified with fear and cannot move for [{str((boss_card.petrified_fear_turns - boss_card.petrified_fear_counter) + 1)}] turns]**"
+        petrified_fear_message = f"(🆚) [{player_card.name} is petrified with fear and cannot move for [{str((boss_card.petrified_fear_turns - boss_card.petrified_fear_counter) + 1)}] turns]"
         battle_config.add_to_battle_log(petrified_fear_message)
         return True
     else:
@@ -52,7 +52,7 @@ def tactics_bloodlust_check(boss_card, battle_config):
                 print("bloodlust check")
                 boss_card.bloodlust_activated = True
                 boss_card.attack = boss_card.attack + 3000
-                bloodlust_message = f"(🆚)**[{boss_card.name} is bloodlusted. Attacks will now lifesteal]**"
+                bloodlust_message = f"(🆚) [{boss_card.name} is bloodlusted. Attacks will now lifesteal]"
                 battle_config.add_to_battle_log(bloodlust_message)
 
 
@@ -66,7 +66,7 @@ def tactics_enrage_check(boss_card, battle_config):
                 boss_card.arbitrary_ap_buff = boss_card.arbitrary_ap_buff + 600
                 boss_card.max_health = boss_card.max_health + 10000
                 boss_card.stamina = 260
-                enrage_message = f"(🆚)**[{boss_card.name} is enraged! Attacks will now deal much more damage to the enemy]**"
+                enrage_message = f"(🆚) [{boss_card.name} is enraged! Attacks will now deal much more damage to the enemy]"
                 battle_config.add_to_battle_log(enrage_message)
 
 
@@ -84,7 +84,7 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
                 boss_card.intimidation_turns = boss_card.intimidation_turns - 1
                 player_card.attack = 0
                 player_card.defense = 0
-                intimidation_message = f"(🆚)**[{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns\n{player_card.name}'s Attack and Defense are booth 0 out of fear]**"
+                intimidation_message = f"(🆚) [{player_card.name} is intimidated by {boss_card.name} for {str(boss_card.intimidation_turns + 1)} turns\n{player_card.name}'s Attack and Defense are booth 0 out of fear]"
                 battle_config.add_to_battle_log(intimidation_message)
             else:
                 player_card.attack = player_card.temporary_attack
@@ -92,7 +92,7 @@ def tactics_intimidation_check(boss_card, player_card, battle_config):
                 boss_card.intimidation_activated = False
                 boss_card.intimidation = False
                 boss_card.intimidation_counter = 0
-                intimidation_message = f"(🆚)**[{player_card.name} is no longer intimidated by {boss_card.name}\n{player_card.name}'s Attack and Defense is restored]**"
+                intimidation_message = f"(🆚) [{player_card.name} is no longer intimidated by {boss_card.name}\n{player_card.name}'s Attack and Defense is restored]"
                 battle_config.add_to_battle_log(intimidation_message)
 
 
@@ -105,7 +105,7 @@ def tactics_damage_check(boss_card, battle_config):
                 boss_card.damage_check_turns = round(random.randint(3, 6))
         if boss_card.damage_check_activated:
             battle_config.is_turn = 0
-            battle_config.add_to_battle_log(f"(🆚)**[{boss_card.name} Damage Check\nDamage Dealt [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]**")
+            battle_config.add_to_battle_log(f"(🆚) [{boss_card.name} Damage Check\nDamage Dealt [{str(boss_card.damage_check_counter)} / {str(boss_card.damage_check_limit)}]\n[{str(boss_card.damage_check_turns)}] turns to go]")
 
 
 def tactics_regeneration_check(boss_card, battle_config):
@@ -115,7 +115,7 @@ def tactics_regeneration_check(boss_card, battle_config):
                 battle_config.game_over_check = False
                 boss_card.regeneration_activated = True
                 boss_card.health = boss_card.max_base_health
-                regeneration_message = f"(🆚)**[{boss_card.name} has regenerated]**"
+                regeneration_message = f"(🆚) [{boss_card.name} has regenerated]"
                 battle_config.add_to_battle_log(regeneration_message)
 
 
@@ -126,7 +126,7 @@ def tactics_death_blow_check(boss_card, player_card, battle_config):
 
         if battle_config.turn_total in [9,10,29,30, 59,60, 89, 90, 119, 120, 149, 150, 179, 180,  199, 200, 219, 220, 239, 240,  249, 250]:
             #sif battle_config.is_turn in [0,2]:
-            warning_message = f"(🆚)**[{boss_card.name} is preparing a death blow! Protect yourself with shields, parries, barriers, or block]**"
+            warning_message = f"(🆚) [{boss_card.name} is preparing a death blow. Protect yourself with shields, parries, barriers, or block]"
             battle_config.add_to_battle_log(warning_message)
 
         if boss_card.death_blow_activated and battle_config.is_turn in [1,3]:
@@ -138,16 +138,16 @@ def tactics_death_blow_check(boss_card, player_card, battle_config):
                 player_card._parry_value = 0
                 player_card._barrier_value = 0
                 player_card._arm_message = ""
-                death_blow_message = f"(🆚)**[{boss_card.name} destroyed {player_card.name} protections with a destructive blow!]**"
+                death_blow_message = f"(🆚) [{boss_card.name} destroyed {player_card.name} protections with a destructive blow!]"
                 if player_card.used_block:
                     player_card.used_block = False
                     player_card.defense = player_card.defense - (player_card.defense * 0.25)
-                    death_blow_message = f"(🆚)**[{player_card.name} blocked a destructive blow, but lost some defense in the process]**"
+                    death_blow_message = f"(🆚) [{player_card.name} blocked a destructive blow, but lost some defense in the process]"
                 battle_config.add_to_battle_log(death_blow_message)
                 boss_card.death_blow_activated = False
             else:
                 player_card.health = 0
-                death_blow_message = f"(🆚)**[{boss_card.name} dealt a fatal blow to {player_card.name}]**"
+                death_blow_message = f"(🆚) [{boss_card.name} dealt a fatal blow to {player_card.name}]"
                 battle_config.add_to_battle_log(death_blow_message)
                 boss_card.death_blow_activated = False
 
@@ -156,7 +156,7 @@ def tactics_stagger_check(boss_card, player_card, battle_config):
     if boss_card.stagger:
         if boss_card.stagger_activated:
             battle_config.is_turn = 1
-            stagger_message = f"(🆚)**[ {player_card.name} is staggered and cannot move! ]**"
+            stagger_message = f"(🆚) [{player_card.name} is staggered and cannot move]"
             battle_config.add_to_battle_log(stagger_message)
             boss_card.stagger_activated = False
 
@@ -166,7 +166,7 @@ def tactics_almighty_will_check(boss_card, battle_config):
         if battle_config.turn_total in boss_card.almighty_will_turns:
             battle_config.is_turn = random.randint(3, 80)
             boss_card.focus_count = random.randint(3, 30)
-            almighty_will_message = f"(🆚)**[⏳ {boss_card.name} manipulated the flow of battle\nIt is now turn {str(battle_config.is_turn)} and {boss_card.name} has focused {str(boss_card.focus_count)} times]**"
+            almighty_will_message = f"(🆚) [⏳ {boss_card.name} manipulated the flow of battle\nIt is now turn {str(battle_config.is_turn)} and {boss_card.name} has focused {str(boss_card.focus_count)} times]"
             battle_config.add_to_battle_log(almighty_will_message)
 
 
@@ -239,14 +239,12 @@ async def auto_battle_embed_and_starting_traits(ctx, player_card, player_title, 
 
     activate_solo_leveling_trait(player_card, battle_config, opponent_card)
             
-    embedVar = Embed(title=f"➡️ **Current Turn** {battle_config.turn_total}", color=0xe74c3c)
+    embedVar = Embed(title=f"➡️ Current Turn {battle_config.turn_total}", color=0xe74c3c)
     await asyncio.sleep(2)
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
-    footer_text = battle_config.get_battle_footer_text(opponent_card, opponent_title, player_card, player_title, companion_card, companion_title)
+    footer_text = battle_config.get_battle_author_text(opponent_card, opponent_title, player_card, player_title, companion_card, companion_title)
     # footer_text = battle_config.get_battle_window_title_text(player_card,opponent_card)
-    
-    updated_list = crown_utilities.replace_matching_numbers_with_arrow(battle_config.previous_moves)
-
+    embedVar.set_author(name=f"{player_card.summon_resolve_message}\n{footer_text}")
     embedVar.set_footer(
         text=f"{battle_config.get_previous_moves_embed()}")
 

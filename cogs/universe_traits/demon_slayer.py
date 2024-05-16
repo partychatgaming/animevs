@@ -31,7 +31,7 @@ def total_concentration_breathing(player_card, battle_config, player_title):
         player_card.used_resolve = True
         player_card.usedsummon = False
 
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 Resolved: Total Concentration Breathing!{title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} resolved with their total concentration breathing {title_message}")
         battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True
@@ -40,7 +40,7 @@ def activate_demon_slayer_trait(player_card, battle_config, opponent_card):
     if player_card.universe == "Demon Slayer" and not player_card.breathing_message:
         battle_config.turn_zero_has_happened = True
         player_card.breathing_message = True
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 Total Concentration Breathing: **Increased HP by {round(opponent_card.health * .40)}**")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} total concentration breathing increased their health by {round(opponent_card.health * .40)}")
         player_card.health = round(player_card.health + (opponent_card.health * .40))
         player_card.max_health = round(player_card.max_health + (opponent_card.health *.40))
 

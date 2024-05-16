@@ -317,34 +317,45 @@ class Player:
                 print("Card already in storage")
                 return False
 
-            if self.cards_length == 25:
-                if self.card_storage_full:
-                    return False
-                else:
-                    print("Adding card to storage")
-                    update_query = {'$addToSet': {'STORAGE': card.name}}
-                    # Check if the card.name is in 'CARD' field of the CARD_LEVELS array
-                    # If not, add it to the CARD_LEVELS array
-                    # print(card.name)
-                    if any(card.name in d['CARD'] for d in self.card_levels):
-                        print(f"Card found in CARD_LEVELS array: {card.name}")
+            # if self.cards_length == 25:
+            #     if self.card_storage_full:
+            #         return False
+            #     else:
+            #         print("Adding card to storage")
+            #         update_query = {'$addToSet': {'STORAGE': card.name}}
+            #         # Check if the card.name is in 'CARD' field of the CARD_LEVELS array
+            #         # If not, add it to the CARD_LEVELS array
+            #         # print(card.name)
+            #         if any(card.name in d['CARD'] for d in self.card_levels):
+            #             print(f"Card found in CARD_LEVELS array: {card.name}")
 
-                    if not any(card.name in d['CARD'] for d in self.card_levels):
-                        print(f"Card not found in CARD_LEVELS array: {card.name}")
-                        update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
+            #         if not any(card.name in d['CARD'] for d in self.card_levels):
+            #             print(f"Card not found in CARD_LEVELS array: {card.name}")
+            #             update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
 
-                    response = db.updateUserNoFilter(self.user_query, update_query)
-            else:
-                update_query = {'$addToSet': {'CARDS': card.name}}
-                if any(card.name in d['CARD'] for d in self.card_levels):
-                    print(f"Card has been found in CARD_LEVELS array: {card.name}")
-                if not any(card.name in d['CARD'] for d in self.card_levels):
-                    print(f"Card not found in CARD_LEVELS array: {card.name}")
-                    update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
-                db.updateUserNoFilter(self.user_query,{'$addToSet':{'CARDS': card.name}})
-                db.updateUserNoFilter(self.user_query, update_query)
-                response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
+            #         response = db.updateUserNoFilter(self.user_query, update_query)
+            # else:
+            #     update_query = {'$addToSet': {'CARDS': card.name}}
+            #     if any(card.name in d['CARD'] for d in self.card_levels):
+            #         print(f"Card has been found in CARD_LEVELS array: {card.name}")
+            #     if not any(card.name in d['CARD'] for d in self.card_levels):
+            #         print(f"Card not found in CARD_LEVELS array: {card.name}")
+            #         update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
+            #     db.updateUserNoFilter(self.user_query,{'$addToSet':{'CARDS': card.name}})
+            #     db.updateUserNoFilter(self.user_query, update_query)
+            #     response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
             
+
+            update_query = {'$addToSet': {'CARDS': card.name}}
+
+            if not any(card.name in d['CARD'] for d in self.card_levels):
+                print(f"Card not found in CARD_LEVELS array: {card.name}")
+                update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
+            db.updateUserNoFilter(self.user_query,{'$addToSet':{'CARDS': card.name}})
+            db.updateUserNoFilter(self.user_query, update_query)
+            # response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
+
+
             if card.card_lvl > 1:
                 atk_def_buff = 0
                 ap_buff = 0

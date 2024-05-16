@@ -20,14 +20,14 @@ def rank_hero(player_card, battle_config, opponent_card):
             rank = ":regional_indicator_a:"
         player_card.card_lvl_ap_buff = player_card.card_lvl_ap_buff + ap_boost
         
-        battle_config.add_to_battle_log(f"(**🌀**)  🩸{rank} Rank Hero : **{player_card.name}** increased AP by **{ap_boost}** :sunny:!")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {rank} rank hero {player_card.name} increased ap by {ap_boost}")
 
 
 def hero_reinforcements(player_card, battle_config, opponent_card):
     if opponent_card.universe == "One Punch Man":
         opponent_card.health = round(opponent_card.health + 100)
         opponent_card.max_health = round(opponent_card.max_health + 100)
-        battle_config.add_to_battle_log(f"(**🌀**) 🩸 Hero Reinforcements! **{opponent_card.name}**  Increased Health & Max Health ❤️")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 hero reinforcements for {opponent_card.name} increased health and max health ❤️")
 
 
 

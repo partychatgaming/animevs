@@ -636,7 +636,7 @@ class Title:
             power = getattr(self, f'ability{i}_power', None)
             if ability and ability == "SYNTHESIS":
                 self.synthesis_damage_stored = self.synthesis_damage_stored + round(dmg / 2)
-                battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🎗️ **{self.name}** : {self.synthesis_damage_stored} damage stored")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🎗️ **{self.name}** : {self.synthesis_damage_stored} damage stored")
                 title_message = f"🎗️ synthesis effect activated"
 
 

@@ -2,7 +2,7 @@ import crown_utilities
 
 def souls_resolve(player_card, battle_config):
     if player_card.universe == "Souls":
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 Phase 2: Enhanced Moveset!")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} phase 2 - enhanced moveset")
         combat_phases(player_card)
         return True
     else:
@@ -26,7 +26,7 @@ def combat_phases(player_card):
 def combo_recognition(player_card, battle_config, opponent_card):
     if opponent_card.universe == "Souls":
         opponent_card.attack = round(opponent_card.attack + (60 + battle_config.turn_total))
-        battle_config.add_to_battle_log(f"(**🌀**) 🩸 Combo Recognition! **{opponent_card.name}** Increased Attack by **{60 + battle_config.turn_total}** 🔺")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {opponent_card.name} increased attack by {60 + battle_config.turn_total} 🔺")
 
 
 

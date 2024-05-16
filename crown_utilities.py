@@ -77,8 +77,8 @@ def replace_matching_numbers_with_arrow(text_list):
         if match:
             number = match.group(1)
             if number in first_occurrence:
-                # Replace the number with ↪️ if it's a duplicate
-                text = re.sub(r'\(\d+\)', '↪️', text, count=1)
+                # Replace the number with :plus1: if it's a duplicate
+                text = re.sub(r'\(\d+\)', '⤵️', text, count=1)
             else:
                 # Mark the number as seen for the first time
                 first_occurrence.add(number)

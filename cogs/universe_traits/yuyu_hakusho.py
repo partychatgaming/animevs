@@ -38,7 +38,7 @@ def spirit_resolved(player_card, battle_config, opponent_card, player_title):
         player_card.used_resolve = True
         player_card.usedsummon = False
         
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 Energy Resolved! Ap has been increased by **{round(boost)}** 🔺{title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} resolved with their spirit energy raising their api by {round(boost)} 🔺{title_message}")
 
         battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
@@ -49,4 +49,4 @@ def meditation(player_card, battle_config):
     if player_card.universe == "Yu Yu Hakusho" and not player_card.used_resolve:
         defense_increase = 100 * player_card.tier
         player_card.defense = player_card.defense + defense_increase
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 went into a state of meditation, increasing their defense by {defense_increase}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} increased their defense by {defense_increase}")

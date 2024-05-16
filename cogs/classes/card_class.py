@@ -999,19 +999,19 @@ class Card:
                 self.health = 0
             self.damage_received = self.damage_received + round(bleed_hit_modified)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(bleed_hit_modified)
-            return f"🩸 ({turn_total}) {self.name} shredded {opponent_card.name} for {round(bleed_hit_modified)} bleed damage"
+            return f"({turn_total}) 🩸 {self.name} shredded {opponent_card.name} for {round(bleed_hit_modified)} bleed damage"
 
 
     def set_burn_hit(self, opponent_card):
         burn_message = None
         if opponent_card.burn_dmg > 15:
             self.health = self.health - opponent_card.burn_dmg
-            burn_message =  f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg..."
+            burn_message =  f"🔥 {self.name} was burned for {round(opponent_card.burn_dmg)} damage"
             self.damage_received = self.damage_received + round(opponent_card.burn_dmg)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.burn_dmg)
             if self.health <= 0:
                 self.health = 0
-                burn_message = f"🔥 **{self.name}** burned for **{round(opponent_card.burn_dmg)}** dmg and died..."
+                burn_message = f"🔥 {self.name} burned for {round(opponent_card.burn_dmg)} damage and died"
                 opponent_card.burn_dmg = 0
 
 
@@ -1028,7 +1028,7 @@ class Card:
             battle_config.next_turn()
 
 
-        return {"MESSAGE" : f"❄️ **{self.name}** has been frozen for a turn...", "TURN": battle_config.is_turn}
+        return {"MESSAGE" : f"❄️ {self.name} is frozen for 1 turn", "TURN": battle_config.is_turn}
                 
 
     def set_poison_hit(self, opponent_card):
@@ -1038,7 +1038,7 @@ class Card:
                 self.health = 0
             self.damage_received = self.damage_received + round(opponent_card.poison_dmg)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.poison_dmg)
-            return f"🧪 **{self.name}** poisoned for **{opponent_card.poison_dmg}** dmg..."
+            return f"🧪 {self.name} was dealt {opponent_card.poison_dmg} poison damage"
 
 
     def set_gravity_hit(self):
@@ -1440,7 +1440,7 @@ class Card:
                     elif enh in ['SOULCHAIN', 'GAMBLE']:
                         message = f"{turn_card.name} synchronized {'stamina' if enh == 'SOULCHAIN' else 'health'}  to {enhancer_value}"
                     else:
-                        message = f"{turn_card.name} inflicted {enh}"
+                        message = f"{turn_card.name} inflicted {enh.lower()}"
                     return message
             
             m = get_message(move, enh, enhancer_value, self.tier)

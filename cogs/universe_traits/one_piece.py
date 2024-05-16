@@ -33,7 +33,7 @@ def conquerors_haki(player_card, battle_config, opponent_card, player_title):
         player_card.defense = round(player_card.defense - resolve_defense_value)
         player_card.used_resolve = True
         player_card.usedsummon = False
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 Conquerors Haki: Resolved!{title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name}  resolved with their conquerors haki {title_message}")
         battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True
@@ -42,14 +42,14 @@ def armament(player_card, health_calculation, battle_config):
     if player_card.universe == "One Piece" and (player_card.tier in crown_utilities.MID_TIER_CARDS or player_card.tier in crown_utilities.HIGH_TIER_CARDS):
         attack_calculation = attack_calculation + attack_calculation
         defense_calculation = defense_calculation + defense_calculation
-        battle_config.add_to_battle_log(f"(**🌀**) 🩸 Armament Haki !\n**{player_card.name}**  Gains 2x ATK and DEF\n*+❤️{health_calculation} | +🗡️ {attack_calculation} | +🛡️{defense_calculation}*")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name}'s armament haki increases attack and defense [+❤️{health_calculation} | +🗡️ {attack_calculation} | +🛡️{defense_calculation}]")
 
 
 def observation_haki(player_card, battle_config, opponent_card):
     if player_card.universe == "One Piece" and not player_card.haki_message:
         battle_config.turn_zero_has_happened = True
         player_card.haki_message = True
-        battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) **{player_card.name}** 🩸 Observation Haki: **40% Damage Reduction Until First Focus!**")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name}  observation haki reduces damage by 40% until first focus")
 
 
 

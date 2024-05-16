@@ -32,21 +32,18 @@ class Scenario(Extension):
     async def scenario_selector(self, ctx, universe_title, player, level = None):
         try:
             scenarios = await asyncio.to_thread(db.queryAllScenariosByUniverse,universe_title)
-
             if scenarios:
                 embed_list = []
                 sorted_scenarios = sorted(scenarios, key=lambda x: x["ENEMY_LEVEL"])
                 for scenario in sorted_scenarios:
                     if scenario["ENEMY_LEVEL"] <= crown_utilities.scenario_level_config:
-                        embed = await asyncio.to_thread(create_scenario_embed, scenario, player)
+                        embed = await create_scenario_embed(scenario, player)
                         if embed:
                             embed_list.append(embed)
                     else:
                         pass
 
-                if embed_list:
-                    results = await gather_results(embed_list)
-                paginator = CustomPaginator.create_from_embeds(self.bot, *results, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
+                paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
@@ -70,17 +67,14 @@ class Scenario(Extension):
             sorted_scenarios = sorted(scenarios, key=lambda x: x["ENEMY_LEVEL"])
             for scenario in sorted_scenarios:
                 if scenario["ENEMY_LEVEL"] > crown_utilities.scenario_level_config:
-                    embed = await asyncio.to_thread(create_scenario_embed,scenario, player)
+                    embed = await create_scenario_embed(scenario, player)
                     if embed:
                         embed_list.append(embed)
                 else:
                     pass
 
             if embed_list:
-                results = await gather_results(embed_list)
-
-            if embed_list:
-                paginator = CustomPaginator.create_from_embeds(self.bot, *results, custom_buttons=["Start", "Quit"], paginator_type="Raid")
+                paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Raid")
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:

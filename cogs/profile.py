@@ -332,7 +332,7 @@ class Profile(Extension):
                         # page 8 (trait page)
                         embedVar0 = Embed(title=f"Build Overview".format(self), color=000000)
                         embedVar0.add_field(name="__Build Summary__", value=f"""
-                        Your current build features the powerful card **{c.name}**, enhanced by the title **{t.name}**. Equipped with the **{a.name}** arm, your build is further supported by the summon **{player.equipped_summon}**. For more details, please check the other pages.
+                        Your current build features the card 🎴 **{c.name}**, enhanced by the title 🎗️ **{t.name}**. Equipped with the arm 🦾 **{a.name}**, your build is further supported by the summon 🧬 **{player.equipped_summon}**. For more details, please check the other pages.
                         """)
                         embedVar0.set_image(url="attachment://image.png")
 
@@ -824,47 +824,44 @@ class Profile(Extension):
         player = crown_utilities.create_player_from_data(d)
         try: 
             embed_list = []
-            count = 0
             for card in sorted(player.cards):
-                if count < 25:
-                    index = player.cards.index(card)
-                    resp = db.queryCard({"NAME": str(card)})
-                    c = crown_utilities.create_card_from_data(resp)
-                    c.set_card_level_buffs(player.card_levels)
-                    c.set_affinity_message()
-                    c.set_evasion_message(player)
-                    c.set_card_level_icon(player)
-                    currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": c.name})
-                    embedVar = Embed(title= f"{c.name}", description=textwrap.dedent(f"""\
-                    {c.drop_emoji} **[{index}]** 
-                    {c.class_emoji} {c.class_message}
-                    🀄 {c.tier}: {c.level_icon} {c.card_lvl}
-                    ❤️ **{c.health}** 🗡️ **{c.attack}** 🛡️ **{c.defense}**
-                    
-                    {c.move1_emoji} **{c.move1}:** {c.move1ap}
-                    {c.move2_emoji} **{c.move2}:** {c.move2ap}
-                    {c.move3_emoji} **{c.move3}:** {c.move3ap}
-                    🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{c.move4enh_suffix}
+                index = player.cards.index(card)
+                resp = db.queryCard({"NAME": str(card)})
+                c = crown_utilities.create_card_from_data(resp)
+                c.set_card_level_buffs(player.card_levels)
+                c.set_affinity_message()
+                c.set_evasion_message(player)
+                c.set_card_level_icon(player)
+                currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": c.name})
+                embedVar = Embed(title= f"{c.name}", description=textwrap.dedent(f"""\
+                {c.drop_emoji} **[{index}]** 
+                {c.class_emoji} {c.class_message}
+                🀄 {c.tier}: {c.level_icon} {c.card_lvl}
+                ❤️ **{c.health}** 🗡️ **{c.attack}** 🛡️ **{c.defense}**
+                
+                {c.move1_emoji} **{c.move1}:** {c.move1ap}
+                {c.move2_emoji} **{c.move2}:** {c.move2ap}
+                {c.move3_emoji} **{c.move3}:** {c.move3ap}
+                🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{c.move4enh_suffix}
 
-                    """), color=0x7289da)
-                    embedVar.add_field(name="__Evasion__", value=f"🏃 | {c.evasion_message}")
-                    embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
-                    embedVar.set_thumbnail(url=c.universe_image)
-                    embedVar.set_footer(text=f"/enhancers - 🩸 Enhancer Menu")
-                    if currently_on_market:
-                        embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
-                    embed_list.append(embedVar)
-                    count += 1
-                else:
-                    update_storage_query = {
-                                    '$pull': {'CARDS': card},
-                                    '$addToSet': {'STORAGE': card},
-                                }
-                    response = db.updateUserNoFilter(query, update_storage_query)
-
+                """), color=0x7289da)
+                embedVar.add_field(name="__Evasion__", value=f"🏃 | {c.evasion_message}")
+                embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
+                embedVar.set_thumbnail(url=c.universe_image)
+                embedVar.set_footer(text=f"/enhancers - 🩸 Enhancer Menu")
+                if currently_on_market:
+                    embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
+                embed_list.append(embedVar)
+                # count += 1
+                # else:
+                #     update_storage_query = {
+                #                     '$pull': {'CARDS': card},
+                #                     '$addToSet': {'STORAGE': card},
+                #                 }
+                #     response = db.updateUserNoFilter(query, update_storage_query)
+            print(len(embed_list))
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage', 'Market'], paginator_type="Cards")
-            if len(embed_list) <= 25:
-                paginator.show_select_menu = True
+            paginator.show_select_menu = True
             await paginator.send(ctx)
         except Exception as ex:
             custom_logging.debug(ex)
