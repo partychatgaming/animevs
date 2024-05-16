@@ -848,7 +848,8 @@ class Battle:
 
 
     def get_previous_moves_embed(self):
-        msg = "\n\n".join(self.previous_moves)
+        updated_list = crown_utilities.replace_matching_numbers_with_arrow(self.previous_moves)
+        msg = "\n\n".join(updated_list)
         if msg:
             return msg
         else:
@@ -919,7 +920,7 @@ class Battle:
 
         def format_card(player):
             card, title, resolve, focus = card_statuses[player]
-            return f"{card.name}: {focus}{round(card.health)} {resolve}{round(card.stamina)} 🗡️{round(card.attack)}/🛡️{round(card.defense)}\n{title.title_battle_message_handler()} {card._arm_message}"
+            return f"🎴 {card.name}\n{focus}{round(card.health)} {resolve}{round(card.stamina)} 🗡️{round(card.attack)}/🛡️{round(card.defense)}\n{title.title_battle_message_handler()} {card._arm_message}"
 
         if self.is_co_op_mode or self.is_duo_mode:
             if self.is_turn in [1, 0]:
@@ -1480,7 +1481,7 @@ class Battle:
                 emoji = "⚜️"
             elif lvl >=200:
                 emoji = "🔱"
-            return f"[{crown_utilities.class_emojis[card.card_class]}] {emoji} *{lvl} {card.name}*"
+            return f"[{crown_utilities.class_emojis[card.card_class]}] {emoji} {lvl} {card.name}"
 
         p1_msg = get_player_message(self.player1_card)
         p2_msg = get_player_message(self.player2_card)

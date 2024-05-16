@@ -637,7 +637,7 @@ class Title:
             if ability and ability == "SYNTHESIS":
                 self.synthesis_damage_stored = self.synthesis_damage_stored + round(dmg / 2)
                 battle_config.add_to_battle_log(f"(**{battle_config.turn_total}**) 🎗️ **{self.name}** : {self.synthesis_damage_stored} damage stored")
-                title_message = f"🎗️ *Synthesis Effect has activated!*"
+                title_message = f"🎗️ synthesis effect activated"
 
 
     def singularity_handler(self, resolve_health_buff, resolve_attack_buff, resolve_defense_buff):
@@ -648,7 +648,7 @@ class Title:
                 resolve_health_buff += resolve_health_buff * (power / 100)
                 resolve_attack_buff += resolve_attack_buff * (power / 100)
                 resolve_defense_buff += resolve_defense_buff * (power / 100)
-                title_message = f"🎗️ *Singularity Effect has activated!*"
+                title_message = f"🎗️ singularity effect activated"
                 return resolve_health_buff, resolve_attack_buff, resolve_defense_buff, title_message
 
 
@@ -683,7 +683,7 @@ class Title:
                 if dmg["ELEMENT"] == element:
                     card.health = card.health + (dmg["DMG"] * .25)
                     card.max_health = card.max_health + (dmg["DMG"] * .25)
-                    title_message = f"🎗️ *Spell Shield Effect has activated! 25% of the damage dealt to the shield was absorbed*"
+                    title_message = f"🎗️ spell shield activated, 25% of damage dealt to the shield was absorbed"
                     return title_message
 
 
@@ -693,7 +693,7 @@ class Title:
             power = getattr(self, f'ability{i}_power', None)
             if ability and ability == "SPEED":
                 card.speed = card.speed + power
-                title_message = f"🎗️ *Speed Effect has activated!*"
+                title_message = f"🎗️ speed effect activated"
                 return title_message
 
 

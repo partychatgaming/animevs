@@ -22,7 +22,7 @@ import textwrap
 import uuid
 import custom_logging
 import destiny as d
-import random
+from logger import loggy
 import uuid
 from .classes.custom_paginator import CustomPaginator
 from interactions.ext.paginators import Paginator
@@ -313,6 +313,7 @@ class Profile(Extension):
                         embedVar.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                         
                         await ctx.send(embed=embedVar)
+                        loggy.info(f"Build command executed by {ctx.author} successfully with performance on")
                     
                     else:
                         image_binary = c.showcard()
@@ -329,10 +330,11 @@ class Profile(Extension):
                         # page 6 (affinity view)
                         # page 7 (level up view)
                         # page 8 (trait page)
-                        embedVar0 = Embed(title=f"Build Home View".format(self), color=000000)
-                        embedVar0.add_field(name=f"__Welcome to Build View__", value=f"View and learn your build and how each item works. ➡️", inline=True)
+                        embedVar0 = Embed(title=f"Build Overview".format(self), color=000000)
+                        embedVar0.add_field(name="__Build Summary__", value=f"""
+                        Your current build features the powerful card **{c.name}**, enhanced by the title **{t.name}**. Equipped with the **{a.name}** arm, your build is further supported by the summon **{player.equipped_summon}**. For more details, please check the other pages.
+                        """)
                         embedVar0.set_image(url="attachment://image.png")
-                        embedVar0.set_thumbnail(url=player.avatar)
 
                         embedVar1 = Embed(title=f"Build Title View".format(self), color=000000)
                         embedVar1.add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=True)
@@ -392,16 +394,20 @@ class Profile(Extension):
                         paginator.show_select_menu = True
                         await paginator.send(ctx, file=card_file)
                         image_binary.close()
+                        loggy.info(f"Build command executed by {ctx.author} successfully")
                 except Exception as ex:
                     custom_logging.debug(ex)
+                    loggy.error(ex)
                     embed = Embed(title="Build Error", description="There was an error with your build command. Please try again later.", color=000000)
                     await ctx.send(embed=embed)
                     return
             else:
+                loggy.error("Error: One or more of the required data is not available.")
                 embed = Embed(title="Build Error", description="You do not have a card registered. Please register a card before using /register.", color=000000)
                 await ctx.send(embed=embed)
         except Exception as ex:
             custom_logging.debug(ex)
+            loggy.error(ex)
             embed = Embed(title="Build Error", description="There was an error with your build command. Please try again later.", color=000000)
             await ctx.send(embed=embed)
 

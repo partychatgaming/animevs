@@ -14,6 +14,7 @@ import help_commands as h
 import uuid
 import asyncio
 import random
+import re
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 class Tactics(Extension):
@@ -238,24 +239,20 @@ async def auto_battle_embed_and_starting_traits(ctx, player_card, player_title, 
 
     activate_solo_leveling_trait(player_card, battle_config, opponent_card)
             
-    embedVar = Embed(title=f"➡️ **Current Turn** {battle_config.turn_total}", description=textwrap.dedent(f"""\
-    {battle_config.get_previous_moves_embed()}
-    
-    """), color=0xe74c3c)
+    embedVar = Embed(title=f"➡️ **Current Turn** {battle_config.turn_total}", color=0xe74c3c)
     await asyncio.sleep(2)
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
     footer_text = battle_config.get_battle_footer_text(opponent_card, opponent_title, player_card, player_title, companion_card, companion_title)
     # footer_text = battle_config.get_battle_window_title_text(player_card,opponent_card)
+    
+    updated_list = crown_utilities.replace_matching_numbers_with_arrow(battle_config.previous_moves)
+
     embedVar.set_footer(
-        text=f"{footer_text}",
-        icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
+        text=f"{battle_config.get_previous_moves_embed()}")
 
     if not battle_config.is_auto_battle_game_mode:
-        embedVar.set_image(url="attachment://image.png")
-
-    
+        embedVar.set_image(url="attachment://image.png")    
     return embedVar
-
 
 
 

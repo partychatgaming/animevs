@@ -15,6 +15,7 @@ from io import BytesIO
 from pilmoji import Pilmoji
 import textwrap
 now = time.asctime()
+import re
 import random
 import requests
 import interactions 
@@ -62,7 +63,28 @@ def storage_limit_hit(player_info, vault, type):
         if storage_amount >= storage_allowed_amount:
             limit_hit = True
     return limit_hit
-    
+
+
+def replace_matching_numbers_with_arrow(text_list):
+    # Dictionary to keep track of first occurrence of each number
+    first_occurrence = set()
+
+    # Updated list to store the modified text
+    updated_list = []
+
+    for text in text_list:
+        match = re.match(r'\((\d+)\)', text)
+        if match:
+            number = match.group(1)
+            if number in first_occurrence:
+                # Replace the number with ↪️ if it's a duplicate
+                text = re.sub(r'\(\d+\)', '↪️', text, count=1)
+            else:
+                # Mark the number as seen for the first time
+                first_occurrence.add(number)
+        updated_list.append(text)
+    return updated_list
+
 
 def update_save_spot(ctx, saved_spots, selected_universe, modes):
     try:

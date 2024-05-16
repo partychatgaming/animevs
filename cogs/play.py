@@ -11,7 +11,9 @@ import unique_traits as ut
 import help_commands as h
 import uuid
 import asyncio
-import random
+import re
+from ai import summarize_last_moves
+from logger import loggy
 # import bot as main
 import cogs.tactics as tactics
 from cogs.universe_traits.death_note import set_deathnote_message
@@ -79,7 +81,8 @@ class Play(Extension):
 
                 match_start_embed = build_match_start_embed(battle_config, user1, user2)
 
-                image_binary = battle_config.player2_card.showcard(battle_config.player2_arm, battle_config.turn_total, battle_config.player1_card.defense, battle_config.mode)
+                image_binary = await asyncio.to_thread(battle_config.player2_card.showcard, battle_config.player2_arm, battle_config.turn_total, battle_config.player1_card.defense, battle_config.mode)
+                print(image_binary)
                 image_binary.seek(0)
                 card_file = File(file_name="image.png", file=image_binary)
                 battle_start_msg = await private_channel.send(
@@ -102,19 +105,21 @@ class Play(Extension):
                     await battle_start_msg.edit(components=[])
 
                     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|quit_game":
+                        loggy.info(f"{battle_config.player1.name} has quit the game")
                         battle_config.player1.make_available()
                         await battle_start_msg.delete()
                         await exit_battle_embed(battle_config, button_ctx)
                         return
 
                     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|save_game":
-                        await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                        await asyncio.to_thread(gs.save_spot,self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                         await button_ctx.ctx.send(embed = battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
+                        loggy.info(f"{battle_config.player1.name} has saved the game")
                         return
                     
                     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|start_game" or button_ctx.ctx.custom_id == f"{battle_config._uuid}|start_game_auto_battle_mode":
                         if battle_config.match_can_be_saved and battle_config.player1.autosave == True:
-                            await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
+                            await asyncio.to_thread(gs.save_spot, self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
                         if button_ctx.ctx.custom_id == f"{battle_config._uuid}|start_game_auto_battle_mode":
                             battle_config.is_auto_battle_game_mode = True
                             embedVar = Embed(title=f"Auto Battle has started", color=0xe74c3c)
@@ -201,7 +206,7 @@ class Play(Extension):
 
                                 else:
                                     if battle_config.is_pvp_game_mode:
-                                        auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
+                                        auto_battle_handler_done = await asyncio.to_thread(auto_battle_handler, ctx, battle_config, battle_msg, private_channel, button_ctx)
                                         if auto_battle_handler_done:
                                             continue
                                         
@@ -265,7 +270,7 @@ class Play(Extension):
                                         continue
                                         
                                     else:
-                                        auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
+                                        auto_battle_handler_done = await asyncio.to_thread(auto_battle_handler, ctx, battle_config, battle_msg, private_channel, button_ctx)
                                         if auto_battle_handler_done:
                                             continue
 
@@ -323,7 +328,7 @@ class Play(Extension):
                                         continue
 
                                     else:
-                                        auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
+                                        auto_battle_handler_done = await asyncio.to_thread(auto_battle_handler, ctx, battle_config, battle_msg, private_channel, button_ctx)
                                         if auto_battle_handler_done:
                                             continue
 
@@ -520,16 +525,11 @@ def build_match_start_embed(battle_config, user1, user2):
     try:
         title_lvl_msg = f"{battle_config.set_levels_message()}"
 
-        embed = Embed(title=f"{battle_config.get_starting_match_title()}\n{title_lvl_msg}")
+        embed = Embed(title=f"{title_lvl_msg}")
+        embed.set_author(name=f"{battle_config.get_starting_match_title()}")
         
-        # embed.add_field(name=f"__Your Affinities:__", value=f"{battle_config.player1_card.affinity_message}")
-        
-        # if battle_config.is_co_op_mode or battle_config.is_duo_mode:
-        #     embed.add_field(name=f"__Companion Affinities:__", value=f"{battle_config.player3_card.affinity_message}")
-
-        # embed.add_field(name=f"__Opponent Affinities:__", value=f"{battle_config.player2_card.affinity_message}")
         if battle_config.is_co_op_mode or battle_config.is_duo_mode:
-            embed.set_footer(text=textwrap.dedent(f"""\
+            embed.set_footer(text=textwrap.dedent(f"""\                                                  
 Your Affinities:
 {battle_config.player1_card.set_battle_menu_affinity_message()}
 
@@ -861,7 +861,7 @@ async def auto_battle_handler(ctx, battle_config, battle_msg, private_channel, b
                     if turn_card._monstrosity_active and turn_card.used_resolve:
                         if turn_card._double_strike_count < turn_card._monstrosity_value:
                             turn_card._double_strike_count +=1
-                            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{turn_card.name}**:  Double Strike!\n*{2 - turn_card._double_strike_count} Left!*")
+                            battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['MONSTROSITY']}) {turn_card.name} has {2 - turn_card._double_strike_count} double strikes left")
                             #damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
                             turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
                             battle_config.next_turn()
@@ -948,7 +948,7 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
                 if turn_card._monstrosity_active and turn_card.used_resolve:
                     if turn_card._double_strike_count < turn_card._monstrosity_value:
                         turn_card._double_strike_count +=1
-                        battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{turn_card.name}**:  Double Strike!\n*{2 - turn_card._double_strike_count} Left!*")
+                        battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['MONSTROSITY']}) {turn_card.name} has {2 - turn_card._double_strike_count} double strikes left")
                         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
 
         if selected_move == 5:
@@ -1015,7 +1015,6 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         else:
             components = [battle_action_row, util_action_row]
         companion_stats = f"\n{partner_card.name}: ❤️{round(partner_card.health)} 🌀{round(partner_card.stamina)} 🗡️{round(partner_card.attack)}/🛡️{round(partner_card.defense)} {partner_card._arm_message}"
-
     else:
         components = [battle_action_row, util_action_row]
 
@@ -1025,24 +1024,23 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     footer_text = battle_config.get_battle_footer_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
 
-    embedVar = Embed(title=f"", description=textwrap.dedent(f"""\
-    {battle_config.get_previous_moves_embed()}
-    
-    """), color=0xe74c3c)
+    embedVar = Embed(title=f"", color=0xe74c3c)
     if turn_player.performance:
         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{ctx.author.mention}'s move!\n{turn_card.get_perfomance_header(turn_title)}")
     else:
-        embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n")
+        embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{footer_text}")
         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{ctx.author.mention} Select move below!")
     
+    updated_list = crown_utilities.replace_matching_numbers_with_arrow(battle_config.previous_moves)
+
+    # ai_results = summarize_last_moves(battle_config.previous_moves)
     embedVar.set_image(url="attachment://image.png")
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
     embedVar.set_footer(
-        text=f"{footer_text}",
-        icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
+        text=f"{battle_config.get_previous_moves_embed()}")
 
-    await battle_msg.delete(delay=2)
-    await asyncio.sleep(2)
+    await battle_msg.delete(delay=1)
+    await asyncio.sleep(1)
     if turn_player.performance:
         embedVar.add_field(name=f"**Moves**", value=f"{turn_card.get_performance_moveset()}")
         battle_msg = await private_channel.send(embed=embedVar, components=components)
@@ -1441,7 +1439,8 @@ async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_conf
             return
     except Exception as ex:
         custom_logging.debug(ex)
-                                                    
+
+
 
 
 def setup(bot):

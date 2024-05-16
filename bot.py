@@ -1,4 +1,3 @@
-import crown_utilities
 import custom_logging
 import datetime
 from cogs.classes.custom_paginator import CustomPaginator
@@ -10,6 +9,7 @@ import help_commands as h
 import textwrap
 import os
 import logging
+from logger import loggy
 from decouple import config
 import textwrap
 import random
@@ -21,6 +21,7 @@ import json
 import uuid
 from interactions.ext.paginators import Paginator
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, const, Status, Activity, listen, slash_command, global_autocomplete, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, AutocompleteContext, slash_option
+import crown_utilities
 
 logging.basicConfig()
 cls_log = logging.getLogger(const.logger_name)
@@ -37,7 +38,7 @@ bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_traceback
 async def on_ready():
    server_count = len(bot.guilds)
    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
-   print('Bot is ready!')
+   loggy.info('Bot is ready!')
 
 
 def add_universes_names_to_autocomplete_list():
@@ -48,7 +49,7 @@ def add_universes_names_to_autocomplete_list():
             list_of_universes.append({"name": universe["TITLE"], "value": universe["TITLE"]})
       return sorted(list_of_universes, key=lambda x: x['name'])
    except Exception as e:
-      print(e)
+      loggy.critical(e)
       return False
 
 
@@ -279,20 +280,7 @@ async def enhancers(ctx):
       
    
    except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
+            loggy.error(f"Error in enhancers: {ex}")
             await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
             return
 
@@ -827,20 +815,7 @@ async def animevs(ctx):
       paginator.show_select_menu = True
       await paginator.send(ctx)
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-            "filename": tb.tb_frame.f_code.co_filename,
-            "name": tb.tb_frame.f_code.co_name,
-            "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
+      loggy.error(f"Error in animevs command: {ex}")
       await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
       return
 
@@ -916,7 +891,9 @@ async def voted(ctx):
             await ctx.send(embed=embedVar)
 
    except Exception as e:
-      print(e)
+      loggy.error(e)
+      await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
+      return
 
 
 # Update Later
@@ -1652,60 +1629,63 @@ async def rebirth(ctx):
                                           await button_ctx.send(f"Nice choice {ctx.author.mention}!\n\nCreate your first **Build**!\n**/cards** Select your 🎴  Card\n**/titles** Select your 🎗️ Title\n**/arms** Select your 🦾  Arm\n\nOnce you're done, run **/tutorial** to begin the **Tutorial Battle**! ⚔️")
                                           self.stop = True
                                  except Exception as ex:
-                                    trace = []
-                                    tb = ex.__traceback__
-                                    while tb is not None:
-                                       trace.append({
-                                          "filename": tb.tb_frame.f_code.co_filename,
-                                          "name": tb.tb_frame.f_code.co_name,
-                                          "lineno": tb.tb_lineno
-                                       })
-                                       tb = tb.tb_next
-                                    print(str({
-                                       'type': type(ex).__name__,
-                                       'message': str(ex),
-                                       'trace': trace
-                                    }))
+                                    # trace = []
+                                    # tb = ex.__traceback__
+                                    # while tb is not None:
+                                    #    trace.append({
+                                    #       "filename": tb.tb_frame.f_code.co_filename,
+                                    #       "name": tb.tb_frame.f_code.co_name,
+                                    #       "lineno": tb.tb_lineno
+                                    #    })
+                                    #    tb = tb.tb_next
+                                    # print(str({
+                                    #    'type': type(ex).__name__,
+                                    #    'message': str(ex),
+                                    #    'trace': trace
+                                    # }))
+                                    loggy.error(f"Error in Rebirth command: {ex}")
                                     await ctx.send("Rebirth Issue Seek support.")
                               await Paginator(bot=bot, ctx=ctx, disableAfterTimeout=True, pages=universe_embed_list, customActionRow=[
                                  custom_action_row,
                                  custom_function,
                               ]).run()
                            except Exception as ex:
-                              trace = []
-                              tb = ex.__traceback__
-                              while tb is not None:
-                                 trace.append({
-                                    "filename": tb.tb_frame.f_code.co_filename,
-                                    "name": tb.tb_frame.f_code.co_name,
-                                    "lineno": tb.tb_lineno
-                                 })
-                                 tb = tb.tb_next
-                              print(str({
-                                 'type': type(ex).__name__,
-                                 'message': str(ex),
-                                 'trace': trace
-                              }))
+                              # trace = []
+                              # tb = ex.__traceback__
+                              # while tb is not None:
+                              #    trace.append({
+                              #       "filename": tb.tb_frame.f_code.co_filename,
+                              #       "name": tb.tb_frame.f_code.co_name,
+                              #       "lineno": tb.tb_lineno
+                              #    })
+                              #    tb = tb.tb_next
+                              # print(str({
+                              #    'type': type(ex).__name__,
+                              #    'message': str(ex),
+                              #    'trace': trace
+                              # }))
+                              loggy.error(f"Error in Rebirth command: {ex}")
                               await ctx.send("Rebirth Issue Seek support.")
                         else:
                            await button_ctx.send(f"Not enough 🪙!\nYou need {'{:,}'.format(rebirthCost)} to Rebirth:angel:", delete_after=5)
                      else:
                         await button_ctx.send("No Vault:angel:", delete_after=5)
                   except Exception as ex:
-                     trace = []
-                     tb = ex.__traceback__
-                     while tb is not None:
-                        trace.append({
-                           "filename": tb.tb_frame.f_code.co_filename,
-                           "name": tb.tb_frame.f_code.co_name,
-                           "lineno": tb.tb_lineno
-                        })
-                        tb = tb.tb_next
-                     print(str({
-                        'type': type(ex).__name__,
-                        'message': str(ex),
-                        'trace': trace
-                     }))
+                     # trace = []
+                     # tb = ex.__traceback__
+                     # while tb is not None:
+                     #    trace.append({
+                     #       "filename": tb.tb_frame.f_code.co_filename,
+                     #       "name": tb.tb_frame.f_code.co_name,
+                     #       "lineno": tb.tb_lineno
+                     #    })
+                     #    tb = tb.tb_next
+                     # print(str({
+                     #    'type': type(ex).__name__,
+                     #    'message': str(ex),
+                     #    'trace': trace
+                     # }))
+                     loggy.error(f"Error in Rebirth command: {ex}")
                      await ctx.send("Rebirth Issue Seek support.")
                elif button_ctx.custom_id == "N":
                   await button_ctx.send(f"❤️‍🔥 | Ahhhh...another time then?", delete_after=5)
@@ -1713,59 +1693,43 @@ async def rebirth(ctx):
             except asyncio.TimeoutError:
                await ctx.send("Rebirth Menu Closed", hidden= True)
             except Exception as ex:
-               trace = []
-               tb = ex.__traceback__
-               while tb is not None:
-                  trace.append({
-                     "filename": tb.tb_frame.f_code.co_filename,
-                     "name": tb.tb_frame.f_code.co_name,
-                     "lineno": tb.tb_lineno
-                  })
-                  tb = tb.tb_next
-               print(str({
-                  'type': type(ex).__name__,
-                  'message': str(ex),
-                  'trace': trace
-               }))
+               # trace = []
+               # tb = ex.__traceback__
+               # while tb is not None:
+               #    trace.append({
+               #       "filename": tb.tb_frame.f_code.co_filename,
+               #       "name": tb.tb_frame.f_code.co_name,
+               #       "lineno": tb.tb_lineno
+               #    })
+               #    tb = tb.tb_next
+               # print(str({
+               #    'type': type(ex).__name__,
+               #    'message': str(ex),
+               #    'trace': trace
+               # }))
+               loggy.error(f"Error in Rebirth command: {ex}")
                await ctx.send("Rebirth Issue Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92")
          else:
             await ctx.send(f"You are at full Rebirth\n:angel:Level: {user_is_validated['REBIRTH']} ", delete_after=5)
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-            "filename": tb.tb_frame.f_code.co_filename,
-            "name": tb.tb_frame.f_code.co_name,
-            "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
+      loggy.error(f"Error in Rebirth command: {ex}")
+      await ctx.send("Rebirth Issue Seek support in the Anime 🆚+ support server")
+      return
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #    trace.append({
+      #       "filename": tb.tb_frame.f_code.co_filename,
+      #       "name": tb.tb_frame.f_code.co_name,
+      #       "lineno": tb.tb_lineno
+      #    })
+      #    tb = tb.tb_next
+      # print(str({
+      #    'type': type(ex).__name__,
+      #    'message': str(ex),
+      #    'trace': trace
+      # }))
 
-
-# @slash_command(description="Upt", scopes=guild_ids)
-# async def updateloredb(ctx):
-#    await ctx.defer()
-#    all_docs = db.lore_col.find()
-#    try:
-#       # For each document in all_docs, update the "title" and "description" fields by removing all spaces from each field and saving the updated document
-#       count = 0
-#       for doc in all_docs:
-#          original_title = doc["title"]
-#          original_description = doc["description"]
-#          title = doc["title"].replace(" ", "")
-#          description = doc["description"].replace(" ", "")
-#          db.lore_col.update_one({"_id": doc["_id"]}, {"$set": {"title": title, "description": description, "original_title": original_title, "original_description": original_description}})
-#          count += 1
-
-#       await ctx.send(f"Updated {count} documents")
-#       return
-#    except Exception as e:
-#       await ctx.s
 
 @slash_command(name="daily", description="Receive your daily reward and quests", scopes=guild_ids)
 @cooldown(Buckets.USER, 1, 86400)
@@ -1909,20 +1873,23 @@ async def donate(ctx, amount, guild = None):
       else:
          await ctx.send(f"Guild: {dteam} does not exist")
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-      print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-      }))
+      loggy.error(f"Error in Donate command: {ex}")
+      await ctx.send("Donate Issue Seek support.")
+      return
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #       trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #       })
+      #       tb = tb.tb_next
+      # print(str({
+      #       'type': type(ex).__name__,
+      #       'message': str(ex),
+      #       'trace': trace
+      # }))
 
 
 @slash_command(name="invest", description="Invest money in your Family", scopes=guild_ids)
@@ -2010,20 +1977,23 @@ async def pay(ctx, player, amount):
          await db.updateTeam(team_query, new_value_query)
          return
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-      print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-      }))
+      loggy.error(f"Error in Pay command: {ex}")
+      await ctx.send("Pay Issue Seek support.")
+      return
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #       trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #       })
+      #       tb = tb.tb_next
+      # print(str({
+      #       'type': type(ex).__name__,
+      #       'message': str(ex),
+      #       'trace': trace
+      # }))
 
 
 @slash_command(description="Promote, Demote, or Remove Guild Members", options=[
@@ -2152,22 +2122,24 @@ async def guildoperations(ctx, player, operation: str):
       if response:
          await ctx.send(update_message)
          return
-   except:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-      print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-      }))
+   except Exception as ex:
+      loggy.error(f"Error in Guild Operations command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #       trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #       })
+      #       tb = tb.tb_next
+      # print(str({
+      #       'type': type(ex).__name__,
+      #       'message': str(ex),
+      #       'trace': trace
+      # }))
       await ctx.send("An error has occurred. Please contact a developer.")
+      return
 
 
 async def deletemember(ctx, member):
@@ -2274,20 +2246,21 @@ async def traits(ctx: InteractionContext, universe: str = ""):
                return
          return
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
+      loggy.error(f"Error in Traits command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #    trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #    })
+      #    tb = tb.tb_next
+      # print(str({
+      #    'type': type(ex).__name__,
+      #    'message': str(ex),
+      #    'trace': trace
+      # }))
       await ctx.send("There's an issue with your Traits List. Check with support.", ephemeral=True)
       return
 
@@ -2350,20 +2323,21 @@ async def allowance(ctx, player, amount):
          await ctx.send(f"🪙{amount} has been gifted to {user2.mention}.")
          return
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
+      loggy.error(f"Error in Allowance command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #    trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #    })
+      #    tb = tb.tb_next
+      # print(str({
+      #    'type': type(ex).__name__,
+      #    'message': str(ex),
+      #    'trace': trace
+      # }))
       await ctx.send("There's an issue with your Allowance. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
       return
    
@@ -2400,20 +2374,21 @@ async def performance(ctx):
       embed = Embed(title=f"Performance Mode {crown_utilities.utility_emojis['ON'] if performance_mode else crown_utilities.utility_emojis['OFF']}")
       await ctx.send(embed=embed)
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-      print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-      }))
+      loggy.error(f"Error in performance command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #       trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #       })
+      #       tb = tb.tb_next
+      # print(str({
+      #       'type': type(ex).__name__,
+      #       'message': str(ex),
+      #       'trace': trace
+      # }))
       await ctx.send("There's an issue with your Performance Mode. Seek support in the Anime 🆚+ support server", ephemeral=True)
    
       
@@ -2434,20 +2409,21 @@ async def autosave(ctx):
          embed = Embed(title="Autosave Deactivated", description="You can still save your progress with the save button in battle.")
          await ctx.send(embed=embed)
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-      print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-      }))
+      loggy.error(f"Error in Autosave command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #       trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #       })
+      #       tb = tb.tb_next
+      # print(str({
+      #       'type': type(ex).__name__,
+      #       'message': str(ex),
+      #       'trace': trace
+      # }))
       await ctx.send("There's an issue with your Autosave. Seek support in the Anime 🆚+ support server", ephemeral=True)
    
       
@@ -2488,20 +2464,21 @@ async def difficulty(ctx, mode):
          embed = Embed(title="Difficulty Updated", description=f"{ctx.author.mention} has been updated to ⚙️ **{mode.lower()}** mode.", color=0x00ff00)
          await ctx.send(embed=embed)
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-      print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-      }))
+      loggy.error(f"Error in difficulty command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #       trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #       })
+      #       tb = tb.tb_next
+      # print(str({
+      #       'type': type(ex).__name__,
+      #       'message': str(ex),
+      #       'trace': trace
+      # }))
       embed = Embed(title="Difficulty Update Failed", description=f"{ctx.author.mention} has failed to update to ⚙️ **{mode.lower()}** mode.", color=0xff0000)
       await ctx.send(embed=embed)
    
@@ -2531,8 +2508,6 @@ async def battlehistory(ctx, history: int):
    except Exception as e:
       await ctx.send(e)
    
-      
-
 
 @slash_command(name="bounty", description="Set Association Bounty", options=[
    SlashCommandOption(name="amount", description="Amount to set bounty to", type=OptionType.INTEGER, required=True),
@@ -2648,22 +2623,23 @@ async def fund(ctx, amount):
          await ctx.send(f"{team_guild} has been funded 🪙 {amount}.")
          return
    except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-            await ctx.send(f"Error when funding Association. Alert support. Thank you!")
-            return
+      loggy.error(f"Error in Fund command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #     trace.append({
+      #         "filename": tb.tb_frame.f_code.co_filename,
+      #         "name": tb.tb_frame.f_code.co_name,
+      #         "lineno": tb.tb_lineno
+      #     })
+      #     tb = tb.tb_next
+      # print(str({
+      #     'type': type(ex).__name__,
+      #     'message': str(ex),
+      #     'trace': trace
+      # }))
+      await ctx.send(f"Error when funding Association. Alert support. Thank you!")
+      return
 
 
 async def blessguild_Alt(amount, guild):
@@ -2678,7 +2654,7 @@ async def blessguild_Alt(amount, guild):
       update_query = {"$inc": {'BANK': posBlessAmount}}
       db.updateGuildAlt(query, update_query)
    else:
-      print("Cannot find Association")
+      loggy.error(f"Guild {guild} does not exist.")
 
 
 @slash_command(description="Create Code for Droppables", options=[
@@ -2720,8 +2696,9 @@ async def createcode(ctx, code_input, coin, gems, card=None, exp_to_give=0):
          response = db.createCode(data.newCode(query))
          await ctx.send(f"**{code_input}** Code has been created")
       except Exception as e:
-         print(e)
+         loggy.error(f"Error in Create Code command: {e}")
          await ctx.send("There's an issue with your Code. Seek support in the Anime 🆚+ support server", ephemeral=True)
+         return
 
 
 @slash_command(description="Input Codes", options=[
@@ -2771,7 +2748,6 @@ async def code(ctx, code_input: str):
                   embed = Embed(title="🛡️ Arm Drop", description=f"You received **{arm.name}** from {arm.universe_crest} {arm.universe}!", color=0x00ff00)
                   embed_list.append(embed)
             if exp:
-               print(f"exp: {exp}")
                user = await bot.fetch_user(ctx.author.id)
                mode = "Purchase"
                await crown_utilities.cardlevel(user, mode, exp)
@@ -2857,7 +2833,6 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
    elif collection == 'titles':
       response = db.updateManyTitles({'$set': {new_field: field_type}})
    elif collection == 'vault':
-      print(response)
       response = db.updateManyVaults({'$set': {new_field: field_type}})
    elif collection == 'users':
       response = db.updateManyUsers({'$set': {new_field: field_type}})
@@ -3078,20 +3053,21 @@ async def updatename(ctx, collection, name, new_name, password, key):
       else:
          return await ctx.send("You do not have permissions to run this command.")
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-            "filename": tb.tb_frame.f_code.co_filename,
-            "name": tb.tb_frame.f_code.co_name,
-            "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
+      loggy.error(f"Error in updatename command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #    trace.append({
+      #       "filename": tb.tb_frame.f_code.co_filename,
+      #       "name": tb.tb_frame.f_code.co_name,
+      #       "lineno": tb.tb_lineno
+      #    })
+      #    tb = tb.tb_next
+      # print(str({
+      #    'type': type(ex).__name__,
+      #    'message': str(ex),
+      #    'trace': trace
+      # }))
       await ctx.send("Issue with command. Please contact casperjayden#0001")
 
 
@@ -3136,20 +3112,21 @@ async def updatesaves(ctx, password, key):
 
       await ctx.send(f"Updated {count} saves.")
    except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-            "filename": tb.tb_frame.f_code.co_filename,
-            "name": tb.tb_frame.f_code.co_name,
-            "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
+      loggy.error(f"Error in updatesaves command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #    trace.append({
+      #       "filename": tb.tb_frame.f_code.co_filename,
+      #       "name": tb.tb_frame.f_code.co_name,
+      #       "lineno": tb.tb_lineno
+      #    })
+      #    tb = tb.tb_next
+      # print(str({
+      #    'type': type(ex).__name__,
+      #    'message': str(ex),
+      #    'trace': trace
+      # }))
       await ctx.send("Issue with command. Please contact casperjayden#0001")
 
 
@@ -3836,10 +3813,56 @@ async def updateclass(ctx):
          }))
 
 
+
+# Create a slash_command that gets a list of 50 cards and saves it to my account in the database
+@slash_command(description="save cards", scopes=guild_ids)
+async def savecards(ctx):
+   loggy.info("savecards command")
+   await ctx.defer()
+   try:
+      d = db.queryUser({'DID': str(ctx.author.id)})
+      loggy.debug(d)
+      me = crown_utilities.create_player_from_data()
+      cards = db.queryAllCards()
+      loggy.info(cards)
+      count = 0
+      for card in cards:
+         loggy.info(f"Saving card: {card['NAME']}")
+         card_data = crown_utilities.create_card_from_data(db.queryCard({'NAME': card['NAME']}))
+         me.save_card(card_data)
+         count += 1
+         if  count == 50:
+            break
+      await ctx.send(f"Saved {count} cards to your account.")
+   except Exception as ex:
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+         trace.append({
+            "filename": tb.tb_frame.f_code.co_filename,
+            "name": tb.tb_frame.f_code.co_name,
+            "lineno": tb.tb_lineno
+         })
+         tb = tb.tb_next
+      print(str({
+         'type': type(ex).__name__,
+         'message': str(ex),
+         'trace': trace
+      }))
+      loggy.error(f"Error in savecards command: {ex}")
+      await ctx.send("Issue with command.")
+      return
+         
+      
+
+
+
 if config('ENV') == "production":
    DISCORD_TOKEN = config('DISCORD_TOKEN')
 else:
    DISCORD_TOKEN = config('NEW_TEST_DISCORD_TOKEN')
 
-
 bot.start(DISCORD_TOKEN)
+
+
+

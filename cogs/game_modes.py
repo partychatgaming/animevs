@@ -28,7 +28,7 @@ from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
 from cogs.battle_config import BattleConfig
-import typing
+from logger import loggy
 from pilmoji import Pilmoji
 import destiny as d
 import interactions
@@ -433,6 +433,7 @@ class GameModes(Extension):
 
         
         try:
+            loggy.info(f"Mode: {mode} Universe: {universe} Player: {registered_player['DID']} has initiated a battle in {mode} mode.")
             player = crown_utilities.create_player_from_data(registered_player)
             if player.difficulty == "EASY" and mode == "Scenario":
                 player.difficulty = "NORMAL"

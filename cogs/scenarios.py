@@ -10,6 +10,7 @@ import uuid
 import asyncio
 import random
 import custom_logging
+from logger import loggy
 from .classes.custom_paginator import CustomPaginator
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
@@ -19,7 +20,7 @@ class Scenario(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Scenario Cog is ready!')
+        loggy.info(f'Scenario cog is ready')
 
 
     async def cog_check(self, ctx):
@@ -30,21 +31,22 @@ class Scenario(Extension):
     """
     async def scenario_selector(self, ctx, universe_title, player, level = None):
         try:
-            scenarios = db.queryAllScenariosByUniverse(universe_title)
+            scenarios = await asyncio.to_thread(db.queryAllScenariosByUniverse,universe_title)
 
             if scenarios:
                 embed_list = []
                 sorted_scenarios = sorted(scenarios, key=lambda x: x["ENEMY_LEVEL"])
                 for scenario in sorted_scenarios:
                     if scenario["ENEMY_LEVEL"] <= crown_utilities.scenario_level_config:
-                        embed = create_scenario_embed(scenario, player)
+                        embed = await asyncio.to_thread(create_scenario_embed, scenario, player)
                         if embed:
                             embed_list.append(embed)
                     else:
                         pass
 
-                
-                paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
+                if embed_list:
+                    results = await gather_results(embed_list)
+                paginator = CustomPaginator.create_from_embeds(self.bot, *results, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
@@ -62,20 +64,23 @@ class Scenario(Extension):
     """
     async def raid_selector(self, ctx, universe_title, player):
         try:
-            scenarios = db.queryAllScenariosByUniverse(universe_title)
+            scenarios = await asyncio.to_thread(db.queryAllScenariosByUniverse, universe_title)
 
             embed_list = []
             sorted_scenarios = sorted(scenarios, key=lambda x: x["ENEMY_LEVEL"])
             for scenario in sorted_scenarios:
                 if scenario["ENEMY_LEVEL"] > crown_utilities.scenario_level_config:
-                    embed = create_scenario_embed(scenario, player)
+                    embed = await asyncio.to_thread(create_scenario_embed,scenario, player)
                     if embed:
                         embed_list.append(embed)
                 else:
                     pass
 
             if embed_list:
-                paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Raid")
+                results = await gather_results(embed_list)
+
+            if embed_list:
+                paginator = CustomPaginator.create_from_embeds(self.bot, *results, custom_buttons=["Start", "Quit"], paginator_type="Raid")
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
@@ -88,7 +93,7 @@ class Scenario(Extension):
             custom_logging.debug(ex)
 
 
-def create_scenario_embed(scenario, player):
+async def create_scenario_embed(scenario, player):
     """
     Instead of must completes, only show scenarios for cards 250 levels above and below your current equipped card level
     """
@@ -110,7 +115,7 @@ def create_scenario_embed(scenario, player):
         difficulty = player.difficulty
         scenario_gold = crown_utilities.scenario_gold_drop(enemy_level, number_of_fights, title, completed_scenarios, difficulty)
         rewards, type_of_battle, enemey_level_message, gold_reward_message, difficulty_message = create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, easy_drops, normal_drops, hard_drops, player)
-        reward_message = get_scenario_reward_list(rewards)
+        reward_message = await get_scenario_reward_list(rewards)
         
         if (is_destiny and player.equipped_card in destiny_cards) or not is_destiny:
             embedVar = Embed(title= f"{title}", description=textwrap.dedent(f"""
@@ -168,20 +173,16 @@ def create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, e
         gold_reward_message = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
         difficulty_message = f"✨**Difficulty:** {player.difficulty.title()}"
 
-
-
-
-
     return rewards, type_of_battle, enemy_level_message, gold_reward_message, difficulty_message
 
 
-def get_scenario_reward_list(rewards):
+async def get_scenario_reward_list(rewards):
     reward_list = []
      
     for reward in rewards:
         # Add Check for Cards and make Cards available in Easy Drops
-        arm = db.queryArm({"ARM": reward})
-        card = db.queryCard({"NAME": reward})
+        arm = await asyncio.to_thread(db.queryArm, {"ARM": reward})
+        card = await asyncio.to_thread(db.queryCard, {"NAME": reward})
         if arm:
             arm_name = arm['ARM']
             element_emoji = crown_utilities.set_emoji(arm['ELEMENT'])
@@ -221,6 +222,10 @@ def get_scenario_reward_list(rewards):
     reward_message = "\n\n".join(reward_list)
     return reward_message
 
+
+async def gather_results(coroutines):
+    results = await asyncio.gather(*coroutines)
+    return results
 
 def setup(bot):
     Scenario(bot)
