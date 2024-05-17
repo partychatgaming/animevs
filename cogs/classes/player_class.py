@@ -722,11 +722,11 @@ class Player:
             setattr(self, f'_equipped_summon_{attr.lower()}', summon_object[attr])
         setattr(self, '_equipped_summon_ability_name', ability_name)
         setattr(self, '_equipped_summon_power', power)
+        setattr(self, '_equipped_summon_image', summon_object['PATH'])
         setattr(self, '_equipped_summon_universe', db.querySummon({'PET': summon_object['NAME']})['UNIVERSE'])
 
 
     def getsummon_ready(self, _card):
-        print(f"getsummon_ready image - {_card.summon_image} - {self._equipped_summon_image}")
         _card.summon_ability_name = self._equipped_summon_ability_name
         _card.summon_power = self._equipped_summon_power
         _card.summon_lvl = self._equipped_summon_lvl
@@ -738,6 +738,7 @@ class Player:
         _card.summon_name = self._equipped_summon_name
         _card.summon_image = self._equipped_summon_image
         _card.summon_universe = self._equipped_summon_universe
+        print(f"getsummon_ready image - {_card.summon_image} - {self._equipped_summon_image}")
     
 
     def get_talisman_ready(self, card):

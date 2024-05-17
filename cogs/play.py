@@ -376,14 +376,17 @@ class Play(Extension):
                     await timeout_handler(self, ctx, battle_msg, battle_config)
 
                 except Exception as ex:
+                    loggy.critical(f"Battle timed out or ended unexpectedly with an error {ex}")
                     battle_config.player1.make_available()
                     custom_logging.debug(ex)
                     
         except asyncio.TimeoutError:
+            loggy.critical(f"Battle timed out")
             battle_config.player1.make_available()
             await timeout_handler(self, ctx, battle_msg, battle_config)
 
         except Exception as ex:
+            loggy.critical(f"Battle timed out")
             battle_config.player1.make_available()
             custom_logging.debug(ex)
 
@@ -1211,13 +1214,17 @@ async def player_use_summon_ability(battle_config, private_channel, button_ctx, 
             {battle_config.get_previous_moves_embed()}
             
             """), color=0xe74c3c)
-            embedVar.set_image(url="attachment://pet.png")
-            print(f"The summon image url is {turn_card.summon_image}")
+
             image_binary = crown_utilities.showsummon(turn_card.summon_image, turn_card.summon_name, summon_response['MESSAGE'], turn_card.summon_lvl, turn_card.summon_bond)
             image_binary.seek(0)
+
+            embedVar.set_image(url="attachment://pet.png")
+            print(f"The summon image url is {turn_card.summon_image}")
+
             summon_file = File(file_name="pet.png", file=image_binary)
             await battle_msg.edit(embed=embedVar, components=[], file=summon_file)
             image_binary.close()
+            # await battle_msg.edit(embed=embedVar, components=[])
 
 
 async def player_use_block_ability(battle_config, private_channel, button_ctx):

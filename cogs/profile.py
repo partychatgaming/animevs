@@ -77,6 +77,7 @@ class Profile(Extension):
                 return
 
             if button_ctx.ctx.custom_id == f"{_uuid}|yes":
+                loggy.info(f"Delete account command executed by {ctx.author}")
                 delete_user_resp = db.deleteUser(player.did)
                 if player.guild != "PCG":
                     transaction_message = f"{player.did} left the game."
@@ -98,101 +99,10 @@ class Profile(Extension):
                 embed = Embed(title="Account Deleted", description="Your account has been deleted. Thank you for playing!", color=0x00ff00)
                 await button_ctx.ctx.send(embed=embed)
         except Exception as ex:
+            loggy.critical(ex)
             custom_logging.debud(ex)
             embed = Embed(title="Error", description="Something went wrong. Please try again later.", color=0xff0000)
             await ctx.send(embed=embed, ephemeral=True)
-
-    # @slash_command(description="main menu where all your important game items and builds are",
-    #                 options=[
-    #                     SlashCommandOption(
-    #                         name="selection",
-    #                         description="select an option to continue",
-    #                         type=OptionType.STRING,
-    #                         required=True,
-    #                         choices=[
-    #                             SlashCommandChoice(
-    #                                 name="🎴 My Cards",
-    #                                 value="cards",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🎗️ My Titles",
-    #                                 value="titles",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🦾 My Arms",
-    #                                 value="arms",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🧬 My Summons",
-    #                                 value="summons",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="⚔️ Current Build",
-    #                                 value="build",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="💼 Check Card Storage",
-    #                                 value="storage",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="✨⚔️ Quick Build",
-    #                                 value="quickbuild",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="💰 My Money",
-    #                                 value="balance",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="💎 Gem Bag",
-    #                                 value="gems"
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="🪔 Essence",
-    #                                 value="essence",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="📤 Load Presets",
-    #                                 value="presets",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="📥 Save Current Preset",
-    #                                 value="savepreset",
-    #                             ),
-    #                             SlashCommandChoice(
-    #                                 name="⚒️ Visit the Blacksmith",
-    #                                 value="blacksmith",
-    #                             ),
-    #                         ]
-    #                     )
-    #                 ]
-    #     )
-    # async def menu(self, ctx, selection):
-    #     if selection == "cards":
-    #         await self.cards(ctx)
-    #     if selection == "titles":
-    #         await self.titles(ctx)
-    #     if selection == "arms":
-    #         await self.arms(ctx)
-    #     if selection == "build":
-    #         await self.build(ctx)
-    #     if selection == "summons":
-    #         await self.summons(ctx)
-    #     if selection == "storage":
-    #         await self.storage(ctx)
-    #     if selection == "quickbuild":
-    #         await self.quickbuild(ctx)
-    #     if selection == "balance":
-    #         await self.balance(ctx)
-    #     if selection == "presets":
-    #         await self.preset(ctx)
-    #     if selection == "savepreset":
-    #         await self.savepreset(ctx)
-    #     if selection == "gems":
-    #         await self.gems(ctx)
-    #     if selection == "blacksmith":
-    #         await self.blacksmith(ctx)
-    #     if selection == "essence":
-    #         await self.essence(ctx)
 
             
     @slash_command(description="View your or a players current build", options=[
@@ -331,9 +241,10 @@ class Profile(Extension):
                         # page 7 (level up view)
                         # page 8 (trait page)
                         embedVar0 = Embed(title=f"Build Overview".format(self), color=000000)
-                        embedVar0.add_field(name="__Build Summary__", value=f"""
-                        Your current build features the card 🎴 **{c.name}**, enhanced by the title 🎗️ **{t.name}**. Equipped with the arm 🦾 **{a.name}**, your build is further supported by the summon 🧬 **{player.equipped_summon}**. For more details, please check the other pages.
-                        """)
+                        embedVar0.add_field(name="__Build Summary__", value=f"Equipped Title 🎗️ **{t.name}**\n"
+                        f"Equipped Arm 🦾 **{a.name}**\n"
+                        f"Equipped Summon 🧬 **{player.equipped_summon}**\n\n"
+                        "For details, please check the other pages.", inline=False)
                         embedVar0.set_image(url="attachment://image.png")
 
                         embedVar1 = Embed(title=f"Build Title View".format(self), color=000000)
@@ -419,6 +330,7 @@ class Profile(Extension):
         if not a_registered_player:
             return
         try:
+            loggy.info(f"Quick Build command executed by {ctx.author}")
             player = crown_utilities.create_player_from_data(a_registered_player)
 
             # Find random card from the list of cards in player.cards, queryCard using the random card name, and create_card_from_data
@@ -486,7 +398,6 @@ class Profile(Extension):
             await ctx.send(embed=embed, ephemeral=True)
             return
     
-
     
     @slash_command(description="Infuse Elemental Essence into Talisman's for aid",
                     options=[
@@ -860,7 +771,7 @@ class Profile(Extension):
                 #                 }
                 #     response = db.updateUserNoFilter(query, update_storage_query)
             print(len(embed_list))
-            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage', 'Market'], paginator_type="Cards")
+            paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Cards")
             paginator.show_select_menu = True
             await paginator.send(ctx)
         except Exception as ex:
@@ -910,7 +821,7 @@ class Profile(Extension):
                 # embedVar.add_field(name=f"**How To Unlock**", value=f"{t.unlock_method_message}", inline=False)                
                 embed_list.append(embedVar)
             
-            buttons = ["Equip", "Storage"]
+            buttons = ["Equip"]
             
             custom_action_row = ActionRow(*buttons)
             if not embed_list and filtered:
@@ -983,7 +894,7 @@ class Profile(Extension):
                         embed = Embed(title="🦾 Arms", description=f"You currently own no Arms in {card.universe_crest} {card.universe}.", color=0x7289da)
                         await ctx.send(embed=embed, ephemeral=True)
                         return
-                    paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Storage', 'Market'], paginator_type="Arms")
+                    paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Arms")
                     if len(embed_list) <= 25:
                         paginator.show_select_menu = True
                     await paginator.send(ctx)
@@ -1498,6 +1409,7 @@ class Profile(Extension):
             await ctx.send(embed=embedVar)
 
         except Exception as ex:
+            loggy.error(ex)
             trace = []
             tb = ex.__traceback__
             while tb is not None:
@@ -1869,6 +1781,7 @@ class Profile(Extension):
                 except asyncio.TimeoutError:
                     await ctx.send(f"{ctx.author.mention} Preset Menu closed.", ephemeral=True)
                 except Exception as ex:
+                    loggy.critical(ex)
                     trace = []
                     tb = ex.__traceback__
                     while tb is not None:
@@ -1891,6 +1804,7 @@ class Profile(Extension):
         except asyncio.TimeoutError:
             await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", ephemeral=True)
         except Exception as ex:
+            loggy.critical(ex)
             trace = []
             tb = ex.__traceback__
             while tb is not None:
@@ -2105,6 +2019,7 @@ class Profile(Extension):
                 await ctx.send(embed=embed)
                 return
         except Exception as ex:
+            loggy.critical(ex)
             trace = []
             tb = ex.__traceback__
             while tb is not None:
@@ -2123,6 +2038,7 @@ class Profile(Extension):
             await ctx.send(embed=embed)
             return
 
+    
     @slash_command(description="Draw, Dismantle or Resell cards from storage",
                     options=[
                         SlashCommandOption(
@@ -2972,6 +2888,7 @@ class Profile(Extension):
             embed = Embed(title=f"🐦 Summon Not Found!", description=f"You do not have a summon named {summon}!", color=0xff0000)
             await ctx.send(embed=embed)
             return
+
 
 def setup(bot):
     Profile(bot)

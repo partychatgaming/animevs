@@ -1113,6 +1113,17 @@ def queryAllCards():
     data = cards_col.find()
     return data
 
+
+def getCardsFromAvailableUniverses():
+    universes = queryAllUniverse()
+    universe_list = []
+    for universe in universes:
+        universe_list.append(universe['TITLE'])
+    data = cards_col.find({'UNIVERSE': {'$in': universe_list}})
+    return data
+
+
+
 def queryAllCardsBasedOnUniverse(query):
     data = cards_col.find(query)
     return data

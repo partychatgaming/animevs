@@ -1,12 +1,14 @@
 import db
 # import bot as main
-from cachetools import cached, LRUCache, TTLCache
+from functools import wraps
+from cachetools import cached, LRUCache
 from cogs.classes.card_class import Card
 from cogs.classes.arm_class import Arm
 from cogs.classes.title_class import Title
 from cogs.classes.player_class import Player
 from cogs.classes.summon_class import Summon
 import time
+from logger import loggy
 import destiny as d
 import classes as data
 from PIL import Image, ImageFont, ImageDraw
@@ -20,24 +22,55 @@ import random
 import requests
 import interactions 
 import custom_logging
-cache = TTLCache(maxsize=1000, ttl=87400)
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 print("Crown Utilities initiated")
 
 
-@cached(cache)
+# Create separate caches
+cache_universes = LRUCache(maxsize=100)
+cache_cards = LRUCache(maxsize=100)
+
+# Decorator to use a specific cache
+def cached_with_key(cache, key):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            cache_key = key
+            if cache_key not in cache:
+                cache[cache_key] = func(*args, **kwargs)
+            return cache[cache_key]
+        return wrapped
+    return decorator
+
+
+@cached_with_key(cache_universes, 'universes_cache')
 def get_cached_universes():
-   try:
-      response = db.queryAllUniverses()
-      list_of_universes = []
-      for universe in response:
+    try:
+        response = db.queryAllUniverses()
+        list_of_universes = []
+        for universe in response:
             list_of_universes.append({"name": universe["TITLE"], "value": universe["TITLE"]})
-      my_data = sorted(list_of_universes, key=lambda x: x['name'])
-      return my_data
-   except Exception as e:
-      print(e)
-      return False
+        my_data = sorted(list_of_universes, key=lambda x: x['name'])
+        return my_data
+    except Exception as e:
+        print(e)
+        return False
+
+@cached_with_key(cache_cards, 'cards_cache')
+def get_cached_cards():
+    try:
+        response = db.getCardsFromAvailableUniverses()
+        list_of_cards = []
+        for card in response:
+            list_of_cards.append({"name": card["NAME"], "value": card["NAME"]})
+        for item in autocomplete_advanced_search:
+            list_of_cards.append(item)
+        my_data = sorted(list_of_cards, key=lambda x: x['name'])
+        return my_data
+    except Exception as e:
+        print(e)
+        return False
 
 
 def storage_limit_hit(player_info, vault, type):
@@ -407,11 +440,6 @@ def getTime(hgame, mgame, sgame, hnow, mnow, snow):
 
 
 def showsummon(url, summon, message, lvl, bond):
-    print(f"The url for the summon is {url}")
-    print(f"The summon is {summon}")
-    print(f"The message is {message}")
-    print(f"The lvl is {lvl}")
-    print(f"The bond is {bond}")
     # Card Name can be 16 Characters before going off Card
     # Lower Card Name Font once after 16 characters
     try:
@@ -428,19 +456,19 @@ def showsummon(url, summon, message, lvl, bond):
             name_font_size = 36
         
 
-        header = ImageFont.truetype("YesevaOne-Regular.ttf", name_font_size)
-        s = ImageFont.truetype("Roboto-Bold.ttf", 22)
-        h = ImageFont.truetype("YesevaOne-Regular.ttf", 37)
-        m = ImageFont.truetype("Roboto-Bold.ttf", 25)
-        r = ImageFont.truetype("Freedom-10eM.ttf", 40)
-        lvl_font = ImageFont.truetype("Neuton-Bold.ttf", 68)
-        health_and_stamina_font = ImageFont.truetype("Neuton-Light.ttf", 41)
-        attack_and_shield_font = ImageFont.truetype("Neuton-Bold.ttf", 48)
-        moveset_font = ImageFont.truetype("antonio.regular.ttf", 40)
-        rhs = ImageFont.truetype("destructobeambb_bold.ttf", 35)
-        stats = ImageFont.truetype("Freedom-10eM.ttf", 30)
-        card_details_font_size = ImageFont.truetype("destructobeambb_bold.ttf", 25)
-        card_levels = ImageFont.truetype("destructobeambb_bold.ttf", 40)
+        header = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", name_font_size)
+        s = ImageFont.truetype("fonts/Roboto-Bold.ttf", 22)
+        h = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", 37)
+        m = ImageFont.truetype("fonts/Roboto-Bold.ttf", 25)
+        r = ImageFont.truetype("fonts/Freedom-10eM.ttf", 40)
+        lvl_font = ImageFont.truetype("fonts/Neuton-Bold.ttf", 68)
+        health_and_stamina_font = ImageFont.truetype("fonts/Neuton-Light.ttf", 41)
+        attack_and_shield_font = ImageFont.truetype("fonts/Neuton-Bold.ttf", 48)
+        moveset_font = ImageFont.truetype("fonts/antonio.regular.ttf", 40)
+        rhs = ImageFont.truetype("fonts/destructobeambb_bold.ttf", 35)
+        stats = ImageFont.truetype("fonts/Freedom-10eM.ttf", 30)
+        card_details_font_size = ImageFont.truetype("fonts/destructobeambb_bold.ttf", 25)
+        card_levels = ImageFont.truetype("fonts/destructobeambb_bold.ttf", 40)
 
         draw.text((600, 160), summon, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
 
@@ -468,6 +496,7 @@ def showsummon(url, summon, message, lvl, bond):
         return image_binary
 
     except Exception as ex:
+        loggy.critical(ex)
         trace = []
         tb = ex.__traceback__
         while tb is not None:
@@ -686,11 +715,12 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
     
 async def cardlevel(user, mode: str, extra_exp = 0):
     try:
+        loggy.info(f"Card Leveling - {user}")
         player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
         card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
-        guild_buff = await guild_buff_update_function(player.guild.lower())
-        arm = create_arm_from_data(db.queryArm({'ARM': player.equipped_arm}))
-        title = create_title_from_data(db.queryTitle({'TITLE': player.equipped_title}))
+        # guild_buff = await guild_buff_update_function(player.guild.lower())
+        # arm = create_arm_from_data(db.queryArm({'ARM': player.equipped_arm}))
+        # title = create_title_from_data(db.queryTitle({'TITLE': player.equipped_title}))
         card.set_card_level_buffs(player.card_levels)
         has_universe_heart, has_universe_soul = get_level_boosters(player, card)
         exp_gain, lvl_req = get_exp_gain(player, mode, card, has_universe_soul, extra_exp)
@@ -699,11 +729,10 @@ async def cardlevel(user, mode: str, extra_exp = 0):
             return
 
         number_of_level_ups, card = await update_experience(card, player, exp_gain, lvl_req)
-
         # print(f"Number of Level Ups - {number_of_level_ups}")
 
-
         if number_of_level_ups > 0:
+            loggy.info(f"Card Leveling - {user} - {number_of_level_ups} Level Ups")
             player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
             card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
             card.set_card_level_buffs(player.card_levels)
@@ -720,6 +749,7 @@ async def cardlevel(user, mode: str, extra_exp = 0):
         else:
             return
     except Exception as ex:
+        print(ex)
         custom_logging.debug(ex)
         await user.send("Issue with leveling up card")
         return
@@ -755,35 +785,39 @@ def get_buffs(card_lvl, level_sync):
 
 
 async def update_experience(card, player, exp, lvl_req):
-    number_of_level_ups = 0
-    exp_gain = exp
-    
-    while exp_gain >= 0:
-        atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync)
-        if card.card_lvl < 200 or (200 < card.card_lvl < 1000):
-            # Experience Code
-            if exp_gain <= (lvl_req - 1):
-                update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
-                filter_query = [{'type.' + "CARD": card.name}]
-                response = db.updateUser(player.user_query, update_query, filter_query)
+    try:
+        number_of_level_ups = 0
+        exp_gain = exp
+        while exp_gain > 0:
+            atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync) 
+            if card.card_lvl < 1000:
+                # Experience Code
+                if exp_gain <= (lvl_req - 1):
+                    update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
+                    filter_query = [{'type.' + "CARD": card.name}]
+                    response = db.updateUser(player.user_query, update_query, filter_query)
+                    exp_gain = exp_gain - lvl_req
+                    break
+                    
+                # Level Up Code
+                if exp_gain >= (lvl_req - exp_gain):
+                    atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync)
+                    update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
+                                    '$inc': {'CARD_LEVELS.$[type].' + "LVL": 1, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
+                                            'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
+                                            'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
+                    filter_query = [{'type.' + "CARD": card.name}]
+                    response = db.updateUser(player.user_query, update_query, filter_query)
+                    exp_gain = exp_gain - lvl_req
+                    number_of_level_ups += 1
+                    card.card_lvl += 1
+                    lvl_req = get_level_up_exp_req(card)
+            else:
                 break
-                
-            # Level Up Code
-            if exp_gain >= (lvl_req - exp_gain):
-                atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync)
-                update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
-                                '$inc': {'CARD_LEVELS.$[type].' + "LVL": 1, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
-                                         'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
-                                         'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                filter_query = [{'type.' + "CARD": card.name}]
-                response = db.updateUser(player.user_query, update_query, filter_query)
-                exp_gain = exp_gain - lvl_req
-                number_of_level_ups += 1
-                card.card_lvl += 1
-                lvl_req = get_level_up_exp_req(card)
-                # print(f"EXP Required For Next Level - {lvl_req}")
-
-    return number_of_level_ups, card
+        return number_of_level_ups, card
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return 0, card
 
 
 def get_level_boosters(player, card):
@@ -807,34 +841,38 @@ def get_level_up_exp_req(card):
 
 
 def get_exp_gain(player, mode, card, has_universe_soul, extra_exp):
-    lvl_req = get_level_up_exp_req(card)
-    exp_gain = 0
-    t_exp_gain = 100 + (player.rebirth) + player.prestige_buff
-    d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
-    b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
-    if has_universe_soul:
-        if mode in DUNGEON_M:
-            exp_gain = (d_exp_gain * 5) + extra_exp
-        elif mode in TALE_M:
-            exp_gain = (t_exp_gain * 5) + extra_exp
-        elif mode in BOSS_M:
-            exp_gain = (b_exp_gain * 5) + extra_exp
+    try:
+        lvl_req = get_level_up_exp_req(card)
+        exp_gain = 0
+        t_exp_gain = 100 + (player.rebirth) + player.prestige_buff
+        d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
+        b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
+        if has_universe_soul:
+            if mode in DUNGEON_M:
+                exp_gain = (d_exp_gain * 5) + extra_exp
+            elif mode in TALE_M:
+                exp_gain = (t_exp_gain * 5) + extra_exp
+            elif mode in BOSS_M:
+                exp_gain = (b_exp_gain * 5) + extra_exp
+            else:
+                exp_gain = extra_exp
         else:
-            exp_gain = extra_exp
-    else:
-        if mode in DUNGEON_M:
-            exp_gain = d_exp_gain + extra_exp
-        elif mode in TALE_M:
-            exp_gain = t_exp_gain + extra_exp
-        elif mode in BOSS_M:
-            exp_gain = b_exp_gain + extra_exp
-        else:
-            exp_gain = extra_exp
+            if mode in DUNGEON_M:
+                exp_gain = d_exp_gain + extra_exp
+            elif mode in TALE_M:
+                exp_gain = t_exp_gain + extra_exp
+            elif mode in BOSS_M:
+                exp_gain = b_exp_gain + extra_exp
+            else:
+                exp_gain = extra_exp
 
-    if mode == "Purchase":
-        exp_gain = lvl_req + 100 + extra_exp
+        if mode == "Purchase":
+            exp_gain = lvl_req + 100 + extra_exp
 
-    return exp_gain, lvl_req
+        return exp_gain, lvl_req
+    except Exception as ex:
+        custom_logging.debug(ex)
+        return 0, 0
 
 
 async def guild_buff_update_function(team):

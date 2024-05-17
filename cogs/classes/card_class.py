@@ -999,7 +999,7 @@ class Card:
                 self.health = 0
             self.damage_received = self.damage_received + round(bleed_hit_modified)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(bleed_hit_modified)
-            return f"({turn_total}) 🩸 {self.name} shredded {opponent_card.name} for {round(bleed_hit_modified)} bleed damage"
+            return f"({turn_total}) 🩸 {opponent_card.name} shredded {self.name} for {round(bleed_hit_modified)} bleed damage"
 
 
     def set_burn_hit(self, opponent_card):
@@ -1691,7 +1691,7 @@ class Card:
             if self._critical_strike_count < self._swordsman_value:
                 self._critical_strike_count += 1
                 hit_roll = 20
-                battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['SWORDSMAN']}) {self.name} has {3 - self._critical_strike_count} critical strikes left")
+                battle_config.add_to_battle_log(f"{self.name} has {3 - self._critical_strike_count} critical strikes left")
 
         if self.bloodlust_activated:
             hit_roll = hit_roll + 3
@@ -1982,9 +1982,9 @@ class Card:
                     battle_config._boss_embed_message = embedVar
     
             if self._monstrosity_active:
-                battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['MONSTROSITY']}) {self.name} gained 2 double strikes")
+                battle_config.add_to_battle_log(f"{self.name} gained 2 double strikes")
             if self._swordsman_active:
-                battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['SWORDSMAN']}) {self.name} gained 3 critical strikes")
+                battle_config.add_to_battle_log(f"{self.name} gained 3 critical strikes")
 
 
     def usesummon(self, battle_config, opponent_card):
@@ -2651,7 +2651,7 @@ class Card:
             add_solo_leveling_temp_values(self, 'SHIELD', opponent_card)
             if self._shield_value <= 0:
                 self._shield_value = 0
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained 🌐 {str(self._shield_value)} shield")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained 🌐 {str(self._shield_value)} shield]")
             # battle_config.add_to_battle_log(f"*{self.name} erected a 🌐 {str(self._shield_value)} Shield*")
             opponent_card.health = opponent_card.health - dmg['DMG']
 

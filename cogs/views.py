@@ -8,6 +8,7 @@ import help_commands as h
 import unique_traits as ut
 import destiny as d
 import random
+from logger import loggy
 import uuid
 from .classes.card_class import Card
 from .classes.title_class import Title
@@ -85,6 +86,7 @@ class Views(Extension):
         try:
             if advanced_search:
                 if advanced_search:
+                    loggy.info(f"Advanced Search: {advanced_search} for {ctx.author}")
                     response = await advanced_card_search(self, ctx, advanced_search)
                     return
             
@@ -469,7 +471,7 @@ class Views(Extension):
     @view.autocomplete("advanced_search")
     async def view_autocomplete(self, ctx: AutocompleteContext):        
         choices = []
-        options = crown_utilities.autocomplete_advanced_search
+        options = crown_utilities.get_cached_cards()
         # Iterate over the options and append matching ones to the choices list
         for option in options:
             if not ctx.input_text:
@@ -1248,7 +1250,6 @@ async def viewuniverse(self, ctx: InteractionContext, universe: str=""):
         return
 
 
-
 async def advanced_card_search(self, ctx, advanced_search_item):
     try:
         if advanced_search_item in crown_utilities.elements:
@@ -1258,8 +1259,9 @@ async def advanced_card_search(self, ctx, advanced_search_item):
             cards = [x for x in db.queryCardsByClass(advanced_search_item)]
             suffix = "Class"
         else:
-            cards = [x for x in db.queryCardsByPassive(advanced_search_item)]
-            suffix = "Passive / Enhancer"
+            card_data = db.queryCard({"NAME": advanced_search_item})
+            await viewcard(self, ctx, card_data)
+            return
 
         all_cards = []
         embed_list = []

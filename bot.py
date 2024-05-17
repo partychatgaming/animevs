@@ -2715,7 +2715,6 @@ async def code(ctx, code_input: str):
       code = db.queryCodes({'CODE_INPUT': code_input})
       
       if code and code['AVAILABLE']:
-         loggy.info(f"Code {code_input} has been used by {ctx.author}")
          coin = code['COIN']
          gems = code['GEMS']
          exp = code['EXP']
@@ -2727,6 +2726,7 @@ async def code(ctx, code_input: str):
          arm_drop = db.queryArm({'NAME': arm}) if arm else ""
          embed_list = []
          if code_input not in user.used_codes:
+            print("code_input not in user.used_codes")
             if gems != 0:
                if user.gems:
                   embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
@@ -2750,17 +2750,18 @@ async def code(ctx, code_input: str):
                   embed = Embed(title="🛡️ Arm Drop", description=f"You received **{arm.name}** from {arm.universe_crest} {arm.universe}!", color=0x00ff00)
                   embed_list.append(embed)
             if exp:
-               # user = await bot.fetch_user(ctx.author.id)
+               user = await bot.fetch_user(ctx.author.id)
                mode = "Purchase"
-               await crown_utilities.cardlevel(ctx.author, mode, exp)
+               await crown_utilities.cardlevel(user, mode, exp)
                embed = Embed(title="Level Up", description=f"Your 🎴 **{equipped_card.name}** card leveled up!", color=0x00ff00)
                embed_list.append(embed)
-            respond = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
+            response = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
             if embed_list:
                paginator = Paginator.create_from_embeds(bot, *embed_list)
                paginator.show_select_menu = True
                await paginator.send(ctx)
          else:
+            loggy.info(f"Code {code_input} has been used by {ctx.author}")
             embed = Embed(title="Code Already Used", description=f"{ctx.author.mention} has already used **{code_input}**", color=0x00ff00)
             await ctx.send(embed=embed)
             return

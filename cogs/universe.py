@@ -10,6 +10,7 @@ import uuid
 import asyncio
 import random
 import custom_logging
+from logger import loggy
 from .classes.custom_paginator import CustomPaginator
 from .classes.arm_class import Arm
 from .classes.card_class import Card
@@ -173,7 +174,7 @@ class Universe(Extension):
             entrance_fee = 5000
             mode_check = "HAS_CROWN_TALES"
             completed_check = player.completed_tales
-            universe = db.queryUniverse({"TITLE": universe_title})
+            universe = await asyncio.to_thread(db.queryUniverse, {"TITLE": universe_title})
             if mode in crown_utilities.DUNGEON_M and player.level <= 40:
                 dungeon_unavailable_response = create_dungeon_locked_embed()
                 await ctx.send(embed=dungeon_unavailable_response)

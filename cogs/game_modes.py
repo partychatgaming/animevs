@@ -411,7 +411,7 @@ class GameModes(Extension):
         name="universe",
         description="Universe to list traits for",
         opt_type=OptionType.STRING,
-        required=False,
+   
         autocomplete=True
     )
     async def play(self, ctx: InteractionContext, mode: str, universe: str = ""):
