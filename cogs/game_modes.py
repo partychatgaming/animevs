@@ -422,7 +422,7 @@ class GameModes(Extension):
 
         if not universe:
             # Create embed that says to select a universe 
-            embed = Embed(title="Select a Universe", description="Please select a universe to play in.", color=0x696969)
+            embed = Embed(title="Select a Universe", description="All PVE game modes require universe selection. Please type or select a universe you would like to play in.", color=0x696969)
             await ctx.send(embed=embed)
             return
 

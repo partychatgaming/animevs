@@ -738,7 +738,6 @@ class Player:
         _card.summon_name = self._equipped_summon_name
         _card.summon_image = self._equipped_summon_image
         _card.summon_universe = self._equipped_summon_universe
-        print(f"getsummon_ready image - {_card.summon_image} - {self._equipped_summon_image}")
     
 
     def get_talisman_ready(self, card):

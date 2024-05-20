@@ -20,7 +20,7 @@ import requests
 import json
 import uuid
 from interactions.ext.paginators import Paginator
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, const, Status, Activity, listen, slash_command, global_autocomplete, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, AutocompleteContext, slash_option
+from interactions import Task, IntervalTrigger, Client, ActionRow, Button, ButtonStyle, Intents, const, Status, Activity, listen, slash_command, global_autocomplete, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, AutocompleteContext, slash_option
 import crown_utilities
 
 logging.basicConfig()
@@ -31,14 +31,15 @@ guild_ids = None
 guild_id = None
 guild_channel = None
 
-bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False)
-
+# bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False)
+bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False, token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN'))
 
 @listen()
 async def on_ready():
    server_count = len(bot.guilds)
    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
    loggy.info('Bot is ready!')
+   check_heartbeat.start()
 
 
 def add_universes_names_to_autocomplete_list():
@@ -2726,7 +2727,6 @@ async def code(ctx, code_input: str):
          arm_drop = db.queryArm({'NAME': arm}) if arm else ""
          embed_list = []
          if code_input not in user.used_codes:
-            print("code_input not in user.used_codes")
             if gems != 0:
                if user.gems:
                   embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
@@ -3860,12 +3860,36 @@ async def savecards(ctx):
 
 
 
-if config('ENV') == "production":
-   DISCORD_TOKEN = config('DISCORD_TOKEN')
-else:
-   DISCORD_TOKEN = config('NEW_TEST_DISCORD_TOKEN')
+# if config('ENV') == "production":
+#    DISCORD_TOKEN = config('DISCORD_TOKEN')
+# else:
+#    DISCORD_TOKEN = config('NEW_TEST_DISCORD_TOKEN')
 
-bot.start(DISCORD_TOKEN)
+# bot.start(DISCORD_TOKEN)
+
+
+async def restart_bot():
+    await bot.stop()
+    await bot.start()
+
+
+@Task.create(IntervalTrigger(minutes=5))
+async def check_heartbeat():
+      try:
+         # Get the bot's latency
+         latency = bot.latency
+         loggy.info(f'Heartbeat check - latency: {latency}')
+         # Check if latency is within acceptable range (e.g., below 2 seconds)
+         if latency and latency > 2.0:
+               loggy.warning('High latency detected, restarting bot...')
+               await restart_bot()
+      except Exception as e:
+         loggy.error(f'Error during heartbeat check: {e}')
+         await restart_bot()
+
+
+# Run the bot
+bot.start()
 
 
 

@@ -617,8 +617,8 @@ class Battle:
                 summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
                 arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""}
 
-            self._ai_opponent_title_data = db.get_random_title({"UNIVERSE": universe_data['TITLE']})
-            self._ai_opponent_arm_data = db.get_random_arm(arm_query)
+            self._ai_opponent_title_data = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
+            self._ai_opponent_arm_data = db.get_random_arm(arm_query, self.player1)
             self._ai_summon = db.get_random_summon_name(summon_query)
             self._ai_opponentsummon_data = db.querySummon({'PET': self._ai_summon})
             self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
@@ -713,8 +713,8 @@ class Battle:
                     dungeon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}
                     tales_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
                     if self.is_dungeon_game_mode:
-                        self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']})
-                        self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON", 'ELEMENT': ""})
+                        self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
+                        self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}, self.player1)
                         self._ai_summon = db.get_random_summon_name(dungeon_query)
                         if player1_card_level >= 600:
                             self._ai_opponent_card_lvl = 650
@@ -722,8 +722,8 @@ class Battle:
                             self._ai_opponent_card_lvl = 50 + min(max(350, player1_card_level), 600) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
                     
                     if self.is_tales_game_mode:
-                        self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']})
-                        self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""})
+                        self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
+                        self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}, self.player1)
                         self._ai_summon = db.get_random_summon_name(tales_query)
                         if player1_card_level <= 20 and player1_card_level >=10:
                             self._ai_opponent_card_lvl = 10
@@ -735,12 +735,12 @@ class Battle:
 
                     if any((self.is_scenario_game_mode, self.is_explore_game_mode)):
                         if self._ai_opponent_card_lvl < 150:
-                            self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']})
-                            self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""})
+                            self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
+                            self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}, self.player1)
                             self._ai_summon = db.get_random_summon_name(tales_query)
                         if self._ai_opponent_card_lvl >= 150:
-                            self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']})
-                            self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON", 'ELEMENT': ""})
+                            self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
+                            self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}, self.player1)
                             self._ai_summon = db.get_random_summon_name(dungeon_query)
                 self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
                 self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
@@ -920,7 +920,7 @@ class Battle:
 
         def format_card(player):
             card, title, resolve, focus = card_statuses[player]
-            return f"🎴 {card.name}\n{focus}{round(card.health)} {resolve}{round(card.stamina)} 🗡️{round(card.attack)}/🛡️{round(card.defense)}\n{title.title_battle_message_handler()} {card._arm_message}"
+            return f"🎴 {card.name}\n📿 {crown_utilities.set_emoji(card._talisman)} {card._talisman.title()} Talisman\n{focus}{round(card.health):,} {resolve}{round(card.stamina)} 🗡️{round(card.attack):,}/🛡️{round(card.defense):,}\n{title.title_battle_message_handler()} {card._arm_message}"
 
         if self.is_co_op_mode or self.is_duo_mode:
             if self.is_turn in [1, 0]:
@@ -1449,7 +1449,7 @@ class Battle:
 
         p1_msg = get_player_message(self.player1_card)
         p2_msg = get_player_message(self.player2_card)
-        message = f"{crown_utilities.set_emoji(self.player1_card._talisman)} | {p1_msg}\n🆚\n{crown_utilities.set_emoji(self.player2_card._talisman)} | {p2_msg}"
+        message = f"{crown_utilities.set_emoji(self.player1_card._talisman)} | {p1_msg}\n{self.player1_card.universe_crest} 🆚 {self.player2_card.universe_crest}\n{crown_utilities.set_emoji(self.player2_card._talisman)} | {p2_msg}"
 
         if self.is_co_op_mode:
             p3_msg = get_player_message(self.player3_card)

@@ -28,7 +28,7 @@ class Universe(Extension):
 
     @listen()
     async def on_ready(self):
-        print('Universe Cog is ready!')
+        loggy.info('Universe Cog is ready!')
 
 
     async def cog_check(self, ctx):
@@ -95,12 +95,12 @@ class Universe(Extension):
                 
             if player.rift_on:
                 if mode in crown_utilities.DUNGEON_M:
-                    _all_universes = db.queryDungeonAllUniverse()
+                    _all_universes = await asyncio.to_thread(db.queryDungeonAllUniverse)
                     all_universes = get_dungeons(_all_universes)
                     if not all_universes:
                         return None
                 if mode in crown_utilities.TALE_M:
-                    _all_universes = db.queryTaleAllUniverse()
+                    _all_universes = await asyncio.to_thread(db.queryAllUniverse)
                     all_universes = get_tales(_all_universes)
                 rift_universes = get_rifts(all_universes)
                 num_rift_universes = len(rift_universes)
@@ -116,12 +116,12 @@ class Universe(Extension):
 
             if not player.rift_on:
                 if mode in crown_utilities.DUNGEON_M:
-                    _all_universes = db.queryDungeonUniversesNotRift()
+                    _all_universes = await asyncio.to_thread(db.queryDungeonUniversesNotRift)
                     all_universes = get_dungeons(_all_universes)
                     if not all_universes:
                         return None
                 if mode in crown_utilities.TALE_M:
-                    _all_universes = db.queryTaleUniversesNotRift()
+                    _all_universes = await asyncio.to_thread(db.queryTaleUniversesNotRift)
                     all_universes = get_tales(_all_universes)
                 selected_universes = random.sample(all_universes, min(len(all_universes), 25))
                     
@@ -154,6 +154,7 @@ class Universe(Extension):
             paginator.show_select_menu = True
             await paginator.send(ctx)
         except Exception as ex:
+            print(ex)
             player.make_available()
             custom_logging.debug(ex)
 

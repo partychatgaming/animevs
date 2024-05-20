@@ -19,6 +19,7 @@ import textwrap
 now = time.asctime()
 import re
 import random
+import asyncio
 import requests
 import interactions 
 import custom_logging
@@ -111,7 +112,7 @@ def replace_matching_numbers_with_arrow(text_list):
             number = match.group(1)
             if number in first_occurrence:
                 # Replace the number with :plus1: if it's a duplicate
-                text = re.sub(r'\(\d+\)', '⤵️', text, count=1)
+                text = re.sub(r'\(\d+\)', '↘️', text, count=1)
             else:
                 # Mark the number as seen for the first time
                 first_occurrence.add(number)
@@ -795,7 +796,7 @@ async def update_experience(card, player, exp, lvl_req):
                 if exp_gain <= (lvl_req - 1):
                     update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
                     filter_query = [{'type.' + "CARD": card.name}]
-                    response = db.updateUser(player.user_query, update_query, filter_query)
+                    response = await asyncio.to_thread(db.updateUser, player.user_query, update_query, filter_query)
                     exp_gain = exp_gain - lvl_req
                     break
                     
@@ -807,7 +808,7 @@ async def update_experience(card, player, exp, lvl_req):
                                             'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
                                             'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
                     filter_query = [{'type.' + "CARD": card.name}]
-                    response = db.updateUser(player.user_query, update_query, filter_query)
+                    response = await asyncio.to_thread(db.updateUser, player.user_query, update_query, filter_query)
                     exp_gain = exp_gain - lvl_req
                     number_of_level_ups += 1
                     card.card_lvl += 1

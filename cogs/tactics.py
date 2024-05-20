@@ -249,7 +249,7 @@ async def auto_battle_embed_and_starting_traits(ctx, player_card, player_title, 
         text=f"{battle_config.get_previous_moves_embed()}")
 
     if not battle_config.is_auto_battle_game_mode:
-        embedVar.set_image(url="attachment://image.png")    
+        embedVar.set_image(url="attachment://image.png")
     return embedVar
 
 

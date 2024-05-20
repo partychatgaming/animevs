@@ -6,6 +6,7 @@ import stats
 import interactions
 import requests
 import textwrap
+import ai
 import db
 import random
 from PIL import Image, ImageFont, ImageDraw
@@ -249,6 +250,7 @@ class Card:
             self.used_defend = False
             self.used_boost = False
             self.focus_count = 0
+            self.ai_focus_message_sent = False
             self.damage_received = 0
             self.damage_dealt = 0
             self.damage_healed = 0
@@ -293,6 +295,7 @@ class Card:
                     self.class_tier = "Creator God"
             
             self.class_message = f"{self.class_tier} {self.card_class.title()}"
+            self.class_value = 0
 
 
             # Talisman Info
@@ -582,7 +585,17 @@ class Card:
             p_value = 6
             mage_buff = .50
             heal_buff = .45
-
+        elif self.tier in [8, 9]:
+            value = 5
+            p_value = 7
+            mage_buff = .55
+            heal_buff = .50
+        elif self.tier in [10]:
+            value = 6
+            p_value = 7
+            mage_buff = .60
+            heal_buff = .55
+        self.class_value = value
         if self.card_class == "FIGHTER":
             self.is_fighter = True
             self.parry_active = True
@@ -602,6 +615,7 @@ class Card:
             self.is_tank = True
             self.shield_active = True
             self._shield_value = self._shield_value + (self.tier * 500)
+            self.class_value = self._shield_value
         
         if self.card_class == "HEALER":
             self.is_healer = True
@@ -1297,22 +1311,22 @@ class Card:
                             self._barrier_value = 0
                         self._barrier_value = self._barrier_value + ap
                         add_solo_leveling_temp_values(self, 'BARRIER', _opponent_card)
-                        message = f"{self.name} received {self.summon_emoji} {ap} barrier"
+                        message = f"{self.summon_name} gave {self.name} a {self.summon_emoji} {ap} barrier"
                     if move_element == "SHIELD":
                         self.shield_active = True
                         if self._shield_value < 0:
                             self._shield_value = 0
                         self._shield_value = self._shield_value + ap
                         add_solo_leveling_temp_values(self, 'SHIELD', _opponent_card)
-                        message = f"{self.name} received {self.summon_emoji} {ap} shield"
+                        message = f"{self.summon_name} gave {self.name} a {self.summon_emoji} {ap} shield"
                     if move_element == "PARRY":
                         self.parry_active = True
                         if self._parry_value < 0:
                             self._parry_value = 0
                         self._parry_value = self._parry_value + ap
                         add_solo_leveling_temp_values(self, 'PARRY', _opponent_card)
-                        message = f"{self.name} receive {self.summon_emoji} {ap} parry"
-                    battle_config.add_to_battle_log(message)
+                        message = f"{self.summon_name} gave {self.name} a {self.summon_emoji} {ap} parry"
+                    # battle_config.add_to_battle_log(message)
                     response = {
                     "DMG": 0,
                     "MESSAGE": message,
@@ -1723,31 +1737,33 @@ class Card:
         self._arm_message = ""
         opponent_card._arm_message = ""
         if opponent_card.barrier_active:
-            opponent_card._arm_message += f"{weapon_emojis['barrier']} | {opponent_card._barrier_value} Barrier\n"
+            opponent_card._arm_message += f"{weapon_emojis['barrier']} {opponent_card._barrier_value} Barrier{'s' if opponent_card._barrier_value > 1 else ''}\n"
         if opponent_card.shield_active:
-            opponent_card._arm_message += f"{weapon_emojis['shield']} | {opponent_card._shield_value} Shield\n"
+            opponent_card._arm_message += f"{weapon_emojis['shield']} {opponent_card._shield_value:,} Shield\n"
         if opponent_card.parry_active:
-            opponent_card._arm_message += f"{weapon_emojis['parry']} | {opponent_card._parry_value} Parry\n"
+            opponent_card._arm_message += f"{weapon_emojis['parry']} {opponent_card._parry_value} Parr{'ies' if opponent_card._parry_value > 1 else 'y'}\n"
         if opponent_card.siphon_active:
-            opponent_card._arm_message += f"{weapon_emojis['siphon']} | {opponent_card._siphon_value} Siphon\n"
-        
+            opponent_card._arm_message += f"{weapon_emojis['siphon']} {opponent_card._siphon_value} Siphon\n"
+
         if len(opponent_card._arm_message) > 0:
             opponent_card._arm_message = "\n" + opponent_card._arm_message
+            
 
         if self.barrier_active:
-            self._arm_message += f"{weapon_emojis['barrier']} | {self._barrier_value} Barrier\n"
+            self._arm_message += f"{weapon_emojis['barrier']} {self._barrier_value} Barrier{'s' if self._barrier_value > 1 else ''}\n"
         if self.shield_active:
-            self._arm_message += f"{weapon_emojis['shield']} | {self._shield_value} Shield\n"
+            self._arm_message += f"{weapon_emojis['shield']} {self._shield_value:,} Shield{'s' if self._shield_value > 1 else ''}\n"
         if self.parry_active:
-            self._arm_message += f"{weapon_emojis['parry']} | {self._parry_value} Parry\n"
+            self._arm_message += f"{weapon_emojis['parry']} {self._parry_value} Parr{'ies' if self._parry_value > 1 else 'y'}\n"
         if self.siphon_active:
-            self._arm_message += f"{weapon_emojis['siphon']} | {self._siphon_value} Siphon\n"
+            self._arm_message += f"{weapon_emojis['siphon']} {self._siphon_value} Siphon{'s' if self._siphon_value > 1 else ''}\n"
+
         
         if len(self._arm_message) > 0:
             self._arm_message = "\n" + self._arm_message
 
 
-    def focusing(self, _title, _opponent_title, _opponent_card, battle_config, _co_op_card=None, _co_op_title=None ):
+    async def focusing(self, _title, _opponent_title, _opponent_card, battle_config, _co_op_card=None, _co_op_title=None ):
         if self.stamina < self.stamina_required_to_focus:
             self.used_focus = True
             if battle_config.is_tutorial_game_mode and battle_config.tutorial_focus is False:
@@ -1885,6 +1901,10 @@ class Card:
             combo_recognition(self, battle_config, _opponent_card)
 
             battle_config.turn_total = battle_config.turn_total + 1
+
+            # To make it so that only sends message 1 time, use the self.ai_focus_message_sent flag to limit
+            ai_focus_message = await ai.focus_message(self.name, self.universe, _opponent_card.name, _opponent_card.universe)
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) [{self.name}] - {ai_focus_message}")
             
             if self.universe != "Crown Rift Madness":
                 battle_config.next_turn()
@@ -1929,7 +1949,7 @@ class Card:
         battle_config.next_turn()
 
 
-    def resolving(self, battle_config, player_title, opponent_card, player=None, opponent=None):
+    async def resolving(self, battle_config, player_title, opponent_card, player=None, opponent=None):
         if self.defense <= 0:
             self.defense = 25
         if self.attack <= 0:
@@ -1985,6 +2005,10 @@ class Card:
                 battle_config.add_to_battle_log(f"{self.name} gained 2 double strikes")
             if self._swordsman_active:
                 battle_config.add_to_battle_log(f"{self.name} gained 3 critical strikes")
+
+            ai_resolve_message = await ai.resolve_message(self.name, self.universe, opponent_card.name, opponent_card.universe)
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) [{self.name}] - {ai_resolve_message}")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} summoned 🧬 {self.summon_name} to aid them in battle with their {self.summon_type.title()} ability")
 
 
     def usesummon(self, battle_config, opponent_card):

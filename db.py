@@ -1331,15 +1331,20 @@ def queryAllTitles():
     data = titles_col.find()
     return data
 
-def get_random_title(query):
+def get_random_title(query, player):
     try:
-        projection = {"_id": 0, "TITLE": 1}
-        title_count = titles_col.count_documents(query)
-        random_index = random.randint(0, title_count - 1)
-        
-        # Execute the query and return a random title
-        title = titles_col.find(query, projection).limit(1).skip(random_index).next()["TITLE"]
-        return title
+        print(f"Query: {query}")
+        titles = titles_col.find(query)
+        title_list = []
+        for title in titles:
+            if player.difficulty in ['EASY', 'NORMAL'] and len(title['ABILITIES']) == 1:
+                title_list.append(title['TITLE'])
+            if player.difficulty in ['HARD'] and len(title['ABILITIES']) >= 2:
+                title_list.append(title['TITLE'])
+
+        selected_title = random.choice(title_list)
+
+        return selected_title
     except:
         return False
 
@@ -1414,14 +1419,45 @@ def queryArm(query):
     else:
         return data
 
-def get_random_arm(query):    
-    projection = {"_id": 0, "ARM": 1}
-    arm_count = arm_col.count_documents(query)
-    random_index = random.randint(0, arm_count - 1)
+def get_random_arm(query, player):
+    arms = arm_col.find(query)
+    arm_list = []
     
-    # Execute the query and return a random arm
-    arm = arm_col.find(query, projection).limit(1).skip(random_index).next()["ARM"]
-    return arm
+    thresholds = {
+        'EASY': {
+            'SHIELD': 800,
+            'PARRY': 5,
+            'SIPHON': 75,
+            'BARRIER': 3
+        },
+        'NORMAL': {
+            'SHIELD': 800,
+            'PARRY': 5,
+            'SIPHON': 75,
+            'BARRIER': 3
+        },
+        'HARD': {
+            'SHIELD': 850,
+            'PARRY': 6,
+            'SIPHON': 80,
+            'BARRIER': 4
+        }
+    }
+    
+    for arm in arms:
+        arm_type = list(arm['ABILITIES'][0].keys())[0]
+        arm_value = list(arm['ABILITIES'][0].values())[0]
+        
+        if player.difficulty in ['EASY', 'NORMAL'] and arm_type in thresholds['EASY'] and arm_value <= thresholds['EASY'][arm_type]:
+            arm_list.append(arm)
+        if player.difficulty == 'HARD' and arm_type in thresholds['HARD'] and arm_value >= thresholds['HARD'][arm_type]:
+            arm_list.append(arm)
+        if arm_type in ['SPECIAL', 'BASIC', 'ULTIMATE']:
+            arm_list.append(arm)
+
+
+    selected_arm = random.choice(arm_list) if arm_list else arm_col.find_one({"ARM": "Stock"})
+    return selected_arm['ARM']
 
 def queryDropArms(universe, drop_style):
     data = arm_col.find({'UNIVERSE': universe, 'DROP_STYLE': drop_style, 'AVAILABLE': True})
@@ -1657,16 +1693,8 @@ def queryCorruptedUniverse():
     except Exception as e:
         return False
 
-def queryAllUniverses():
-    data = universe_col.find()
-    return data
 
 def queryAllUniverse():
-    data = universe_col.find({"HAS_CROWN_TALES": True})
-    return data
-
-
-def queryTaleAllUniverse():
     data = universe_col.find({"HAS_CROWN_TALES": True})
     return data
 
