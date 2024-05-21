@@ -107,7 +107,7 @@ class Play(Extension):
                     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|quit_game":
                         battle_config.player1.make_available()
                         await battle_start_msg.delete()
-                        await exit_battle_embed(battle_config, button_ctx)
+                        await exit_battle_embed(battle_config, button_ctx, private_channel)
                         return
 
                     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|save_game":
@@ -629,13 +629,13 @@ def early_game_tactics(battle_config):
         tactics.tactics_intimidation_check(battle_config.player2_card, battle_config.player1_card, battle_config)
 
 
-async def exit_battle_embed(battle_config, button_ctx):
+async def exit_battle_embed(battle_config, button_ctx, private_channel):
     if battle_config.player1.autosave and battle_config.match_can_be_saved:
-        await button_ctx.ctx.send(embed=battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
+        await private_channel.ctx.send(embed=battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
     elif not battle_config.is_pvp_game_mode:
-        await button_ctx.ctx.edit(embed=battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+        await private_channel.send(embed=battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
     else:
-        await button_ctx.ctx.send(embed=battle_config.close_pvp_embed(battle_config.player1, battle_config.player2))
+        await private_channel.ctx.send(embed=battle_config.close_pvp_embed(battle_config.player1, battle_config.player2))
     return
 
 
@@ -1470,8 +1470,8 @@ async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_conf
             turn_card.health = 0
             battle_config.game_over = True
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) **{turn_card.name}** quit the battle. The match is over.")
-            # await battle_msg.delete()
-            await exit_battle_embed(battle_config, button_ctx)
+            await battle_msg.delete(delay=1)
+            await exit_battle_embed(battle_config, button_ctx, private_channel)
             return True
     except Exception as ex:
         custom_logging.debug(ex)

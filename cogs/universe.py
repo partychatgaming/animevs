@@ -279,7 +279,7 @@ class Universe(Extension):
                         return
                 
                 except asyncio.TimeoutError:
-                    print("timeout")
+                    loggy.critical("Timeout Error")
                     await msg.edit(components=[])
                     return
 

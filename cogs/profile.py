@@ -287,7 +287,7 @@ class Profile(Extension):
                             embedVar7.add_field(name="__Level Up Information__", value=f"{level_up_message}")
                             embedVar7.set_image(url="attachment://image.png")
 
-                        embedVar8 = Embed(title=f"Build Trait View".format(self), description=f"Traits are unique universe based abilities or passives that can be activated in battle. Please read your trait carefully.", color=000000)
+                        embedVar8 = Embed(title=f"Build Trait View".format(self), description=f"Each universe has a unique ability or passive that can be activated in battle. Please read your trait carefully for a comprehensive understand of how and when your universe trait is applied in battle.", color=000000)
                         embedVar8.add_field(name="__Trait List__", value=f"♾️ | {c.set_trait_message()}")
                         embedVar8.set_image(url="attachment://image.png")
                         embedVar8.set_thumbnail(url=player.avatar)

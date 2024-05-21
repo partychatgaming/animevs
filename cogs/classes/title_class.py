@@ -378,7 +378,7 @@ class Title:
             self.message = f"On your turn, Swap {self.type_message} Defense by **{self.passive_value}**"
             self.message = value=f"On your turn, **{self.type_message}** by **{self.passive_value}**, **{self.type2_message}** by **{self.passive_value}**"
         
-        elif self.passive_type == "SLOW" or self.passive_type == "HASTE":
+        elif self.passive_type == "SLOW" or self.passive_type == "HASTE" or self.passive_type == "BLINK":
             self.message = f"On your turn, **{self.type_message}** by **{self.passive_value}**"
         
         elif self.passive_type == "SOULCHAIN" or self.passive_type == "GAMBLE":

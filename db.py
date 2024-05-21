@@ -1693,8 +1693,16 @@ def queryCorruptedUniverse():
     except Exception as e:
         return False
 
+def queryAllUniverses():
+    data = universe_col.find({"HAS_CROWN_TALES": True})
+    return data
 
 def queryAllUniverse():
+    data = universe_col.find({"HAS_CROWN_TALES": True})
+    return data
+
+
+def queryTaleAllUniverse():
     data = universe_col.find({"HAS_CROWN_TALES": True})
     return data
 

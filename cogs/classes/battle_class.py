@@ -1524,7 +1524,7 @@ class Battle:
             picon = "🔥"
         if self.is_boss_game_mode:
             close_message = "Boss"
-            picon = ":japanese_ogre:"
+            picon = "👹"
             f_message = f"💀 | You fail to claim {opponent_card.name}'s Soul"
         if self.is_abyss_game_mode:
             close_message = "Abyss"

@@ -2007,7 +2007,7 @@ class Card:
                 battle_config.add_to_battle_log(f"{self.name} gained 3 critical strikes")
 
             ai_resolve_message = await ai.resolve_message(self.name, self.universe, opponent_card.name, opponent_card.universe)
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) [{self.name}] - {ai_resolve_message}")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) [{self.name}] ⚡ - {ai_resolve_message}")
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} summoned 🧬 {self.summon_name} to aid them in battle with their {self.summon_type.title()} ability")
 
 
