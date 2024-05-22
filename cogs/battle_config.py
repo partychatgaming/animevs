@@ -70,6 +70,10 @@ class BattleConfig(Extension):
     
     async def create_explore_battle(self, ctx, battle):
         await play.battle_commands(self, ctx, battle)
+
+    
+    async def create_pvp_battle(self, ctx, battle, p2):
+        await play.battle_commands(self, ctx, battle, p2)
         
 
 def setup(bot):

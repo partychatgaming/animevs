@@ -32,6 +32,7 @@ from logger import loggy
 from pilmoji import Pilmoji
 import destiny as d
 import interactions
+import uuid
 from .classes.custom_paginator import CustomPaginator
 from interactions.api.events import MessageCreate
 from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Buckets, Embed, Extension, slash_option, AutocompleteContext
@@ -501,10 +502,17 @@ class GameModes(Extension):
             return
 
 
-    @slash_command(description="pvp battle against a friend or rival")
+    @slash_command(description="pvp battle against a friend or rival", options=[
+        SlashCommandOption(
+            name="opponent",
+            description="Type in your opponent",
+            type=OptionType.USER,
+            required=False
+        )
+    ])
     async def pvp(self, ctx: InteractionContext, opponent: User):
         try:
-            # n
+            _uuid = uuid.uuid4()
 
             registered_player = await crown_utilities.player_check(ctx)
             if not registered_player:
@@ -515,6 +523,20 @@ class GameModes(Extension):
             p1 = crown_utilities.create_player_from_data(player)
             p2 = crown_utilities.create_player_from_data(player2)
 
+            confirmation_buttons = [
+                Button(
+                    style=ButtonStyle.GREEN,
+                    label="Accept",
+                    custom_id=f"{_uuid}|accept"
+                ),
+                Button(
+                    style=ButtonStyle.RED,
+                    label="Decline",
+                    custom_id=f"{_uuid}|decline"
+                )
+            ]
+
+            action_row = ActionRow(*confirmation_buttons)
 
             if not p1.is_available:
                 embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
@@ -525,20 +547,10 @@ class GameModes(Extension):
                 embed = Embed(title="⚠️ Your opponent is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
                 await ctx.send(embed=embed)
                 return
-
-
-            battle = Battle(mode, p1)
-            battle.set_tutorial(p2.did)
             
             if p1.did == p2.did:
                 await ctx.send("You cannot PVP against yourself.", ephemeral=True)
                 return
-            await ctx.send("🆚 Building PVP Match...", delete_after=10)
-
-            starttime = time.asctime()
-            h_gametime = starttime[11:13]
-            m_gametime = starttime[14:16]
-            s_gametime = starttime[17:19]
 
             if p1.get_locked_feature(mode):
                 await ctx.send(p1._locked_feature_message)
@@ -547,13 +559,36 @@ class GameModes(Extension):
                 await ctx.send(p2._locked_feature_message)
                 return
 
-            await battle_commands(self, ctx, battle, p1, None, p2, None)
+            embed = Embed(title="🆚 PVP Battle Request", description=f"{p2.disname} do you accept the challenge?", color=0x696969)
+            msg = await ctx.send(embed=embed, components=[action_row])
 
+            def check(component: Button) -> bool:
+                return component.ctx.author == opponent
+            
+            try:
+                button_ctx  = await self.bot.wait_for_component(components=[action_row], timeout=300, check=check)
+                await button_ctx.ctx.defer(edit_origin=True)
+                if button_ctx.ctx.custom_id == f"{_uuid}|accept":
+                    battle = Battle(mode, p1)
+                    battle.is_pvp_game_mode = True
+                    battle.set_tutorial(p2.did)
+                    await button_ctx.ctx.send("🆚 Building PVP Match...", delete_after=10)
+                    await msg.edit(components=[])
+
+                    await BattleConfig.create_pvp_battle(self, ctx, battle, p2)
+                    return 
+
+                if button_ctx.ctx.custom_id == f"{_uuid}|decline":
+                    await msg.edit(components=[])
+                    return
+            except Exception as ex:
+                loggy.critical(ex)
+                await msg.edit(components=[])
+                custom_logging.debug(ex)
+                return
         except Exception as ex:
             custom_logging.debug(ex)
-            guild = self.bot.get_guild(self.bot.guild_id)
-            channel = guild.get_channel(self.bot.guild_channel)
-            await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {tracplayer1e}")
+            await ctx.send(f"An error occurred: {ex}")
             return
 
 

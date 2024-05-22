@@ -536,6 +536,8 @@ class Battle:
             self.is_pvp_game_mode = True
             # self.is_ai_opponent = True
             self.is_turn = 0
+        else:
+            self.is_pvp_game_mode = True
             
     
     def create_raid(self, title_match, test_match, training_match, association, hall_info, shield_guild, player_guild): #findme
@@ -1578,9 +1580,9 @@ class Battle:
             {player.disname} 🆚 {opponent.disname}
             """))
         embedVar.add_field(name=f"{icon1} | {player.disname}",
-                                value=f"🎴 | {player.equipped_card}\n🎗️ | {player.equipped_title}\n🦾 | {player.equipped_arm}\n🧬 | {player.equippedsummon}")
+                                value=f"🎴 | {player.equipped_card}\n🎗️ | {player.equipped_title}\n🦾 | {player.equipped_arm}\n🧬 | {player.equipped_summon_name}")
         embedVar.add_field(name=f"{icon2} | {opponent.disname}",
-                                value=f"🎴 | {opponent.equipped_card}\n🎗️ | {opponent.equipped_title}\n🦾 | {opponent.equipped_arm}\n🧬 | {opponent.equippedsummon}")
+                                value=f"🎴 | {opponent.equipped_card}\n🎗️ | {opponent.equipped_title}\n🦾 | {opponent.equipped_arm}\n🧬 | {opponent.equipped_summon_name}")
         embedVar.set_footer(text=f_message)
         return embedVar
     
@@ -2104,17 +2106,10 @@ class Battle:
 
     def create_loss_embed_var(self, player_card, opponent_card, companion_card, gameClock):
         if self.is_raid_game_mode:
-            embedVar = Embed(title=f"🛡️ **{opponent_card.name}** defended the {self._association_name}\nMatch concluded in {self.turn_total} turns",
-                            description=textwrap.dedent(f"""
-                                                {self.get_previous_moves_embed()}
-                                                """),
-                            color=0x1abc9c)
+            embedVar = Embed(title=f"🛡️ **{opponent_card.name}** defended the {self._association_name}\nMatch concluded in {self.turn_total} turns", color=0x1abc9c)
         else:
-            embedVar = Embed(title=f":skull: Try Again", description=textwrap.dedent(f"""
-                {self.get_previous_moves_embed()}
-                
-                """), color=0xe91e63)
-        embedVar.set_footer(text=self.format_game_clock(gameClock))
+            embedVar = Embed(title=f"💀 Try Again", color=0xe91e63)
+        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"{self.format_game_clock(gameClock)}")
         self.add_stat_fields_to_embed(embedVar, player_card, opponent_card, companion_card)
         return embedVar
 
@@ -2122,16 +2117,18 @@ class Battle:
     def embed_title(self, winner, winner_card):
         victory_message = f"⚡ {winner_card.name} WINS!"
         victory_description = f"Match concluded in {self.turn_total} turns."
+        
         if self.is_tutorial_game_mode:
             victory_message = f"⚡ TUTORIAL VICTORY"
             victory_description = f"GG! Try the other **/solo** games modes!\nSelect **🌑 The Abyss** to unlock new features or choose **⚔️ Tales/Scenarios** to grind Universes!\nMatch concluded in {self.turn_total} turns."
+        
         elif self.is_pvp_game_mode:
             victory_message = f"⚡ {winner_card.name} WINS!"
             victory_description = f"Match concluded in {self.turn_total} turns."
-        return Embed(title=f"{victory_message}\n{victory_description}", description=textwrap.dedent(f"""
-                {self.get_previous_moves_embed()}
-                
-                """), color=0xe91e63)
+        
+        embed = Embed(title=f"{victory_message}\n{victory_description}", color=0xe91e63)
+        embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+        return embed
 
 
     def add_stat_fields_to_embed(self, embedVar, winner_card, opponent_card, companion_card=None):

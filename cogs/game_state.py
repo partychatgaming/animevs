@@ -61,6 +61,14 @@ class GameState(Extension):
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                 battle_config.player2_card.stats_handler(battle_config, battle_config.player2, total_complete)
                 battle_config.player1.make_available()
+                talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
+                arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
+                
+                battle_config.continue_fighting = False
+
+                if arm_durability_message != False:
+                    await private_channel.send(f"{arm_durability_message}")
+
                 if battle_config.player1_wins:
                     pvp_response = await battle_config.pvp_victory_embed(battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
                 else:
@@ -69,11 +77,7 @@ class GameState(Extension):
                     else:
                         pvp_response = await battle_config.pvp_victory_embed(battle_config.player2, battle_config.player2_card, battle_config.player2_arm, battle_config.player2_title, battle_config.player1, battle_config.player1_card)
 
-                talisman_response = crown_utilities.decrease_talisman_count(battle_config.player1.did, battle_config.player1.equipped_talisman)
-                arm_durability_message = crown_utilities.update_arm_durability(battle_config.player1, battle_config.player1_arm, battle_config.player1_card)
-                if arm_durability_message != False:
-                    await private_channel.send(f"{arm_durability_message}")
-                if not battle_config.is_tutorial_game_mode:
+                if not battle_config.is_tutorial_game_mode and battle_config.is_co_op_mode:
                     co_op_talisman_response = crown_utilities.decrease_talisman_count(battle_config.player2.did, battle_config.player2.equipped_talisman)
                     co_op_arm_durability_message = crown_utilities.update_arm_durability(battle_config.player2, battle_config.player2_arm, battle_config.player2_card)
                     if co_op_arm_durability_message != False:
@@ -82,7 +86,7 @@ class GameState(Extension):
                 await battle_msg.delete(delay=2)
                 await asyncio.sleep(2)
                 battle_msg = await private_channel.send(embed=pvp_response)
-                battle_config.continue_fighting = False
+                
                 return
             else:
                 return False
@@ -271,10 +275,8 @@ class GameState(Extension):
                     #     quest_response = Quests.quest_check(battle_config.player1, "TALES")
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     if not battle_config.is_co_op_mode:
-                        embedVar = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence",description=textwrap.dedent(f"""
-                        {battle_config.get_previous_moves_embed()}
-                        
-                        """),color=0x1abc9c)
+                        embedVar = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence",color=0x1abc9c)
+                        embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
                         # if not battle_config.is_easy_difficulty:
                         #     if questlogger:
                         #         embedVar.add_field(name="**Quest Progress**",
@@ -369,7 +371,7 @@ class GameState(Extension):
                         #     embedVar.add_field(name="**Quest Progress**",
                         #         value=f"{questlogger}")
 
-                        embedVar.set_footer(text="Visit the /shop for a huge discount!")
+                        embedVar.set_footer(text=f"Visit the /shop for a huge discount!")
                         if not battle_config.is_easy_difficulty:
                             upload_query = {'DID': str(battle_config.player1.did)}
                             new_upload_query = {'$addToSet': {'DUNGEONS': battle_config.selected_universe},

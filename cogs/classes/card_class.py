@@ -3005,6 +3005,8 @@ def calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eulti
         self.move2 = self.move2[:25] + "..."
     if len(self.move3) > 25:
         self.move3 = self.move3[:25] + "..."
+    if len(self.move4) > 25:
+        self.move4 = self.move4[:25] + "..."
 
     # Original with move engagement emojis
     # move1_text = f"{self.move1_emoji} {self.move1}: {self.move1ap} {ebasic}"

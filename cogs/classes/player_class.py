@@ -420,20 +420,20 @@ class Player:
             if title['UNLOCK_METHOD'] and title['AVAILABLE']:
                 unlock_method = title['UNLOCK_METHOD']['METHOD']
                 value = title['UNLOCK_METHOD']['VALUE']
-                element = title['UNLOCK_METHOD']['ELEMENT']
+                # element = title['UNLOCK_METHOD']['ELEMENT']
                 # scenario_drop = title['UNLOCK_METHOD']['SCENARIO_DROP']
                 tale_title_unlock_message = self.tales_title_unlock_check(stats, universe, unlock_method, value, title)
                 dungeon_title_unlock_message = self.dungeon_title_unlock_check(stats, universe, unlock_method, value, title)
                 boss_title_unlock_message = self.boss_title_unlock_check(stats, universe, unlock_method, value, title)
-                elemental_damage_unlock_message = self.elemental_damage_unlock_check(unlock_method, stats, universe, value, title, element)
+                # elemental_damage_unlock_message = self.elemental_damage_unlock_check(unlock_method, stats, universe, value, title, element)
                 if tale_title_unlock_message:
                     message += tale_title_unlock_message
                 if dungeon_title_unlock_message:
                     message += dungeon_title_unlock_message
                 if boss_title_unlock_message:
                     message += boss_title_unlock_message
-                if elemental_damage_unlock_message:
-                    message += elemental_damage_unlock_message
+                # if elemental_damage_unlock_message:
+                #     message += elemental_damage_unlock_message
 
         return message
 

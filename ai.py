@@ -93,7 +93,7 @@ async def win_message(your_card_name, your_card_universe, opponent_card, opponen
 async def match_start_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
-    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe. The match has started. Write a 1 sentence message to {opponent_card} to show your readiness and determination to win. Never include quotation marks. Be as raw and true to your character's nature as possible."
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe. The match has started. Write a 1 to 2 sentence message to {opponent_card} to show your readiness and determination to win. Never include quotation marks. Be as raw and true to your character's nature as possible."
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
@@ -110,7 +110,7 @@ async def match_start_message(your_card_name, your_card_universe, opponent_card,
 async def starting_battle_ai_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
-    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe. The match is about to begin. Write a brief 1 sentence introduction to this fight. Be realistic. Do not include quotes."
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe fighting in a location in the {opponent_card_universe}. In 1 sentence, describe the location of the fight cinematically with a detailed idea of how these two are approaching this battle to start. Do not include quotes."
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(

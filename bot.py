@@ -3817,6 +3817,19 @@ async def updateclass(ctx):
 
 
 
+# @slash_command(description="update titles", scopes=guild_ids)
+# async def updatetitlestalrunes(ctx):
+#    await ctx.defer()
+#    all_titles = db.queryAllTitles()
+#    count = 0
+#    for title in all_titles:
+#       if title['UNLOCK_METHOD']['METHOD'] == "TALES" and not title['UNLOCK_METHOD']['VALUE'] == 0:
+#          db.updateTitle({'TITLE': title['TITLE']}, {'$set': {'UNLOCK_METHOD': {"METHOD": " RUN", "VALUE": title['UNLOCK_METHOD']['VALUE'], "ELEMENT": "N/A", "SCENARIO_DROP": False}}})
+#          count += 1
+#    await ctx.send(f"Updated {count} titles")
+#    return
+
+
 # Create a slash_command that gets a list of 50 cards and saves it to my account in the database
 @slash_command(description="save cards", scopes=guild_ids)
 async def savecards(ctx):
