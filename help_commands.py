@@ -89,7 +89,7 @@ ELEMENTS_LIST = [
     "❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.\n",
     "🌕 Light - Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 30% of DMG.\n",
     "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",
-    "🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).\n",
+    "🧪 Poison - Penetrates shields, Poison 40 damage stacking up to (150 * Card Tier).\n",
     "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%\n",
     "🧿 Energy - Has higher 35% higher chance of Crit.\n",
     "♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless. If Reckless would kill you reduce HP to 1\n",

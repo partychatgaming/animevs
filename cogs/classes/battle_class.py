@@ -920,9 +920,11 @@ class Battle:
                     resolve = emojis['used_resolve']
                 card_statuses[player] = [card, title, resolve, focus]
 
+        talisman_title = f"📿 {crown_utilities.set_emoji(card._talisman)} {card._talisman.title()} Talisman" if card._talisman else "No talisman equipped"
+
         def format_card(player):
             card, title, resolve, focus = card_statuses[player]
-            return f"🎴 {card.name}\n📿 {crown_utilities.set_emoji(card._talisman)} {card._talisman.title()} Talisman\n{focus}{round(card.health):,} {resolve}{round(card.stamina)} 🗡️{round(card.attack):,}/🛡️{round(card.defense):,}\n{title.title_battle_message_handler()} {card._arm_message}"
+            return f"🎴 {card.name}\n{talisman_title}\n{focus}{round(card.health):,} {resolve}{round(card.stamina)} 🗡️{round(card.attack):,}/🛡️{round(card.defense):,}\n{title.title_battle_message_handler()} {card._arm_message}"
 
         if self.is_co_op_mode or self.is_duo_mode:
             if self.is_turn in [1, 0]:

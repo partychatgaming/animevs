@@ -110,7 +110,7 @@ async def match_start_message(your_card_name, your_card_universe, opponent_card,
 async def starting_battle_ai_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
-    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe fighting in a location in the {opponent_card_universe}. In 1 sentence, describe the location of the fight cinematically with a detailed idea of how these two are approaching this battle to start. Do not include quotes."
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe fighting in a location in the {opponent_card_universe} universe. In 1 sentence, describe the location of the fight. Do not include quotes."
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(

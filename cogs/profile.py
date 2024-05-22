@@ -20,6 +20,7 @@ from .game_modes import enhancer_mapping, title_enhancer_mapping, enhancer_suffi
 import random
 import textwrap
 import uuid
+import asyncio
 import custom_logging
 import destiny as d
 from logger import loggy
@@ -124,10 +125,10 @@ class Profile(Extension):
             else:
                 uid = ctx.author.id
             query = {'DID': str(uid)}
-            d = db.queryUser(query)
-            card = db.queryCard({'NAME':str(d['CARD'])})
-            title = db.queryTitle({'TITLE': str(d['TITLE'])})
-            arm = db.queryArm({'ARM': str(d['ARM'])})
+            d = await asyncio.to_thread(db.queryUser, query)
+            card = await asyncio.to_thread(db.queryCard, {'NAME':str(d['CARD'])})
+            title = await asyncio.to_thread(db.queryTitle, {'TITLE': str(d['TITLE'])})
+            arm = await asyncio.to_thread(db.queryArm, {'ARM': str(d['ARM'])})
             if not all([card, title, arm, d]):
                 # Handle error if one of the database calls fails
                 return "Error: One or more of the required data is not available."

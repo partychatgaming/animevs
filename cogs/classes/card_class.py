@@ -1028,6 +1028,8 @@ class Card:
                 burn_message = f"🔥 {self.name} burned for {round(opponent_card.burn_dmg)} damage and died"
                 opponent_card.burn_dmg = 0
 
+        opponent_card.burn_dmg = round(opponent_card.burn_dmg / 3)
+
 
         if opponent_card.burn_dmg <= 14 and self.health > 0:
             opponent_card.burn_dmg = 0
@@ -1859,10 +1861,10 @@ class Card:
                     self.health = self.max_health
                     message_number = 0
             
-            if self.universe == "Crown Rift Madness" and not self.used_resolve:
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {self.name} went mad and focused, {heal_message} [+🗡️ {attack_calculation} | +🛡️{defense_calculation}]")
-            else:
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🌀 {self.name} focused and {heal_message}")
+            # if self.universe == "Crown Rift Madness" and not self.used_resolve:
+            #     battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {self.name} went mad and focused, {heal_message} [+🗡️ {attack_calculation} | +🛡️{defense_calculation}]")
+            # else:
+            #     battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🌀 {self.name} focused and {heal_message}")
             
             if self.universe == "Crown Rift Madness" and self.used_resolve:
                 self.attack = self.attack + attack_calculation
@@ -2404,7 +2406,7 @@ class Card:
                     decrease_solo_leveling_temp_values(self, 'BARRIER', opponent_card, battle_config)
             if dmg['ELEMENT'] == "POISON": #Poison Update
                 if self.poison_dmg <= (150 * self.tier):
-                    self.poison_dmg = self.poison_dmg + 30
+                    self.poison_dmg = self.poison_dmg + 40
             if dmg['ELEMENT'] == "FIRE":
                 self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
             if opponent_card._shield_value > 0:
@@ -2767,7 +2769,7 @@ class Card:
 
         elif dmg['ELEMENT'] == "POISON":
             if self.poison_dmg <= (150 * self.tier):
-                self.poison_dmg = self.poison_dmg + 30
+                self.poison_dmg = self.poison_dmg + 40
                 if self.poison_dmg > (150 * self.tier):
                    self.poison_dmg = (150 * self.tier)
             opponent_card.health = opponent_card.health - dmg['DMG']
