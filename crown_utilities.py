@@ -746,9 +746,9 @@ async def cardlevel(user, mode: str, extra_exp = 0):
             card_file = File(file_name="image.png", file=image_binary)
             await user.send(embed=embed, file=card_file)
             image_binary.close()
-            return
+            return number_of_level_ups
         else:
-            return
+            return None
     except Exception as ex:
         print(ex)
         custom_logging.debug(ex)

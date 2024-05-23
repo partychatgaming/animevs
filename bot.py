@@ -2728,11 +2728,15 @@ async def code(ctx, code_input: str):
          embed_list = []
          if code_input not in user.used_codes:
             if gems != 0:
-               if user.gems:
-                  embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
-                  embed_list.append(embed)
-                  for universe in user.gems:
-                     user.save_gems(universe, gems)
+               # if user.gems:
+               embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
+               embed_list.append(embed)
+               if not user.gems:
+                  universe_to_add_gems = equipped_card.universe
+                  user.save_gems(universe_to_add_gems, gems)
+               for universe in user.gems:
+                  user.save_gems(universe, gems)
+                  
             if coin != 0:
                await crown_utilities.bless(int(coin), user.did)
                embed = Embed(title="Gold Increased", description=f"🪙 **{coin:,}** gold have been added to your balance!", color=0x00ff00)
@@ -2752,8 +2756,9 @@ async def code(ctx, code_input: str):
             if exp:
                user = await bot.fetch_user(ctx.author.id)
                mode = "Purchase"
-               await crown_utilities.cardlevel(user, mode, exp)
-               embed = Embed(title="Level Up", description=f"Your 🎴 **{equipped_card.name}** card leveled up!", color=0x00ff00)
+               level_response = await crown_utilities.cardlevel(user, mode, exp)
+               level_up_message = f"Your 🎴 **{equipped_card.name}** card leveled up {str(level_response):,} times!" if level_response else f"Your 🎴 **{equipped_card.name}** card gained {exp:,} experience points!"
+               embed = Embed(title="Experience Gained", description=f"{level_up_message}", color=0x00ff00)
                embed_list.append(embed)
             response = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
             if embed_list:

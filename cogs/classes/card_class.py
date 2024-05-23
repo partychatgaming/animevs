@@ -1171,6 +1171,7 @@ class Card:
                 ebasic, especial, eultimate, engagement_basic, engagement_special, engagement_ultimate = calculate_engagement_levels(opponent_card_defense, mode, self)
                 move1_text, move2_text, move3_text, move_enhanced_text, basic_font_size, super_font_size, ultimate_font_size, enhancer_font_size = calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eultimate)
 
+                # header = ImageFont.truetype("fonts/Yakin-MVe6w.ttf", name_font_size)
 
                 header = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", name_font_size)
                 title_font = ImageFont.truetype("fonts/YesevaOne-Regular.ttf", title_font_size)
@@ -1236,6 +1237,7 @@ class Card:
 
                 image_binary = BytesIO()
                 im.save(image_binary, "PNG")
+                image_binary.seek(0)
                 return image_binary
 
         except Exception as ex:
@@ -3008,7 +3010,7 @@ def calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eulti
     if len(self.move3) > 25:
         self.move3 = self.move3[:25] + "..."
     if len(self.move4) > 25:
-        self.move4 = self.move4[:25] + "..."
+        self.move4 = self.move4[:15] + "..."
 
     # Original with move engagement emojis
     # move1_text = f"{self.move1_emoji} {self.move1}: {self.move1ap} {ebasic}"
@@ -3041,13 +3043,13 @@ def calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eulti
                 turn_crit = True
 
     if not turn_crit:
-        move_enhanced_text = f"🦠 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
+        move_enhanced_text = f"🦠 {self.move4}: {self.move4enh.title()} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
     elif self.move4enh in crown_utilities.Damage_Enhancer_Check and self.move4ap == (100 * self.tier):
-        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
+        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh.title()} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
     elif self.move4enh in crown_utilities.Turn_Enhancer_Check and (turn_total % 10 == 0 or turn_total == 0):
-        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
+        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh.title()} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
     else:
-        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
+        move_enhanced_text = f"🎇 {self.move4}: {self.move4enh.title()} {self.move4ap}{crown_utilities.enhancer_suffix_mapping[self.move4enh]}"
     
     basic_length = int(len(move1_text))
     super_length = int(len(move2_text))
@@ -3083,18 +3085,10 @@ def calculate_move_text_and_font_sizes(self, turn_total, ebasic, especial, eulti
 
 def get_character_name_and_health_bar(self, draw, header, title_size):
     if self.health == self.max_health:
-        health_bar = f"{round(self.max_health)}"
+        health_bar = f"{format_number(round(self.max_health))}"
     else:
-        health_bar = f"{round(self.health)}/{round(self.max_health)}"
-    
-    # if not self.resolved:
-    #     character_name = self.name.title()
-    # else:
-    #     if self.rname != "":
-    #         character_name = self.rname.title()
-    #     else:
-    #         character_name = self.name
-        
+        health_bar = f"{format_number(round(self.health))}/{format_number(round(self.max_health))}"
+
     character_name = self.name.title()
     
     draw.text(title_size, character_name, (255, 255, 255), font=header, stroke_width=1, stroke_fill=(0, 0, 0),

@@ -1131,13 +1131,13 @@ class Profile(Extension):
             🦾 Arm: **{arm.name}** ⚒️*{str(arm.durability)}*
             
             **Card Level Boost**
-            🔋 1️⃣ **10 Levels** for 🪙 **{'{:,}'.format(ten_levels)}**
-            🔋 2️⃣ **30 Levels** for 💵 **{'{:,}'.format(thirty_levels)}**
-            🔋 3️⃣ **100 Levels** for 💰 **{'{:,}'.format(hundred_levels)}**
-            ⚒️ 4️⃣ **50 Durability** for 💵 **{durability_message}**
+            🔋 1️⃣ **10 Levels** for {icon} **{'{:,}'.format(ten_levels)}**
+            🔋 2️⃣ **30 Levels** for {icon} **{'{:,}'.format(thirty_levels)}**
+            🔋 3️⃣ **100 Levels** for {icon} **{'{:,}'.format(hundred_levels)}**
+            ⚒️ 4️⃣ **50 Durability** for {icon} **{durability_message}**
             
             **Miscellaneous Upgrades**
-            💼 **Storage Tier {user.storage_message}**: 💸 **{user.storage_pricing_text}**
+            💼 **Storage Tier {user.storage_message}**: {icon} **{user.storage_pricing_text}**
             🔖 **Preset Upgrade**: 💸 **{preset_message}**
             
             What would you like to buy?
@@ -1365,14 +1365,12 @@ class Profile(Extension):
 
     @slash_command(description="View your balance")
     async def balance(self, ctx):
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
+        user = await crown_utilities.player_check(ctx)
+        if not user:
             return
 
         try:
-            query = {'DID': str(ctx.author.id)}
-            user = db.queryUser(query)
-            balance = int(user['BALANCE'])
+            user_data = crown_utilities.create_player_from_data(user)
             tbal = 0
             fbal = 0
 
@@ -1385,19 +1383,10 @@ class Profile(Extension):
             #     f = db.queryFamily({'HEAD': user['DID']})
             #     fbal = round(f['BANK'])
 
-            def get_balance_emoji(balance):
-                icon = "🪙"
-                if balance >= 50000000:
-                    icon = "💸"
-                elif balance >=10000000:
-                    icon = "💰"
-                elif balance >= 500000:
-                    icon = "💵"
-                return icon
 
             embedVar = Embed(title= f"Account Balances", description=textwrap.dedent(f"""
-            **Account Balance:** {get_balance_emoji(balance)}{'{:,}'.format(balance)}
-            **Team Bank Balance:** {get_balance_emoji(tbal)}{'{:,}'.format(tbal)}
+            **Account Balance:** {user_data.balance_icon}{'{:,}'.format(user_data.balance)}
+            **Team Bank Balance:** {user_data.balance_icon}{'{:,}'.format(tbal)}
             """))
             await ctx.send(embed=embedVar)
 
@@ -2032,560 +2021,6 @@ class Profile(Extension):
             return
 
     
-    @slash_command(description="Draw, Dismantle or Resell cards from storage",
-                    options=[
-                        SlashCommandOption(
-                            name="mode",
-                            description="Draw: Draw card, Dismantle:  Dismantle storage card, Resll: Resell storage card",
-                            type=OptionType.STRING,
-                            required=True,
-                            choices=[
-                                SlashCommandChoice(
-                                    name="💼🎴 Draw Card",
-                                    value="cdraw"
-                                ),
-                                SlashCommandChoice(
-                                    name="💎🎴 Dismantle Card",
-                                    value="cdismantle"
-                                ),
-                                SlashCommandChoice(
-                                    name="🪙🎴 Resell Card",
-                                    value="cresell"
-                                ),SlashCommandChoice(
-                                    name="💼🎗️ Draw Title",
-                                    value="tdraw"
-                                ),
-                                SlashCommandChoice(
-                                    name="💎🎗️ Dismantle Title",
-                                    value="tdismantle"
-                                ),
-                                SlashCommandChoice(
-                                    name="🪙🎗️ Resell Title",
-                                    value="tresell"
-                                ),SlashCommandChoice(
-                                    name="💼🦾 Draw Arm",
-                                    value="adraw"
-                                ),
-                                SlashCommandChoice(
-                                    name="💎🦾 Dismantle Arm",
-                                    value="adismantle"
-                                ),
-                                SlashCommandChoice(
-                                    name="🪙🦾 Resell Arm",
-                                    value="aresell"
-                                )
-                            ]
-                        ),SlashCommandOption(
-                            name="item",
-                            description="Storage Item Name",
-                            type=OptionType.STRING,
-                            required=True,
-                        )
-                    ]
-        )
-    async def draw(self, ctx, mode : str, item : str ):
-        
-        a_registered_player = await crown_utilities.player_check(ctx)
-        if not a_registered_player:
-            return
-        query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)#Storage Update
-        storage_type = d['STORAGE_TYPE']
-        vault = db.queryVault({'DID': d['DID']})
-        card_name = item
-        title_name = item
-        arm_name = item
-        current_gems = []
-        try: 
-            if vault:
-                for gems in vault['GEMS']:
-                    current_gems.append(gems['UNIVERSE'])
-                cards_list = vault['CARDS']
-                title_list = vault['TITLES']
-                arm_list = vault['ARMS']
-                arm_list_names = []
-                for names in arm_list:
-                    arm_list_names.append(names['ARM'])
-                total_cards = len(cards_list)
-                total_titles = len(title_list)
-                total_arms = len(arm_list)
-                cstorage = vault['STORAGE']
-                tstorage = vault['TSTORAGE']
-                astorage = vault['ASTORAGE']
-                storage_arm_names = []
-                for snames in astorage:
-                    storage_arm_names.append(snames['ARM'])
-                
-                storage_card = db.queryCard({'NAME': {"$regex": f"^{str(item)}$", "$options": "i"}})
-                storage_title = db.queryTitle({'TITLE':{"$regex": f"^{str(item)}$", "$options": "i"} })
-                storage_arm = db.queryArm({'ARM':{"$regex": f"^{str(item)}$", "$options": "i"}})
-                
-                if mode == 'cdraw':
-                    if total_cards > 24:
-                        await ctx.send("You already have 25 cards.")
-                        return
-                    if storage_card:                  
-                        if storage_card['NAME'] in cstorage:
-                            query = {'DID': str(ctx.author.id)}
-                            update_storage_query = {
-                                '$pull': {'STORAGE': storage_card['NAME']},
-                                '$addToSet': {'CARDS': storage_card['NAME']},
-                            }
-                            response = db.updateUserNoFilter(query, update_storage_query)
-                            await ctx.send(f"🎴**{storage_card['NAME']}** has been added to **/cards**")
-                            return
-                        else:
-                            await ctx.send(f"🎴:{storage_card['NAME']} does not exist in storage.")
-                            return
-                    else:
-                        await ctx.send(f"🎴:{storage_card['NAME']} does not exist.")
-                        return
-                if mode == 'tdraw':
-                    if total_titles > 24:
-                        await ctx.send("You already have 25 titles.")
-                        return
-                    if storage_title:                  
-                        if storage_title['TITLE'] in tstorage: #title storage update
-                            query = {'DID': str(ctx.author.id)}
-                            update_storage_query = {
-                                '$pull': {'TSTORAGE': storage_title['TITLE']},
-                                '$addToSet': {'TITLES': storage_title['TITLE']},
-                            }
-                            response = db.updateUserNoFilter(query, update_storage_query)
-                            await ctx.send(f"🎗️ **{storage_title['TITLE']}** has been added to **/titles**")
-                            return
-                        else:
-                            await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist in storage.")
-                            return
-                    else:
-                        await ctx.send(f"🎗️:{storage_title['TITLE']} does not exist.")
-                        return
-                if mode == 'adraw':
-                    if total_arms > 24:
-                        await ctx.send("You already have 25 arms.")
-                        return
-                    if storage_arm:                  
-                        if storage_arm['ARM'] in storage_arm_names: #title storage update
-                            durability = 0
-                            for arms in astorage:
-                                if storage_arm['ARM'] == arms['ARM']:
-                                    durability = arms['DUR']
-                                    #print(durability)
-                            query = {'DID': str(ctx.author.id)}
-                            update_storage_query = {
-                                '$pull': {'ASTORAGE': {'ARM' : str(storage_arm['ARM'])}},
-                                '$addToSet': {'ARMS': {'ARM' : str(storage_arm['ARM']) , 'DUR': int(durability)}},
-                            }
-                            response = db.updateUserNoFilter(query, update_storage_query)
-                            await ctx.send(f"🦾 **{storage_arm['ARM']}** has been added to **/arms**")
-                            return
-                        else:
-                            await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist in storage.")
-                            return
-                    else:
-                        await ctx.send(f"🦾 :{storage_arm['ARM']} does not exist.")
-                if mode == 'cdismantle':
-                    card_data = storage_card
-                    card_tier =  card_data['TIER']
-                    card_health = card_data['HLT']
-                    card_name = card_data['NAME']
-                    selected_universe = card_data['UNIVERSE']
-                    o_moveset = card_data['MOVESET']
-                    o_3 = o_moveset[2]
-                    element = list(o_3.values())[2]
-                    essence_amount = (1000 * card_tier)
-                    o_enhancer = o_moveset[3]
-
-                    dismantle_amount = (10000 * card_tier) + card_health
-                    if card_name in vault['STORAGE']:
-                        dismantle_buttons = [
-                            Button(
-                                style=ButtonStyle.GREEN,
-                                label="Yes",
-                                custom_id="yes"
-                            ),
-                            Button(
-                                style=ButtonStyle.BLUE,
-                                label="No",
-                                custom_id="no"
-                            )
-                        ]
-                        dismantle_buttons_action_row = ActionRow(*dismantle_buttons)
-                        msg = await ctx.send(f"Are you sure you want to dismantle **{card_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
-                        
-                        def check(button_ctx):
-                            return button_ctx.author == ctx.author
-
-                        
-                        try:
-                            button_ctx: ComponentContextDismantle = await self.bot.wait_for_component(components=[dismantle_buttons_action_row], timeout=120, check=check)
-
-                            if button_ctx.custom_id == "no":
-                                await button_ctx.send("Dismantle cancelled. ")
-                            if button_ctx.custom_id == "yes":
-                                if selected_universe in current_gems:
-                                    query = {'DID': str(ctx.author.id)}
-                                    update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
-                                    filter_query = [{'type.' + "UNIVERSE": selected_universe}]
-                                    response = db.updateUser(query, update_query, filter_query)
-                                else:
-                                    response = db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
-
-                                em = crown_utilities.inc_essence(str(ctx.author.id), element, essence_amount)
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'STORAGE': card_name}})
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'CARD_LEVELS': {'CARD': card_name}}})
-                                #await crown_utilities.bless(sell_price, ctx.author.id)
-                                await msg.delete()
-                                await button_ctx.send(f"**{card_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}. Acquired **{'{:,}'.format(essence_amount)}** {em} {element.title()} Essence.")
-                        except Exception as ex:
-                            trace = []
-                            tb = ex.__traceback__
-                            while tb is not None:
-                                trace.append({
-                                    "filename": tb.tb_frame.f_code.co_filename,
-                                    "name": tb.tb_frame.f_code.co_name,
-                                    "lineno": tb.tb_lineno
-                                })
-                                tb = tb.tb_next
-                            print(str({
-                                'type': type(ex).__name__,
-                                'message': str(ex),
-                                'trace': trace
-                            }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
-                            return
-                    else:
-                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", ephemeral=True)
-                        return
-                if mode == 'tdismantle':
-                    title_data = storage_title
-                    title_name = title_data['TITLE']
-                    dismantle_amount = 1000
-                    selected_universe = title_data['UNIVERSE']
-                    if title_name in vault['TSTORAGE']:
-                        dismantle_buttons = [
-                            Button(
-                                style=ButtonStyle.GREEN,
-                                label="Yes",
-                                custom_id="yes"
-                            ),
-                            Button(
-                                style=ButtonStyle.BLUE,
-                                label="No",
-                                custom_id="no"
-                            )
-                        ]
-                        dismantle_buttons_action_row = ActionRow(*dismantle_buttons)
-                        msg = await ctx.send(f"Are you sure you want to dismantle **{title_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
-                        
-                        def check(button_ctx):
-                            return button_ctx.author == ctx.author
-
-                        
-                        try:
-                            button_ctx: ComponentContextDismantle = await self.bot.wait_for_component(components=[dismantle_buttons_action_row], timeout=120, check=check)
-
-                            if button_ctx.custom_id == "no":
-                                await button_ctx.send("Dismantle cancelled. ")
-                            if button_ctx.custom_id == "yes":
-                                if selected_universe in current_gems:
-                                    query = {'DID': str(ctx.author.id)}
-                                    update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
-                                    filter_query = [{'type.' + "UNIVERSE": selected_universe}]
-                                    response = db.updateUser(query, update_query, filter_query)
-                                else:
-                                    response = db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
-
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'TSTORAGE': title_name}})
-                                await msg.delete()
-                                await button_ctx.send(f"**{title_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}.")
-                        except Exception as ex:
-                            trace = []
-                            tb = ex.__traceback__
-                            while tb is not None:
-                                trace.append({
-                                    "filename": tb.tb_frame.f_code.co_filename,
-                                    "name": tb.tb_frame.f_code.co_name,
-                                    "lineno": tb.tb_lineno
-                                })
-                                tb = tb.tb_next
-                            print(str({
-                                'type': type(ex).__name__,
-                                'message': str(ex),
-                                'trace': trace
-                            }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
-                            return
-                    else:
-                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", ephemeral=True)
-                        return
-                if mode == 'adismantle':
-                    arm_data = storage_arm
-                    arm_name = arm_data['ARM']
-                    element = arm_data['ELEMENT']
-                    essence_amount = 1000
-                    arm_passive = arm_data['ABILITIES'][0]
-                    arm_passive_type = list(arm_passive.keys())[0]
-                    arm_passive_value = list(arm_passive.values())[0]
-                    move_types = ["BASIC", "SPECIAL", "ULTIMATE"]
-                    if arm_data["EXCLUSIVE"]:
-                        essence_amount = 2000
-                    selected_universe = arm_data['UNIVERSE']
-                    dismantle_amount = 10000
-                    storage_arm_names = []
-                    for names in vault['ASTORAGE']:
-                        if arm_name == names['ARM']:
-                            storage_arm_names = names['ARM']
-                    if arm_name == storage_arm_names:
-                        dismantle_buttons = [
-                            Button(
-                                style=ButtonStyle.GREEN,
-                                label="Yes",
-                                custom_id="yes"
-                            ),
-                            Button(
-                                style=ButtonStyle.BLUE,
-                                label="No",
-                                custom_id="no"
-                            )
-                        ]
-                        dismantle_buttons_action_row = ActionRow(*dismantle_buttons)
-                        msg = await ctx.send(f"Are you sure you want to dismantle **{arm_name}** for 💎 {round(dismantle_amount)}?", components=[dismantle_buttons_action_row])
-                        
-                        def check(button_ctx):
-                            return button_ctx.author == ctx.author
-
-                        
-                        try:
-                            button_ctx: ComponentContextDismantle = await self.bot.wait_for_component(components=[dismantle_buttons_action_row], timeout=120, check=check)
-
-                            if button_ctx.custom_id == "no":
-                                await button_ctx.send("Dismantle cancelled. ")
-                            if button_ctx.custom_id == "yes":
-                                if selected_universe in current_gems:
-                                    query = {'DID': str(ctx.author.id)}
-                                    update_query = {'$inc': {'GEMS.$[type].' + "GEMS": dismantle_amount}}
-                                    filter_query = [{'type.' + "UNIVERSE": selected_universe}]
-                                    response = db.updateUser(query, update_query, filter_query)
-                                else:
-                                    response = db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$addToSet':{'GEMS': {'UNIVERSE': selected_universe, 'GEMS': dismantle_amount, 'UNIVERSE_HEART': False, 'UNIVERSE_SOUL': False}}})
-
-                                em = crown_utilities.inc_essence(str(ctx.author.id), element, essence_amount)
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'ASTORAGE': {'ARM' : str(arm_name)}}})
-                                #await crown_utilities.bless(sell_price, ctx.author.id)
-                                await msg.delete()
-                                await button_ctx.send(f"**{arm_name}** has been dismantled for 💎 {'{:,}'.format(dismantle_amount)}. Acquired **{'{:,}'.format(essence_amount)}** {em} {element.title()} Essence.")
-                        except Exception as ex:
-                            trace = []
-                            tb = ex.__traceback__
-                            while tb is not None:
-                                trace.append({
-                                    "filename": tb.tb_frame.f_code.co_filename,
-                                    "name": tb.tb_frame.f_code.co_name,
-                                    "lineno": tb.tb_lineno
-                                })
-                                tb = tb.tb_next
-                            print(str({
-                                'type': type(ex).__name__,
-                                'message': str(ex),
-                                'trace': trace
-                            }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
-                            return
-                    else:
-                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", ephemeral=True)
-                        return
-                if mode == 'cresell':
-                    card_data = storage_card
-                    card_name = card_data['NAME']
-                    sell_price = 0
-                    sell_price = sell_price + (card_data['PRICE'] * .15)
-                    if card_name in vault['STORAGE']:
-                        sell_buttons = [
-                            Button(
-                                style=ButtonStyle.GREEN,
-                                label="Yes",
-                                custom_id="yes"
-                            ),
-                            Button(
-                                style=ButtonStyle.BLUE,
-                                label="No",
-                                custom_id="no"
-                            )
-                        ]
-                        sell_buttons_action_row = ActionRow(*sell_buttons)
-                        msg = await ctx.send(f"Are you sure you want to sell **{card_name}** for 🪙{round(sell_price)}?", components=[sell_buttons_action_row])
-                        
-                        def check(button_ctx):
-                            return button_ctx.author == ctx.author
-
-                        
-                        try:
-                            button_ctx: ComponentContextSell = await self.bot.wait_for_component(components=[sell_buttons_action_row], timeout=120, check=check)
-
-                            if button_ctx.custom_id == "no":
-                                await button_ctx.send("Sell cancelled. ")
-                            if button_ctx.custom_id == "yes":
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'STORAGE': card_name}})
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'CARD_LEVELS': {'CARD': card_name}}})
-                                await crown_utilities.bless(sell_price, ctx.author.id)
-                                await msg.delete()
-                                await button_ctx.send(f"**{card_name}** has been sold.")
-                        except Exception as ex:
-                            trace = []
-                            tb = ex.__traceback__
-                            while tb is not None:
-                                trace.append({
-                                    "filename": tb.tb_frame.f_code.co_filename,
-                                    "name": tb.tb_frame.f_code.co_name,
-                                    "lineno": tb.tb_lineno
-                                })
-                                tb = tb.tb_next
-                            print(str({
-                                'PLAYER': str(ctx.author),
-                                'type': type(ex).__name__,
-                                'message': str(ex),
-                                'trace': trace
-                            }))
-                            await ctx.send("There's an issue with selling one or all of your items.")
-                            return
-                    else:
-                        await ctx.send(f"**{card_name}** not in storage.. Please check spelling", ephemeral=True)
-                        return
-                if mode == 'tresell':
-                    title_data = storage_title
-                    title_name = title_data['TITLE']
-                    sell_price = 1
-                    sell_price = sell_price + (title_data['PRICE'] * .10)
-                    selected_universe = title_data['UNIVERSE']
-                    if title_name in vault['TSTORAGE']:
-                        sell_buttons = [
-                            Button(
-                                style=ButtonStyle.GREEN,
-                                label="Yes",
-                                custom_id="yes"
-                            ),
-                            Button(
-                                style=ButtonStyle.BLUE,
-                                label="No",
-                                custom_id="no"
-                            )
-                        ]
-                        sell_buttons_action_row = ActionRow(*sell_buttons)
-                        msg = await ctx.send(f"Are you sure you want to sell **{title_name}** for 🪙 {round(sell_price)}?", components=[sell_buttons_action_row])
-                        
-                        def check(button_ctx):
-                            return button_ctx.author == ctx.author
-
-                        
-                        try:
-                            button_ctx  = await self.bot.wait_for_component(components=[sell_buttons_action_row], timeout=120, check=check)
-
-                            if button_ctx.custom_id == "no":
-                                await button_ctx.send("Sell cancelled. ")
-                            if button_ctx.custom_id == "yes":
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'TSTORAGE': title_name}})
-                                await crown_utilities.bless(sell_price, ctx.author.id)
-                                await msg.delete()
-                                await button_ctx.send(f"**{title_name}** has been sold.")
-                        except Exception as ex:
-                            trace = []
-                            tb = ex.__traceback__
-                            while tb is not None:
-                                trace.append({
-                                    "filename": tb.tb_frame.f_code.co_filename,
-                                    "name": tb.tb_frame.f_code.co_name,
-                                    "lineno": tb.tb_lineno
-                                })
-                                tb = tb.tb_next
-                            print(str({
-                                'type': type(ex).__name__,
-                                'message': str(ex),
-                                'trace': trace
-                            }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
-                            return
-                    else:
-                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", ephemeral=True)
-                        return
-                if mode == 'aresell':
-                    arm_data = storage_arm
-                    arm_name = arm_data['ARM']
-                    sell_price = 1
-                    sell_price = sell_price + (arm_data['PRICE'] * .07)
-                    selected_universe = arm_data['UNIVERSE']
-                    storage_arm_names = []
-                    for names in vault['ASTORAGE']:
-                        if arm_name == names['ARM']:
-                            storage_arm_names = names['ARM']
-                    if arm_name in storage_arm_names:
-                        sell_buttons = [
-                            Button(
-                                style=ButtonStyle.GREEN,
-                                label="Yes",
-                                custom_id="yes"
-                            ),
-                            Button(
-                                style=ButtonStyle.BLUE,
-                                label="No",
-                                custom_id="no"
-                            )
-                        ]
-                        sell_buttons_action_row = ActionRow(*sell_buttons)
-                        msg = await ctx.send(f"Are you sure you want to sell **{arm_name}** for 🪙 {round(sell_price)}?", components=[sell_buttons_action_row])
-                        
-                        def check(button_ctx):
-                            return button_ctx.author == ctx.author
-
-                        
-                        try:
-                            button_ctx  = await self.bot.wait_for_component(components=[sell_buttons_action_row], timeout=120, check=check)
-
-                            if button_ctx.custom_id == "no":
-                                await button_ctx.send("Sell cancelled. ")
-                            if button_ctx.custom_id == "yes":
-                                db.updateUserNoFilter({'DID': str(ctx.author.id)},{'$pull':{'ASTORAGE': {'ARM' :str(arm_name)}}})
-                                await crown_utilities.bless(sell_price, ctx.author.id)
-                                await msg.delete()
-                                await button_ctx.send(f"**{arm_name}** has been sold.")
-                        except Exception as ex:
-                            trace = []
-                            tb = ex.__traceback__
-                            while tb is not None:
-                                trace.append({
-                                    "filename": tb.tb_frame.f_code.co_filename,
-                                    "name": tb.tb_frame.f_code.co_name,
-                                    "lineno": tb.tb_lineno
-                                })
-                                tb = tb.tb_next
-                            print(str({
-                                'type': type(ex).__name__,
-                                'message': str(ex),
-                                'trace': trace
-                            }))
-                            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
-                            return
-                    else:
-                        await ctx.send(f"**{title_name}** not in storage.. Please check spelling", ephemeral=True)
-                        return
-        except Exception as ex:
-            trace = []
-            tb = ex.__traceback__
-            while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
-                tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
-            await ctx.send(f"Error with Storage. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
-            return
-
 
     # @slash_command(description="Draw Items from Association Armory",
     #             options=[
@@ -2810,6 +2245,33 @@ class Profile(Extension):
     #         await ctx.send(f"Error with Armory. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", ephemeral=True)
     #         return
 
+    @slash_command(description="Equip a Card", options=[
+            SlashCommandOption(
+                name="card",
+                description="Type in the name of the card you want to equip",
+                type=OptionType.STRING,
+                required=True,
+            )
+    ])
+    async def equipcard(self, ctx, card: str):
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
+
+        card_name = card
+        user_query = {'DID': str(ctx.author.id)}
+        user = db.queryUser(user_query)
+
+        resp = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
+
+        card_name = resp["NAME"]
+
+        if card_name in user['CARDS']:
+            response = db.updateUserNoFilter(user_query, {'$set': {'CARD': str(card_name)}})
+            embed = Embed(title=f"🎴 Card Successfully Equipped", description=f"{card_name} has been equipped.", color=0x00ff00)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(m.USER_DOESNT_HAVE_THE_CARD, ephemeral=True)
 
     @slash_command(description="Equip an Arm")
     async def equiparm(self, ctx, arm_name: str):

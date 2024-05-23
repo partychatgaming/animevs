@@ -12,8 +12,10 @@ from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
 from .classes.custom_paginator import CustomPaginator
 import messages as m
+from logger import loggy
 import numpy as np
 import help_commands as h
+import asyncio
 import requests
 from collections import ChainMap
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, User
@@ -52,8 +54,8 @@ class Lookup(Extension):
     )
     async def player(self, ctx, player = None):
         await ctx.defer()
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
+        player_data = await crown_utilities.player_check(ctx)
+        if not player_data:
             return
 
         try:
@@ -61,314 +63,155 @@ class Lookup(Extension):
                 player = player.id           
                 user = await self.bot.fetch_user(player)
                 avi = user.avatar_url
+                query = {'DID': str(player)}
+                player_data = db.queryUser(query)
             else:
                 player = ctx.author.id
                 avi = ctx.author.avatar_url
-            query = {'DID': str(player)}
+
+
+            player_class = crown_utilities.create_player_from_data(player_data)
             
-            d = db.queryUser(query)
-            player_class = crown_utilities.create_player_from_data(d)
-            m = db.queryManyMatchesPerPlayer({'PLAYER': d['DISNAME']})
-            b = db.queryAllBosses()
-            user = await self.bot.fetch_user(d['DID'])
+            user = await self.bot.fetch_user(player_class.did)
             if player_class:
-                balance = v['BALANCE']
-                bal_icon = "🪙"
-                if balance >= 50000000:
-                    bal_icon = "💸"
-                elif balance >= 10000000:
-                    bal_icon = "💰"
-                elif balance >= 500000:
-                    bal_icon = "💵"
+                player_stats = await asyncio.to_thread(db.query_stats_by_player, player_class.did)
+                player_stat_distribution = stat_distribution(player_stats)
 
-                bal_message = f"{bal_icon}{'{:,}'.format(balance)}"
+                bal_message = f"{player_class.balance_icon}{'{:,}'.format(player_class.balance)}"
 
-                all_cards = len(v['CARDS'])
-                all_titles = len(v['TITLES'])
-                all_arms = len(v['ARMS'])
-                all_pets = len(v['PETS'])
-                cstorage = len(v['STORAGE'])
-                astorage = len(v['ASTORAGE'])
-                tstorage = len(v['TSTORAGE'])
-
-                name = d['DISNAME'].split("#",1)[0]
-                difficulty = d['DIFFICULTY']
-                games = d['GAMES']
-                abyss_level = d['LEVEL']
-                if abyss_level <= 25:
-                    explore_message = f"*Unlock After Abyss 25*"
-                elif abyss_level > 100:
-                    abyss_level = "**Conquered**"
-                retries = d['RETRIES']
-                card = d['CARD']
-                ign = d['IGN']
-                team = d['TEAM']
-                guild = d['GUILD']
-                patreon = d['PATRON']
                 autosave_message = crown_utilities.utility_emojis['OFF']
-                autosave = d['AUTOSAVE']
-                if autosave:
+                if player_class.autosave:
                     autosave_message = crown_utilities.utility_emojis['ON']
                     
                 performance_message = crown_utilities.utility_emojis['OFF']
-                performance = d['PERFORMANCE']
-                if performance:
+                if player_class.performance:
                     performance_message = crown_utilities.utility_emojis['ON']
                     
                 explore_message = crown_utilities.utility_emojis['OFF']
-                explore = d['EXPLORE']
-                if explore:
-                    explore_location = d['EXPLORE_LOCATION']
+                if player_class.explore:
                     location = "All"
-                    if explore_location != "NULL":
-                        location = explore_location
+                    if player_class.explore_location != "NULL":
+                        location = player_class.explore_location
                     explore_message = f"{crown_utilities.utility_emojis['ON']} *Exploring {location}*"
                     
-
-                    
-                purse_message = ""
-                purse = d['TOURNAMENT_WINS']
-                if purse == 1:
-                    purse_message = "👛 | **Gabe's Purse** Activated"
+                # purse_message = ""
+                # purse = d['TOURNAMENT_WINS']
+                # if purse == 1:
+                #     purse_message = "👛 | **Gabe's Purse** Activated"
                     
                 patreon_message = ""
-                if patreon == True:
+                if player_class.patron == True:
                     patreon_message = "**💞 | Patreon Supporter**"
                 
                 rift_message = crown_utilities.utility_emojis['OFF']
-                rift = d['RIFT']
-                if rift == 1:
+                if player_class.rift == 1:
                     rift_message = crown_utilities.utility_emojis['ON']
-                if team != "PCG":
-                    team_info = db.queryTeam({'TEAM_NAME' : str(team.lower())})
+                if player_class.guild != "PCG":
+                    team_info = db.queryTeam({'TEAM_NAME' : str(player_class.guild.lower())})
                     guild = team_info['GUILD']
                     guild_buff = team_info['ACTIVE_GUILD_BUFF']
                     guild_buff_active = team_info['GUILD_BUFF_ON']
                     if guild_buff == "Rift" and guild_buff_active:
                         rift_message = f"*{crown_utilities.utility_emojis['ON']} Guild Buff On*"
                 
-                family = d['FAMILY'] 
-                family_info = db.queryFamily({"HEAD": str(family)})
-                if family_info:
-                    family_summon = family_info['SUMMON']
-                    family_summon_name = family_summon['NAME']
-                fs_message = ""
-                if d['FAMILY_PET']:
-                    fs_message = f"👨‍👩‍👧‍👦 | **Family Summon** *{family_summon_name}*"
-                titles = d['TITLE']
-                arm = d['ARM']
-                battle_history = d['BATTLE_HISTORY']
-
-                avatar = d['AVATAR']
-                matches = d['MATCHES']
-                crown_tales = d['CROWN_TALES']
-                dungeons = d['DUNGEONS']
-                bosses = d['BOSS_WINS']
-                pvp_wins = d['PVP_WINS']
-                pvp_loss = d['PVP_LOSS']
-                pet = d['PET']
-                rebirth = d['REBIRTH']
-                join_raw = d['TIMESTAMP']
+                join_raw = player_data['TIMESTAMP']
                 year_joined = join_raw[20:]
                 day_joined = join_raw[:10]
-                prestige = d['PRESTIGE']
                 
-                aicon = ":new_moon:"
-                if prestige == 1:
-                    aicon = ":waxing_crescent_moon:"
-                elif prestige == 2:
-                    aicon = ":first_quarter_moon:"
-                elif prestige == 3:
-                    aicon = ":waxing_gibbous_moon:"
-                elif prestige == 4:
-                    aicon = ":full_moon:"
-                elif prestige == 5:
-                    aicon = ":waning_gibbous_moon:"
-                elif prestige == 6:
-                    aicon = ":last_quarter_moon:"
-                elif prestige == 7:
-                    aicon = ":waning_crescent_moon:"
-                elif prestige == 8:
-                    aicon = ":crescent_moon:"
-                elif prestige == 9:
-                    aicon = ":crown:"
-                elif prestige >= 10:
-                    aicon = ":japanese_ogre:"
                 prestige_message = "*No Prestige*"
-                if prestige > 0 :
-                    prestige_message = f"**Prestige:** *{prestige}*"
-                #print(day_joined + " " + year_joined)
-                birthday = f"🎉 | Registered on {day_joined}, {year_joined}"
-                icon = '❤️‍🔥'
-                if rebirth == 0:
-                    icon = ':triangular_flag_on_post:'
-                elif rebirth >= 6:
-                    icon = '👼'
-                elif rebirth >= 10:
-                    icon = ':man_fairy:'
-                else:
-                    icon = ':man_fairy:'
+                if player_class.prestige > 0 :
+                    prestige_message = f"**Prestige:** *{player_class.prestige}*"
 
-                talisman = d['TALISMAN']
-                talisman_message = "No Talisman Equipped"
-                if talisman == "NULL":
-                    talisman_message = "No Talisman Equipped"
-                else:
-                    for t in v["TALISMANS"]:
-                        if t["TYPE"].upper() == talisman.upper():
-                            talisman_emoji = crown_utilities.set_emoji(talisman.upper())
-                            talisman_durability = t["DUR"]
-                    talisman_message = f"📿| **{talisman_emoji} {talisman.title()}** ⚒️ {talisman_durability}"
+                birthday = f"🎉 Registered on {day_joined}, {year_joined}"
 
-                pvp_matches = []
-                boss_matches = []
-                dungeon_matches = []
-                tales_matches = []
-                most_played_card = []
-                most_played_card_message = "_No Data For Analysis_"
-                match_history_message = ""
-                most_universe_played = []
-                most_played_universe_message = "_No Data For Analysis_"
-
-                wlmatches = list(d['MATCHES'][0].values())[0]
-                wins = wlmatches[0]
-                losses = wlmatches[1]
-                if m:
-                    for match in m:
-                        most_played_card.append(match['CARD'])
-                        if match['UNIVERSE_TYPE'] == "Tales":
-                            tales_matches.append(match)
-                            most_universe_played.append(match['UNIVERSE'])
-                        elif match['UNIVERSE_TYPE'] == "Dungeon":
-                            dungeon_matches.append(match)
-                            most_universe_played.append(match['UNIVERSE'])
-                        elif match['UNIVERSE_TYPE'] == "Boss":
-                            boss_matches.append(match)
-                            most_universe_played.append(match['UNIVERSE'])
-                        elif match['UNIVERSE_TYPE'] == "PVP":
-                            pvp_matches.append(match)
-                            
-                    
-                    
-                    if not most_universe_played or len(most_universe_played) < 10:
-                        most_played_universe_message = "_No Data For Analysis_"
-                    if not most_played_card:
-                        most_played_card_message = "_No Data For Analysis_"
-                    else:
-                        card_main = most_frequent(most_played_card)
-                        fav_uni = most_frequent(most_universe_played)
-                        most_played_card_message = f"**Most Played Card: **{card_main}"
-                        most_played_universe_message = f"**Favorite Universe: **{fav_uni}"
-                        match_history_message = f"""
-                        **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
-                        **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
-                        **Bosses Played: **{'{:,}'.format(len(boss_matches))}
-                        **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
-                        """
+                player_class.set_talisman_message()
 
                 crown_list = []
-                for crown in crown_tales:
+                for crown in player_class.completed_tales:
                     if crown != "":
                         crown_list.append(f"**{crown_utilities.crest_dict[crown]} |** {crown}")
                 
                 dungeon_list = []
-                for dungeon in dungeons:
+                for dungeon in player_class.completed_dungeons:
                     if dungeon != "":
                         dungeon_list.append(f"**{crown_utilities.crest_dict[dungeon]} |** {dungeon}")
-
-                boss_list =[]
-                uni = "Unbound"
-                for boss in bosses:
-                    if boss != "":
-                        boss_info = db.queryBoss({'NAME': str(boss)})
-                        uni = boss_info['UNIVERSE']
-                        boss_list.append(f"**{crown_utilities.crest_dict[uni]} |** {boss}")
-
-                matches_to_string = dict(ChainMap(*matches))
-                ign_to_string = dict(ChainMap(*ign))
                 
+                embed1 = Embed(title=f"{player_class.disname} Profile".format(self), description=textwrap.dedent(f"""\
+                ❤️‍🔥{player_class.prestige_icon} | **Rebirth**: {player_class.rebirth}
                 
+                🎴 | **Equipped Card:** {player_class.equipped_card}
+                🎗️ | **Equipped Title:** {player_class.equipped_title}
+                🦾 | **Equipped Arm:** {player_class.equipped_arm}
+                🧬 | **Equipped Summon:** {player_class.equipped_summon}
+                {player_class.talisman_message}
 
-
-
-                embed1 = Embed(title=f"{name}'s Profile".format(self), description=textwrap.dedent(f"""\
-                {aicon} | **Abyss Rank**: {abyss_level}
-                ❤️‍🔥 | **Rebirth**: {rebirth}
-                
-                🎴 | **Card:** {card}
-                🎗️** | Title:** {titles}
-                🦾 | **Arm:** {arm}
-                🧬 | **Summon:** {pet}
-                {talisman_message}
-
-                :flags: | **Association: ** {guild}
-                :military_helmet: | **Guild:** {team} 
-                👨‍👩‍👧‍👦 | **Family:** {family}
+                🪖 | **Guild:** {player_class.guild} 
                 """))
-                embed1.set_thumbnail(url=avatar)
+                embed1.set_thumbnail(url=player_class.avatar)
                 
-                embed2 = Embed(title=f"{name}'s Settings".format(self), description=textwrap.dedent(f"""\
-                🆚 | **Retries:** {retries} available
+                embed2 = Embed(title=f"{player_class.disname} Settings".format(self), description=textwrap.dedent(f"""\
+                🆚 | **Retries:** {player_class.retries} available
                 :crystal_ball: | **Rift:** {rift_message}
                 🌌 | **Explore:** {explore_message}
                 
-                ⚙️ | **Battle History Setting:** {str(battle_history)} messages
-                ⚙️ | **Difficulty:** {difficulty.lower().capitalize()}
+                ⚙️ | **Battle History Setting:** {str(player_class.battle_history)} messages
+                ⚙️ | **Difficulty:** {player_class.difficulty.lower().capitalize()}
                 ⚙️ | **Performance:** {performance_message}
                 
-                :floppy_disk: | **Autosave:** {autosave_message}
+                💾 | **Autosave:** {autosave_message}
                 """))
-                embed2.set_thumbnail(url=avatar)
+                embed2.set_thumbnail(url=player_class.avatar)
                 
-                embed5 = Embed(title=f"{name}'s Stats".format(self), description=textwrap.dedent(f"""\
-                ⚔️ | **Tales Played: **{'{:,}'.format(int(len(tales_matches)))}
-                🔥 | **Dungeons Played: **{'{:,}'.format(len(dungeon_matches))}
-                👹 | **Bosses Played: **{'{:,}'.format(len(boss_matches))}
-                
-                🆚 | **Pvp Played: **{'{:,}'.format(len(pvp_matches))}
-                📊 | **Pvp Record: ** :regional_indicator_w: **{pvp_wins}** / :regional_indicator_l: **{pvp_loss}**
+                embed5 = Embed(title=f"{player_class.disname} Stats".format(self), description=textwrap.dedent(f"""\
+                ⚔️ | **Tales Played: **{player_stat_distribution['TALES']['MATCHES']:,}
+                ↘️ **Tales Completed: **{player_stat_distribution['TALES']['COMPLETED']:,}
+                ↘️ **Damage Dealt in Tales** {player_stat_distribution['TALES']['DAMAGE_DEALT']:,}
+                ↘️ **Damage Taken in Tales** {player_stat_distribution['TALES']['DAMAGE_TAKEN']:,}
+
+                🔥 | **Dungeons Played: **{player_stat_distribution['DUNGEONS']['MATCHES']:,}
+                ↘️ **Dungeons Completed: **{player_stat_distribution['DUNGEONS']['COMPLETED']:,}
+                ↘️ **Damage Dealt in Dungeons** {player_stat_distribution['DUNGEONS']['DAMAGE_DEALT']:,}
+                ↘️ **Damage Taken in Dungeons** {player_stat_distribution['DUNGEONS']['DAMAGE_TAKEN']:,}
+
+                👹 | **Scenarios Played: **{player_stat_distribution['SCENARIOS']['MATCHES']:,}
+                ↘️ **Scenarios Completed: **{player_stat_distribution['SCENARIOS']['COMPLETED']:,}
+                ↘️ **Damage Dealt in Scenarios** {player_stat_distribution['SCENARIOS']['DAMAGE_DEALT']:,}
+                ↘️ **Damage Taken in Scenarios** {player_stat_distribution['SCENARIOS']['DAMAGE_TAKEN']:,}
                 """))
-                embed5.set_thumbnail(url=avatar)
+                embed5.set_thumbnail(url=player_class.avatar)
                 
-                embed3 = Embed(title=f"{name}'s Vault".format(self), description=textwrap.dedent(f"""\
+                embed3 = Embed(title=f"{player_class.disname} Equipment".format(self), description=textwrap.dedent(f"""\
                 **Balance** | {bal_message}
-                🎴 | **Cards:** {all_cards} ~ :briefcase: *{cstorage}*
-                🎗️ | **Titles:** {all_titles} ~ :briefcase: *{tstorage}*
-                🦾 | **Arms:** {all_arms} ~ :briefcase: *{astorage}*
-                🧬 | **Summons:** {all_pets}
-                {fs_message}
-                {purse_message}
+                🎴 | **Cards:** {len(player_class.cards):,}
+                🎗️ | **Titles:** {len(player_class.titles):,}
+                🦾 | **Arms:** {len(player_class.arms):,}
+                🧬 | **Summons:** {len(player_class.summons):,}
                 """))
-                embed3.set_thumbnail(url=avatar)
+                embed3.set_thumbnail(url=player_class.avatar)
                 
-                embed6 = Embed(title=f"{name}'s Avatar".format(self), description=textwrap.dedent(f"""\
-                    **:bust_in_silhouette: | User:** {user.mention}
-                    {aicon} | {prestige_message}
-                    :military_medal: | {most_played_card_message}
-                    🌍 | {most_played_universe_message}
+                embed6 = Embed(title=f"{player_class.disname} Avatar".format(self), description=textwrap.dedent(f"""\
+                    **👤 | User:** {user.mention}
+                    {player_class.prestige_icon} | {prestige_message}
                     {patreon_message}
                 """), color=000000)
                 embed6.set_image(url=avi)
                 embed6.set_footer(text=f"{birthday}")
+
                 if crown_list:
-                    embed4 = Embed(title=f"{name}'s Achievements".format(self), description=":bank: | Party Chat Gaming Database™️")
-                    embed4.set_thumbnail(url=avatar)
-                    embed4.add_field(name=":medal: | " + "Completed Tales" , value="\n".join(crown_list))
+                    embed4 = Embed(title=f"{player_class.disname} Achievements".format(self), description="🏦 | Party Chat Gaming Database™️")
+                    embed4.set_thumbnail(url=player_class.avatar)
+                    embed4.add_field(name="🏅 | " + "Completed Tales" , value="\n".join(crown_list))
                     if dungeon_list:
                         embed4.add_field(name="🔥 | " + "Completed Dungeons", value="\n".join(dungeon_list))
-                        if boss_list:
-                            embed4.add_field(name=":japanese_ogre: | " + "Boss Souls",value="\n".join(boss_list))
-                        else:
-                            embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                     else:
                         embed4.add_field(name="🔥 | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
-                        embed4.add_field(name=":japanese_ogre: | " + "Boss Souls", value="No Boss Souls Collected, yet!")
+                        embed4.add_field(name="👹 | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                 else:
-                    embed4 = Embed(title=f"{name}'s Achievements".format(self), description=":bank: Party Chat Gaming Database™️")
-                    embed4.set_thumbnail(url=avatar)
-                    embed4.add_field(name="Completed Tales" + " :medal:", value="No Completed Tales, yet!")
+                    embed4 = Embed(title=f"{player_class.disname}'s Achievements".format(self), description="🏦 Party Chat Gaming Database™️")
+                    embed4.set_thumbnail(url=player_class.avatar)
+                    embed4.add_field(name="Completed Tales" + " 🏅", value="No Completed Tales, yet!")
                     embed4.add_field(name="Completed Dungeons" + " 🔥 ", value="No Dungeons Completed, yet!")
-                    embed4.add_field(name="Boss Souls" + " :japanese_ogre: ", value="No Boss Souls Collected, yet!")
+                    embed4.add_field(name="Boss Souls" + " 👹 ", value="No Boss Souls Collected, yet!")
 
                 embeds = [embed6, embed1, embed5, embed3, embed2, embed4]
                 paginator = CustomPaginator.create_from_embeds(self.bot, *embeds)
@@ -376,7 +219,9 @@ class Lookup(Extension):
                 await paginator.send(ctx)
             else:
                 await ctx.send(m.USER_NOT_REGISTERED)
+                return
         except Exception as ex:
+            loggy.critical(f"Error in player lookup: {ex}")
             trace = []
             tb = ex.__traceback__
             while tb is not None:
@@ -946,7 +791,7 @@ class Lookup(Extension):
                     else:
                         transactions_embed = "\n".join(transactions)
 
-                # embed1 = Embed(title=f":flags: {guild_name} Guild Card - {icon}{'{:,}'.format(balance)}".format(self), description=":bank: Party Chat Gaming Database", color=000000)
+                # embed1 = Embed(title=f":flags: {guild_name} Guild Card - {icon}{'{:,}'.format(balance)}".format(self), description="🏦 Party Chat Gaming Database", color=000000)
                 # if guild['LOGO_FLAG']:
                 #     embed1.set_image(url=logo)
                 # embed1.add_field(name="Founder :dolls:", value= founder_name.split("#",1)[0], inline=True)
@@ -983,11 +828,11 @@ class Lookup(Extension):
                 arena_page.set_image(url=hall_img)
                 arena_page.set_footer(text=f"/raid {guild_name} - Raid Association")
                 
-                guilds_page = Embed(title=f"Guild Information".format(self), description=f":flags: |  {guild_name} **Guild** List\n⛩️ | Guilds Earn **{hall_split}x**🪙\n:bank: |  Party Chat Gaming Database", color=000000)
+                guilds_page = Embed(title=f"Guild Information".format(self), description=f":flags: |  {guild_name} **Guild** List\n⛩️ | Guilds Earn **{hall_split}x**🪙\n🏦 |  Party Chat Gaming Database", color=000000)
                 guilds_page.add_field(name=f":military_helmet: Guilds | **:ninja: ~ {sword_count}/:knife: {total_blade_count}**", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
                 guilds_page.set_footer(text=f"/guild - View Association Guild")
                 
-                crest_page = Embed(title=f"Universe Crest".format(self), description=f":flags: |  {guild_name} **Universe Crest**\n:bank: |  Party Chat Gaming Database", color=000000)
+                crest_page = Embed(title=f"Universe Crest".format(self), description=f":flags: |  {guild_name} **Universe Crest**\n🏦 |  Party Chat Gaming Database", color=000000)
                 crest_page.add_field(name=f":secret: | **OWNED**", value="\n".join(f'**{c}**'.format(self) for c in crest_list), inline=False)
                 crest_page.set_footer(text=f"Earn Universe Crest in Dungeons and Boss Fights!")
                 
@@ -2157,7 +2002,7 @@ class Lookup(Extension):
                                                             🦠 **{title_passive_type}:** {title_passive_value}
                                                             🌍 **Universe:** {resp['UNIVERSE']}"""), 
                                                             color=0x7289da)
-                                                            embedVar.set_thumbnail(url=avatar)
+                                                            embedVar.set_thumbnail(url=player_class.avatar)
                                                             embedVar.set_footer(text=f"{title_passive_type}: {title_enhancer_mapping[title_passive_type]}")
                                                             embed_list.append(embedVar)
                                                         
@@ -2284,7 +2129,7 @@ class Lookup(Extension):
                                                             ⚒️ {arm['DUR']}
                                                             """), 
                                                             color=0x7289da)
-                                                            embedVar.set_thumbnail(url=avatar)
+                                                            embedVar.set_thumbnail(url=player_class.avatar)
                                                             embedVar.set_footer(text=f"{footer}")
                                                             embed_list.append(embedVar)
                                                         
@@ -2529,6 +2374,31 @@ async def raid(ctx, guild):
         channel = guild.get_channel(self.bot.guild_channel)
         await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
         return
+
+
+def stat_distribution(stats):
+    def accumulate(category_stats, totals):
+        for stat in category_stats:
+            totals['MATCHES'] += stat['TOTAL_RUNS']
+            totals['COMPLETED'] += stat['TOTAL_CLEARS']
+            totals['DAMAGE_DEALT'] += stat['DAMAGE_DEALT']
+            totals['DAMAGE_HEALED'] += stat['DAMAGE_HEALED']
+            totals['DAMAGE_TAKEN'] += stat['DAMAGE_TAKEN']
+
+    totals = {
+        'TALES': {'MATCHES': 0, 'COMPLETED': 0, 'DAMAGE_DEALT': 0, 'DAMAGE_HEALED': 0, 'DAMAGE_TAKEN': 0},
+        'DUNGEONS': {'MATCHES': 0, 'COMPLETED': 0, 'DAMAGE_DEALT': 0, 'DAMAGE_HEALED': 0, 'DAMAGE_TAKEN': 0},
+        'SCENARIOS': {'MATCHES': 0, 'COMPLETED': 0, 'DAMAGE_DEALT': 0, 'DAMAGE_HEALED': 0, 'DAMAGE_TAKEN': 0},
+    }
+
+    if stats['TALES_STATS']:
+        accumulate(stats['TALES_STATS'], totals['TALES'])
+    if stats['DUNGEON_STATS']:
+        accumulate(stats['DUNGEON_STATS'], totals['DUNGEONS'])
+    if stats['SCENARIO_STATS']:
+        accumulate(stats['SCENARIO_STATS'], totals['SCENARIOS'])
+
+    return totals
 
 
 def setup(bot):

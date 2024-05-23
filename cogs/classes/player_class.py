@@ -132,6 +132,49 @@ class Player:
         if self.rift == 1:
             self.rift_on = True
 
+        self.balance_icon = "🪙"
+
+        if self.balance >= 50000000:
+            self.balance_icon = "💸"
+        elif self.balance >=10000000:
+            self.balance_icon = "💰"
+        elif self.balance >= 500000:
+            self.balance_icon = "💵"
+
+        self.prestige_icon = "🌑"
+        if self.prestige == 1:
+            self.prestige_icon = "🌒"
+        elif self.prestige == 2:
+            self.prestige_icon = "🌓"
+        elif self.prestige == 3:
+            self.prestige_icon = "🌔"
+        elif self.prestige == 4:
+            self.prestige_icon = "🌕"
+        elif self.prestige == 5:
+            self.prestige_icon = "🌖"
+        elif self.prestige == 6:
+            self.prestige_icon = "🌗"
+        elif self.prestige == 7:
+            self.prestige_icon = "🌘"
+        elif self.prestige == 8:
+            self.prestige_icon = "🌙"
+        elif self.prestige == 9:
+            self.prestige_icon = "👑"
+        elif self.prestige >= 10:
+            self.prestige_icon = "👹"
+
+        self.rebirth_icon = "❤️‍🔥"
+        if self.rebirth == 0:
+            self.rebirth_icon = '🚩'
+        elif self.rebirth >= 6:
+            self.rebirth_icon = '👼'
+        elif self.rebirth >= 10:
+            self.rebirth_icon = '🧚‍♂️'
+        else:
+            self.rebirth_icon = '🧚‍♂️'
+      
+
+
 
     def set_talisman_message(self):
         try:
@@ -287,7 +330,7 @@ class Player:
             response = db.updateUser(self.user_query, update_query, filter_query)
             return True
         else:
-            gem_info = {'UNIVERSE': universe_title, 'GEMS' : 5000, 'UNIVERSE_HEART' : False, 'UNIVERSE_SOUL' : False}
+            gem_info = {'UNIVERSE': universe_title, 'GEMS' : amount, 'UNIVERSE_HEART' : False, 'UNIVERSE_SOUL' : False}
             response = db.updateUserNoFilter(self.user_query, {'$addToSet' : {'GEMS' :gem_info }})
             return True
 

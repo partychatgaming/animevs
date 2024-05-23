@@ -398,12 +398,12 @@ class Play(Extension):
 async def add_ai_start_messages(battle_config):
     if not battle_config.turn_zero_has_happened:
         class_effects = {
-            "ASSASSIN": "{name} the {class_message} has gained {class_value} sneak attacks",
-            "MAGE": "{name} the {class_message} has gained a boost to attacks",
-            "RANGER": "{name} the {class_message} has gained 💠 {class_value} barriers",
-            "TANK": "{name} the {class_message} has gained a 🌐 {class_value} shield",
-            "HEALER": "{name} the {class_message} has boosted their healing spells",
-            "SUMMONER": "{name} the {class_message} has the ability to summon their companion before resolving",
+            "ASSASSIN": "{name} the {class_message} gained {class_value} sneak attacks",
+            "MAGE": "{name} the {class_message} gained a boost to attacks",
+            "RANGER": "{name} the {class_message} gained 💠 {class_value} barriers",
+            "TANK": "{name} the {class_message} gained a 🌐 {class_value} shield",
+            "HEALER": "{name} the {class_message} boosted their healing spells",
+            "SUMMONER": "{name} the {class_message} the ability to summon their companion before resolving",
         }
 
         def append_previous_moves(card, player_name):
@@ -1086,8 +1086,8 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         embedVar.add_field(name=f"**Moves**", value=f"{turn_card.get_performance_moveset()}")
         battle_msg = await private_channel.send(embed=embedVar, components=components)
     else:
-        image_binary = turn_card.showcard(turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
-        image_binary.seek(0)
+        image_binary = await asyncio.to_thread(turn_card.showcard,turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
+        # image_binary.seek(0)
         card_file = File(file_name="image.png", file=image_binary)
         battle_msg = await private_channel.send(embed=embedVar, components=components, file=card_file)
         image_binary.close()

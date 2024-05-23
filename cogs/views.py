@@ -36,34 +36,6 @@ class Views(Extension):
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
 
-    @slash_command(description="Equip a Card", options=[
-            SlashCommandOption(
-                name="card",
-                description="Type in the name of the card you want to equip",
-                type=OptionType.STRING,
-                required=True,
-            )
-    ])
-    async def equipcard(self, ctx, card: str):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
-
-        card_name = card
-        user_query = {'DID': str(ctx.author.id)}
-        user = db.queryUser(user_query)
-
-        resp = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
-
-        card_name = resp["NAME"]
-
-        if card_name in user['CARDS']:
-            response = db.updateUserNoFilter(user_query, {'$set': {'CARD': str(card_name)}})
-            embed = Embed(title=f"🎴 Card Successfully Equipped", description=f"{card_name} has been equipped.", color=0x00ff00)
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(m.USER_DOESNT_HAVE_THE_CARD, ephemeral=True)
-
 
     @slash_command(description="Type a card name, title, arm, universe, house, hall, or boss to view it!")
     @slash_option(
