@@ -923,12 +923,11 @@ async def viewarm(self, ctx, data):
 
             if a.is_move():
                 # embedVar.add_field(name=f"Arm Move Element", value=f"{element}", inline=False)
-                embedVar.add_field(name=f"{a.type_message} {a.element.title()} Attack", value=f"{a.element_emoji} | **{a.name}**: **{a.passive_value}**\n *{a.element_ability}*", inline=False)
-                # embedVar.add_field(name=f":sunny: | Elemental Effect", value=f"*{a.element_ability}*", inline=False)
+                embedVar.add_field(name=f"{a.element_emoji} {a.element.title()} Attack", value=f"Increases your {a.passive_type.title()} Attack by {a.passive_value} AP\nThis arm will change your {a.passive_type.title()} Attack element to a {a.element.title()} attack", inline=False)
                 embedVar.set_footer(text=f"The new {a.type_message} attack will reflect on your card when equipped")
 
             else:
-                embedVar.add_field(name=f"Unique Passive", value=f"Increases {a.type_message} by **{a.passive_value}**", inline=False)
+                embedVar.add_field(name=f"Unique Passive", value=f"{a.element_emoji} {a.passive_type.title()} - {a.passive_value}", inline=False)
                 embedVar.set_footer(text=f"{a.passive_type}: {crown_utilities.enhancer_mapping[a.passive_type]}")
 
             await ctx.send(embed=embedVar)

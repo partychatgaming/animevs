@@ -1,5 +1,6 @@
 from dataclasses import dataclass, asdict, field
 from logging import captureWarnings
+from bson.int64 import Int64
 import time
 
 now = time.asctime()
@@ -59,7 +60,7 @@ class USER():
     FAMILY_PET: bool = field(default_factory=lambda: False)
     EXPLORE_LOCATION: str = field(default_factory=lambda: "NULL")
     FAMILY_DID: str = field(default_factory=lambda: "NULL")
-    BALANCE: int = field(default_factory=lambda: 5000000)
+    BALANCE: Int64 = field(default_factory=lambda: Int64(5000000))
     CARDS: list[str] = field(default_factory=lambda: ['Naruto Uzumaki', 'Ichigo Kurosaki', 'Luffy'])
     TITLES: list[str] = field(default_factory=lambda: ['Starter', 'Substitute Soul Reaper', 'Genin', 'Strawhat Pirate'])
     ARMS: list[str] = field(default_factory=lambda: [{'ARM':'Stock', 'DUR': 999999}, {'ARM': 'Leaf Headband', 'DUR': 100}, {'ARM': 'Zanpakuto', 'DUR': 50}, {'ARM': 'Noah', 'DUR': 50}])
@@ -93,9 +94,9 @@ class USER():
                                   'PET': 'Chick', 'TALISMAN': 'NULL'},
                                  {'CARD': 'Luffy', 'TITLE': 'Strawhat Pirate', 'ARM': 'Noah', 'PET': 'Chick', 'TALISMAN': 'NULL'}])
     CARD_LEVELS: list[str] = field(default_factory=lambda: [
-        {'CARD': 'Naruto Uzumaki', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
-        {'CARD': 'Ichigo Kurosaki', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
-        {'CARD': 'Luffy', 'LVL': 30, 'TIER': 1, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36} ])
+        {'CARD': 'Naruto Uzumaki', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Ichigo Kurosaki', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36},
+        {'CARD': 'Luffy', 'LVL': 30, 'TIER': 4, 'EXP': 0, 'HLT': 12, 'ATK': 60, 'DEF': 60, 'AP': 36} ])
     QUESTS: list[str] = field(default_factory=lambda: [])
     DESTINY: list[str] = field(default_factory=lambda: [])
     GEMS: list[str] = field(default_factory=lambda: [])

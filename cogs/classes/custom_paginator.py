@@ -1840,49 +1840,57 @@ class CustomPaginator(Paginator):
 
 
     async def trade_card_action(self, ctx, card):
-        user_query = {'DID': str(ctx.author.id)}
-        user = db.queryUser(user_query)
-        player = crown_utilities.create_player_from_data(user)
-        card_data = db.queryCard({'NAME': card})
-        c = crown_utilities.create_card_from_data(card_data)
-        c.set_card_level_buffs(player.card_levels)
-        if c.name == player.equipped_card:
-            embed = Embed(title=f"🎴 Card Not Added to Trade", description=f"Failed to add {c.name} to the trade as it is currently equipped")
-            await ctx.send(embed=embed)
-            return
-        exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], card)
-        if exists_on_trade_already:
-            embed = Embed(title=f"🎴 Card is being Traded", description=f"{card} is already being traded.")
-            await ctx.send(embed=embed)
-            return
-
-        exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": card})
-        if exists_on_market_already:
-            embed = Embed(title=f"🏷️ Card is on the Market", description=f"{card} is still on the market. Please remove it from the market before trading it")
-            await ctx.send(embed=embed)
-            return
-
-        trade_query = {'MERCHANT': player.did, 'OPEN': True}
-        trade_data = db.queryTrade(trade_query)
-        if not trade_data:
-            trade_query = {'BUYER': player.did, 'OPEN': True}
-            trade_data = db.queryTrade(trade_query)
-
-        if trade_data:
-            trade_object = {
-                "DID": player.did,
-                "NAME": c.name,
-                "LVL": c.card_lvl,
-            }
-            response = db.updateTrade(trade_query, {'$push': {'CARDS': trade_object}})
-            if response:
-                # Make embed for being added to Trade
-                embed = Embed(title=f"🎴 Card Added to Trade", description=f"{c.name} has been added to the trade")
+        try:
+            user_query = {'DID': str(ctx.author.id)}
+            user = db.queryUser(user_query)
+            player = crown_utilities.create_player_from_data(user)
+            card_data = db.queryCard({'NAME': card})
+            c = crown_utilities.create_card_from_data(card_data)
+            c.set_card_level_buffs(player.card_levels)
+            if c.name == player.equipped_card:
+                embed = Embed(title=f"🎴 Card Not Added to Trade", description=f"Failed to add {c.name} to the trade as it is currently equipped")
                 await ctx.send(embed=embed)
                 return
-        else:
-            # Make embed for there not being a Trade open at this time
-            embed = Embed(title=f"🎴 Card Not Added to Trade", description=f"There is no trade open at this time")
+            exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], card)
+            if exists_on_trade_already:
+                embed = Embed(title=f"🎴 Card is being Traded", description=f"{card} is already being traded.")
+                await ctx.send(embed=embed)
+                return
+
+            exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": card})
+            if exists_on_market_already:
+                embed = Embed(title=f"🏷️ Card is on the Market", description=f"{card} is still on the market. Please remove it from the market before trading it")
+                await ctx.send(embed=embed)
+                return
+
+            trade_query = {'MERCHANT': player.did, 'OPEN': True}
+            trade_data = db.queryTrade(trade_query)
+            if not trade_data:
+                trade_query = {'BUYER': player.did, 'OPEN': True}
+                trade_data = db.queryTrade(trade_query)
+
+            if trade_data:
+                trade_object = {
+                    "DID": player.did,
+                    "NAME": c.name,
+                    "LVL": c.card_lvl,
+                    "TIER": c.tier,
+                }
+                response = db.updateTrade(trade_query, {'$push': {'CARDS': trade_object}})
+                if response:
+                    # Make embed for being added to Trade
+                    embed = Embed(title=f"🎴 Card Added to Trade", description=f"{c.name} has been added to the trade")
+                    await ctx.send(embed=embed)
+                    return
+            else:
+                # Make embed for there not being a Trade open at this time
+                embed = Embed(title=f"🎴 Card Not Added to Trade", description=f"There is no trade open at this time")
+                await ctx.send(embed=embed)
+                return
+        except Exception as ex:
+            custom_logging.debug(ex)
+            # Make embed for not being added to Trade
+            embed = Embed(title=f"🎴 Card Not Added to Trade", description=f"Failed to add {c.name} to the trade - Error Logged")
             await ctx.send(embed=embed)
             return
 
@@ -2630,7 +2638,7 @@ class CustomPaginator(Paginator):
         card_message = []
         current_arms = []
 
-        list_of_titles = [x['TITLE'] for x in db.queryAllTitlesBasedOnUniverses({'UNIVERSE': universe_title}) if x['UNLOCK_METHOD']['METHOD'] == "TALES" and x['UNLOCK_METHOD']['VALUE'] == 0]
+        list_of_titles = [x['TITLE'] for x in db.queryAllTitlesBasedOnUniverses({'UNIVERSE': universe_title}) if x['UNLOCK_METHOD']['METHOD'] == "TALES RUN" and x['UNLOCK_METHOD']['VALUE'] == 0]
 
         # if not list_of_titles:
         #     embed = Embed(title=f"🎴 Registration Failed", description=f"Failed to register for {universe_title} as it is not available")
@@ -2920,6 +2928,7 @@ class CustomPaginator(Paginator):
         for i in range(0, len(all_titles), 10):
             sublist = all_titles[i:i+10]           
             embedVar = Embed(title=f"🌍 {universe_title}'s List of Titles", description="\n".join(sublist), color=0x7289da)
+            embedVar.set_author(name=f"The🔸represents the number of effects the title has")
             embedVar.set_footer(
                 text=f"{len(all_titles)} Total Titles")
             embed_list.append(embedVar)

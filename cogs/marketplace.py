@@ -199,6 +199,7 @@ class Marketplace(Extension):
                 await ctx.send(embed=embed)
                 return
             player = crown_utilities.create_player_from_data(a_registered_player)
+            market_seller = crown_utilities.create_player_from_data(db.queryUser({"DID": market_item_info["ITEM_OWNER"]}))
             confirmation_buttons = [
                 Button(
                     style=ButtonStyle.GREEN,
@@ -223,6 +224,7 @@ class Marketplace(Extension):
                 c = crown_utilities.create_card_from_data(card_data)
                 card_level = [{"CARD": c.name, "LVL": market_item_info["CARD_LEVEL"], "EXP": 0}]
                 c.set_card_level_buffs(card_level)
+                market_seller.remove_card(c.name)
                 embed = Embed(title="🏷️ Marketplace", description=f"Are you sure you want to purchase {c.name}?", color=0x7289da)
                 message = await ctx.send(embed=embed, components=[row])
                 
@@ -262,6 +264,7 @@ class Marketplace(Extension):
                 s = crown_utilities.create_summon_from_data(summon_data)
                 s.level = market_item_info["SUMMON_LEVEL"]
                 s.bond = market_item_info["BOND_LEVEL"]
+                market_seller.remove_summon(s.name)
                 embed = Embed(title="🏷️ Marketplace", description=f"Are you sure you want to purchase {s.name}?", color=0x7289da)
                 message = await ctx.send(embed=embed, components=[row])
                 
@@ -299,6 +302,7 @@ class Marketplace(Extension):
                 arm_data = db.queryArm({"ARM": market_item_info["ITEM_NAME"]})
                 a = crown_utilities.create_arm_from_data(arm_data)
                 a.durability = 25
+                market_seller.remove_arm(a.name)
                 embed = Embed(title="🏷️ Marketplace", description=f"Are you sure you want to purchase {a.name}?", color=0x7289da)
                 message = await ctx.send(embed=embed, components=[row])
                 

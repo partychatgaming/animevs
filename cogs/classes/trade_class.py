@@ -85,7 +85,7 @@ class Trading:
                 gold['AMOUNT'] = new_amount
                 has_gold = True
         if not has_gold:
-            self.gold.append({'DID': trader_did, 'AMOUNT': amount})
+            self.gold.append({'DID': trader_did, 'AMOUNT': int(amount)})
         return True
                 
 
@@ -117,9 +117,9 @@ class Trading:
 
         for card in self.cards:
             if card['DID'] == self.merchant.did:
-                trader_cards_message.append(f"{card['NAME']} [🔱{card['LVL']}]")
+                trader_cards_message.append(f"{card['NAME']} [🔱{card['LVL']} / 🀄{card['TIER']}]")
             else:
-                trade_partner_cards_message.append(f"{card['NAME']} [🔱{card['LVL']}]")
+                trade_partner_cards_message.append(f"{card['NAME']} [🔱{card['LVL']} / 🀄{card['TIER']}]")
 
         for arm in self.arms:
             if arm['DID'] == self.merchant.did:
@@ -137,7 +137,7 @@ class Trading:
             if gold['DID'] == self.merchant.did:
                 trader_gold_message = f"{gold['AMOUNT']:,}"
 
-            if gold['DID'] == self.merchant.did:
+            else: 
                 trade_partner_gold_message = f"{gold['AMOUNT']:,}"
 
 

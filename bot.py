@@ -6,6 +6,7 @@ import time
 import classes as data
 import messages as m
 import help_commands as h
+from bson.int64 import Int64
 import textwrap
 import os
 import logging
@@ -291,14 +292,14 @@ async def classes(ctx):
     
    class_descriptions = [
         (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use summon from start of battle"),
-        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Initial Attacks cost 0 Stamina\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks"),
-        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\nCommon - 3 Parry, Rare - 5 Parries, Legendary - 6 Parries"),
+        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Initial Attacks cost 0 Stamina\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks. Bleed damage slightly boosted."),
+        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\nCommon - 3 Parry, Rare - 5 Parries, Legendary - 6 Parries. Double parry on Physical damage proc"),
         (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 3 barriers, can attack through barrier\nCommon - 2 Barrier, Rare - 3 Barriers, Legendary - 4 Barriers"),
         (crown_utilities.class_emojis['TANK'], "Tank", "Starts each fight with Card Tier * 500 Shield, gain same shield on resolve\nCommon - 500/1000/1500 Shield, Rare - 2000/2500, Legendary - 3000/3500"),
-        (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 3 Critical Strikes\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks"),
-        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 3 Double Strikes\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks"),
-        (crown_utilities.class_emojis['MAGE'], "Mage", "Increases elemental damage by up to 50%\nCommon - 35%, Rare - 45%, Legendary - 50%"),
-        (crown_utilities.class_emojis['HEALER'], "Healer", "Stores up to 40% of damage taken and heals for the total amount each Focus\nCommon - 25%, Rare - 35%, Legendary - 45%")
+        (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 3 Critical Strikes\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks. Bleed damage boosted."),
+        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 3 Double Strikes\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks."),
+        (crown_utilities.class_emojis['MAGE'], "Mage", "Increases elemental damage up to 60%\nElemental effects are greatly boosted"),
+        (crown_utilities.class_emojis['HEALER'], "Healer", "Stores up to 40% of damage taken and heals for the total amount each Focus\nCommon - 25%, Rare - 35%, Legendary - 45%\nLifesteal abilities are boosted"),
     ]
     
    embed_list = []
@@ -309,6 +310,8 @@ async def classes(ctx):
    Common : [1 - 3]
    Rare : [4 - 5]
    Legendary : [6 - 7]
+   Mythical : [8 - 9]
+   God : [10]
    """),color=0x7289da)
    embed_list.append(embedVar)
    for emoji, title, description in class_descriptions:
@@ -929,7 +932,7 @@ async def register(ctx):
          'SERVER': str(ctx.author.guild), 
          'FAMILY': did,
          'FAMILY_DID': did,
-         'BALANCE': 1500000,
+         'BALANCE': Int64(1500000),
       }
       r_response = db.createUsers(data.newUser(user))
 
@@ -2228,6 +2231,7 @@ async def traits(ctx: InteractionContext, universe: str = ""):
             embed_list.append(embedVar)
 
          paginator = Paginator.create_from_embeds(bot, *embed_list)
+         paginator.show_select_menu = True
          await paginator.send(ctx)
       else:
          universe = db.queryUniverse({'TITLE': universe})
@@ -2757,7 +2761,7 @@ async def code(ctx, code_input: str):
                user = await bot.fetch_user(ctx.author.id)
                mode = "Purchase"
                level_response = await crown_utilities.cardlevel(user, mode, exp)
-               level_up_message = f"Your 🎴 **{equipped_card.name}** card leveled up {str(level_response):,} times!" if level_response else f"Your 🎴 **{equipped_card.name}** card gained {exp:,} experience points!"
+               level_up_message = f"Your 🎴 **{equipped_card.name}** card leveled up {level_response:,} times!" if level_response else f"Your 🎴 **{equipped_card.name}** card gained {exp:,} experience points!"
                embed = Embed(title="Experience Gained", description=f"{level_up_message}", color=0x00ff00)
                embed_list.append(embed)
             response = db.updateUserNoFilter(query, {'$addToSet': {'USED_CODES': code_input}})
@@ -3875,6 +3879,47 @@ async def savecards(ctx):
       return
          
       
+      # Create a slash_command that gets a list of 50 cards and saves it to my account in the database
+
+
+# @slash_command(description="save cards", scopes=guild_ids)
+# async def addtiers(ctx):
+#    loggy.info("addtiers command")
+#    await ctx.defer()
+#    try:
+#       players = db.queryAllUsers()
+#       count = 0
+
+#       for player in players:
+#          if player['DID'] in ["306429381948211210", "263564778914578432", "570660973640286211", "339423274117103617"]:
+#             p = crown_utilities.create_player_from_data(player)
+#             for card in p.card_levels:
+#                c = db.queryCard({'NAME': card['CARD']})
+#                if c:
+#                   db.updateUserNoFilter({"DID": p.did}, {'$set': 'CARD_LEVELS': {'CARD': c['CARD'], 'LVL': c['LVL'], 'EXP': c['EXP'], 'TIER': c['TIER'], 'ATK': c['ATK'], 'DEF': c['DEF'], 'AP': c['AP'], 'HP': c['HP']}})
+#                   count += 1
+               
+#       await ctx.send(f"Saved {count} cards to your account.")
+#    except Exception as ex:
+#       trace = []
+#       tb = ex.__traceback__
+#       while tb is not None:
+#          trace.append({
+#             "filename": tb.tb_frame.f_code.co_filename,
+#             "name": tb.tb_frame.f_code.co_name,
+#             "lineno": tb.tb_lineno
+#          })
+#          tb = tb.tb_next
+#       print(str({
+#          'type': type(ex).__name__,
+#          'message': str(ex),
+#          'trace': trace
+#       }))
+#       loggy.error(f"Error in savecards command: {ex}")
+#       await ctx.send("Issue with command.")
+#       return
+         
+
 
 
 
@@ -3898,7 +3943,7 @@ async def check_heartbeat():
          latency = bot.latency
          loggy.info(f'Heartbeat check - latency: {latency}')
          # Check if latency is within acceptable range (e.g., below 2 seconds)
-         if latency and latency > 2.0:
+         if latency and latency > 9.0:
                loggy.warning('High latency detected, restarting bot...')
                await restart_bot()
       except Exception as e:

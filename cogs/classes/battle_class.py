@@ -835,7 +835,7 @@ class Battle:
 
         if self.is_auto_battle_game_mode:
             if self.turn_total >= 250:
-                self.previous_moves.append(f"⚙️**{player1_card.name}** could not defeat {player2_card.name} before the turn Limit...")
+                self.previous_moves.append(f"⚙️{player1_card.name} could not defeat {player2_card.name} before the turn Limit. The match has ended.")
                 player1_card.health = 0
         return self.match_has_ended
 

@@ -1158,7 +1158,7 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
         return
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|0":
-        blocking = await player_use_block_ability(battle_config, private_channel, button_ctx)
+        blocking = await player_use_block_ability(battle_config, private_channel, button_ctx, battle_msg)
         return
     
     if battle_config.is_co_op_mode:
@@ -1435,7 +1435,7 @@ def damage_calculation(battle_config, damage_calculation_response=None):
     if turn_card._monstrosity_active and turn_card.used_resolve:
         if turn_card._double_strike_count < turn_card._monstrosity_value:
             turn_card._double_strike_count +=1
-            battle_config.add_to_battle_log(f"(**{crown_utilities.class_emojis['MONSTROSITY']}**) **{turn_card.name}**:  Double Strike!\n*{2 - turn_card._double_strike_count} Left!*")
+            battle_config.add_to_battle_log(f"({turn_card.name}:  Double Strike! - {2 - turn_card._double_strike_count} Left!")
             turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
             battle_config.next_turn()
     else:

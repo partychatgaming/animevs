@@ -46,7 +46,7 @@ class Profile(Extension):
         _uuid = uuid.uuid4()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
-            await ctx.send("You are not registered. Please register with /register", ephemeral=True)
+            await ctx.send("You are not registered. Please register with /register")
         
         player = crown_utilities.create_player_from_data(a_registered_player)
         accept_buttons = [
@@ -117,15 +117,18 @@ class Profile(Extension):
     async def build(self, ctx, player = None):
         try:
             await ctx.defer()
-            a_registered_player = await crown_utilities.player_check(ctx)
-            if not a_registered_player:
+            d = await crown_utilities.player_check(ctx)
+            if not d:
                 return
+            player_name = ctx.author
             if player:
                 uid = player.id
+                query = {'DID': str(uid)}
+                d = await asyncio.to_thread(db.queryUser, query)
+                player_name = player
             else:
                 uid = ctx.author.id
-            query = {'DID': str(uid)}
-            d = await asyncio.to_thread(db.queryUser, query)
+
             card = await asyncio.to_thread(db.queryCard, {'NAME':str(d['CARD'])})
             title = await asyncio.to_thread(db.queryTitle, {'TITLE': str(d['TITLE'])})
             arm = await asyncio.to_thread(db.queryArm, {'ARM': str(d['ARM'])})
@@ -241,44 +244,50 @@ class Profile(Extension):
                         # page 6 (affinity view)
                         # page 7 (level up view)
                         # page 8 (trait page)
-                        embedVar0 = Embed(title=f"Build Overview".format(self), color=000000)
+                        embedVar0 = Embed(title=f"{player_name} Build Overview".format(self), color=000000)
                         embedVar0.add_field(name="__Build Summary__", value=f"Equipped Title 🎗️ **{t.name}**\n"
                         f"Equipped Arm 🦾 **{a.name}**\n"
-                        f"Equipped Summon 🧬 **{player.equipped_summon}**\n\n"
+                        f"Equipped Summon 🧬 **{player.equipped_summon}**\n"
+                        f"Equipped Talisman **{player.talisman_message}**\n"
                         "For details, please check the other pages.", inline=False)
                         embedVar0.set_image(url="attachment://image.png")
 
-                        embedVar1 = Embed(title=f"Build Title View".format(self), description=f"Titles are buffs or boosts for your card, or against your opponents card, initiated each turn, focus, or resolve.", color=000000)
+                        embedVar1 = Embed(title=f"{player_name} Build Title View".format(self), description=f"Titles are buffs or boosts for your card, or against your opponents card, initiated each turn, focus, or resolve.", color=000000)
                         embedVar1.add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=True)
                         embedVar1.set_image(url="attachment://image.png")
                         embedVar1.set_thumbnail(url=player.avatar)
 
-                        embedVar2 = Embed(title=f"Build Arm View".format(self), description=f"Arms are protections for your card that are initated by themselves until broken in battle, or they swappable abilities.", color=000000)
+                        embedVar2 = Embed(title=f"{player_name} Build Arm View".format(self), description=f"Arms are protections for your card that are initated by themselves until broken in battle, or they swappable abilities.", color=000000)
                         embedVar2.add_field(name=f"__Arm Name & Effects__\n🦾 {a.name.capitalize()}", value=f"{a.arm_message}\n⚒️ {a.durability} *Durability*", inline=True)
                         embedVar2.set_image(url="attachment://image.png")
                         embedVar2.set_thumbnail(url=player.avatar)
 
-                        embedVar3 = Embed(title=f"Build Summon View".format(self), description=f"Summons are powerful companions that can be called upon to aid you in battle after you resolve, unless you're a summoner.", color=000000)
+                        embedVar3 = Embed(title=f"{player_name} Build Summon View".format(self), description=f"Summons are powerful companions that can be called upon to aid you in battle after you resolve, unless you're a summoner.", color=000000)
                         embedVar3.add_field(name=f"__Summon Name & Effects__\n🧬 {player.equipped_summon}", value=f"{player.summon_power_message}\n📶 {player.summon_lvl_message}", inline=True)
                         embedVar3.set_image(url="attachment://image.png")
                         embedVar3.set_thumbnail(url=player.avatar)
 
-                        embedVar4 = Embed(title=f"Build Talisman View".format(self), description=f"Talismans are powerful accessories that can be attuned to your card to bypass a single affinity. For example, if you have a fire talisman equipped, your fire attacks will damage your opponent even if they are immune, repels, absorbs, etc fire attacks.", color=000000)
+                        embedVar4 = Embed(title=f"{player_name} Build Talisman View".format(self), description=f"Talismans are powerful accessories that can be attuned to your card to bypass a single affinity. For example, if you have a fire talisman equipped, your fire attacks will damage your opponent even if they are immune, repels, absorbs, etc fire attacks.", color=000000)
                         embedVar4.add_field(name=f"__Talisman Name & Effects__", value=f"{player.talisman_message}", inline=True)
                         embedVar4.set_image(url="attachment://image.png")
                         embedVar4.set_thumbnail(url=player.avatar)
 
-                        embedVar5 = Embed(title=f"Build Evasion View".format(self), description=f"Evasion is a stat that improves your evasiveness against attacks. With high evasion you will be hit less often.", color=000000)
+                        embedVar9 = Embed(title=f"{player_name} Build Class View".format(self), description="Each card class has a unique ability or passive that activates during battle.", color=000000)
+                        embedVar9.add_field(name=f"__Card Class Effect__", value=crown_utilities.class_descriptions[c.card_class], inline=True)
+                        embedVar9.set_image(url="attachment://image.png")
+                        embedVar9.set_thumbnail(url=player.avatar)
+
+                        embedVar5 = Embed(title=f"{player_name} Build Evasion View".format(self), description=f"Evasion is a stat that improves your evasiveness against attacks. With high evasion you will be hit less often.", color=000000)
                         embedVar5.add_field(name="__Evasion Stat & Boost__", value=f"🏃 | {c.evasion_message}")
                         embedVar5.set_image(url="attachment://image.png")
                         embedVar5.set_thumbnail(url=player.avatar)
 
-                        embedVar6 = Embed(title=f"Build Affinity View".format(self), description=f"Affinities are elemental strengths and weaknesses that can be exploited in battle. Affinites are either weaknesses, resistances, absorption, repel, or immunity. ", color=000000)
+                        embedVar6 = Embed(title=f"{player_name} Build Affinity View".format(self), description=f"Affinities are elemental strengths and weaknesses that can be exploited in battle. Affinites are either weaknesses, resistances, absorption, repel, or immunity. ", color=000000)
                         embedVar6.add_field(name="__Affinity List__", value=f"{c.affinity_message}")
                         embedVar6.set_image(url="attachment://image.png")
                         embedVar6.set_thumbnail(url=player.avatar)
                         
-                        embedVar7 = Embed(title=f"Build Level Up View".format(self), description=f"Leveling up your card will increase its attack, defense, health, and ability points.", color=000000)
+                        embedVar7 = Embed(title=f"{player_name} Build Level Up View".format(self), description=f"Leveling up your card will increase its attack, defense, health, and ability points.", color=000000)
                         embedVar7.set_thumbnail(url=player.avatar)
                         if c.card_lvl < 1000:
                             embedVar7.add_field(name="__Level Up Information__", value=f"EXP Until Next Level: {level_up_message}")
@@ -288,12 +297,12 @@ class Profile(Extension):
                             embedVar7.add_field(name="__Level Up Information__", value=f"{level_up_message}")
                             embedVar7.set_image(url="attachment://image.png")
 
-                        embedVar8 = Embed(title=f"Build Trait View".format(self), description=f"Each universe has a unique ability or passive that can be activated in battle. Please read your trait carefully for a comprehensive understand of how and when your universe trait is applied in battle.", color=000000)
+                        embedVar8 = Embed(title=f"{player_name} Build Trait View".format(self), description=f"Each universe has a unique ability or passive that can be activated in battle. Please read your trait carefully for a comprehensive understand of how and when your universe trait is applied in battle.", color=000000)
                         embedVar8.add_field(name="__Trait List__", value=f"♾️ | {c.set_trait_message()}")
                         embedVar8.set_image(url="attachment://image.png")
                         embedVar8.set_thumbnail(url=player.avatar)
                         
-                        embed_list = [embedVar0, embedVar1, embedVar2, embedVar3, embedVar4, embedVar5, embedVar6, embedVar7, embedVar8]
+                        embed_list = [embedVar0, embedVar1, embedVar2, embedVar3, embedVar4, embedVar9, embedVar5, embedVar6, embedVar7, embedVar8]
                         paginator = Paginator.create_from_embeds(self.bot, *embed_list)
                         paginator.show_select_menu = True
                         await paginator.send(ctx, file=card_file)
@@ -724,7 +733,6 @@ class Profile(Extension):
             return
         query = {'DID': str(ctx.author.id)}
         d = db.queryUser(query)#Storage Update
-        storage_type = d['STORAGE_TYPE']
         player = crown_utilities.create_player_from_data(d)
         try: 
             embed_list = []
@@ -738,6 +746,7 @@ class Profile(Extension):
                 c.set_card_level_icon(player)
                 currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": c.name})
                 embedVar = Embed(title= f"{c.name}", description=textwrap.dedent(f"""\
+                {c.universe_crest} {c.universe}
                 {c.drop_emoji} **[{index}]** 
                 {c.class_emoji} {c.class_message}
                 🀄 {c.tier}: {c.level_icon} {c.card_lvl}
@@ -756,14 +765,6 @@ class Profile(Extension):
                 if currently_on_market:
                     embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
                 embed_list.append(embedVar)
-                # count += 1
-                # else:
-                #     update_storage_query = {
-                #                     '$pull': {'CARDS': card},
-                #                     '$addToSet': {'STORAGE': card},
-                #                 }
-                #     response = db.updateUserNoFilter(query, update_storage_query)
-            print(len(embed_list))
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Cards")
             paginator.show_select_menu = True
             await paginator.send(ctx)
@@ -1039,10 +1040,10 @@ class Profile(Extension):
                     balance = gems['GEMS']
                     break   
             
-            if not balance:
-                embed = Embed(title="Blacksmith", description=f"You currently own no 💎 in {card.universe}.", color=0x7289da)
-                await ctx.send(embed=embed)
-                return
+            # if not balance:
+            #     embed = Embed(title="Blacksmith", description=f"You currently own no 💎 in {card.universe}.", color=0x7289da)
+            #     await ctx.send(embed=embed)
+            #     return
             
             def get_level_icons(level):
                 levels_icons = {
@@ -1068,11 +1069,23 @@ class Profile(Extension):
                     1000: (20000000000, 5000000000, 5000000000),
                     2000: (80000000000, 13000000000, 9000000000)
                 }
+
                 for threshold, values in sorted(levels_values.items(), reverse=True):
                     if card.card_lvl >= threshold:
                         return values
                 return 5000000, 1600000, 500000
-
+            tier_values = {
+                2: 5000000,
+                3: 35000000,
+                4: 300000000,
+                5: 35000000000,
+                6: 11000000000,
+                7: 25000000000,
+                8: 75000000000,
+                9: 300000000000,
+                10: 800000000000, 
+            }
+            level_up_card_tier_message = f"⭐ **Increase Card Tier**: 💸 **{tier_values[(card.card_tier + 1)]:,}**" if card.card_tier < 10 else f"🌟 Your card has max tiers"
             licon = get_level_icons(card.card_lvl)
             hundred_levels, thirty_levels, ten_levels = get_level_values(card.card_lvl)
 
@@ -1107,24 +1120,19 @@ class Profile(Extension):
             util_sell_buttons = [
                     Button(
                         style=ButtonStyle.GREY,
-                        label="Gabe's Purse 👛",
-                        custom_id=f"{_uuid}|4"
-                    ),
-                    Button(
-                        style=ButtonStyle.GREY,
-                        label="Storage 💼",
+                        label="⭐ Increase Card Tier",
                         custom_id=f"{_uuid}|6"
                     ),
                     Button(
                         style=ButtonStyle.GREY,
-                        label="Preset 🔖",
+                        label="Gabe's Preset 🔖",
                         custom_id=f"{_uuid}|7"
                     )
             ]
             
             sell_buttons_action_row = ActionRow(*sell_buttons)
             util_sell_buttons_action_row = ActionRow(*util_sell_buttons)
-            embedVar = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith - {icon}{'{:,}'.format(balance)} ", description=textwrap.dedent(f"""\
+            embedVar = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith - {icon}{'{:,}'.format(balance)}\n{user.balance_icon} {user.balance:,}", description=textwrap.dedent(f"""\
             Welcome {ctx.author.mention}!
             Use Universe Gems to purchase **Card XP** and **Arm Durability**!
             🎴 Card:  **{card.name}** {licon}**{str(card.card_lvl)}**
@@ -1137,8 +1145,8 @@ class Profile(Extension):
             ⚒️ 4️⃣ **50 Durability** for {icon} **{durability_message}**
             
             **Miscellaneous Upgrades**
-            💼 **Storage Tier {user.storage_message}**: {icon} **{user.storage_pricing_text}**
-            🔖 **Preset Upgrade**: 💸 **{preset_message}**
+            {level_up_card_tier_message}
+            🔖 **Gabe's Preset Upgrade**: 💸 **{preset_message}**
             
             What would you like to buy?
             """), color=0xf1c40f)
@@ -1203,41 +1211,43 @@ class Profile(Extension):
                         await msg.edit(embed=embed, components=[])
                         return
 
-                if option == f"{_uuid}|4":
-                    price = 25000000
-                    if price > balance:
-                        await button_ctx.send("Insufficent funds.", ephemeral=True)
-                        await msg.edit(components=[])
-                        return
-                    if has_gabes_purse:
-                        await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", ephemeral=True)
-                        await msg.edit(components=[])
-                        return
-                    else:
-                        update = db.updateUserNoFilterAlt(user_query, {'$set': {'TOURNAMENT_WINS': 1}})
-                        await crown_utilities.curse(price, str(ctx.author.id))
-                        await button_ctx.send("👛 | Gabe's Purse has been purchased!")
-                        await msg.edit(components=[])
-                        return
+                # if option == f"{_uuid}|4":
+                #     price = 25000000
+                #     if price > balance:
+                #         await button_ctx.send("Insufficent funds.", ephemeral=True)
+                #         await msg.edit(components=[])
+                #         return
+                #     if has_gabes_purse:
+                #         await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", ephemeral=True)
+                #         await msg.edit(components=[])
+                #         return
+                #     else:
+                #         update = db.updateUserNoFilterAlt(user_query, {'$set': {'TOURNAMENT_WINS': 1}})
+                #         await crown_utilities.curse(price, str(ctx.author.id))
+                #         await button_ctx.send("👛 | Gabe's Purse has been purchased!")
+                #         await msg.edit(components=[])
+                #         return
                     
                 if option == f"{_uuid}|7":
                     price = 10000000
-                    if price > balance:
-                        await button_ctx.send("Insufficent funds.", ephemeral=True)
-                        await msg.edit(components=[])
+                    if price > user.balance:
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Insufficent funds.", color=0xf1c40f)
+                        # await button_ctx.ctx.send("Insufficent funds.", ephemeral=True)
+                        await msg.edit(embeds=[embed], components=[])
                         return
-                    if preset_upgrade:
-                        await button_ctx.send("You already have 5 Presets!", ephemeral=True)
-                        await msg.edit(components=[])
+                    if user.preset_upgraded:
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="You already have Gabe's Preset.", color=0xf1c40f)
+                        # await button_ctx.ctx.send("You already have 5 Presets!", ephemeral=True)
+                        await msg.edit(embeds=[embed], components=[])
                         return
                     else:
-                        await crown_utilities.curse(price, str(ctx.author.id))
-                        response = db.updateUserNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 4.0",'ARM': str(current_arm), 'PET': "Chick", 'TALISMAN': str(current_talisman)}}})
-                        response = db.updateUserNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' : str(current_card), 'TITLE': "Preset Upgrade Ver 5.0",'ARM': str(current_arm), 'PET': "Chick", 'TALISMAN': str(current_talisman)}}})
-                        #response = db.updateUserNoFilter(vault_query, {'$addToSet': {'DECK' : {'CARD' :str(current_card), 'TITLE': str(current_title),'ARM': str(current_arm), 'PET': str(current_pet)}}})
-                        update = db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
-                        await button_ctx.send("🔖 | Preset Upgraded")
-                        await msg.edit(components=[])
+                        await crown_utilities.curse(price, user.did)
+                        db.updateUserNoFilter({'DID': user.did}, {'$addToSet': {'DECK' : {'CARD' : user.equipped_card, 'TITLE': "Preset Upgrade Ver 4.0",'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}}})
+                        db.updateUserNoFilter({'DID': user.did}, {'$addToSet': {'DECK' : {'CARD' : user.equipped_card, 'TITLE': "Preset Upgrade Ver 5.0",'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}}})
+                        db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🔖 | Preset Upgraded", color=0xf1c40f)
+                        # await button_ctx.ctx.send("🔖 | Preset Upgraded")
+                        await msg.edit(embeds=[embed], components=[])
                         return
                 
                 if option == f"{_uuid}|5":
@@ -1282,26 +1292,36 @@ class Profile(Extension):
                             await ctx.send("Unsuccessful to purchase durability boost.", ephemeral=True)
 
                 if option == f"{_uuid}|6":
-                    if user.storage_pricing > balance:
-                        await button_ctx.send("Insufficent funds.", ephemeral=True)
-                        await msg.edit(components=[])
+                    if tier_values[(card.card_tier + 1)] > user.balance:
+                        # await button_ctx.ctx.send("Insufficent funds.", ephemeral=True)
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Insufficent funds.", color=0xf1c40f)
+                        await msg.edit(embeds=[embed], components=[])
+                        return
+
+                    if card.card_tier >= 10:
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | {card.name} is already at max tiers.", color=0xf1c40f)
+                        await msg.edit(embeds=[embed], components=[])
                         return
                         
-                    if not user.patron and user.storage_type >= 2:
-                        await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", ephemeral=True)
-                        await msg.edit(components=[])
-                        return
+                    # if not user.patron and user.storage_type >= 2:
+                    #     await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", ephemeral=True)
+                    #     await msg.edit(components=[])
+                    #     return
                         
-                    if user.storage_type == 10:
-                        await button_ctx.send("💼 | You already have max storage.", ephemeral=True)
-                        await msg.edit(components=[])
-                        return
+                    # if user.storage_type == 10:
+                    #     await button_ctx.send("💼 | You already have max storage.", ephemeral=True)
+                    #     await msg.edit(components=[])
+                    #     return
                         
                     else:
-                        update = db.updateUserNoFilterAlt(user_query, {'$inc': {'STORAGE_TYPE': 1}})
-                        user.remove_gems(card.universe, user.storage_pricing)
-                        await button_ctx.send(f"💼 | Storage Tier {str(user.storage_type + 1)} has been purchased!")
-                        await msg.edit(components=[])
+                        new_tier = card.card_tier + 1
+                        await crown_utilities.curse(tier_values[card.card_tier], user.did)
+                        update_query = {'$inc': {'CARD_LEVELS.$[type].' + "TIER": 1}}
+                        filter_query = [{'type.' + "CARD": card.name}]
+                        response = await asyncio.to_thread(db.updateUser, user.user_query, update_query, filter_query)
+                        # await button_ctx.ctx.send(f"⭐ | Your card has been upgraded to Tier {new_tier}!", ephemeral=True)
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | Your card has been upgraded to Tier {new_tier}!", color=0xf1c40f)
+                        await msg.edit(embeds=[embed], components=[])
                         return
             except asyncio.TimeoutError:
                 await ctx.send("Blacksmith closed.", ephemeral=True)
@@ -1414,6 +1434,7 @@ class Profile(Extension):
     @slash_command(description="Load a saved preset")
     async def preset(self, ctx):
         try:
+            await ctx.defer()
             a_registered_player = await crown_utilities.player_check(ctx)
             if not a_registered_player:
                 return

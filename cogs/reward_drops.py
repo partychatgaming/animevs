@@ -118,9 +118,9 @@ async def reward_money(battle_config, player):
         amount = 1000
 
     try:
-        player.save_gems(battle_config.selected_universe, gem_amount)
+        player.save_gems(battle_config.selected_universe, round(gem_amount))
         await crown_utilities.bless(amount, player.did)
-        return f"You earned 🪙 **{'{:,}'.format(amount)}**\nYou earned 💎 **{'{:,}'.format(gem_amount)}** {battle_config.selected_universe} Gems"
+        return f"You earned 🪙 **{'{:,}'.format(amount)}**\nYou earned 💎 **{'{:,}'.format(round(gem_amount))}** {battle_config.selected_universe} Gems"
     except Exception as e:
         custom_logging.debug(e)
         return "There was an issue with reward money function"

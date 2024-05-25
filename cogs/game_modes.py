@@ -124,9 +124,9 @@ class GameModes(Extension):
            
                 battle = Battle(mode, p)
                  
-                if p.get_locked_feature(mode) or not p.explore:
-                    print("Player is locked from exploring.")
-                    return
+                # if p.get_locked_feature(mode) or not p.explore:
+                #     print("Player is locked from exploring.")
+                #     return
     
                 if p.explore_location == "NULL":
                     all_universes = db.queryExploreUniverses()

@@ -38,9 +38,9 @@ class Teams(Extension):
             return
 
         user = db.queryUser({'DID': str(ctx.author.id)})
-        if user['LEVEL'] < 20:
-            await ctx.send(f"🔓 Unlock Guild Creation by completing Floor 20 of the 🌑 Abyss! Use /solo to enter the abyss.")
-            return
+        # if user['LEVEL'] < 20:
+        #     await ctx.send(f"🔓 Unlock Guild Creation by completing Floor 20 of the 🌑 Abyss! Use /solo to enter the abyss.")
+        #     return
 
         team_name = guild.lower()
         team_display_name = guild

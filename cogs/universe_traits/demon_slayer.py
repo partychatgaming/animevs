@@ -1,7 +1,7 @@
 import crown_utilities
 import random
 
-def total_concentration_breathing(player_card, battle_config, player_title):
+def total_concentration_breathing(player_card, battle_config, player_title, opponent_card):
     if player_card.universe == "Demon Slayer": 
         fortitude = 0.0
         low = player_card.health - (player_card.health * .75)

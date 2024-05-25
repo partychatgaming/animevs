@@ -19,6 +19,7 @@ class Arm:
         self.is_raid_drop = False
         self.is_boss_drop = False
         self.armicon = ""
+        
 
         self.passive_type = list(self.abilities.keys())[0]
         self.passive_value = list(self.abilities.values())[0]
@@ -135,10 +136,7 @@ class Arm:
             self.footer = f"⚠️ This arm is not available in your universe, but you can still equip it. Durability will drop by 10 with each use."
         
         if self.passive_type in move_types:
-            if performance_mode:
-                self.arm_message = f'{self.element_emoji} {self.name} {self.passive_type.title()} Attack: {self.passive_value}'
-            else:
-                self.arm_message = f'{self.element_emoji} {self.name}'
+            self.arm_message = f'{self.element_emoji} {self.name} {self.passive_type.title()} Attack: {self.passive_value}'
             self.arm_type = f"**{self.passive_type.title()} {self.element.title()} Attack**"
         else:
             self.arm_type = f"**Unique Passive**"

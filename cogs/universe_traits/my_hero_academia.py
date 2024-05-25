@@ -33,7 +33,7 @@ def quirk_awakening(player_card, battle_config, player_title):
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name}  resolved with their quirk awakening. Ap has been increased by {player_card.my_hero_academia_buff} 🔺{title_message}")
 
         battle_config.turn_total = battle_config.turn_total + 1
-        battle_config.next_turn()
+        battle_config.repeat_turn()
         return True
 
 

@@ -1472,6 +1472,9 @@ def essence_cost(user, element):
         filter_query = [{'type.' + "ELEMENT": element}]
         response = db.updateUser(query, update_query, filter_query)
         talisman_query = {
+                '$set': {
+                    "TALISMAN": element.upper()
+                },
                 '$addToSet': {
                     "TALISMANS": {
                         "TYPE": element.upper(),
@@ -1773,11 +1776,11 @@ def get_battle_positions(battle_config):
 
 
 def get_trade_eligibility(trader, trade_player):
-    if trader.level < 11 and trader.prestige == 0:
-        return "🔓 Unlock Trading by completeing Floor 10 of the 🌑 Abyss! Use /solo to enter the abyss."
+    # if trader.level < 11 and trader.prestige == 0:
+    #     return "🔓 Unlock Trading by completeing Floor 10 of the 🌑 Abyss! Use /solo to enter the abyss."
 
-    if trade_player.level < 11 and trade_player.prestige == 0:
-        return f"🔓 <@{trade_player.did}> has not unlocked Trading by completing Floor 10 of the 🌑."
+    # if trade_player.level < 11 and trade_player.prestige == 0:
+    #     return f"🔓 <@{trade_player.did}> has not unlocked Trading by completing Floor 10 of the 🌑."
     
     return False
 
@@ -2346,6 +2349,18 @@ utility_emojis = {
     'OFF': '<:toggle_off:1085611427143897088>',
     'ON': '<:toggle_on:1085611434207105115>'
 }
+
+class_descriptions = {
+    'SUMMONER': f"{class_emojis['SUMMONER']} Summoners can use their summons from the start of battle instead of waiting to resolve.",
+    'ASSASSIN': f"{class_emojis['ASSASSIN']} Assassins have the ability to attack without using stamina at the beginning of the match. Can someone say free ultimates? This class effect varies based on card tier.",
+    'FIGHTER': f"{class_emojis['FIGHTER']} Fighters start each fight with up to 6 parries. This class effect varies based on card tier. On physical damage proc, fighters gain 2 parries instead of 1.",
+    'RANGER': f"{class_emojis['RANGER']} Rangers start each fight with up to 3 barriers. This class effect varies based on card tier. Rangers can attack through barriers.",
+    'TANK': f"{class_emojis['TANK']} Tanks start each fight with up to 1500 shield. This class effect varies based on card tier. Tanks gain the same shield amount on resolve.",
+    'SWORDSMAN': f"{class_emojis['SWORDSMAN']} Swordsmen gain up to 3 critical strikes on resolve. This class effect varies based on card tier. Bleed damage is boosted for the swordsman class.",
+    'MONSTROSITY': f"{class_emojis['MONSTROSITY']} Monstrosities gain up to 3 double strikes on resolve. This class effect varies based on card tier.",
+    'MAGE': f"{class_emojis['MAGE']} Mages increase elemental damage up to 60%. This class effect varies based on card tier. Elemental effects are greatly boosted.",
+    'HEALER': f"{class_emojis['HEALER']} Healers store up to 40% of the damage taken and heal for the total amount each focus. This class effect varies based on card tier. Lifesteal abilities are boosted for the healer class."
+   }
 
 Healer_Enhancer_Check = ['HLT', 'LIFE']
 DPS_Enhancer_Check = ['FLOG', 'WITHER']

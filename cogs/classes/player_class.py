@@ -183,7 +183,7 @@ class Player:
                     if t["TYPE"].upper() == self.equipped_talisman.upper():
                         talisman_emoji = crown_utilities.set_emoji(self.equipped_talisman.upper())
                         talisman_durability = t["DUR"]
-                        self.talisman_message = f"{talisman_emoji} | {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
+                        self.talisman_message = f"{talisman_emoji} {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -319,9 +319,10 @@ class Player:
 
     def save_gems(self, universe_title, amount):
         current_gems = 0
-        for gems in self.gems:
-            if universe_title == gems['UNIVERSE']:
-                current_gems = gems['GEMS']
+        if self.gems:
+            for gems in self.gems:
+                if universe_title == gems['UNIVERSE']:
+                    current_gems = gems['GEMS']
 
 
         if current_gems:
@@ -393,7 +394,7 @@ class Player:
 
             if not any(card.name in d['CARD'] for d in self.card_levels):
                 print(f"Card not found in CARD_LEVELS array: {card.name}")
-                update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
+                update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'TIER': card.tier, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
             db.updateUserNoFilter(self.user_query,{'$addToSet':{'CARDS': card.name}})
             db.updateUserNoFilter(self.user_query, update_query)
             # response = True # db.updateUserNoFilterAlt(self.user_query, update_query)

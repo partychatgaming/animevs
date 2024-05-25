@@ -77,7 +77,7 @@ class Lookup(Extension):
                 player_stats = await asyncio.to_thread(db.query_stats_by_player, player_class.did)
                 player_stat_distribution = stat_distribution(player_stats)
 
-                bal_message = f"{player_class.balance_icon}{'{:,}'.format(player_class.balance)}"
+                bal_message = f"{'{:,}'.format(player_class.balance)}"
 
                 autosave_message = crown_utilities.utility_emojis['OFF']
                 if player_class.autosave:
@@ -151,7 +151,6 @@ class Lookup(Extension):
                 
                 embed2 = Embed(title=f"{player_class.disname} Settings".format(self), description=textwrap.dedent(f"""\
                 🆚 | **Retries:** {player_class.retries} available
-                :crystal_ball: | **Rift:** {rift_message}
                 🌌 | **Explore:** {explore_message}
                 
                 ⚙️ | **Battle History Setting:** {str(player_class.battle_history)} messages
@@ -181,7 +180,7 @@ class Lookup(Extension):
                 embed5.set_thumbnail(url=player_class.avatar)
                 
                 embed3 = Embed(title=f"{player_class.disname} Equipment".format(self), description=textwrap.dedent(f"""\
-                **Balance** | {bal_message}
+                {player_class.balance_icon} | {bal_message}
                 🎴 | **Cards:** {len(player_class.cards):,}
                 🎗️ | **Titles:** {len(player_class.titles):,}
                 🦾 | **Arms:** {len(player_class.arms):,}
@@ -542,8 +541,8 @@ class Lookup(Extension):
 
                 buttons = [] 
 
-                if not is_member:
-                    buttons = ["Apply"]
+                # if not is_member:
+                #     buttons = ["Apply"]
                 
                 if is_owner or is_officer:
                     buttons = ["Buff Toggle", "Buff Swap", "Buff Shop"]

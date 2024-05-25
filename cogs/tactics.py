@@ -191,8 +191,12 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']
         battle_config.add_to_battle_log(new_turn['MESSAGE'])
-        opponent_card.freeze_enh = False
-        # return new_turn
+        
+        if player_card.ice_duration > 0:
+            player_card.ice_duration = player_card.ice_duration - 1
+
+        if player_card.ice_duration == 0:
+            opponent_card.freeze_enh = False
     
     player_card.set_gravity_hit()
     if not opponent_card.wind_element_activated:

@@ -35,11 +35,12 @@ class Trade(Extension):
         if not registered_player:
             return
         try:
+            _uuid = uuid.uuid4()
             merchant_did, trade_partner_did, trade = get_merchant_and_trade_partner(ctx.author.id, player.id)
-            if not trade:
-                embed = Embed(title="Error Loading Trade", description=f"There is no active trade with <@{player.id}>.", color=0x7289da)
-                await ctx.send(embed=embed)
-                return
+            # if not trade:
+            #     embed = Embed(title="Error Loading Trade", description=f"There is no active trade with <@{player.id}>.", color=0x7289da)
+            #     await ctx.send(embed=embed)
+            #     return
             tp = db.queryUser({'DID': str(trade_partner_did)})
             trade_partner = crown_utilities.create_player_from_data(tp)
             m = db.queryUser({'DID': str(merchant_did)})
@@ -56,7 +57,6 @@ class Trade(Extension):
                 return
 
             if trade:
-                _uuid = uuid.uuid4()
                 trade_info = Trading(merchant, trade_partner)
                 set_trade_info(trade_info, trade)
                 executioner = str(ctx.author.id)
@@ -113,24 +113,24 @@ class Trade(Extension):
                 embed = Embed(title="Error Loading Trade", description=f"There is no active trade with <@{player.id}>.", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
-            tp = db.queryUser({'DID': str(trade_partner_did)})
+            tp = await asyncio.to_thread(db.queryUser, {'DID': str(trade_partner_did)})
             trade_partner = crown_utilities.create_player_from_data(tp)
-            m = db.queryUser({'DID': str(merchant_did)})
+            m = await asyncio.to_thread(db.queryUser, {'DID': str(merchant_did)})
             merchant = crown_utilities.create_player_from_data(m)
             trade_info = Trading(merchant, trade_partner)
             set_trade_info(trade_info, trade)
 
             if mode == "add":
-                trade_info.add_gold(str(ctx.author.id), amount)
-                db.updateTrade(trade_info.get_query(), trade_info.get_trade_data())
-                embed = Embed(title="Trade Updated", description=f"Added 🪙 {amount:,} gold to the trade with <@{player.id}>.", color=0x7289da)
+                trade_info.add_gold(str(ctx.author.id), int(amount))
+                await asyncio.to_thread(db.updateTrade, trade_info.get_query(), {'$set': trade_info.get_trade_data()})
+                embed = Embed(title="Trade Updated", description=f"Added 🪙 {int(amount):,} gold to the trade with <@{player.id}>.", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
 
             if mode == "subtract":
-                trade_info.subtract_gold(str(ctx.author.id), amount)
-                db.updateTrade(trade_info.get_query(), trade_info.get_trade_data())
-                embed = Embed(title="Trade Updated", description=f"Subtracted 🪙 {amount:,} gold from the trade with <@{player.id}>.", color=0x7289da)
+                trade_info.subtract_gold(str(ctx.author.id), int(amount))
+                await asyncio.to_thread(db.updateTrade, trade_info.get_query(), {'$set': trade_info.get_trade_data()})
+                embed = Embed(title="Trade Updated", description=f"Subtracted 🪙 {int(amount):,} gold from the trade with <@{player.id}>.", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
             
@@ -209,13 +209,14 @@ class Trade(Extension):
 
                     if button_ctx.ctx.custom_id == f"{_uuid}|yes":
                         await button_ctx.ctx.defer(edit_origin=True)
-                        if self.receive_trade_items(trade_info):
+                        trade_ready = await self.receive_trade_items(trade_info)
+                        if trade_ready:
                             trade_info.set_open(False)
                             db.updateTrade(trade_info.get_query(), {"$set": trade_info.get_trade_data()})
                             user = await self.bot.fetch_user(str(executioner))
                             user2 = await self.bot.fetch_user(str(friend))
-                            Quests.quest_check(trade_info.merchant, "TRADE")
-                            Quests.quest_check(trade_info.buyer, "TRADE")
+                            await Quests.quest_check(self, trade_info.merchant, "TRADE")
+                            await Quests.quest_check(self, trade_info.buyer, "TRADE")
                             await user.send(embed=trade_info.get_trade_message())
                             await user2.send(embed=trade_info.get_trade_message())
                             embed = Embed(title=f"🤝 Trade Completed", description=f"🎊 Trade between <@{executioner}> and <@{friend}> has been completed! 🎊. A reciept has been sent to both indiviuals dm's. 📨")
@@ -226,7 +227,7 @@ class Trade(Extension):
                             await confimation_msg.edit(embed=embed, components=[])
                             return
                     
-                    if button_ctx.ctx.custom_id == f"{self._uuid}|no":
+                    if button_ctx.ctx.custom_id == f"{_uuid}|no":
                         await button_ctx.ctx.defer(edit_origin=True)
                         embed = Embed(title=f"🤝 Trade Not Completed", description=f"The trade has not been accepted.")
                         await confimation_msg.edit(embed=embed, components=[])
@@ -247,7 +248,7 @@ class Trade(Extension):
 
             if button_ctx.ctx.custom_id == f"{_uuid}|cancel":
                 await button_ctx.ctx.defer(edit_origin=True)
-                embed = Embed(title=f"🤝 Trade Cancelled", description=f"The trade has been cancelled.")
+                embed = Embed(title=f"🤝 Trade Window Closing", description=f"Closing the trade window. Feel free to check your trade again later.")
                 await msg.edit(embed=embed, components=[])
                 return
 
@@ -298,7 +299,7 @@ class Trade(Extension):
             await msg.edit(embed=embed, components=[])
 
 
-    def receive_trade_items(self, trade_info):
+    async def receive_trade_items(self, trade_info):
         try:
             m = db.queryUser({'DID': str(trade_info.merchant.did)})
             t = db.queryUser({'DID': str(trade_info.buyer.did)})
@@ -308,7 +309,7 @@ class Trade(Extension):
                 for card in trade_info.cards:            
                     card_data = db.queryCard({"NAME": card["NAME"]})
                     c = crown_utilities.create_card_from_data(card_data)
-                    level_array = [{"CARD": card["NAME"], "LVL": card["LVL"], "EXP": 0}]
+                    level_array = [{"CARD": card["NAME"], "LVL": card["LVL"], "TIER": card["TIER"], "EXP": 0}]
                     c.set_card_level_buffs(level_array)
                     if str(card['DID']) == str(merchant.did):
                         trade_partner.save_card(c)
@@ -345,11 +346,11 @@ class Trade(Extension):
             if trade_info.gold:
                 for gold in trade_info.gold:
                     if str(gold['DID']) == str(merchant.did):
-                        crown_utilities.bless(gold['AMOUNT'], trade_partner.did)
-                        crown_utilities.curse(gold['AMOUNT'], merchant.did)
+                        await crown_utilities.bless(gold['AMOUNT'], trade_partner.did)
+                        await crown_utilities.curse(gold['AMOUNT'], merchant.did)
                     else:
-                        crown_utilities.bless(gold['AMOUNT'], merchant.did)
-                        crown_utilities.curse(gold['AMOUNT'], trade_partner.did)
+                        await crown_utilities.bless(gold['AMOUNT'], merchant.did)
+                        await crown_utilities.curse(gold['AMOUNT'], trade_partner.did)
 
             return True
         except Exception as ex:
