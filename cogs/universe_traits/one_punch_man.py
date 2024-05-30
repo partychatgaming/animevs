@@ -25,7 +25,7 @@ def rank_hero(player_card, battle_config, opponent_card):
 
 def hero_reinforcements(player_card, battle_config, opponent_card):
     if opponent_card.universe == "One Punch Man":
-        opponent_card.health = round(opponent_card.health + 100)
-        opponent_card.max_health = round(opponent_card.max_health + 100)
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 hero reinforcements for {opponent_card.name} increased health and max health ❤️")
+        opponent_card.health = round(opponent_card.health + (50 * opponent_card.tier))
+        opponent_card.max_health = round(opponent_card.max_health + (50 * opponent_card.tier))
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 hero reinforcements for {opponent_card.name} increased health and max health by ❤️ {50 * opponent_card.tier}")
 

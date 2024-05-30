@@ -6,26 +6,17 @@ CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
 **/register**: 🆕 Register your account
 **/deleteaccount**: Delete your account
 **/player**: Lookup your account, or a friends
-**/family**: Lookup your family, or a friends
-
+**/build**: View your current build, cards, titles, arms, talismans, summons and more
 
 **PVE Game Modes**
 **🆘 The Tutorial** - Learn Anime VS+ battle system
-**🌑 The Abyss** - Climb the ladder for rewards and unlockables
 **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
 **🔥 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
-**👹 Boss Encounter** - Extreme Boss battles to earn Boss cards, boss accessories and more
-**:projector: Scenario Battle** - Battle through unique scenarios to earn Cards and Moves
+**📽️ Scenario Battle** - Battle through unique scenarios to earn Cards and Moves
 
-**Solo Player!**
-**/solo** - Play through all pve game modes solo to earn solo rewards
-
-**Co-op Players!**
-**/coop** - Play through all pve game modes with a friend to earn co-op rewards
-
-**Duo with AI**
-**/duo** - Play through all pve game modes with one of your build **/presets** as an AI companion
-
+**PVE**
+**/play** - Battle through a variety of PVE modes
+                                        
 **PVP**
 **/pvp** - Battle a rival in PVP mode
 

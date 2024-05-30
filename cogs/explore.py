@@ -17,7 +17,7 @@ from .classes.player_class import Player
 from .classes.battle_class import Battle
 from .classes.summon_class import Summon
 from cogs.battle_config import BattleConfig
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import listen, slash_command, InteractionContext, OptionType, slash_option, AutocompleteContext, Embed, Extension
 
 class Explore(Extension):
     def __init__(self, bot):
@@ -31,14 +31,14 @@ class Explore(Extension):
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
 
-    @slash_command(description="Toggle Explore Mode On/Off or explore a universe", options=[
-        SlashCommandOption(
+    @slash_command(description="Toggle Explore Mode On/Off or explore a universe")
+    @slash_option(
             name="universe",
             description="Type universe you want to explore, or type 'all' to explore all universes",
-            type=OptionType.STRING,
-            required=False
-        )
-    ])
+            opt_type=OptionType.STRING,
+            required=False,
+            autocomplete=True
+    )
     async def explore(self, ctx: InteractionContext, universe=None):
         try:
             player = db.queryUser({"DID": str(ctx.author.id)})
@@ -153,6 +153,33 @@ class Explore(Extension):
                 'trace': trace
             }))
     
+    @explore.autocomplete("universe")
+    async def play_autocomplete(self, ctx: AutocompleteContext):
+        choices = []
+        options = crown_utilities.get_cached_universes()
+        """
+        for option in options
+        if ctx.input_text is empty, append the first 24 options in the list to choices
+        if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
+        """
+            # Iterate over the options and append matching ones to the choices list
+        for option in options:
+                if not ctx.input_text:
+                    # If input_text is empty, append the first 24 options to choices
+                    if len(choices) < 24:
+                        choices.append(option)
+                    else:
+                        break
+                else:
+                    # If input_text is not empty, append the first 24 options that match the input to choices
+                    if option["name"].lower().startswith(ctx.input_text.lower()):
+                        choices.append(option)
+                        if len(choices) == 24:
+                            break
+
+        await ctx.send(choices=choices)
+
+
 
 
 def setup(bot):

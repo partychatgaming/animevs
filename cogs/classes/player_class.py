@@ -86,7 +86,7 @@ class Player:
             self.storage_message = "MAX"
 
 
-        self.talisman_message = "📿 | No Talisman Equipped"
+        self.talisman_message = "📿 No Talisman Equipped"
         self.summon_power_message = ""
         self.summon_lvl_message = ""
         self.rift_on = False
@@ -324,7 +324,6 @@ class Player:
                 if universe_title == gems['UNIVERSE']:
                     current_gems = gems['GEMS']
 
-
         if current_gems:
             update_query = {'$inc': {'GEMS.$[type].' + "GEMS": amount}}
             filter_query = [{'type.' + "UNIVERSE": universe_title}]
@@ -332,7 +331,7 @@ class Player:
             return True
         else:
             gem_info = {'UNIVERSE': universe_title, 'GEMS' : amount, 'UNIVERSE_HEART' : False, 'UNIVERSE_SOUL' : False}
-            response = db.updateUserNoFilter(self.user_query, {'$addToSet' : {'GEMS' :gem_info }})
+            response = db.updateUserNoFilter(self.user_query, {'$addToSet' : {'GEMS': gem_info }})
             return True
 
 
@@ -360,6 +359,9 @@ class Player:
             if card.name in (self.cards or self.storage):
                 print("Card already in storage")
                 return False
+            
+            if len(self.cards) >= 80:
+                return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
 
             # if self.cards_length == 25:
             #     if self.card_storage_full:
@@ -590,19 +592,24 @@ class Player:
         for a in self.arms:
             if arm.name == a['ARM']:
                 return False
-        for a in self.astorage:
-            if arm.name == a['ARM']:
-                return False
+            
+        if len(self.arms) >= 80:
+            return "You have reached the maximum amount of arms in your inventory. Please remove an arm to add a new one."
+        # for a in self.astorage:
+        #     if arm.name == a['ARM']:
+        #         return False
         
-        if self.arms_length == 25:
-            if self.storage_length == 25:
-                return False
-            else:
-                update_query = {'$addToSet': {'ASTORAGE': {"ARM": arm.name, "DUR": arm.durability}}}
-                response = db.updateUserNoFilter(self.user_query, update_query)
-        else:
-            update_query = {'$addToSet': {'ARMS': {"ARM": arm.name, "DUR": arm.durability}}}
-            response = db.updateUserNoFilter(self.user_query, update_query)
+        # if self.arms_length == 25:
+        #     if self.storage_length == 25:
+        #         return False
+        #     else:
+        #         update_query = {'$addToSet': {'ASTORAGE': {"ARM": arm.name, "DUR": arm.durability}}}
+        #         response = db.updateUserNoFilter(self.user_query, update_query)
+        # else:
+        if arm.durability == 0:
+            arm.durability = 5
+        update_query = {'$addToSet': {'ARMS': {"ARM": arm.name, "DUR": arm.durability}}}
+        response = db.updateUserNoFilter(self.user_query, update_query)
     
     
     def remove_arm(self, arm_name):
@@ -630,16 +637,12 @@ class Player:
         for s in self.storage:
             if summon.name == s['NAME']:
                 return False
-        
-        if self.summons_length == 25:
-            if self.storage_length == 25:
-                return False
-            else:
-                update_query = {'$addToSet': {'STORAGE': {"NAME": summon.name, "LVL": summon.level, "EXP": summon.exp, "TYPE": summon.type, "BOND": summon.bond, "BONDEXP": summon.bond_exp, "PATH": summon.path}}}
-                response = db.updateUserNoFilter(self.user_query, update_query)
-        else:
-            update_query = {'$addToSet': {'SUMMONS': {"NAME": summon.name, "LVL": summon.level, "EXP": summon.exp, "TYPE": summon.type, "BOND": summon.bond, "BONDEXP": summon.bond_exp, "PATH": summon.path}}}
-            response = db.updateUserNoFilter(self.user_query, update_query)
+            
+        if len(self.summons) >= 80:
+            return "You have reached the maximum amount of summons in your inventory. Please remove a summon to add a new one."
+
+        update_query = {'$addToSet': {'PETS': {"NAME": summon.name, "LVL": summon.level, "EXP": summon.exp, summon.ability: summon.passive_value, "TYPE": summon.ability_type, "BOND": summon.bond, "BONDEXP": summon.bond_exp, "PATH": summon.path}}}
+        response = db.updateUserNoFilter(self.user_query, update_query)
 
 
     def remove_summon(self, summon_name):

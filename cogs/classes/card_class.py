@@ -661,7 +661,7 @@ class Card:
         if self.card_class == "RANGER":
             self.is_ranger = True
             self.barrier_active = True
-            self._barrier_value = self._barrier_value + value
+            self._barrier_value = value
             self.ranged_buff_value = 2
         
         if self.card_class == "TANK":
@@ -1406,7 +1406,6 @@ class Card:
             move = self.move4
 
         if (self.stamina - move_stamina) < 0:
-            print("Not enough stamina to use this move!")   
             if not summon_used:
                 can_use_move_flag = False
                 response = {
@@ -1523,7 +1522,6 @@ class Card:
             if _opponent_card.damage_check_activated:
                 damage_check_message = f"[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]"
                 battle_config.add_to_battle_log(damage_check_message)
-                _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
                 if _opponent_card.damage_check_counter >= _opponent_card.damage_check_limit:
                     damage_check_message = f"✅ [{self.name} passed the Damage Check]"
                     battle_config.add_to_battle_log(damage_check_message)
@@ -1532,6 +1530,7 @@ class Card:
                     _opponent_card.damage_check_limit = 0
                     _opponent_card.damage_check_turns = 0
                     _opponent_card.damage_check = False
+                    _opponent_card.damage_check_turns = _opponent_card.damage_check_turns - 1
                 elif _opponent_card.damage_check_turns <= 0:
                     _opponent_card.damage_check_activated = False
                     _opponent_card.damage_check_counter = 0
@@ -1555,7 +1554,7 @@ class Card:
                     defensepower = 1
 
                 attackpower = (self.attack - _opponent_card.defense) + ap
-                if attackpower<=0:
+                if attackpower <= 0:
                     attackpower = ap
 
                 abilitypower = round(attackpower / defensepower)
@@ -1578,6 +1577,8 @@ class Card:
                 low = dmg - (dmg * .20)
                 high = dmg + (dmg * .05)
                 true_dmg = (round(random.randint(int(low), int(high)))) + 25
+                if true_dmg <= 0 or true_dmg is None:
+                    true_dmg = 25.5
 
                 message = ""            
 
@@ -1695,7 +1696,7 @@ class Card:
                         else:
                             message = f"{_opponent_card.name} absorbed {turn_card.name}'s attack for {true_dmg} damage ({move_emoji} absorbed)"
                         does_absorb = True
-                        
+                
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
                     if self._assassin_value == self._assassin_attack:
@@ -1758,10 +1759,12 @@ class Card:
             hit_roll = hit_roll - 3
 
         if self._swordsman_active and self.used_resolve:
-            if self._critical_strike_count < self._swordsman_value:
-                self._critical_strike_count += 1
-                hit_roll = 20
-                battle_config.add_to_battle_log(f"{self.name} has {3 - self._critical_strike_count} critical strikes left")
+                self._swordsman_value = self._swordsman_value - 1
+                if self._swordsman_value <= 0:
+                    self._swordsman_active = False
+                    self._swordsman_value = 0
+                    hit_roll = 20
+                    battle_config.add_to_battle_log(f"{self.name} has {self._swordsman_value} critical strikes left")
 
         if self.bloodlust_activated:
             hit_roll = hit_roll + 3
@@ -1773,6 +1776,9 @@ class Card:
         if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
             hit_roll = hit_roll + 3
         
+        if self.ranged_hit_bonus and self.is_ranger:
+            hit_roll = hit_roll + self.ranged_hit_bonus
+
         if (_opponent_card.used_block or _opponent_card.used_defend) and hit_roll >= 20:
             hit_roll = 19
 
@@ -2060,9 +2066,9 @@ class Card:
                     battle_config._boss_embed_message = embedVar
     
             if self._monstrosity_active:
-                battle_config.add_to_battle_log(f"{self.name} gained 2 double strikes")
+                battle_config.add_to_battle_log(f"{self.name} gained {self._monstrosity_value} double strikes")
             if self._swordsman_active:
-                battle_config.add_to_battle_log(f"{self.name} gained 3 critical strikes")
+                battle_config.add_to_battle_log(f"{self.name} gained {self._swordsman_value} critical strikes")
 
             ai_resolve_message = await ai.resolve_message(self.name, self.universe, opponent_card.name, opponent_card.universe)
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) [{self.name}] ⚡ - {ai_resolve_message}")
@@ -2437,7 +2443,7 @@ class Card:
     def missed_attack_handler(self, battle_config, dmg, opponent_card):
         if dmg['DMG'] == 0:
             if self.barrier_active and dmg['ELEMENT'] not in ["PSYCHIC"]:
-                if not dmg['SUMMON_USED']:
+                if not dmg['SUMMON_USED'] and not self.is_ranger:
                     self.barrier_active = False
                     self._barrier_value = 0
                     self._arm_message = ""
@@ -2452,9 +2458,18 @@ class Card:
 
 
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
-        if opponent_card.shield_active and (dmg['ELEMENT'] not in ["DARK"] or not player_title.obliterate_effect) or (opponent_title.impenetrable_shield_effect and opponent_card.shield_active):
+        if opponent_card.shield_active:
+            if not opponent_title.impenetrable_shield_effect:
+                if dmg['ELEMENT'] in ["DARK"]:
+                    return False
+                if player_title.obliterate_effect:
+                    return False
+                
+                if player_title.strategist_effect:
+                    return False
+
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                if not dmg['SUMMON_USED']:
+                if not dmg['SUMMON_USED'] and not self.is_ranger:
                     self.barrier_active = False
                     self._barrier_value = 0
                     self._arm_message = ""
@@ -2501,9 +2516,18 @@ class Card:
 
 
     def active_barrier_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
-        if opponent_card.barrier_active and (dmg['ELEMENT'] not in ["PSYCHIC", "DARK", "TIME", "GRAVITY"] and not self.is_ranger or not player_title.pierce_effect):
+        if opponent_card.barrier_active:
+            if dmg['ELEMENT'] in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
+                return False
+
+            if player_title.pierce_effect:
+                return False
+            
+            if player_title.strategist_effect:
+                return False
+
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                if not dmg['SUMMON_USED']:
+                if not dmg['SUMMON_USED'] and not self.is_ranger:
                     self.barrier_active = False
                     self._barrier_value = 0
                     self._arm_message = ""
@@ -2531,13 +2555,21 @@ class Card:
     
 
     def active_parry_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
-        if opponent_card.parry_active and (dmg['ELEMENT'] not in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"] or not player_title.blitz_effect):                    
+        if opponent_card.parry_active:
+            if dmg['ELEMENT'] in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:
+                return False
+            if player_title.blitz_effect:
+                return False
+
+            if player_title.strategist_effect:
+                return False
+                
             parry_damage_percentage = .50
             if player_title.foresight_effect:
                 parry_damage_percentage = .05
 
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                if not dmg['SUMMON_USED']:
+                if not dmg['SUMMON_USED'] and not self.is_ranger:
                     self.barrier_active = False
                     self._barrier_value = 0
                     self._arm_message = ""
@@ -2603,7 +2635,7 @@ class Card:
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 💉 siphoned {round(siphon_damage)} health")
             
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-                if not dmg['SUMMON_USED']:
+                if not dmg['SUMMON_USED'] and not self.is_ranger:
                     self.barrier_active = False
                     self._barrier_value = 0
                     self._arm_message = ""
@@ -2664,7 +2696,6 @@ class Card:
                     protection_enabled = True
                     break
             
-
             self.direct_hit_handler(battle_config, dmg, opponent_card, naruto_trait_active, protection_enabled)
             
             self.regeneration_handler(battle_config, dmg, opponent_card)
@@ -2677,7 +2708,7 @@ class Card:
 
 
     def damage_done(self, battle_config, dmg, opponent_card):
-        if dmg['CAN_USE_MOVE']:
+        if dmg['CAN_USE_MOVE'] and dmg['CAN_USE_MOVE'] is not None:
             enhancer_used = self.enhancer_handler(battle_config, dmg, opponent_card)
             attack_missed = False
             if not enhancer_used:
@@ -2768,14 +2799,14 @@ class Card:
             
         elif dmg['ELEMENT'] == "RANGED":
             self.ranged_meter = self.ranged_meter + 1
-            if self.ranged_meter == 3:
+            if self.ranged_meter == 2:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} aims]")
-            elif self.ranged_meter == 4:
+            elif self.ranged_meter == 3:
                 self.ranged_meter = 0
                 self.ranged_hit_bonus = self.ranged_hit_bonus + self.ranged_buff_value
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} increased {self.ranged_hit_bonus * 5}% accuracy]")
             else:
-                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "LIFE":
@@ -2795,10 +2826,10 @@ class Card:
             self.barrier_meter = self.barrier_meter + 1
             if self.barrier_meter == 3:
                 self.barrier_active = True
-                self._barrier_value = self._barrier_value + self.psychic_buff_value
+                self._barrier_value = self._barrier_value + self.psychic_barrier_buff_value
                 add_solo_leveling_temp_values(self, 'BARRIER', opponent_card)
                 self.barrier_meter = 0
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {self.psychic_buff_value} 💠 barrier")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {self.psychic_barrier_buff_value} 💠 barrier")
             else:    
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
 
@@ -2920,8 +2951,10 @@ class Card:
  
 
     def get_tactics(self, battle_config):
+        print(battle_config.is_raid_scenario)
         if self._is_boss or battle_config.is_raid_scenario:
             self.tactics = battle_config._tactics
+            print(self.tactics)
             if self.tactics:
                 if "ENRAGED" in self.tactics:
                     self.enraged = True
@@ -3159,10 +3192,25 @@ def get_lvl_sizing(self, draw, lvl_font):
         lvl_sizing = (55, 70)
     if int(self.card_lvl) > 999:
         lvl_sizing = (45, 70)
+
+    def get_level_color(card_lvl):
+        if card_lvl <= 500:
+            return (255, 255, 255)  # white
+        elif 501 <= card_lvl <= 1000:
+            return (255, 215, 0)    # gold
+        elif 1001 <= card_lvl <= 2000:
+            return (255, 165, 0)    # orange
+        elif 2001 <= card_lvl <= 3000:
+            return (203, 65, 84)    # red
+        else:
+            return  (75, 0, 130)  # default to Indigo if level is out of expected range
+
+    card_lvl_int = int(self.card_lvl)
+    color = get_level_color(card_lvl_int)
+
+    draw.text(lvl_sizing, f"{self.card_lvl}", color, font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0), align="center")
     
-    draw.text(lvl_sizing, f"{self.card_lvl}", (255, 255, 255), font=lvl_font, stroke_width=1, stroke_fill=(0, 0, 0),
-              align="center")
-    
+        
     return lvl_sizing
 
 

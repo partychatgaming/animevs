@@ -104,11 +104,12 @@ async def create_scenario_embed(scenario, player):
         normal_drops = scenario['NORMAL_DROPS']
         hard_drops = scenario['HARD_DROPS']
         enemies = scenario['ENEMIES']
+        tactics = scenario['TACTICS']
         number_of_fights = len(enemies)
         completed_scenarios = player.scenario_history
         difficulty = player.difficulty
         scenario_gold = crown_utilities.scenario_gold_drop(enemy_level, number_of_fights, title, completed_scenarios, difficulty)
-        rewards, type_of_battle, enemey_level_message, gold_reward_message, difficulty_message = create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, easy_drops, normal_drops, hard_drops, player)
+        rewards, type_of_battle, enemey_level_message, gold_reward_message, difficulty_message, tactics = create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, easy_drops, normal_drops, hard_drops, player, tactics)
         reward_message = await get_scenario_reward_list(rewards)
         
         if (is_destiny and player.equipped_card in destiny_cards) or not is_destiny:
@@ -123,6 +124,8 @@ async def create_scenario_embed(scenario, player):
             """), 
             color=0x7289da)
             embedVar.add_field(name="__**Potential Rewards**__", value=f"{reward_message}")
+            if tactics:
+                embedVar.add_field(name="__❗ **Battle Tactics**__", value=f"{tactics}", inline=False)
             embedVar.set_image(url=image)
             return embedVar
         else:
@@ -133,7 +136,7 @@ async def create_scenario_embed(scenario, player):
         custom_logging.debug(ex)
 
 
-def create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, easy_drops, normal_drops, hard_drops, player):
+def create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, easy_drops, normal_drops, hard_drops, player, tactics):
     if player.difficulty == "EASY":
         scenario_gold = round(scenario_gold / 5)
         rewards = easy_drops
@@ -150,6 +153,17 @@ def create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, e
             scenario_gold = scenario_gold * 2
         rewards = hard_drops
 
+
+    tactic_message = ""
+
+    if tactics:
+        for tactic in tactics:
+            if tactic in crown_utilities.tactics_explanations:
+                explanation = crown_utilities.tactics_explanations[tactic]
+                tactic_message += f"✅ {tactic} - {explanation}\n"
+            else:
+                tactic_message += f"✅ {tactic}\n"
+        
     type_of_battle = f"📽️ **{universe} Scenario Battle!**"
     enemy_level_message = f"🔱 **Enemy Level:** {enemy_level}"
     gold_reward_message = f"🪙 **Reward** {'{:,}'.format(scenario_gold)}"
@@ -167,7 +181,7 @@ def create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, e
         gold_reward_message = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
         difficulty_message = f"✨**Difficulty:** {player.difficulty.title()}"
 
-    return rewards, type_of_battle, enemy_level_message, gold_reward_message, difficulty_message
+    return rewards, type_of_battle, enemy_level_message, gold_reward_message, difficulty_message, tactic_message
 
 
 async def get_scenario_reward_list(rewards):

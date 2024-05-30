@@ -791,7 +791,7 @@ async def update_experience(card, player, exp, lvl_req):
         exp_gain = exp
         while exp_gain > 0:
             atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync) 
-            if card.card_lvl < 1000:
+            if card.card_lvl < MAX_LEVEL:
                 # Experience Code
                 if exp_gain <= (lvl_req - 1):
                     update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
@@ -2378,6 +2378,22 @@ Damage_Enhancer_Check = ['DESTRUCTION', 'BLAST']
 Turn_Enhancer_Check = ['WAVE', 'CREATION']
 IMAGE_CACHE = {}
 
+# Tactics dictionary with explanations
+tactics_explanations = {
+    "ENRAGE": "When the opponent's health drops below 60% of its base maximum health, it gains a boost to its stats.",
+    "OVERWHELMING POWER": "Upon resolve, the opponent will parry all attacks for 10 - 15 turns.",
+    "DAMAGE CHECK": "The opponent will skip its turn 5 times during the fight. If you fail to deal enough damage during those turns, you will lose the fight. This mechanic occurs when the opponent focuses 5 times.",
+    "DEATH BLOW": "On turns 1, 30, 60, 90, 120, and 150, the opponent will unleash a devastating attack that destroys all of your protections, leaving you vulnerable to its attacks. If you had no protections to begin with, the attack will be fatal and you will lose the game.",
+    "ALMIGHTY WILL": "The opponent has the ability to manipulate the turn order and their focus count by either increasing or decreasing the total number of turns. The exact effect is randomized and depends on the opponent.",
+    "STAGGER": "When the opponent lands a critical hit, the opponent is staggered and loses their turn.",
+    "INTIMIDATION": "The opponent has the ability to temporarily reduce the opponent's attack and defense stats to 0 for 3-10 turns.",
+    "PETRIFIED FEAR": "At the start of the match, the opponent gains the ability to take 2 - 7 turns before you have a chance to act.",
+    "REGENERATION": "At the start of turn 80, the opponent regenerates all of its health if it dies, fully restoring itself.",
+    "BLOODLUST": "After the opponent's health drops below 75% of its base maximum health, it gains the ability to heal for 35% of the damage it deals for the remainder of the match.",
+    "DEVASTATING BLOW": "The opponents strike will destroy all of your protections, leaving you vulnerable to its attacks.",
+}
+
+
 """
 A class to represent the various game modes available.
 """
@@ -2420,36 +2436,58 @@ TUTORIAL = "Tutorial"
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
 
+MAX_LEVEL = 3000
+
+
+
+# Milestones
+
+# Quests awared Gems
+# Milestones award Gold and Gems
+
+
 quest_list = [
     {
     "TYPE": "TRADE",
     "AMOUNT": 0,
     "COMPLETE": 1,
-    "REWARD": 50000,
+    "REWARD": 100000,
     "COMPLETED": False,
     "NAME": "Complete 1 Trade",
     "MODE": "TRADE",
     "RANK": "D",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     },
     {
     "TYPE": "MARKETPLACE",
     "AMOUNT": 0,
     "COMPLETE": 1,
-    "REWARD": 50000,
+    "REWARD": 100000,
     "COMPLETED": False,
     "NAME": "Add 1 Item to Marketplace",
     "MODE": "MARKETPLACE",
     "RANK": "D",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     },
     {
     "TYPE": "TALES",
     "AMOUNT": 0,
     "COMPLETE": 5,
-    "REWARD": 100000,
+    "REWARD": 500000,
     "COMPLETED": False,
     "NAME": "Complete 5 Tales Battles",
     "MODE": "TALES",
     "RANK": "C",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     },
     {
     "TYPE": "SCENARIOS",
@@ -2460,6 +2498,10 @@ quest_list = [
     "NAME": "Complete 2 Scenarios",
     "MODE": "SCENARIOS",
     "RANK": "C",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     },
     {
     "TYPE": "DUNGEONS",
@@ -2470,6 +2512,10 @@ quest_list = [
     "NAME": "Complete 5 Dungeon Battles",
     "MODE": "DUNGEONS",
     "RANK": "B",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     },
     {
     "TYPE": "PVP",
@@ -2480,6 +2526,10 @@ quest_list = [
     "NAME": "Complete 2 PVP Battles",
     "MODE": "PVP",
     "RANK": "B",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     },
     {
     "TYPE": "FULL DUNGEONS",
@@ -2490,6 +2540,10 @@ quest_list = [
     "NAME": "Complete a Full Dungeon",
     "MODE": "FULL DUNGEONS",
     "RANK": "A",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     },
     {
     "TYPE": "FULL TALES",
@@ -2500,6 +2554,10 @@ quest_list = [
     "NAME": "Copmlete a Full Tale",
     "MODE": "FULL TALES",
     "RANK": "A",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     },
     {
     "TYPE": "RAIDS",
@@ -2510,6 +2568,10 @@ quest_list = [
     "NAME": "Complete a Raid",
     "MODE": "RAIDS",
     "RANK": "S",
+    "QUEST_FLAG": True,
+    "MILESTONE_FLAG": False,
+    "UNIVERSE": "N/A",
+    "MILESTONES": []
     }
 ]
 

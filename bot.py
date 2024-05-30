@@ -20,6 +20,7 @@ import asyncio
 import requests
 import json
 import uuid
+from cogs.quests import Quests
 from interactions.ext.paginators import Paginator
 from interactions import Task, IntervalTrigger, Client, ActionRow, Button, ButtonStyle, Intents, const, Status, Activity, listen, slash_command, global_autocomplete, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, AutocompleteContext, slash_option
 import crown_utilities
@@ -443,10 +444,10 @@ async def animevs(ctx):
       
       🎇 **Card Level**
       As you battle your card will level up, increasing Stats and Ability Power 
-      Cards Start at **Level 0** and Max out at **Level 999**
+      Cards Start at **Level 0** and Max out at **Level 3500**
 
       ✨ **Destinies**
-      Card Specific Quest that earn **Destiny Cards**
+      Card Specific Quests in scenarios that earn **Destiny Cards**
       
       🃏 **Skins**
       Card Skins have different stats and abilities but can complete the main card **Destinies** !
@@ -497,7 +498,7 @@ async def animevs(ctx):
       🎗️ **Title Exlusivity**
       **Titles** apply enhancers at the **start** of your turn or during **Focus State**
       ⚠️ Titles are only effective on cards from the same Universe or Unbound!
-      Buy **Titles** and **Arms** with 🪙 or Earn them via **Drops**
+      Titles can only be earned via playing through the various game modes
       
       🦾 **Arm Durability**
       Arms are effective across the Multiverse, however they do break! Turning into **Gems**
@@ -571,69 +572,22 @@ async def animevs(ctx):
       **Hard** *Not for the faint of Heart*
       - Normal Mode but with increasing scaling, drops and rewards
       - Clout
-      
-      🌑**Abyss** *Seasonal Ranking System*
-      - Climb the Abyss each season for new Rewards!
-      - 100 Floors with customized battles
-      - Earn unqiue Abyssal build every 10 floors
-      - Earn Title of God on completion of Floor 100
-      
-      🎊**Abyss Floor Unlocks**
-      **3** - *PvP and Guilds*
-      **10** - *Trading*
-      **15** - *Associations and Raids*
-      **20** - *Gifting*
-      **25** - *Explore Mode*
-      **40** - *Dungeons*
-      **60** - *Bosses*
-      **100** - *Boss Soul Exchange*
-      **Earn 🪙100,000 * Floor**
+
       """),color=0x7289da)
       
       embedVar16.set_thumbnail(url=avatar)
 
-      embedVar7 = Embed(title=f"Single Player", description=textwrap.dedent(f"""\
-      **Single Player**
-      
-      👤 **Solo**/solo
+      embedVar7 = Embed(title=f"Game Modes", description=textwrap.dedent(f"""\
+      /play
       **Tales:** Single player adventures where you traverse through your favorite universes as characters from various worlds!
       **Dungeon:** Hard version of tales with better loot and better drop rates! (Unlocks after completing **Anime VS+ Tale**)
-      **Boss:** End Game battles featuring Iconic Villians from Anime VS+ Universes. (Unlocks after completing **Anime VS+ Dungeon**)
+      **Scenario:** Play through various scenarios from the source material to earn cards of all kind
+      **Explore:** Play in random encounters to earn coins and cards
       
-      👥 **Duo**/duo *Beta*
-      **Tales Deck(1-5):** Battle with your favorite AI preset in this Duo Tale!
-      **Dungeon Deck(1-5):** Bring your strongest builds through the Darkest Duo Dungeons.
-   
-      🔮 **Anime VS+ Rifts**
-      Mash-Up Universes featuring heroes and villians connected through common traits and themes!
-      *Pay attention, Rifts will not stay open if you continue through your Tale!*
       """),color=0x7289da)
       
       embedVar7.set_thumbnail(url=avatar)
 
-      embedVar8 = Embed(title=f"Multiplayer", description=textwrap.dedent(f"""\
-      **Multiplayer**
-      
-      :people_hugging: **Co-Op**/coop *Beta*
-      **Tales @partner:** Take a companion with your through your favorite tales with higher stakes!
-      **Dungeon @partner:** Bring a companion through the darkest dungeons to earn awesome loot together.
-      **Boss @partner:** Epic battles between two high level companions and one Incredible Boss.
-      
-      **Coop Mechanics**
-      Coop Adds two new mechanics to gameplayer
-      **Defending** - Your **Block** becomes **Defend** You will gain the **Block** bonus and take damage for your **Companion**
-      **Assist** - Assist applies your enhancer to buff your **Companion**. *Damage dealing enhancers apply to enemy*
-
-      🤼 **PVP**
-      **/pvp @player:** Select your Build and Challenge any Anime VS+ Player to a quick match!
-      
-      🔮 **Anime VS+ Rifts**
-      Anime VS+ Rifts are Co-Op Compatable and Helping other players in Co-Op **WILL NOT** close your open Rift!
-      Grind Those Rifts Together!
-      
-      """),color=0x7289da)
-      
-      embedVar8.set_thumbnail(url=avatar)
 
       embedVar9 = Embed(title=f"Presets",description=textwrap.dedent(f"""\
       Save your favorite builds in your **Preset**
@@ -647,40 +601,28 @@ async def animevs(ctx):
       embedVar9.set_thumbnail(url=avatar)
 
       embedVar10 = Embed(title=f"Economy",description=textwrap.dedent(f"""\
-      **Shop**
-      Use **/menu** to access the **Shop**!
-      The shop sells Cards, Titles and Arms.
-
+      **Marketplace**
+      Use **/marketplace** to access the **Market!**!
+      Use the marketplace to buy and sell Cards, Arms and Summons!
+                                                                      
       **Trading**
-      **/trade** will allow you to trade Cards, Titles, Arms and Summons with other players.
+      **/trade** will allow you to trade Cards, Arms and Summons with other players.
       Add items to the open trade using the buttons on the item menu *ex. /cards*
       **/tradecoins** allows you to add or remove coins from the trade
-      
-      **Resell**
-      Sell Cards, Titles, and Arms back to the market for 🪙**Coins**.
-      
-      **Crafting**b
-      **/menu** to **Start Crafting!** Craft **Card Skins**, **Summons**, and **Destinies**!
 
       **Dismantle**
       Dismantle Cards, Titles and Arms into :gem:**Gems**. and 🪔**Essense**
       
-      **Universe Trinkets**
-      Craftable Boost that increase the limits of your cards levels!
-      💟 **Universe Heart** - will allow you to level cards past 200!
-      🌹 **Universe Soul** - Grants 2x XP for all cards in Universe!
       
       **Blacksmith**
       **/menu** to purchase Card Levels, Arm Durability and **Storage**!
-      
-      **Storage**
-      **/storage** to access Card, Title and Arm Storage, purchase additional storage in the Blacksmith
+
       
       👛 **Gabe's Purse** - will allow you to keep all items after a **Rebirth**
       
       **Currency**
       🪙 - Coins can be used to purchase Cards, Titles and Arms. You can use them to trade and sell items to other players!
-      :gem: - When Arms break they turn into **Gems**, You can also dismantle items from your inventory into **Gems**! 
+      💎 - When Arms break they turn into **Gems**, You can also dismantle items from your inventory into **Gems**! 
       **Gems** are universe specific items that can be crafted into Skins, Trinkets or **Destinies**
       
       """) ,color=0x7289da)
@@ -720,101 +662,101 @@ async def animevs(ctx):
       
       embedVar15.set_thumbnail(url=avatar)
 
-      embedVar12 = Embed(title=f"Families",description=textwrap.dedent(f"""\
-      **Families Explained**
-      - When you create an AnimeVs+ account you start a family
-      - Use **/family** to lookup any Anime VS+ Family!
+      # embedVar12 = Embed(title=f"Families",description=textwrap.dedent(f"""\
+      # **Families Explained**
+      # - When you create an AnimeVs+ account you start a family
+      # - Use **/family** to lookup any Anime VS+ Family!
       
-      **Marriage**
-      - Two players with a strong bond can come together and form a **Family**
-      - Use **/marry** to start a marriage proposal to your chosen **Partner**
-      - If they accept, they will join your dfamily
-      - **2 Kids** can be adopted into the family to create a 4 player Maximum.
+      # **Marriage**
+      # - Two players with a strong bond can come together and form a **Family**
+      # - Use **/marry** to start a marriage proposal to your chosen **Partner**
+      # - If they accept, they will join your dfamily
+      # - **2 Kids** can be adopted into the family to create a 4 player Maximum.
       
-      **Family Bonuses**
-      - Family Members gain an extra **100 Health** when playing Co-Op Together !
-      - Family Members earn extra 🪙 towards the **Family Bank**.
-      - Families can **/invest** their income together.
-      - Heads of Household and Partners can pay **/allowance** to Family members. 
+      # **Family Bonuses**
+      # - Family Members gain an extra **100 Health** when playing Co-Op Together !
+      # - Family Members earn extra 🪙 towards the **Family Bank**.
+      # - Families can **/invest** their income together.
+      # - Heads of Household and Partners can pay **/allowance** to Family members. 
       
-      **Housing**
-      - The **Family Bank** can be used to buy **Houses**
-      - **Houses** increase your 🪙 earned via **Mutlipliers**
-      - **/invest** your income to buy bigger **Houses** and earn more 🪙 across the game.
-      - Use the *Real Estate Menu** to buy and sell Estates
+      # **Housing**
+      # - The **Family Bank** can be used to buy **Houses**
+      # - **Houses** increase your 🪙 earned via **Mutlipliers**
+      # - **/invest** your income to buy bigger **Houses** and earn more 🪙 across the game.
+      # - Use the *Real Estate Menu** to buy and sell Estates
       
-      **Family Summon**
-      - Family members can equip the Family Summon to aid them in battle!
+      # **Family Summon**
+      # - Family members can equip the Family Summon to aid them in battle!
       
-      Family Position Explanations
-      - Head of Household: All operations.
-      - Partner: Can equip/update family summon, change equipped house.
-      - Kids: Can equip family summon.
-      """) ,color=0x7289da)
+      # Family Position Explanations
+      # - Head of Household: All operations.
+      # - Partner: Can equip/update family summon, change equipped house.
+      # - Kids: Can equip family summon.
+      # """) ,color=0x7289da)
       
-      embedVar12.set_thumbnail(url=avatar)
+      # embedVar12.set_thumbnail(url=avatar)
 
-      embedVar13 = Embed(title=f"Associations",description=textwrap.dedent(f"""\
-      **Association Explained**
-      - Associations in Anime VS+ are formed by an Oath between two Guild Owners
-      - The Oathgiver becomes the **Founder** and the Oathreciever becomes the ****Sworn and Shield****.
-      - The **Shield** defends the Association from raiding players.
-      - Both teams become enlisted as **Swords** of the new **Association**
-      - Their respective members become **Blades**
-      - The Founder & Sworn may /ally with other Teams increasing the size and power of the Association.
-      - These are the **Owners** and can **/sponsor** other teams allied with the Association.
-      - **Associations** earn money by winning **PvP** matches, Income from **Universe Crest** and defending against **Raids**
+      # embedVar13 = Embed(title=f"Associations",description=textwrap.dedent(f"""\
+      # **Association Explained**
+      # - Associations in Anime VS+ are formed by an Oath between two Guild Owners
+      # - The Oathgiver becomes the **Founder** and the Oathreciever becomes the ****Sworn and Shield****.
+      # - The **Shield** defends the Association from raiding players.
+      # - Both teams become enlisted as **Swords** of the new **Association**
+      # - Their respective members become **Blades**
+      # - The Founder & Sworn may /ally with other Teams increasing the size and power of the Association.
+      # - These are the **Owners** and can **/sponsor** other teams allied with the Association.
+      # - **Associations** earn money by winning **PvP** matches, Income from **Universe Crest** and defending against **Raids**
       
-      **Universe Crest** 
-      - When a member of a Association defeats a **Dungeon** or **Boss** they earn the **Universe Crest** from that Universe.
-      - This Crest will earn the Association **Passive Income** whenever someone goes into that universe in all servers!
+      # **Universe Crest** 
+      # - When a member of a Association defeats a **Dungeon** or **Boss** they earn the **Universe Crest** from that Universe.
+      # - This Crest will earn the Association **Passive Income** whenever someone goes into that universe in all servers!
       
-      **Association Bonuses**
-      - Associations earn extra income towards the **Association Bank**
-      - Associations increase the earned income in **PvP**
-      - Associations can Raid
-      - Associations can earn passive income owning **Universe Crest**
-      - Associations can purchase **Halls**
+      # **Association Bonuses**
+      # - Associations earn extra income towards the **Association Bank**
+      # - Associations increase the earned income in **PvP**
+      # - Associations can Raid
+      # - Associations can earn passive income owning **Universe Crest**
+      # - Associations can purchase **Halls**
       
-      **Halls**
-      - The **Association Bank** can be used to purchase **Halls**
-      - Increase the Income earned to Associations via **Multipliers**
-      - Increase the income earned to **Blades** via **Splits**
-      - Increase the defense of the **Shield**
-      - Increase the **Bounty** cost to raid the **Association**
-      """) ,color=0x7289da)
+      # **Halls**
+      # - The **Association Bank** can be used to purchase **Halls**
+      # - Increase the Income earned to Associations via **Multipliers**
+      # - Increase the income earned to **Blades** via **Splits**
+      # - Increase the defense of the **Shield**
+      # - Increase the **Bounty** cost to raid the **Association**
+      # """) ,color=0x7289da)
       
-      embedVar13.set_thumbnail(url=avatar)
+      # embedVar13.set_thumbnail(url=avatar)
       
-      embedVar14 = Embed(title=f"Raids",description=textwrap.dedent(f"""\
-      **Raids Explained**
-      - Players aligned with a Association can use /raid to claim bounties from other guilds
-      - Victory claims the bounty and resets the Associations victory multiplier !
-      - Income from Raids is limited to the bounty offered from the Association.
-      - To take money from a **Association Bank** players must compete in PvP
+      # embedVar14 = Embed(title=f"Raids",description=textwrap.dedent(f"""\
+      # **Raids Explained**
+      # - Players aligned with a Association can use /raid to claim bounties from other guilds
+      # - Victory claims the bounty and resets the Associations victory multiplier !
+      # - Income from Raids is limited to the bounty offered from the Association.
+      # - To take money from a **Association Bank** players must compete in PvP
       
-      Raiding an Association is no easy feat and must be done **Without Summons**
+      # Raiding an Association is no easy feat and must be done **Without Summons**
       
-      **Raid Benefits**
-      - Earn Large Bounties from guilds.
-      - Earn Wins for your Anime VS+ **Guild**
+      # **Raid Benefits**
+      # - Earn Large Bounties from guilds.
+      # - Earn Wins for your Anime VS+ **Guild**
       
-      **Shield  Defense Explained**
-      - The **Shield** has a big repsonsible to defend the **Association** from raids, earning income from **Challengers**.
-      - The **Shield** exist within the Association hall as the **Current Equipped Build** of the **Shield Player**.
-      - As the **Shield**, whenever your Avatar succesfully defends a raid you earn 🪙
-      - With each victory you will build a streak earning both respect and more 🪙 via **Multipliers**.
+      # **Shield  Defense Explained**
+      # - The **Shield** has a big repsonsible to defend the **Association** from raids, earning income from **Challengers**.
+      # - The **Shield** exist within the Association hall as the **Current Equipped Build** of the **Shield Player**.
+      # - As the **Shield**, whenever your Avatar succesfully defends a raid you earn 🪙
+      # - With each victory you will build a streak earning both respect and more 🪙 via **Multipliers**.
       
-      **Shield Benefits**
-      - Earn income by defending your Association from raiders
-      - Guild has a 30% reduction in buff cost
-      - Earn respect by increasing the Association victory streak 
+      # **Shield Benefits**
+      # - Earn income by defending your Association from raiders
+      # - Guild has a 30% reduction in buff cost
+      # - Earn respect by increasing the Association victory streak 
       
-      """) ,color=0x7289da)
+      # """) ,color=0x7289da)
       
-      embedVar14.set_thumbnail(url=avatar)
+      # embedVar14.set_thumbnail(url=avatar)
 
-      embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar8,embedVar9, embedVar10,embedVar15,embedVar12,embedVar13, embedVar0, embedVar14]
+      embeds = [embedVar1, embedVar2, embedVar3, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar9, embedVar10,embedVar15, embedVar0]
       paginator = Paginator.create_from_embeds(bot, *embeds)
       paginator.show_select_menu = True
       await paginator.send(ctx)
@@ -903,6 +845,7 @@ async def voted(ctx):
 # Update Later
 @slash_command(description="Register for Anime VS+", scopes=guild_ids)
 async def register(ctx):
+   await ctx.defer()
    server_created = db.queryServer({"GNAME": str(ctx.author.guild)})
    if db.queryUser({"DID": str(ctx.author.id)}):
       await ctx.send(f"{ctx.author.mention} You already have a Anime VS+ Account!")
@@ -922,8 +865,6 @@ async def register(ctx):
          "BONDEXP": 0,
          "PATH": "https://res.cloudinary.com/dkcmq8o15/image/upload/v1638814575/Pets/CHICK.png"
       }
-      family = db.createFamily(data.newFamily({'HEAD': did, 'SUMMON': summon_info}), did)
-      update_summon = db.updateFamily({'HEAD': did}, {'$set' : {'SUMMON': summon_info}})
       user = {
          'DISNAME': disname, 
          'NAME': name, 
@@ -939,7 +880,6 @@ async def register(ctx):
       if not server_created:
          create_server_query = {'GNAME': str(ctx.author.guild.name)}
          created_server = db.createServer(data.newServer(create_server_query))
-         await asyncio.sleep(1)
          server_query = {'GNAME': str(ctx.author.guild)}
          update_server_query = {
             '$inc': {'SERVER_BALANCE': 10000},
@@ -949,50 +889,101 @@ async def register(ctx):
 
 
    if r_response:
-      await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
-      await asyncio.sleep(2)
-      await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
-      await asyncio.sleep(2)
+      # await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
+      # await asyncio.sleep(2)
+      # await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
+      # await asyncio.sleep(2)
 
       # Write code that gives freely all titles in a universe that has 
       # unlock method as Tales and unlock value as 0
       try:
          _uuid = str(uuid.uuid4())
-         universe_data = db.queryAllUniverse()
-         universe_embed_list = []
-         for uni in universe_data:
-            available = ""
-            if uni['HAS_CROWN_TALES'] == True:
-               traits = ut.traits
-               mytrait = {}
-               traitmessage = ''
-               o_show = uni['TITLE']
-               universe = o_show
-               for trait in traits:
-                  if trait['NAME'] == o_show:
-                        mytrait = trait
-                  if o_show == 'Pokemon':
-                        if trait['NAME'] == 'Pokemon':
-                           mytrait = trait
-               if mytrait:
-                  traitmessage =f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
-               available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
-               
-               embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
-               **{available} Select A Starting Universe, {ctx.author.mention}!**
+         # Create Embed briefly introducing the game
+         # Create buttons to proceed to the next step or to cancel registration
+         # if the user cancels registration, delete the user from the database and end this process
+         # if the user proceeds, show the user the list of starting universes
+         accept_buttons = [
+               Button(
+                  style=ButtonStyle.GREEN,
+                  label="Continue",
+                  custom_id=f"{_uuid}|yes"
+               ),
+               Button(
+                  style=ButtonStyle.RED,
+                  label="End Registration Here",
+                  custom_id=f"{_uuid}|no"
+               )
+         ]
 
-               Selecting a Starter Universe will give you *3* 🎴 Cards and 🦾 Arms to begin!
-               
-               ♾️ - Unique Universe Trait
-               {traitmessage}
-               """))
-               embedVar.set_image(url=uni['PATH'])
-               embedVar.set_footer(text="You can earn or purchase items after Abyss floor 0")
-               universe_embed_list.append(embedVar)
-               
-         paginator = CustomPaginator.create_from_embeds(bot, *universe_embed_list, custom_buttons=["Register"], paginator_type="Register")
-         paginator.show_select_menu = True
-         await paginator.send(ctx)
+         embed = Embed(title="Anime VS+ Registration", description="Welcome to Anime VS+! Embark on an epic journey through the multiverse of anime and video games. Collect your favorite characters, unlock unique gear and companions, and dominate countless universes. Dive into solo adventures, customize your experience, and earn awesome rewards. Are you ready to register and choose your starter universe? Let's see how powerful you can become!", color=0x7289da)
+
+         embed.add_field(name="__What happens if you continue?__", value="Click Continue to start your registration. You'll choose your starting universe, granting you access to 3 unique Cards, a Title, and an Arm to kickstart your adventure.", inline=False)
+
+         embed.add_field(name="__What happens if you cancel?__", value="You'll be removed from the registration process. You can always come back and register later.", inline=False)
+
+         embed.set_footer(text="Anime VS+ | Registration")
+
+         action_row = ActionRow(*accept_buttons)
+
+         message = await ctx.send(embed=embed, components=[action_row])
+
+         def check(component: Button):
+            return str(component.ctx.author.id) == str(ctx.author.id)
+
+         try:
+            button_ctx = await bot.wait_for_component(components=[action_row], check=check, timeout=120)
+            # await button_ctx.ctx.defer()
+
+            if button_ctx.ctx.custom_id == f"{_uuid}|no":
+               embed = Embed(title="Anime VS+ Registration", description="Your registration has been cancelled. You can always come back and register later.", color=0x7289da)
+               await message.edit(components=[], embed=embed)
+               return
+
+            if button_ctx.ctx.custom_id == f"{_uuid}|yes":
+               await message.edit(components=[], embed=embed)
+               universe_data = db.queryAllUniverse()
+               universe_embed_list = []
+               for uni in universe_data:
+                  available = ""
+                  if uni['HAS_CROWN_TALES'] == True:
+                     traits = ut.traits
+                     mytrait = {}
+                     traitmessage = ''
+                     o_show = uni['TITLE']
+                     universe = o_show
+                     for trait in traits:
+                        if trait['NAME'] == o_show:
+                              mytrait = trait
+                        if o_show == 'Pokemon':
+                              if trait['NAME'] == 'Pokemon':
+                                 mytrait = trait
+                     if mytrait:
+                        traitmessage =f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
+                     available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
+                     
+                     embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
+                     **{available} Select A Starting Universe, {ctx.author.mention}!**
+
+                     Selecting a Starter Universe will give you *3* additional 🎴 Cards and 🦾 Arms to begin! 
+
+                     Don't overthink it! You can always earn more cards, arms, titles and more later!
+                     
+                     ♾️ - Unique Universe Trait
+                     {traitmessage}
+                     """))
+                     embedVar.set_image(url=uni['PATH'])
+                     embedVar.set_footer(text="You can earn or purchase items after Abyss floor 0")
+                     universe_embed_list.append(embedVar)
+                     
+               paginator = CustomPaginator.create_from_embeds(bot, *universe_embed_list, custom_buttons=["Register"], paginator_type="Register")
+               paginator.show_select_menu = True
+               await paginator.send(ctx)
+         
+         except asyncio.TimeoutError:
+            await message.edit(components=[], embed=embed, content="You took too long to respond.")
+            await ctx.send(f"{ctx.author.mention} your Registration was cancelled. You must interact before the timeout!")
+            db.deleteUser({"DID": str(ctx.author.id)})
+            return
 
       except Exception as ex:
          custom_logging.debug(ex)
@@ -1739,9 +1730,12 @@ async def rebirth(ctx):
 @cooldown(Buckets.USER, 1, 86400)
 async def daily(ctx):
    try:
+      await ctx.defer()
       query = {'DID': str(ctx.author.id)}
       user_data = db.queryUser(query)
       player = crown_utilities.create_player_from_data(user_data)
+
+      milestone_message = await Quests.milestone_check(player, "DAILY", 1)
 
       aicon = crown_utilities.prestige_icon(player.prestige)
       dailyamount = 1000000
@@ -1762,17 +1756,36 @@ async def daily(ctx):
       bonus_message =f"❤️‍🔥 | *+🪙{'{:,}'.format(difference)}*" if difference > 0 else ""
       # prestige_message =f"**{aicon} Prestige {player.prestige} |** Quest Requirements Reduced!" if player.prestige > 0 else ""
 
-      db.updateUserNoFilter(query, {'$set': {'QUESTS': crown_utilities.quest_list}})
-      db.updateUserNoFilter(query, {'$set': {'BOSS_FOUGHT': False}})
-      db.updateUserNoFilter(query, {'$set': {'VOTED': False}})
-      retry_message =f"🆚 | Rematches : {player.retries}"
-      if player.retries >= 25:  
-         db.updateUserNoFilter(query, {'$set': {'RETRIES': 25}})
-         retry_message =f"🆚 | Rematches : {player.retries}"
+      player.quests = db.queryUser({"DID": str(player.did)})["QUESTS"]
+      current_quests = player.quests
+
+      # Update quests with QUEST_FLAG as true
+      for quest in crown_utilities.quest_list:
+         if quest['QUEST_FLAG']:
+            matching_quest = next((q for q in current_quests if q['TYPE'] == quest['TYPE']), None)
+            if matching_quest:
+                  matching_quest['AMOUNT'] = 0
+                  matching_quest['COMPLETED'] = False
+            else:
+                  current_quests.append(quest)
+
+      # Prepare the update data
+      update_data = {
+         'QUESTS': current_quests,
+         'BOSS_FOUGHT': False,
+         'VOTED': False
+      }
+
+      # Update the user's quests in the database
+      await asyncio.to_thread(db.updateUserNoFilter, query, {'$set': update_data})
+
+      # Determine the retry message and update RETRIES accordingly
+      retry_message = f"🆚 | Rematches : {player.retries}"
+      if player.retries >= 25:
+         await asyncio.to_thread(db.updateUserNoFilter, query, {'$set': {'RETRIES': 25}})
       else:
-         db.updateUserNoFilter(query, {'$inc': {'RETRIES': 2}})
-         retry_message =f"🆚 | Rematches : {player.retries} **+ 2**"
-      
+         await asyncio.to_thread(db.updateUserNoFilter, query, {'$inc': {'RETRIES': 2}})
+         retry_message = f"🆚 | Rematches : {player.retries} **+ 2**"
 
       quest_messages = []
       for quest in crown_utilities.quest_list:
@@ -1784,6 +1797,11 @@ async def daily(ctx):
       🪙 | +{'{:,}'.format(daily_bonus)}
       {boss_key_message}
       """), color=0xf1c40f)
+
+      if milestone_message:
+         # milestone message is a list of strings
+         embedVar.add_field(name="🏆 **Milestone**", value="\n".join(milestone_message), inline=False
+                            )
       embedVar.add_field(name="📜 **New Quests** */quest*", value="\n".join(quest_messages), inline=False)
       embedVar.add_field(name="Vote for Anime VS+!", value="🗳️ | **/vote** to earn daily rewards!", inline=False)
       embedVar.set_footer(text=f"☀️ | You can vote twice a Day with /daily!")
@@ -1809,7 +1827,7 @@ def check_quest_wins(win_value, prestige_level):
 @slash_command(name="gift", description="Give money to friend", options=[
    SlashCommandOption(name="player", description="Player to gift", type=OptionType.USER, required=True),
 ], scopes=guild_ids)
-@cooldown(Buckets.USER, 1, 60)
+@cooldown(Buckets.USER, 1, 5)
 async def gift(ctx, player, amount: int):
    user2 = player
    vault = db.queryVault({'DID': str(ctx.author.id)})
@@ -1831,94 +1849,294 @@ async def gift(ctx, player, amount: int):
       return
 
 
-# Should you only be able to donate to your own guild?
-@slash_command(name="donate", description="Donate money to Guild, Convert 10% as Gems", scopes=guild_ids)
-@cooldown(Buckets.USER, 1, 60)
-async def donate(ctx, amount, guild = None):
-   try:
-      dteam = ""
-      if guild:
-         dteam = guild.lower()
-      else:
-         user_query = {"DID": str(ctx.author.id)}
-         user = db.queryUser(user_query)
-         dteam = user['TEAM'].lower()
+@slash_command(name="roll", description="For 🪙 1,000,000 coins roll for a chance at random cards, arms, summons, and gems", scopes=guild_ids)
+@cooldown(Buckets.USER, 1, 10)
+async def roll(ctx):
+   await ctx.defer()
+   a_registered_player = await crown_utilities.player_check(ctx)
+   if not a_registered_player:
+      return
 
-      vault = db.queryVault({'DID': str(ctx.author.id)})
-      balance = vault['BALANCE']
-      gem_list = vault['GEMS']
-      query = {'TEAM_NAME': str(dteam)}
-      team_data = db.queryTeam(query)
-      team_display_name = team_data['TEAM_DISPLAY_NAME']
-      gem_bless = 0
-      guild_amount = round(int(amount) * .90)
-      if team_data:
-         if balance <= int(amount):
-            await ctx.send("You do not have that amount to donate.")
+   user = crown_utilities.create_player_from_data(a_registered_player)
+   await asyncio.sleep(2)
+   if user.balance < 1000000:
+      embed = Embed(title="Gacha", description="You do not have enough 🪙 to roll the Gacha. It costs 🪙 1,000,000 coin to run the Gacha.")
+      await ctx.send(embeds=[embed])
+      return
+   
+   await crown_utilities.curse(1000000, user.did)
+
+   
+   cards = await asyncio.to_thread(db.getCardsFromAvailableUniverses)
+   arms = await asyncio.to_thread(db.getArmsFromAvailableUniverses)
+   summons = await asyncio.to_thread(db.getSummonsFromAvailableUniverses)
+   quest_message = await Quests.milestone_check(user, "ROLL", 1) 
+
+   all_cards = list(cards)
+   all_arms = list(arms)
+   all_summons = list(summons)
+
+
+   # Only cards, arms, and summons that do not have DROP_STYLE of BOSS
+   # There needs to be a list of 5 items that are either cards, arms, summons, or gems, there can be duplicates as well
+   # 95% chance of getting gems
+   # 5% chance of getting a card that has DROP_STYLE of TALES or arm of DROP_STYLE of TALES
+   # 4.9% chance of getting a card that has DROP_STYLE of DUNGEON, or arms that have DROP_STYLE of DUNGEON
+   # 0.04% chance of getting a summon that have DROP_STYLE of TALES
+   # 0.04% chance of getting a summon that have DROP_STYLE of DUNGEON
+   # 0.02% chance of getting a card or arm that has DROP_STYLE of SCENARIO or DESTINY
+   items = []
+
+   for _ in range(5):
+      roll = random.random()
+      if roll <= 0.005:  # 0.5% chance
+         scenario_or_destiny = [item for item in all_cards + all_arms if item['DROP_STYLE'] in ['SCENARIO', 'DESTINY']]
+         if scenario_or_destiny:  # Ensure the list is not empty
+            scenario_or_destiny_selection = random.choice(scenario_or_destiny)
+            if scenario_or_destiny_selection in all_cards:
+               card = crown_utilities.create_card_from_data(scenario_or_destiny_selection)
+               user.save_card(card)
+            else:
+               arm = crown_utilities.create_arm_from_data(scenario_or_destiny_selection)
+               user.save_arm(arm)
+            items.append(scenario_or_destiny_selection)
+      elif roll <= 0.015:  # 1.0% chance (cumulative)
+         dungeon_summons = [item for item in all_summons if item['DROP_STYLE'] == 'DUNGEON']
+         if dungeon_summons:
+            dungeon_summon_selection = random.choice(dungeon_summons)
+            summon = crown_utilities.create_summon_from_data(dungeon_summon_selection)
+            user.save_summon(summon)
+            items.append(dungeon_summon_selection)
+      elif roll <= 0.03:  # 1.5% chance (cumulative)
+         tales_summons = [item for item in all_summons if item['DROP_STYLE'] == 'TALES']
+         if tales_summons:
+            tales_summon_selection = random.choice(tales_summons)
+            summon = crown_utilities.create_summon_from_data(tales_summon_selection)
+            user.save_summon(summon)
+            items.append(tales_summon_selection)
+      elif roll <= 0.05:  # 2.0% chance (cumulative)
+         dungeon_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'DUNGEON']
+         if dungeon_items:
+            dungeon_item_selection = random.choice(dungeon_items)
+            if dungeon_item_selection in all_cards:
+               dungeon_item = crown_utilities.create_card_from_data(dungeon_item_selection)
+            else:
+               dungeon_item = crown_utilities.create_arm_from_data(dungeon_item_selection)
+
+            if dungeon_item_selection in all_cards:
+               user.save_card(dungeon_item)
+            else:
+               user.save_arm(dungeon_item)
+            items.append(dungeon_item_selection)
+      elif roll <= 0.10:  # 5.0% chance (cumulative)
+         tales_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'TALES']
+         if tales_items:
+            tales_item_selection = random.choice(tales_items)
+            tales_item = crown_utilities.create_card_from_data(tales_item_selection) if tales_item_selection in all_cards else crown_utilities.create_arm_from_data(tales_item_selection)
+            if tales_item_selection in all_cards:
+               user.save_card(tales_item)
+            else:
+               user.save_arm(tales_item)
+            items.append(tales_item_selection)
+      else:  # 90% chance
+         gem_amount = random.randint(25000, 50000)
+         universe_list = db.queryAllUniverses()
+         lister = list(universe_list)
+         uni = random.choice(lister)
+         user.save_gems(uni["TITLE"], gem_amount)
+         items.append({"type": "gems", "amount": gem_amount, "universe": uni['TITLE']})
+
+
+   # Create an embed for each item
+   # If the item is a card make the embed have 🎴 to symbolize You have earned the card!
+   # If the item is an arm make the embed have 🦾 to symbolize You have earned the arm!
+   # If the item is a summon make the embed have 🧬 to symbolize You have earned the summon!
+   # If the item is gems make the embed have 💎 to symbolize You have earned gems!
+   embeds = []
+
+   super_rare_gif = "https://i.pinimg.com/originals/85/03/1d/85031d29916b8746829d7e721381cf6b.gif"
+
+   rare_gif = "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/alejandroaldana/23tRzVvUNcn54i4rmoPMmabLUHBJL19eqoNwRsnJrhuJ3TyHMww66C8c4fruCJUNNpfcQ.gif"
+
+   normal_rare_gif = "https://pa1.narvii.com/6237/8d2ff4e7f9dce12a5772c597ae857f29e1804c92_hq.gif"
+
+   
+
+   for item in items:
+      if isinstance(item, dict) and item.get('type') == 'gems':
+         embed = Embed(
+            title="You have earned gems!",
+            description=f"You earned 💎 {item['amount']:,} gems in {crown_utilities.crest_dict[item['universe']]} {item['universe']}\nYou may have missed out on a card, arm, or summon, but these gems will come in handy!"
+         )
+         embed.set_image(url=normal_rare_gif)
+
+      elif item in all_cards:
+         if item['DROP_STYLE'] == 'DUNGEON':
+            embed = Embed(title="You have earned a card!", description=f"🎴 {item['NAME']} - You have earned a rare card!")
+            embed.set_image(url=rare_gif)
+
+         elif item['DROP_STYLE'] == 'SCENARIO':
+            embed = Embed(title="You have earned a card!", description=f"🎴 {item['NAME']} - You have earned a super rare card!")
+            embed.set_image(url=super_rare_gif)
+         elif item['DROP_STYLE'] == 'DESTINY':
+            embed = Embed(title="You have earned a card!", description=f"🎴 {item['NAME']} - You have earned the rarest card!")
+            embed.set_image(url=super_rare_gif)
+
          else:
-            await crown_utilities.blessteam(round(int(amount) * .90), dteam)
-            await crown_utilities.curse(int(amount), ctx.author.id)
+            embed = Embed(title="You have earned a card!", description=f"🎴 {item['NAME']} - You have earned a card!")
+            embed.set_image(url=rare_gif)
+      elif item in all_arms:
+         if item['DROP_STYLE'] == 'DUNGEON':
+            embed = Embed(title="You have earned an arm!", description=f"🦾 {item['ARM']} - You have earned a rare arm!")
+            embed.set_image(url=rare_gif)
+
+         elif item['DROP_STYLE'] == 'SCENARIO':
+            embed = Embed(title="You have earned an arm!", description=f"🦾 {item['ARM']} - You have earned a super rare arm!")
+            embed.set_image(url=super_rare_gif)
+
+         elif item['DROP_STYLE'] == 'DESTINY':
+            embed = Embed(title="You have earned an arm!", description=f"🦾 {item['ARM']} - You have earned the rarest arm!")
+            embed.set_image(url=super_rare_gif)
+
+         else:
+            embed = Embed(title="You have earned an arm!", description=f"🦾 {item['ARM']} - You have earned an arm")
+            embed.set_image(url=rare_gif)
+      elif item in all_summons:
+         if item['DROP_STYLE'] == 'DUNGEON':
+            embed = Embed(title="You have earned a summon!", description=f"🧬 {item['PET']} - You have earned a rare summon!")
+            embed.set_image(url=rare_gif)
+
+         elif item['DROP_STYLE'] == 'SCENARIO':
+            embed = Embed(title="You have earned a summon!", description=f"🧬 {item['PET']} - You have earned a super rare summon!")
+            embed.set_image(url=super_rare_gif)
+
+         elif item['DROP_STYLE'] == 'DESTINY':
+            embed = Embed(title="You have earned a summon!", description=f"🧬 {item['PET']} - You have earned the rarest summon!")
+            embed.set_image(url=super_rare_gif)
+
+         else:
+            embed = Embed(title="You have earned a summon!", description=f"🧬 {item['PET']} - You have earned a summon")
+            embed.set_image(url=rare_gif)
+
+      else:
+         embed = Embed(title="You have earned an item!", description=f"{item['name']}")
+         embed.set_image(url=rare_gif)
+
+      if quest_message:
+         embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
+      embed.set_thumbnail(url=user.avatar)
+      embeds.append(embed)
+
+
+   paginator = Paginator.create_from_embeds(bot, *embeds)
+   # paginator.show_select_menu = True
+   await paginator.send(ctx)   
+
+
+
+# Should you only be able to donate to your own guild?
+@slash_command(name="donate", description="Donate money to Guild, Convert 10% as Gems", options=[
+   SlashCommandOption(name="amount", description="Amount to donate", type=OptionType.INTEGER, required=True),
+], scopes=guild_ids)
+@cooldown(Buckets.USER, 1, 60)
+async def donate(ctx, amount):
+   try:
+      user = crown_utilities.create_player_from_data(db.queryUser({"DID": str(ctx.author.id)}))
+      equipped_card = crown_utilities.create_card_from_data(db.queryCard({"NAME": user.equipped_card}))
+      query = {'TEAM_NAME': str(user.guild.lower())}
+      team_data = db.queryTeam(query)
+      if not team_data or user.guild == 'PCG':
+         embed = Embed(title="Donate to Guild", description="You are not in a guild.")
+         await ctx.send(embeds=[embed])
+         return
+      team_display_name = team_data['TEAM_DISPLAY_NAME']
+      team_balance = team_data['BANK']
+      guild_amount = round(int(amount) * .90)
+      original_amount = amount
+      gem_amount = 0
+      if team_balance >= 0:
+         stars = "⭐"
+         rank = "D Rank Guild"
+         gem_amount = round(amount * .02)
+      if team_balance >= 1000000:
+         stars = "⭐⭐"
+         rank = "C Rank Guild"
+         gem_amount = round(amount * .04)
+      if team_balance >= 100000000:
+         stars = "⭐⭐⭐"
+         rank = "B Rank Guild"
+         gem_amount = round(amount * .06)
+      if team_balance >= 1000000000:
+         stars = "⭐⭐⭐⭐"
+         rank = "A Rank Guild"
+         gem_amount = round(amount * .08)
+      if team_balance >= 100000000000:
+         stars = "✨✨✨✨✨"
+         rank = "S Rank Guild"
+         gem_amount = round(amount * .10)
+
+      if team_data:
+         if user.balance <= int(amount):
+            embed = Embed(title="Donate to Guild", description="You do not have that amount to donate.")
+            await ctx.send(embeds=[embed])
+         else:
+            await crown_utilities.blessteam(round(int(guild_amount) * .90), team_display_name)
+            await crown_utilities.curse(int(original_amount), ctx.author.id)
             
-            gem_bless = round(int(amount) * .10)
-            if gem_list:
-               for universe in gem_list:
+            if user.gems:
+               for universe in user.gems:
                   query = {"DID": str(ctx.author.id)}
                   update_query = {
-                     '$inc': {'GEMS.$[type].' + "GEMS": gem_bless}
+                     '$inc': {'GEMS.$[type].' + "GEMS": gem_amount}
                   }
                   filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
-                  res = db.updateUser(query, update_query, filter_query)
-               await ctx.send(f"**🪙{guild_amount}** has been gifted to **{team_display_name}**.\nCreated **:gem:{gem_bless}** gems! *All Universes* ")
+                  res = await asyncio.to_thread(db.updateUser,query, update_query, filter_query)
+               embed = Embed(title="Donate to Guild", description=f"🪙 {guild_amount:,} has been invested into the {team_display_name} guild. 💎 {gem_amount:,} gems have been added to all of your explored universes.")
+
+               quest_message = await Quests.milestone_check(user, "DONATION", 1)
+               if quest_message:
+                  embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+               await ctx.send(embeds = [embed])
             else:
-               await ctx.send(f"**🪙{guild_amount}** has been gifted to **{team_display_name}**. *10% Converted to Gems*\n**Dismantle** *Items to earn Gems in return for Donations!*")
-               
-            
+               universe_to_add_gems = equipped_card.universe
+               user.save_gems(universe_to_add_gems, gem_amount)
+               embed = Embed(title="Donate to Guild", description=f"🪙 {guild_amount:,} has been invested to the {team_display_name} guild. 💎 {gem_amount:,} gems have been added to {equipped_card.universe} gem count.")
+               await ctx.send(embeds=[embed])
             return
       else:
-         await ctx.send(f"Guild: {dteam} does not exist")
+         embed = Embed(title="Donate to Guild", description=f"Guild: {team_display_name} does not exist")
+         await ctx.send(embeds=[embed])
    except Exception as ex:
       loggy.error(f"Error in Donate command: {ex}")
       await ctx.send("Donate Issue Seek support.")
       return
-      # trace = []
-      # tb = ex.__traceback__
-      # while tb is not None:
-      #       trace.append({
-      #          "filename": tb.tb_frame.f_code.co_filename,
-      #          "name": tb.tb_frame.f_code.co_name,
-      #          "lineno": tb.tb_lineno
-      #       })
-      #       tb = tb.tb_next
-      # print(str({
-      #       'type': type(ex).__name__,
-      #       'message': str(ex),
-      #       'trace': trace
-      # }))
 
 
-@slash_command(name="invest", description="Invest money in your Family", scopes=guild_ids)
-@cooldown(Buckets.USER, 1, 10)
-async def invest(ctx, amount):
-   user = db.queryUser({'DID': str(ctx.author.id)})
-   family = db.queryFamily({'HEAD': user['DID']})
-   vault = db.queryVault({'DID': str(ctx.author.id)})
-   balance = vault['BALANCE']
-   if family:
-      if balance <= int(amount):
-         await ctx.send("You do not have that amount to invest.", ephemeral=True)
-      else:
-         await crown_utilities.blessfamily_Alt(int(amount), user['DID'])
-         await crown_utilities.curse(int(amount), ctx.author.id)
-         transaction_message =f"🪙 | {user['DISNAME']} invested 🪙{amount} "
-         update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
-         await ctx.send(f"**🪙{amount}** invested into **{user['NAME']}'s Family**.")
-         return
-   else:
-      await ctx.send(f"Family does not exist")
+# @slash_command(name="invest", description="Invest money in your Family", scopes=guild_ids)
+# @cooldown(Buckets.USER, 1, 10)
+# async def invest(ctx, amount):
+#    user = db.queryUser({'DID': str(ctx.author.id)})
+#    family = db.queryFamily({'HEAD': user['DID']})
+#    vault = db.queryVault({'DID': str(ctx.author.id)})
+#    balance = vault['BALANCE']
+#    if family:
+#       if balance <= int(amount):
+#          await ctx.send("You do not have that amount to invest.", ephemeral=True)
+#       else:
+#          await crown_utilities.blessfamily_Alt(int(amount), user['DID'])
+#          await crown_utilities.curse(int(amount), ctx.author.id)
+#          transaction_message =f"🪙 | {user['DISNAME']} invested 🪙{amount} "
+#          update_family = db.updateFamily(family['HEAD'], {'$addToSet': {'TRANSACTIONS': transaction_message}})
+#          await ctx.send(f"**🪙{amount}** invested into **{user['NAME']}'s Family**.")
+#          return
+#    else:
+#       await ctx.send(f"Family does not exist")
 
 
 @slash_command(name="pay", description="Pay a Guild Member", options=[
    SlashCommandOption(name="player", description="Player to pay", type=OptionType.USER, required=True),
+   SlashCommandOption(name="amount", description="Amount to pay", type=OptionType.INTEGER, required=True),
 ], scopes=guild_ids)
 @cooldown(Buckets.USER, 1, 10)
 async def pay(ctx, player, amount):
@@ -1968,36 +2186,26 @@ async def pay(ctx, player, amount):
       different = 0 
       if balance <= payment:
          difference = round(abs(balance - payment))
-         await ctx.send(f"Your Guild does not have **{icon}{'{:,}'.format(int(payment))}**\n*Taxes & Fees:* **{taxicon}{'{:,}'.format(int(difference))}**")
+         embed = Embed(title="Pay", description=f"Your Guild does not have **{icon}{'{:,}'.format(int(payment))}**\n*Taxes & Fees:* **{taxicon}{'{:,}'.format(int(difference))}**")
+         await ctx.send(embeds = [embed])
       else:
          await crown_utilities.bless(int(amount), player.id)
          await crown_utilities.curseteam(int(payment), team['TEAM_NAME'])
-         await ctx.send(f"{icon} **{'{:,}'.format(int(amount))}** has been paid to {player.mention}.\n*Taxes & Fees:* **{taxicon}{'{:,}'.format(int(tax))}**")
+
+         embed = Embed(title="Pay", description=f"{icon} **{'{:,}'.format(int(amount))}** has been paid to {player.mention}.\n*Taxes & Fees:* **{taxicon}{'{:,}'.format(int(tax))}**")
+         await ctx.send(embeds = [embed])
          transaction_message =f"🪙 | {str(ctx.author)} paid {str(player)} {'{:,}'.format(int(amount))}."
          team_query = {'TEAM_NAME': team['TEAM_NAME']}
          new_value_query = {
                '$addToSet': {'TRANSACTIONS': transaction_message},
                }
-         await db.updateTeam(team_query, new_value_query)
+         db.updateTeam(team_query, new_value_query)
          return
    except Exception as ex:
       loggy.error(f"Error in Pay command: {ex}")
       await ctx.send("Pay Issue Seek support.")
       return
-      # trace = []
-      # tb = ex.__traceback__
-      # while tb is not None:
-      #       trace.append({
-      #          "filename": tb.tb_frame.f_code.co_filename,
-      #          "name": tb.tb_frame.f_code.co_name,
-      #          "lineno": tb.tb_lineno
-      #       })
-      #       tb = tb.tb_next
-      # print(str({
-      #       'type': type(ex).__name__,
-      #       'message': str(ex),
-      #       'trace': trace
-      # }))
+
 
 
 @slash_command(description="Promote, Demote, or Remove Guild Members", options=[
@@ -2034,8 +2242,8 @@ scopes=guild_ids)
 async def guildoperations(ctx, player, operation: str):
    await ctx.defer()
    try:
-      user = db.queryUser({'DID': str(ctx.author.id)})
-      query = {'TEAM_NAME': user['TEAM'].lower()}
+      user = crown_utilities.create_player_from_data(db.queryUser({"DID": str(ctx.author.id)}))
+      query = {'TEAM_NAME': user.guild.lower()}
       team = db.queryTeam(query)
       team_officers = team['OFFICERS']
       team_captains = team['CAPTAINS']
@@ -2049,36 +2257,41 @@ async def guildoperations(ctx, player, operation: str):
       is_captain = False
       is_owner = False
 
-      if user['TEAM'] == 'PCG':
-         await ctx.send("You are not a part of a guild.")
+      if user.guild == 'PCG':
+         embed = Embed(title="Guild Operations", description="You are not in a guild.")
+         await ctx.send(embeds=[embed])
          return
 
       if str(player.id) not in team['MEMBERS']:
-         await ctx.send("You can only utilize Guild Controls on Guild members.")
+         embed = Embed(title="Guild Operations", description="You can only utilize Guild Controls on Guild members.")
+         await ctx.send(embeds=[embed])
          return
 
       if operation == "Remove":
          await deletemember(ctx, player)
          return
 
-      if user['DID'] == team['OWNER']:
+      if user.did == team['OWNER']:
          access = True
 
-      if user['DID'] in team['OFFICERS']:
+      if user.did in team['OFFICERS']:
          access = True
         
       if not access:
-         await ctx.send("You must be owner or officer of guild to promote members. ")
+         embed = Embed(title="Guild Operations", description="You must be owner or officer of guild to promote members.")
+         await ctx.send(embeds=[embed])
          return
       
       if str(player.id) == team_owner:
-         await ctx.send("Guild Owners can not be promoted.")
+         embed = Embed(title="Guild Operations", description="Guild Owners can not be promoted.")
+         await ctx.send(embeds=[embed])
 
 
       if str(player.id) in team_officers:
          is_officer = True
          if operation == "Promote":
-            await ctx.send("You can not promote a guild member higher than an Officer position.")
+            embed = Embed(title="Guild Operations", description="You can not promote a guild member higher than an Officer position.")
+            await ctx.send(embeds=[embed])
             return
          elif operation == "Demote":
             transaction_message =f"⏬ | {str(player)} was demoted to Captain"
@@ -2090,7 +2303,7 @@ async def guildoperations(ctx, player, operation: str):
             update_message =f"{player.mention} has been demoted to a **Captain** of **{team['TEAM_DISPLAY_NAME']}**"
 
 
-      if str(player) in team_captains:
+      if str(player.id) in team_captains:
          is_captain = True
          if operation == "Promote":
             transaction_message =f"⏫ | {str(player)} was promoted to Officer"
@@ -2104,7 +2317,7 @@ async def guildoperations(ctx, player, operation: str):
          elif operation == "Demote":
             transaction_message =f"⏬ | {str(player)} was demoted to basic membership"
             team_query = {
-               '$pull': {'CAPTAINS': str(player)},
+               '$pull': {'CAPTAINS': str(player.id)},
                '$addToSet': {'TRANSACTIONS': transaction_message}
             }
             update_message =f"{player.mention} has been demoted to a **Member** of **{team['TEAM_DISPLAY_NAME']}**"
@@ -2119,7 +2332,8 @@ async def guildoperations(ctx, player, operation: str):
             }
             update_message =f"{player.mention} has been promoted to a **Captain** of **{team['TEAM_DISPLAY_NAME']}**"
          elif operation == "Demote":
-            await ctx.send("Guild Members can not be demoted from basic membership.")
+            embed = Embed(title="Guild Operations", description="Guild Members can not be demoted from basic membership.")
+            await ctx.send(embeds=[embed])
             return
         
       response = db.updateTeam(query, team_query)
@@ -2127,32 +2341,32 @@ async def guildoperations(ctx, player, operation: str):
          await ctx.send(update_message)
          return
    except Exception as ex:
+      trace = []
+      tb = ex.__traceback__
+      while tb is not None:
+               trace.append({
+               "filename": tb.tb_frame.f_code.co_filename,
+               "name": tb.tb_frame.f_code.co_name,
+               "lineno": tb.tb_lineno
+               })
+               tb = tb.tb_next
+      print(str({
+               'type': type(ex).__name__,
+               'message': str(ex),
+               'trace': trace
+      }))
       loggy.error(f"Error in Guild Operations command: {ex}")
-      # trace = []
-      # tb = ex.__traceback__
-      # while tb is not None:
-      #       trace.append({
-      #          "filename": tb.tb_frame.f_code.co_filename,
-      #          "name": tb.tb_frame.f_code.co_name,
-      #          "lineno": tb.tb_lineno
-      #       })
-      #       tb = tb.tb_next
-      # print(str({
-      #       'type': type(ex).__name__,
-      #       'message': str(ex),
-      #       'trace': trace
-      # }))
-      await ctx.send("An error has occurred. Please contact a developer.")
+      await ctx.send("Guild Operations Issue Seek support.")
       return
 
 
 async def deletemember(ctx, member):
    _uuid = uuid.uuid4()
-   owner_profile = db.queryUser({'DID': str(ctx.author.id)})
-   team_profile = db.queryTeam({'TEAM_NAME': owner_profile['TEAM'].lower()})
+   owner_profile = crown_utilities.create_player_from_data(db.queryUser({'DID': str(ctx.author.id)}))
+   team_profile = db.queryTeam({'TEAM_NAME': owner_profile.guild.lower()})
    
    if team_profile:
-      if owner_profile['DID'] == team_profile['OWNER']:  
+      if owner_profile.did == team_profile['OWNER']:  
             team_buttons = [
                Button(
                   style=ButtonStyle.BLUE,
@@ -2732,15 +2946,14 @@ async def code(ctx, code_input: str):
          embed_list = []
          if code_input not in user.used_codes:
             if gems != 0:
-               # if user.gems:
-               embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
-               embed_list.append(embed)
                if not user.gems:
                   universe_to_add_gems = equipped_card.universe
                   user.save_gems(universe_to_add_gems, gems)
                for universe in user.gems:
-                  user.save_gems(universe, gems)
-                  
+                  user.save_gems(universe["UNIVERSE"], gems)
+               embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
+               embed_list.append(embed)
+
             if coin != 0:
                await crown_utilities.bless(int(coin), user.did)
                embed = Embed(title="Gold Increased", description=f"🪙 **{coin:,}** gold have been added to your balance!", color=0x00ff00)

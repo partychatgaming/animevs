@@ -150,17 +150,7 @@ class Trading:
         msummons = "\n".join(trader_summons_message) if len(trader_summons_message) > 0 else " "
         bsummons = "\n".join(trade_partner_summons_message) if len(trade_partner_summons_message) > 0 else " "
 
-        embedVar = Embed(title= f"Trade Window", description=textwrap.dedent(f"""\
-        👨‍🏫 <@{self.merchant.did}> 🪙 ~ {trader_gold_message}
-        🎴 {mcards}
-        🦾 {marms}
-        🧬 {msummons}
-
-        🤵 <@{self.buyer.did}> 🪙 ~ {trade_partner_gold_message}
-        🎴 {bcards}
-        🦾 {barms}
-        🧬 {bsummons}
-        """), color=0x7289da)
+        embedVar = Embed(title= f"Trade Window", description=f"👨‍🏫 <@{self.merchant.did}> 🪙 ~ {trader_gold_message}\n"f"🎴 {mcards}\n"f"🦾 {marms}\n"f"🧬 {msummons}\n\n"f"🤵 <@{self.buyer.did}> 🪙 ~ {trade_partner_gold_message}\n"f"🎴 {bcards}\n"f"🦾 {barms}\n"f"🧬 {bsummons}", color=0x7289da)
         # embedVar.set_footer(text=f"🪙 Trade Tax: {self.tax:,}")
 
         return embedVar

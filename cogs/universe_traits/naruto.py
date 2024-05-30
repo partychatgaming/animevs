@@ -9,7 +9,7 @@ def substitution_jutsu(player_card, opponent_card, dmg, battle_config):
         opponent_card.health = opponent_card.health 
 
         if player_card.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
-            if not dmg['SUMMON_USED']:
+            if not dmg['SUMMON_USED'] and not player_card.is_ranger:
                 player_card.barrier_active = False
                 player_card._barrier_value = 0
                 player_card._arm_message = ""

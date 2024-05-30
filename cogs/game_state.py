@@ -56,7 +56,6 @@ class GameState(Extension):
     async def pvp_end_game(self, battle_config, private_channel, battle_msg):
         try:
             if battle_config.is_pvp_game_mode:
-                # quest_response = Quests.quest_check(battle_config.player1, "PVP")
                 total_complete = False
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                 battle_config.player2_card.stats_handler(battle_config, battle_config.player2, total_complete)
@@ -191,7 +190,7 @@ class GameState(Extension):
                     battle_config.continue_fighting = True
                     
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|player_rematch":
-                    new_info = await crown_utilities.updateRetry(button_ctx.battle_config.player1.did, "U","DEC")
+                    new_info = await crown_utilities.updateRetry(battle_config.player1.did, "U","DEC")
                     battle_config.player1.retries = battle_config.player1.retries - 1
                     battle_config.reset_game()
                     battle_config.continue_fighting = True
@@ -236,6 +235,7 @@ class GameState(Extension):
         total_complete = False
         # Finish This Tomorrow
         if battle_config.player1_wins and not battle_config.is_pvp_game_mode:
+
             if any((battle_config.is_tales_game_mode, battle_config.is_dungeon_game_mode, battle_config.is_boss_game_mode)):
                 reward_msg = await reward_drop(self, battle_config, battle_config.player1)
 
@@ -269,18 +269,17 @@ class GameState(Extension):
 
 
                 if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
-                    # if battle_config.is_dungeon_game_mode:
-                    #     quest_response = Quests.quest_check(battle_config.player1, "DUNGEONS")
-                    # else:
-                    #     quest_response = Quests.quest_check(battle_config.player1, "TALES")
+                    if battle_config.is_dungeon_game_mode:
+                        quest_response = await Quests.quest_check(battle_config.player1, "DUNGEONS")
+                    else:
+                        quest_response = await Quests.quest_check(battle_config.player1, "TALES")
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     if not battle_config.is_co_op_mode:
                         embedVar = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence",color=0x1abc9c)
                         embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
-                        # if not battle_config.is_easy_difficulty:
-                        #     if questlogger:
-                        #         embedVar.add_field(name="**Quest Progress**",
-                        #             value=f"{questlogger}")
+                        if quest_response:
+                            embedVar.add_field(name="**Quest Complete**",
+                                value=f"{quest_response}")
 
                         f_message = battle_config.get_most_focused(battle_config.player1_card, battle_config.player2_card)
                         embedVar.add_field(name=f"🌀 | Focus Count",
@@ -345,10 +344,10 @@ class GameState(Extension):
 
 
                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
-                    # if battle_config.is_dungeon_game_mode:
-                    #     quest_response = Quests.quest_check(battle_config.player1, "FULL DUNGEONS")
-                    # else:
-                    #     quest_response = Quests.quest_check(battle_config.player1, "FULL TALES")
+                    if battle_config.is_dungeon_game_mode:
+                        quest_response = await Quests.quest_check(battle_config.player1, "FULL DUNGEONS")
+                    else:
+                        quest_response = await Quests.quest_check(battle_config.player1, "FULL TALES")
                     total_complete = True
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     if battle_config.is_co_op_mode:
@@ -360,6 +359,11 @@ class GameState(Extension):
                     if battle_config.is_dungeon_game_mode:
                         embedVar = Embed(title=f"🔥 DUNGEON CONQUERED",description=f"**{battle_config.selected_universe} Dungeon** has been conquered\n\n{reward_drop}",
                                                 color=0xe91e63)
+                        
+                        if quest_response:
+                            embedVar.add_field(name="**Quest Complete**",
+                                value=f"{quest_response}")
+                        
                         embedVar.set_author(name=f"{battle_config.selected_universe} Boss has been unlocked!")
                         if battle_config.crestsearch:
                             await crown_utilities.blessguild(100000, battle_config.player1.association)
@@ -371,7 +375,6 @@ class GameState(Extension):
                         #     embedVar.add_field(name="**Quest Progress**",
                         #         value=f"{questlogger}")
 
-                        embedVar.set_footer(text=f"Visit the /shop for a huge discount!")
                         if not battle_config.is_easy_difficulty:
                             upload_query = {'DID': str(battle_config.player1.did)}
                             new_upload_query = {'$addToSet': {'DUNGEONS': battle_config.selected_universe},
@@ -532,6 +535,10 @@ async def raid_win(battle_config, battle_msg, private_channel, user1):
 
 async def scenario_win(battle_config, battle_msg, private_channel, user1):
     try:
+        if battle_config.is_raid_scenario:
+            quest_response = await Quests.quest_check(battle_config.player1, "RAIDS")
+        else:
+            quest_response = await Quests.quest_check(battle_config.player1, "SCENARIOS")
         if battle_config.is_scenario_game_mode:
             total_complete = False
             if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
@@ -542,6 +549,9 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 {battle_config.get_previous_moves_embed()}
                 
                 """),color=0x1abc9c)
+                if quest_response:
+                    embedVar.add_field(name="**Quest Complete**",
+                        value=f"{quest_response}")
 
                 embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
                 
@@ -554,10 +564,6 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 battle_config.continue_fighting = True
             
             if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
-                # if battle_config.is_raid_scenario:
-                #     quest_response = Quests.quest_check(battle_config.player1, "RAIDS")
-                # else:
-                #     quest_response = Quests.quest_check(battle_config.player1, "SCENARIOS")
                 battle_config.player1.make_available()
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
@@ -572,6 +578,11 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 {save_scen}
                 {unlock_message}
                 """),color=0xe91e63)
+
+                if quest_response:
+                    embedVar.add_field(name="**Quest Complete**",
+                        value=f"{quest_response}")
+
 
                 embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
                 embedVar.add_field(

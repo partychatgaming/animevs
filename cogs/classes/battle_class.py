@@ -284,6 +284,9 @@ class Battle:
             self.total_number_of_opponents = 1
             self.starting_match_title = f"Raid Battle!"
             self.can_auto_battle = True
+            self.is_boss_game_mode = True
+            self.is_raid_scenario = True
+
 
         if self.mode in crown_utilities.TALE_M:
             self.is_tales_game_mode = True

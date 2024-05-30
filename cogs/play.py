@@ -74,6 +74,7 @@ class Play(Extension):
                 await battle_config.configure_battle_players(ctx, opponent_1, partner1)
                 start_buttons_action_rows = config_battle_starting_buttons(battle_config)
                 battle_config.set_who_starts_match()
+                # battle_config.player1_card.set_card_level_buffs(battle_config.player1.card_levels)
 
                 # await ctx.send(f"<@{battle_config.player1.did}> time to fight")
                 
@@ -569,12 +570,11 @@ async def build_match_start_embed(battle_config, user1, user2):
     """
     try:
         title_lvl_msg = f"{battle_config.set_levels_message()}"
-        starting_battle_ai_message = await ai.starting_battle_ai_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
+        # starting_battle_ai_message = await ai.starting_battle_ai_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
 
         embed = Embed(title=f"{title_lvl_msg}")
         embed.set_author(name=f"{battle_config.get_starting_match_title()}")
 
-        # embed.add_field(name=f"Preparations", value=f"{starting_battle_ai_message}", inline=False)
         if battle_config.is_co_op_mode or battle_config.is_duo_mode:
             embed.set_footer(text=textwrap.dedent(f"""\                                                  
 Your Affinities:
@@ -587,7 +587,7 @@ Companion Affinities:
 {battle_config.player3_card.set_battle_menu_affinity_message()}
             """), icon_url="https://cdn.discordapp.com/emojis/789290881654980659.gif?v=1")
         else:
-            embed.set_footer(text=f"Your Affinities:\n"f"{battle_config.player1_card.set_battle_menu_affinity_message()}\n\n"f"Opponent Affinities:\n"f"{battle_config.player2_card.set_battle_menu_affinity_message()}\n\n"f"{starting_battle_ai_message}")
+            embed.set_footer(text=f"Your Affinities:\n"f"{battle_config.player1_card.set_battle_menu_affinity_message()}\n\n"f"Opponent Affinities:\n"f"{battle_config.player2_card.set_battle_menu_affinity_message()}\n\n")
 
 
         embed.set_image(url="attachment://image.png")
@@ -900,12 +900,14 @@ async def auto_battle_handler(ctx, battle_config, battle_msg, private_channel, b
                 if selected_move != 7:
                     turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
                     if turn_card._monstrosity_active and turn_card.used_resolve:
-                        if turn_card._double_strike_count < turn_card._monstrosity_value:
-                            turn_card._double_strike_count +=1
-                            battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['MONSTROSITY']}) {turn_card.name} has {2 - turn_card._double_strike_count} double strikes left")
-                            #damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
-                            turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
-                            battle_config.next_turn()
+                        turn_card._monstrosity_value = turn_card._monstrosity_value - 1
+                        if turn_card._monstrosity_value <= 0:
+                            turn_card._monstrosity_active = False
+                            turn_card._monstrosity_value = 0
+                        battle_config.add_to_battle_log(f"{turn_card.name} has {turn_card._monstrosity_value} double strikes left")
+                        #damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
+                        turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+                        battle_config.next_turn()
 
             if selected_move == 5:
                 await turn_card.resolving(battle_config, turn_title, opponent_card, battle_config.player1)
@@ -987,10 +989,12 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
 
             if selected_move != 7:
                 if turn_card._monstrosity_active and turn_card.used_resolve:
-                    if turn_card._double_strike_count < turn_card._monstrosity_value:
-                        turn_card._double_strike_count +=1
-                        battle_config.add_to_battle_log(f"({crown_utilities.class_emojis['MONSTROSITY']}) {turn_card.name} has {2 - turn_card._double_strike_count} double strikes left")
-                        turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+                    turn_card._monstrosity_value = turn_card._monstrosity_value - 1
+                    if turn_card._monstrosity_value <= 0:
+                        turn_card._monstrosity_active = False
+                        turn_card._monstrosity_value = 0
+                    battle_config.add_to_battle_log(f"{turn_card.name} has {turn_card._monstrosity_value} double strikes left")
+                    turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
 
         if selected_move == 5:
             await turn_card.resolving(battle_config, turn_title, opponent_card, turn_player)
@@ -1066,7 +1070,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     summon_message = f"🧬 {turn_card.summon_name} is equipped" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
 
-    player1_arm_message = f"**You have the following equipment**{turn_card._arm_message}{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman equipped\n{summon_message}"
+    player1_arm_message = f"**You have the following equipment** {turn_card._arm_message}{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman equipped\n{summon_message}"
     embedVar = Embed(title=f"", color=0xe74c3c)
     if turn_player.performance:
         embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{turn_card.get_perfomance_header(turn_title)}")
@@ -1433,11 +1437,13 @@ def damage_calculation(battle_config, damage_calculation_response=None):
 
     turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
     if turn_card._monstrosity_active and turn_card.used_resolve:
-        if turn_card._double_strike_count < turn_card._monstrosity_value:
-            turn_card._double_strike_count +=1
-            battle_config.add_to_battle_log(f"({turn_card.name}:  Double Strike! - {2 - turn_card._double_strike_count} Left!")
-            turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
-            battle_config.next_turn()
+        turn_card._monstrosity_value = turn_card._monstrosity_value - 1
+        if turn_card._monstrosity_value <= 0:
+            turn_card._monstrosity_active = False
+            turn_card._monstrosity_value = 0
+        battle_config.add_to_battle_log(f"({turn_card.name}:  Double Strike! {turn_card._monstrosity_value} Double Strikes Left!")
+        turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+        battle_config.next_turn()
     else:
         battle_config.next_turn()
 

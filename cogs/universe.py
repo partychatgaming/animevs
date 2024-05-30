@@ -52,10 +52,10 @@ class Universe(Extension):
             all_universes = ""
             universe_paginator_type = "Universe Tales"
             
-            if mode in crown_utilities.DUNGEON_M and player.level <= 40:
-                dungeon_unavailable_response = create_dungeon_locked_embed()
-                await ctx.send(embed=dungeon_unavailable_response)
-                return
+            # if mode in crown_utilities.DUNGEON_M and player.level <= 40:
+            #     dungeon_unavailable_response = create_dungeon_locked_embed()
+            #     await ctx.send(embed=dungeon_unavailable_response)
+            #     return
 
             prestige_slider, prestige_message = calculate_prestige(player.prestige, player.rebirth)
 
@@ -175,12 +175,14 @@ class Universe(Extension):
             entrance_fee = 5000
             mode_check = "HAS_CROWN_TALES"
             completed_check = player.completed_tales
-            universe = await asyncio.to_thread(db.queryUniverse, {"TITLE": universe_title.title()})
-            if mode in crown_utilities.DUNGEON_M and player.level <= 40:
-                dungeon_unavailable_response = create_dungeon_locked_embed()
-                await ctx.send(embed=dungeon_unavailable_response)
-                return
-
+            if not universe_title[0].isdigit():
+                universe_title = universe_title.title()
+            universe = await asyncio.to_thread(db.queryUniverse, {"TITLE": universe_title})
+            # if mode in crown_utilities.DUNGEON_M and player.level <= 40:
+            #     dungeon_unavailable_response = create_dungeon_locked_embed()
+            #     await ctx.send(embed=dungeon_unavailable_response)
+            #     return
+            
             buttons = [
                 Button(
                     style=ButtonStyle.BLUE,
@@ -222,7 +224,6 @@ class Universe(Extension):
                 if universe_title in player.completed_dungeons:
                     completed_message = f"**Completed**: {crown_utilities.utility_emojis['ON']}"
                     can_fight_message = f"🔥 Dungeon | Conquer {universe['TITLE']} Dungeon again for a Boss Key and Minor Reward."
-
 
             if universe[mode_check] == True:
                 if player.difficulty != "EASY":

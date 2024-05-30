@@ -368,22 +368,28 @@ class Lookup(Extension):
                 
                 storage = team['STORAGE']
                 balance = team['BANK']
+                gem_investment_percentage = 0
 
                 if balance >= 0:
                     stars = "⭐"
                     rank = "D Rank Guild"
+                    gem_investment_percentage = "2%"
                 if balance >= 1000000:
                     stars = "⭐⭐"
                     rank = "C Rank Guild"
+                    gem_investment_percentage = "4%"
                 if balance >= 100000000:
                     stars = "⭐⭐⭐"
                     rank = "B Rank Guild"
+                    gem_investment_percentage = "6%"
                 if balance >= 1000000000:
                     stars = "⭐⭐⭐⭐"
                     rank = "A Rank Guild"
+                    gem_investment_percentage = "6%"
                 if balance >= 100000000000:
                     stars = "✨✨✨✨✨"
                     rank = "S Rank Guild"
+                    gem_investment_percentage = "10%"
 
                 guild_buff_available = team['GUILD_BUFF_AVAILABLE']
                 guild_buff_on = team['GUILD_BUFF_ON']
@@ -483,6 +489,9 @@ class Lookup(Extension):
                 
                 **Bank** 
                 {icon} {'{:,}'.format(balance)}
+
+                **Gem Investment**
+                As a {stars} {rank}, members investing into this guild using the /donate command will yield a {gem_investment_percentage} return on your investment in the form of 💎 gems across all universes they've explored.
                 """), color=0x7289da)
 
                 

@@ -1077,8 +1077,8 @@ def addTeamMember(query, add_to_team_query, user, new_user):
         teams_col.update_one(query, add_to_team_query, upsert=True)
 
             # Add Guild to User Profile as well
-        query = {'DISNAME': new_user}
-        new_value = {'$set': {'TEAM': team['TEAM_NAME']}}
+        query = {"DID": new_user}
+        new_value = {'$set': {'TEAM': team['TEAM_DISPLAY_NAME']}}
         users_col.update_one(query, new_value)
         return "User added to the Guild. "
     else:
@@ -1120,6 +1120,23 @@ def getCardsFromAvailableUniverses():
     for universe in universes:
         universe_list.append(universe['TITLE'])
     data = cards_col.find({'UNIVERSE': {'$in': universe_list}})
+    return data
+
+
+def getArmsFromAvailableUniverses():
+    universes = queryAllUniverse()
+    universe_list = []
+    for universe in universes:
+        universe_list.append(universe['TITLE'])
+    data = arm_col.find({'UNIVERSE': {'$in': universe_list}})
+    return data
+
+def getSummonsFromAvailableUniverses():
+    universes = queryAllUniverse()
+    universe_list = []
+    for universe in universes:
+        universe_list.append(universe['TITLE'])
+    data = pet_col.find({'UNIVERSE': {'$in': universe_list}})
     return data
 
 
@@ -1333,7 +1350,6 @@ def queryAllTitles():
 
 def get_random_title(query, player):
     try:
-        print(f"Query: {query}")
         titles = titles_col.find(query)
         title_list = []
         for title in titles:
@@ -1812,9 +1828,9 @@ def queryBoss(query):
 
 
 '''Query User'''
-def queryUser(user):
+def queryUser(user_query):
     try:
-        data = users_col.find_one(user)
+        data = users_col.find_one(user_query)
         if data:
             return data
         else:
@@ -1950,43 +1966,34 @@ def createTeam(team, user):
 
 def deleteTeam(team, user):
     try:
-        exists = team_exists({'TEAM_NAME': team['TEAM_NAME']})
-        if exists:
-            team = teams_col.find_one(team)
-            users_col.update_many({'TEAM': team['TEAM_DISPLAY_NAME']}, {'$set': {'TEAM': "PCG"}})
-            teams_col.delete_one({'TEAM_NAME': team['TEAM_NAME']})
-            return f"**{team['TEAM_DISPLAY_NAME']}** has been deleted."
-
-        else:
-            return "Guild does not exist."
+        team = teams_col.find_one(team)
+        users_col.update_many({'TEAM': team['TEAM_DISPLAY_NAME']}, {'$set': {'TEAM': "PCG"}})
+        teams_col.delete_one({'TEAM_NAME': team['TEAM_NAME']})
+        return f"**{team['TEAM_DISPLAY_NAME']}** has been deleted."
 
     except:
         return "Delete Guild failed."
 
-def deleteTeamMember(query, value, user):
+def deleteTeamMember(query, value, user_did):
     try:
-        exists = team_exists({'TEAM_NAME': query['TEAM_NAME']})
-        if exists:
-            team = teams_col.find_one(query)
-            update = teams_col.update_one(query, value, upsert=True)
-            
-            
-            # Remove user guild and make it PCG
-            user_query = {'DID': str(user)}
-            new_value = {'$set': {'TEAM': 'PCG'}}
-            users_col.update_one(user_query, new_value)
-            return f"You've successfully left **{team['TEAM_DISPLAY_NAME']}**"
-        else:
-            return "Guild does not exist."
+        team = teams_col.find_one(query)
+        update = teams_col.update_one(query, value, upsert=True)
+        
+        
+        # Remove user guild and make it PCG
+        user_query = {'DID': str(user_did)}
+        new_value = {'$set': {'TEAM': 'PCG'}}
+        users_col.update_one(user_query, new_value)
+        return f"You've successfully left **{team['TEAM_DISPLAY_NAME']}**"
 
     except:
         print("Delete Guild Member failed.")
 
-def addTeamMember(query, add_to_team_query, user, team_name):
+def addTeamMember(query, add_to_team_query, owner_did, team_name, new_player_did):
     teams_col.update_one(query, add_to_team_query, upsert=True)
 
     # Add Guild to User Profile as well
-    query = {'DID': user}
+    query = {'DID': new_player_did}
     new_value = {'$set': {'TEAM': team_name}}
     users_col.update_one(query, new_value)
     return "User added to the Guild. "

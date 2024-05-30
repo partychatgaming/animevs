@@ -194,7 +194,7 @@ class Profile(Extension):
                     level_up_message = lvl_req - c.card_exp
                     if lvl_req - c.card_exp <= 0:
                         level_up_message = "🎆 Battle To Level Up!"
-                    if c.card_lvl >= 1000:
+                    if c.card_lvl >= crown_utilities.MAX_LEVEL:
                         level_up_message = "👑 | Max Level!!"
 
                     if player.performance:
@@ -889,8 +889,7 @@ class Profile(Extension):
                         await ctx.send(embed=embed, ephemeral=True)
                         return
                     paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Arms")
-                    if len(embed_list) <= 25:
-                        paginator.show_select_menu = True
+                    paginator.show_select_menu = True
                     await paginator.send(ctx)
                 except Exception as ex:
                     custom_logging.debug(ex)
@@ -1001,6 +1000,8 @@ class Profile(Extension):
             if not user.preset_upgraded:
                 preset_message = "10,000,000"
 
+
+
             boss_arm = False
             dungeon_arm = False
             boss_message = "Nice Arm!"
@@ -1028,10 +1029,6 @@ class Profile(Extension):
             elif abyss_arm:
                 boss_message = "That's Abyssal!!"
 
-            # has_gabes_purse = user['TOURNAMENT_WINS']
-            # if not has_gabes_purse:
-            #     gabes_message = "25,000,000"
-            #     gabes_explain = "Purchase **Gabe's Purse** to Keep ALL ITEMS during **/rebirth**"
             balance = 0
             icon = "💎"
 
@@ -1039,11 +1036,6 @@ class Profile(Extension):
                 if gems['UNIVERSE'] == card.universe:
                     balance = gems['GEMS']
                     break   
-            
-            # if not balance:
-            #     embed = Embed(title="Blacksmith", description=f"You currently own no 💎 in {card.universe}.", color=0x7289da)
-            #     await ctx.send(embed=embed)
-            #     return
             
             def get_level_icons(level):
                 levels_icons = {
@@ -1082,12 +1074,35 @@ class Profile(Extension):
                 6: 11000000000,
                 7: 25000000000,
                 8: 75000000000,
-                9: 300000000000,
-                10: 800000000000, 
+                9: 100000000000,
+                10: 250000000000, 
             }
             level_up_card_tier_message = f"⭐ **Increase Card Tier**: 💸 **{tier_values[(card.card_tier + 1)]:,}**" if card.card_tier < 10 else f"🌟 Your card has max tiers"
             licon = get_level_icons(card.card_lvl)
             hundred_levels, thirty_levels, ten_levels = get_level_values(card.card_lvl)
+
+            # Calculate the cost to max level
+            current_level = card.card_lvl
+            max_level = 1000
+            levels_needed = max_level - current_level
+            max_level_cost = 0
+            temp_level = current_level
+
+            while temp_level < max_level:
+                _, _, cost_per_100 = get_level_values(temp_level)
+                if temp_level + 100 <= max_level:
+                    max_level_cost += cost_per_100
+                    temp_level += 100
+                else:
+                    _, cost_per_30, cost_per_10 = get_level_values(temp_level)
+                    if temp_level + 30 <= max_level:
+                        max_level_cost += cost_per_30
+                        temp_level += 30
+                    else:
+                        max_level_cost += cost_per_10
+                        temp_level += 10
+
+            max_level_cost = f"{max_level_cost:,}"
 
             sell_buttons = [
                     Button(
@@ -1163,6 +1178,36 @@ class Profile(Extension):
                 levels_gained = 0
                 price = 0
                 exp_boost_buttons = [f"{_uuid}|1", f"{_uuid}|2", f"{_uuid}|3"]
+                if option == f"{_uuid}|max":
+                    levels_gained = levels_needed
+                    price = max_level_cost.replace(",", "")
+                    price = int(price)
+                    
+                    if price > balance:
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase.", color=0xf1c40f)
+                        await msg.edit(embed=embed, components=[])
+                        return
+                    
+                    if card.card_lvl >= max_level:
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** is already at max smithing level. You may level up in battle, but you can no longer purchase levels for this card.", color=0xf1c40f)
+                        await msg.edit(embed=embed, components=[])
+                        return
+
+                    if (levels_gained + card.card_lvl) > max_level:
+                        levels_gained = max_level - card.card_lvl
+
+                    atk_def_buff = round(levels_gained / 2)
+                    ap_buff = round(levels_gained / 3)
+                    hlt_buff = (round(levels_gained / 20) * 25)
+
+                    update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0}, '$inc': {'CARD_LEVELS.$[type].' + "LVL": levels_gained, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff, 'CARD_LEVELS.$[type].' + "DEF": atk_def_buff, 'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
+                    filter_query = [{'type.'+ "CARD": str(card.name)}]
+                    response = db.updateUser(user.user_query, update_query, filter_query)
+                    user.remove_gems(card.universe, price)
+                    gems_left = balance - price
+                    embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** gained {levels_gained} levels!\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
+                    await msg.edit(embed=embed, components=[])
+                    return
                 if option == f"{_uuid}|1":
                     levels_gained = 10
                     price = ten_levels
@@ -1182,7 +1227,7 @@ class Profile(Extension):
                 if option in exp_boost_buttons:
                     gems_left = balance - price
                     if price > balance:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purcahse.", color=0xf1c40f)
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase.", color=0xf1c40f)
                         await msg.edit(embed=embed,components=[])
                         return
 
@@ -1262,7 +1307,7 @@ class Profile(Extension):
                     #     await msg.edit(components=[])
                     #     return
                     if price > balance:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purcahse.", color=0xf1c40f)
+                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase.", color=0xf1c40f)
                         await msg.edit(embed=embed,components=[])
                         return
                     
@@ -1302,17 +1347,7 @@ class Profile(Extension):
                         embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | {card.name} is already at max tiers.", color=0xf1c40f)
                         await msg.edit(embeds=[embed], components=[])
                         return
-                        
-                    # if not user.patron and user.storage_type >= 2:
-                    #     await button_ctx.send("💞 | Only Patrons may purchase more than 30 additional storage. To become a Patron, visit https://www.patreon.com/partychatgaming?fan_landing=true.", ephemeral=True)
-                    #     await msg.edit(components=[])
-                    #     return
-                        
-                    # if user.storage_type == 10:
-                    #     await button_ctx.send("💼 | You already have max storage.", ephemeral=True)
-                    #     await msg.edit(components=[])
-                    #     return
-                        
+                    
                     else:
                         new_tier = card.card_tier + 1
                         await crown_utilities.curse(tier_values[card.card_tier], user.did)
@@ -1372,8 +1407,7 @@ class Profile(Extension):
 
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Equip", "Trade", "Dismantle", "Market"], paginator_type="Summons")
             
-            if len(embed_list) <= 25:
-                paginator.show_select_menu = True
+            paginator.show_select_menu = True
             await paginator.send(ctx)
             
         except Exception as ex:

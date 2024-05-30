@@ -215,8 +215,6 @@ class Trade(Extension):
                             db.updateTrade(trade_info.get_query(), {"$set": trade_info.get_trade_data()})
                             user = await self.bot.fetch_user(str(executioner))
                             user2 = await self.bot.fetch_user(str(friend))
-                            await Quests.quest_check(self, trade_info.merchant, "TRADE")
-                            await Quests.quest_check(self, trade_info.buyer, "TRADE")
                             await user.send(embed=trade_info.get_trade_message())
                             await user2.send(embed=trade_info.get_trade_message())
                             embed = Embed(title=f"🤝 Trade Completed", description=f"🎊 Trade between <@{executioner}> and <@{friend}> has been completed! 🎊. A reciept has been sent to both indiviuals dm's. 📨")
@@ -285,7 +283,10 @@ class Trade(Extension):
             if button_ctx.ctx.custom_id == f"{_uuid}|yes":
                 await button_ctx.ctx.defer(edit_origin=True)
                 response = db.createTrade(trade_info.get_trade_data())
+                quest_message = await Quests.quest_check(merchant, "TRADE")
                 embed = Embed(title=f"🤝 Trade Opened", description=f"Trade between <@{merchant.did}> and <@{trade_partner.did}> has been opened.")
+                if quest_message:
+                    embed.add_field(name="🤝 Quest Completed", value=quest_message)
                 await msg.edit(embed=embed, components=[])
                 return
             

@@ -62,6 +62,7 @@ class BattleConfig(Extension):
     async def create_raid_battle(self, ctx, mode, player, selected_raid):
         battle = Battle(mode, player)
         battle.selected_universe = selected_raid["UNIVERSE"]
+        battle.is_raid_scenario = True
 
         selected_raid = db.queryScenario({"TITLE": selected_raid["TITLE"]})
         battle.set_scenario_config(selected_raid)

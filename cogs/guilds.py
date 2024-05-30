@@ -122,21 +122,20 @@ class Teams(Extension):
         if not registered_player:
             return
 
-        guild_owner = db.queryUser({'DID': str(ctx.author.id)})
-        team_profile = db.queryTeam({'TEAM_NAME': guild_owner['TEAM'].lower()})
+        guild_owner = crown_utilities.create_player_from_data(registered_player)
 
-        if guild_owner['TEAM'] == 'PCG':
+        team_profile = db.queryTeam({'TEAM_NAME': guild_owner.guild.lower()})
+
+        if guild_owner.guild == 'PCG':
             embed = Embed(title="Guild Recruitment", description=f"You are not part of a guild.".format(self), color=0x00ff00)
             await ctx.send(embed=embed)
             return  
 
         else:
-            if guild_owner['DISNAME'] == team_profile['OWNER'] or guild_owner['DISNAME'] in team_profile['OFFICERS']:
-                joining_member_profile = db.queryUser({'DID': str(player.id)})
+            if guild_owner.did == team_profile['OWNER'] or guild_owner.did in team_profile['OFFICERS']:
+                joining_member_profile = crown_utilities.create_player_from_data(db.queryUser({'DID': str(player.id)}))
 
-                if joining_member_profile['TEAM'] == 'PCG':
-                    # await self.bot.DM(ctx, player, f"{ctx.author}" + f" has invited you to join **{team_profile['TEAM_DISPLAY_NAME']}** !" + f" React in server to join **{team_profile['TEAM_DISPLAY_NAME']}**" )
-                    await ctx.send(f"{player.mention}" + f" has been invited to join **{team_profile['TEAM_DISPLAY_NAME']}** !" + f" React in server to join **{team_profile['TEAM_DISPLAY_NAME']}**" )
+                if joining_member_profile.guild == 'PCG':
                     team_buttons = [
                         Button(
                             style=ButtonStyle.BLUE,
@@ -150,13 +149,13 @@ class Teams(Extension):
                         )
                     ]
                     team_buttons_action_row = ActionRow(*team_buttons)
-                    transaction_message = f"{joining_member_profile['DISNAME']} was recruited."
+                    transaction_message = f"{player.mention} was recruited."
 
                     embed = Embed(title="Guild Recruitment", description=f"{player.mention}" +f" do you want to join Guild **{team_profile['TEAM_DISPLAY_NAME']}**?".format(self), color=0x00ff00)
                     msg = await ctx.send(embed=embed, components=[team_buttons_action_row])
 
-                    def check(component: Button) -> bool:
-                        return component.ctx.author == str(player)
+                    def check(component: Button):
+                        return str(component.ctx.author.id) == str(joining_member_profile.did)
 
                     try:
                         button_ctx  = await self.bot.wait_for_component(components=[team_buttons_action_row, team_buttons], timeout=120, check=check)
@@ -173,16 +172,20 @@ class Teams(Extension):
                                 '$inc': {'MEMBER_COUNT': 1},
                                 '$addToSet': {'TRANSACTIONS': transaction_message}
                                 }
-                            response = db.addTeamMember(team_query, new_value_query, guild_owner['DISNAME'], joining_member_profile['DISNAME'])
+                            response = db.addTeamMember(team_query, new_value_query, guild_owner.did, team_profile['TEAM_DISPLAY_NAME'], str(player.id))
                             embed = Embed(title="Guild Recruitment", description=f"{player.mention}" +f" has joined Guild **{team_profile['TEAM_DISPLAY_NAME']}**.".format(self), color=0x00ff00)
                             await msg.edit(embed=embed, components=[])
+                            return
                     except:
                         await ctx.send(m.RESPONSE_NOT_DETECTED, delete_after=3)
+                        return
                 else:
                     await ctx.send(m.USER_ALREADY_ON_TEAM, delete_after=5)
+                    return
 
             else:
                 await ctx.send("Recruiting can only be done by Owners and Officers.", delete_after=5)
+
 
     @slash_command(description="Leave your guild")
     async def leaveguild(self, ctx):
@@ -191,8 +194,8 @@ class Teams(Extension):
         if not registered_player:
             return
         _uuid = uuid.uuid4()
-        member_profile = db.queryUser({'DID': str(ctx.author.id)})
-        team_profile = db.queryTeam({'TEAM_NAME': member_profile['TEAM'].lower()})
+        member_profile = crown_utilities.create_player_from_data(registered_player)
+        team_profile = db.queryTeam({'TEAM_NAME': member_profile.guild.lower()})
         
         if team_profile:
             if ctx.author.id == team_profile['DID']:
@@ -201,7 +204,7 @@ class Teams(Extension):
 
             team_display_name = team_profile['TEAM_DISPLAY_NAME']
             team_name = team_profile['TEAM_NAME'].lower()
-            transaction_message = f"{member_profile['DISNAME']} has left the guild."
+            transaction_message = f"{member_profile.disname} has left the guild."
 
             team_buttons = [
                 Button(
@@ -216,7 +219,8 @@ class Teams(Extension):
                 )
             ]
             team_buttons_action_row = ActionRow(*team_buttons)
-            msg = await ctx.send(f"Leave guild **{team_display_name}**?".format(self), components=[team_buttons_action_row])
+            embed = Embed(title="Guild Departure", description=f"{ctx.author.mention}" +f" are you sure you want to leave Guild **{team_display_name}**?".format(self), color=0x00ff00)
+            msg = await ctx.send(embeds=[embed], components=[team_buttons_action_row])
 
             def check(component: Button) -> bool:
                 return component.ctx.author == ctx.author
@@ -225,22 +229,24 @@ class Teams(Extension):
                 button_ctx = await self.bot.wait_for_component(components=[team_buttons_action_row, team_buttons], timeout=300, check=check)
 
                 if button_ctx.ctx.custom_id == f"{_uuid}|no":
-                    await msg.edit(content="You have decided to stay in the guild.", components=[])
+                    embed = Embed(title="Guild Departure", description=f"{ctx.author.mention}" +f" you have decided to stay in the guild.".format(self), color=0x00ff00)
+                    await msg.edit(embeds=[embed], components=[])
                     return
                 
                 if button_ctx.ctx.custom_id == f"{_uuid}|yes":
                     team_query = {'TEAM_NAME': team_name}
                     new_value_query = {
                         '$pull': {
-                            'MEMBERS': member_profile['DISNAME'],
-                            'OFFICERS': member_profile['DISNAME'],
-                            'CAPTAINS': member_profile['DISNAME'],
+                            'MEMBERS': member_profile.did,
+                            'OFFICERS': member_profile.did,
+                            'CAPTAINS': member_profile.did,
                         },
                         '$addToSet': {'TRANSACTIONS': transaction_message},
                         '$inc': {'MEMBER_COUNT': -1}
                         }
-                    response = db.deleteTeamMember(team_query, new_value_query, str(ctx.author.id))
-                    await msg.edit(content=response, components=[])
+                    response = db.deleteTeamMember(team_query, new_value_query, member_profile.did)
+                    embed = Embed(title="Guild Departure", description=f"{ctx.author.mention}" +f" you have left Guild **{team_display_name}**.".format(self), color=0x00ff00)
+                    await msg.edit(embeds=[embed], components=[])
             except:
                 await msg.edit(content="Response not detected.", components=[])
         else:
@@ -258,8 +264,8 @@ class Teams(Extension):
 
         _uuid = uuid.uuid4()
 
-        user = db.queryUser({'DID': str(ctx.author.id)})
-        team = db.queryTeam({'TEAM_NAME': user['TEAM'].lower()})
+        user = crown_utilities.create_player_from_data(registered_player)
+        team = db.queryTeam({'TEAM_NAME': user.guild.lower()})
         if team != "PCG":
             team_name = team['TEAM_NAME']
             team_display_name = team['TEAM_DISPLAY_NAME']
@@ -277,13 +283,8 @@ class Teams(Extension):
             team_name = team['TEAM_NAME']
             team_display_name = team['TEAM_DISPLAY_NAME']
 
-            
-            # ASSOCIATION CHECK
-            guildname = team['GUILD']
-            if guildname != 'PCG':
-                guildteam=True
 
-            if team['OWNER'] == user['DISNAME']:
+            if team['OWNER'] == user.did:
                 team_buttons = [
                     Button(
                         style=ButtonStyle.BLUE,
@@ -313,16 +314,6 @@ class Teams(Extension):
                         return
 
                     if button_ctx.custom_id == "Yes":
-                        if guildteam:
-                            # ASSOCIATION CHECK
-                            guild_query = {'GNAME' : str(guildname)}
-                            guild_info = db.queryGuildAlt(guild_query)
-                            new_query = {'FOUNDER' : str(guild_info['FOUNDER'])}
-                            if guild_info:
-                                pull_team = {'$pull' : {'SWORDS' : str(team_name)}}
-                                response = db.deleteGuildSword(new_query, pull_team, str(guild_info['FOUNDER']), str(team_name))
-                                await button_ctx.send(response)
-
                         response = db.deleteTeam(team, str(ctx.author.id))
                         embed = Embed(title="Guild Disbandment", description=f"{ctx.author.mention}" +f" you have disbanded your guild.".format(self), color=0x00ff00)
                         await msg.edit(embed=embed, components=[])

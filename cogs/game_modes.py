@@ -42,8 +42,6 @@ from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, l
 class GameModes(Extension):
     def __init__(self, bot):
         self.bot = bot
-        # self._cd = commands.CooldownMapping.from_cooldown(1, 900, commands.BucketType.member)  # Change accordingly. Currently every 8 minutes (3600 seconds == 60 minutes)
-        # self._lvl_cd = commands.CooldownMapping.from_cooldown(1, 3000, commands.BucketType.member)
         self.level_up_cooldown = Cooldown(Buckets.MEMBER, 10, 3600) # (Buckets.MEMBER, 10, 3600)
         self.explore_cooldown = Cooldown(Buckets.MEMBER, 25, 3600)
     max_items = 150
@@ -87,7 +85,9 @@ class GameModes(Extension):
                     custom_logging.debug(ex)
                     return
 
-            if not await self.explore_cooldown.acquire_token(message):              
+            if not await self.explore_cooldown.acquire_token(message):
+                # This has been included to start the cooldown over again if the explore procs
+                await self.explore_cooldown.reset_all()
                 if isinstance(message.channel, interactions.DMChannel):
                     return
     
@@ -412,7 +412,6 @@ class GameModes(Extension):
         name="universe",
         description="Universe to list traits for",
         opt_type=OptionType.STRING,
-   
         autocomplete=True
     )
     async def play(self, ctx: InteractionContext, mode: str, universe: str = ""):
