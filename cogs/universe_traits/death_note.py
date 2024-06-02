@@ -2,9 +2,9 @@ import crown_utilities
 
 def shinigami_eyes(player_card, battle_config):
     if player_card.universe == "Death Note":
-        value = 3
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} used shinigami eyes to sacrifice {round((.10 * player_card.max_health))} max health to increase turn count by {value + player_card.tier}")
-        player_card.max_health = round(player_card.max_health - (.10 * player_card.max_health))
+        value = 6
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} used shinigami eyes to sacrifice {round((.15 * player_card.max_health))} max health to increase turn count by {value + player_card.tier}")
+        player_card.max_health = round(player_card.max_health - (.15 * player_card.max_health))
         if player_card.health >= player_card.max_health:
             player_card.health = player_card.max_health
         battle_config.turn_total = battle_config.turn_total + player_card.tier + value

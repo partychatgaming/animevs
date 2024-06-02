@@ -9,6 +9,8 @@ import unique_traits as ut
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 from cogs.play import Play as play
 from cogs.universe_traits.solo_leveling import set_solo_leveling_config
+from cogs.quests import Quests
+import asyncio
 
 class Battle:
     def __init__(self, mode, _player):
@@ -258,11 +260,13 @@ class Battle:
 
         self.player1_wins = False
         self.player2_wins = False
+        self.battle_mode = ""
 
 
         if self.mode in crown_utilities.PVP_M:
             self.is_pvp_game_mode = True
             self.total_number_of_opponents = 1
+            self.battle_mode = "PVP"   
 
         if self.mode in crown_utilities.AUTO_BATTLE_M:
             self.is_auto_battle_game_mode = True
@@ -286,6 +290,7 @@ class Battle:
             self.can_auto_battle = True
             self.is_boss_game_mode = True
             self.is_raid_scenario = True
+            self.battle_mode = "RAID"
 
 
         if self.mode in crown_utilities.TALE_M:
@@ -297,6 +302,7 @@ class Battle:
             self.can_auto_battle = True
             self.bank_amount = 50000
             self.fam_reward_amount = 500000
+            self.battle_mode = "TALES"
 
         
         if self.mode in crown_utilities.DUNGEON_M:
@@ -311,6 +317,7 @@ class Battle:
             self.bank_amount = 500000
             self.fam_reward_amount = 2000000
             self.can_auto_battle = True
+            self.battle_mode = "DUNGEON"
 
 
         if self.mode in crown_utilities.BOSS_M:
@@ -338,6 +345,7 @@ class Battle:
             self.is_scenario_game_mode = True
             self.is_ai_opponent = True
             self.can_auto_battle = True
+            self.battle_mode = "SCENARIO"
 
         
         if self.mode == crown_utilities.EXPLORE:
@@ -346,6 +354,7 @@ class Battle:
             self.can_auto_battle = True
             self.total_number_of_opponents = 1
             self.starting_match_title = f"✅ Explore Battle is about to begin!"
+            self.battle_mode = "EXPLORE"
 
         if self.difficulty == "EASY":
             self.is_easy_difficulty = True
@@ -494,6 +503,7 @@ class Battle:
 
     def set_scenario_config(self, scenario_data):
         try:
+            self.battle_mode = "SCENARIO" 
             self.scenario_data = scenario_data
             self.is_scenario_game_mode = True
             self.is_ai_opponent = True
@@ -709,27 +719,27 @@ class Battle:
         return self.match_can_be_saved
 
 
-    def get_ai_battle_ready(self, player1_card_level):
+    async def get_ai_battle_ready(self, player1_card_level):
         try:
             if not self.is_boss_game_mode:
                 if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode)):
-                    self._ai_opponent_card_data = db.queryCard({'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
-                    universe_data = db.queryUniverse({'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
+                    self._ai_opponent_card_data = await asyncio.to_thread(db.queryCard, {'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
+                    universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
                     dungeon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}
                     tales_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
                     if self.is_dungeon_game_mode:
-                        self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
-                        self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}, self.player1)
-                        self._ai_summon = db.get_random_summon_name(dungeon_query)
+                        self._ai_title = await asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_data['TITLE']}, self.player1)
+                        self._ai_arm = await asyncio.to_thread(db.get_random_arm, {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}, self.player1)
+                        self._ai_summon = await asyncio.to_thread(db.get_random_summon_name, dungeon_query)
                         if player1_card_level >= 600:
-                            self._ai_opponent_card_lvl = 650
+                            self._ai_opponent_card_lvl = 900
                         else:
                             self._ai_opponent_card_lvl = 50 + min(max(350, player1_card_level), 600) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
                     
                     if self.is_tales_game_mode:
-                        self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
-                        self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}, self.player1)
-                        self._ai_summon = db.get_random_summon_name(tales_query)
+                        self._ai_title = await asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_data['TITLE']}, self.player1)
+                        self._ai_arm = await asyncio.to_thread(db.get_random_arm, {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}, self.player1)
+                        self._ai_summon = await asyncio.to_thread(db.get_random_summon_name, tales_query)
                         if player1_card_level <= 20 and player1_card_level >=10:
                             self._ai_opponent_card_lvl = 10
                         elif player1_card_level >= 0 and player1_card_level <=10:
@@ -740,16 +750,16 @@ class Battle:
 
                     if any((self.is_scenario_game_mode, self.is_explore_game_mode)):
                         if self._ai_opponent_card_lvl < 150:
-                            self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
-                            self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}, self.player1)
-                            self._ai_summon = db.get_random_summon_name(tales_query)
+                            self._ai_title = await asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_data['TITLE']}, self.player1)
+                            self._ai_arm = await asyncio.to_thread(db.get_random_arm, {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}, self.player1)
+                            self._ai_summon = await asyncio.to_thread(db.get_random_summon_name, tales_query)
                         if self._ai_opponent_card_lvl >= 150:
-                            self._ai_title = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
-                            self._ai_arm = db.get_random_arm({'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}, self.player1)
-                            self._ai_summon = db.get_random_summon_name(dungeon_query)
-                self._ai_opponent_title_data = db.queryTitle({'TITLE': self._ai_title})
-                self._ai_opponent_arm_data = db.queryArm({'ARM': self._ai_arm})
-                self._ai_opponentsummon_data = db.querySummon({'PET': self._ai_summon})
+                            self._ai_title = await asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_data['TITLE']}, self.player1)
+                            self._ai_arm = await asyncio.to_thread(db.get_random_arm, {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}, self.player1)
+                            self._ai_summon = await asyncio.to_thread(db.get_random_summon_name, dungeon_query)
+                self._ai_opponent_title_data = await asyncio.to_thread(db.queryTitle, {'TITLE': self._ai_title})
+                self._ai_opponent_arm_data = await asyncio.to_thread(db.queryArm, {'ARM': self._ai_arm})
+                self._ai_opponentsummon_data = await asyncio.to_thread(db.querySummon, {'PET': self._ai_summon})
                 self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
                 self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
                 self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
@@ -760,12 +770,12 @@ class Battle:
                 self._ai_opponentsummon_type = summon_passive['TYPE']#
                 
             else:
-                self._boss_data = db.queryBoss({"UNIVERSE": self.selected_universe, "AVAILABLE": True})
+                self._boss_data = await asyncio.to_thread(db.queryBoss, {"UNIVERSE": self.selected_universe, "AVAILABLE": True})
                 self._tactics = self._boss_data['TACTICS']
-                self._ai_opponent_card_data = db.queryCard({'NAME': self._boss_data['CARD']})
-                self._ai_opponent_title_data = db.queryTitle({'TITLE': self._boss_data['TITLE']})
-                self._ai_opponent_arm_data = db.queryArm({'ARM': self._boss_data['ARM']})
-                self._ai_opponentsummon_data = db.querySummon({'PET': self._boss_data['PET']})
+                self._ai_opponent_card_data = await asyncio.to_thread(db.queryCard, {'NAME': self._boss_data['CARD']})
+                self._ai_opponent_title_data = await asyncio.to_thread(db.queryTitle, {'TITLE': self._boss_data['TITLE']})
+                self._ai_opponent_arm_data = await asyncio.to_thread(db.queryArm, {'ARM': self._boss_data['ARM']})
+                self._ai_opponentsummon_data = await asyncio.to_thread(db.querySummon, {'PET': self._boss_data['PET']})
                 self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
                 self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
                 self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
@@ -1510,13 +1520,10 @@ class Battle:
             picon = "🔥"
 
                 
-        embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!", description=textwrap.dedent(f"""
-            {self.get_previous_moves_embed()}
-            
-            """))
+        embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!")
         embedVar.add_field(name="💽 | Saved Data",
                                 value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}")
-        embedVar.set_footer(text=f"{self.get_battle_time()}")
+        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.get_battle_time()}")
         return embedVar
     
     
@@ -1765,10 +1772,8 @@ class Battle:
             
             message = f"YOU LOSE!\nThe game lasted {self.turn_total} rounds."
 
-        embedVar = Embed(title=f"{message}",description=textwrap.dedent(f"""
-        {self.get_previous_moves_embed()}
-        
-        """),color=0x1abc9c)
+        embedVar = Embed(title=f"{message}", color=0x1abc9c)
+        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}")
         
         f_message = self.get_most_focused(winner_card, opponent_card)
         embedVar.add_field(name=f"🌀 | Focus Count",
@@ -2010,6 +2015,7 @@ class Battle:
             if self.is_scenario_game_mode:
                 self.is_tales_game_mode = False
             if self.is_explore_game_mode:
+                self.battle_mode = "Explore"
                 self.player2_card = self._ai_opponent_card_data
                 self.get_aisummon_ready(self.player2_card)
                 self.player2_title = crown_utilities.create_title_from_data(db.queryTitle({"TITLE": self._ai_opponent_title_data}))
@@ -2021,7 +2027,7 @@ class Battle:
                 self.player2_card.get_tactics(self)
                 return
 
-            self.get_ai_battle_ready(self.player1_card.card_lvl)
+            await self.get_ai_battle_ready(self.player1_card.card_lvl)
             self.player2_card = crown_utilities.create_card_from_data(self._ai_opponent_card_data, self._ai_is_boss)
             self.get_aisummon_ready(self.player2_card)
             self.player2_card.set_ai_card_buffs(self._ai_opponent_card_lvl, self.stat_buff, self.stat_debuff, self.health_buff, self.health_debuff, self.ap_buff, self.ap_debuff, self.player1.prestige, self.player1.rebirth, self.mode)
@@ -2068,13 +2074,13 @@ class Battle:
         return embedVar
 
 
-    def you_lose_embed(self, player_card, opponent_card, companion_card=None):
+    async def you_lose_embed(self, player_card, opponent_card, companion_card=None):
         wintime = datetime.datetime.now()
         starttime = datetime.datetime.now()
         gameClock = crown_utilities.getTime(starttime.hour, starttime.minute, starttime.second,
                                             wintime.hour, wintime.minute, wintime.second)
 
-        embedVar = self.create_loss_embed_var(player_card, opponent_card, companion_card, gameClock)
+        embedVar = await self.create_loss_embed_var(player_card, opponent_card, companion_card, gameClock)
         return embedVar
 
 
@@ -2108,12 +2114,31 @@ class Battle:
         return embedVar
 
 
-    def create_loss_embed_var(self, player_card, opponent_card, companion_card, gameClock):
+    async def create_loss_embed_var(self, player_card, opponent_card, companion_card, gameClock):
         if self.is_raid_game_mode:
             embedVar = Embed(title=f"🛡️ **{opponent_card.name}** defended the {self._association_name}\nMatch concluded in {self.turn_total} turns", color=0x1abc9c)
         else:
             embedVar = Embed(title=f"💀 Try Again", color=0xe91e63)
-        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"{self.format_game_clock(gameClock)}")
+
+        # self.selected_universe 
+        milestone_game_mode_message = await Quests.milestone_check(self.player1, self.battle_mode, 1, self.selected_universe)
+        milestone_element_1_damage_message = await Quests.milestone_check(self.player1, self.player1_card.move1_element, self.player1_card.move1_damage_dealt, self.selected_universe)
+        milestone_element_2_damage_message = await Quests.milestone_check(self.player1, self.player1_card.move2_element, self.player1_card.move2_damage_dealt, self.selected_universe)
+        milestone_element_3_damage_message = await Quests.milestone_check(self.player1, self.player1_card.move3_element, self.player1_card.move3_damage_dealt, self.selected_universe)
+
+        if milestone_game_mode_message:
+            embedVar.add_field(name="🏆 Milestone", value=f"{milestone_game_mode_message}")
+
+        if milestone_element_1_damage_message:
+            embedVar.add_field(name="🏆 Milestone", value=f"{milestone_element_1_damage_message}")
+                               
+        if milestone_element_2_damage_message:
+            embedVar.add_field(name="🏆 Milestone", value=f"{milestone_element_2_damage_message}")
+
+        if milestone_element_3_damage_message:
+            embedVar.add_field(name="🏆 Milestone", value=f"{milestone_element_3_damage_message}")
+
+        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.format_game_clock(gameClock)}")
         self.add_stat_fields_to_embed(embedVar, player_card, opponent_card, companion_card)
         return embedVar
 

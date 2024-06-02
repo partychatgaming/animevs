@@ -10,6 +10,7 @@ import help_commands as h
 import uuid
 import asyncio
 import random
+from .quests import Quests
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 class RewardDrops(Extension):
@@ -102,7 +103,7 @@ async def reward_money(battle_config, player):
         gem_amount = gem_amount * 1.25
     
     if battle_config.is_dungeon_game_mode:
-        amount = amount * 2
+        amount = amount * 3
         gem_amount = gem_amount * 2.25
 
     if battle_config.is_scenario_game_mode:
@@ -170,17 +171,15 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
     user_query = {'DID': str(player.did)}
     reward_money_message = await reward_money(battle_config, player)
     title_drop_message = player.save_title(battle_config.selected_universe)
-    print(f"Title drop message: {title_drop_message}")
     message = ""
 
     if drop_type == "GOLD" or drop_type is None:
         message = f"**{reward_money_message}**!"
-    elif drop_type == "RIFT":
-        response = db.updateUserNoFilter(user_query, {'$set': {'RIFT': 1}})
-        message = f"A Rift has opened!\n{reward_money_message}"
+
     elif drop_type == "REMATCH":
         response = db.updateUserNoFilter(user_query, {'$inc': {'RETRIES': 1}})
         message = f"You earned 1 Rematch!\n{reward_money_message}"
+    
     elif drop_type == "ARM":
         if reward_item in owned:
             message = f"You already own 🦾 **{reward_item}**!"
@@ -193,7 +192,12 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 message = "You are maxed out on 🦾 Arms!"
             else:
                 message = f"You earned 🦾 **{reward_item}** with ⚒️**{str(durability)} Durability**!"
+
+                milestone_message = await Quests.milestone_check(player, "ARMS_OWNED", 1)
+                if milestone_message:
+                    message += f"\n🏆 {milestone_message}"
         message += f"\n{reward_money_message}"
+    
     elif drop_type == "SUMMON":
         if len(player.summons) >= 25:
             message = "You're maxed out on 🐦 Summons!"
@@ -212,7 +216,11 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 player.save_summon(summon)
                 await crown_utilities.bless(50, player.did)
                 message = f"You earned 🐦 **{reward_item}** + 🪙 50!"
+                milestone_message = await Quests.milestone_check(player, "SUMMONS_OWNED", 1)
+                if milestone_message:
+                    message += f"\n🏆 {milestone_message}"
         message += f"\n{reward_money_message}"
+    
     elif drop_type == "CARD":
         if reward_item in owned:
             message = f"You already own 🎴 **{reward_item}**!"
@@ -225,12 +233,20 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 message = "You are maxed out on 🎴 Cards!"
             else:
                 message = f"You earned 🎴 {card.name}!"
+                milestone_message = await Quests.milestone_check(player, "CARDS_OWNED", 1)
+                if milestone_message:
+                    message += f"\n🏆 {milestone_message}"
+
+
         message += f"\n{reward_money_message}"
 
     if message and title_drop_message:
         message = f"{message}\n{title_drop_message}"
     elif title_drop_message:
         message = title_drop_message
+        milestone_message = await Quests.milestone_check(player, "TITLES_OWNED", 1)
+        if milestone_message:
+            message += f"\n🏆 {milestone_message}"
 
     return message
 
@@ -269,9 +285,6 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
                     message = await reward_message(battle_config, player)
                 return message
             else:
-                print("No drop type found")
-                print(f"Drop type: {drop_type}")
-                print(f"Drop style: {drop_style}")
                 message = await reward_message(battle_config, player)
                 return message
         except Exception as ex:
@@ -282,4 +295,5 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
 
 def setup(bot):
     RewardDrops(bot)
+    
               

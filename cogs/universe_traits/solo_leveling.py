@@ -4,8 +4,8 @@ import random
 
 def rulers_authority(player_card, battle_config, opponent_card):
     if player_card.universe == "Solo Leveling":
-        opponent_card.defense = round(opponent_card.defense - (50 + battle_config.turn_total))
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {opponent_card.name} defense decreased by {50 + battle_config.turn_total} 🛡️ 🔻 due to ruler's authority")
+        opponent_card.defense = round(opponent_card.defense - ((40 + battle_config.turn_total) * player_card.tier))
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {opponent_card.name} defense decreased by {(40 + battle_config.turn_total) * player_card.tier} 🛡️ 🔻 due to ruler's authority")
 
 
 def set_solo_leveling_config(player_card, opponent_shield_active, opponent_shield_value, opponent_barrier_active, opponent_barrier_value, opponent_parry_active, opponent_parry_value):

@@ -1,7 +1,7 @@
 traits = [{
     'NAME': 'My Hero Academia',
     'EFFECT': 'Quirk Awakening, Plus Ultra',
-    'TRAIT': 'You gain 10ap each turn. On Resolve, you gain stored ap multiplied by focus count in ap, but you lose 50 ap each turn.',
+    'TRAIT': 'You gain 50 stored ap each turn. On Resolve, you gain stored ap multiplied by focus count in ap, but you lose 150 ap each turn.',
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot, Pentakill',
@@ -33,7 +33,7 @@ traits = [{
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone, Grimoire',
-    'TRAIT': 'Mana Zone : Gain 100 Stamina on Focus. Gain 50 Stamina on Block. Grimoire : AP is increased by (30 + turn Count) on Focus.'
+    'TRAIT': 'Mana Zone : Gain 100 Stamina on Focus. Gain 50 Stamina and 30 * Card Tier on Block. Grimoire : AP is increased by (50 + turn Count) on Focus.'
 },{
     'NAME': 'Fate',
     'EFFECT': 'Command Seal',
@@ -41,7 +41,7 @@ traits = [{
 },{
     'NAME': 'Demon Slayer',
     'EFFECT': 'Total Concentration Breathing, Constant',
-    'TRAIT': 'Breathing : Gain 40% of Opponent HP as your own. Constant :  On Resolve, Your ATK & DEF = Opp ATK and DEF.'
+    'TRAIT': 'Breathing : Gain 60% of Opponent HP as your own. Constant:  On Resolve, Your ATK & DEF = Opp ATK and DEF + 1K only if your Opp ATK and DEF are higher than yours.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Blood Orb, Ascension',
@@ -57,7 +57,7 @@ traits = [{
 },{
     'NAME': 'Solo Leveling',
     'EFFECT': 'Rulers Authority, Arise!',
-    'TRAIT': 'Rulers Authority : On Focus, opponent loses (30 + turn) Defense. Arise! : When Opponent Arm Breaks it revives as your Arm.'
+    'TRAIT': 'Rulers Authority : On Focus, opponent loses (40 + turn * Card Tier) Defense. Arise! : When Opponent Arm Breaks it revives as your Arm.'
 },{
     'NAME': 'Souls',
     'EFFECT': 'Combo Recognition, Second Phase!',
@@ -65,7 +65,7 @@ traits = [{
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death, Shinigami Eyes',
-    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death 150 Turns You Win. Shinigami Eyes : On Block, Sacrifice 5% Max Health to Increase Turn by (3 + Card Tier).'
+    'TRAIT': 'Scheduled Death : Your First Focus After Scheduled Death 150 Turns You Win. Shinigami Eyes : On Block, Sacrifice 15% Max Health to Increase Turn by (6 + Card Tier).'
 },{
     'NAME': 'Dragon Ball Z',
     'EFFECT': 'Final Stand, Saiyan Energy',

@@ -45,10 +45,10 @@ def plus_ultra(player_card, battle_config):
 
 def activate_my_hero_academia_trait(player_card):
     if player_card.universe == "My Hero Academia" and not player_card.used_resolve:
-        player_card.my_hero_academia_buff_counter += 10
+        player_card.my_hero_academia_buff_counter += 50
     
-    if player_card.universe == "My Hero Academia" and player_card.used_resolve and player_card.my_hero_academia_buff > 50:
-        player_card.my_hero_academia_buff -= 50
+    if player_card.universe == "My Hero Academia" and player_card.used_resolve and player_card.my_hero_academia_buff > 150:
+        player_card.my_hero_academia_buff -= 150
 
 
 

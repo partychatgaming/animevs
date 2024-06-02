@@ -1734,11 +1734,14 @@ class CustomPaginator(Paginator):
 
                     if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
                         quest_response = await Quests.quest_check(player, "MARKETPLACE")
+                        milestone_response = await Quests.milestone_check(player, "MARKETPLACE", 1)
                         response = db.createMarketEntry(market_object)
                         if response:
                             embed = Embed(title=f"🏷️ Market Code - {market_object['MARKET_CODE']}", description=f"{card.name} has been added to the market for 🪙 {'{:,}'.format(price)}")
                             if quest_response:
                                 embed.add_field(name="🏷️ Quest Completed", value=f"{quest_response}")
+                            if milestone_response:
+                                embed.add_field(name="🏆 Milestone Completed", value=f"{milestone_response}")
                             await msg.edit(embed=embed, components=[])
                             return
                     if button_ctx.ctx.custom_id == f"{self._uuid}|no":
@@ -1785,7 +1788,7 @@ class CustomPaginator(Paginator):
             c.set_card_level_buffs(player.card_levels)
             if c.card_lvl == 0:
                 c.card_lvl = 1
-            dismantle_amount = (250 * c.tier) * c.card_lvl
+            dismantle_amount = (1000 * c.tier) * c.card_lvl
             if card == player.equipped_card:
                 embed = Embed(title=f"🎴 Card Dismantled", description=f"Failed to dismantle {card} as it is currently equipped")
                 await ctx.send(embed=embed)
@@ -1805,7 +1808,7 @@ class CustomPaginator(Paginator):
                         ]
 
                 components = ActionRow(*dismantle_buttons)
-                embed = Embed(title=f"🎴 Dismantle Card", description=f"Are you sure you want to dismantle {card} for 💎 {dismantle_amount} gems?")
+                embed = Embed(title=f"🎴 Dismantle Card", description=f"Are you sure you want to dismantle {card} for 💎 & 🪙 {dismantle_amount:,} gems and coin?")
                 msg = await ctx.send(embed=embed, components=[components])
 
                 def check(component: Button) -> bool:
@@ -1823,9 +1826,11 @@ class CustomPaginator(Paginator):
                         response = player.save_gems(c.universe, dismantle_amount)
 
                         if response:
+
                             remove_card_response = player.remove_card(card)
+                            await crown_utilities.bless(dismantle_amount, player.did)
                             if remove_card_response:
-                                embed = Embed(title=f"🎴 Card Dismantled", description=f"{c.name} has been dismantled for 💎 {dismantle_amount} {c.universe_crest} {c.universe} Gems")
+                                embed = Embed(title=f"🎴 Card Dismantled", description=f"{c.name} has been dismantled for 💎 & 🪙 {dismantle_amount:,} {c.universe_crest} {c.universe} Gems and Coin.")
                                 await msg.edit(embed=embed, components=[])
                         else:
                             embed = Embed(title=f"🎴 Card Not Dismantled", description=f"Failed to dismantle {card} - Error Logged")

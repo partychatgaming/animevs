@@ -845,16 +845,16 @@ def get_exp_gain(player, mode, card, has_universe_soul, extra_exp):
     try:
         lvl_req = get_level_up_exp_req(card)
         exp_gain = 0
-        t_exp_gain = 100 + (player.rebirth) + player.prestige_buff
+        t_exp_gain = 500 + (player.rebirth) + player.prestige_buff
         d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
         b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
         if has_universe_soul:
             if mode in DUNGEON_M:
-                exp_gain = (d_exp_gain * 5) + extra_exp
+                exp_gain = (d_exp_gain * 25) + extra_exp
             elif mode in TALE_M:
-                exp_gain = (t_exp_gain * 5) + extra_exp
+                exp_gain = (t_exp_gain * 10) + extra_exp
             elif mode in BOSS_M:
-                exp_gain = (b_exp_gain * 5) + extra_exp
+                exp_gain = (b_exp_gain * 100000) + extra_exp
             else:
                 exp_gain = extra_exp
         else:
@@ -1909,8 +1909,8 @@ title_enhancer_suffix_mapping = {'ATK': '% each turn',
     'PIERCE': '',
     'SYNTHESIS': '',
     'SPELL SHIELD': '',
-    'ELEMENTAL BUFF': 'elemental damage by 35%',
-    'ELEMENTAL DEBUFF': 'elemental damage by 35%',
+    'ELEMENTAL BUFF': 'elemental damage by 50%',
+    'ELEMENTAL DEBUFF': 'elemental damage by 50%',
     'ENHANCED GUARD': '',
     'STRATEGIST': '',
     'SHARPSHOOTER': '',
@@ -2451,71 +2451,61 @@ quest_list = [
     "TYPE": "TRADE",
     "AMOUNT": 0,
     "COMPLETE": 1,
-    "REWARD": 100000,
+    "REWARD": 500000,
     "COMPLETED": False,
     "NAME": "Complete 1 Trade",
     "MODE": "TRADE",
     "RANK": "D",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     },
     {
     "TYPE": "MARKETPLACE",
     "AMOUNT": 0,
     "COMPLETE": 1,
-    "REWARD": 100000,
+    "REWARD": 500000,
     "COMPLETED": False,
     "NAME": "Add 1 Item to Marketplace",
     "MODE": "MARKETPLACE",
     "RANK": "D",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     },
     {
     "TYPE": "TALES",
     "AMOUNT": 0,
     "COMPLETE": 5,
-    "REWARD": 500000,
+    "REWARD": 200000,
     "COMPLETED": False,
     "NAME": "Complete 5 Tales Battles",
     "MODE": "TALES",
     "RANK": "C",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     },
     {
     "TYPE": "SCENARIOS",
     "AMOUNT": 0,
     "COMPLETE": 2,
-    "REWARD": 100000,
+    "REWARD": 300000,
     "COMPLETED": False,
     "NAME": "Complete 2 Scenarios",
     "MODE": "SCENARIOS",
     "RANK": "C",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     },
     {
     "TYPE": "DUNGEONS",
     "AMOUNT": 0,
     "COMPLETE": 5,
-    "REWARD": 300000,
+    "REWARD": 500000,
     "COMPLETED": False,
     "NAME": "Complete 5 Dungeon Battles",
     "MODE": "DUNGEONS",
     "RANK": "B",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     },
     {
     "TYPE": "PVP",
@@ -2528,50 +2518,42 @@ quest_list = [
     "RANK": "B",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     },
     {
     "TYPE": "FULL DUNGEONS",
     "AMOUNT": 0,
     "COMPLETE": 1,
-    "REWARD": 2000000,
+    "REWARD": 50000000,
     "COMPLETED": False,
     "NAME": "Complete a Full Dungeon",
     "MODE": "FULL DUNGEONS",
     "RANK": "A",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     },
     {
     "TYPE": "FULL TALES",
     "AMOUNT": 0,
     "COMPLETE": 1,
-    "REWARD": 500000,
+    "REWARD": 50000000,
     "COMPLETED": False,
     "NAME": "Copmlete a Full Tale",
     "MODE": "FULL TALES",
     "RANK": "A",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     },
     {
     "TYPE": "RAIDS",
     "AMOUNT": 0,
     "COMPLETE": 1,
-    "REWARD": 20000000,
+    "REWARD": 50000000,
     "COMPLETED": False,
     "NAME": "Complete a Raid",
     "MODE": "RAIDS",
     "RANK": "S",
     "QUEST_FLAG": True,
     "MILESTONE_FLAG": False,
-    "UNIVERSE": "N/A",
-    "MILESTONES": []
     }
 ]
 

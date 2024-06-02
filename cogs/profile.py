@@ -16,6 +16,7 @@ from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.player_class import Player
 from .classes.battle_class  import Battle
+from .quests import Quests
 from .game_modes import enhancer_mapping, title_enhancer_mapping, enhancer_suffix_mapping, title_enhancer_suffix_mapping, passive_enhancer_suffix_mapping
 import random
 import textwrap
@@ -496,14 +497,18 @@ class Profile(Extension):
                 return
             query = {'DID': str(ctx.author.id)}
             user = db.queryUser(query)
+            player = crown_utilities.create_player_from_data(user)
             talismans = user["TALISMANS"]
             essence_list = user["ESSENCE"]
             if crown_utilities.is_maxed_out(talismans):
                 embed = Embed(title="📿 Talisman", description="You have maxed out your talisman's. You can't infuse any more essence into them.", color=0x00ff00)
                 await ctx.send(embed=embed)
             else:
+                quest_message = await Quests.milestone_check(player, "TALISMANS_OWNED", 1)
                 response = crown_utilities.essence_cost(user, selection)
                 embed = Embed(title="📿 Talisman", description=response, color=0x00ff00)
+                if quest_message:
+                    embed.add_field(name="🏆 Milestone", value=quest_message)
                 await ctx.send(embed=embed)
         except Exception as ex:
             trace = []
@@ -1206,8 +1211,12 @@ class Profile(Extension):
                     user.remove_gems(card.universe, price)
                     gems_left = balance - price
                     embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** gained {levels_gained} levels!\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
+                    milestone_message = await Quests.milestone_check(user, "BLACKSMITH", 1)
+                    if milestone_message:
+                        embed.add_field(name="🏆 **Milestone**", value=milestone_message)
                     await msg.edit(embed=embed, components=[])
                     return
+                
                 if option == f"{_uuid}|1":
                     levels_gained = 10
                     price = ten_levels
@@ -1224,6 +1233,7 @@ class Profile(Extension):
                     embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Blacksmith cancelled.", color=0xf1c40f)
                     await msg.edit(embed=embed, components=[])
                     return
+                
                 if option in exp_boost_buttons:
                     gems_left = balance - price
                     if price > balance:
@@ -1287,9 +1297,9 @@ class Profile(Extension):
                         return
                     else:
                         await crown_utilities.curse(price, user.did)
-                        db.updateUserNoFilter({'DID': user.did}, {'$addToSet': {'DECK' : {'CARD' : user.equipped_card, 'TITLE': "Preset Upgrade Ver 4.0",'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}}})
-                        db.updateUserNoFilter({'DID': user.did}, {'$addToSet': {'DECK' : {'CARD' : user.equipped_card, 'TITLE': "Preset Upgrade Ver 5.0",'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}}})
-                        db.updateUserNoFilterAlt(user_query, {'$set': {'U_PRESET': True}})
+                        await asyncio.to_thread(db.updateUserNoFilter, {'DID': user.did}, {'$push': {'DECK' : {'CARD' : user.equipped_card, 'TITLE': user.equipped_title, 'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}}})
+                        await asyncio.to_thread(db.updateUserNoFilter,{'DID': user.did}, {'$push': {'DECK' : {'CARD' : user.equipped_card, 'TITLE': user.equipped_title, 'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}}})
+                        await asyncio.to_thread(db.updateUserNoFilterAlt, user_query, {'$set': {'U_PRESET': True}})
                         embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🔖 | Preset Upgraded", color=0xf1c40f)
                         # await button_ctx.ctx.send("🔖 | Preset Upgraded")
                         await msg.edit(embeds=[embed], components=[])
@@ -1372,6 +1382,7 @@ class Profile(Extension):
 
     @slash_command(description="View your summons")
     async def summons(self, ctx):
+        await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
@@ -1816,7 +1827,8 @@ class Profile(Extension):
                     await msg.edit(embed=embed, components=[])
                     return
                 except asyncio.TimeoutError:
-                    await ctx.send(f"{ctx.author.mention} Preset Menu closed.", ephemeral=True)
+                    await msg.delete()
+                    # await ctx.send(f"{ctx.author.mention} Preset Menu closed.", ephemeral=True)
                 except Exception as ex:
                     loggy.critical(ex)
                     trace = []
@@ -1833,7 +1845,7 @@ class Profile(Extension):
                         'message': str(ex),
                         'trace': trace
                     }))
-                    await ctx.send("Preset Issue Seek support.", ephemeral=True)
+                    # await ctx.send("Preset Issue Seek support.", ephemeral=True)
             else:
                 embed = Embed(title=f"🔖 | Whoops!", description=f"You do not have a preset saved yet. Use /savepreset to save your current build as a preset.")
                 await ctx.send(embed=embed)

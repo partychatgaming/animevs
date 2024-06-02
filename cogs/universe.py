@@ -216,11 +216,12 @@ class Universe(Extension):
                 save_spot_check = crown_utilities.DUNGEON_M
                 mode_check = "HAS_DUNGEON"
                 completed_check = player.completed_dungeons
-                if universe_title not in player.completed_tales:
-                    embed = Embed(title= f"{crown_utilities.crest_dict[universe['TITLE']]} Dungeon Locked.", description="You must complete the Tales for this Universe before you can enter the Dungeon.")
-                    await ctx.send(embed=embed)
-                    player.make_available()
-                    return
+                # If this universe's tales has not been completed
+                # if universe_title not in player.completed_tales:
+                #     embed = Embed(title= f"{crown_utilities.crest_dict[universe['TITLE']]} Dungeon Locked.", description="You must complete the Tales for this Universe before you can enter the Dungeon.")
+                #     await ctx.send(embed=embed)
+                #     player.make_available()
+                #     return
                 if universe_title in player.completed_dungeons:
                     completed_message = f"**Completed**: {crown_utilities.utility_emojis['ON']}"
                     can_fight_message = f"🔥 Dungeon | Conquer {universe['TITLE']} Dungeon again for a Boss Key and Minor Reward."

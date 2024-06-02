@@ -283,10 +283,14 @@ class Trade(Extension):
             if button_ctx.ctx.custom_id == f"{_uuid}|yes":
                 await button_ctx.ctx.defer(edit_origin=True)
                 response = db.createTrade(trade_info.get_trade_data())
+                milestone_message = await Quests.milestone_check(merchant, "TRADE", 1)
                 quest_message = await Quests.quest_check(merchant, "TRADE")
                 embed = Embed(title=f"🤝 Trade Opened", description=f"Trade between <@{merchant.did}> and <@{trade_partner.did}> has been opened.")
                 if quest_message:
                     embed.add_field(name="🤝 Quest Completed", value=quest_message)
+                
+                if milestone_message:
+                    embed.add_field(name="🏆 Milestone Completed", value=milestone_message)
                 await msg.edit(embed=embed, components=[])
                 return
             

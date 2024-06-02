@@ -528,6 +528,9 @@ class Title:
                     player_card.max_health = player_card.max_health - (player_card.max_health * .03)
                     if player_card.health > player_card.max_health:
                         player_card.health = player_card.max_health
+                player_card.max_health = player_card.max_health - (player_card.max_health * .03)
+                if player_card.health > player_card.max_health:
+                    player_card.health = player_card.max_health
                 opponent_card.defense = opponent_card.defense - power
                 opponent_card.attack = opponent_card.attack - power
                 opponent_card.card_lvl_ap_buff = opponent_card.card_lvl_ap_buff - power
@@ -664,7 +667,8 @@ class Title:
             element = getattr(self, f'ability{i}_element', None)
             if ability and ability == "ELEMENTAL BUFF":
                 if move_element == element:
-                    true_dmg = round(true_dmg + (true_dmg * (power / 100)))
+                    # Buff the damage by 50%
+                    true_dmg = round(true_dmg + (true_dmg * .50))
                     return true_dmg
 
 
@@ -675,7 +679,8 @@ class Title:
             element = getattr(self, f'ability{i}_element', None)
             if ability and ability == "ELEMENTAL DEBUFF":
                 if move_element == element:
-                    true_dmg = round(true_dmg - (true_dmg * (power / 100)))
+                    # Debuff the damage by 50%
+                    true_dmg = round(true_dmg - (true_dmg * .50))
                     return true_dmg
                 
 

@@ -744,7 +744,7 @@ class Card:
                 return card_lvl
         elif mode == "Dungeon":
             if card_lvl >= 600:
-                return 650
+                return 900
             else:
                 if card_lvl <= 350:
                     return 350
@@ -1015,12 +1015,12 @@ class Card:
 
 
         if battle_config.is_hard_difficulty:
-            self.attack = self.attack + 1000 + (200 *self.tier)
-            self.defense = self.defense + 1000 + (200 * self.tier)
-            self.max_health = self.max_health + (1000 * self.tier)
-            self.health = self.health + (1000 * self.tier)
+            self.attack = self.attack + (100 *self.tier)
+            self.defense = self.defense + (100 * self.tier)
+            self.max_health = self.max_health + (100 * self.tier)
+            self.health = self.health + (500 * self.tier)
             random_mod = random.randint(0,1500000)
-            self.bounty = self.bounty + (2000000 * self.tier) + random_mod
+            self.bounty = self.bounty + (10000000 * self.tier) + random_mod
 
         if self.bounty >= 150000:
             bounty_icon = "💸"
@@ -1222,7 +1222,7 @@ class Card:
                     arm_message = f"{arm.passive_type.title()} | {arm.passive_value}"
                     if arm.passive_type in crown_utilities.ABILITY_ARMS:
                         arm_element_icon = crown_utilities.set_emoji(arm.element)
-                        arm_message = f"{arm_element_icon} {arm.passive_type.title()}"
+                        arm_message = f"🦾 {arm_element_icon} {arm.passive_type.title()}"
                         #self.element = arm.element
                     
                 ebasic, especial, eultimate, engagement_basic, engagement_special, engagement_ultimate = calculate_engagement_levels(opponent_card_defense, mode, self)
@@ -1359,7 +1359,13 @@ class Card:
                 move_element = self.summon_type
                 move_emoji = self.summon_emoji
                 can_use_move_flag = True
-                ap = self.summon_power
+
+                # Added 100x multipler to increase damage
+                summoner_buff = 1
+                if self.is_summoner:
+                    summoner_buff = self.tier * 10 
+                    
+                ap = self.summon_power * summoner_buff
                 move_stamina = 0
                 move = self.summon_ability_name
                 summon_used = True
@@ -1518,6 +1524,9 @@ class Card:
             m = get_message(move, enh, enhancer_value, self.tier)
             if move_stamina != 15:
                 self.stamina = self.stamina - move_stamina
+            
+            if enh in ['DRAIN', 'STAM']:
+                move_stamina = 0
 
             if _opponent_card.damage_check_activated:
                 damage_check_message = f"[[Damage Check] {round(_opponent_card.damage_check_counter)} damage done so far]"
@@ -2681,6 +2690,8 @@ class Card:
                 name = f" **{self.name}:**"
             
             naruto_trait_active = substitution_jutsu(self, opponent_card, dmg, battle_config)
+            if naruto_trait_active:
+                return
 
             protection_handlers = [
                 self.active_barrier_handler,
@@ -2951,10 +2962,8 @@ class Card:
  
 
     def get_tactics(self, battle_config):
-        print(battle_config.is_raid_scenario)
         if self._is_boss or battle_config.is_raid_scenario:
             self.tactics = battle_config._tactics
-            print(self.tactics)
             if self.tactics:
                 if "ENRAGED" in self.tactics:
                     self.enraged = True
@@ -2979,7 +2988,7 @@ class Card:
                     self.petrified_fear_turns = random.randint(1, 5)
                 if "DAMAGE_CHECK":
                     self.damage_check = True
-                    self.damage_check_limit = round(random.randint(1000, 2500))
+                    self.damage_check_limit = round(random.randint(1000, 3500))
 
 
     def stats_handler(self, battle_config, player, total_complete):

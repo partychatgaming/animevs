@@ -50,11 +50,11 @@ class Arm:
         if self.drop_style == "TALES":
             self.is_tale_drop = True
             self.drop_emoji = f"🦾"
-            self.dismantle_amount = 10000
+            self.dismantle_amount = 25000
         elif self.drop_style == "DUNGEON":
             self.is_dungeon_drop = True
             self.drop_emoji = f"🔥"
-            self.dismantle_amount = 50000
+            self.dismantle_amount = 80000
         elif self.drop_style == "SCENARIO":
             self.is_scenario_drop = True
             self.drop_emoji = f"🎞️"

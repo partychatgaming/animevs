@@ -72,7 +72,7 @@ class GameState(Extension):
                     pvp_response = await battle_config.pvp_victory_embed(battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
                 else:
                     if battle_config.is_tutorial_game_mode:
-                        pvp_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, companion_card = None)
+                        pvp_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, companion_card = None)
                     else:
                         pvp_response = await battle_config.pvp_victory_embed(battle_config.player2, battle_config.player2_card, battle_config.player2_arm, battle_config.player2_title, battle_config.player1, battle_config.player1_card)
 
@@ -152,9 +152,9 @@ class GameState(Extension):
                     co_op_arm_durability_message = crown_utilities.update_arm_durability(battle_config.player3, battle_config.player3_arm, battle_config.player3_card)
                     if co_op_arm_durability_message != False:
                         await private_channel.send(f"{co_op_arm_durability_message}")
-                loss_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
+                loss_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
             else:
-                loss_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, None)
+                loss_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, None)
             
             # await battle_msg.delete()
             await asyncio.sleep(1)
@@ -168,9 +168,9 @@ class GameState(Extension):
 
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|play_again_no":
                     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                        loss_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
+                        loss_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
                     else:
-                        loss_response = battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, None)
+                        loss_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, None)
                     # await battle_msg.delete()
                     await end_msg.edit(embed=loss_response, components=[])
                     
@@ -271,15 +271,39 @@ class GameState(Extension):
                 if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
                     if battle_config.is_dungeon_game_mode:
                         quest_response = await Quests.quest_check(battle_config.player1, "DUNGEONS")
+                        milestone_reponse = await Quests.milestone_check(battle_config.player1, "DUNGEONS_RUN", 1)
                     else:
                         quest_response = await Quests.quest_check(battle_config.player1, "TALES")
+                        milestone_reponse = await Quests.milestone_check(battle_config.player1, "TALES_RUN", 1)
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                    
                     if not battle_config.is_co_op_mode:
                         embedVar = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence",color=0x1abc9c)
                         embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
                         if quest_response:
                             embedVar.add_field(name="**Quest Complete**",
                                 value=f"{quest_response}")
+                        
+                        if milestone_reponse:
+                            embedVar.add_field(name="🏆 **Milestone**",
+                                value=f"{milestone_reponse}")
+
+                        # Define a list of milestones to check
+                        milestones = [
+                            (battle_config.player1, battle_config.battle_mode, 1, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move1_element, battle_config.player1_card.move1_damage_dealt, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move2_element, battle_config.player1_card.move2_damage_dealt, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move3_element, battle_config.player1_card.move3_damage_dealt, battle_config.selected_universe),
+                        ]
+
+                        # Check milestones and add messages to the embed
+                        for milestone in milestones:
+                            milestone_messages = await Quests.milestone_check(*milestone)
+                            if milestone_messages:
+                                for message in milestone_messages:
+                                    embedVar.add_field(name="🏆 Milestone", value=message)
+
+
 
                         f_message = battle_config.get_most_focused(battle_config.player1_card, battle_config.player2_card)
                         embedVar.add_field(name=f"🌀 | Focus Count",
@@ -346,8 +370,10 @@ class GameState(Extension):
                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                     if battle_config.is_dungeon_game_mode:
                         quest_response = await Quests.quest_check(battle_config.player1, "FULL DUNGEONS")
+                        milestone_reponse = await Quests.milestone_check(battle_config.player1, "DUNGEONS_COMPLETED", 1)
                     else:
                         quest_response = await Quests.quest_check(battle_config.player1, "FULL TALES")
+                        milestone_reponse = await Quests.milestone_check(battle_config.player1, "TALES_COMPLETED", 1)
                     total_complete = True
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     if battle_config.is_co_op_mode:
@@ -363,6 +389,10 @@ class GameState(Extension):
                         if quest_response:
                             embedVar.add_field(name="**Quest Complete**",
                                 value=f"{quest_response}")
+                        
+                        if milestone_reponse:
+                            embedVar.add_field(name="🏆 **Milestone**",
+                                value=f"{milestone_reponse}")
                         
                         embedVar.set_author(name=f"{battle_config.selected_universe} Boss has been unlocked!")
                         if battle_config.crestsearch:
@@ -381,19 +411,19 @@ class GameState(Extension):
                                                 '$set': {'BOSS_FOUGHT' : False}}
                             r = db.updateUserNoFilter(upload_query, new_upload_query)
                         if battle_config.selected_universe in battle_config.player1.completed_dungeons:
-                            await crown_utilities.bless(300000, battle_config.player1.did)
+                            await crown_utilities.bless(50000000, battle_config.player1.did)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             embedVar.add_field(name="Minor Reward",
-                                        value=f"You were awarded 🪙 300,000 for completing the {battle_config.selected_universe} Dungeon again!")
+                                        value=f"You were awarded 🪙 50,000,000 for completing the {battle_config.selected_universe} Dungeon again!")
                             embedVar.add_field(name="Boss Key Aquired!",
                                         value=f"The Boss Arena has been Unlocked!")
                         else:
-                            await crown_utilities.bless(6000000, battle_config.player1.did)
+                            await crown_utilities.bless(500000000, battle_config.player1.did)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             embedVar.add_field(name="Dungeon Reward",
-                                        value=f"You were awarded 🪙 6,000,000 for completing the {battle_config.selected_universe} Dungeon!")
+                                        value=f"You were awarded 🪙 500,000,000 for completing the {battle_config.selected_universe} Dungeon!")
                         if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
                             await crown_utilities.bless(500000, battle_config.player3.did)
                             await asyncio.sleep(2)
@@ -407,9 +437,27 @@ class GameState(Extension):
                         embedVar = Embed(title=f"🎊 UNIVERSE CONQUERED",
                                                 description=f"**{battle_config.selected_universe}** has been conquered\n\n{reward_drop}",
                                                 color=0xe91e63)
-                        # if questlogger:
-                        #     embedVar.add_field(name="**Quest Progress**",
-                        #         value=f"{questlogger}")
+                        if quest_response:
+                            embedVar.add_field(name="**Quest Complete**",
+                                value=f"{quest_response}")
+                        
+                        if milestone_reponse:
+                            embedVar.add_field(name="🏆 **Milestone**",
+                                value=f"{milestone_reponse}")
+                        # Define a list of milestones to check
+                        milestones = [
+                            (battle_config.player1, battle_config.battle_mode, 1, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move1_element, battle_config.player1_card.move1_damage_dealt, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move2_element, battle_config.player1_card.move2_damage_dealt, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move3_element, battle_config.player1_card.move3_damage_dealt, battle_config.selected_universe),
+                        ]
+
+                        # Check milestones and add messages to the embed
+                        for milestone in milestones:
+                            milestone_messages = await Quests.milestone_check(*milestone)
+                            if milestone_messages:
+                                for message in milestone_messages:
+                                    embedVar.add_field(name="🏆 Milestone", value=message)
 
                         embedVar.set_footer(text=f"You can now /craft {battle_config.selected_universe} cards")
                         
@@ -419,20 +467,20 @@ class GameState(Extension):
                             new_upload_query = {'$addToSet': {'CROWN_TALES': battle_config.selected_universe}}
                             r = db.updateUserNoFilter(upload_query, new_upload_query)
                         if battle_config.selected_universe in battle_config.player1.completed_tales:
-                            await crown_utilities.bless(100000, battle_config.player1.did)
+                            await crown_utilities.bless(2500000, battle_config.player1.did)
                             # await ctx.send(embed=embedVar)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             embedVar.add_field(name="Minor Reward",
-                                        value=f"You were awarded 🪙 100,000 for completing the {battle_config.selected_universe} Tale again!")
+                                        value=f"You were awarded 🪙 2,500,000 for completing the {battle_config.selected_universe} Tale again!")
                         else:
-                            await crown_utilities.bless(2000000, battle_config.player1.did)
+                            await crown_utilities.bless(100000000, battle_config.player1.did)
                             # await ctx.send(embed=embedVar)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             
                             embedVar.add_field(name="Conquerors Reward",
-                                        value=f"You were awarded 🪙 2,000,000 for completing the {battle_config.selected_universe} Tale!")
+                                        value=f"You were awarded 🪙 100,000,000 for completing the {battle_config.selected_universe} Tale!")
                             #battle_msg = await private_channel.send(embed=embedVar)
                         if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
             
@@ -451,19 +499,14 @@ class GameState(Extension):
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     if battle_config.is_co_op_mode:
                         battle_config.player3_card.stats_handler(battle_config, battle_config.player3, total_complete)
-                        embedVar = Embed(title=f"⚡ **{battle_config.player1_card.name}** and **{battle_config.player3_card}** defeated the {battle_config.selected_universe} Boss {battle_config.player2_card.name}!\nMatch concluded in {battle_config.turn_total} turns!\n\n{drop_response} + 🪙 15,000!\n\n{battle_config.player3_card.name} got 🪙 10,000!", description=textwrap.dedent(f"""
-                        {battle_config.get_previous_moves_embed()}
-                        
-                        """),color=0x1abc9c)
+                        embedVar = Embed(title=f"⚡ **{battle_config.player1_card.name}** and **{battle_config.player3_card}** defeated the {battle_config.selected_universe} Boss {battle_config.player2_card.name}!\nMatch concluded in {battle_config.turn_total} turns!\n\n{drop_response} + 🪙 15,000!\n\n{battle_config.player3_card.name} got 🪙 10,000!", color=0x1abc9c)
                         embedVar.set_author(name=f"**{battle_config.player2_card.name}** Says: {battle_config._concede_boss_description}")
                         embedVar.add_field(name="**Co-Op Bonus**",
                                     value=f"{p3_co_op_bonuses}")
                     else:
-                        embedVar = Embed(title=f"⚡ **{battle_config.player1_card.name}** defeated the {battle_config.selected_universe} Boss {battle_config.player2_card.name}!\nMatch concluded in {battle_config.turn_total} turns!\n\n{drop_response} + 🪙 25,000!",description=textwrap.dedent(f"""
-                        {battle_config.get_previous_moves_embed()}
-                        
-                        """),color=0x1abc9c)
+                        embedVar = Embed(title=f"⚡ **{battle_config.player1_card.name}** defeated the {battle_config.selected_universe} Boss {battle_config.player2_card.name}!\nMatch concluded in {battle_config.turn_total} turns!\n\n{drop_response} + 🪙 25,000!",color=0x1abc9c)
                     await crown_utilities.bless(25000, str(battle_config.player1.did))
+                    embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
 
                     if battle_config.crestsearch:
                         await crown_utilities.blessguild(25000, battle_config.player1.association)
@@ -473,13 +516,6 @@ class GameState(Extension):
                                         value=f":flags:**{battle_config.player1.association}** earned the {battle_config.selected_universe} **Crest**")
                     embedVar.set_author(name=f"{battle_config.player2_card.name} lost",
                                         icon_url="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620236432/PCG%20LOGOS%20AND%20RESOURCES/PCGBot_1.png")
-                    if int(gameClock[0]) == 0 and int(gameClock[1]) == 0:
-                        embedVar.set_footer(text=f"Battle Time: {gameClock[2]} Seconds.")
-                    elif int(gameClock[0]) == 0:
-                        embedVar.set_footer(text=f"Battle Time: {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
-                    else:
-                        embedVar.set_footer(
-                            text=f"Battle Time: {gameClock[0]} Hours {gameClock[1]} Minutes and {gameClock[2]} Seconds.")
                     # await ctx.send(embed=embedVar)
                     # await battle_msg.delete(delay=2)
                     # await asyncio.sleep(2)
@@ -545,15 +581,31 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                 cardlogger = await crown_utilities.cardlevel(user1, "Tales")
 
-                embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
-                {battle_config.get_previous_moves_embed()}
-                
-                """),color=0x1abc9c)
+                embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
                 if quest_response:
                     embedVar.add_field(name="**Quest Complete**",
                         value=f"{quest_response}")
+                    
+                milestone_response = await Quests.milestone_check(battle_config.player1, "SCENARIOS_RUN", 1)
 
-                embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
+                if milestone_response:
+                    embedVar.add_field(name="🏆 **Milestone**",
+                        value=f"{milestone_response}")
+
+                # Define a list of milestones to check
+                milestones = [
+                    (battle_config.player1, battle_config.battle_mode, 1, battle_config.selected_universe),
+                    (battle_config.player1, battle_config.player1_card.move1_element, battle_config.player1_card.move1_damage_dealt, battle_config.selected_universe),
+                    (battle_config.player1, battle_config.player1_card.move2_element, battle_config.player1_card.move2_damage_dealt, battle_config.selected_universe),
+                    (battle_config.player1, battle_config.player1_card.move3_element, battle_config.player1_card.move3_damage_dealt, battle_config.selected_universe),
+                ]
+
+                # Check milestones and add messages to the embed
+                for milestone in milestones:
+                    milestone_messages = await Quests.milestone_check(*milestone)
+                    if milestone_messages:
+                        for message in milestone_messages:
+                            embedVar.add_field(name="🏆 Milestone", value=message)
                 
 
                 await battle_msg.delete(delay=2)
@@ -579,12 +631,32 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 {unlock_message}
                 """),color=0xe91e63)
 
+                milestone_response = await Quests.milestone_check(battle_config.player1, "SCENARIOS_COMPLETED", 1)
+                # Define a list of milestones to check
+                milestones = [
+                    (battle_config.player1, battle_config.battle_mode, 1, battle_config.selected_universe),
+                    (battle_config.player1, battle_config.player1_card.move1_element, battle_config.player1_card.move1_damage_dealt, battle_config.selected_universe),
+                    (battle_config.player1, battle_config.player1_card.move2_element, battle_config.player1_card.move2_damage_dealt, battle_config.selected_universe),
+                    (battle_config.player1, battle_config.player1_card.move3_element, battle_config.player1_card.move3_damage_dealt, battle_config.selected_universe),
+                ]
+
+                # Check milestones and add messages to the embed
+                for milestone in milestones:
+                    milestone_messages = await Quests.milestone_check(*milestone)
+                    if milestone_messages:
+                        for message in milestone_messages:
+                            embedVar.add_field(name="🏆 Milestone", value=message)
+
+                if milestone_response:
+                    embedVar.add_field(name="🏆 **Milestone**",
+                        value=f"{milestone_response}")
+
                 if quest_response:
                     embedVar.add_field(name="**Quest Complete**",
                         value=f"{quest_response}")
 
-
                 embedVar.set_author(name=f"{battle_config.player2_card.name} lost!")
+
                 embedVar.add_field(
                 name=f"Scenario Reward",
                 value=f"{response}")

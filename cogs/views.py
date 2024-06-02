@@ -846,7 +846,7 @@ async def viewcard(self, ctx, data):
                 embedVar.set_image(url="attachment://image.png")
                 embedVar.set_thumbnail(url=c.set_universe_image())
                 embedVar.set_author(name=textwrap.dedent(f"""\
-                Can be acquired in {c.drop_style.title()}
+                Can be acquired in {c.drop_style.title()} or Rolls
                 """))
                 embedVar.set_footer(text=f"{c.tip}")
                 image_binary = c.showcard()

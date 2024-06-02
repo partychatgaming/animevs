@@ -292,7 +292,7 @@ async def classes(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
     
    class_descriptions = [
-        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use summon from start of battle"),
+        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use summon from start of battle. Summon attacks are boosted based on card tier."),
         (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Initial Attacks cost 0 Stamina\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks. Bleed damage slightly boosted."),
         (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\nCommon - 3 Parry, Rare - 5 Parries, Legendary - 6 Parries. Double parry on Physical damage proc"),
         (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 3 barriers, can attack through barrier\nCommon - 2 Barrier, Rare - 3 Barriers, Legendary - 4 Barriers"),
@@ -1966,7 +1966,7 @@ async def roll(ctx):
       if isinstance(item, dict) and item.get('type') == 'gems':
          embed = Embed(
             title="You have earned gems!",
-            description=f"You earned 💎 {item['amount']:,} gems in {crown_utilities.crest_dict[item['universe']]} {item['universe']}\nYou may have missed out on a card, arm, or summon, but these gems will come in handy!"
+            description=f"You earned 💎 {item['amount']:,} gems in {crown_utilities.crest_dict[item['universe']]} {item['universe']}"
          )
          embed.set_image(url=normal_rare_gif)
 
@@ -2041,6 +2041,7 @@ async def roll(ctx):
 ], scopes=guild_ids)
 @cooldown(Buckets.USER, 1, 60)
 async def donate(ctx, amount):
+   await ctx.defer()
    try:
       user = crown_utilities.create_player_from_data(db.queryUser({"DID": str(ctx.author.id)}))
       equipped_card = crown_utilities.create_card_from_data(db.queryCard({"NAME": user.equipped_card}))
@@ -2094,7 +2095,7 @@ async def donate(ctx, amount):
                   res = await asyncio.to_thread(db.updateUser,query, update_query, filter_query)
                embed = Embed(title="Donate to Guild", description=f"🪙 {guild_amount:,} has been invested into the {team_display_name} guild. 💎 {gem_amount:,} gems have been added to all of your explored universes.")
 
-               quest_message = await Quests.milestone_check(user, "DONATION", 1)
+               quest_message = await Quests.milestone_check(user, "DONATION", amount)
                if quest_message:
                   embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
                await ctx.send(embeds = [embed])
@@ -2140,6 +2141,7 @@ async def donate(ctx, amount):
 ], scopes=guild_ids)
 @cooldown(Buckets.USER, 1, 10)
 async def pay(ctx, player, amount):
+   await ctx.defer()
    try:
       user = db.queryUser({'DID': str(ctx.author.id)})
       team = db.queryTeam({'TEAM_NAME': user['TEAM'].lower()})
