@@ -463,9 +463,9 @@ class GameModes(Extension):
             #     await abyss(self, ctx, registered_player, mode)
             #     return
 
-            # if mode == crown_utilities.TUTORIAL:
-            #     await tutorial(self, ctx, registered_player, mode)
-            #     return
+            if mode == crown_utilities.TUTORIAL:
+                await tutorial(self, ctx, registered_player, mode)
+                return
 
             if mode == crown_utilities.SCENARIO:
                 await scenario_cog.scenario_selector(self, ctx, universe, player)
