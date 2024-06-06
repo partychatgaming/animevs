@@ -283,7 +283,7 @@ class Lookup(Extension):
                     return
             
             else:
-                user = db.queryUser({'DID': str(ctx.author.id)})
+                user = registered_player
                 team = db.queryTeam({'TEAM_NAME': user['TEAM'].lower()})
                 if team:
                     team_name = team['TEAM_NAME']

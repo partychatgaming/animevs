@@ -998,6 +998,7 @@ async def register(ctx):
          await ctx.send(f"{ctx.author.mention} your Registration was cancelled. You must interact before the timeout!")
          
    else:
+      db.deleteUser(str(ctx.author.id))
       await ctx.send(m.RESPONSE_NOT_DETECTED, delete_after=3)
 
 # Update Later

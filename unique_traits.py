@@ -94,4 +94,10 @@ traits = [{
     'NAME': 'Crown Rift Awakening',
     'EFFECT': 'Blood Awakening, Bloodlines',
     'TRAIT': 'Blood Awakening : Deal 4x damage on Crit, Increased Crit Chance. Bloodlines : Can use Titles from all Universes'
-}]
+},{
+    'NAME': 'Fairy Tail',
+    'EFFECT': 'Unison Raid, Concentration',
+    'TRAIT': 'Unison Raid : On Resolve, Deal your Special, Ultimate, and Summon attacks at once. You lose a turn to recover. Concentration : Gain (20 * Tier) * Focus count AP each focus.'
+}
+
+]

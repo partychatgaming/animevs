@@ -860,6 +860,10 @@ class Profile(Extension):
                 if currently_on_market:
                     embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
                 embed_list.append(embedVar)
+            if not embed_list:
+                embed = Embed(title="🎴 Cards", description="You currently own no Cards.", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Cards")
             paginator.show_select_menu = True
             await paginator.send(ctx)
@@ -917,6 +921,11 @@ class Profile(Extension):
             custom_action_row = ActionRow(*buttons)
             if not embed_list and filtered:
                 embed = Embed(title="🎗️ Titles", description=f"You currently own no Titles in {card.universe_crest} {card.universe}.", color=0x7289da)
+                await ctx.send(embed=embed, ephemeral=True)
+                return
+
+            if not embed_list:
+                embed = Embed(title="🎗️ Titles", description="You currently own no Titles.", color=0x7289da)
                 await ctx.send(embed=embed, ephemeral=True)
                 return
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=buttons, paginator_type="Titles")
@@ -1065,7 +1074,7 @@ class Profile(Extension):
                         arm_data.set_durability(arm_data.name, player.arms)
                         arm_data.set_arm_message(player.performance, card.universe)
 
-                        if type_filter != "None":
+                        if type_filter:
                             if arm_data.element != type_filter and arm_data.passive_type != type_filter:
                                 continue
 
@@ -1088,6 +1097,11 @@ class Profile(Extension):
                     
                     if not embed_list and filtered:
                         embed = Embed(title="🦾 Arms", description=f"You currently own no Arms in {card.universe_crest} {card.universe}.", color=0x7289da)
+                        await ctx.send(embed=embed, ephemeral=True)
+                        return
+                    
+                    if not embed_list and not filtered:
+                        embed = Embed(title="🦾 Arms", description=f"You currently own no Arms.", color=0x7289da)
                         await ctx.send(embed=embed, ephemeral=True)
                         return
                     paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Arms")
@@ -1462,23 +1476,6 @@ class Profile(Extension):
                         embed = Embed(title=f"{card.universe_crest} | {card.universe} Blacksmith - {icon}{'{:,}'.format(balance)} ", description="Blacksmith cancelled.", color=0xf1c40f)
                         await msg.edit(embed=embed, components=[])
                         return
-
-                # if option == f"{_uuid}|4":
-                #     price = 25000000
-                #     if price > balance:
-                #         await button_ctx.send("Insufficent funds.", ephemeral=True)
-                #         await msg.edit(components=[])
-                #         return
-                #     if has_gabes_purse:
-                #         await button_ctx.send("You already own Gabes Purse. You cannot purchase more than one.", ephemeral=True)
-                #         await msg.edit(components=[])
-                #         return
-                #     else:
-                #         update = db.updateUserNoFilterAlt(user_query, {'$set': {'TOURNAMENT_WINS': 1}})
-                #         await crown_utilities.curse(price, str(ctx.author.id))
-                #         await button_ctx.send("👛 | Gabe's Purse has been purchased!")
-                #         await msg.edit(components=[])
-                #         return
                     
                 if option == f"{_uuid}|7":
                     price = 10000000
@@ -1509,10 +1506,7 @@ class Profile(Extension):
                         price = 1000000
 
                     gems_left = balance - price
-                    # if boss_arm:
-                    #     await button_ctx.send("Sorry I can't repair **Boss** Arms ...", ephemeral=True)
-                    #     await msg.edit(components=[])
-                    #     return
+
                     if price > balance:
                         embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase.", color=0xf1c40f)
                         await msg.edit(embed=embed,components=[])
@@ -1579,7 +1573,7 @@ class Profile(Extension):
 
     @slash_command(description="View your summons", options=[
         SlashCommandOption(
-            name="element_filter",
+            name="type_filter",
             description="select an option to continue",
             type=OptionType.STRING,
             required=False,
@@ -1683,7 +1677,7 @@ class Profile(Extension):
                 if type_filter:
                     if summon.ability_type != type_filter:
                         continue
-                    
+
                 summon.set_player_summon_info(player)
 
                 embedVar = Embed(title= f"{summon.name}", description=textwrap.dedent(f"""
@@ -1703,6 +1697,10 @@ class Profile(Extension):
                 embedVar.set_footer(text=f"{len(player.summons)} Total Summons")
                 embed_list.append(embedVar)
 
+            if not embed_list:
+                embed = Embed(title="🐾 Summons", description=f"You currently own no Summons.", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Equip", "Trade", "Dismantle", "Market"], paginator_type="Summons")
             
             paginator.show_select_menu = True

@@ -28,6 +28,7 @@ from cogs.universe_traits.league_of_legends import pentakill, turret_shot
 from cogs.universe_traits.souls import souls_resolve, combo_recognition
 from cogs.universe_traits.death_note import shinigami_eyes, scheduled_death
 from cogs.universe_traits.black_clover import grimoire, mana_zone
+from cogs.universe_traits.fairytail import unison_raid, concentration
 from cogs.universe_traits.digimon import digivolve
 from cogs.universe_traits.solo_leveling import rulers_authority, add_solo_leveling_temp_values, decrease_solo_leveling_temp_values, decrease_solo_leveling_temp_values_self
 from cogs.universe_traits.one_punch_man import rank_hero, hero_reinforcements
@@ -190,6 +191,8 @@ class Card:
             self.yuyu_3ap_buff = 0
             self.my_hero_academia_buff_counter = 0
             self.my_hero_academia_buff = 0
+            self.fairy_tail_recovering = False
+            self.fairy_tail_recovering_duration = 0
 
             # Elemental Effect Meters
             self.burn_dmg = 0
@@ -214,14 +217,16 @@ class Card:
 
             self.water_buff_by_value = 100
             self.time_buff_by_value = 4
-            self.earth_buff_by_value = .30
-            self.death_buff_by_value = .30
-            self.light_buff_by_value = .30
+            self.earth_buff_by_value = .40
+            self.death_buff_by_value = .40
+            self.light_buff_by_value = .40
             self.dark_buff_by_value = 15
             self.physical_parry_value = 1
             self.ranged_buff_value = 1
             self.life_buff_value = .35
             self.reckless_buff_value = .40
+            self.reckless_duration = 0
+            self.reckless_rest = False
             self.psychic_barrier_buff_value = 1
             self.psychic_debuff_value = .15
             self.fire_buff_value = .50
@@ -680,9 +685,9 @@ class Card:
             self._magic_value = mage_buff
             self.water_buff_by_value = 150
             self.time_buff_by_value = 8
-            self.earth_buff_by_value = .60
-            self.death_buff_by_value = .60
-            self.light_buff_by_value = .60
+            self.earth_buff_by_value = .70
+            self.death_buff_by_value = .70
+            self.light_buff_by_value = .70
             self.dark_buff_by_value = 20
             self.life_buff_value = .60
             self.psychic_barrier_buff_value = 2
@@ -1140,7 +1145,19 @@ class Card:
         if opponent_card.freeze_enh:
             battle_config.next_turn()
         return {"MESSAGE" : f"({battle_config.turn_total}) ❄️ {self.name} is frozen for {opponent_card.ice_duration} turn", "TURN": battle_config.is_turn}
-                
+
+
+    def reckless_recovery(self, battle_config):
+        if self.reckless_rest:
+            if self.reckless_duration > 0:
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🛌 {self.name} is recovering for {self.reckless_duration} more turns")
+                battle_config.next_turn()
+            if self.reckless_duration == 0:
+                self.reckless_rest = False
+                self.reckless_duration = 0
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🛌 {self.name} has recovered from Reckless Rest")
+            self.reckless_duration = self.reckless_duration - 1
+        return 
 
     def set_poison_hit(self, battle_config, opponent_card):
         if opponent_card.poison_dmg:
@@ -1650,7 +1667,10 @@ class Card:
                 hit_roll = self.adjust_hit_roll(battle_config, hit_roll, _opponent_card, summon_used, true_dmg, move_element, low_hit, med_hit, standard_hit, high_hit, miss_hit)
 
                 if move_element in ["RECKLESS", "RECOIL"] and hit_roll > miss_hit:
-                    true_dmg = round(true_dmg * 4)
+                    if self.used_resolve:
+                        true_dmg = round(true_dmg * 4)
+                    else:
+                        true_dmg = round(true_dmg * 5)
 
                 if turn_title.elemental_buff_effect:
                     true_dmg = turn_title.elem_buff_handler(move_element, true_dmg)
@@ -1807,7 +1827,6 @@ class Card:
             hit_roll = hit_roll - 3
 
         if self._swordsman_active and self.used_resolve:
-                loggy.info("Swordsman Active")
                 self._swordsman_value = self._swordsman_value - 1
                 hit_roll = 20
                 if self._swordsman_value <= 0:
@@ -2014,6 +2033,8 @@ class Card:
 
             combo_recognition(self, battle_config, _opponent_card)
 
+            concentration(self, battle_config)
+
             battle_config.turn_total = battle_config.turn_total + 1
 
 
@@ -2099,7 +2120,9 @@ class Card:
             
             pokemon_resolve = evolutions(self, battle_config, player_title)
 
-            if not any([mha_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve]):
+            fairytail_resolve = unison_raid(self, battle_config, opponent_card, player_title)
+
+            if not any([mha_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve]):
                 self.standard_resolve_effect(battle_config, opponent_card, player_title)
 
             if player_title.synthesis_effect:
@@ -2914,8 +2937,17 @@ class Card:
 
         elif dmg['ELEMENT'] in ["RECKLESS", "RECOIL"]:
             self.health = self.health - (dmg['DMG'] * self.reckless_buff_value)
+            if self.used_resolve:
+                self.reckless_buff_value = .55
             if self.health <= 0:
                 self.health = 1
+            if self.reckless_duration == 0:
+                if not self.used_resolve:
+                    self.reckless_duration = 1
+                    self.reckless_rest = True
+                else:
+                    self.reckless_duration = 2
+                    self.reckless_rest = True
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} was dealt {str(round(dmg['DMG'] * self.reckless_buff_value))} reckless damage]")
 

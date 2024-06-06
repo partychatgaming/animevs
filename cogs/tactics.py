@@ -5,6 +5,7 @@ from cogs.universe_traits.demon_slayer import activate_demon_slayer_trait
 from cogs.universe_traits.one_piece import observation_haki
 from cogs.universe_traits.chainsawman import devilization
 from cogs.universe_traits.solo_leveling import set_solo_leveling_config, activate_solo_leveling_trait
+from cogs.universe_traits.fairytail import fairy_tail_recovery
 import db
 import dataclasses as data
 import messages as m
@@ -197,7 +198,11 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
 
         if opponent_card.ice_duration == 0:
             opponent_card.freeze_enh = False
-    
+    if player_card.reckless_rest:
+        player_card.reckless_recovery(battle_config)
+
+    if player_card.fairy_tail_recovering:
+        fairy_tail_recovery(player_card, battle_config)
     player_card.set_gravity_hit()
     if not opponent_card.wind_element_activated:
         player_title.activate_title_passive(battle_config, player_card, opponent_card)

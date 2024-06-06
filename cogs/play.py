@@ -901,17 +901,17 @@ async def auto_battle_handler(ctx, battle_config, battle_msg, private_channel, b
             if selected_move in [1, 2, 3, 4, 7]:
                 damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
 
-                if selected_move != 7:
-                    turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
-                    if turn_card._monstrosity_active and turn_card.used_resolve:
-                        turn_card._monstrosity_value = turn_card._monstrosity_value - 1
-                        if turn_card._monstrosity_value <= 0:
-                            turn_card._monstrosity_active = False
-                            turn_card._monstrosity_value = 0
-                        battle_config.add_to_battle_log(f"{turn_card.name} has {turn_card._monstrosity_value} double strikes left")
-                        #damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
-                        turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
-                        battle_config.next_turn()
+                # if selected_move != 7:
+                #     turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+                #     if turn_card._monstrosity_active and turn_card.used_resolve:
+                #         turn_card._monstrosity_value = turn_card._monstrosity_value - 1
+                #         if turn_card._monstrosity_value <= 0:
+                #             turn_card._monstrosity_active = False
+                #             turn_card._monstrosity_value = 0
+                #         battle_config.add_to_battle_log(f"{turn_card.name} has {turn_card._monstrosity_value} double strikes left")
+                #         #damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
+                #         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+                #         battle_config.next_turn()
 
             if selected_move == 5:
                 await turn_card.resolving(battle_config, turn_title, opponent_card, battle_config.player1)
