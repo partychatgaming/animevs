@@ -2,10 +2,9 @@ import db
 import crown_utilities
 
 class Arm:
-    def __init__(self, name, universe, price, abilities, drop_style, available, element=None):
+    def __init__(self, name, universe, abilities, drop_style, available, element=None):
         self.name = name
         self.universe = universe
-        self.price = price
         self.abilities = abilities[0]
         self.drop_style = drop_style
         self.available = available

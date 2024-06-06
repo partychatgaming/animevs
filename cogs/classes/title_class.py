@@ -284,7 +284,7 @@ class Title:
 
         if self.unlock_method['METHOD'] == "ELEMENTAL DAMAGE DEALT":
             formatted_number = format(int(self.unlock_method['VALUE']), ',')
-            self.unlock_method_message = f"🔹 Deal {formatted_number} {crown_utilities.set_emoji(self.unlock_method['TYPE'])} {self.unlock_method['TYPE'].capitalize()} damage in {self.universe_crest} {self.universe}"
+            self.unlock_method_message = f"🔹 Deal {formatted_number} {crown_utilities.set_emoji(self.unlock_method['ELEMENT'])} {self.unlock_method['ELEMENT'].capitalize()} damage in {self.universe_crest} {self.universe}"
     
         if self.unlock_method['METHOD'] == "TOTAL_DAMAGE":
             formatted_number = format(int(self.unlock_method['VALUE']), ',')
@@ -295,8 +295,6 @@ class Title:
             self.unlock_method_message = f"🔹 Defeat the boss in {self.universe_crest} {self.universe} for a chance to earn this title"
 
         return
-
-
 
 
     def set_title_suffix(self):
@@ -420,9 +418,9 @@ class Title:
                 "PIERCE": "🔸 Attacks Go Through Barriers",
                 "SYNTHESIS": "🔸 Barriers Stores Damage For Later Heals",
                 "SPELL SHIELD": f"🔸 Shields Absorb {crown_utilities.set_emoji(getattr(self, ability_element))} Damage",
-                "ELEMENTAL BUFF": f"🔸 {crown_utilities.set_emoji(getattr(self, ability_element))} Attacks Deal +{getattr(self, ability_power)}% Damage",
-                "ELEMENTAL DEBUFF": f"🔸 Opponent {crown_utilities.set_emoji(getattr(self, ability_element))} Attacks Deal -{getattr(self, ability_power)}% Damage",
-                "ENHANCED GUARD": f"🔸 Blocking Blocks {getattr(self, ability_power)}% Of Total Damage",
+                "ELEMENTAL BUFF": f"🔸 {crown_utilities.set_emoji(getattr(self, ability_element))} Attacks Deal 50% more Damage",
+                "ELEMENTAL DEBUFF": f"🔸 Opponent {crown_utilities.set_emoji(getattr(self, ability_element))} Attacks Deal 50% less Damage",
+                "ENHANCED GUARD": f"🔸 Blocking Blocks 80% Of Total Damage",
                 "SHARPSHOOTER": "🔸 Attacks Don't Miss",
             }
 
@@ -436,7 +434,6 @@ class Title:
         self.activate_ability('ability1_ability', 'ability1_power', 'ability1_element', player_card, opponent_card, battle)
         self.activate_ability('ability2_ability', 'ability2_power', 'ability2_element', player_card, opponent_card, battle)
         self.activate_ability('ability3_ability', 'ability3_power', 'ability3_element', player_card, opponent_card, battle)
-
 
 
     def title_effects_handler(self, player_card, opponent_card, battle, power, ability=None):
@@ -661,15 +658,31 @@ class Title:
 
 
     def elem_buff_handler(self, move_element, true_dmg):
+        """
+        Checks for elemental buffs based on move element and applies a 50% damage increase
+        if a match is found. Returns the original or buffed true_dmg.
+
+        Args:
+            move_element (str): The element of the move being used.
+            true_dmg (float): The base true damage value.
+
+        Returns:
+            float: The buffed true damage (if applicable) or the original value.
+        """
+
         for i in range(1, 4):
             ability = getattr(self, f'ability{i}_ability', None)
             power = getattr(self, f'ability{i}_power', None)
             element = getattr(self, f'ability{i}_element', None)
-            if ability and ability == "ELEMENTAL BUFF":
+
+            if ability == "ELEMENTAL BUFF" and element is not None:
                 if move_element == element:
                     # Buff the damage by 50%
                     true_dmg = round(true_dmg + (true_dmg * .50))
                     return true_dmg
+
+        # No matching buff found, return the original true_dmg
+        return true_dmg
 
 
     def elem_debuff_handler(self, move_element, true_dmg):
@@ -682,6 +695,9 @@ class Title:
                     # Debuff the damage by 50%
                     true_dmg = round(true_dmg - (true_dmg * .50))
                     return true_dmg
+
+        # No matching buff found, return the original true_dmg
+        return true_dmg
                 
 
     def spell_shield_handler(self, card, dmg, battle_config):

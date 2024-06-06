@@ -467,7 +467,7 @@ class Profile(Extension):
                                     value="RANGED",
                                 ),
                                 SlashCommandChoice(
-                                    name="🧿 Energy",
+                                    name="🧿 Energy / Spirit",
                                     value="ENERGY",
                                 ),
                                 SlashCommandChoice(
@@ -730,8 +730,94 @@ class Profile(Extension):
             await ctx.send(embed=embed)
 
 
-    @slash_command(description="View all of your cards")
-    async def cards(self, ctx):
+    @slash_command(description="View all of your cards", options=[
+        SlashCommandOption(
+            name="element_filter",
+            description="select an option to continue",
+            type=OptionType.STRING,
+            required=False,
+            choices=[
+                SlashCommandChoice(
+                    name="👊 Physical",
+                    value="PHYSICAL",
+                ),
+                SlashCommandChoice(
+                    name="🔥 Fire",
+                    value="FIRE",
+                ),
+                SlashCommandChoice(
+                    name="❄️ Ice",
+                    value="ICE",
+                ),
+                SlashCommandChoice(
+                    name="💧 Water",
+                    value="WATER",
+                ),
+                SlashCommandChoice(
+                    name="⛰️ Earth",
+                    value="EARTH",
+                ),
+                SlashCommandChoice(
+                    name="⚡️ Electric",
+                    value="ELECTRIC",
+                ),
+                SlashCommandChoice(
+                    name="🌪️ Wind",
+                    value="WIND",
+                ),
+                SlashCommandChoice(
+                    name="🔮 Psychic",
+                    value="PSYCHIC",
+                ),
+                SlashCommandChoice(
+                    name="☠️ Death",
+                    value="DEATH",
+                ),
+                SlashCommandChoice(
+                    name="❤️‍🔥 Life",
+                    value="LIFE"
+                ),
+                SlashCommandChoice(
+                    name="🌕 Light",
+                    value="LIGHT",
+                ),
+                SlashCommandChoice(
+                    name="🌑 Dark",
+                    value="DARK",
+                ),
+                SlashCommandChoice(
+                    name="🧪 Poison",
+                    value="POISON",
+                ),
+                SlashCommandChoice(
+                    name="🏹 Ranged",
+                    value="RANGED",
+                ),
+                SlashCommandChoice(
+                    name="🧿 Energy / Spirit",
+                    value="ENERGY",
+                ),
+                SlashCommandChoice(
+                    name="♻️ Reckless",
+                    value="RECKLESS",
+                ),
+                SlashCommandChoice(
+                    name="⌛ Time",
+                    value="TIME",
+                ),
+                SlashCommandChoice(
+                    name="🅱️ Bleed",
+                    value="BLEED",
+                ),
+                SlashCommandChoice(
+                    name="🪐 Gravity",
+                    value="GRAVITY",
+                ),
+            ]
+        )
+    
+    ])
+    async def cards(self, ctx, element_filter=None):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -743,13 +829,16 @@ class Profile(Extension):
             embed_list = []
             for card in sorted(player.cards):
                 index = player.cards.index(card)
-                resp = db.queryCard({"NAME": str(card)})
+                resp = await asyncio.to_thread(db.queryCard,{"NAME": str(card)})
                 c = crown_utilities.create_card_from_data(resp)
+                if element_filter:
+                    if element_filter not in [c.move1_element, c.move2_element, c.move3_element]:
+                        continue
                 c.set_card_level_buffs(player.card_levels)
                 c.set_affinity_message()
                 c.set_evasion_message(player)
                 c.set_card_level_icon(player)
-                currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": c.name})
+                currently_on_market = await asyncio.to_thread(db.queryMarket, {"ITEM_OWNER": player.did, "ITEM_NAME": c.name})
                 embedVar = Embed(title= f"{c.name}", description=textwrap.dedent(f"""\
                 {c.universe_crest} {c.universe}
                 {c.drop_emoji} **[{index}]** 
@@ -766,7 +855,8 @@ class Profile(Extension):
                 embedVar.add_field(name="__Evasion__", value=f"🏃 | {c.evasion_message}")
                 embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                 embedVar.set_thumbnail(url=c.universe_image)
-                embedVar.set_footer(text=f"/enhancers - 🩸 Enhancer Menu")
+                # Add count of cards in set_footer
+                embedVar.set_footer(text=f"{len(player.cards)} Total Cards")
                 if currently_on_market:
                     embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
                 embed_list.append(embedVar)
@@ -817,6 +907,8 @@ class Profile(Extension):
                 t = crown_utilities.create_title_from_data(resp)
                 embedVar = Embed(title=f"{t.name}", description=f"{crown_utilities.crest_dict[t.universe]} | {t.universe} Title", color=0x7289da)
                 embedVar.add_field(name=f"**Title Effects**", value="\n".join(t.title_messages), inline=False)
+                # Add count of titles in set_footer
+                embedVar.set_footer(text=f"{len(player.titles)} Total Titles")
                 # embedVar.add_field(name=f"**How To Unlock**", value=f"{t.unlock_method_message}", inline=False)                
                 embed_list.append(embedVar)
             
@@ -842,9 +934,109 @@ class Profile(Extension):
             description="Filter by Universe of the card you have equipped",
             type=OptionType.BOOLEAN,
             required=True,
+        ),
+        SlashCommandOption(
+            name="type_filter",
+            description="select an option to continue",
+            type=OptionType.STRING,
+            required=False,
+            choices=[
+                SlashCommandChoice(
+                    name="👊 Physical",
+                    value="PHYSICAL",
+                ),
+                SlashCommandChoice(
+                    name="🔥 Fire",
+                    value="FIRE",
+                ),
+                SlashCommandChoice(
+                    name="❄️ Ice",
+                    value="ICE",
+                ),
+                SlashCommandChoice(
+                    name="💧 Water",
+                    value="WATER",
+                ),
+                SlashCommandChoice(
+                    name="⛰️ Earth",
+                    value="EARTH",
+                ),
+                SlashCommandChoice(
+                    name="⚡️ Electric",
+                    value="ELECTRIC",
+                ),
+                SlashCommandChoice(
+                    name="🌪️ Wind",
+                    value="WIND",
+                ),
+                SlashCommandChoice(
+                    name="🔮 Psychic",
+                    value="PSYCHIC",
+                ),
+                SlashCommandChoice(
+                    name="☠️ Death",
+                    value="DEATH",
+                ),
+                SlashCommandChoice(
+                    name="❤️‍🔥 Life",
+                    value="LIFE"
+                ),
+                SlashCommandChoice(
+                    name="🌕 Light",
+                    value="LIGHT",
+                ),
+                SlashCommandChoice(
+                    name="🌑 Dark",
+                    value="DARK",
+                ),
+                SlashCommandChoice(
+                    name="🧪 Poison",
+                    value="POISON",
+                ),
+                SlashCommandChoice(
+                    name="🏹 Ranged",
+                    value="RANGED",
+                ),
+                SlashCommandChoice(
+                    name="🧿 Energy / Spirit",
+                    value="ENERGY",
+                ),
+                SlashCommandChoice(
+                    name="♻️ Reckless",
+                    value="RECKLESS",
+                ),
+                SlashCommandChoice(
+                    name="⌛ Time",
+                    value="TIME",
+                ),
+                SlashCommandChoice(
+                    name="🅱️ Bleed",
+                    value="BLEED",
+                ),
+                SlashCommandChoice(
+                    name="🪐 Gravity",
+                    value="GRAVITY",
+                ),
+                SlashCommandChoice(
+                    name="🔄 Parry",
+                    value="PARRY",
+                ),
+                SlashCommandChoice(
+                    name="🌐 Shield",
+                    value="SHIELD",
+                ),
+                SlashCommandChoice(
+                    name="💠 Barrier",
+                    value="BARRIER",
+                ),
+                SlashCommandChoice(
+                    name="Siphon",
+                    value="SIPHON",
+                ),
+            ]
         )
     ])
-    async def arms(self, ctx, filtered):
+    async def arms(self, ctx, filtered, type_filter=None):
         await ctx.defer()
         try:
             a_registered_player = await crown_utilities.player_check(ctx)
@@ -873,6 +1065,10 @@ class Profile(Extension):
                         arm_data.set_durability(arm_data.name, player.arms)
                         arm_data.set_arm_message(player.performance, card.universe)
 
+                        if type_filter != "None":
+                            if arm_data.element != type_filter and arm_data.passive_type != type_filter:
+                                continue
+
                         embedVar = Embed(title= f"{arm_data.name}", description=textwrap.dedent(f"""
                         {arm_data.armicon} **[{index}]**
 
@@ -882,7 +1078,8 @@ class Profile(Extension):
                         ⚒️ {arm_data.durability}
                         """), 
                         color=0x7289da)
-                        embedVar.set_footer(text=f"{arm_data.footer}")
+                        # Add count of arms in set_footer
+                        embedVar.set_footer(text=f"{len(player.arms)} Total Arms")
                         currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": arm_data.name})
                         if currently_on_market:
                             embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
@@ -1073,14 +1270,14 @@ class Profile(Extension):
                 return 5000000, 1600000, 500000
             tier_values = {
                 2: 5000000,
-                3: 35000000,
-                4: 300000000,
-                5: 35000000000,
-                6: 11000000000,
-                7: 25000000000,
-                8: 75000000000,
-                9: 100000000000,
-                10: 250000000000, 
+                3: 20000000,
+                4: 80000000,
+                5: 150000000,
+                6: 300000000,
+                7: 550000000,
+                8: 800000000,
+                9: 200000000,
+                10: 10000000000, 
             }
             level_up_card_tier_message = f"⭐ **Increase Card Tier**: 💸 **{tier_values[(card.card_tier + 1)]:,}**" if card.card_tier < 10 else f"🌟 Your card has max tiers"
             licon = get_level_icons(card.card_lvl)
@@ -1380,8 +1577,93 @@ class Profile(Extension):
             await ctx.send("Blacksmith closed unexpectedly. Seek support.", ephemeral=True)
     
 
-    @slash_command(description="View your summons")
-    async def summons(self, ctx):
+    @slash_command(description="View your summons", options=[
+        SlashCommandOption(
+            name="element_filter",
+            description="select an option to continue",
+            type=OptionType.STRING,
+            required=False,
+            choices=[
+                SlashCommandChoice(
+                    name="👊 Physical",
+                    value="PHYSICAL",
+                ),
+                SlashCommandChoice(
+                    name="🔥 Fire",
+                    value="FIRE",
+                ),
+                SlashCommandChoice(
+                    name="❄️ Ice",
+                    value="ICE",
+                ),
+                SlashCommandChoice(
+                    name="💧 Water",
+                    value="WATER",
+                ),
+                SlashCommandChoice(
+                    name="⛰️ Earth",
+                    value="EARTH",
+                ),
+                SlashCommandChoice(
+                    name="⚡️ Electric",
+                    value="ELECTRIC",
+                ),
+                SlashCommandChoice(
+                    name="🌪️ Wind",
+                    value="WIND",
+                ),
+                SlashCommandChoice(
+                    name="🔮 Psychic",
+                    value="PSYCHIC",
+                ),
+                SlashCommandChoice(
+                    name="☠️ Death",
+                    value="DEATH",
+                ),
+                SlashCommandChoice(
+                    name="❤️‍🔥 Life",
+                    value="LIFE"
+                ),
+                SlashCommandChoice(
+                    name="🌕 Light",
+                    value="LIGHT",
+                ),
+                SlashCommandChoice(
+                    name="🌑 Dark",
+                    value="DARK",
+                ),
+                SlashCommandChoice(
+                    name="🧪 Poison",
+                    value="POISON",
+                ),
+                SlashCommandChoice(
+                    name="🏹 Ranged",
+                    value="RANGED",
+                ),
+                SlashCommandChoice(
+                    name="🧿 Energy / Spirit",
+                    value="ENERGY",
+                ),
+                SlashCommandChoice(
+                    name="♻️ Reckless",
+                    value="RECKLESS",
+                ),
+                SlashCommandChoice(
+                    name="⌛ Time",
+                    value="TIME",
+                ),
+                SlashCommandChoice(
+                    name="🅱️ Bleed",
+                    value="BLEED",
+                ),
+                SlashCommandChoice(
+                    name="🪐 Gravity",
+                    value="GRAVITY",
+                ),
+            ]
+        )
+    ])
+    async def summons(self, ctx, type_filter=None):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -1398,6 +1680,10 @@ class Profile(Extension):
                 #cpetmove_ap= (cpet_bond * cpet_lvl) + list(cpet.values())[3] # Ability Power
                 s = db.querySummon({'PET': summons['NAME']})
                 summon = crown_utilities.create_summon_from_data(s)
+                if type_filter:
+                    if summon.ability_type != type_filter:
+                        continue
+                    
                 summon.set_player_summon_info(player)
 
                 embedVar = Embed(title= f"{summon.name}", description=textwrap.dedent(f"""
@@ -1413,7 +1699,8 @@ class Profile(Extension):
                 currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": summon.name})
                 if currently_on_market:
                     embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
-
+                # Add count of summons in set_footer
+                embedVar.set_footer(text=f"{len(player.summons)} Total Summons")
                 embed_list.append(embedVar)
 
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Equip", "Trade", "Dismantle", "Market"], paginator_type="Summons")

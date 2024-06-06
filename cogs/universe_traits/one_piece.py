@@ -38,7 +38,7 @@ def conquerors_haki(player_card, battle_config, opponent_card, player_title):
         battle_config.next_turn()
         return True
 
-def armament(player_card, health_calculation, battle_config):
+def armament(player_card, health_calculation, battle_config, attack_calculation, defense_calculation):
     if player_card.universe == "One Piece" and (player_card.tier in crown_utilities.MID_TIER_CARDS or player_card.tier in crown_utilities.HIGH_TIER_CARDS):
         attack_calculation = attack_calculation + attack_calculation
         defense_calculation = defense_calculation + defense_calculation

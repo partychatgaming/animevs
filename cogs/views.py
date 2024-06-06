@@ -653,12 +653,14 @@ class Views(Extension):
             embed_list.append(dungeon_order_embed)
 
             if player_stats:
-                tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed = get_player_stats(universe_data, player, player_stats, universe_data['TITLE'])
+                tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed, element_embed = get_player_stats(universe_data, player, player_stats, universe_data['TITLE'])
                 embed_list.append(tales_stats_embed)
                 embed_list.append(dungeon_stats_embed)
                 embed_list.append(scenario_stats_embed)
                 embed_list.append(explore_stats_embed)
                 embed_list.append(raid_stats_embed)
+                if element_embed:
+                    embed_list.append(element_embed)
             
             pagination = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['🎴 Cards', '🎗️ Titles', '🦾 Ability Arms', '🦾 Protection Arms', '🧬 Summons'], paginator_type="UniverseLists")
 
@@ -818,6 +820,7 @@ async def viewcard(self, ctx, data):
             player_class = crown_utilities.create_player_from_data(d)
             c.set_tip_and_view_card_message()
             evasion_message = c.set_evasion_message(player_class)
+            c.set_card_level_buffs()
 
             # Temporarily removed ♾️ {c.set_trait_message()}
             if d['PERFORMANCE']:
@@ -1449,6 +1452,28 @@ def get_player_stats(universe_data, player, stats, universe_title):
     else:
         raid_stats_embed = Embed(title=f"{universe_title}", description=f"You have no stats for raids in this universe", color=0x7289da)
     
-    return tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed
+
+    element_stats = []
+    element_embed = None
+
+    for element in crown_utilities.elements:
+        stat_key = f'{element}_DAMAGE_DONE'
+        # Safely get the stats for the current stat_key, defaulting to an empty list if it doesn't exist
+        element_data = stats.get(stat_key, [])
+
+        for stat in element_data:
+            if stat['UNIVERSE'] == universe_data['TITLE']:
+                element_stats.append(f"{crown_utilities.set_emoji(element)} {element.title()} - {round(stat['DAMAGE']):,}")
+
+    if element_stats:
+        element_stats = "\n".join(element_stats)
+        # Create embed for Elemental Damage Dealt
+        element_embed = Embed(title=f"{universe_title}", description="Here is the elemental damage you have dealt in this universe", color=0x7289da)
+        element_embed.add_field(name="Elemental Damage Dealt", value=element_stats, inline=False)
+
+        
+
+
+    return tales_stats_embed, dungeon_stats_embed, scenario_stats_embed, explore_stats_embed, raid_stats_embed, element_embed
 
 

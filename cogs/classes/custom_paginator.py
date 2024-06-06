@@ -2823,7 +2823,7 @@ class CustomPaginator(Paginator):
             pagination = Paginator.create_from_embeds(self.client, *embed_list, timeout=160)
             await pagination.send(ctx)
         except Exception as ex:
-            # custom_logging.debug(ex)
+            custom_logging.debug(ex)
             embed = Embed(title="🌍 Universe List Error", description="There was an error getting the list of arms for this universe at this time.", color=0x7289da)
             await ctx.send(embed=embed)
 

@@ -186,7 +186,7 @@ class Universe(Extension):
             buttons = [
                 Button(
                     style=ButtonStyle.BLUE,
-                    label="Start Tales",
+                    label="Start Battle",
                     custom_id = f"{_uuid}|start"
                 ),
                 # Button(
@@ -253,7 +253,7 @@ class Universe(Extension):
                         
                 try:
                     button_ctx = await self.bot.wait_for_component(components=[buttons], timeout=30,check=check)
-
+                    await button_ctx.ctx.defer(edit_origin=True)
                     if button_ctx.ctx.custom_id == f"{_uuid}|start":
                         await msg.edit(components=[])
                         await bc.create_universe_battle(self, ctx, mode, universe, player, currentopponent, entrance_fee)
@@ -269,9 +269,10 @@ class Universe(Extension):
 
                     if button_ctx.ctx.custom_id == f"{_uuid}|deletesave":
                         player.make_available()
-                        await button_ctx.ctx.send("Deleting Save")
-                        gs.delete_save_spot(player, universe['TITLE'], mode, currentopponent)
-                        await msg.edit(components=[])
+                        # await button_ctx.ctx.send("Deleting Save")
+                        embed = Embed(title= f"{universe['TITLE']} Save Deleted.", description="You have deleted your save data for this Universe.")
+                        await gs.delete_save_spot(self, player, universe['TITLE'], mode, 0)
+                        await msg.edit(embeds=[embed],components=[])
                     
                     if button_ctx.ctx.custom_id == f"{_uuid}|quit":
                         player.make_available()
@@ -288,6 +289,8 @@ class Universe(Extension):
         except Exception as ex:
             player.make_available()
             custom_logging.debug(ex)
+            embed = Embed(title= f"{universe['TITLE']} Match Making Cancelled.", description="You have cancelled the match making process.")
+            await ctx.send(embed=embed)
 
 
 def create_universe_embed(universe, ctx, mode, save_spot_text, completed_message, universe_crest_owner_message, fight_emoji, list_of_opponents, p_message, player):

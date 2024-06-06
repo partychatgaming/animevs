@@ -391,6 +391,10 @@ class GameModes(Extension):
                 value="Tutorial"
             ),
             SlashCommandChoice(
+                name="⚡Randomize",
+                value="Random"
+            ),
+            SlashCommandChoice(
                 name="⚔️ Tales Run",
                 value="Tales"
             ),
@@ -405,7 +409,7 @@ class GameModes(Extension):
             SlashCommandChoice(
                 name="💀 Raid Battle",
                 value="Raid_Scenario"
-            ),
+            )
         ]
     )
     @slash_option(
@@ -419,6 +423,11 @@ class GameModes(Extension):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
+        
+        if mode == "Random":
+            mode_options = ["Tales", "Dungeon", "Scenario", "Raid_Scenario"]
+            mode = random.choice(mode_options)
+            universe = random.choice(crown_utilities.get_cached_universes())["name"]
 
         if not universe:
             # Create embed that says to select a universe 

@@ -1114,6 +1114,11 @@ def queryAllCards():
     return data
 
 
+def queryAllCardByParam(query):
+    data = cards_col.find(query)
+    return data
+
+
 def getCardsFromAvailableUniverses():
     universes = queryAllUniverse()
     universe_list = []
@@ -1169,8 +1174,8 @@ def queryDestinyCards():
     data = cards_col.find({'HAS_COLLECTION': True})
     return data 
 
-def queryDropCards(universe, tiers, drop_style):
-    data = cards_col.find({'UNIVERSE': universe, 'AVAILABLE': True, 'TIER': {'$in': tiers}, 'DROP_STYLE': drop_style})
+def queryDropCards(universe, drop_style):
+    data = cards_col.find({'UNIVERSE': universe, 'AVAILABLE': True, 'DROP_STYLE': drop_style})
     return data 
 
 def querySpecificCards(args):

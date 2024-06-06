@@ -278,15 +278,12 @@ class GameState(Extension):
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     
                     if not battle_config.is_co_op_mode:
-                        embedVar = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence",color=0x1abc9c)
+                        embedVar = Embed(title=f"🎊 VICTORY\nThe game lasted {battle_config.turn_total} rounds.",color=0x1abc9c)
+                        embedVar.add_field(name=f"Rewards", value=f"{reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence")
                         embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
                         if quest_response:
                             embedVar.add_field(name="**Quest Complete**",
                                 value=f"{quest_response}")
-                        
-                        if milestone_reponse:
-                            embedVar.add_field(name="🏆 **Milestone**",
-                                value=f"{milestone_reponse}")
 
                         # Define a list of milestones to check
                         milestones = [
@@ -379,9 +376,9 @@ class GameState(Extension):
                     if battle_config.is_co_op_mode:
                         battle_config.player3_card.stats_handler(battle_config, battle_config.player3, total_complete)
 
-                    if battle_config.player1.autosave == True:
-                        await self.save_spot(battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
-
+                    # if battle_config.player1.autosave == True:
+                    #     await self.save_spot(battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
+                    await self.delete_save_spot(battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
                     if battle_config.is_dungeon_game_mode:
                         embedVar = Embed(title=f"🔥 DUNGEON CONQUERED",description=f"**{battle_config.selected_universe} Dungeon** has been conquered\n\n{reward_drop}",
                                                 color=0xe91e63)
@@ -391,8 +388,8 @@ class GameState(Extension):
                                 value=f"{quest_response}")
                         
                         if milestone_reponse:
-                            embedVar.add_field(name="🏆 **Milestone**",
-                                value=f"{milestone_reponse}")
+                            for message in milestone_reponse:
+                                embedVar.add_field(name="🏆 Milestone", value=message)
                         
                         embedVar.set_author(name=f"{battle_config.selected_universe} Boss has been unlocked!")
                         if battle_config.crestsearch:
@@ -401,9 +398,7 @@ class GameState(Extension):
                             await movecrest(battle_config.selected_universe, battle_config.player1.association)
                             embedVar.add_field(name=f"**{battle_config.selected_universe}** CREST CLAIMED!",
                                             value=f"**{battle_config.player1.association}** earned the {battle_config.selected_universe} **Crest**")
-                        # if questlogger:
-                        #     embedVar.add_field(name="**Quest Progress**",
-                        #         value=f"{questlogger}")
+
 
                         if not battle_config.is_easy_difficulty:
                             upload_query = {'DID': str(battle_config.player1.did)}
@@ -458,8 +453,6 @@ class GameState(Extension):
                             if milestone_messages:
                                 for message in milestone_messages:
                                     embedVar.add_field(name="🏆 Milestone", value=message)
-
-                        embedVar.set_footer(text=f"You can now /craft {battle_config.selected_universe} cards")
                         
                         if not battle_config.is_easy_difficulty:
                             embedVar.set_author(name=f"{battle_config.selected_universe} Dungeon has been unlocked!")

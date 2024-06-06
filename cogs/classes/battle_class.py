@@ -2120,23 +2120,22 @@ class Battle:
         else:
             embedVar = Embed(title=f"💀 Try Again", color=0xe91e63)
 
-        # self.selected_universe 
-        milestone_game_mode_message = await Quests.milestone_check(self.player1, self.battle_mode, 1, self.selected_universe)
-        milestone_element_1_damage_message = await Quests.milestone_check(self.player1, self.player1_card.move1_element, self.player1_card.move1_damage_dealt, self.selected_universe)
-        milestone_element_2_damage_message = await Quests.milestone_check(self.player1, self.player1_card.move2_element, self.player1_card.move2_damage_dealt, self.selected_universe)
-        milestone_element_3_damage_message = await Quests.milestone_check(self.player1, self.player1_card.move3_element, self.player1_card.move3_damage_dealt, self.selected_universe)
 
-        if milestone_game_mode_message:
-            embedVar.add_field(name="🏆 Milestone", value=f"{milestone_game_mode_message}")
+        # Define a list of milestones to check
+        milestones = [
+            (self.player1, self.battle_mode, 1, self.selected_universe),
+            (self.player1, self.player1_card.move1_element, self.player1_card.move1_damage_dealt, self.selected_universe),
+            (self.player1, self.player1_card.move2_element, self.player1_card.move2_damage_dealt, self.selected_universe),
+            (self.player1, self.player1_card.move3_element, self.player1_card.move3_damage_dealt, self.selected_universe),
+        ]
 
-        if milestone_element_1_damage_message:
-            embedVar.add_field(name="🏆 Milestone", value=f"{milestone_element_1_damage_message}")
-                               
-        if milestone_element_2_damage_message:
-            embedVar.add_field(name="🏆 Milestone", value=f"{milestone_element_2_damage_message}")
+        # Check milestones and add messages to the embed
+        for milestone in milestones:
+            milestone_messages = await Quests.milestone_check(*milestone)
+            if milestone_messages:
+                for message in milestone_messages:
+                    embedVar.add_field(name="🏆 Milestone", value=message)
 
-        if milestone_element_3_damage_message:
-            embedVar.add_field(name="🏆 Milestone", value=f"{milestone_element_3_damage_message}")
 
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.format_game_clock(gameClock)}")
         self.add_stat_fields_to_embed(embedVar, player_card, opponent_card, companion_card)

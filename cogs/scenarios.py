@@ -85,7 +85,7 @@ class Scenario(Extension):
         except Exception as ex:
             player.make_available()
             custom_logging.debug(ex)
-
+            
 
 async def create_scenario_embed(scenario, player):
     """

@@ -401,7 +401,7 @@ def set_emoji(element):
         emoji = "🧿"
     if element == "BLEED":
         emoji = "🅱️"
-    if element == "RECKLESS":
+    if element == "RECKLESS" or element == "RECOIL":
         emoji = "♻️"
     if element == "TIME":
         emoji = "⌛"
@@ -787,35 +787,38 @@ def get_buffs(card_lvl, level_sync):
 
 async def update_experience(card, player, exp, lvl_req):
     try:
-        number_of_level_ups = 0
-        exp_gain = exp
-        while exp_gain > 0:
-            atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync) 
-            if card.card_lvl < MAX_LEVEL:
-                # Experience Code
-                if exp_gain <= (lvl_req - 1):
-                    update_query = {'$inc': {'CARD_LEVELS.$[type].' + "EXP": exp_gain}}
-                    filter_query = [{'type.' + "CARD": card.name}]
-                    response = await asyncio.to_thread(db.updateUser, player.user_query, update_query, filter_query)
-                    exp_gain = exp_gain - lvl_req
-                    break
-                    
-                # Level Up Code
-                if exp_gain >= (lvl_req - exp_gain):
-                    atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync)
-                    update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
-                                    '$inc': {'CARD_LEVELS.$[type].' + "LVL": 1, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
-                                            'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
-                                            'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                    filter_query = [{'type.' + "CARD": card.name}]
-                    response = await asyncio.to_thread(db.updateUser, player.user_query, update_query, filter_query)
-                    exp_gain = exp_gain - lvl_req
-                    number_of_level_ups += 1
-                    card.card_lvl += 1
-                    lvl_req = get_level_up_exp_req(card)
-            else:
-                break
-        return number_of_level_ups, card
+        total_exp_gain = exp
+        initial_level = card.card_lvl
+        exp_for_next_level = lvl_req
+
+        # Calculate new level and remaining exp
+        while total_exp_gain >= exp_for_next_level and card.card_lvl < MAX_LEVEL:
+            total_exp_gain -= exp_for_next_level
+            card.card_lvl += 1
+            exp_for_next_level = get_level_up_exp_req(card)
+
+        # Update remaining exp
+        remaining_exp = total_exp_gain
+
+        # Calculate buffs for the new level
+        atk_def_buff, ap_buff, hlt_buff = get_buffs(card.card_lvl, level_sync)
+
+        # Prepare update query
+        update_query = {
+            '$set': {'CARD_LEVELS.$[type].EXP': remaining_exp},
+            '$inc': {
+                'CARD_LEVELS.$[type].LVL': card.card_lvl - initial_level,
+                'CARD_LEVELS.$[type].ATK': atk_def_buff * (card.card_lvl - initial_level),
+                'CARD_LEVELS.$[type].DEF': atk_def_buff * (card.card_lvl - initial_level),
+                'CARD_LEVELS.$[type].AP': ap_buff * (card.card_lvl - initial_level),
+                'CARD_LEVELS.$[type].HLT': hlt_buff * (card.card_lvl - initial_level)
+            }
+        }
+
+        filter_query = [{'type.CARD': card.name}]
+        response = await asyncio.to_thread(db.updateUser, player.user_query, update_query, filter_query)
+
+        return card.card_lvl - initial_level, card
     except Exception as ex:
         custom_logging.debug(ex)
         return 0, card
@@ -1302,7 +1305,7 @@ async def curse(amount, user):
 
 async def player_check(ctx):
     query = {'DID': str(ctx.author.id)}
-    valid = db.queryUser(query)
+    valid = await asyncio.to_thread(db.queryUser, query)
     if valid:
         return valid
     else:
@@ -1537,7 +1540,7 @@ def level_sync_stats(lvl, stat):
         stat_sync = round(lvl * 2)
         return stat_sync
     if stat == "AP":
-        stat_sync = round((lvl / 3) * 1)
+        stat_sync = round((lvl / 2) * 1)
         return stat_sync
 
 
@@ -1596,7 +1599,7 @@ def create_title_from_data(title_data):
     return title
 
 def create_arm_from_data(arm_data):
-    arm = Arm(arm_data['ARM'], arm_data['UNIVERSE'], arm_data['PRICE'], arm_data['ABILITIES'], arm_data['DROP_STYLE'], arm_data['AVAILABLE'], arm_data['ELEMENT'])
+    arm = Arm(arm_data['ARM'], arm_data['UNIVERSE'], arm_data['ABILITIES'], arm_data['DROP_STYLE'], arm_data['AVAILABLE'], arm_data['ELEMENT'])
     return arm
 
 def create_player_from_data(player_data):
@@ -1617,7 +1620,6 @@ def update_arm_durability(player, player_arm, player_card):
 
         arm_universe = player_arm.universe
         arm_name = player_arm.name
-        arm_price = player_arm.price
         card = player_card
 
         # Check if the difficulty is easy, return if so
@@ -1966,7 +1968,7 @@ title_prefix_mapping = {
     'ELEMENTAL BUFF': 'Increase ',
     'ELEMENTAL DEBUFF': 'Decrease opponent ',
     'ENHANCED GUARD': 'Negates 80% of damage when blocking, prevents critical hits.',
-    'STRATEGIST': 'Hits through all guards',
+    'STRATEGIST': 'Hits through all protections.',
     'SHARPSHOOTER': 'Attacks never miss',
     'DIVINITY': 'Ignore elemental effects until resolved',
 }
@@ -2134,7 +2136,9 @@ elements = [
     "POISON",
     "RANGED",
     "ENERGY",
+    "SPIRIT"
     "RECKLESS",
+    "RECOIL",
     "TIME",
     "BLEED",
     "GRAVITY"
@@ -2236,6 +2240,7 @@ autocomplete_advanced_search = [
     {'name': 'ENERGY', 'value': 'ENERGY'},
     {'name': 'RANGED', 'value': 'RANGED'},
     {'name': 'RECKLESS', 'value': 'RECKLESS'},
+    {'name': 'RECOIL', 'value': 'RECOIL'},
     {'name': 'BLEED', 'value': 'BLEED'},
     {'name': 'GRAVITY', 'value': 'GRAVITY'},
     {'name': 'TIME', 'value': 'TIME'},

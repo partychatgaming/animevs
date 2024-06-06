@@ -11,6 +11,8 @@ import unique_traits as ut
 import help_commands as h
 import uuid
 import asyncio
+from PIL import Image
+import io
 import re
 import ai
 from logger import loggy
@@ -173,7 +175,7 @@ class Play(Extension):
 
                                     try:
                                         button_ctx = await self.bot.wait_for_component(components=components, timeout=300, check=check)
-                                        # await button_ctx.ctx.defer(edit_origin=True)
+                                        await button_ctx.ctx.defer(edit_origin=True)
                                         save_and_end = await player_save_and_end_game(self, ctx, private_channel, battle_msg, battle_config, button_ctx)
                                         if save_and_end:
                                             battle_config.player1.make_available()
@@ -966,7 +968,7 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
         embedVar = await tactics.auto_battle_embed_and_starting_traits(ctx, turn_card, turn_title, opponent_card, opponent_title, battle_config, partner_card, partner_title)
         image_binary = turn_card.showcard(turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
 
-        if image_binary.seekable():
+        if hasattr(image_binary, 'seekable') and image_binary.seekable():
             image_binary.seek(0)
             card_file = File(file_name="image.png", file=image_binary)
             if battle_msg is None:
@@ -982,6 +984,7 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
             else:
                 # If the message exists, edit it
                 await battle_msg.edit(embed=embedVar, components=[])
+        # if image_binary:
         image_binary.close()
         await asyncio.sleep(2)
 
@@ -989,14 +992,15 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
         if selected_move in [1, 2, 3, 4, 7]:
             damage_calculation_response = turn_card.damage_cal(selected_move, battle_config, opponent_card)
 
-            if selected_move != 7:
-                if turn_card._monstrosity_active and turn_card.used_resolve:
-                    turn_card._monstrosity_value = turn_card._monstrosity_value - 1
-                    if turn_card._monstrosity_value <= 0:
-                        turn_card._monstrosity_active = False
-                        turn_card._monstrosity_value = 0
-                    battle_config.add_to_battle_log(f"{turn_card.name} has {turn_card._monstrosity_value} double strikes left")
-                    turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+            # This is unnecessary and causes the monstrosity effect to run multiple times
+            # if selected_move != 7:
+            #     if turn_card._monstrosity_active and turn_card.used_resolve:
+            #         turn_card._monstrosity_value = turn_card._monstrosity_value - 1
+            #         if turn_card._monstrosity_value <= 0:
+            #             turn_card._monstrosity_active = False
+            #             turn_card._monstrosity_value = 0
+            #         battle_config.add_to_battle_log(f"{turn_card.name} has {turn_card._monstrosity_value} double strikes left")
+            #         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
 
         if selected_move == 5:
             await turn_card.resolving(battle_config, turn_title, opponent_card, turn_player)
@@ -1074,12 +1078,13 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     player1_arm_message = f"**You have the following equipment** {turn_card._arm_message}{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman equipped\n{summon_message}"
     embedVar = Embed(title=f"", color=0xe74c3c)
-    if turn_player.performance:
-        embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{turn_card.get_perfomance_header(turn_title)}")
-    else:
-        embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
-        embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{player1_arm_message}")
-    
+    # if turn_player.performance:
+    #     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{turn_card.get_perfomance_header(turn_title)}")
+    # else:
+    embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
+    embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{player1_arm_message}")
+
+
     # ai_results = summarize_last_moves(battle_config.previous_moves)
     embedVar.set_image(url="attachment://image.png")
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
@@ -1088,15 +1093,15 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     await battle_msg.delete(delay=1)
     await asyncio.sleep(1)
-    if turn_player.performance:
-        embedVar.add_field(name=f"**Moves**", value=f"{turn_card.get_performance_moveset()}")
-        battle_msg = await private_channel.send(embed=embedVar, components=components)
-    else:
-        image_binary = await asyncio.to_thread(turn_card.showcard,turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
-        # image_binary.seek(0)
-        card_file = File(file_name="image.png", file=image_binary)
-        battle_msg = await private_channel.send(embed=embedVar, components=components, file=card_file)
-        image_binary.close()
+    # if turn_player.performance:
+    #     embedVar.add_field(name=f"**Moves**", value=f"{turn_card.get_performance_moveset()}")
+    #     battle_msg = await private_channel.send(embed=embedVar, components=components)
+    # else:
+    image_binary= await asyncio.to_thread(turn_card.showcard,turn_arm, battle_config.turn_total, opponent_card.defense, battle_config.mode)
+    # image_binary.seek(0)
+    card_file = File(file_name="image.png", file=image_binary)
+    battle_msg = await private_channel.send(embed=embedVar, components=components, file=card_file)
+    image_binary.close()
     return battle_msg, components
 
 
@@ -1443,7 +1448,7 @@ def damage_calculation(battle_config, damage_calculation_response=None):
         if turn_card._monstrosity_value <= 0:
             turn_card._monstrosity_active = False
             turn_card._monstrosity_value = 0
-        battle_config.add_to_battle_log(f"({turn_card.name}:  Double Strike! {turn_card._monstrosity_value} Double Strikes Left!")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {turn_card.name}:  Double Strike! {turn_card._monstrosity_value} Double Strikes Left!")
         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
         battle_config.next_turn()
     else:

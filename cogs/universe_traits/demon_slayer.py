@@ -25,9 +25,9 @@ def total_concentration_breathing(player_card, battle_config, player_title, oppo
         player_card.attack = round(player_card.attack + resolve_attack_value)
         player_card.defense = round(player_card.defense - resolve_defense_value)
         if opponent_card.attack > player_card.attack:
-            player_card.attack = opponent_card.attack + 1000
+            player_card.attack = opponent_card.attack + (250 * player_card.tier)
         if opponent_card.defense > player_card.defense:
-            player_card.defense = opponent_card.defense + 1000
+            player_card.defense = opponent_card.defense + (250 * player_card.tier)
         player_card.used_resolve = True
         player_card.usedsummon = False
 
