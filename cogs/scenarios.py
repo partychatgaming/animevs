@@ -176,7 +176,7 @@ def create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, e
         difficulty_message = f"🔥 **Difficulty:** {player.difficulty.title()}"
 
     if is_destiny:
-        type_of_battle = f"✨ **{universe} RAID BATTLE!**"
+        type_of_battle = f"✨ **{universe} Destiny Battle!!**"
         enemy_level_message = f"✨ **DESTINY LEVEL:** {enemy_level}"
         gold_reward_message = f"<a:Shiney_Gold_Coins_Inv:1085618500455911454> **EARNINGS** {'{:,}'.format(scenario_gold)}"
         difficulty_message = f"✨**Difficulty:** {player.difficulty.title()}"
