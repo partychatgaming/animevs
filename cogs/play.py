@@ -20,6 +20,7 @@ from logger import loggy
 import cogs.tactics as tactics
 from cogs.universe_traits.death_note import set_deathnote_message
 from cogs.universe_traits.solo_leveling import activate_solo_leveling_trait
+from cogs.universe_traits.souls import third_phase
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 class Play(Extension):
