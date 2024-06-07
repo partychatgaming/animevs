@@ -358,6 +358,13 @@ class Card:
             self.move1base = self.move1ap
             self.move1_damage_dealt = 0
             
+            #Souls Third Phase 
+            self.move_souls = self.move1
+            self.move_souls_ap = self.move1ap
+            self.move_souls_stamina = 0
+            self.move_souls_element = self.move1_element
+            self.move_souls_emoji = self.move1_emoji
+            
 
             # Move 2
             self.move2 = list(self.m2.keys())[0]
