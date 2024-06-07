@@ -1070,7 +1070,7 @@ class Profile(Extension):
 
             preset_message = "Preset Upgraded!"
             if not user.preset_upgraded:
-                preset_message = "10,000,000"
+                preset_message = "1,000,000"
 
 
 
@@ -1079,18 +1079,18 @@ class Profile(Extension):
             boss_message = "Nice Arm!"
             abyss_arm = False
             boss_message = "Nice Arm!"
-            arm_cost = '{:,}'.format(100000)
+            arm_cost = '{:,}'.format(1000)
             durability_message = f"{arm_cost}"
             if arm.universe == "Unbound":
                 abyss_arm= True
-                arm_cost = '{:,}'.format(1000000)
+                arm_cost = '{:,}'.format(25000)
                 durability_message = f"{arm_cost}"
             if arm.drop_style == "Boss Drop":
-                boss_arm = True
+                boss_arm = True 
             
             if arm.drop_style == "Dungeon Drop":
                 dungeon_arm= True
-                arm_cost = '{:,}'.format(250000)
+                arm_cost = '{:,}'.format(5000)
                 durability_message = f"{arm_cost}"
 
             if boss_arm:
@@ -1122,32 +1122,32 @@ class Profile(Extension):
 
             def get_level_values(level):
                 levels_values = {
-                    200: (30000000, 20000000, 10000000),
-                    300: (70000000, 50000000, 25000000),
-                    400: (90000000, 75000000, 50000000),
-                    500: (150000000, 100000000, 75000000),
-                    600: (300000000, 200000000, 100000000),
-                    700: (750000000, 500000000, 250000000),
-                    800: (1000000000, 800000000, 500000000),
-                    900: (5000000000, 2500000000, 1000000000),
-                    1000: (20000000000, 5000000000, 5000000000),
-                    2000: (80000000000, 13000000000, 9000000000)
+                    200: (200000, 80000, 25000),
+                    300: (300000, 125000, 50000),
+                    400: (600000, 250000, 100000),
+                    500: (1000000, 550000, 250000),
+                    600: (2750000, 1200000, 500000),
+                    700: (5000000, 2500000, 1000000),
+                    800: (7500000, 4000000, 2500000),
+                    900: (10000000, 7500000, 5000000),
+                    1000: (50000000, 25000000, 10000000),
+                    2000: (500000000, 250000000, 100000000)
                 }
 
                 for threshold, values in sorted(levels_values.items(), reverse=True):
                     if card.card_lvl >= threshold:
                         return values
-                return 5000000, 1600000, 500000
+                return 100000, 40000, 20000
             tier_values = {
-                2: 5000000,
-                3: 20000000,
-                4: 80000000,
-                5: 150000000,
-                6: 300000000,
-                7: 550000000,
-                8: 800000000,
-                9: 200000000,
-                10: 10000000000, 
+                2: 200000,
+                3: 450000,
+                4: 1000000,
+                5: 5000000,
+                6: 10000000,
+                7: 25000000,
+                8: 100000000,
+                9: 500000000,
+                10: 1000000000, 
             }
             level_up_card_tier_message = f"⭐ **Increase Card Tier**: 💸 **{tier_values[(card.card_tier + 1)]:,}**" if card.card_tier < 10 else f"🌟 Your card has max tiers"
             licon = get_level_icons(card.card_lvl)
@@ -1334,7 +1334,7 @@ class Profile(Extension):
                         return
                     
                 if option == f"{_uuid}|7":
-                    price = 10000000
+                    price = 100000
                     if price > user.balance:
                         embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Insufficent funds.", color=0xf1c40f)
                         # await button_ctx.ctx.send("Insufficent funds.", ephemeral=True)
@@ -1357,9 +1357,9 @@ class Profile(Extension):
                 
                 if option == f"{_uuid}|5":
                     if dungeon_arm:
-                        price = 250000
+                        price = 5000
                     if abyss_arm:
-                        price = 1000000
+                        price = 25000
 
                     gems_left = balance - price
 
