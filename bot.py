@@ -1747,7 +1747,7 @@ async def daily(ctx):
       milestone_message = await Quests.milestone_check(player, "DAILY", 1)
 
       aicon = crown_utilities.prestige_icon(player.prestige)
-      dailyamount = 1000000
+      dailyamount = 100000
       daily_bonus = int(dailyamount * (player.rebirth + 1) + (1000000 * player.prestige))
          
       await crown_utilities.bless(daily_bonus, player.did)
@@ -1873,7 +1873,7 @@ async def roll(ctx, rolls: int = 1):
     if not a_registered_player:
         return
     
-    cost = 250000 * rolls
+    cost = 5000 * rolls
 
     user = crown_utilities.create_player_from_data(a_registered_player)
     if user.balance < cost:
