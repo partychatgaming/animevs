@@ -1859,199 +1859,129 @@ async def gift(ctx, player, amount: int):
 
 
 @slash_command(name="roll", description="For 🪙 coins roll for a chance at random cards, arms, summons, and gems", options=[
-   SlashCommandOption(name="rolls", description="Number of rolls to perform", choices=[
-      SlashCommandChoice(name="1 Roll", value=1),
-      SlashCommandChoice(name="5 Rolls", value=5),
-      SlashCommandChoice(name="10 Rolls", value=10),
-      SlashCommandChoice(name="25 Rolls", value=25),
-   ], type=OptionType.INTEGER, required=False),
-],scopes=guild_ids)
+    SlashCommandOption(name="rolls", description="Number of rolls to perform", choices=[
+        SlashCommandChoice(name="1 Roll", value=1),
+        SlashCommandChoice(name="5 Rolls", value=5),
+        SlashCommandChoice(name="10 Rolls", value=10),
+        SlashCommandChoice(name="25 Rolls", value=25),
+    ], type=OptionType.INTEGER, required=False),
+], scopes=guild_ids)
 @cooldown(Buckets.USER, 1, 15)
 async def roll(ctx, rolls: int = 1):
-   await ctx.defer()
-   a_registered_player = await crown_utilities.player_check(ctx)
-   if not a_registered_player:
-      return
-   
-   cost = 250000 * rolls
+    await ctx.defer()
+    a_registered_player = await crown_utilities.player_check(ctx)
+    if not a_registered_player:
+        return
+    
+    cost = 250000 * rolls
 
-   user = crown_utilities.create_player_from_data(a_registered_player)
-   await asyncio.sleep(2)
-   if user.balance < cost:
-      embed = Embed(title="Gacha", description="You do not have enough 🪙 to roll the Gacha. It costs 🪙 {cost:,} coin for {rolls} Rolls.")
-      await ctx.send(embeds=[embed])
-      return
-   
-   await crown_utilities.curse(cost, user.did)
+    user = crown_utilities.create_player_from_data(a_registered_player)
+    if user.balance < cost:
+        embed = Embed(title="Gacha", description=f"You do not have enough 🪙 to roll the Gacha. It costs 🪙 {cost:,} coin for {rolls} Rolls.")
+        await ctx.send(embeds=[embed])
+        return
+    
+    await crown_utilities.curse(cost, user.did)
 
-   
-   cards = await asyncio.to_thread(db.getCardsFromAvailableUniverses)
-   arms = await asyncio.to_thread(db.getArmsFromAvailableUniverses)
-   summons = await asyncio.to_thread(db.getSummonsFromAvailableUniverses)
-   quest_message = await Quests.milestone_check(user, "ROLL", 1) 
+    # Retrieve all necessary data in one go
+    cards, arms, summons, universes = await asyncio.gather(
+        asyncio.to_thread(db.getCardsFromAvailableUniverses),
+        asyncio.to_thread(db.getArmsFromAvailableUniverses),
+        asyncio.to_thread(db.getSummonsFromAvailableUniverses),
+        asyncio.to_thread(db.queryAllUniverses)
+    )
 
-   all_cards = list(cards)
-   all_arms = list(arms)
-   all_summons = list(summons)
+    quest_message = await Quests.milestone_check(user, "ROLL", rolls)
+    
+    all_cards = list(cards)
+    all_arms = list(arms)
+    all_summons = list(summons)
+    universe_list = list(universes)
 
+    items = []
 
-   # Only cards, arms, and summons that do not have DROP_STYLE of BOSS
-   # There needs to be a list of 5 items that are either cards, arms, summons, or gems, there can be duplicates as well
-   # 95% chance of getting gems
-   # 5% chance of getting a card that has DROP_STYLE of TALES or arm of DROP_STYLE of TALES
-   # 4.9% chance of getting a card that has DROP_STYLE of DUNGEON, or arms that have DROP_STYLE of DUNGEON
-   # 0.04% chance of getting a summon that have DROP_STYLE of TALES
-   # 0.04% chance of getting a summon that have DROP_STYLE of DUNGEON
-   # 0.02% chance of getting a card or arm that has DROP_STYLE of SCENARIO or DESTINY
-   items = []
+    for _ in range(rolls):
+        roll = random.random()
+        if roll <= 0.0002:  # 0.02% chance
+            scenario_or_destiny = [item for item in all_cards + all_arms if item['DROP_STYLE'] in ['SCENARIO', 'DESTINY']]
+            if scenario_or_destiny:
+                selected_item = random.choice(scenario_or_destiny)
+                if 'NAME' in selected_item:
+                    user.save_card(crown_utilities.create_card_from_data(selected_item))
+                else:
+                    user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                items.append(selected_item)
+        elif roll <= 0.001:  # 0.1% chance (cumulative)
+            dungeon_summons = [item for item in all_summons if item['DROP_STYLE'] == 'DUNGEON']
+            if dungeon_summons:
+                selected_item = random.choice(dungeon_summons)
+                user.save_summon(crown_utilities.create_summon_from_data(selected_item))
+                items.append(selected_item)
+        elif roll <= 0.005:  # 0.4% chance (cumulative)
+            tales_summons = [item for item in all_summons if item['DROP_STYLE'] == 'TALES']
+            if tales_summons:
+                selected_item = random.choice(tales_summons)
+                user.save_summon(crown_utilities.create_summon_from_data(selected_item))
+                items.append(selected_item)
+        elif roll <= 0.015:  # 1.0% chance (cumulative)
+            dungeon_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'DUNGEON']
+            if dungeon_items:
+                selected_item = random.choice(dungeon_items)
+                if 'NAME' in selected_item:
+                    user.save_card(crown_utilities.create_card_from_data(selected_item))
+                else:
+                    user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                items.append(selected_item)
+        elif roll <= 0.05:  # 5.0% chance (cumulative)
+            tales_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'TALES']
+            if tales_items:
+                selected_item = random.choice(tales_items)
+                if 'NAME' in selected_item:
+                    user.save_card(crown_utilities.create_card_from_data(selected_item))
+                else:
+                    user.save_arm(crown_utilities.create_arm_from_data(selected_item))
+                items.append(selected_item)
+        else:  # 95% chance
+            gem_amount = random.randint(25000, 50000)
+            selected_universe = random.choice(universe_list)
+            user.save_gems(selected_universe["TITLE"], gem_amount)
+            items.append({"type": "gems", "amount": gem_amount, "universe": selected_universe['TITLE']})
 
-   for _ in range(rolls):
-      roll = random.random()
-      if roll <= 0.005:  # 0.5% chance
-         scenario_or_destiny = [item for item in all_cards + all_arms if item['DROP_STYLE'] in ['SCENARIO', 'DESTINY']]
-         if scenario_or_destiny:  # Ensure the list is not empty
-            scenario_or_destiny_selection = random.choice(scenario_or_destiny)
-            if scenario_or_destiny_selection in all_cards:
-               card = crown_utilities.create_card_from_data(scenario_or_destiny_selection)
-               user.save_card(card)
+    super_rare_gif = "https://i.pinimg.com/originals/85/03/1d/85031d29916b8746829d7e721381cf6b.gif"
+    rare_gif = "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/alejandroaldana/23tRzVvUNcn54i4rmoPMmabLUHBJL19eqoNwRsnJrhuJ3TyHMww66C8c4fruCJUNNpfcQ.gif"
+    normal_rare_gif = "https://pa1.narvii.com/6237/8d2ff4e7f9dce12a5772c597ae857f29e1804c92_hq.gif"
+
+    embeds = []
+    for item in items:
+        if isinstance(item, dict) and item.get('type') == 'gems':
+            embed = Embed(
+                title="You have earned gems!",
+                description=f"You earned 💎 {item['amount']:,} gems in {crown_utilities.crest_dict[item['universe']]} {item['universe']}"
+            )
+            embed.set_image(url=normal_rare_gif)
+        else:
+            name = item.get('NAME') or item.get('ARM') or item.get('PET')
+            drop_style = item.get('DROP_STYLE')
+            type_emoji = "🎴" if 'NAME' in item else "🦾" if 'ARM' in item else "🧬"
+
+            if drop_style == 'DUNGEON':
+                embed = Embed(title=f"You have earned a {type_emoji} item!", description=f"{type_emoji} {name} - You have earned a rare item!")
+                embed.set_image(url=rare_gif)
+            elif drop_style in ['SCENARIO', 'DESTINY']:
+                embed = Embed(title=f"You have earned a {type_emoji} item!", description=f"{type_emoji} {name} - You have earned a super rare item!")
+                embed.set_image(url=super_rare_gif)
             else:
-               arm = crown_utilities.create_arm_from_data(scenario_or_destiny_selection)
-               user.save_arm(arm)
-            items.append(scenario_or_destiny_selection)
-      elif roll <= 0.015:  # 1.0% chance (cumulative)
-         dungeon_summons = [item for item in all_summons if item['DROP_STYLE'] == 'DUNGEON']
-         if dungeon_summons:
-            dungeon_summon_selection = random.choice(dungeon_summons)
-            summon = crown_utilities.create_summon_from_data(dungeon_summon_selection)
-            user.save_summon(summon)
-            items.append(dungeon_summon_selection)
-      elif roll <= 0.03:  # 1.5% chance (cumulative)
-         tales_summons = [item for item in all_summons if item['DROP_STYLE'] == 'TALES']
-         if tales_summons:
-            tales_summon_selection = random.choice(tales_summons)
-            summon = crown_utilities.create_summon_from_data(tales_summon_selection)
-            user.save_summon(summon)
-            items.append(tales_summon_selection)
-      elif roll <= 0.05:  # 2.0% chance (cumulative)
-         dungeon_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'DUNGEON']
-         if dungeon_items:
-            dungeon_item_selection = random.choice(dungeon_items)
-            if dungeon_item_selection in all_cards:
-               dungeon_item = crown_utilities.create_card_from_data(dungeon_item_selection)
-            else:
-               dungeon_item = crown_utilities.create_arm_from_data(dungeon_item_selection)
+                embed = Embed(title=f"You have earned a {type_emoji} item!", description=f"{type_emoji} {name} - You have earned an item!")
+                embed.set_image(url=normal_rare_gif)
 
-            if dungeon_item_selection in all_cards:
-               user.save_card(dungeon_item)
-            else:
-               user.save_arm(dungeon_item)
-            items.append(dungeon_item_selection)
-      elif roll <= 0.10:  # 5.0% chance (cumulative)
-         tales_items = [item for item in all_cards + all_arms if item['DROP_STYLE'] == 'TALES']
-         if tales_items:
-            tales_item_selection = random.choice(tales_items)
-            tales_item = crown_utilities.create_card_from_data(tales_item_selection) if tales_item_selection in all_cards else crown_utilities.create_arm_from_data(tales_item_selection)
-            if tales_item_selection in all_cards:
-               user.save_card(tales_item)
-            else:
-               user.save_arm(tales_item)
-            items.append(tales_item_selection)
-      else:  # 90% chance
-         gem_amount = random.randint(25000, 50000)
-         universe_list = db.queryAllUniverses()
-         lister = list(universe_list)
-         uni = random.choice(lister)
-         user.save_gems(uni["TITLE"], gem_amount)
-         items.append({"type": "gems", "amount": gem_amount, "universe": uni['TITLE']})
+        if quest_message:
+            embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
 
+        embed.set_thumbnail(url=user.avatar)
+        embeds.append(embed)
 
-   # Create an embed for each item
-   # If the item is a card make the embed have 🎴 to symbolize You have earned the card!
-   # If the item is an arm make the embed have 🦾 to symbolize You have earned the arm!
-   # If the item is a summon make the embed have 🧬 to symbolize You have earned the summon!
-   # If the item is gems make the embed have 💎 to symbolize You have earned gems!
-   embeds = []
-
-   super_rare_gif = "https://i.pinimg.com/originals/85/03/1d/85031d29916b8746829d7e721381cf6b.gif"
-
-   rare_gif = "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/alejandroaldana/23tRzVvUNcn54i4rmoPMmabLUHBJL19eqoNwRsnJrhuJ3TyHMww66C8c4fruCJUNNpfcQ.gif"
-
-   normal_rare_gif = "https://pa1.narvii.com/6237/8d2ff4e7f9dce12a5772c597ae857f29e1804c92_hq.gif"
-
-   
-
-   for item in items:
-      if isinstance(item, dict) and item.get('type') == 'gems':
-         embed = Embed(
-            title="You have earned gems!",
-            description=f"You earned 💎 {item['amount']:,} gems in {crown_utilities.crest_dict[item['universe']]} {item['universe']}"
-         )
-         embed.set_image(url=normal_rare_gif)
-
-      elif item in all_cards:
-         if item['DROP_STYLE'] == 'DUNGEON':
-            embed = Embed(title="You have earned a card!", description=f"🎴 {item['NAME']} - You have earned a rare card!")
-            embed.set_image(url=rare_gif)
-
-         elif item['DROP_STYLE'] == 'SCENARIO':
-            embed = Embed(title="You have earned a card!", description=f"🎴 {item['NAME']} - You have earned a super rare card!")
-            embed.set_image(url=super_rare_gif)
-         elif item['DROP_STYLE'] == 'DESTINY':
-            embed = Embed(title="You have earned a card!", description=f"🎴 {item['NAME']} - You have earned the rarest card!")
-            embed.set_image(url=super_rare_gif)
-
-         else:
-            embed = Embed(title="You have earned a card!", description=f"🎴 {item['NAME']} - You have earned a card!")
-            embed.set_image(url=rare_gif)
-      elif item in all_arms:
-         if item['DROP_STYLE'] == 'DUNGEON':
-            embed = Embed(title="You have earned an arm!", description=f"🦾 {item['ARM']} - You have earned a rare arm!")
-            embed.set_image(url=rare_gif)
-
-         elif item['DROP_STYLE'] == 'SCENARIO':
-            embed = Embed(title="You have earned an arm!", description=f"🦾 {item['ARM']} - You have earned a super rare arm!")
-            embed.set_image(url=super_rare_gif)
-
-         elif item['DROP_STYLE'] == 'DESTINY':
-            embed = Embed(title="You have earned an arm!", description=f"🦾 {item['ARM']} - You have earned the rarest arm!")
-            embed.set_image(url=super_rare_gif)
-
-         else:
-            embed = Embed(title="You have earned an arm!", description=f"🦾 {item['ARM']} - You have earned an arm")
-            embed.set_image(url=rare_gif)
-      elif item in all_summons:
-         if item['DROP_STYLE'] == 'DUNGEON':
-            embed = Embed(title="You have earned a summon!", description=f"🧬 {item['PET']} - You have earned a rare summon!")
-            embed.set_image(url=rare_gif)
-
-         elif item['DROP_STYLE'] == 'SCENARIO':
-            embed = Embed(title="You have earned a summon!", description=f"🧬 {item['PET']} - You have earned a super rare summon!")
-            embed.set_image(url=super_rare_gif)
-
-         elif item['DROP_STYLE'] == 'DESTINY':
-            embed = Embed(title="You have earned a summon!", description=f"🧬 {item['PET']} - You have earned the rarest summon!")
-            embed.set_image(url=super_rare_gif)
-
-         else:
-            embed = Embed(title="You have earned a summon!", description=f"🧬 {item['PET']} - You have earned a summon")
-            embed.set_image(url=rare_gif)
-
-      else:
-         embed = Embed(title="You have earned an item!", description=f"{item['name']}")
-         embed.set_image(url=rare_gif)
-
-      if quest_message:
-         embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
-
-      embed.set_thumbnail(url=user.avatar)
-      embeds.append(embed)
-
-
-   paginator = Paginator.create_from_embeds(bot, *embeds)
-   # paginator.show_select_menu = True
-   await paginator.send(ctx)   
-
-
+    paginator = Paginator.create_from_embeds(bot, *embeds)
+    await paginator.send(ctx)
 
 # Should you only be able to donate to your own guild?
 @slash_command(name="donate", description="Donate money to Guild, Convert 10% as Gems", options=[

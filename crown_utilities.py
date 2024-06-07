@@ -1319,19 +1319,19 @@ def scenario_gold_drop(scenario_lvl, fight_count, scenario_title, completed_scen
         gold = gold * 2
 
     if scenario_lvl > 500:
-        gold = gold + (gold * .25)
-
-    if scenario_lvl > 900:
         gold = gold + (gold * .35)
 
+    if scenario_lvl > 900:
+        gold = gold + (gold * .55)
+
     if scenario_lvl > 1500:
-        gold = gold + (gold * .45)
+        gold = gold + (gold * .85)
     
     if scenario_lvl > 2500:
-        gold = gold + (gold * .60)
+        gold = gold + (gold * 1.20)
     
     if scenario_lvl > 3500:
-        gold = gold + (gold * .75)
+        gold = gold + (gold * 1.75)
     
     if scenario_title in completed_scenarios:
         gold = gold * 0.3

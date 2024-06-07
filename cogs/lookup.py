@@ -94,10 +94,6 @@ class Lookup(Extension):
                         location = player_class.explore_location
                     explore_message = f"{crown_utilities.utility_emojis['ON']} *Exploring {location}*"
                     
-                # purse_message = ""
-                # purse = d['TOURNAMENT_WINS']
-                # if purse == 1:
-                #     purse_message = "👛 | **Gabe's Purse** Activated"
                     
                 patreon_message = ""
                 if player_class.patron == True:

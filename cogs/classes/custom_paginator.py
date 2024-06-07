@@ -1605,37 +1605,42 @@ class CustomPaginator(Paginator):
     async def equip_card_action(self, ctx, card):
         try:
             user_query = {'DID': str(ctx.author.id)}
-            user = db.queryUser(user_query)
-            exists_on_trade_already = crown_utilities.card_being_traded(user['DID'], card)
-            if exists_on_trade_already:
-                embed = Embed(title=f"🎴 Card is being Traded", description=f"{card} is still being traded. Please remove it from the trade before equipping it")
+            user = await asyncio.to_thread(db.queryUser, user_query)
+
+            # Check if card is being traded
+            if crown_utilities.card_being_traded(user['DID'], card):
+                embed = Embed(title="🎴 Card is being Traded", description=f"{card} is still being traded. Please remove it from the trade before equipping it")
                 await ctx.send(embed=embed)
                 return
-            exists_on_market_already = db.queryMarket({"ITEM_OWNER": user['DID'], "ITEM_NAME": card})
-            if exists_on_market_already:
-                embed = Embed(title=f"🏷️ Card is on the Market", description=f"{card} is still on the market. Please remove it from the market before equipping it")
+
+            # Check if card is on the market
+            if await asyncio.to_thread(db.queryMarket, {"ITEM_OWNER": user['DID'], "ITEM_NAME": card}):
+                embed = Embed(title="🏷️ Card is on the Market", description=f"{card} is still on the market. Please remove it from the market before equipping it")
                 await ctx.send(embed=embed)
                 return
+
+            # Check if card is already equipped
             if card == user['CARD']:
-                embed = Embed(title=f"🎴 Card Equipped", description=f"{card} is already equipped")
+                embed = Embed(title="🎴 Card Equipped", description=f"{card} is already equipped")
                 await ctx.send(embed=embed)
                 return
+
+            # Equip card if it exists in user's inventory
             if card in user['CARDS']:
-                response = db.updateUserNoFilter(user_query, {'$set': {'CARD': card}})
+                response = await asyncio.to_thread(db.updateUserNoFilter, user_query, {'$set': {'CARD': card}})
                 if response:
-                    embed = Embed(title=f"🎴 Card Equipped", description=f"{card} has been equipped")
+                    embed = Embed(title="🎴 Card Equipped", description=f"{card} has been equipped")
                     await ctx.send(embed=embed)
                 else:
-                    embed = Embed(title=f"🎴 Card Not Equipped", description=f"Failed to equip {card} as it is not in your inventory")
+                    embed = Embed(title="🎴 Card Not Equipped", description=f"Failed to equip {card}. Please try again.")
                     await ctx.send(embed=embed)
             else:
-                embed = Embed(title=f"🎴 Card Not Equipped", description=f"Failed to equip {card} as it is not in your inventory")
+                embed = Embed(title="🎴 Card Not Equipped", description=f"Failed to equip {card} as it is not in your inventory")
                 await ctx.send(embed=embed)
         except Exception as ex:
             custom_logging.debug(ex)
-            embed = Embed(title=f"🎴 Card Not Equipped", description=f"Failed to equip {card} - Error Logged")
+            embed = Embed(title="🎴 Card Not Equipped", description=f"Failed to equip {card} - Error Logged")
             await ctx.send(embed=embed)
-            return
 
 
     async def market_card_action(self, ctx, card):
@@ -1788,7 +1793,7 @@ class CustomPaginator(Paginator):
             c.set_card_level_buffs(player.card_levels)
             if c.card_lvl == 0:
                 c.card_lvl = 1
-            dismantle_amount = (1000 * c.tier) * c.card_lvl
+            dismantle_amount = (25000 * c.tier) * c.card_lvl
             if card == player.equipped_card:
                 embed = Embed(title=f"🎴 Card Dismantled", description=f"Failed to dismantle {card} as it is currently equipped")
                 await ctx.send(embed=embed)

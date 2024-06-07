@@ -250,7 +250,6 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
 
     return message
 
-
 async def reward_drop(self, battle_config, player, guranteed_drop=None, guranteed_drop_type=None):
     if guranteed_drop:
         return "message"
@@ -261,7 +260,8 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
         owned_arms = [arm['ARM'] for arm in player.arms]
         try:
             if drop_type == "ARM":
-                all_available_drop_arms = db.queryDropArms(battle_config.selected_universe, drop_style)
+                all_available_drop_arms_cursor = db.queryDropArms(battle_config.selected_universe, drop_style)
+                all_available_drop_arms = list(all_available_drop_arms_cursor)  # Convert cursor to list
                 if all_available_drop_arms:
                     rand_arm = random.choice(all_available_drop_arms)['ARM']
                     message = await reward_message(battle_config, player, drop_type, rand_arm, owned_arms)
@@ -269,7 +269,8 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
                     message = reward_money(battle_config, player)
                 return message
             elif drop_type == "SUMMON":
-                all_available_drop_summons = db.queryDropSummons(battle_config.selected_universe, drop_style)
+                all_available_drop_summons_cursor = db.queryDropSummons(battle_config.selected_universe, drop_style)
+                all_available_drop_summons = list(all_available_drop_summons_cursor)  # Convert cursor to list
                 if all_available_drop_summons:
                     rand_summon = random.choice(all_available_drop_summons)['PET']
                     message = await reward_message(battle_config, player, drop_type, rand_summon, player.summons)
@@ -277,7 +278,8 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
                     message = await reward_message(battle_config, player)
                 return message
             elif drop_type == "CARD":
-                all_available_drop_cards = db.queryDropCards(battle_config.selected_universe, drop_style)
+                all_available_drop_cards_cursor = db.queryDropCards(battle_config.selected_universe, drop_style)
+                all_available_drop_cards = list(all_available_drop_cards_cursor)  # Convert cursor to list
                 if all_available_drop_cards:
                     rand_card = random.choice(all_available_drop_cards)['NAME']
                     message = await reward_message(battle_config, player, drop_type, rand_card, player.cards)
@@ -291,8 +293,6 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
             custom_logging.debug(ex)
             await crown_utilities.bless(5000, player.did)
             return f"You earned 🪙 **5000**!"
-
-
 def setup(bot):
     RewardDrops(bot)
     

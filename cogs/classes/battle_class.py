@@ -298,7 +298,7 @@ class Battle:
             self.is_ai_opponent = True
             self._ai_opponentsummon_lvl = 5
             self._ai_opponentsummon_bond = 1
-            self._ai_opponent_card_lvl = 30
+            self._ai_opponent_card_lvl = 10
             self.can_auto_battle = True
             self.bank_amount = 50000
             self.fam_reward_amount = 500000
@@ -722,85 +722,99 @@ class Battle:
     async def get_ai_battle_ready(self, player1_card_level):
         try:
             if not self.is_boss_game_mode:
-                if any((self.is_tales_game_mode, self.is_dungeon_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode)):
+                if any([self.is_tales_game_mode, self.is_dungeon_game_mode, self.is_scenario_game_mode, self.is_abyss_game_mode]):
                     self._ai_opponent_card_data = await asyncio.to_thread(db.queryCard, {'NAME': self.list_of_opponents_by_name[self.current_opponent_number]})
-                    universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': {"$regex": str(self._ai_opponent_card_data['UNIVERSE']), "$options": "i"}})
-                    dungeon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}
-                    tales_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
+                    universe_title = self._ai_opponent_card_data['UNIVERSE']
+                    universe_data = await asyncio.to_thread(db.queryUniverse, {'TITLE': {"$regex": universe_title, "$options": "i"}})
+
+                    drop_style = "DUNGEON" if self.is_dungeon_game_mode else "TALES"
+                    drop_query = {'UNIVERSE': universe_title, 'DROP_STYLE': drop_style}
+
+                    ai_title, ai_arm, ai_summon = await asyncio.gather(
+                        asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_title}, self.player1),
+                        asyncio.to_thread(db.get_random_arm, drop_query, self.player1),
+                        asyncio.to_thread(db.get_random_summon_name, drop_query)
+                    )
+
+                    self._ai_title = ai_title
+                    self._ai_arm = ai_arm
+                    self._ai_summon = ai_summon
+
                     if self.is_dungeon_game_mode:
-                        self._ai_title = await asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_data['TITLE']}, self.player1)
-                        self._ai_arm = await asyncio.to_thread(db.get_random_arm, {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}, self.player1)
-                        self._ai_summon = await asyncio.to_thread(db.get_random_summon_name, dungeon_query)
-                        if player1_card_level >= 600:
-                            self._ai_opponent_card_lvl = 900
-                        else:
-                            self._ai_opponent_card_lvl = 50 + min(max(350, player1_card_level), 600) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl                    
-                    
-                    if self.is_tales_game_mode:
-                        self._ai_title = await asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_data['TITLE']}, self.player1)
-                        self._ai_arm = await asyncio.to_thread(db.get_random_arm, {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}, self.player1)
-                        self._ai_summon = await asyncio.to_thread(db.get_random_summon_name, tales_query)
-                        if player1_card_level <= 20 and player1_card_level >=10:
-                            self._ai_opponent_card_lvl = 10
-                        elif player1_card_level >= 0 and player1_card_level <=10:
-                            self._ai_opponent_card_lvl = min(210, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl    
-                        else:
-                            self._ai_opponent_card_lvl = min(210, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl - 10
-                        #self._ai_opponent_card_lvl = min(200, player1_card_level) if not self.is_scenario_game_mode else self._ai_opponent_card_lvl            
+                        self._ai_opponent_card_lvl = 900 if player1_card_level >= 600 else 50 + min(max(350, player1_card_level), 600)
+                    elif self.is_tales_game_mode:
+                        self._ai_opponent_card_lvl = 10 if player1_card_level <= 20 else min(210, (player1_card_level - 50))
+                    elif self.is_scenario_game_mode or self.is_explore_game_mode:
+                        drop_query['DROP_STYLE'] = "DUNGEON" if self._ai_opponent_card_lvl >= 150 else "TALES"
+                        ai_title, ai_arm, ai_summon = await asyncio.gather(
+                            asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_title}, self.player1),
+                            asyncio.to_thread(db.get_random_arm, drop_query, self.player1),
+                            asyncio.to_thread(db.get_random_summon_name, drop_query)
+                        )
+                        self._ai_title = ai_title
+                        self._ai_arm = ai_arm
+                        self._ai_summon = ai_summon
 
-                    if any((self.is_scenario_game_mode, self.is_explore_game_mode)):
-                        if self._ai_opponent_card_lvl < 150:
-                            self._ai_title = await asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_data['TITLE']}, self.player1)
-                            self._ai_arm = await asyncio.to_thread(db.get_random_arm, {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}, self.player1)
-                            self._ai_summon = await asyncio.to_thread(db.get_random_summon_name, tales_query)
-                        if self._ai_opponent_card_lvl >= 150:
-                            self._ai_title = await asyncio.to_thread(db.get_random_title, {"UNIVERSE": universe_data['TITLE']}, self.player1)
-                            self._ai_arm = await asyncio.to_thread(db.get_random_arm, {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}, self.player1)
-                            self._ai_summon = await asyncio.to_thread(db.get_random_summon_name, dungeon_query)
-                self._ai_opponent_title_data = await asyncio.to_thread(db.queryTitle, {'TITLE': self._ai_title})
-                self._ai_opponent_arm_data = await asyncio.to_thread(db.queryArm, {'ARM': self._ai_arm})
-                self._ai_opponentsummon_data = await asyncio.to_thread(db.querySummon, {'PET': self._ai_summon})
-                self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
-                self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
-                self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
+                title_data, arm_data, summon_data = await asyncio.gather(
+                    asyncio.to_thread(db.queryTitle, {'TITLE': self._ai_title}),
+                    asyncio.to_thread(db.queryArm, {'ARM': self._ai_arm}),
+                    asyncio.to_thread(db.querySummon, {'PET': self._ai_summon})
+                )
 
-                summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
-                self._ai_opponentsummon_power = list(summon_passive.values())[0]
-                self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
-                self._ai_opponentsummon_type = summon_passive['TYPE']#
-                
-            else:
-                self._boss_data = await asyncio.to_thread(db.queryBoss, {"UNIVERSE": self.selected_universe, "AVAILABLE": True})
-                self._tactics = self._boss_data['TACTICS']
-                self._ai_opponent_card_data = await asyncio.to_thread(db.queryCard, {'NAME': self._boss_data['CARD']})
-                self._ai_opponent_title_data = await asyncio.to_thread(db.queryTitle, {'TITLE': self._boss_data['TITLE']})
-                self._ai_opponent_arm_data = await asyncio.to_thread(db.queryArm, {'ARM': self._boss_data['ARM']})
-                self._ai_opponentsummon_data = await asyncio.to_thread(db.querySummon, {'PET': self._boss_data['PET']})
-                self._ai_opponentsummon_image = self._ai_opponentsummon_data['PATH']
-                self._ai_opponentsummon_name = self._ai_opponentsummon_data['PET']
-                self._ai_opponentsummon_universe = self._ai_opponentsummon_data['UNIVERSE']
-                self._ai_is_boss = True
+                self._ai_opponent_title_data = title_data
+                self._ai_opponent_arm_data = arm_data
+                self._ai_opponentsummon_data = summon_data
+                self._ai_opponentsummon_image = summon_data['PATH']
+                self._ai_opponentsummon_name = summon_data['PET']
+                self._ai_opponentsummon_universe = summon_data['UNIVERSE']
 
-                summon_passive = self._ai_opponentsummon_data['ABILITIES'][0]
+                summon_passive = summon_data['ABILITIES'][0]
                 self._ai_opponentsummon_power = list(summon_passive.values())[0]
                 self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
                 self._ai_opponentsummon_type = summon_passive['TYPE']
-                
-                self._arena_boss_description = self._boss_data['DESCRIPTION'][0]
-                self._arenades_boss_description = self._boss_data['DESCRIPTION'][1]
-                self._entrance_boss_description = self._boss_data['DESCRIPTION'][2]
-                self._description_boss_description = self._boss_data['DESCRIPTION'][3]
-                self._welcome_boss_description = self._boss_data['DESCRIPTION'][4]
-                self._feeling_boss_description = self._boss_data['DESCRIPTION'][5]
-                self._powerup_boss_description = self._boss_data['DESCRIPTION'][6]
-                self._aura_boss_description = self._boss_data['DESCRIPTION'][7]
-                self._assault_boss_description = self._boss_data['DESCRIPTION'][8]
-                self._world_boss_description = self._boss_data['DESCRIPTION'][9]
-                self._punish_boss_description = self._boss_data['DESCRIPTION'][10]
-                self._rmessage_boss_description = self._boss_data['DESCRIPTION'][11]
-                self._rebuke_boss_description = self._boss_data['DESCRIPTION'][12]
-                self._concede_boss_description = self._boss_data['DESCRIPTION'][13]
-                self._wins_boss_description = self._boss_data['DESCRIPTION'][14]
+
+            else:
+                boss_data, card_data, title_data, arm_data, summon_data = await asyncio.gather(
+                    asyncio.to_thread(db.queryBoss, {"UNIVERSE": self.selected_universe, "AVAILABLE": True}),
+                    asyncio.to_thread(db.queryCard, {'NAME': self._boss_data['CARD']}),
+                    asyncio.to_thread(db.queryTitle, {'TITLE': self._boss_data['TITLE']}),
+                    asyncio.to_thread(db.queryArm, {'ARM': self._boss_data['ARM']}),
+                    asyncio.to_thread(db.querySummon, {'PET': self._boss_data['PET']})
+                )
+
+                self._boss_data = boss_data
+                self._tactics = boss_data['TACTICS']
+                self._ai_opponent_card_data = card_data
+                self._ai_opponent_title_data = title_data
+                self._ai_opponent_arm_data = arm_data
+                self._ai_opponentsummon_data = summon_data
+                self._ai_opponentsummon_image = summon_data['PATH']
+                self._ai_opponentsummon_name = summon_data['PET']
+                self._ai_opponentsummon_universe = summon_data['UNIVERSE']
+                self._ai_is_boss = True
+
+                summon_passive = summon_data['ABILITIES'][0]
+                self._ai_opponentsummon_power = list(summon_passive.values())[0]
+                self._ai_opponentsummon_ability_name = list(summon_passive.keys())[0]
+                self._ai_opponentsummon_type = summon_passive['TYPE']
+
+                boss_descriptions = boss_data['DESCRIPTION']
+                self._arena_boss_description = boss_descriptions[0]
+                self._arenades_boss_description = boss_descriptions[1]
+                self._entrance_boss_description = boss_descriptions[2]
+                self._description_boss_description = boss_descriptions[3]
+                self._welcome_boss_description = boss_descriptions[4]
+                self._feeling_boss_description = boss_descriptions[5]
+                self._powerup_boss_description = boss_descriptions[6]
+                self._aura_boss_description = boss_descriptions[7]
+                self._assault_boss_description = boss_descriptions[8]
+                self._world_boss_description = boss_descriptions[9]
+                self._punish_boss_description = boss_descriptions[10]
+                self._rmessage_boss_description = boss_descriptions[11]
+                self._rebuke_boss_description = boss_descriptions[12]
+                self._concede_boss_description = boss_descriptions[13]
+                self._wins_boss_description = boss_descriptions[14]
+
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -962,70 +976,44 @@ class Battle:
 
     def ai_battle_command(self, your_card, opponent_card):
         aiMove = 0
-        
-        if your_card.used_resolve and not your_card.usedsummon  or (your_card._summoner_active and not your_card.usedsummon):
+        stamina = your_card.stamina
+        health_ratio = your_card.health / your_card.max_health
+        opponent_health_low = opponent_card.health <= 500
+        self_turn_mod = self.turn_total % 10
+
+        def get_ai_enhancer_move():
+            return ai_enhancer_moves(your_card, opponent_card)
+
+        if (your_card.used_resolve and not your_card.usedsummon) or (your_card._summoner_active and not your_card.usedsummon):
             aiMove = 6
-        elif your_card.move4enh == "WAVE" and (self.turn_total % 10 == 0 or self.turn_total == 0 or self.turn_total == 1):
-            if your_card.stamina >=20:
-                aiMove =4
-            else:
+        elif your_card.move4enh == "WAVE" and (self_turn_mod in [0, 1]):
+            aiMove = 4 if stamina >= 20 else 1
+        elif your_card.barrier_active:
+            if stamina >= 80 and your_card.move3_element == "PSYCHIC":
+                aiMove = 3
+            elif stamina >= 30 and your_card.move2_element == "PSYCHIC":
+                aiMove = 2
+            elif stamina >= 10 and your_card.move1_element == "PSYCHIC":
                 aiMove = 1
-        elif your_card.barrier_active: #Ai Barrier Checks
-            if your_card.stamina >=20: #Stamina Check For Enhancer
-                #Check if you have a psychic move for barrier
-                if your_card.stamina >= 80 and your_card.move3_element == "PSYCHIC":
-                    aiMove = 3
-                elif your_card.stamina >= 30 and your_card.move2_element == "PSYCHIC":
-                    aiMove = 2
-                elif your_card.stamina >= 10 and your_card.move1_element == "PSYCHIC":
-                    aiMove = 1
-                elif your_card.stamina >=20:
-                    aiMove = ai_enhancer_moves(your_card, opponent_card)
-                else:
-                    aiMove = 1
             else:
-                aiMove = 1
-        elif opponent_card.health <=500: #Killing Blow
-            if your_card.move4enh == "BLAST":
-                if your_card.stamina >=20:
-                    aiMove =4
-                else:
-                    aiMove =1
-            elif your_card.move4enh == "WAVE" and (self.turn_total % 10 == 0 or self.turn_total == 0 or self.turn_total == 1):
-                if your_card.stamina >=20:
-                    aiMove =4
-                else:
-                    aiMove =1
+                aiMove = get_ai_enhancer_move() if stamina >= 20 else 1
+        elif opponent_health_low:
+            if your_card.move4enh in ["BLAST", "WAVE"] and (self_turn_mod in [0, 1] or your_card.move4enh == "BLAST"):
+                aiMove = 4 if stamina >= 20 else 1
             else:
-                if your_card.stamina >= 90:
-                    aiMove = 1
-                elif your_card.stamina >= 80:
-                    aiMove =3
-                elif your_card.stamina >=30:
-                    aiMove=2
-                else:
-                    aiMove=1
+                aiMove = 1 if stamina >= 90 else (3 if stamina >= 80 else (2 if stamina >= 30 else 1))
         elif opponent_card.stamina < 10:
-            if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
-                if your_card.stamina >= 20:
-                    aiMove = 4
-                else:
-                    aiMove = 1
-            else:
-                aiMove = 1
-        elif your_card.health <= (.50 * your_card.max_health) and your_card.used_resolve == False and your_card.used_focus:
+            aiMove = 4 if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check and stamina >= 20 else 1
+        elif health_ratio <= 0.5 and not your_card.used_resolve and your_card.used_focus:
             aiMove = 5
-        elif your_card.universe in self.blocking_traits and your_card.stamina ==20:
+        elif your_card.universe in self.blocking_traits and stamina == 20:
             if opponent_card.attack >= your_card.defense and opponent_card.attack <= (your_card.defense * 2):
-                if your_card.used_focus:
-                    aiMove = 0
-                else:
-                    aiMove = 4
-            elif your_card.universe == "Attack On Titan" and your_card.health <= (your_card.max_health * .50):
+                aiMove = 0 if your_card.used_focus else 4
+            elif your_card.universe == "Attack On Titan" and health_ratio <= 0.5:
                 aiMove = 0
             elif opponent_card.barrier_active and opponent_card.stamina <= 20 and your_card.universe == "Bleach":
                 aiMove = 0
-            elif your_card.universe == "Bleach" and (self.turn_total % 4 == 0):
+            elif self_turn_mod == 0 and your_card.universe == "Bleach":
                 aiMove = 0
             elif your_card.universe == "Death Note" and your_card.max_health >= 1500:
                 aiMove = 0
@@ -1033,240 +1021,92 @@ class Battle:
                 aiMove = 4
             else:
                 aiMove = 1
-        elif your_card.stamina >= 160 and (your_card.health >= opponent_card.health):
+        elif stamina >= 160:
             aiMove = 3
-        elif your_card.stamina >= 160:
+        elif stamina >= 150:
+            aiMove = 1
+        elif stamina >= 140:
             aiMove = 3
-        elif your_card.stamina >= 150 and (your_card.health >= opponent_card.health):
+        elif stamina >= 130:
             aiMove = 1
-        elif your_card.stamina >= 150:
-            aiMove = 1
-        elif your_card.stamina >= 140 and (your_card.health >= opponent_card.health):
-            aiMove = 1
-        elif your_card.stamina >= 140:
+        elif stamina >= 120:
             aiMove = 3
-        elif your_card.stamina >= 130 and (your_card.health >= opponent_card.health):
-            aiMove = 1
-        elif your_card.stamina >= 130:
-            aiMove = 3
-        elif your_card.stamina >= 120 and (your_card.health >= opponent_card.health):
+        elif stamina >= 110:
             aiMove = 2
-        elif your_card.stamina >= 120:
-            aiMove = 3
-        elif your_card.stamina >= 110 and (your_card.health >= opponent_card.health):
-            aiMove = 1
-        elif your_card.stamina >= 110:
-            aiMove = 2
-        elif your_card.stamina >= 100 and (your_card.health >= opponent_card.health):
+        elif stamina >= 100:
             if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check or your_card.move4enh in crown_utilities.Healer_Enhancer_Check:
                 aiMove = 3
             elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check or your_card.move4enh in crown_utilities.Turn_Enhancer_Check:
                 aiMove = 4
             else:
                 aiMove = 1
-        elif your_card.stamina >= 100:
-            if your_card.universe in self.blocking_traits:
-                aiMove = 0
-            else:
-                aiMove = 1
-        elif your_card.stamina >= 90 and (your_card.health >= opponent_card.health):
+        elif stamina >= 90:
+            aiMove = 3 if your_card.universe not in self.blocking_traits else 0
+        elif stamina >= 80:
             aiMove = 3
-        elif your_card.stamina >= 90:
-            if your_card.used_resolve == True and your_card.universe in self.blocking_traits:
-                aiMove = 0
-            elif your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
-                aiMove = 3
-            elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check or your_card.move4enh in crown_utilities.Sacrifice_Enhancer_Check:
-                aiMove = 4
-            else:
-                aiMove = 1
-        elif your_card.stamina >= 80 and (your_card.health >= opponent_card.health):
-            aiMove = 1
-        elif your_card.stamina >= 80:
-            aiMove = 3
-        elif your_card.stamina >= 70 and (your_card.health >= opponent_card.health):
-            if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
-                aiMove = 1
-            else:
-                aiMove = ai_enhancer_moves(your_card, opponent_card)
-        elif your_card.stamina >= 70:
-            aiMove = 1
-        elif your_card.stamina >= 60 and (your_card.health >= opponent_card.health):
-            if your_card.used_resolve == False and your_card.used_focus:
+        elif stamina >= 70:
+            aiMove = 1 if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check else get_ai_enhancer_move()
+        elif stamina >= 60:
+            if not your_card.used_resolve and your_card.used_focus:
                 aiMove = 5
-            elif your_card.used_focus == False:
+            elif not your_card.used_focus:
                 aiMove = 2
             else:
                 aiMove = 1
-        elif your_card.stamina >= 60:
-            if your_card.used_resolve == False and your_card.used_focus:
+        elif stamina >= 50:
+            if not your_card.used_resolve and your_card.used_focus:
                 aiMove = 5
-            elif your_card.universe in self.blocking_traits:
-                aiMove = 0
-            elif your_card.used_focus == False:
-                aiMove = 2
-            else:
-                aiMove = 1
-        elif your_card.stamina >= 50 and (your_card.health >= opponent_card.health):
-            if your_card.used_resolve == False and your_card.used_focus:
-                aiMove = 5
-            elif your_card.used_focus == False:
-                aiMove = 2
-            else:
-                aiMove = 1
-        elif your_card.stamina >= 50:
-            if your_card.used_resolve == False and your_card.used_focus:
-                aiMove = 5
-            elif your_card.used_focus == False:
+            elif not your_card.used_focus:
                 aiMove = 2
             elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check:
                 aiMove = 4
             else:
                 aiMove = 1
-        elif your_card.stamina >= 40 and (your_card.health >= opponent_card.health):
-            aiMove = 1
-        elif your_card.stamina >= 40:
+        elif stamina >= 40:
             aiMove = 2
-        elif your_card.stamina >= 30 and (your_card.health >= opponent_card.health):
-            if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
-                aiMove = 1
-            elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check:
-                aiMove = 2
-            else:
-                aiMove = ai_enhancer_moves(your_card, opponent_card)
-        elif your_card.stamina >= 30:
-            aiMove = 2
-        elif your_card.stamina >= 20 and (your_card.health >= opponent_card.health):
-            aiMove = 1
-        elif your_card.stamina >= 20:
+        elif stamina >= 30:
+            aiMove = get_ai_enhancer_move()
+        elif stamina >= 20:
             if your_card.move4enh in crown_utilities.Gamble_Enhancer_Check:
                 aiMove = 1
             elif your_card.move4enh in crown_utilities.Support_Enhancer_Check or your_card.move4enh in crown_utilities.Stamina_Enhancer_Check:
                 aiMove = 1
             else:
                 aiMove = 4
-        elif your_card.stamina >= 10:
+        elif stamina >= 10:
             aiMove = 1
         else:
             aiMove = 0
+
         self._previous_ai_move = aiMove
-        #Hard Mode Ai
+
+        # Hard Mode AI
         if self.is_hard_difficulty:
             self._combo_counter = 0
             if aiMove == self._previous_ai_move:
-                self._combo_counter = self._combo_counter + 1
+                self._combo_counter += 1
                 if self._combo_counter == 2:
                     self._combo_counter = 0
-                    #Try to select a different move
                     if self._previous_ai_move == 0:
-                        if your_card.stamina >= 80:
-                            aiMove =3
-                        elif your_card.stamina >= 30:
-                            aiMove=2
-                        elif your_card.stamina >= 20:
-                            if your_card.move4enh == "LIFE" or your_card.move4enh in crown_utilities.Damage_Enhancer_Check:
-                                aiMove = 4
-                            else:
-                                aiMove = 1
+                        if stamina >= 80:
+                            aiMove = 3
+                        elif stamina >= 30:
+                            aiMove = 2
+                        elif stamina >= 20 and (your_card.move4enh == "LIFE" or your_card.move4enh in crown_utilities.Damage_Enhancer_Check):
+                            aiMove = 4
                         else:
                             aiMove = 1
                     elif self._previous_ai_move == 1:
-                        if your_card.barrier_active:
-                            if your_card.used_focus and not your_card.used_resolve:
-                                aiMove =5
-                            else:
-                                aiMove = 4
-                        else:    
-                            if your_card.stamina >=120:
-                                aiMove = 0
-                            elif your_card.stamina>=100:
-                                aiMove = 1
-                            elif your_card.stamina>=80:
-                                aiMove = 3
-                            elif your_card.stamina>=50:
-                                aiMove = 0
-                            elif your_card.stamina>=30:
-                                aiMove = 2
-                            else:
-                                aiMove = 1   
+                        aiMove = 4 if your_card.barrier_active else (3 if stamina >= 80 else (2 if stamina >= 30 else 1))
                     elif self._previous_ai_move == 2:
-                        if your_card.barrier_active:
-                            if your_card.used_focus and not your_card.used_resolve:
-                                aiMove =5
-                            else:
-                                aiMove = 4
-                        else:    
-                            if your_card.stamina >=120:
-                                aiMove = 4
-                            elif your_card.stamina>=100:
-                                aiMove = 0
-                            elif your_card.stamina>=80:
-                                aiMove = 3
-                            elif your_card.stamina>=50:
-                                aiMove = 2
-                            elif your_card.stamina>=30:
-                                aiMove = 1
-                            else:
-                                aiMove = 1   
+                        aiMove = 4 if stamina >= 120 else (0 if stamina >= 100 else (3 if stamina >= 80 else 1))
                     elif self._previous_ai_move == 3:
-                        if your_card.barrier_active:
-                            if your_card.used_focus and not your_card.used_resolve:
-                                aiMove = 5
-                            else:
-                                aiMove = 4
-                        else:    
-                            if your_card.stamina >=120:
-                                aiMove = 1
-                            elif your_card.stamina>=100:
-                                aiMove = 2
-                            elif your_card.stamina>=80:
-                                aiMove = 4
-                            elif your_card.stamina>=50:
-                                aiMove = 4
-                            elif your_card.stamina>=30:
-                                aiMove = 0
-                            else:
-                                aiMove = 1   
+                        aiMove = 1 if stamina >= 120 else (2 if stamina >= 100 else (4 if stamina >= 80 else 1))
                     elif self._previous_ai_move == 4:
-                        if your_card.barrier_active:
-                            if your_card.used_focus and not your_card.used_resolve:
-                                aiMove =5
-                            else:
-                                aiMove = 4
-                        else:    
-                            if your_card.stamina >=120:
-                                aiMove = 2
-                            elif your_card.stamina>=100:
-                                aiMove = 1
-                            elif your_card.stamina>=80:
-                                aiMove = 3
-                            elif your_card.stamina>=50:
-                                aiMove = 1
-                            elif your_card.stamina>=30:
-                                aiMove = 0
-                            else:
-                                aiMove = 1              
+                        aiMove = 2 if stamina >= 120 else (1 if stamina >= 100 else (3 if stamina >= 80 else 1))
                     else:
-                        if your_card.barrier_active:
-                            if your_card.used_focus and not your_card.used_resolve:
-                                aiMove =5
-                            else:
-                                aiMove = 4
-                        else:    
-                            if your_card.stamina >=120:
-                                aiMove = 4
-                            elif your_card.stamina>=100:
-                                aiMove = 3
-                            elif your_card.stamina>=80:
-                                aiMove = 0
-                            elif your_card.stamina>=50:
-                                aiMove = 2
-                            elif your_card.stamina>=30:
-                                aiMove = 1
-                            else:
-                                aiMove = 1   
-                        
-            self._previous_ai_move = aiMove
+                        aiMove = 4 if stamina >= 120 else (3 if stamina >= 100 else (1 if stamina >= 80 else 1))
+                self._previous_ai_move = aiMove
 
         return aiMove
 

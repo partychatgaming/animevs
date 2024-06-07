@@ -1219,6 +1219,10 @@ def queryCard(query):
     data = cards_col.find_one(query)
     return data
 
+def queryCards(query):
+    data = cards_col.find(query)
+    return data
+
 
 def queryCardsByElement(element):
     try:
@@ -1439,6 +1443,15 @@ def queryArm(query):
         return False
     else:
         return data
+
+
+def queryArms(query):
+    data = arm_col.find(query)
+    if data is None:
+        return False
+    else:
+        return data
+
 
 def get_random_arm(query, player):
     arms = arm_col.find(query)
@@ -1873,6 +1886,7 @@ def createUsers(users):
 def deleteUser(did):
     try:
         users_col.delete_one({'DID': did})
+        stats_col.delete_one({'DID': did})
         return "User removed from the system. "
     except:
         print("Delete User failed.")

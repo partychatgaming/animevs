@@ -220,6 +220,7 @@ class Card:
             self.earth_buff_by_value = .40
             self.death_buff_by_value = .40
             self.light_buff_by_value = .40
+            self.light_speed_attack_value = 0
             self.dark_buff_by_value = 15
             self.physical_parry_value = 1
             self.ranged_buff_value = 1
@@ -2035,6 +2036,8 @@ class Card:
 
             concentration(self, battle_config)
 
+            self.light_speed_attack(_opponent_card, battle_config)
+
             battle_config.turn_total = battle_config.turn_total + 1
 
 
@@ -2048,6 +2051,12 @@ class Card:
             else:
                 battle_config.repeat_turn()
 
+    def light_speed_attack(self, oppponent_card, battle_config):
+        if oppponent_card.light_speed_attack_value:
+            self.health = self.health - oppponent_card.light_speed_attack_value
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {oppponent_card.name} used Light Speed Attack and hit {self.name} for {round(oppponent_card.light_speed_attack_value):,} light damage")
+            oppponent_card.light_speed_attack_value = 0
+            return
 
     def standard_resolve_effect(self, battle_config, opponent_card, player_title):
         fortitude = 0.0
@@ -2895,10 +2904,12 @@ class Card:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} reaped {str(round(dmg['DMG'] * self.death_buff_by_value))} health from {opponent_card.name}]")
 
         elif dmg['ELEMENT'] == "LIGHT":
-            self.stamina = round(self.stamina + (dmg['STAMINA_USED'] / 2))
-            self.attack = self.attack + (dmg['DMG'] * self.light_buff_by_value)
+            light_value = round((dmg['DMG'] * self.light_buff_by_value))
+            self.attack = self.attack + light_value
+            self.light_speed_attack_value = self.light_speed_attack_value + light_value
             opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {round((dmg['DMG'] * self.light_buff_by_value))} attack]")
+            
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {light_value:,} attack] [{light_value:,} damage stored]")
 
         elif dmg['ELEMENT'] == "DARK":
             opponent_card.stamina = opponent_card.stamina - self.dark_buff_by_value

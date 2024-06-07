@@ -33,7 +33,7 @@ traits = [{
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone, Grimoire',
-    'TRAIT': 'Mana Zone : Gain 100 Stamina on Focus. Gain 50 Stamina and 30 * Card Tier on Block. Grimoire : AP is increased by (50 + turn Count) on Focus.'
+    'TRAIT': 'Grimoire : Gain 100 Stamina on Focus. Gain 50 Stamina and 30 * Card Tier AP on Block. Mana Zone : AP is increased by 10% of card level on Focus.'
 },{
     'NAME': 'Fate',
     'EFFECT': 'Command Seal',

@@ -29,30 +29,37 @@ class Scenario(Extension):
     """
     Creates the embed list for the selected universe
     """
-    async def scenario_selector(self, ctx, universe_title, player, level = None):
+    async def scenario_selector(self, ctx, universe_title, player, level=None):
         try:
-            scenarios = await asyncio.to_thread(db.queryAllScenariosByUniverse,universe_title)
-            if scenarios:
-                embed_list = []
-                sorted_scenarios = sorted(scenarios, key=lambda x: x["ENEMY_LEVEL"])
-                for scenario in sorted_scenarios:
-                    if scenario["ENEMY_LEVEL"] <= crown_utilities.scenario_level_config:
-                        embed = await create_scenario_embed(scenario, player)
-                        if embed:
-                            embed_list.append(embed)
-                    else:
-                        pass
+            scenarios = await asyncio.to_thread(db.queryAllScenariosByUniverse, universe_title)
+            if not scenarios:
+                player.make_available()
+                embed = Embed(title=f"{universe_title} Scenarios", description="There are no Scenarios available for this Universe. Check back later!", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
 
+            # Filter and sort scenarios in one step
+            sorted_scenarios = sorted(
+                (s for s in scenarios if s["ENEMY_LEVEL"] <= crown_utilities.scenario_level_config),
+                key=lambda x: x["ENEMY_LEVEL"]
+            )
+
+            # Create embeds for the filtered scenarios asynchronously
+            embed_tasks = [create_scenario_embed(scenario, player) for scenario in sorted_scenarios]
+            embed_list = await asyncio.gather(*embed_tasks)
+            embed_list = [embed for embed in embed_list if embed]  # Filter out None embeds
+
+            if embed_list:
                 paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Scenario")
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
                 player.make_available()
-                embed = Embed(title= f"{universe_title} Scenarios", description="There are no Scenarios available for this Universe. Check back later!", color=0x7289da)
+                embed = Embed(title=f"{universe_title} Scenarios", description="No suitable scenarios available for this Universe. Check back later!", color=0x7289da)
                 await ctx.send(embed=embed)
-                return
         except Exception as ex:
             player.make_available()
+            loggy.error(f"Error creating scenario embed: {ex}")
             custom_logging.debug(ex)
 
 
@@ -63,15 +70,22 @@ class Scenario(Extension):
         try:
             scenarios = await asyncio.to_thread(db.queryAllScenariosByUniverse, universe_title)
 
-            embed_list = []
-            sorted_scenarios = sorted(scenarios, key=lambda x: x["ENEMY_LEVEL"])
-            for scenario in sorted_scenarios:
-                if scenario["ENEMY_LEVEL"] > crown_utilities.scenario_level_config:
-                    embed = await create_scenario_embed(scenario, player)
-                    if embed:
-                        embed_list.append(embed)
-                else:
-                    pass
+            if not scenarios:
+                player.make_available()
+                embed = Embed(title=f"{universe_title} Raids", description="There are no Raids available for this Universe. Check back later!", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
+
+            # Filter and sort scenarios in one step
+            sorted_scenarios = sorted(
+                (s for s in scenarios if s["ENEMY_LEVEL"] > crown_utilities.scenario_level_config),
+                key=lambda x: x["ENEMY_LEVEL"]
+            )
+
+            # Create embeds for the filtered scenarios asynchronously
+            embed_tasks = [create_scenario_embed(scenario, player) for scenario in sorted_scenarios]
+            embed_list = await asyncio.gather(*embed_tasks)
+            embed_list = [embed for embed in embed_list if embed]  # Filter out None embeds
 
             if embed_list:
                 paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=["Start", "Quit"], paginator_type="Raid")
@@ -79,13 +93,13 @@ class Scenario(Extension):
                 await paginator.send(ctx)
             else:
                 player.make_available()
-                embed = Embed(title= f"{universe_title} Raids", description="There are no Raids available for this Universe. Check back later!", color=0x7289da)
+                embed = Embed(title=f"{universe_title} Raids", description="No suitable raids available for this Universe. Check back later!", color=0x7289da)
                 await ctx.send(embed=embed)
-                return
         except Exception as ex:
+            loggy.error(f"Error creating raid embed: {ex}")
             player.make_available()
             custom_logging.debug(ex)
-            
+
 
 async def create_scenario_embed(scenario, player):
     """
@@ -132,6 +146,7 @@ async def create_scenario_embed(scenario, player):
             return
 
     except Exception as ex:
+        loggy.error(f"Error creating scenario embed: {ex}")
         player.make_available()
         custom_logging.debug(ex)
 
@@ -185,48 +200,58 @@ def create_scenario_messages(universe, enemy_level, scenario_gold, is_destiny, e
 
 
 async def get_scenario_reward_list(rewards):
+    if not rewards:
+        return "🪙 Reward Only"
+
     reward_list = []
-     
+
+    # Query all arms and cards in parallel
+    arms_future = asyncio.to_thread(db.queryArms, {"ARM": {"$in": rewards}})
+    cards_future = asyncio.to_thread(db.queryCards, {"NAME": {"$in": rewards}})
+    arms, cards = await asyncio.gather(arms_future, cards_future)
+
+    # Create dictionaries for quick lookup
+    arm_dict = {arm['ARM']: arm for arm in arms}
+    card_dict = {card['NAME']: card for card in cards}
+
+    passive_type_map = {
+        "SHIELD": "🌐 {type} **{name}** Shield: Absorbs **{value}** Damage.",
+        "BARRIER": "💠 {type} **{name}** Negates: **{value}** attacks.",
+        "PARRY": "🔁 {type} **{name}** Parry: **{value}** attacks.",
+        "SIPHON": "💉 {type} **{name}** Siphon: **{value}** + 10% Health.",
+        "MANA": "🦠 {type} **{name}** Mana: Multiply Enhancer by **{value}**%.",
+        "ULTIMAX": "〽️ {type} **{name}** Ultimax: Increase all move AP by **{value}**."
+    }
+
     for reward in rewards:
-        # Add Check for Cards and make Cards available in Easy Drops
-        arm = await asyncio.to_thread(db.queryArm, {"ARM": reward})
-        card = await asyncio.to_thread(db.queryCard, {"NAME": reward})
-        if arm:
+        if reward in arm_dict:
+            arm = arm_dict[reward]
             arm_name = arm['ARM']
             element_emoji = crown_utilities.set_emoji(arm['ELEMENT'])
             arm_passive = arm['ABILITIES'][0]
             arm_passive_type = list(arm_passive.keys())[0]
             arm_passive_value = list(arm_passive.values())[0]
-            if arm_passive_type == "SHIELD":
-                reward_list.append(f"🌐 {arm_passive_type.title()} **{arm_name}** Shield: Absorbs **{arm_passive_value}** Damage.")
-            elif arm_passive_type == "BARRIER":
-                reward_list.append(f"💠  {arm_passive_type.title()} **{arm_name}** Negates: **{arm_passive_value}** attacks.")
-            elif arm_passive_type == "PARRY":
-                reward_list.append(f"🔁 {arm_passive_type.title()} **{arm_name}** Parry: **{arm_passive_value}** attacks.")
-            elif arm_passive_type == "SIPHON":
-                reward_list.append(f"💉 {arm_passive_type.title()} **{arm_name}** Siphon: **{arm_passive_value}** + 10% Health.")
-            elif arm_passive_type == "MANA":
-                reward_list.append(f"🦠 {arm_passive_type.title()} **{arm_name}** Mana: Multiply Enhancer by **{arm_passive_value}**%.")
-            elif arm_passive_type == "ULTIMAX":
-                reward_list.append(f"〽️ {arm_passive_type.title()} **{arm_name}** Ultimax: Increase all move AP by **{arm_passive_value}**.")
-            else:
-                reward_list.append(f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** Damage.")
-        if card:
-            card = db.queryCard({"NAME": reward})
-            if card:
-                senario_only_message = "🌟" if card['DROP_STYLE'] == "SCENARIO" else "" 
-                moveset = card['MOVESET']
-                move3 = moveset[2]
-                move2 = moveset[1]
-                move1 = moveset[0]
-                basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
-                super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
-                ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
-                reward_list.append(f"🀄 {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}{senario_only_message}\n❤️ {card['HLT']} 🗡️ {card['ATK']}  🛡️ {card['DEF']}")
-        if not reward_list:
-            reward_list.append(f"No Reward")
-    if not rewards:
-        reward_list.append(f"🪙 Reward Only")
+            reward_list.append(
+                passive_type_map.get(
+                    arm_passive_type,
+                    f"{element_emoji} {arm_passive_type.title()} **{arm_name}** Attack: **{arm_passive_value}** Damage."
+                ).format(type=arm_passive_type.title(), name=arm_name, value=arm_passive_value)
+            )
+        elif reward in card_dict:
+            card = card_dict[reward]
+            senario_only_message = "🌟" if card['DROP_STYLE'] == "SCENARIO" else ""
+            moveset = card['MOVESET']
+            move1, move2, move3 = moveset[:3]
+            basic_attack_emoji = crown_utilities.set_emoji(list(move1.values())[2])
+            super_attack_emoji = crown_utilities.set_emoji(list(move2.values())[2])
+            ultimate_attack_emoji = crown_utilities.set_emoji(list(move3.values())[2])
+            reward_list.append(
+                f"🀄 {card['TIER']} **{card['NAME']}** {basic_attack_emoji} {super_attack_emoji} {ultimate_attack_emoji}{senario_only_message}\n"
+                f"❤️ {card['HLT']} 🗡️ {card['ATK']}  🛡️ {card['DEF']}"
+            )
+        else:
+            reward_list.append("No Reward")
+
     reward_message = "\n\n".join(reward_list)
     return reward_message
 

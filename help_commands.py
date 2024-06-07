@@ -71,7 +71,7 @@ ELEMENTS_LIST = [
     "🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier\n",
     "☠️ Death - Deals 40% DMG to opponent max health. Gain Attack equal to that amount.\n",
     "❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.\n",
-    "🌕 Light - Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 40% of DMG.\n",
+    "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus\n",
     "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",
     "🧪 Poison - Penetrates shields, Poison 40 damage stacking up to (150 * Card Tier).\n",
     "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%\n",

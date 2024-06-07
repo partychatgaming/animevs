@@ -107,7 +107,7 @@ class Profile(Extension):
             await ctx.send(embed=embed, ephemeral=True)
 
             
-    @slash_command(description="View your or a players current build", options=[
+    @slash_command(description="View your or a player's current build", options=[
         SlashCommandOption(
             name="player",
             description="Select a player to view their build",
@@ -115,12 +115,13 @@ class Profile(Extension):
             required=False
         )
     ])
-    async def build(self, ctx, player = None):
+    async def build(self, ctx, player=None):
         try:
             await ctx.defer()
             d = await crown_utilities.player_check(ctx)
             if not d:
                 return
+
             player_name = ctx.author
             if player:
                 uid = player.id
@@ -130,201 +131,159 @@ class Profile(Extension):
             else:
                 uid = ctx.author.id
 
-            card = await asyncio.to_thread(db.queryCard, {'NAME':str(d['CARD'])})
-            title = await asyncio.to_thread(db.queryTitle, {'TITLE': str(d['TITLE'])})
-            arm = await asyncio.to_thread(db.queryArm, {'ARM': str(d['ARM'])})
-            if not all([card, title, arm, d]):
-                # Handle error if one of the database calls fails
-                return "Error: One or more of the required data is not available."
+            # Batch queries
+            card_data, title_data, arm_data = await asyncio.gather(
+                asyncio.to_thread(db.queryCard, {'NAME': str(d['CARD'])}),
+                asyncio.to_thread(db.queryTitle, {'TITLE': str(d['TITLE'])}),
+                asyncio.to_thread(db.queryArm, {'ARM': str(d['ARM'])})
+            )
 
-            if card:
-                try:
-                    c = crown_utilities.create_card_from_data(card)
-                    t = crown_utilities.create_title_from_data(title)
-                    a = crown_utilities.create_arm_from_data(arm)
-                    player = crown_utilities.create_player_from_data(d)
+            if not all([card_data, title_data, arm_data, d]):
+                await ctx.send("Error: One or more of the required data is not available.")
+                return
 
-                    title_message = "\n".join(t.title_messages)
-                    
-                    durability = a.set_durability(player.equipped_arm, player.arms)
-                    
-                    c.set_card_level_buffs(player.card_levels)
-                    c.set_affinity_message()
-                    c.set_arm_config(a.passive_type, a.name, a.passive_value, a.element)
-                    c.set_evasion_message(player)
-                    c.set_card_level_icon(player)
+            try:
+                c = crown_utilities.create_card_from_data(card_data)
+                t = crown_utilities.create_title_from_data(title_data)
+                a = crown_utilities.create_arm_from_data(arm_data)
+                player = crown_utilities.create_player_from_data(d)
 
-                    x = 0.0999
-                    y = 1.25
-                    lvl_req = round((float(c.card_lvl)/x)**y)
-                    
-                    player.set_talisman_message()
-                    player.setsummon_messages()
-                    
-                    a.set_arm_message(player.performance, c.universe)
-                    t.set_title_message(player.performance, c.universe)
-                    
-                    
-                    has_universe_heart = False
-                    has_universe_soul = False
-                    pokemon_uni =crown_utilities.pokemon_universes
-                    
-                    if c.universe != "n/a":
-                        for gems in player.gems:
-                            if gems['UNIVERSE'] == c.universe and gems['UNIVERSE_HEART']:
-                                has_universe_heart = True
-                            if gems['UNIVERSE'] == c.universe and gems['UNIVERSE_SOUL']:
-                                has_universe_soul = True
-                    
-                    trebirth_message = f"_⚔️Tales: +0_"
-                    drebirth_message = f"_🔥Dungeon: +0_"
-                    trebirthBonus = (player.rebirth + (player.prestige * 10) + 25)
-                    drebirthBonus = ((player.rebirth + 1) * ((player.prestige * 10) + 100))
-                    if player.prestige > 0:
-                        trebirthBonus = trebirthBonus * player.prestige
-                        drebirthBonus = drebirthBonus * player.prestige
-                    if player.rebirth > 0:
-                        trebirth_message = f"_⚔️Tales: {trebirthBonus}xp_"
-                        drebirth_message = f"_🔥Dungeon: {drebirthBonus}xp_"
-                    if has_universe_soul:
-                        trebirthBonus = (player.rebirth + (player.prestige * 10) + 25) * 4
-                        drebirthBonus = ((player.rebirth + 1) * ((player.prestige * 10) + 100)) * 4
-                        trebirth_message = f"_🌹⚔️Tales: {trebirthBonus}xp_"
-                        drebirth_message = f"_🌹🔥Dungeon: {drebirthBonus}xp_"
+                title_message = "\n".join(t.title_messages)
+                durability = a.set_durability(player.equipped_arm, player.arms)
 
-                    level_up_message = lvl_req - c.card_exp
-                    if lvl_req - c.card_exp <= 0:
-                        level_up_message = "🎆 Battle To Level Up!"
-                    if c.card_lvl >= crown_utilities.MAX_LEVEL:
-                        level_up_message = "👑 | Max Level!!"
+                c.set_card_level_buffs(player.card_levels)
+                c.set_affinity_message()
+                c.set_arm_config(a.passive_type, a.name, a.passive_value, a.element)
+                c.set_evasion_message(player)
+                c.set_card_level_icon(player)
 
-                    if player.performance:
-                        embedVar = Embed(title=f"{c.level_icon} | {c.card_lvl} {c.name}".format(self), description=textwrap.dedent(f"""\
-                        {crown_utilities.class_emojis[c.card_class]} | **{c.class_message}**
-                        🀄 | **{c.tier}**
-                        ❤️ | **{c.max_health}**
-                        🗡️ | **{c.attack}**
-                        🛡️ | **{c.defense}**
-                        🏃 | **{c.evasion_message}**
-                        🎗️ | **{t.name}**
-                        **{title_message}**
-                        **{a.arm_message}**
-                        **{player.talisman_message}**
-                        {player.summon_power_message}
-                        {player.summon_lvl_message}
+                lvl_req = round((float(c.card_lvl) / 0.0999) ** 1.25)
+                player.set_talisman_message()
+                player.setsummon_messages()
 
-                        {c.move1_emoji} | **{c.move1}:** {c.move1ap}
-                        {c.move2_emoji} | **{c.move2}:** {c.move2ap}
-                        {c.move3_emoji} | **{c.move3}:** {c.move3ap}
-                        🦠 | **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}
+                a.set_arm_message(player.performance, c.universe)
+                t.set_title_message(player.performance, c.universe)
 
-                        """),color=000000)
-                        embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
-                        embedVar.set_image(url="attachment://image.png")
-                        if c.card_lvl < 1000:
-                            embedVar.set_footer(text=f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}")
-                        else:
-                            embedVar.set_footer(text=f"{level_up_message}")
-                        embedVar.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
-                        
-                        await ctx.send(embed=embedVar)
-                        loggy.info(f"Build command executed by {ctx.author} successfully with performance on")
-                    
-                    else:
-                        image_binary = c.showcard()
-                        image_binary.seek(0)
-                        card_file = File(file_name="image.png", file=image_binary)
+                has_universe_heart = any(gem['UNIVERSE_HEART'] for gem in player.gems if gem['UNIVERSE'] == c.universe)
+                has_universe_soul = any(gem['UNIVERSE_SOUL'] for gem in player.gems if gem['UNIVERSE'] == c.universe)
 
-                        # Create embed pages for players build rather than showing everything on one page
+                rebirth_bonus = (player.rebirth + (player.prestige * 10) + 25) * (4 if has_universe_soul else 1)
+                drebirth_bonus = ((player.rebirth + 1) * ((player.prestige * 10) + 100)) * (4 if has_universe_soul else 1)
 
-                        # page 1 (title view)
-                        # page 2 (arm view)
-                        # page 3 (summon view)
-                        # page 4 (talisman view)
-                        # page 5 (evasion view)
-                        # page 6 (affinity view)
-                        # page 7 (level up view)
-                        # page 8 (trait page)
-                        embedVar0 = Embed(title=f"{player_name} Build Overview".format(self), color=000000)
-                        embedVar0.add_field(name="__Build Summary__", value=f"Equipped Title 🎗️ **{t.name}**\n"
-                        f"Equipped Arm 🦾 **{a.name}**\n"
-                        f"Equipped Summon 🧬 **{player.equipped_summon}**\n"
-                        f"Equipped Talisman **{player.talisman_message}**\n"
-                        "For details, please check the other pages.", inline=False)
-                        embedVar0.set_image(url="attachment://image.png")
+                trebirth_message = f"_🌹⚔️Tales: {rebirth_bonus}xp_" if has_universe_soul else f"_⚔️Tales: {rebirth_bonus}xp_"
+                drebirth_message = f"_🌹🔥Dungeon: {drebirth_bonus}xp_" if has_universe_soul else f"_🔥Dungeon: {drebirth_bonus}xp_"
 
-                        embedVar1 = Embed(title=f"{player_name} Build Title View".format(self), description=f"Titles are buffs or boosts for your card, or against your opponents card, initiated each turn, focus, or resolve.", color=000000)
-                        embedVar1.add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=f"{title_message}", inline=True)
-                        embedVar1.set_image(url="attachment://image.png")
-                        embedVar1.set_thumbnail(url=player.avatar)
+                level_up_message = lvl_req - c.card_exp if c.card_lvl < crown_utilities.MAX_LEVEL else "👑 | Max Level!!"
+                level_up_message = "🎆 Battle To Level Up!" if lvl_req - c.card_exp <= 0 else level_up_message
 
-                        embedVar2 = Embed(title=f"{player_name} Build Arm View".format(self), description=f"Arms are protections for your card that are initated by themselves until broken in battle, or they swappable abilities.", color=000000)
-                        embedVar2.add_field(name=f"__Arm Name & Effects__\n🦾 {a.name.capitalize()}", value=f"{a.arm_message}\n⚒️ {a.durability} *Durability*", inline=True)
-                        embedVar2.set_image(url="attachment://image.png")
-                        embedVar2.set_thumbnail(url=player.avatar)
+                embed_list = []
+                common_embed_kwargs = {
+                    "title": f"{c.level_icon} | {c.card_lvl} {c.name}",
+                    "description": f"{crown_utilities.class_emojis[c.card_class]} | **{c.class_message}**\n"
+                                f"🀄 | **{c.tier}**\n"
+                                f"❤️ | **{c.max_health}**\n"
+                                f"🗡️ | **{c.attack}**\n"
+                                f"🛡️ | **{c.defense}**\n"
+                                f"🏃 | **{c.evasion_message}**\n"
+                                f"🎗️ | **{t.name}**\n"
+                                f"**{title_message}**\n"
+                                f"**{a.arm_message}**\n"
+                                f"**{player.talisman_message}**\n"
+                                f"{player.summon_power_message}\n"
+                                f"{player.summon_lvl_message}\n"
+                                f"{c.move1_emoji} | **{c.move1}:** {c.move1ap}\n"
+                                f"{c.move2_emoji} | **{c.move2}:** {c.move2ap}\n"
+                                f"{c.move3_emoji} | **{c.move3}:** {c.move3ap}\n"
+                                f"🦠 | **{c.move4}:** {c.move4enh} {c.move4ap}{enhancer_suffix_mapping[c.move4enh]}\n",
+                    "color": 0x000000,
+                    "thumbnail": {"url": ctx.author.avatar_url},
+                    "footer": {"text": f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}"}
+                }
 
-                        embedVar3 = Embed(title=f"{player_name} Build Summon View".format(self), description=f"Summons are powerful companions that can be called upon to aid you in battle after you resolve, unless you're a summoner.", color=000000)
-                        embedVar3.add_field(name=f"__Summon Name & Effects__\n🧬 {player.equipped_summon}", value=f"{player.summon_power_message}\n📶 {player.summon_lvl_message}", inline=True)
-                        embedVar3.set_image(url="attachment://image.png")
-                        embedVar3.set_thumbnail(url=player.avatar)
+                if player.performance:
+                    embedVar = Embed(**common_embed_kwargs)
+                    embedVar.add_field(name="__Affinities__", value=c.affinity_message)
+                    embedVar.set_image(url="attachment://image.png")
+                    embed_list.append(embedVar)
+                    await ctx.send(embed=embedVar)
+                    loggy.info(f"Build command executed by {ctx.author} successfully with performance on")
+                else:
+                    image_binary = c.showcard()
+                    image_binary.seek(0)
+                    card_file = File(file_name="image.png", file=image_binary)
 
-                        embedVar4 = Embed(title=f"{player_name} Build Talisman View".format(self), description=f"Talismans are powerful accessories that can be attuned to your card to bypass a single affinity. For example, if you have a fire talisman equipped, your fire attacks will damage your opponent even if they are immune, repels, absorbs, etc fire attacks.", color=000000)
-                        embedVar4.add_field(name=f"__Talisman Name & Effects__", value=f"{player.talisman_message}", inline=True)
-                        embedVar4.set_image(url="attachment://image.png")
-                        embedVar4.set_thumbnail(url=player.avatar)
+                    embed_pages = [
+                        Embed(title=f"{player_name} Build Overview", description="For details, please check the other pages.", color=0x000000)
+                            .add_field(name="__Build Summary__", value=f"Equipped Title 🎗️ **{t.name}**\n"
+                            f"Equipped Arm 🦾 **{a.name}**\n"
+                            f"Equipped Summon 🧬 **{player.equipped_summon}**\n"
+                            f"Equipped Talisman **{player.talisman_message}**\n", inline=False)
+                            .set_image(url="attachment://image.png")
+                    ]
 
-                        embedVar9 = Embed(title=f"{player_name} Build Class View".format(self), description="Each card class has a unique ability or passive that activates during battle.", color=000000)
-                        embedVar9.add_field(name=f"__Card Class Effect__", value=crown_utilities.class_descriptions[c.card_class], inline=True)
-                        embedVar9.set_image(url="attachment://image.png")
-                        embedVar9.set_thumbnail(url=player.avatar)
+                    embed_pages.extend([
+                        Embed(title=f"{player_name} Build Title View", description="Titles are buffs or boosts for your card, or against your opponents card, initiated each turn, focus, or resolve.", color=0x000000)
+                            .add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=title_message, inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
 
-                        embedVar5 = Embed(title=f"{player_name} Build Evasion View".format(self), description=f"Evasion is a stat that improves your evasiveness against attacks. With high evasion you will be hit less often.", color=000000)
-                        embedVar5.add_field(name="__Evasion Stat & Boost__", value=f"🏃 | {c.evasion_message}")
-                        embedVar5.set_image(url="attachment://image.png")
-                        embedVar5.set_thumbnail(url=player.avatar)
+                        Embed(title=f"{player_name} Build Arm View", description="Arms are protections for your card that are initiated by themselves until broken in battle, or they swappable abilities.", color=0x000000)
+                            .add_field(name=f"__Arm Name & Effects__\n🦾 {a.name.capitalize()}", value=f"{a.arm_message}\n⚒️ {a.durability} *Durability*", inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
 
-                        embedVar6 = Embed(title=f"{player_name} Build Affinity View".format(self), description=f"Affinities are elemental strengths and weaknesses that can be exploited in battle. Affinites are either weaknesses, resistances, absorption, repel, or immunity. ", color=000000)
-                        embedVar6.add_field(name="__Affinity List__", value=f"{c.affinity_message}")
-                        embedVar6.set_image(url="attachment://image.png")
-                        embedVar6.set_thumbnail(url=player.avatar)
-                        
-                        embedVar7 = Embed(title=f"{player_name} Build Level Up View".format(self), description=f"Leveling up your card will increase its attack, defense, health, and ability points.", color=000000)
-                        embedVar7.set_thumbnail(url=player.avatar)
-                        if c.card_lvl < 1000:
-                            embedVar7.add_field(name="__Level Up Information__", value=f"EXP Until Next Level: {level_up_message}")
-                            embedVar7.add_field(name="__EXP Buff__", value=f"{trebirth_message} | {drebirth_message}")
-                            embedVar7.set_image(url="attachment://image.png")
-                        else:
-                            embedVar7.add_field(name="__Level Up Information__", value=f"{level_up_message}")
-                            embedVar7.set_image(url="attachment://image.png")
+                        Embed(title=f"{player_name} Build Summon View", description="Summons are powerful companions that can be called upon to aid you in battle after you resolve, unless you're a summoner.", color=0x000000)
+                            .add_field(name=f"__Summon Name & Effects__\n🧬 {player.equipped_summon}", value=f"{player.summon_power_message}\n📶 {player.summon_lvl_message}", inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
 
-                        embedVar8 = Embed(title=f"{player_name} Build Trait View".format(self), description=f"Each universe has a unique ability or passive that can be activated in battle. Please read your trait carefully for a comprehensive understand of how and when your universe trait is applied in battle.", color=000000)
-                        embedVar8.add_field(name="__Trait List__", value=f"♾️ | {c.set_trait_message()}")
-                        embedVar8.set_image(url="attachment://image.png")
-                        embedVar8.set_thumbnail(url=player.avatar)
-                        
-                        embed_list = [embedVar0, embedVar1, embedVar2, embedVar3, embedVar4, embedVar9, embedVar5, embedVar6, embedVar7, embedVar8]
-                        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-                        paginator.show_select_menu = True
-                        await paginator.send(ctx, file=card_file)
-                        image_binary.close()
-                        loggy.info(f"Build command executed by {ctx.author} successfully")
-                except Exception as ex:
-                    custom_logging.debug(ex)
-                    loggy.error(ex)
-                    embed = Embed(title="Build Error", description="There was an error with your build command. Please try again later.", color=000000)
-                    await ctx.send(embed=embed)
-                    return
-            else:
-                loggy.error("Error: One or more of the required data is not available.")
-                embed = Embed(title="Build Error", description="You do not have a card registered. Please register a card before using /register.", color=000000)
+                        Embed(title=f"{player_name} Build Talisman View", description="Talismans are powerful accessories that can be attuned to your card to bypass a single affinity.", color=0x000000)
+                            .add_field(name="__Talisman Name & Effects__", value=player.talisman_message, inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
+
+                        Embed(title=f"{player_name} Build Class View", description="Each card class has a unique ability or passive that activates during battle.", color=0x000000)
+                            .add_field(name="__Card Class Effect__", value=crown_utilities.class_descriptions[c.card_class], inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
+
+                        Embed(title=f"{player_name} Build Evasion View", description="Evasion is a stat that improves your evasiveness against attacks. With high evasion you will be hit less often.", color=0x000000)
+                            .add_field(name="__Evasion Stat & Boost__", value=f"🏃 | {c.evasion_message}", inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
+
+                        Embed(title=f"{player_name} Build Affinity View", description="Affinities are elemental strengths and weaknesses that can be exploited in battle.", color=0x000000)
+                            .add_field(name="__Affinity List__", value=c.affinity_message, inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
+
+                        Embed(title=f"{player_name} Build Level Up View", description="Leveling up your card will increase its attack, defense, health, and ability points.", color=0x000000)
+                            .add_field(name="__Level Up Information__", value=f"EXP Until Next Level: {level_up_message}\nEXP Buff: {trebirth_message} | {drebirth_message}" if c.card_lvl < 1000 else f"Level Up Information: {level_up_message}", inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
+
+                        Embed(title=f"{player_name} Build Trait View", description="Each universe has a unique ability or passive that can be activated in battle.", color=0x000000)
+                            .add_field(name="__Trait List__", value=f"♾️ | {c.set_trait_message()}", inline=True)
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url)
+                    ])
+
+                    paginator = Paginator.create_from_embeds(self.bot, *embed_pages)
+                    paginator.show_select_menu = True
+                    await paginator.send(ctx, file=card_file)
+                    image_binary.close()
+                    loggy.info(f"Build command executed by {ctx.author} successfully")
+            except Exception as ex:
+                custom_logging.debug(ex)
+                loggy.error(ex)
+                embed = Embed(title="Build Error", description="There was an error with your build command. Please try again later.", color=0x000000)
                 await ctx.send(embed=embed)
+                return
         except Exception as ex:
             custom_logging.debug(ex)
             loggy.error(ex)
-            embed = Embed(title="Build Error", description="There was an error with your build command. Please try again later.", color=000000)
+            embed = Embed(title="Build Error", description="There was an error with your build command. Please try again later.", color=0x000000)
             await ctx.send(embed=embed)
-
 
     @slash_command(description="Generate build")
     async def quickbuild(self, ctx):
@@ -737,111 +696,66 @@ class Profile(Extension):
             type=OptionType.STRING,
             required=False,
             choices=[
-                SlashCommandChoice(
-                    name="👊 Physical",
-                    value="PHYSICAL",
-                ),
-                SlashCommandChoice(
-                    name="🔥 Fire",
-                    value="FIRE",
-                ),
-                SlashCommandChoice(
-                    name="❄️ Ice",
-                    value="ICE",
-                ),
-                SlashCommandChoice(
-                    name="💧 Water",
-                    value="WATER",
-                ),
-                SlashCommandChoice(
-                    name="⛰️ Earth",
-                    value="EARTH",
-                ),
-                SlashCommandChoice(
-                    name="⚡️ Electric",
-                    value="ELECTRIC",
-                ),
-                SlashCommandChoice(
-                    name="🌪️ Wind",
-                    value="WIND",
-                ),
-                SlashCommandChoice(
-                    name="🔮 Psychic",
-                    value="PSYCHIC",
-                ),
-                SlashCommandChoice(
-                    name="☠️ Death",
-                    value="DEATH",
-                ),
-                SlashCommandChoice(
-                    name="❤️‍🔥 Life",
-                    value="LIFE"
-                ),
-                SlashCommandChoice(
-                    name="🌕 Light",
-                    value="LIGHT",
-                ),
-                SlashCommandChoice(
-                    name="🌑 Dark",
-                    value="DARK",
-                ),
-                SlashCommandChoice(
-                    name="🧪 Poison",
-                    value="POISON",
-                ),
-                SlashCommandChoice(
-                    name="🏹 Ranged",
-                    value="RANGED",
-                ),
-                SlashCommandChoice(
-                    name="🧿 Energy / Spirit",
-                    value="ENERGY",
-                ),
-                SlashCommandChoice(
-                    name="♻️ Reckless",
-                    value="RECKLESS",
-                ),
-                SlashCommandChoice(
-                    name="⌛ Time",
-                    value="TIME",
-                ),
-                SlashCommandChoice(
-                    name="🅱️ Bleed",
-                    value="BLEED",
-                ),
-                SlashCommandChoice(
-                    name="🪐 Gravity",
-                    value="GRAVITY",
-                ),
+                SlashCommandChoice(name="👊 Physical", value="PHYSICAL"),
+                SlashCommandChoice(name="🔥 Fire", value="FIRE"),
+                SlashCommandChoice(name="❄️ Ice", value="ICE"),
+                SlashCommandChoice(name="💧 Water", value="WATER"),
+                SlashCommandChoice(name="⛰️ Earth", value="EARTH"),
+                SlashCommandChoice(name="⚡️ Electric", value="ELECTRIC"),
+                SlashCommandChoice(name="🌪️ Wind", value="WIND"),
+                SlashCommandChoice(name="🔮 Psychic", value="PSYCHIC"),
+                SlashCommandChoice(name="☠️ Death", value="DEATH"),
+                SlashCommandChoice(name="❤️‍🔥 Life", value="LIFE"),
+                SlashCommandChoice(name="🌕 Light", value="LIGHT"),
+                SlashCommandChoice(name="🌑 Dark", value="DARK"),
+                SlashCommandChoice(name="🧪 Poison", value="POISON"),
+                SlashCommandChoice(name="🏹 Ranged", value="RANGED"),
+                SlashCommandChoice(name="🧿 Energy / Spirit", value="ENERGY"),
+                SlashCommandChoice(name="♻️ Reckless", value="RECKLESS"),
+                SlashCommandChoice(name="⌛ Time", value="TIME"),
+                SlashCommandChoice(name="🅱️ Bleed", value="BLEED"),
+                SlashCommandChoice(name="🪐 Gravity", value="GRAVITY"),
             ]
         )
-    
     ])
     async def cards(self, ctx, element_filter=None):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
             return
+        
         query = {'DID': str(ctx.author.id)}
-        d = db.queryUser(query)#Storage Update
+        d = db.queryUser(query)
         player = crown_utilities.create_player_from_data(d)
-        try: 
+        
+        try:
+            # Fetch all cards and market data in batches
+            card_names = player.cards
+            card_queries = [asyncio.to_thread(db.queryCard, {"NAME": name}) for name in card_names]
+            market_queries = [asyncio.to_thread(db.queryMarket, {"ITEM_OWNER": player.did, "ITEM_NAME": name}) for name in card_names]
+            
+            card_data_list, market_data_list = await asyncio.gather(
+                asyncio.gather(*card_queries),
+                asyncio.gather(*market_queries)
+            )
+            
             embed_list = []
-            for card in sorted(player.cards):
-                index = player.cards.index(card)
-                resp = await asyncio.to_thread(db.queryCard,{"NAME": str(card)})
-                c = crown_utilities.create_card_from_data(resp)
-                if element_filter:
-                    if element_filter not in [c.move1_element, c.move2_element, c.move3_element]:
-                        continue
+            
+            for i, card_data in enumerate(card_data_list):
+                c = crown_utilities.create_card_from_data(card_data)
+                if element_filter and element_filter not in [c.move1_element, c.move2_element, c.move3_element]:
+                    continue
+
                 c.set_card_level_buffs(player.card_levels)
                 c.set_affinity_message()
                 c.set_evasion_message(player)
                 c.set_card_level_icon(player)
-                currently_on_market = await asyncio.to_thread(db.queryMarket, {"ITEM_OWNER": player.did, "ITEM_NAME": c.name})
-                embedVar = Embed(title= f"{c.name}", description=textwrap.dedent(f"""\
+                
+                currently_on_market = market_data_list[i]
+                
+                embedVar = Embed(title=f"{c.name}", description=textwrap.dedent(f"""\
                 {c.universe_crest} {c.universe}
-                {c.drop_emoji} **[{index}]** 
+                {c.drop_emoji} **[{i}]** 
                 {c.class_emoji} {c.class_message}
                 🀄 {c.tier}: {c.level_icon} {c.card_lvl}
                 ❤️ **{c.health}** 🗡️ **{c.attack}** 🛡️ **{c.defense}**
@@ -850,30 +764,33 @@ class Profile(Extension):
                 {c.move2_emoji} **{c.move2}:** {c.move2ap}
                 {c.move3_emoji} **{c.move3}:** {c.move3ap}
                 🦠 **{c.move4}:** {c.move4enh} {c.move4ap}{c.move4enh_suffix}
-
                 """), color=0x7289da)
+                
                 embedVar.add_field(name="__Evasion__", value=f"🏃 | {c.evasion_message}")
                 embedVar.add_field(name="__Affinities__", value=f"{c.affinity_message}")
                 embedVar.set_thumbnail(url=c.universe_image)
-                # Add count of cards in set_footer
                 embedVar.set_footer(text=f"{len(player.cards)} Total Cards")
+                
                 if currently_on_market:
-                    embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
+                    embedVar.add_field(name="🏷️__Currently On Market__", value="Press the market button if you'd like to remove this product from the Market.")
+                
                 embed_list.append(embedVar)
+            
             if not embed_list:
                 embed = Embed(title="🎴 Cards", description="You currently own no Cards.", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
+            
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Cards")
             paginator.show_select_menu = True
             await paginator.send(ctx)
+        
         except Exception as ex:
             custom_logging.debug(ex)
             embed = Embed(title="🎴 Cards Error", description="There's an issue with loading your cards. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0xff0000)
             await ctx.send(embed=embed)
             return
-
-
+        
     @slash_command(description="View all of your titles", options=[
         SlashCommandOption(
             name="filtered",
@@ -943,105 +860,36 @@ class Profile(Extension):
             description="Filter by Universe of the card you have equipped",
             type=OptionType.BOOLEAN,
             required=True,
-        ),
+            ),
         SlashCommandOption(
             name="type_filter",
             description="select an option to continue",
             type=OptionType.STRING,
             required=False,
             choices=[
-                SlashCommandChoice(
-                    name="👊 Physical",
-                    value="PHYSICAL",
-                ),
-                SlashCommandChoice(
-                    name="🔥 Fire",
-                    value="FIRE",
-                ),
-                SlashCommandChoice(
-                    name="❄️ Ice",
-                    value="ICE",
-                ),
-                SlashCommandChoice(
-                    name="💧 Water",
-                    value="WATER",
-                ),
-                SlashCommandChoice(
-                    name="⛰️ Earth",
-                    value="EARTH",
-                ),
-                SlashCommandChoice(
-                    name="⚡️ Electric",
-                    value="ELECTRIC",
-                ),
-                SlashCommandChoice(
-                    name="🌪️ Wind",
-                    value="WIND",
-                ),
-                SlashCommandChoice(
-                    name="🔮 Psychic",
-                    value="PSYCHIC",
-                ),
-                SlashCommandChoice(
-                    name="☠️ Death",
-                    value="DEATH",
-                ),
-                SlashCommandChoice(
-                    name="❤️‍🔥 Life",
-                    value="LIFE"
-                ),
-                SlashCommandChoice(
-                    name="🌕 Light",
-                    value="LIGHT",
-                ),
-                SlashCommandChoice(
-                    name="🌑 Dark",
-                    value="DARK",
-                ),
-                SlashCommandChoice(
-                    name="🧪 Poison",
-                    value="POISON",
-                ),
-                SlashCommandChoice(
-                    name="🏹 Ranged",
-                    value="RANGED",
-                ),
-                SlashCommandChoice(
-                    name="🧿 Energy / Spirit",
-                    value="ENERGY",
-                ),
-                SlashCommandChoice(
-                    name="♻️ Reckless",
-                    value="RECKLESS",
-                ),
-                SlashCommandChoice(
-                    name="⌛ Time",
-                    value="TIME",
-                ),
-                SlashCommandChoice(
-                    name="🅱️ Bleed",
-                    value="BLEED",
-                ),
-                SlashCommandChoice(
-                    name="🪐 Gravity",
-                    value="GRAVITY",
-                ),
-                SlashCommandChoice(
-                    name="🔄 Parry",
-                    value="PARRY",
-                ),
-                SlashCommandChoice(
-                    name="🌐 Shield",
-                    value="SHIELD",
-                ),
-                SlashCommandChoice(
-                    name="💠 Barrier",
-                    value="BARRIER",
-                ),
-                SlashCommandChoice(
-                    name="Siphon",
-                    value="SIPHON",
-                ),
+                SlashCommandChoice(name="👊 Physical", value="PHYSICAL"),
+                SlashCommandChoice(name="🔥 Fire", value="FIRE"),
+                SlashCommandChoice(name="❄️ Ice", value="ICE"),
+                SlashCommandChoice(name="💧 Water", value="WATER"),
+                SlashCommandChoice(name="⛰️ Earth", value="EARTH"),
+                SlashCommandChoice(name="⚡️ Electric", value="ELECTRIC"),
+                SlashCommandChoice(name="🌪️ Wind", value="WIND"),
+                SlashCommandChoice(name="🔮 Psychic", value="PSYCHIC"),
+                SlashCommandChoice(name="☠️ Death", value="DEATH"),
+                SlashCommandChoice(name="❤️‍🔥 Life", value="LIFE"),
+                SlashCommandChoice(name="🌕 Light", value="LIGHT"),
+                SlashCommandChoice(name="🌑 Dark", value="DARK"),
+                SlashCommandChoice(name="🧪 Poison", value="POISON"),
+                SlashCommandChoice(name="🏹 Ranged", value="RANGED"),
+                SlashCommandChoice(name="🧿 Energy / Spirit", value="ENERGY"),
+                SlashCommandChoice(name="♻️ Reckless", value="RECKLESS"),
+                SlashCommandChoice(name="⌛ Time", value="TIME"),
+                SlashCommandChoice(name="🅱️ Bleed", value="BLEED"),
+                SlashCommandChoice(name="🪐 Gravity", value="GRAVITY"),
+                SlashCommandChoice(name="🔄 Parry", value="PARRY"),
+                SlashCommandChoice(name="🌐 Shield", value="SHIELD"),
+                SlashCommandChoice(name="💠 Barrier", value="BARRIER"),
+                SlashCommandChoice(name="Siphon", value="SIPHON"),
             ]
         )
     ])
@@ -1059,54 +907,62 @@ class Profile(Extension):
             card = crown_utilities.create_card_from_data(c)
             if player:
                 try:
-                    current_gems = []
-                    for gems in player.gems:
-                        current_gems.append(gems['UNIVERSE'])
+                    current_gems = [gems['UNIVERSE'] for gems in player.gems]
 
                     embed_list = []
                     sorted_arms = sorted(player.arms, key=lambda arm: arm['ARM'])
-                    for index, arm in enumerate(sorted_arms):
-                        resp = db.queryArm({"ARM": arm['ARM']})
-                        if filtered:
-                            if resp['UNIVERSE'] != card.universe:
-                                continue
-                        arm_data = crown_utilities.create_arm_from_data(resp)
-                        arm_data.set_durability(arm_data.name, player.arms)
-                        arm_data.set_arm_message(player.performance, card.universe)
 
-                        if type_filter:
-                            if arm_data.element != type_filter and arm_data.passive_type != type_filter:
-                                continue
+                    # Fetch all arms and market data in batches
+                    arm_names = [arm['ARM'] for arm in sorted_arms]
+                    arm_queries = [asyncio.to_thread(db.queryArm, {"ARM": name}) for name in arm_names]
+                    market_queries = [asyncio.to_thread(db.queryMarket, {"ITEM_OWNER": player.did, "ITEM_NAME": name}) for name in arm_names]
 
-                        embedVar = Embed(title= f"{arm_data.name}", description=textwrap.dedent(f"""
-                        {arm_data.armicon} **[{index}]**
+                    arm_data_list, market_data_list = await asyncio.gather(
+                        asyncio.gather(*arm_queries),
+                        asyncio.gather(*market_queries)
+                    )
 
-                        {arm_data.arm_type}
-                        {arm_data.arm_message}
-                        {arm_data.universe_crest} **Universe:** {arm_data.universe}
-                        ⚒️ {arm_data.durability}
-                        """), 
-                        color=0x7289da)
-                        # Add count of arms in set_footer
+                    for index, arm_data in enumerate(arm_data_list):
+                        if filtered and arm_data['UNIVERSE'] != card.universe:
+                            continue
+
+                        arm = crown_utilities.create_arm_from_data(arm_data)
+                        arm.set_durability(arm.name, player.arms)
+                        arm.set_arm_message(player.performance, card.universe)
+
+                        if type_filter and arm.element != type_filter and arm.passive_type != type_filter:
+                            continue
+
+                        embedVar = Embed(title=f"{arm.name}", description=textwrap.dedent(f"""
+                        {arm.armicon} **[{index}]**
+
+                        {arm.arm_type}
+                        {arm.arm_message}
+                        {arm.universe_crest} **Universe:** {arm.universe}
+                        ⚒️ {arm.durability}
+                        """), color=0x7289da)
+                        
                         embedVar.set_footer(text=f"{len(player.arms)} Total Arms")
-                        currently_on_market = db.queryMarket({"ITEM_OWNER": player.did, "ITEM_NAME": arm_data.name})
-                        if currently_on_market:
-                            embedVar.add_field(name="🏷️__Currently On Market__", value=f"Press the market button if you'd like to remove this product from the Market.")
+
+                        if market_data_list[index]:
+                            embedVar.add_field(name="🏷️__Currently On Market__", value="Press the market button if you'd like to remove this product from the Market.")
 
                         embed_list.append(embedVar)
-                    
+
                     if not embed_list and filtered:
                         embed = Embed(title="🦾 Arms", description=f"You currently own no Arms in {card.universe_crest} {card.universe}.", color=0x7289da)
                         await ctx.send(embed=embed, ephemeral=True)
                         return
-                    
+
                     if not embed_list and not filtered:
-                        embed = Embed(title="🦾 Arms", description=f"You currently own no Arms.", color=0x7289da)
+                        embed = Embed(title="🦾 Arms", description="You currently own no Arms.", color=0x7289da)
                         await ctx.send(embed=embed, ephemeral=True)
                         return
+
                     paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Arms")
                     paginator.show_select_menu = True
                     await paginator.send(ctx)
+                
                 except Exception as ex:
                     custom_logging.debug(ex)
                     embed = Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
@@ -1115,12 +971,12 @@ class Profile(Extension):
             else:
                 embed = Embed(title="You are not registered.", description="Please register with the command /register", color=0x00ff00)
                 await ctx.send(embed=embed)
+        
         except Exception as ex:
             custom_logging.debug(ex)
             embed = Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
             await ctx.send(embed=embed)
             return
-            
 
     @slash_command(description="View all of your gems")
     async def gems(self, ctx):
@@ -1772,369 +1628,65 @@ class Profile(Extension):
             _uuid = uuid.uuid4()
             query = {'DID': str(ctx.author.id)}
             user = db.queryUser(query)
-            if user['DECK']:
-                ownedcards = []
-                ownedtitles = []
-                ownedarms = []
-                ownedpets = []
-                ownedtalismans = []
-                for cards in user['CARDS']:
-                    ownedcards.append(cards)
-                for titles in user['TITLES']:
-                    ownedtitles.append(titles)
-                for arms in user['ARMS']:
-                    ownedarms.append(arms['ARM'])
-                for pets in user['PETS']:
-                    ownedpets.append(pets['NAME'])
-                for talismans in user['TALISMANS']:
-                    ownedtalismans.append(talismans['TYPE'])
-
-                name = user['DISNAME'].split("#",1)[0]
-                avatar = user['AVATAR']
-                cards = user['CARDS']
-                titles = user['TITLES']
-                deck = user['DECK']
-                preset_length = len(deck)
-                preset_update = user['U_PRESET']
-                
-                
-                preset1_card = list(deck[0].values())[0]
-                preset1_title = list(deck[0].values())[1]
-                preset1_arm = list(deck[0].values())[2]
-                preset1_pet = list(deck[0].values())[3]
-                preset1_talisman = list(deck[0].values())[4]
-
-                preset2_card = list(deck[1].values())[0]
-                preset2_title = list(deck[1].values())[1]
-                preset2_arm = list(deck[1].values())[2]
-                preset2_pet = list(deck[1].values())[3]
-                preset2_talisman = list(deck[1].values())[4]
-
-                preset3_card = list(deck[2].values())[0]
-                preset3_title = list(deck[2].values())[1]
-                preset3_arm = list(deck[2].values())[2]
-                preset3_pet = list(deck[2].values())[3]    
-                preset3_talisman = list(deck[2].values())[4]
-                
-                preset3_message = "📿"
-                preset3_element = "None"
-                if preset3_talisman != "NULL":
-                    preset3_message = crown_utilities.set_emoji(preset3_talisman)
-                    preset3_element = preset3_talisman.title()
-                    
-                preset2_message = "📿"
-                preset2_element = "None"
-                if preset2_talisman != "NULL":
-                    preset2_message = crown_utilities.set_emoji(preset2_talisman)
-                    preset2_element = preset2_talisman.title()
-                    
-                preset1_message = "📿"
-                preset1_element = "None"
-                if preset1_talisman != "NULL":
-                    preset1_message = crown_utilities.set_emoji(preset1_talisman)
-                    preset1_element = preset1_talisman.title()
-                
-                if preset_update:
-                    preset4_card = list(deck[3].values())[0]
-                    preset4_title = list(deck[3].values())[1]
-                    preset4_arm = list(deck[3].values())[2]
-                    preset4_pet = list(deck[3].values())[3]
-                    preset4_talisman = list(deck[3].values())[4]
-
-                    preset5_card = list(deck[4].values())[0]
-                    preset5_title = list(deck[4].values())[1]
-                    preset5_arm = list(deck[4].values())[2]
-                    preset5_pet = list(deck[4].values())[3]  
-                    preset5_talisman = list(deck[4].values())[4]
-                    
-                    preset5_message = "📿"
-                    preset5_element = "None"
-                    if preset5_talisman != "NULL":
-                        preset5_message = crown_utilities.set_emoji(preset5_talisman)
-                        preset5_element = preset5_talisman.title()
-                        
-                    preset4_message = "📿"
-                    preset4_element = "None"
-                    if preset4_talisman != "NULL":
-                        preset4_message = crown_utilities.set_emoji(preset4_talisman)
-                        preset4_element = preset4_talisman.title()
-                        
-                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_element}\n\n", 
-                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_element}\n\n", 
-                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_element}\n\n", 
-                    f"4️⃣| {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}{preset4_element}\n\n", 
-                    f"5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}{preset5_element}\n\n"]  
-                else:
-                    listed_options = [f"1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_element}\n\n", 
-                    f"2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_element}\n\n", 
-                    f"3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_element}\n\n"]
-            
-                embedVar = Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
-                {"".join(listed_options)}
-                """))
-                embedVar.set_thumbnail(url=avatar)
-                util_buttons = [
-                    Button(
-                        style=ButtonStyle.BLUE,
-                        label="1️⃣",
-                        custom_id = f"{_uuid}|1"
-                    ),
-                    Button(
-                        style=ButtonStyle.BLUE,
-                        label="2️⃣",
-                        custom_id = f"{_uuid}|2"
-                    ),
-                    Button(
-                        style=ButtonStyle.BLUE,
-                        label="3️⃣",
-                        custom_id = f"{_uuid}|3"
-                    )
-                ]
-                
-                if preset_update:
-                    util_buttons.append(
-                        Button(
-                            style=ButtonStyle.BLUE,
-                            label="4️⃣",
-                            custom_id=f"{_uuid}|4"
-                        )
-                    )
-                    util_buttons.append(
-                        Button(
-                            style=ButtonStyle.BLUE,
-                            label="5️⃣",
-                            custom_id=f"{_uuid}|5"
-                        )
-                    )
-                    
-                util_action_row = ActionRow(*util_buttons)
-                msg = await ctx.send(embed=embedVar,components=[util_action_row])
-                
-                def check(component: Button) -> bool:
-                    return component.ctx.author == ctx.author
-                
-                try:
-                    button_ctx  = await self.bot.wait_for_component(components=[util_action_row], timeout=30,check=check)
-                    equipped_items = []
-                    not_owned_items = []
-                    update_data = {}
-                    if  button_ctx.ctx.custom_id == "0":
-                        embed = Embed(title="🔖 | Preset Menu", description="No change has been made")
-                        await button_ctx.send(f"{ctx.author.mention}, No change has been made", ephemeral=True)
-                        return
-                    elif  button_ctx.ctx.custom_id == f"{_uuid}|1":
-                        equipped_items = []
-                        not_owned_items = []
-                        update_data = {}
-                        if preset1_card in ownedcards:
-                            equipped_items.append(f"🎴 **Card** | {preset1_card}")
-                            update_data['CARD'] = str(preset1_card)
-                        else:
-                            not_owned_items.append(f"❌ {preset1_card}")
-
-                        if preset1_title in ownedtitles:
-                            equipped_items.append(f"🎗️ **Title** | {preset1_title}")
-                            update_data['TITLE'] = str(preset1_title)
-                        elif preset1_title is not None:
-                            not_owned_items.append(f"❌ | {preset1_title}")
-
-                        if preset1_arm in ownedarms:
-                            equipped_items.append(f"🦾 **Arm** | {preset1_arm}")
-                            update_data['ARM'] = str(preset1_arm)
-                        elif preset1_arm is not None:
-                            not_owned_items.append(f"❌ | {preset1_arm}")
-
-                        if preset1_pet in ownedpets:
-                            equipped_items.append(f"🧬 **Summon** | {preset1_pet}")
-                            update_data['PET'] = str(preset1_pet)
-                        elif preset1_pet is not None:
-                            not_owned_items.append(f"❌ | {preset1_pet}")
-
-                        if preset1_talisman in ownedtalismans or preset1_talisman == "NULL":
-                            equipped_items.append(f"{preset1_message} **Talisman** | {preset1_element}")
-                            update_data['TALISMAN'] = str(preset1_talisman)
-                        elif preset1_talisman is not None:
-                            not_owned_items.append(f"❌ | {preset1_message}{preset1_element}")
-
-                    elif  button_ctx.ctx.custom_id == f"{_uuid}|2":
-                        # Check if items are owned
-                        equipped_items = []
-                        not_owned_items = []
-                        update_data = {}
-                        if preset2_card in ownedcards:
-                            equipped_items.append(f"🎴 **Card** | {preset2_card}")
-                            update_data['CARD'] = str(preset2_card)
-                        else:
-                            not_owned_items.append(f"❌ {preset2_card}")
-
-                        if preset2_title in ownedtitles:
-                            equipped_items.append(f"🎗️ **Title** | {preset2_title}")
-                            update_data['TITLE'] = str(preset2_title)
-                        else:
-                            not_owned_items.append(f"❌ | {preset2_title}")
-
-                        if preset2_arm in ownedarms:
-                            equipped_items.append(f"🦾 **Arm** | {preset2_arm}")
-                            update_data['ARM'] = str(preset2_arm)
-                        else:
-                            not_owned_items.append(f"❌ | {preset2_arm}")
-
-                        if preset2_pet in ownedpets:
-                            equipped_items.append(f"🧬 **Summon** | {preset2_pet}")
-                            update_data['PET'] = str(preset2_pet)
-                        else:
-                            not_owned_items.append(f"❌ | {preset2_pet}")
-
-                        if preset2_talisman in ownedtalismans or preset2_talisman == "NULL":
-                            equipped_items.append(f"{preset2_message} **Talisman** | {preset2_element}")
-                            update_data['TALISMAN'] = str(preset2_talisman)
-                        else:
-                            not_owned_items.append(f"❌ | {preset2_message}{preset2_element}")
-
-                    elif  button_ctx.ctx.custom_id == f"{_uuid}|3":
-                        equipped_items = []
-                        not_owned_items = []
-                        update_data = {}
-                        if preset3_card in ownedcards:
-                            equipped_items.append(f"🎴 **Card** | {preset3_card}")
-                            update_data['CARD'] = str(preset3_card)
-                        else:
-                            not_owned_items.append(f"❌ {preset3_card}")
-
-                        if preset3_title in ownedtitles:
-                            equipped_items.append(f"🎗️ **Title** | {preset3_title}")
-                            update_data['TITLE'] = str(preset3_title)
-                        else:
-                            not_owned_items.append(f"❌ | {preset3_title}")
-
-                        if preset3_arm in ownedarms:
-                            equipped_items.append(f"🦾 **Arm** | {preset3_arm}")
-                            update_data['ARM'] = str(preset3_arm)
-                        else:
-                            not_owned_items.append(f"❌ | {preset3_arm}")
-
-                        if preset3_pet in ownedpets:
-                            equipped_items.append(f"🧬 **Summon** | {preset3_pet}")
-                            update_data['PET'] = str(preset3_pet)
-                        else:
-                            not_owned_items.append(f"❌ | {preset3_pet}")
-
-                        if preset3_talisman in ownedtalismans or preset3_talisman == "NULL":
-                            equipped_items.append(f"{preset3_message} **Talisman** | {preset3_element}")
-                            update_data['TALISMAN'] = str(preset3_talisman)
-                        else:
-                            not_owned_items.append(f"❌ | {preset3_message}{preset3_element}")
-
-                    elif  button_ctx.ctx.custom_id == f"{_uuid}|4":
-                        equipped_items = []
-                        not_owned_items = []
-                        update_data = {}
-                        if preset4_card in ownedcards:
-                            equipped_items.append(f"🎴 **Card** | {preset4_card}")
-                            update_data['CARD'] = str(preset4_card)
-                        else:
-                            not_owned_items.append(f"❌ {preset4_card}")
-
-                        if preset4_title in ownedtitles:
-                            equipped_items.append(f"🎗️ **Title** | {preset4_title}")
-                            update_data['TITLE'] = str(preset4_title)
-                        else:
-                            not_owned_items.append(f"❌ | {preset4_title}")
-
-                        if preset4_arm in ownedarms:
-                            equipped_items.append(f"🦾 **Arm** | {preset4_arm}")
-                            update_data['ARM'] = str(preset4_arm)
-                        else:
-                            not_owned_items.append(f"❌ | {preset4_arm}")
-
-                        if preset4_pet in ownedpets:
-                            equipped_items.append(f"🧬 **Summon** | {preset4_pet}")
-                            update_data['PET'] = str(preset4_pet)
-                        else:
-                            not_owned_items.append(f"❌ | {preset4_pet}")
-
-                        if preset4_talisman in ownedtalismans or preset4_talisman == "NULL":
-                            equipped_items.append(f"{preset4_message} **Talisman** | {preset4_element}")
-                            update_data['TALISMAN'] = str(preset4_talisman)
-                        else:
-                            not_owned_items.append(f"❌ | {preset4_message}{preset4_element}")
-                        
-                    elif  button_ctx.ctx.custom_id == f"{_uuid}|5":
-                        equipped_items = []
-                        not_owned_items = []
-                        update_data = {}
-
-                        if preset5_card in ownedcards:
-                            equipped_items.append(f"🎴 **Card** | {preset5_card}")
-                            update_data['CARD'] = str(preset5_card)
-                        else:
-                            not_owned_items.append(f"❌ {preset5_card}")
-
-                        if preset5_title in ownedtitles:
-                            equipped_items.append(f"🎗️ **Title** | {preset5_title}")
-                            update_data['TITLE'] = str(preset5_title)
-                        else:
-                            not_owned_items.append(f"❌ | {preset5_title}")
-
-                        if preset5_arm in ownedarms:
-                            equipped_items.append(f"🦾 **Arm** | {preset5_arm}")
-                            update_data['ARM'] = str(preset5_arm)
-                        else:
-                            not_owned_items.append(f"❌ | {preset5_arm}")
-
-                        if preset5_pet in ownedpets:
-                            equipped_items.append(f"🧬 **Summon** | {preset5_pet}")
-                            update_data['PET'] = str(preset5_pet)
-                        else:
-                            not_owned_items.append(f"❌ | {preset5_pet}")
-
-                        if preset5_talisman in ownedtalismans or preset5_talisman == "NULL":
-                            equipped_items.append(f"{preset5_message} **Talisman** | {preset5_element}")
-                            update_data['TALISMAN'] = str(preset5_talisman)
-                        else:
-                            not_owned_items.append(f"❌ | {preset5_message}{preset5_element}")
-                    
-                    response = db.updateUserNoFilter(query, {'$set': update_data})
-
-
-                    embed = Embed(title=f"🔖 | Build Updated")
-                    if equipped_items:
-                        embed.add_field(name="Equipped Items", value="\n".join(equipped_items), inline=False)
-                        if not not_owned_items:
-                            embed.set_footer(text="👥 | Conquer Universes with this preset in /duo!")
-                    if not_owned_items:
-                        embed.add_field(name="Not Owned", value="\n".join(not_owned_items), inline=False)
-                        embed.set_footer(text="🔴 | Update this Preset with /savepreset!")
-                    embed.set_thumbnail(url=ctx.author.avatar_url)
-                    
-
-                    # Send the response
-                    await msg.edit(embed=embed, components=[])
-                    return
-                except asyncio.TimeoutError:
-                    await msg.delete()
-                    # await ctx.send(f"{ctx.author.mention} Preset Menu closed.", ephemeral=True)
-                except Exception as ex:
-                    loggy.critical(ex)
-                    trace = []
-                    tb = ex.__traceback__
-                    while tb is not None:
-                        trace.append({
-                            "filename": tb.tb_frame.f_code.co_filename,
-                            "name": tb.tb_frame.f_code.co_name,
-                            "lineno": tb.tb_lineno
-                        })
-                        tb = tb.tb_next
-                    print(str({
-                        'type': type(ex).__name__,
-                        'message': str(ex),
-                        'trace': trace
-                    }))
-                    # await ctx.send("Preset Issue Seek support.", ephemeral=True)
-            else:
-                embed = Embed(title=f"🔖 | Whoops!", description=f"You do not have a preset saved yet. Use /savepreset to save your current build as a preset.")
+            if not user['DECK']:
+                embed = Embed(
+                    title=f"🔖 | Whoops!",
+                    description=f"You do not have a preset saved yet. Use /savepreset to save your current build as a preset."
+                )
                 await ctx.send(embed=embed)
                 return
+
+            owned_items = await get_owned_items(user)
+            presets = [get_preset_items(user['DECK'], i) for i in range(5)]
+            listed_options = create_listed_options(presets[:3 if not user.get('U_PRESET') else 5])
+
+            embedVar = Embed(title="🔖 | Preset Menu", description=textwrap.dedent(f"""
+            {"".join(listed_options)}
+            """))
+            embedVar.set_thumbnail(url=user['AVATAR'])
+
+            util_buttons = [Button(style=ButtonStyle.BLUE, label=f"{i+1}️⃣", custom_id=f"{_uuid}|{i+1}") for i in range(len(listed_options))]
+            util_action_row = ActionRow(*util_buttons)
+
+            msg = await ctx.send(embed=embedVar, components=[util_action_row])
+
+            def check(component: Button) -> bool:
+                return component.ctx.author == ctx.author
+
+            try:
+                button_ctx = await self.bot.wait_for_component(components=[util_action_row], timeout=30, check=check)
+                equipped_items, not_owned_items, update_data = await handle_button_click(button_ctx, presets, owned_items)
+
+                response = db.updateUserNoFilter(query, {'$set': update_data})
+
+                embed = Embed(title=f"🔖 | Build Updated")
+                if equipped_items:
+                    embed.add_field(name="Equipped Items", value="\n".join(equipped_items), inline=False)
+
+                if not_owned_items:
+                    embed.add_field(name="Not Owned", value="\n".join(not_owned_items), inline=False)
+                    embed.set_footer(text="🔴 | Update this Preset with /savepreset!")
+                embed.set_thumbnail(url=ctx.author.avatar_url)
+
+                await msg.edit(embed=embed, components=[])
+            except asyncio.TimeoutError:
+                await msg.delete()
+            except Exception as ex:
+                loggy.critical(ex)
+                trace = []
+                tb = ex.__traceback__
+                while tb is not None:
+                    trace.append({
+                        "filename": tb.tb_frame.f_code.co_filename,
+                        "name": tb.tb_frame.f_code.co_name,
+                        "lineno": tb.tb_lineno
+                    })
+                    tb = tb.tb_next
+                print(str({
+                    'type': type(ex).__name__,
+                    'message': str(ex),
+                    'trace': trace
+                }))
         except asyncio.TimeoutError:
             await ctx.send(f"{ctx.authour.mention} Preset Menu closed.", ephemeral=True)
         except Exception as ex:
@@ -2166,165 +1718,101 @@ class Profile(Extension):
             _uuid = uuid.uuid4()
             query = {'DID': str(ctx.author.id)}
             user = db.queryUser(query)
-            
+
             if user:
-                name = user['DISNAME'].split("#",1)[0]
+                name = user['DISNAME'].split("#", 1)[0]
                 avatar = user['AVATAR']
                 cards = user['CARDS']
                 titles = user['TITLES']
                 deck = user['DECK']
 
-
                 current_card = user['CARD']
                 current_title = user['TITLE']
-                current_arm= user['ARM']
+                current_arm = user['ARM']
                 current_pet = user['PET']
                 current_talisman = user['TALISMAN']
-                current_talisman_message = "📿"
-                current_talisman_element = "None"
-                if current_talisman != "NULL":
-                    current_talisman_message = crown_utilities.set_emoji(current_talisman)
-                    current_talisman_element = current_talisman.title()
-                preset_update = user['U_PRESET']
+                current_talisman_message = crown_utilities.set_emoji(current_talisman) if current_talisman != "NULL" else "📿"
+                current_talisman_element = current_talisman.title() if current_talisman != "NULL" else "None"
 
-                
-                preset1_card = list(deck[0].values())[0]
-                preset1_title = list(deck[0].values())[1]
-                preset1_arm = list(deck[0].values())[2]
-                preset1_pet = list(deck[0].values())[3]
-                preset1_talisman = list(deck[0].values())[4]
+                preset_update = user.get('U_PRESET', False)
+                listed_options = [
+                    f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}{current_talisman_element}\n\n"
+                ]
 
-                preset2_card = list(deck[1].values())[0]
-                preset2_title = list(deck[1].values())[1]
-                preset2_arm = list(deck[1].values())[2]
-                preset2_pet = list(deck[1].values())[3]
-                preset2_talisman = list(deck[1].values())[4]
+                for i in range(3):
+                    if i < len(deck):
+                        preset_card = deck[i].get('CARD', 'N/A')
+                        preset_title = deck[i].get('TITLE', 'N/A')
+                        preset_arm = deck[i].get('ARM', 'N/A')
+                        preset_pet = deck[i].get('PET', 'N/A')
+                        preset_talisman = deck[i].get('TALISMAN', 'N/A')
+                        preset_message = crown_utilities.set_emoji(preset_talisman) if preset_talisman != "NULL" else "📿"
+                        preset_element = preset_talisman.title() if preset_talisman != "NULL" else "None"
+                        listed_options.append(
+                            f"📝{i+1}️⃣ | {preset_title} {preset_card} and {preset_pet}\n**Card**: {preset_card}\n**Title**: {preset_title}\n**Arm**: {preset_arm}\n**Summon**: {preset_pet}\n**Talisman**: {preset_message}{preset_element}\n\n"
+                        )
 
-                preset3_card = list(deck[2].values())[0]
-                preset3_title = list(deck[2].values())[1]
-                preset3_arm = list(deck[2].values())[2]
-                preset3_pet = list(deck[2].values())[3]    
-                preset3_talisman = list(deck[2].values())[4]
-                
-                preset3_message = "📿"
-                preset3_element = "None"
-                if preset3_talisman != "NULL":
-                    preset3_message = crown_utilities.set_emoji(preset3_talisman)
-                    preset3_element = preset3_talisman.title()
-                    
-                preset2_message = "📿"
-                preset2_element = "None"
-                if preset2_talisman != "NULL":
-                    preset2_message = crown_utilities.set_emoji(preset2_talisman)
-                    preset2_element = preset2_talisman.title()
-                    
-                preset1_message = "📿"
-                preset1_element = "None"
-                if preset1_talisman != "NULL":
-                    preset1_message = crown_utilities.set_emoji(preset1_talisman)
-                    preset1_element = preset1_talisman.title()
-                
                 if preset_update:
-                    preset4_card = list(deck[3].values())[0]
-                    preset4_title = list(deck[3].values())[1]
-                    preset4_arm = list(deck[3].values())[2]
-                    preset4_pet = list(deck[3].values())[3]
-                    preset4_talisman = list(deck[3].values())[4]
+                    for i in range(3, 5):
+                        if i < len(deck):
+                            preset_card = deck[i].get('CARD', 'N/A')
+                            preset_title = deck[i].get('TITLE', 'N/A')
+                            preset_arm = deck[i].get('ARM', 'N/A')
+                            preset_pet = deck[i].get('PET', 'N/A')
+                            preset_talisman = deck[i].get('TALISMAN', 'N/A')
+                            preset_message = crown_utilities.set_emoji(preset_talisman) if preset_talisman != "NULL" else "📿"
+                            preset_element = preset_talisman.title() if preset_talisman != "NULL" else "None"
+                            listed_options.append(
+                                f"📝{i+1}️⃣ | {preset_title} {preset_card} and {preset_pet}\n**Card**: {preset_card}\n**Title**: {preset_title}\n**Arm**: {preset_arm}\n**Summon**: {preset_pet}\n**Talisman**: {preset_message}{preset_element}\n\n"
+                            )
 
-                    preset5_card = list(deck[4].values())[0]
-                    preset5_title = list(deck[4].values())[1]
-                    preset5_arm = list(deck[4].values())[2]
-                    preset5_pet = list(deck[4].values())[3]  
-                    preset5_talisman = list(deck[4].values())[4]
-                    
-                    preset5_message = "📿"
-                    preset5_element = "None"
-                    if preset5_talisman != "NULL":
-                        preset5_message = crown_utilities.set_emoji(preset5_talisman)
-                        preset5_element = preset5_talisman.title()
-                        
-                    preset4_message = "📿"
-                    preset4_element = "None"
-                    if preset4_talisman != "NULL":
-                        preset4_message = crown_utilities.set_emoji(preset4_talisman)
-                        preset4_element = preset4_talisman.title()
-                    
-                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}{current_talisman_element}\n\n",
-                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_element}\n\n", 
-                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_element}\n\n", 
-                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_element}\n\n", 
-                    f"📝4️⃣ | {preset4_title} {preset4_card} and {preset4_pet}\n**Card**: {preset4_card}\n**Title**: {preset4_title}\n**Arm**: {preset4_arm}\n**Summon**: {preset4_pet}\n**Talisman**: {preset4_message}{preset4_element}\n\n", 
-                    f"📝5️⃣ | {preset5_title} {preset5_card} and {preset5_pet}\n**Card**: {preset5_card}\n**Title**: {preset5_title}\n**Arm**: {preset5_arm}\n**Summon**: {preset5_pet}\n**Talisman**: {preset5_message}{preset5_element}\n\n"]  
-                else:
-                    listed_options = [f"📝 | {current_title} {current_card} & {current_pet}\n**Card**: {current_card}\n**Title**: {current_title}\n**Arm**: {current_arm}\n**Summon**: {current_pet}\n**Talisman**: {current_talisman_message}{current_talisman_element}\n\n",
-                    f"📝1️⃣ | {preset1_title} {preset1_card} and {preset1_pet}\n**Card**: {preset1_card}\n**Title**: {preset1_title}\n**Arm**: {preset1_arm}\n**Summon**: {preset1_pet}\n**Talisman**: {preset1_message}{preset1_element}\n\n", 
-                    f"📝2️⃣ | {preset2_title} {preset2_card} and {preset2_pet}\n**Card**: {preset2_card}\n**Title**: {preset2_title}\n**Arm**: {preset2_arm}\n**Summon**: {preset2_pet}\n**Talisman**: {preset2_message}{preset2_element}\n\n", 
-                    f"📝3️⃣ | {preset3_title} {preset3_card} and {preset3_pet}\n**Card**: {preset3_card}\n**Title**: {preset3_title}\n**Arm**: {preset3_arm}\n**Summon**: {preset3_pet}\n**Talisman**: {preset3_message}{preset3_element}\n\n"]
-            
                 embedVar = Embed(title=f"📝 | Save Current Build", description=textwrap.dedent(f"""
                 {"".join(listed_options)}
                 """))
-                util_buttons = [
-                    Button(
-                        style=ButtonStyle.GREEN,
-                        label="📝 1️⃣",
-                        custom_id = f"{_uuid}|1"
-                    ),
-                    Button(
-                        style=ButtonStyle.GREEN,
-                        label="📝 2️⃣",
-                        custom_id = f"{_uuid}|2"
-                    ),
-                    Button(
-                        style=ButtonStyle.GREEN,
-                        label="📝 3️⃣",
-                        custom_id = f"{_uuid}|3"
-                    )
-                ]
+                util_buttons = [Button(style=ButtonStyle.GREEN, label=f"📝 {i+1}️⃣", custom_id=f"{_uuid}|{i+1}") for i in range(3)]
                 
                 if preset_update:
-                    util_buttons.append(
-                        Button(
-                            style=ButtonStyle.GREEN,
-                            label="📝4️⃣",
-                            custom_id=f"{_uuid}|4"
-                        )
-                    )
-                    util_buttons.append(
-                        Button(
-                            style=ButtonStyle.GREEN,
-                            label="📝5️⃣",
-                            custom_id=f"{_uuid}|5"
-                        )
-                    )
+                    util_buttons.extend([
+                        Button(style=ButtonStyle.GREEN, label="📝4️⃣", custom_id=f"{_uuid}|4"),
+                        Button(style=ButtonStyle.GREEN, label="📝5️⃣", custom_id=f"{_uuid}|5")
+                    ])
+
                 util_action_row = ActionRow(*util_buttons)
-                msg = await ctx.send(embed=embedVar,components=[util_action_row])
+                msg = await ctx.send(embed=embedVar, components=[util_action_row])
 
                 def check(component: Button) -> bool:
                     return component.ctx.author == ctx.author
 
                 try:
-                    button_ctx  = await self.bot.wait_for_component(components=[util_action_row], timeout=120,check=check)
+                    button_ctx = await self.bot.wait_for_component(components=[util_action_row], timeout=120, check=check)
 
                     if button_ctx.ctx.custom_id == f"{_uuid}|0":
                         embed = Embed(title=f"🔖 | Preset Not Saved", description=f"No change has been made")
-                        await msg.edit(embed=embed,components=[])
+                        await msg.edit(embed=embed, components=[])
                         return
-                    
-                    if button_ctx.ctx.custom_id in [f"{_uuid}|1", f"{_uuid}|2", f"{_uuid}|3", f"{_uuid}|4", f"{_uuid}|5"]:
-                        preset_number = button_ctx.ctx.custom_id.split('|')[-1]
-                        response = db.updateUserNoFilter(query, {'$set': {f'DECK.{int(preset_number) - 1}.CARD': str(current_card), f'DECK.{int(preset_number) - 1}.TITLE': str(current_title), f'DECK.{int(preset_number) - 1}.ARM': str(current_arm), f'DECK.{int(preset_number) - 1}.PET': str(current_pet), f'DECK.{int(preset_number) - 1}.TALISMAN': str(current_talisman)}})
-                        if response:
-                            talisman_message = crown_utilities.set_emoji(current_talisman)
-                            embed = Embed(title=f"🔖 | Preset Saved to {preset_number} Slot")
-                            embed.add_field(name="Card", value=f"🎴 | {current_card}", inline=False)
-                            embed.add_field(name="Title", value=f"🎗️ | {current_title}", inline=False)
-                            embed.add_field(name="Arm", value=f"🦾 | {current_arm}", inline=False)
-                            embed.add_field(name="Summons", value=f"🧬 | {current_pet}", inline=False)
-                            embed.add_field(name="Talisman", value=f"{talisman_message} | {current_talisman_element}", inline=False)
-                            embed.set_thumbnail(url=ctx.author.avatar_url)
-                            await msg.edit(embed=embed,components=[])
-                            return
+
+                    preset_number = button_ctx.ctx.custom_id.split('|')[-1]
+                    response = db.updateUserNoFilter(query, {'$set': {
+                        f'DECK.{int(preset_number) - 1}': {
+                            'CARD': str(current_card),
+                            'TITLE': str(current_title),
+                            'ARM': str(current_arm),
+                            'PET': str(current_pet),
+                            'TALISMAN': str(current_talisman)
+                        }
+                    }})
+
+                    if response:
+                        talisman_message = crown_utilities.set_emoji(current_talisman)
+                        embed = Embed(title=f"🔖 | Preset Saved to {preset_number} Slot")
+                        embed.add_field(name="Card", value=f"🎴 | {current_card}", inline=False)
+                        embed.add_field(name="Title", value=f"🎗️ | {current_title}", inline=False)
+                        embed.add_field(name="Arm", value=f"🦾 | {current_arm}", inline=False)
+                        embed.add_field(name="Summons", value=f"🧬 | {current_pet}", inline=False)
+                        embed.add_field(name="Talisman", value=f"{talisman_message} | {current_talisman_element}", inline=False)
+                        embed.set_thumbnail(url=ctx.author.avatar_url)
+                        await msg.edit(embed=embed, components=[])
+                        return
 
                 except asyncio.TimeoutError:
                     embed = Embed(title=f"🔖 | Whoops!", description=f"Timed out. Please try again later.")
@@ -2371,9 +1859,7 @@ class Profile(Extension):
             embed = Embed(title=f"🔖 | Whoops!", description=f"Something went wrong. Please try again later.")
             await ctx.send(embed=embed)
             return
-
-    
-
+        
     # @slash_command(description="Draw Items from Association Armory",
     #             options=[
     #                 SlashCommandOption(
@@ -2696,6 +2182,98 @@ class Profile(Extension):
             await ctx.send(embed=embed)
             return
 
+async def get_owned_items(user):
+    """Extract owned items from the user object."""
+    ownedcards = [card for card in user['CARDS']]
+    ownedtitles = [title for title in user['TITLES']]
+    ownedarms = [arm['ARM'] for arm in user['ARMS']]
+    ownedpets = [pet['NAME'] for pet in user['PETS']]
+    ownedtalismans = [talisman['TYPE'] for talisman in user['TALISMANS']]
+    return ownedcards, ownedtitles, ownedarms, ownedpets, ownedtalismans
 
+def get_preset_items(deck, index):
+    """Extract preset items from the deck at the given index."""
+    try:
+        return {
+            'card': list(deck[index].values())[0],
+            'title': list(deck[index].values())[1],
+            'arm': list(deck[index].values())[2],
+            'pet': list(deck[index].values())[3],
+            'talisman': list(deck[index].values())[4],
+        }
+    except IndexError:
+        return {
+            'card': None,
+            'title': None,
+            'arm': None,
+            'pet': None,
+            'talisman': "NULL",
+        }
+
+def build_preset_message(preset):
+    """Build the message and element for the talisman in the preset."""
+    message = "📿"
+    element = "None"
+    if preset['talisman'] != "NULL":
+        message = crown_utilities.set_emoji(preset['talisman'])
+        element = preset['talisman'].title()
+    return message, element
+
+def create_listed_options(presets):
+    """Create a list of options for the embed."""
+    listed_options = []
+    for i, preset in enumerate(presets):
+        message, element = build_preset_message(preset)
+        listed_options.append(
+            f"{i+1}️⃣ | {preset['title']} {preset['card']} and {preset['pet']}\n"
+            f"**Card**: {preset['card']}\n**Title**: {preset['title']}\n"
+            f"**Arm**: {preset['arm']}\n**Summon**: {preset['pet']}\n"
+            f"**Talisman**: {message}{element}\n\n"
+        )
+    return listed_options
+
+async def handle_button_click(button_ctx, presets, owned_items):
+    """Handle the button click and return the equipped and not owned items."""
+    preset_index = int(button_ctx.ctx.custom_id.split('|')[-1]) - 1
+    preset = presets[preset_index]
+    ownedcards, ownedtitles, ownedarms, ownedpets, ownedtalismans = owned_items
+
+    equipped_items = []
+    not_owned_items = []
+    update_data = {}
+
+    if preset['card'] in ownedcards:
+        equipped_items.append(f"🎴 **Card** | {preset['card']}")
+        update_data['CARD'] = str(preset['card'])
+    else:
+        not_owned_items.append(f"❌ {preset['card']}")
+
+    if preset['title'] in ownedtitles:
+        equipped_items.append(f"🎗️ **Title** | {preset['title']}")
+        update_data['TITLE'] = str(preset['title'])
+    elif preset['title']:
+        not_owned_items.append(f"❌ | {preset['title']}")
+
+    if preset['arm'] in ownedarms:
+        equipped_items.append(f"🦾 **Arm** | {preset['arm']}")
+        update_data['ARM'] = str(preset['arm'])
+    elif preset['arm']:
+        not_owned_items.append(f"❌ | {preset['arm']}")
+
+    if preset['pet'] in ownedpets:
+        equipped_items.append(f"🧬 **Summon** | {preset['pet']}")
+        update_data['PET'] = str(preset['pet'])
+    elif preset['pet']:
+        not_owned_items.append(f"❌ | {preset['pet']}")
+
+    if preset['talisman'] in ownedtalismans or preset['talisman'] == "NULL":
+        message, element = build_preset_message(preset)
+        equipped_items.append(f"{message} **Talisman** | {element}")
+        update_data['TALISMAN'] = str(preset['talisman'])
+    elif preset['talisman']:
+        message, element = build_preset_message(preset)
+        not_owned_items.append(f"❌ | {message}{element}")
+
+    return equipped_items, not_owned_items, update_data
 def setup(bot):
     Profile(bot)
