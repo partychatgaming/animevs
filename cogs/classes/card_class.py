@@ -193,6 +193,7 @@ class Card:
             self.my_hero_academia_buff = 0
             self.fairy_tail_recovering = False
             self.fairy_tail_recovering_duration = 0
+            self.souls_phase = False
 
             # Elemental Effect Meters
             self.burn_dmg = 0
@@ -357,6 +358,13 @@ class Card:
             self.move1_emoji = crown_utilities.set_emoji(self.move1_element)
             self.move1base = self.move1ap
             self.move1_damage_dealt = 0
+            
+            #Souls Third Phase 
+            self.move_souls = self.move1
+            self.move_souls_ap = self.move1ap
+            self.move_souls_stamina = 0
+            self.move_souls_element = self.move1_element
+            self.move_souls_emoji = self.move1_emoji
             
 
             # Move 2
@@ -1376,8 +1384,28 @@ class Card:
 
         ENHANCERS = [4]
         MOVES = [1,2,3,6]
+        #Checking here for Souls Third Phase move
+        if selected_move == "Souls":
+            does_repel = False
+            does_absorb = False
+            self.wind_element_activated = False
+            is_physical_element = False
+            ranged_attack = False
+            wind_buff = 0
 
-        if selected_move in MOVES:
+            move = self.move_souls
+            ap = self.move_souls_ap
+            move_stamina = 0
+            move_element = self.move_souls_element
+
+            if move_element == "WIND":
+                    self.wind_element_activated = True
+                if move_element == "RANGED" and move_stamina >= 30:
+                    ranged_attack = True
+                if move_element == "PHYSICAL" and move_stamina >= 80:
+                    is_physical_element = True
+                move_emoji = crown_utilities.set_emoji(move_element)
+        elif selected_move in MOVES:
             does_repel = False
             does_absorb = False
             self.wind_element_activated = False
@@ -1416,7 +1444,7 @@ class Card:
                 move_emoji = self.summon_emoji
                 can_use_move_flag = True
 
-                # Added 100x multipler to increase damage
+                # Added 100x multiplier to increase damage
                 summoner_buff = 1
                 if self.is_summoner:
                     summoner_buff = self.tier * 5 
@@ -1472,7 +1500,7 @@ class Card:
                 can_use_move_flag = False
                 response = {
                 "DMG": 0, 
-                "MESSAGE": "You do not have the stamina to use this move! Try another mvoe.", 
+                "MESSAGE": "You do not have the stamina to use this move! Try another move.", 
                 "CAN_USE_MOVE": can_use_move_flag, 
                 "ENHANCE": False, 
                 "REPEL": False, 

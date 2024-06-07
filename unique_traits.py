@@ -61,7 +61,7 @@ traits = [{
 },{
     'NAME': 'Souls',
     'EFFECT': 'Combo Recognition, Second Phase!',
-    'TRAIT': 'Combo Recognition : On opponent Focus, gain (60 + turn) ATK. Second Phase! : On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE.'
+    'TRAIT': 'Phase 1: On Opp Focus, gain (60 + turn) ATK. Phase 2!: On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE. Phase 3: While <40% Health Double Strike with old BASIC.'
 },{
     'NAME': 'Death Note',
     'EFFECT': 'Scheduled Death, Shinigami Eyes',

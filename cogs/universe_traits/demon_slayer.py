@@ -41,8 +41,8 @@ def activate_demon_slayer_trait(player_card, battle_config, opponent_card):
         battle_config.turn_zero_has_happened = True
         player_card.breathing_message = True
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} total concentration breathing increased their health by {round(opponent_card.health * .60):,}")
-        player_card.health = round(player_card.health + (opponent_card.health * .60))
-        player_card.max_health = round(player_card.max_health + (opponent_card.health *.60))
+        player_card.health = round(player_card.health + (opponent_card.base_max_health * .60))
+        player_card.max_health = round(player_card.max_health + (opponent_card.base_max_health *.60))
 
 
 
