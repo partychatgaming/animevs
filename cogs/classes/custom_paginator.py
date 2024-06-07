@@ -1793,7 +1793,7 @@ class CustomPaginator(Paginator):
             c.set_card_level_buffs(player.card_levels)
             if c.card_lvl == 0:
                 c.card_lvl = 1
-            dismantle_amount = (25000 * c.tier) * c.card_lvl
+            dismantle_amount = (5000 * c.tier) * c.card_lvl
             if card == player.equipped_card:
                 embed = Embed(title=f"🎴 Card Dismantled", description=f"Failed to dismantle {card} as it is currently equipped")
                 await ctx.send(embed=embed)
@@ -1828,14 +1828,15 @@ class CustomPaginator(Paginator):
                         return
                     
                     if button_ctx.ctx.custom_id == f"{self._uuid}|yes":
-                        response = player.save_gems(c.universe, dismantle_amount)
+                        gem_amount = round(.10 * dismantle_amount)
+                        response = player.save_gems(c.universe, gem_amount)
 
                         if response:
 
                             remove_card_response = player.remove_card(card)
                             await crown_utilities.bless(dismantle_amount, player.did)
                             if remove_card_response:
-                                embed = Embed(title=f"🎴 Card Dismantled", description=f"{c.name} has been dismantled for 💎 & 🪙 {dismantle_amount:,} {c.universe_crest} {c.universe} Gems and Coin.")
+                                embed = Embed(title=f"🎴 Card Dismantled", description=f"{c.name} has been dismantled for 🪙 {dismantle_amount:,} Coin & 💎 {gem_amount:,} {c.universe_crest} {c.universe} Gems.")
                                 await msg.edit(embed=embed, components=[])
                         else:
                             embed = Embed(title=f"🎴 Card Not Dismantled", description=f"Failed to dismantle {card} - Error Logged")
