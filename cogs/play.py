@@ -1452,6 +1452,9 @@ def damage_calculation(battle_config, damage_calculation_response=None):
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {turn_card.name}:  Double Strike! {turn_card._monstrosity_value} Double Strikes Left!")
         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
         battle_config.next_turn()
+    elif souls_third_phase(turn_card,battle_config):
+        turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+        battle_config.next_turn()
     else:
         battle_config.next_turn()
 
