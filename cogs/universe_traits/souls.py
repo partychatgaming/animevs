@@ -28,9 +28,9 @@ def combo_recognition(player_card, battle_config, opponent_card):
         opponent_card.attack = round(opponent_card.attack + (60 + battle_config.turn_total))
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {opponent_card.name} increased attack by {60 + battle_config.turn_total} 🔺")
 
-def third_phase(player_card, battle_config):
+def souls_third_phase(player_card, battle_config):
     if player_card.universe == "Souls" and player_card.used_resolve and player_card.health <= (player_card.max_health * .40):
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} phase 3 - enhanced ability")
+        battle_config.add_to_battle_log(f"(↘️🩸 {player_card.name} phase 3 - enhanced ability")
         return True
     else:
         return False
