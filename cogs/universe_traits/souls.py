@@ -10,6 +10,15 @@ def souls_resolve(player_card, battle_config):
 
 def combat_phases(player_card):
     if player_card.used_resolve and player_card.universe == "Souls":
+
+        #Souls Third Phase 
+        player_card.move_souls = self.move1
+        player_card.move_souls_ap = self.move1ap
+        player_card.move_souls_stamina = 0
+        player_card.move_souls_element = self.move1_element
+        player_card.move_souls_emoji = self.move1_emoji
+
+        #Souls Second Phase
         player_card.move1 = player_card.move2
         player_card.move1ap = player_card.move2ap
         player_card.move1_stamina = player_card.move1_stamina
