@@ -96,8 +96,8 @@ async def scenario_drop(player, scenario, difficulty):
 
 
 async def reward_money(battle_config, player):
-    amount = (10000 + (1000 * battle_config.current_opponent_number)) * (1 + player.rebirth)
-    gem_amount = 1000 + (100 * battle_config.current_opponent_number)
+    amount = (1000 + (1000 * battle_config.current_opponent_number)) * (1 + player.rebirth)
+    gem_amount = 100 + (100 * battle_config.current_opponent_number) * (1 + player.rebirth)
 
     if battle_config.is_tales_game_mode:
         gem_amount = gem_amount * 1.25
@@ -110,13 +110,13 @@ async def reward_money(battle_config, player):
         gem_amount = gem_amount * 1.80
 
     if battle_config.is_hard_difficulty:
-        amount = amount * 3
+        amount = amount * 5
     
     if battle_config.is_boss_game_mode:
         amount = amount * 1000
     
     if battle_config.is_easy_difficulty:
-        amount = 1000
+        amount = (1000 + (1000 * battle_config.current_opponent_number)) 
 
     try:
         player.save_gems(battle_config.selected_universe, round(gem_amount))
