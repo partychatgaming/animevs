@@ -193,6 +193,7 @@ class Card:
             self.my_hero_academia_buff = 0
             self.fairy_tail_recovering = False
             self.fairy_tail_recovering_duration = 0
+            self.souls_phase = False
 
             # Elemental Effect Meters
             self.burn_dmg = 0
