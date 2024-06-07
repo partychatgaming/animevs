@@ -1453,6 +1453,7 @@ def damage_calculation(battle_config, damage_calculation_response=None):
         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
         battle_config.next_turn()
     elif souls_third_phase(turn_card,battle_config):
+        damage_calculation_response = turn_card.damage_cal("Souls", battle_config, opponent_card)
         turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
         battle_config.next_turn()
     else:
