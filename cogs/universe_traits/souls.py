@@ -12,11 +12,11 @@ def combat_phases(player_card):
     if player_card.used_resolve and player_card.universe == "Souls":
 
         #Souls Third Phase 
-        player_card.move_souls = self.move1
-        player_card.move_souls_ap = self.move1ap
+        player_card.move_souls = player_card.move1
+        player_card.move_souls_ap = player_card.move1ap
         player_card.move_souls_stamina = 0
-        player_card.move_souls_element = self.move1_element
-        player_card.move_souls_emoji = self.move1_emoji
+        player_card.move_souls_element = player_card.move1_element
+        player_card.move_souls_emoji = player_card.move1_emoji
 
         #Souls Second Phase
         player_card.move1 = player_card.move2
@@ -39,7 +39,7 @@ def combo_recognition(player_card, battle_config, opponent_card):
 
 def souls_third_phase(player_card, battle_config):
     if player_card.universe == "Souls" and player_card.used_resolve and player_card.health <= (player_card.max_health * .40):
-        battle_config.add_to_battle_log(f"(↘️🩸 {player_card.name} phase 3 - enhanced aggression")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} phase 3 - enhanced aggression")
         return True
     else:
         return False

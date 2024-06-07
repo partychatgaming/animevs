@@ -98,6 +98,10 @@ traits = [{
     'NAME': 'Fairy Tail',
     'EFFECT': 'Unison Raid, Concentration',
     'TRAIT': 'Unison Raid : On Resolve, Deal your Special, Ultimate, and Summon attacks at once. You lose a turn to recover. Concentration : Gain (20 * Tier) * Focus count AP each focus.'
+},{
+    'NAME': 'Overlord',
+    'EFFECT': 'Fear, Fear Aura',
+    'TRAIT': 'Fear: On Resolve, lower your opponent defense to 25 for 1 * tier turn. Fear Aura : Gain (20 * Tier) * Focus count AP each focus. On Focus, Reduce Opponent AP by 20 * Card Tier.'
 }
 
 ]

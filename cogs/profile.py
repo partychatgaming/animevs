@@ -66,7 +66,7 @@ class Profile(Extension):
 
         team = db.queryTeam({'TEAM_NAME': player.guild.lower()})
 
-        msg = await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account?\nAll of your stats, purchases and other earnings will be removed from the system and can not be recovered.", ephemeral=True, components=[accept_buttons_action_row])
+        msg = await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account?\nAll of your stats, purchases and other earnings will be removed from the system and can not be recovered.", components=[accept_buttons_action_row])
 
         def check(component: Button) -> bool:
             return component.ctx.author == ctx.author
@@ -104,7 +104,7 @@ class Profile(Extension):
             loggy.critical(ex)
             custom_logging.debud(ex)
             embed = Embed(title="Error", description="Something went wrong. Please try again later.", color=0xff0000)
-            await ctx.send(embed=embed, ephemeral=True)
+            await ctx.send(embed=embed)
 
             
     @slash_command(description="View your or a player's current build", options=[

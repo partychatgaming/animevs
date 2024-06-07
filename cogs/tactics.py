@@ -201,6 +201,15 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     if player_card.reckless_rest:
         player_card.reckless_recovery(battle_config)
 
+    if opponent_card.overlord_fear_bool:
+        player_card.defense = 25
+        opponent_card.overlord_fear_duration = opponent_card.overlord_fear_duration - 1
+        if opponent_card.overlord_fear_duration == 0:
+            player_card.defense = opponent_card.overlord_opponent_original_defense
+            opponent_card.overlord_fear_bool = False
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {opponent_card.name} is no longer feared by {player_card.name}, reclaiming their original defense value of {opponent_card.overlord_opponent_original_defense:,}")
+        
+
     if player_card.fairy_tail_recovering:
         fairy_tail_recovery(player_card, battle_config)
     player_card.set_gravity_hit()

@@ -97,7 +97,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🌩️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.
 
-🌪️ Wind - On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.
+🌪️ Wind - On Miss or Crit boosts all wind damage by 60% of damage dealt.
 
 🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier
 
@@ -105,13 +105,13 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.
 
-🌕 Light - Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 30% of DMG.
+🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus.
 
 🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.
 
-🧪 Poison - Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).
+🧪 Poison - Penetrates shields, poison damage deals no immediate impact. 40% of damage will be stored as poison damage and inflicts opponent when opponent attacks. Goes through shields and parry.
 
-🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%
+🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Hit Chance by 5%
 
 🧿 Energy - Has higher 35% higher chance of Crit.
 

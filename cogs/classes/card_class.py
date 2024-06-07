@@ -34,6 +34,7 @@ from cogs.universe_traits.solo_leveling import rulers_authority, add_solo_leveli
 from cogs.universe_traits.one_punch_man import rank_hero, hero_reinforcements
 from cogs.universe_traits.seven_deadly_sins import increase_power
 from cogs.universe_traits.persona import summon_persona
+from cogs.universe_traits.overlord import fear_aura, fear, fear_duration_check
 
 class Card:
     try:
@@ -69,7 +70,6 @@ class Card:
             self.base_attack  = attack
             self.base_defense = defense
             self.base_health = health
-            self.base_max_health = max_health
             self.card_class = card_class
             self.drop_style = drop_style
             self.drop_emoji = ""
@@ -194,6 +194,9 @@ class Card:
             self.fairy_tail_recovering = False
             self.fairy_tail_recovering_duration = 0
             self.souls_phase = False
+            self.overlord_fear_bool = False
+            self.overlord_fear_duration = 0
+            self.overlord_opponent_original_defense = 0
 
             # Elemental Effect Meters
             self.burn_dmg = 0
@@ -233,12 +236,14 @@ class Card:
             self.psychic_debuff_value = .15
             self.fire_buff_value = .50
             self.electric_buff_value = .10
-            self.poison_damage_value = 50
+            self.poison_damage_value = .35
             self.gravity_debuff_value = .50
             self.bleed_hit_value = 10
             self.ice_duration = 0
             self.ice_buff_value = 1
             self.energy_buff_value = 0
+            self.energy_crit_bool =False
+            self.wind_buff_value = .50
             
 
             # Card Defense From Arm
@@ -703,11 +708,12 @@ class Card:
             self.psychic_debuff_value = .30
             self.fire_buff_value = .80
             self.electric_buff_value = .25
-            self.poison_damage_value = 90
+            self.poison_damage_value = .60
             self.gravity_debuff_value = .80
             self.bleed_hit_value = 25
             self.ice_buff_value = 2
             self.energy_buff_value = 2
+            self.wind_buff_value = .85
         
         if self.card_class == "RANGER":
             self.is_ranger = True
@@ -1176,7 +1182,7 @@ class Card:
                 self.health = 0
             self.damage_received = self.damage_received + round(opponent_card.poison_dmg)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.poison_dmg)
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🧪 {self.name} was inflicted with {opponent_card.poison_dmg:,} poison damage when attacking")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🧪 {self.name} was inflicted with {round(opponent_card.poison_dmg):,} poison damage when attacking")
 
 
     def set_gravity_hit(self):
@@ -1397,14 +1403,16 @@ class Card:
             ap = self.move_souls_ap
             move_stamina = 0
             move_element = self.move_souls_element
+            move_emoji = crown_utilities.set_emoji(move_element)
 
             if move_element == "WIND":
-                    self.wind_element_activated = True
+                self.wind_element_activated = True
                 if move_element == "RANGED" and move_stamina >= 30:
                     ranged_attack = True
                 if move_element == "PHYSICAL" and move_stamina >= 80:
                     is_physical_element = True
                 move_emoji = crown_utilities.set_emoji(move_element)
+
         elif selected_move in MOVES:
             does_repel = False
             does_absorb = False
@@ -1711,8 +1719,8 @@ class Card:
                     true_dmg = round(true_dmg + (true_dmg * self._magic_value))
 
                 if self.wind_element_activated and hit_roll < miss_hit:
-                    battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * .25))
-                    battle_config.add_to_battle_log(f"All wind power increased by {round(true_dmg * .25):,}")
+                    battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * self.wind_buff_value))
+                    battle_config.add_to_battle_log(f"All wind power increased by {round(true_dmg * self.wind_buff_value):,}")
                     true_dmg = round(true_dmg + battle_config._wind_buff)
 
                 if hit_roll < miss_hit:
@@ -1742,6 +1750,12 @@ class Card:
                     message = f'{move_emoji} {turn_card.name} hit {_opponent_card.name} for {true_dmg:,} damage'
                 
                 elif hit_roll >= 20:
+
+                    if self.wind_element_activated:
+                        battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * self.wind_buff_value))
+                        battle_config.add_to_battle_log(f"All wind power increased by {round(true_dmg * self.wind_buff_value):,}")
+                        true_dmg = round(true_dmg + battle_config._wind_buff)
+
                     if self.stagger:
                         self.stagger_activated = True
                     if self.universe =="Crown Rift Awakening":
@@ -1869,8 +1883,15 @@ class Card:
             hit_roll = hit_roll + 3
             self.health = self.health + (.35 * true_dmg)
 
-        if (move_element == "ENERGY" or self.stagger or move_element == "SPIRIT") and hit_roll >= 13:
-            hit_roll = hit_roll + 7 + self.energy_buff_value
+        if (move_element == "ENERGY" or self.stagger or move_element == "SPIRIT") and hit_roll >= 11 and self.energy_buff_value:
+            hit_roll = hit_roll + 9
+            if hit_roll >= 20:
+                self.energy_crit_bool = True
+        
+        if (move_element == "ENERGY" or self.stagger or move_element == "SPIRIT") and hit_roll >= 13 and not self.energy_buff_value:
+            hit_roll = hit_roll + 7
+            if hit_roll >= 20:
+                self.energy_crit_bool = True
 
         if self.universe == "Crown Rift Awakening" and hit_roll > med_hit:
             hit_roll = hit_roll + 3
@@ -1978,6 +1999,10 @@ class Card:
                 attack_calculation = 0
                 defense_calculation = 0
 
+            if _opponent_card.poison_dmg:
+                _opponent_card.poison_dmg = round(_opponent_card.poison_dmg / 2)
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s  🔻🧪 poison damage reduced to {_opponent_card.poison_dmg}")
+
             # if _title.passive_type:
             #     if _title.passive_type == "GAMBLE":
             #         health_calculation = _title.passive_value
@@ -2063,6 +2088,8 @@ class Card:
             combo_recognition(self, battle_config, _opponent_card)
 
             concentration(self, battle_config)
+
+            fear_aura(self, _opponent_card, battle_config)
 
             self.light_speed_attack(_opponent_card, battle_config)
 
@@ -2159,7 +2186,9 @@ class Card:
 
             fairytail_resolve = unison_raid(self, battle_config, opponent_card, player_title)
 
-            if not any([mha_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve]):
+            overlord_resolve = fear(self, battle_config, opponent_card, player_title)
+
+            if not any([mha_resolve, overlord_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve]):
                 self.standard_resolve_effect(battle_config, opponent_card, player_title)
 
             if player_title.synthesis_effect:
@@ -2587,13 +2616,24 @@ class Card:
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.shield_active:
             if not opponent_title.impenetrable_shield_effect:
-                if dmg['ELEMENT'] in ["DARK"]:
+                if dmg['ELEMENT'] in ["DARK", "POISON"]:
                     return False
                 if player_title.obliterate_effect:
                     return False
                 
                 if player_title.strategist_effect:
                     return False
+                
+                if self.energy_crit_bool:
+                    self.energy_crit_bool = False
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 🧿 critically struck through {opponent_card.name} shield")
+                    return False
+
+            # if dmg['ELEMENT'] == "POISON": #Poison Update
+            #     if self.poison_dmg <= (self.max_health * .30):
+            #         self.poison_dmg = self.poison_dmg + (dmg['DMG'] * self.poison_damage_value)
+            #         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} poison damage has increased to {round(dmg['DMG'] * self.poison_damage_value):,} damage")
+            #         return False
 
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                 if not dmg['SUMMON_USED'] and not self.is_ranger:
@@ -2602,9 +2642,7 @@ class Card:
                     self._arm_message = ""
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} disengaged their barrier to engage with an attack")
                     decrease_solo_leveling_temp_values(self, 'BARRIER', opponent_card, battle_config)
-            if dmg['ELEMENT'] == "POISON": #Poison Update
-                if self.poison_dmg <= (150 * self.tier):
-                    self.poison_dmg = self.poison_dmg + 50
+
             if dmg['ELEMENT'] == "FIRE":
                 self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * .50)
             if opponent_card._shield_value > 0:
@@ -2664,6 +2702,11 @@ class Card:
             if player_title.strategist_effect:
                 return False
 
+            if self.energy_crit_bool:
+                self.energy_crit_bool = False
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 🧿 critically struck through {opponent_card.name} barriers")
+                return False
+
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                 if not dmg['SUMMON_USED'] and not self.is_ranger:
                     self.barrier_active = False
@@ -2694,6 +2737,9 @@ class Card:
 
     def active_parry_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.parry_active:
+            if dmg['ELEMENT'] == "POISON":
+                return False
+            
             if dmg['ELEMENT'] in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:
                 if dmg['ELEMENT'] == "TIME" and opponent_card._parry_value > 1:
                     opponent_card._parry_value = opponent_card._parry_value - 1
@@ -2707,16 +2753,24 @@ class Card:
                     decrease_solo_leveling_temp_values_self(self, 'PARRY', battle_config)
 
                 return False
+            
             if player_title.blitz_effect:
                 return False
 
             if player_title.strategist_effect:
                 return False
-                
+
+            if self.energy_crit_bool:
+                self.energy_crit_bool = False
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 🧿 critically struck through {opponent_card.name} parry")
+                return False
+
             parry_damage_percentage = .50
             if player_title.foresight_effect:
                 parry_damage_percentage = .05
-
+            # if dmg['ELEMENT'] == "POISON": #Poison Update
+            #     if self.poison_dmg <= (self.max_health * .30):
+            #         self.poison_dmg = round(self.poison_dmg + (dmg['DMG'] * self.poison_damage_value))
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                 if not dmg['SUMMON_USED'] and not self.is_ranger:
                     self.barrier_active = False
@@ -2878,7 +2932,8 @@ class Card:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
             battle_config.next_turn()
 
-
+    
+    # If protections isn't hit ALL damage done to opponent health is tracked here
     def activate_element_check(self, battle_config, dmg, opponent_card):
         if dmg['REPEL']:
             self.health = self.health - dmg['DMG']
@@ -2992,22 +3047,23 @@ class Card:
 
         elif dmg['ELEMENT'] == "PSYCHIC":
             self.barrier_meter = self.barrier_meter + 1
+            debuff_value = round(dmg['DMG'] * self.psychic_debuff_value)
             if self.barrier_meter == 3:
                 self.barrier_active = True
                 self._barrier_value = self._barrier_value + self.psychic_barrier_buff_value
                 add_solo_leveling_temp_values(self, 'BARRIER', opponent_card)
                 self.barrier_meter = 0
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {self.psychic_barrier_buff_value} 💠 barrier")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {self.psychic_barrier_buff_value} 💠 barrier [{opponent_card.name} lost {debuff_value} attack and defense]")
             else:    
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{opponent_card.name} lost {debuff_value} attack and defense]")
 
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * self.psychic_debuff_value)
-            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * self.psychic_debuff_value)
+            opponent_card.defense = opponent_card.defense - debuff_value
+            opponent_card.attack = opponent_card.attack - debuff_value
             opponent_card.health = opponent_card.health - dmg['DMG']
-            if opponent_card.defense <= 25:
-                opponent_card.defense = 25
-            if opponent_card.attack <= 25:
-                opponent_card.attack = 25
+            if opponent_card.defense <= 30:
+                opponent_card.defense = 30
+            if opponent_card.attack <= 30:
+                opponent_card.attack = 30
 
         elif dmg['ELEMENT'] == "FIRE":
             self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * self.fire_buff_value)
@@ -3020,12 +3076,17 @@ class Card:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {str(round(dmg['DMG'] * self.electric_buff_value))} ap]")
 
         elif dmg['ELEMENT'] == "POISON":
-            if self.poison_dmg <= (150 * self.tier):
-                self.poison_dmg = self.poison_dmg + self.poison_damage_value
-                if self.poison_dmg > (150 * self.tier):
-                    self.poison_dmg = (150 * self.tier)
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+            poison_capacity = self.max_health * .30
+            if self.poison_dmg <= poison_capacity:
+                poison_damage_from_ability = round(self.poison_dmg + (dmg['DMG'] * self.poison_damage_value))
+                self.poison_dmg = self.poison_dmg + poison_damage_from_ability
+            if self.poison_dmg > poison_capacity:
+                self.poison_dmg = poison_capacity
+            
+            # Commented out to try new effect
+            # opponent_card.health = opponent_card.health - dmg['DMG']
+            # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🧪 The poison intensifies! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking.")
 
         elif dmg['ELEMENT'] == "ICE":
             message = ""

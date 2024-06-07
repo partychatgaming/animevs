@@ -135,7 +135,7 @@ class Play(Extension):
                             early_game_tactics(battle_config)
 
                             # Uncommenting this will add the ai messages at the start of the game
-                            # await add_ai_start_messages(battle_config)
+                            await add_ai_start_messages(battle_config)
 
 
                             if battle_config.is_turn == 0:
@@ -411,15 +411,15 @@ async def add_ai_start_messages(battle_config):
                 )
 
 
-        player1_ai_start_message = await ai.match_start_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
-        battle_config.previous_moves.append(f"[{battle_config.player1_card.name}] - {player1_ai_start_message}")
-        # For player1_card
-        append_previous_moves(battle_config.player1_card, "player1")
+        # player1_ai_start_message = await ai.match_start_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
+        # battle_config.previous_moves.append(f"[{battle_config.player1_card.name}] - {player1_ai_start_message}")
+        # # For player1_card
+        # append_previous_moves(battle_config.player1_card, "player1")
 
-        player2_ai_start_message = await ai.match_start_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
-        battle_config.previous_moves.append(f"[{battle_config.player2_card.name}] - {player2_ai_start_message}")
-        # For player2_card
-        append_previous_moves(battle_config.player2_card, "player2")
+        # player2_ai_start_message = await ai.match_start_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
+        # battle_config.previous_moves.append(f"[{battle_config.player2_card.name}] - {player2_ai_start_message}")
+        # # For player2_card
+        # append_previous_moves(battle_config.player2_card, "player2")
 
         battle_config.turn_zero_has_happened = True
         return
