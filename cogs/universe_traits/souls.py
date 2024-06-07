@@ -30,7 +30,7 @@ def combo_recognition(player_card, battle_config, opponent_card):
 
 def souls_third_phase(player_card, battle_config):
     if player_card.universe == "Souls" and player_card.used_resolve and player_card.health <= (player_card.max_health * .40):
-        battle_config.add_to_battle_log(f"(↘️🩸 {player_card.name} phase 3 - enhanced ability")
+        battle_config.add_to_battle_log(f"(↘️🩸 {player_card.name} phase 3 - enhanced aggression")
         return True
     else:
         return False
