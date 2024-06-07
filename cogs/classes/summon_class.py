@@ -44,23 +44,23 @@ class Summon:
         if self.drop_style == "TALES":
             self.is_tale_drop = True
             self.drop_emoji = f"🎴"
-            self.dismantle_amount = 30000
+            self.dismantle_amount = 2500
         elif self.drop_style == "DUNGEON":
             self.is_dungeon_drop = True
             self.drop_emoji = f"🔥"
-            self.dismantle_amount = 100000
+            self.dismantle_amount = 15000
         elif self.drop_style == "SCENARIO":
             self.is_scenario_drop = True
             self.drop_emoji = f"🎞️"
-            self.dismantle_amount = 50000
+            self.dismantle_amount = 30000
         elif self.drop_style == "BOSS":
             self.is_boss_drop = True
             self.drop_emoji = f"👹"
-            self.dismantle_amount = 1000000
+            self.dismantle_amount = 100000
         elif self.drop_style == "RAID":
             self.is_raid_drop = True
             self.drop_emoji = f"💀"
-            self.dismantle_amount = 1000000
+            self.dismantle_amount = 50000
 
     def is_not_universe_unbound(self):
         if(self.universe != "Unbound"):
