@@ -1407,11 +1407,11 @@ class Card:
 
             if move_element == "WIND":
                 self.wind_element_activated = True
-                if move_element == "RANGED" and move_stamina >= 30:
-                    ranged_attack = True
-                if move_element == "PHYSICAL" and move_stamina >= 80:
-                    is_physical_element = True
-                move_emoji = crown_utilities.set_emoji(move_element)
+            if move_element == "RANGED" and move_stamina >= 30:
+                ranged_attack = True
+            if move_element == "PHYSICAL" and move_stamina >= 80:
+                is_physical_element = True
+            move_emoji = crown_utilities.set_emoji(move_element)
 
         elif selected_move in MOVES:
             does_repel = False
