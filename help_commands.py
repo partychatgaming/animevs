@@ -61,25 +61,25 @@ LEGEND = textwrap.dedent(f"""\
 
 
 ELEMENTS_LIST = [
-    "👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry\n",
-    "🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks.\n",
-    "❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn.\n",
-    "💧 Water - Increases all water move AP by 100 Flat.\n",
-    "⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 40% AP.\n",
-    "🌩️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.\n",
-    "🌪️ Wind - On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.\n",
-    "🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier\n",
-    "☠️ Death - Deals 40% DMG to opponent max health. Gain Attack equal to that amount.\n",
+    "👊 Physical - If ST(stamina) greater than 80 deals Bonus Damage. After 2 Strike gain a PARRY\n",
+    "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Hit Chance by 5%\n",
+    "♻️ Reckless - Deals Incredible Bonus Damage to OPP, USER takes 40% RECKLESS DMG and loses 1 turn to RECOVER. If RECKLESS would kill USER reduce HP to 1. Increase DMG on RESOLVE.\n",
+    "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent. SWORDSMAN Deal Additional BLEED DMG\n",
+    "🔥 Fire - Penetrates SHIELDS dealing stackable BURN Damage, BURN Opp for 50% attack damage, reducing by 50% each Opp turn.\n",
+    "💧 Water - Increases all WATER move AP by 100 Flat.\n",
+    "⛰️ Earth - Penetrates PARRY. Grants SHIELD and Increases DEF by 40% AP.\n",
+    "🌪️ Wind - On MISS and CRIT, Use WIND Attack. WIND Attack boosts all WIND DMG by 35% of DMG dealt.\n",
+    "❄️ Ice - Every 2 attacks opponent FREEZES and loses 1 turn.\n",
+    "🌩️ Electric- Add 10% DMG Dealt as SHOCK damage. SHOCK damage increases all ELEMENTAL DMG AP.\n",
+    "🧪 Poison - Penetrates SHIELD & PARRY. Convert 50% DMG to Poison stacking up to 33% of Opp health. OPP takes DMG each attack, REDUCE POISON 50% on OPP FOCUS.\n,
+    "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and strikes the OPP during their FOCUS\n",
+    "🌑 Dark- Penetrates SHIELD, BARRIER and PARRY & decreases OPP ST(Stamina) by 15.\n",
+    "🔮 Psychic - Penetrates BARRIER. Reduce OPP ATK & DEF by 15% DMG. After 3 Hits Gain a BARRIER\n",
+    "🧿 Energy - Has higher 35% higher chance of Crit. On Crit, Penetrates SHIELD, BARRIER and PARRY\n",
+    "☠️ Death - Deals 40% DMG to OPP max health. Gain ATK equal to that amount.\n",
     "❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.\n",
-    "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus\n",
-    "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",
-    "🧪 Poison - Penetrates shields, Poison 40 damage stacking up to (150 * Card Tier).\n",
-    "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%\n",
-    "🧿 Energy - Has higher 35% higher chance of Crit.\n",
-    "♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless at the cost of a turn to recover. If Reckless would kill you reduce HP to 1. reckless is buffed when resolved, but you take more damage as well.\n",
-    "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parrys.\n",
-    "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.\n",
-    "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n"
+    "⌛ Time - Penetrates & REDUCES BARRIER and PARRY. Strong BLOCK and Increase TURN COUNT by 3, If ST(Stamina) is < 50 BLOCK then FOCUS\n",
+    "🪐 Gravity - Pentrates BARRIER and PARRY. Disables Opp BLOCK, REDUCES OPP DEF by 40% DMG, Decrease TURN COUNT By 3\n"
 ]
 
 
