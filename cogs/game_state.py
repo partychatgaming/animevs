@@ -575,6 +575,7 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 cardlogger = await crown_utilities.cardlevel(user1, "Tales")
 
                 embedVar = Embed(title=f"VICTORY\nThe game lasted {battle_config.turn_total} rounds.", color=0x1abc9c)
+                embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
                 if quest_response:
                     embedVar.add_field(name="**Quest Complete**",
                         value=f"{quest_response}")
@@ -610,12 +611,13 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 battle_config.continue_fighting = True
             
             if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                battle_config.continue_fighting = False
                 battle_config.player1.make_available()
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                 if battle_config.scenario_has_drops:
                     response = await scenario_drop(battle_config.player1, battle_config.scenario_data, battle_config.difficulty)
-                
+
                 save_scen = battle_config.player1.save_scenario(battle_config.scenario_data['TITLE'])
                 unlock_message = battle_config.get_unlocked_scenario_text()
                 embedVar = Embed(title=f"Scenario Cleared!\nThe game lasted {battle_config.turn_total} rounds.",description=textwrap.dedent(f"""
@@ -624,6 +626,9 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 {save_scen}
                 {unlock_message}
                 """),color=0xe91e63)
+                embedVar.set_footer(text=f"{battle_config.get_previous_moves_embed()}")
+                exp = (len(battle_config.list_of_opponents_by_name) * 100) * battle_config._ai_opponent_card_lvl
+                await crown_utilities.cardlevel(user1, "Scenario", exp)
 
                 milestone_response = await Quests.milestone_check(battle_config.player1, "SCENARIOS_COMPLETED", 1)
                 # Define a list of milestones to check
@@ -641,10 +646,6 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                         for message in milestone_messages:
                             embedVar.add_field(name="🏆 Milestone", value=message)
 
-                if milestone_response:
-                    embedVar.add_field(name="🏆 **Milestone**",
-                        value=f"{milestone_response}")
-
                 if quest_response:
                     embedVar.add_field(name="**Quest Complete**",
                         value=f"{quest_response}")
@@ -657,7 +658,6 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
 
                 await private_channel.send(embed=embedVar)
 
-                battle_config.continue_fighting = False
             return True
         else:
             return False

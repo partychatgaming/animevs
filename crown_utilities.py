@@ -716,15 +716,14 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
     
 async def cardlevel(user, mode: str, extra_exp = 0):
     try:
-        loggy.info(f"Card Leveling - {user}")
         player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
         card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
         # guild_buff = await guild_buff_update_function(player.guild.lower())
         # arm = create_arm_from_data(db.queryArm({'ARM': player.equipped_arm}))
         # title = create_title_from_data(db.queryTitle({'TITLE': player.equipped_title}))
         card.set_card_level_buffs(player.card_levels)
-        has_universe_heart, has_universe_soul = get_level_boosters(player, card)
-        exp_gain, lvl_req = get_exp_gain(player, mode, card, has_universe_soul, extra_exp)
+        # has_universe_heart, has_universe_soul = get_level_boosters(player, card)
+        exp_gain, lvl_req = get_exp_gain(player, mode, card, extra_exp)
 
         if player.difficulty == "EASY":
             return
@@ -754,24 +753,6 @@ async def cardlevel(user, mode: str, extra_exp = 0):
         custom_logging.debug(ex)
         await user.send("Issue with leveling up card")
         return
-
-
-# if card.card_lvl < 500 and card.card_lvl >= 200:
-#     if guild_buff:
-#         if guild_buff['Level']:
-#             exp_gain = round(lvl_req)
-#             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-# elif card.card_lvl < 700 and card.card_lvl >= 500:
-#     if guild_buff:
-#         if guild_buff['Level']:
-#             exp_gain = round(lvl_req/2)
-#             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
-            
-# elif card.card_lvl < 1000 and card.card_lvl >= 700:
-#     if guild_buff:
-#         if guild_buff['Level']:
-#             exp_gain = round(lvl_req/3)
-#             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
 
 
 def get_buffs(card_lvl, level_sync):
@@ -844,31 +825,26 @@ def get_level_up_exp_req(card):
     return lvl_req
 
 
-def get_exp_gain(player, mode, card, has_universe_soul, extra_exp):
+def get_exp_gain(player, mode, card, extra_exp):
     try:
         lvl_req = get_level_up_exp_req(card)
         exp_gain = 0
         t_exp_gain = 500 + (player.rebirth) + player.prestige_buff
         d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
         b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
-        if has_universe_soul:
-            if mode in DUNGEON_M:
-                exp_gain = (d_exp_gain * 25) + extra_exp
-            elif mode in TALE_M:
-                exp_gain = (t_exp_gain * 10) + extra_exp
-            elif mode in BOSS_M:
-                exp_gain = (b_exp_gain * 100000) + extra_exp
-            else:
-                exp_gain = extra_exp
+
+        if mode in DUNGEON_M:
+            exp_gain = d_exp_gain + extra_exp
+        elif mode in TALE_M:
+            exp_gain = t_exp_gain + extra_exp
+        elif mode in BOSS_M:
+            exp_gain = b_exp_gain + extra_exp
+        elif mode == SCENARIO:
+            exp_gain = extra_exp
+        elif mode in RAID_M:
+            exp_gain = extra_exp * 10
         else:
-            if mode in DUNGEON_M:
-                exp_gain = d_exp_gain + extra_exp
-            elif mode in TALE_M:
-                exp_gain = t_exp_gain + extra_exp
-            elif mode in BOSS_M:
-                exp_gain = b_exp_gain + extra_exp
-            else:
-                exp_gain = extra_exp
+            exp_gain = extra_exp
 
         if mode == "Purchase":
             exp_gain = lvl_req + 100 + extra_exp

@@ -2995,7 +2995,7 @@ class Card:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {light_value:,} attack] [{light_value:,} damage stored]")
 
         elif dmg['ELEMENT'] == "DARK":
-            opponent_card.stamina = opponent_card.stamina - self.dark_buff_by_value
+            # opponent_card.stamina = opponent_card.stamina - self.dark_buff_by_value
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{opponent_card.name} lost {self.dark_buff_by_value} stamina]")
 

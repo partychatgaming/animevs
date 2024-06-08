@@ -579,7 +579,7 @@ class Player:
     def elemental_damage_unlock_check(self, unlock_method, stats, universe, value, title, element):
         message = " "
         if unlock_method == "ELEMENTAL DAMAGE DEALT" and element != "N/A":
-            for elemental_damage in stats[f'{element}_DAMAGE_DONE']:
+            for elemental_damage in stats.get(f'{element}_DAMAGE_DONE', []):
                 if elemental_damage['UNIVERSE'] == universe:
                     if elemental_damage['DAMAGE'] >= value:
                         update_query = {'$addToSet': {'TITLES': title['TITLE']}}
