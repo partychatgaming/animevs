@@ -7,6 +7,13 @@ from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen
 class BattleConfig(Extension):
     def __init__(self, bot):
         self.bot = bot
+        self.tutorial_basic = False
+        self.tutorial_special = False
+        self.tutorial_ultimate = False
+        self.tutorial_block = False
+        self.tutorial_focus = False
+        self.tutorial_resolve = False
+        self.tutorialsummon = False
 
     @listen()
     async def on_ready(self):
