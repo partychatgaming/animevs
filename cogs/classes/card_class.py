@@ -1724,9 +1724,9 @@ class Card:
                     true_dmg = round(true_dmg + battle_config._wind_buff)
 
                 if hit_roll < miss_hit:
-                    if self.universe == 'Crown Rift Slayers':
+                    if self.universe == 'Soul Eater':
                         true_dmg = round(true_dmg * 2.5)
-                        message = f'🩸{move_emoji} {turn_card.name} critically hit {_opponent_card.name} for {true_dmg:,} damage'
+                        message = f'🩸{move_emoji} Soul Resonance! {turn_card.name} critically hit {_opponent_card.name} for {true_dmg:,} damage'
                     elif self.wind_element_activated:
                         true_dmg = round(true_dmg)
                         message = f'🌪️ {turn_card.name} hit {_opponent_card.name} for {true_dmg:,} damage'       
@@ -1866,7 +1866,7 @@ class Card:
                     damage_check_message = f"🟥 [{self.name} failed the damage check]"
                     battle_config.add_to_battle_log(damage_check_message)
 
-        if self.universe == "Crown Rift Slayers" and hit_roll <= low_hit:
+        if self.universe == "Soul Eater" and hit_roll <= low_hit:
             hit_roll = hit_roll - 3
 
         if self._swordsman_active and self.used_resolve:
