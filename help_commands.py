@@ -73,15 +73,18 @@ ELEMENTS_LIST = [
     "❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.\n",
     "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus\n",
     "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",
-    "🧪 Poison - Penetrates shields, Poison 40 damage stacking up to (150 * Card Tier).\n",
+    "🧪 Poison - Penetrates shields, stacks poison damage equal to 35% of damage done stacking up to 30% of max health. This damage hits the opponent when the opponent attacks.\n",
+    "🩻 Rot - Penetrates shields, stacks rot damage equal to 15% of damage done stacking up to 20% of max health. This damage hits the opponents max health when the opponent attacks.\n",
     "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%\n",
     "🧿 Energy - Has higher 35% higher chance of Crit.\n",
     "♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless at the cost of a turn to recover. If Reckless would kill you reduce HP to 1. reckless is buffed when resolved, but you take more damage as well.\n",
     "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parrys.\n",
     "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.\n",
     "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n",
-    "🔫 Gun - Goes through shields. Has a 35% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.",
+    "🔫 Gun - Goes through shields. Has a 40% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.",
     "🌿 Nature - Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well."
+    "⚔️ Sword - Every 3rd Strike will result in a critical attack that also increases Atack by 40% of damage dealt.",
+
 ]
 
 
@@ -111,7 +114,9 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.
 
-🧪 Poison - Penetrates shields, poison damage deals no immediate impact. 40% of damage will be stored as poison damage and inflicts opponent when opponent attacks. Goes through shields and parry.
+🧪 Poison - Penetrates shields, stacks poison damage equal to 35% of damage done stacking up to 30% of max health. This damage hits the opponent when the opponent attacks.
+
+🩻 Rot - Penetrates shields, stacks rot damage equal to 15% of damage done stacking up to 20% of max health. This damage hits the opponents max health when the opponent attacks.
 
 🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Hit Chance by 5%
 

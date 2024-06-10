@@ -125,6 +125,10 @@ def create_initial_stats(player):
         'RECKLESS_DAMAGE_DONE': [],
         'DEATH_DAMAGE_DONE': [],
         'LIFE_DAMAGE_DONE': [],
+        'SWORD_DAMAGE_DONE': [],
+        'NATURE_DAMAGE_DONE': [],
+        'GUN_DAMAGE_DONE': [],
+        'ROT_DAMAGE_DONE': [],
     }
     return stats_dict
 

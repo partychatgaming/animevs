@@ -32,7 +32,7 @@ class BattleConfig(Extension):
                     crest_guild = db.queryGuildAlt({'GNAME' : universe['GUILD']})
                     if crest_guild:
                         await crown_utilities.blessguild(entrance_fee, universe['GUILD'])
-                        await ctx.send(f"{crown_utilities.crest_dict[universe['TITLE']]} | {crest_guild['GNAME']} Universe Toll Paid! 🪙{'{:,}'.format(entrance_fee)}")
+                        # await ctx.send(f"{crown_utilities.crest_dict[universe['TITLE']]} | {crest_guild['GNAME']} Universe Toll Paid! 🪙{'{:,}'.format(entrance_fee)}")
 
         universe_selection_object = {
             "SELECTED_UNIVERSE": universe['TITLE'],

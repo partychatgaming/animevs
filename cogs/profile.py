@@ -445,6 +445,23 @@ class Profile(Extension):
                                     name="🪐 Gravity",
                                     value="GRAVITY",
                                 ),
+                                # Add GUN, ROT, SWORD, and NATURE
+                                SlashCommandChoice(
+                                    name="🔫 Gun",
+                                    value="GUN",
+                                ),
+                                SlashCommandChoice(
+                                    name="🩻 Rot",
+                                    value="ROT",
+                                ),
+                                SlashCommandChoice(
+                                    name="⚔️ Sword",
+                                    value="SWORD",
+                                ),
+                                SlashCommandChoice(
+                                    name="🌿 Nature",
+                                    value="NATURE",
+                                )
                             ]
                         )
                     ]
@@ -709,6 +726,10 @@ class Profile(Extension):
                 SlashCommandChoice(name="🌕 Light", value="LIGHT"),
                 SlashCommandChoice(name="🌑 Dark", value="DARK"),
                 SlashCommandChoice(name="🧪 Poison", value="POISON"),
+                SlashCommandChoice(name="🔫 Gun", value="GUN"),
+                SlashCommandChoice(name="🩻 Rot", value="ROT"),
+                SlashCommandChoice(name="⚔️ Sword", value="SWORD"),
+                SlashCommandChoice(name="🌿 Nature", value="NATURE"),
                 SlashCommandChoice(name="🏹 Ranged", value="RANGED"),
                 SlashCommandChoice(name="🧿 Energy / Spirit", value="ENERGY"),
                 SlashCommandChoice(name="♻️ Reckless", value="RECKLESS"),
@@ -880,6 +901,10 @@ class Profile(Extension):
                 SlashCommandChoice(name="🌕 Light", value="LIGHT"),
                 SlashCommandChoice(name="🌑 Dark", value="DARK"),
                 SlashCommandChoice(name="🧪 Poison", value="POISON"),
+                SlashCommandChoice(name="🔫 Gun", value="GUN"),
+                SlashCommandChoice(name="🩻 Rot", value="ROT"),
+                SlashCommandChoice(name="⚔️ Sword", value="SWORD"),
+                SlashCommandChoice(name="🌿 Nature", value="NATURE"),
                 SlashCommandChoice(name="🏹 Ranged", value="RANGED"),
                 SlashCommandChoice(name="🧿 Energy / Spirit", value="ENERGY"),
                 SlashCommandChoice(name="♻️ Reckless", value="RECKLESS"),
@@ -1295,7 +1320,7 @@ class Profile(Extension):
                     price=hundred_levels
                 if option == f"{_uuid}|5":
                     levels_gained = 50
-                    price=100000
+                    price=1000
                 if option == f"{_uuid}|cancel":
                     embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Blacksmith cancelled.", color=0xf1c40f)
                     await msg.edit(embed=embed, components=[])
@@ -1514,6 +1539,19 @@ class Profile(Extension):
                     name="🔫 Gun",
                     value="GUN",
                 ),
+                # Add ROT, NATURE, and SWORD
+                SlashCommandChoice(
+                    name="🌿 Nature",
+                    value="NATURE",
+                ),
+                SlashCommandChoice(
+                    name="⚔️ Sword",
+                    value="SWORD",
+                ),
+                SlashCommandChoice(
+                    name="🩻 Rot",
+                    value="ROT",
+                )
             ]
         )
     ])

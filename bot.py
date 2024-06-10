@@ -1867,7 +1867,7 @@ async def gift(ctx, player, amount: int):
         SlashCommandChoice(name="25 Rolls", value=25),
     ], type=OptionType.INTEGER, required=False),
 ], scopes=guild_ids)
-@cooldown(Buckets.USER, 1, 15)
+@cooldown(Buckets.USER, 1, 45)
 async def roll(ctx, rolls: int = 1):
     await ctx.defer()
     a_registered_player = await crown_utilities.player_check(ctx)

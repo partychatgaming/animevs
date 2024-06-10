@@ -83,7 +83,11 @@ class USER():
         {"ELEMENT": "RECKLESS", "ESSENCE":  25000},
         {"ELEMENT": "TIME", "ESSENCE":  25000},
         {"ELEMENT": "BLEED", "ESSENCE":  25000},
-        {"ELEMENT": "GRAVITY", "ESSENCE":  25000}
+        {"ELEMENT": "GRAVITY", "ESSENCE":  25000},
+        {"ELEMENT": "SWORD", "ESSENCE":  25000},
+        {"ELEMENT": "GUN", "ESSENCE":  25000},
+        {"ELEMENT": "NATURE", "ESSENCE":  25000},
+        {"ELEMENT": "ROT", "ESSENCE":  25000}
     ])
     PETS: list[str] = field(default_factory=lambda: [
         {'NAME': 'Chick', 'LVL': 1, 'EXP': 0, 'Peck': 100, 'TYPE': 'PHYSICAL', 'BOND': 0, 'BONDEXP': 0,

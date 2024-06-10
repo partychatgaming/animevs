@@ -201,6 +201,7 @@ class Card:
             # Elemental Effect Meters
             self.burn_dmg = 0
             self.poison_dmg = 0
+            self.rot_dmg = 0
             self.freeze_enh = False
             self.ice_counter = 0
             self.water_buff = 0
@@ -237,6 +238,7 @@ class Card:
             self.fire_buff_value = .50
             self.electric_buff_value = .10
             self.poison_damage_value = .35
+            self.rot_damage_value = .15
             self.gravity_debuff_value = .50
             self.bleed_hit_value = 10
             self.ice_duration = 0
@@ -245,6 +247,9 @@ class Card:
             self.energy_crit_bool =False
             self.wind_buff_value = .50
             self.nature_buff_value = .35
+            self.sword_crit_bool = False
+            self.sword_crit_count = 0
+            self.sword_atk_buff_value = .40
             
 
             # Card Defense From Arm
@@ -710,6 +715,7 @@ class Card:
             self.fire_buff_value = .80
             self.electric_buff_value = .25
             self.poison_damage_value = .60
+            self.rot_damage_value = .30
             self.gravity_debuff_value = .80
             self.bleed_hit_value = 25
             self.ice_buff_value = 2
@@ -1175,6 +1181,28 @@ class Card:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🛌 {self.name} has recovered from Reckless Rest")
             self.reckless_duration = self.reckless_duration - 1
         return 
+    
+
+    def sword_crit_strike(self, element, battle_config):
+        crit_this_turn = False
+        if element == "SWORD":
+            if self.sword_crit:
+                self.sword_crit = False
+                self.attack = self.attack + (self.attack * self.sword_atk_buff_value)
+                self.sword_crit_count = 0
+                crit_this_turn = True
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ⚔️ {self.name} has activated Sword Crit Strike")
+                return 20
+
+            if not self.sword_crit and not crit_this_turn:
+                self.sword_crit_count = self.sword_crit_count + 1
+                if self.sword_crit_count == 2:
+                    self.sword_crit = True
+                    self.sword_crit_count = 0
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) ⚔️ {self.name} is readying a critical strike")
+                    return 0
+        else:
+            return 0
 
     def set_poison_hit(self, battle_config, opponent_card):
         if opponent_card.poison_dmg:
@@ -1185,6 +1213,17 @@ class Card:
             self.damage_received = self.damage_received + round(opponent_card.poison_dmg)
             opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.poison_dmg)
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🧪 {self.name} was inflicted with {round(opponent_card.poison_dmg):,} poison damage when attacking")
+
+    def set_rot_hit(self, battle_config, opponent_card):
+        if opponent_card.rot_dmg:
+            self.max_health = self.max_health - opponent_card.rot_dmg
+            # self.max_health = self.max_health - opponent_card.poison_dmg
+            if self.health <  0 or self.max_health < 0:
+                self.health = 0
+                self.max_health = 0
+            self.damage_received = self.damage_received + round(opponent_card.rot_dmg)
+            opponent_card.damage_dealt = opponent_card.damage_dealt + round(opponent_card.rot_dmg)
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩻 {self.name} was inflicted with {round(opponent_card.rot_dmg):,} rot damage to their max health when attacking")
 
 
     def set_gravity_hit(self):
@@ -1904,8 +1943,13 @@ class Card:
         if self.ranged_hit_bonus and self.is_ranger:
             hit_roll = hit_roll + self.ranged_hit_bonus
 
+        self.sword_crit_strike(move_element, battle_config)
+
+        # This must ALWAYS stay at the bottom of the function
         if (_opponent_card.used_block or _opponent_card.used_defend) and hit_roll >= 20:
             hit_roll = 19
+
+
 
         return hit_roll
 
@@ -2007,6 +2051,11 @@ class Card:
             if _opponent_card.poison_dmg:
                 _opponent_card.poison_dmg = round(_opponent_card.poison_dmg / 2)
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s  🔻🧪 poison damage reduced to {_opponent_card.poison_dmg}")
+
+            if _opponent_card.rot_dmg:
+                _opponent_card.rot_dmg = round(_opponent_card.rot_dmg / 2)
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s  🔻🩻 rot damage reduced to {_opponent_card.rot_dmg}")
+
 
             # if _title.passive_type:
             #     if _title.passive_type == "GAMBLE":
@@ -2621,7 +2670,7 @@ class Card:
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.shield_active:
             if not opponent_title.impenetrable_shield_effect:
-                if dmg['ELEMENT'] in ["DARK", "POISON", "GUN"]:
+                if dmg['ELEMENT'] in ["DARK", "POISON", "GUN", "ROT"]:
                     return False
                 if player_title.obliterate_effect:
                     return False
@@ -2633,12 +2682,6 @@ class Card:
                     self.energy_crit_bool = False
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 🧿 critically struck through {opponent_card.name} shield")
                     return False
-
-            # if dmg['ELEMENT'] == "POISON": #Poison Update
-            #     if self.poison_dmg <= (self.max_health * .30):
-            #         self.poison_dmg = self.poison_dmg + (dmg['DMG'] * self.poison_damage_value)
-            #         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} poison damage has increased to {round(dmg['DMG'] * self.poison_damage_value):,} damage")
-            #         return False
 
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                 if not dmg['SUMMON_USED'] and not self.is_ranger:
@@ -2850,6 +2893,7 @@ class Card:
             self.activate_element_check(battle_config, dmg, opponent_card)
         else:
             self.set_poison_hit(battle_config, opponent_card)
+            self.set_rot_hit(battle_config, opponent_card)
             pass
 
 
@@ -2962,7 +3006,7 @@ class Card:
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             # create a condition where there's a 20% chance to hit again, then send message to battle log that the attack hit again
-            if random.randint(1, 100) <= 35:
+            if random.randint(1, 100) <= 40:
                 opponent_card.defense = opponent_card.defense - (opponent_card.defense * .35)
                 opponent_card.health = opponent_card.health - dmg['DMG']
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} shot again for {dmg['DMG']} damage")
@@ -3123,6 +3167,21 @@ class Card:
             # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🧪 The poison intensifies! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking.")
 
+        elif dmg['ELEMENT'] == "ROT":
+            rot_capacity = self.max_health * .20
+            if self.rot_dmg <= rot_capacity:
+                rot_damage_from_ability = round(self.rot_dmg + (dmg['DMG'] * self.rot_damage_value))
+                self.rot_dmg = self.rot_dmg + rot_damage_from_ability
+            if self.rot_dmg > rot_capacity:
+                self.rot_dmg = rot_capacity
+            
+            # Commented out to try new effect
+            # opponent_card.health = opponent_card.health - dmg['DMG']
+            # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩻 The rot intensifies! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking.")
+
+
+
         elif dmg['ELEMENT'] == "ICE":
             message = ""
             if self.ice_duration == 0:
@@ -3168,6 +3227,7 @@ class Card:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
         
         self.set_poison_hit(battle_config, opponent_card)
+        self.set_rot_hit(battle_config, opponent_card)
         self.element_selection.append(dmg['ELEMENT'])
         self.damage_dealt = self.damage_dealt + dmg['DMG']
         opponent_card.damage_received = opponent_card.damage_received + dmg['DMG']

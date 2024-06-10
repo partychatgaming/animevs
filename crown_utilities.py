@@ -417,8 +417,12 @@ def set_emoji(element):
         emoji = "💠"
     if element == "GUN":
         emoji = "🔫"
+    if element == "ROT":
+        emoji = "🩻"
     if element == "NATURE":
         emoji = "🌿"
+    if element == "SWORD":
+        emoji = "⚔️"
     if element == "SLEEP":
         emoji = "💤"
     
@@ -2082,17 +2086,19 @@ element_mapping = {
 'LIFE': 'Steals 30% damage done health and max health from opponent.',
 'LIGHT': 'Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 50% of DMG.',
 'DARK': 'Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.',
-'POISON': 'Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).',
+'POISON': 'Penetrates shields, stacks poison damage equal to 35% of damage done stacking up to 30% of max health. This damage hits the opponent when the opponent attacks.',
+'ROT': 'Penetrates shields, stacks rot damage equal to 15% of damage done stacking up to 20% of max health. This damage hits the opponents max health when the opponent attacks.',
 'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%',
 'ENERGY': 'Has higher 35% higher chance of Crit.',
 'SPIRIT': 'Has higher 35% higher chance of Crit.',
-'GUN': 'Goes through shields. Has a 35% chance to deal a double hit. Double striking lowers opponents defense by 35% of the current value.',
+'GUN': 'Goes through shields. Has a 40% chance to deal a double hit. Double striking lowers opponents defense by 35% of the current value.',
 'SPIRIT ENERGY': 'Has higher 35% higher chance of Crit.',
 'NATURE': 'Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well.',
 'RECKLESS': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
 'RECOIL': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
 'TIME': 'Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.',
 'BLEED': 'Every 2 Attacks deal 10x turn count damage to opponent.',
+'SWORD': 'Every 3rd Strike will result in a critical attack that also increases Atack by 40% of damage dealt.',
 'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.',
 'SHIELD': 'Blocks Incoming DMG, until broken',
 'BARRIER': 'Nullifies Incoming Attacks, until broken',
@@ -2128,7 +2134,9 @@ elements = [
     "GRAVITY",
     "GUN",
     "NATURE",
-    "SLEEP"
+    "SLEEP",
+    "SWORD",
+    "ROT"
 ]
 
 
@@ -2224,6 +2232,11 @@ autocomplete_advanced_search = [
     {'name': 'LIGHT', 'value': 'LIGHT'},
     {'name': 'DARK', 'value': 'DARK'},
     {'name': 'POISON', 'value': 'POISON'},
+    # Add GUN, SWORD, NATURE, and ROT
+    {'name': 'GUN', 'value': 'GUN'},
+    {'name': 'SWORD', 'value': 'SWORD'},
+    {'name': 'NATURE', 'value': 'NATURE'},
+    {'name': 'ROT', 'value': 'ROT'},
     {'name': 'ENERGY', 'value': 'ENERGY'},
     {'name': 'RANGED', 'value': 'RANGED'},
     {'name': 'RECKLESS', 'value': 'RECKLESS'},
@@ -2290,7 +2303,9 @@ crest_dict = { 'Unbound': '🉐',
               'That Time I Got Reincarnated as a Slime': '<:slime:1091223689007210517>',
               'Soul Eater': '<:souleater:1249589073686036613>',
               'Kill La Kill': '<:killlakill:1214431376070410281>',
-              'Gurren Lagann': '<:gurren:1214432235927773205>'
+              'Gurren Lagann': '<:gurren:1214432235927773205>',
+              'Jujutsu Kaisen': '<:jjk:1249819520650969138>',
+              'Katekyo Hitman Reborn': '<:reborn:1249819879293321301>',
 }
 
 scenario_level_config = 1499
