@@ -29,7 +29,7 @@ traits = [{
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
-    'TRAIT': 'Rally : On Block, Create (100 * Card Tier) Health. Titan Mode : Gain (200 x Your Focus Count) worth of Health upon Resolve.'
+    'TRAIT': 'Rally : On Block, Create (50 * Card Tier) Health. Titan Mode : Gain (100 x Your Focus Count) worth of Health upon Resolve.'
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone, Grimoire',
@@ -41,7 +41,7 @@ traits = [{
 },{
     'NAME': 'Demon Slayer',
     'EFFECT': 'Total Concentration Breathing, Constant',
-    'TRAIT': 'Breathing : Gain 60% of Opponent HP as your own. Constant:  On Resolve, Your ATK & DEF = Opp ATK and DEF + 1K only if your Opp ATK and DEF are higher than yours.'
+    'TRAIT': 'Breathing : Gain 50% of Opponent HP as your own. Constant:  On Resolve, Your ATK & DEF = Opp ATK and DEF + 1K only if your Opp ATK and DEF are higher than yours.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Blood Orb, Ascension',
@@ -53,7 +53,7 @@ traits = [{
 },{
     'NAME': 'One Punch Man',
     'EFFECT': 'Hero Reinforcement, Hero Rankings',
-    'TRAIT': 'Hero Rankings : On Focus gain (15 * Card Tier) AP. Hero Reinforcement : On Opp Focus you create (100 * Card Tier) Health. '
+    'TRAIT': 'Hero Rankings : On Focus gain (15 * Card Tier) AP. Hero Reinforcement : On Opp Focus you create (50 * Card Tier) Health. '
 },{
     'NAME': 'Solo Leveling',
     'EFFECT': 'Rulers Authority, Arise!',
@@ -83,9 +83,9 @@ traits = [{
     'EFFECT': 'Haki : Tier Based Trait',
     'TRAIT': 'Observation: 1-7: 40% DMG Reduction. Armament: 4-7: 2x Focus. Conquerors: 6-7 Decrease OPP AP by 150'
 },{
-    'NAME': 'Crown Rift Slayers',
-    'EFFECT': 'Feint Attack, SpiritualWeapons',
-    'TRAIT': 'Feint Attack : If you miss, Crit! SpiritualWeapons : Can use Arms from all Uninverses'
+    'NAME': 'Soul Eater',
+    'EFFECT': 'Soul Resonance, Meisters',
+    'TRAIT': 'Soul Resonance : If you miss, Crit! Meisters : Can use Arms from all Uninverses'
 },{
     'NAME': 'Crown Rift Madness',
     'EFFECT': 'Madness, Beast Blood',
