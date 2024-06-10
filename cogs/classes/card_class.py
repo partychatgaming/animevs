@@ -219,7 +219,7 @@ class Card:
             self.ranged_hit_bonus = 0
             self.wind_element_activated = False
 
-            self.water_buff_by_value = 100
+            self.water_buff_by_value = 150
             self.time_buff_by_value = 4
             self.earth_buff_by_value = .40
             self.death_buff_by_value = .40
@@ -228,7 +228,7 @@ class Card:
             self.dark_buff_by_value = 15
             self.physical_parry_value = 1
             self.ranged_buff_value = 1
-            self.life_buff_value = .35
+            self.life_buff_value = .30
             self.reckless_buff_value = .40
             self.reckless_duration = 0
             self.reckless_rest = False
@@ -244,6 +244,7 @@ class Card:
             self.energy_buff_value = 0
             self.energy_crit_bool =False
             self.wind_buff_value = .50
+            self.nature_buff_value = .35
             
 
             # Card Defense From Arm
@@ -697,13 +698,13 @@ class Card:
             self.is_mage = True
             self._magic_active = True
             self._magic_value = mage_buff
-            self.water_buff_by_value = 150
+            self.water_buff_by_value = 300
             self.time_buff_by_value = 8
             self.earth_buff_by_value = .70
             self.death_buff_by_value = .70
             self.light_buff_by_value = .70
             self.dark_buff_by_value = 20
-            self.life_buff_value = .60
+            self.life_buff_value = .55
             self.psychic_barrier_buff_value = 2
             self.psychic_debuff_value = .30
             self.fire_buff_value = .80
@@ -714,6 +715,7 @@ class Card:
             self.ice_buff_value = 2
             self.energy_buff_value = 2
             self.wind_buff_value = .85
+            self.nature_buff_value = .60
         
         if self.card_class == "RANGER":
             self.is_ranger = True
@@ -1458,6 +1460,9 @@ class Card:
                     summoner_buff = self.tier * 5 
                     
                 ap = self.summon_power * summoner_buff
+                # Soul Eater Meister Trait
+                if self.summon_universe == "Soul Eater" and self.universe == "Soul Eater":
+                    ap = ap * 3
                 move_stamina = 0
                 move = self.summon_ability_name
                 summon_used = True
@@ -1724,7 +1729,7 @@ class Card:
                     true_dmg = round(true_dmg + battle_config._wind_buff)
 
                 if hit_roll < miss_hit:
-                    if self.universe == 'Crown Rift Slayers':
+                    if self.universe == 'Soul Eater':
                         true_dmg = round(true_dmg * 2.5)
                         message = f'🩸{move_emoji} {turn_card.name} critically hit {_opponent_card.name} for {true_dmg:,} damage'
                     elif self.wind_element_activated:
@@ -1866,7 +1871,7 @@ class Card:
                     damage_check_message = f"🟥 [{self.name} failed the damage check]"
                     battle_config.add_to_battle_log(damage_check_message)
 
-        if self.universe == "Crown Rift Slayers" and hit_roll <= low_hit:
+        if self.universe == "Soul Eater" and hit_roll <= low_hit:
             hit_roll = hit_roll - 3
 
         if self._swordsman_active and self.used_resolve:
@@ -2616,7 +2621,7 @@ class Card:
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.shield_active:
             if not opponent_title.impenetrable_shield_effect:
-                if dmg['ELEMENT'] in ["DARK", "POISON"]:
+                if dmg['ELEMENT'] in ["DARK", "POISON", "GUN"]:
                     return False
                 if player_title.obliterate_effect:
                     return False
@@ -2953,6 +2958,15 @@ class Card:
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [+{self.water_buff} 💧 damage]")
         
+        elif dmg['ELEMENT'] == "GUN":
+            opponent_card.health = opponent_card.health - dmg['DMG']
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+            # create a condition where there's a 20% chance to hit again, then send message to battle log that the attack hit again
+            if random.randint(1, 100) <= 35:
+                opponent_card.defense = opponent_card.defense - (opponent_card.defense * .35)
+                opponent_card.health = opponent_card.health - dmg['DMG']
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} shot again for {dmg['DMG']} damage")
+
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
                 self.stamina = 0
@@ -3030,8 +3044,9 @@ class Card:
         elif dmg['ELEMENT'] == "LIFE":
             self.max_health = self.max_health + round(dmg['DMG'] * self.life_buff_value)
             self.health = self.health + round((dmg['DMG'] * self.life_buff_value))
+            opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_buff_value)
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {str(round(dmg['DMG'] * self.life_buff_value))} health]")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {str(round(dmg['DMG'] * self.life_buff_value))} health, while {opponent_card.name} lost {str(round(dmg['DMG'] * self.life_buff_value))} max health]")
 
         elif dmg['ELEMENT'] in ["RECKLESS", "RECOIL"]:
             self.health = self.health - (dmg['DMG'] * self.reckless_buff_value)
@@ -3069,6 +3084,22 @@ class Card:
             if opponent_card.attack <= 30:
                 opponent_card.attack = 30
 
+        elif dmg['ELEMENT'] == "NATURE":
+            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * self.nature_debuff_value)
+            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * self.nature_debuff_value)
+            opponent_card.health = opponent_card.health - dmg['DMG']
+            self.attack = self.attack + (dmg['DMG'] * self.nature_buff_value)
+            self.defense = self.defense + (dmg['DMG'] * self.nature_buff_value)
+            self.health = self.health + (dmg['DMG'] * self.nature_buff_value)
+            self.max_health = self.max_health + (dmg['DMG'] * self.nature_buff_value)
+            self.max_base_health = self.max_base_health + (dmg['DMG'] * self.nature_buff_value)
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {str(round(dmg['DMG'] * self.nature_buff_value))} attack, defense, and health, while {opponent_card.name} lost {str(round(dmg['DMG'] * self.nature_debuff_value))} attack and defense]")
+            if opponent_card.defense <= 30:
+                opponent_card.defense = 30
+            if opponent_card.attack <= 30:
+                opponent_card.attack = 30
+
+
         elif dmg['ELEMENT'] == "FIRE":
             self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * self.fire_buff_value)
             opponent_card.health = opponent_card.health - dmg['DMG']
@@ -3104,7 +3135,13 @@ class Card:
                     self.freeze_enh = True
                     self.ice_duration = self.ice_buff_value
                     self.ice_counter = 0
-            
+                    opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .50)
+                    opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .50)
+                    if opponent_card.defense <= 30:
+                        opponent_card.defense = 30
+                    if opponent_card.attack <= 30:
+                        opponent_card.attack = 30
+
             opponent_card.health -= dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} {message}")
 

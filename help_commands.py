@@ -63,7 +63,7 @@ LEGEND = textwrap.dedent(f"""\
 ELEMENTS_LIST = [
     "👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry\n",
     "🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks.\n",
-    "❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn.\n",
+    "❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.\n",
     "💧 Water - Increases all water move AP by 100 Flat.\n",
     "⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 40% AP.\n",
     "🌩️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.\n",
@@ -79,7 +79,9 @@ ELEMENTS_LIST = [
     "♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless at the cost of a turn to recover. If Reckless would kill you reduce HP to 1. reckless is buffed when resolved, but you take more damage as well.\n",
     "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parrys.\n",
     "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.\n",
-    "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n"
+    "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n",
+    "🔫 Gun - Goes through shields. Has a 35% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.",
+    "🌿 Nature - Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well."
 ]
 
 
@@ -103,7 +105,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ☠️ Death - Deals 30% DMG to opponent max health. Gain Attack equal to that amount.
 
-❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.
+❤️‍🔥 Life - Steals 30% damage done health and max health from opponent.
 
 🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus.
 

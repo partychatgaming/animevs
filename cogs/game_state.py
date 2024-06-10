@@ -666,8 +666,8 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 battle_config.player1.make_available()
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
-                if battle_config.scenario_has_drops:
-                    response = await scenario_drop(battle_config.player1, battle_config.scenario_data, battle_config.difficulty)
+
+                response = await scenario_drop(battle_config.player1, battle_config.scenario_data, battle_config.difficulty)
 
                 save_scen = battle_config.player1.save_scenario(battle_config.scenario_data['TITLE'])
                 unlock_message = battle_config.get_unlocked_scenario_text()

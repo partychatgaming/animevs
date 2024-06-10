@@ -415,6 +415,12 @@ def set_emoji(element):
         emoji = "🔄"
     if element == "BARRIER":
         emoji = "💠"
+    if element == "GUN":
+        emoji = "🔫"
+    if element == "NATURE":
+        emoji = "🌿"
+    if element == "SLEEP":
+        emoji = "💤"
     
         
     return emoji
@@ -2066,21 +2072,23 @@ title_enhancer_mapping = {
 element_mapping = {
 'PHYSICAL': 'If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry',
 'FIRE': 'Does 50% damage of previous attack over the next opponent turns, stacks.',
-'ICE': 'Every 2 attacks, opponent freezes and loses 1 turn.',
+'ICE': 'Every 2 attacks, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.',
 'WATER': 'Each strike increases all water move AP by 100.',
 'EARTH': 'Cannot be Parried. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG',
 'ELECTRIC': 'Add 35% DMG Dealt to Shock damage, added to all Move AP.',
 'WIND': 'On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.',
 'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits gain a Barrier',
 'DEATH': 'Deals 45% DMG to opponent max health. Gain Attack equal to that amount.',
-'LIFE': 'Create Max Health and Heal for 35% DMG.',
+'LIFE': 'Steals 30% damage done health and max health from opponent.',
 'LIGHT': 'Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 50% of DMG.',
 'DARK': 'Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.',
 'POISON': 'Penetrates shields, Poison 30 damage stacking up to (150 * Card Tier).',
 'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%',
 'ENERGY': 'Has higher 35% higher chance of Crit.',
 'SPIRIT': 'Has higher 35% higher chance of Crit.',
+'GUN': 'Goes through shields. Has a 35% chance to deal a double hit. Double striking lowers opponents defense by 35% of the current value.',
 'SPIRIT ENERGY': 'Has higher 35% higher chance of Crit.',
+'NATURE': 'Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well.',
 'RECKLESS': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
 'RECOIL': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
 'TIME': 'Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.',
@@ -2089,7 +2097,7 @@ element_mapping = {
 'SHIELD': 'Blocks Incoming DMG, until broken',
 'BARRIER': 'Nullifies Incoming Attacks, until broken',
 'PARRY': 'Returns 25% Damage, until broken',
-'SIPHON': 'Heal for 10% DMG inflicted + AP'
+'SIPHON': 'Heal for 10% DMG inflicted + AP',
 }
 
 
@@ -2117,7 +2125,10 @@ elements = [
     "RECOIL",
     "TIME",
     "BLEED",
-    "GRAVITY"
+    "GRAVITY",
+    "GUN",
+    "NATURE",
+    "SLEEP"
 ]
 
 
@@ -2277,7 +2288,7 @@ crest_dict = { 'Unbound': '🉐',
               'Overlord': '<:overlord:1091223691729305681>',
               'Fairy Tail': '<:FairyTail:1091223690445865062>',
               'That Time I Got Reincarnated as a Slime': '<:slime:1091223689007210517>',
-              'Soul Eater': '<:souleater:1214430692050468864>',
+              'Soul Eater': '<:souleater:1249589073686036613>',
               'Kill La Kill': '<:killlakill:1214431376070410281>',
               'Gurren Lagann': '<:gurren:1214432235927773205>'
 }

@@ -244,6 +244,7 @@ class Battle:
         self.set_up_traits = ['Demon Slayer',
                          'Solo Leveling',
                          'Crown Rift Slayers',
+                         'Soul Eater',
                          'Crown Rift Awakening',
                          'YuYu Hakusho',
                          'Death Note',

@@ -83,9 +83,9 @@ traits = [{
     'EFFECT': 'Haki : Tier Based Trait',
     'TRAIT': 'Observation: 1-7: 40% DMG Reduction. Armament: 4-7: 2x Focus. Conquerors: 6-7 Decrease OPP AP by 150'
 },{
-    'NAME': 'Crown Rift Slayers',
-    'EFFECT': 'Feint Attack, SpiritualWeapons',
-    'TRAIT': 'Feint Attack : If you miss, Crit! SpiritualWeapons : Can use Arms from all Uninverses'
+    'NAME': 'Soul Eater',
+    'EFFECT': 'Feint Attack, Spiritual Weapons',
+    'TRAIT': 'Feint Attack : If you miss, Crit! Meister: If the summon you are using is from Soul Eater, it deals 3x damage.'
 },{
     'NAME': 'Crown Rift Madness',
     'EFFECT': 'Madness, Beast Blood',

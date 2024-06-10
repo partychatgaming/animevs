@@ -3612,8 +3612,28 @@ async def savecards(ctx):
       return
          
       
-      # Create a slash_command that gets a list of 50 cards and saves it to my account in the database
-
+# Create a slash_command that pulls all scenarios and if the title of the scenario starts and ends with quotation marks like "" update the title with removed quotation marks. 
+# In addition to this, if the scenario title starts with Defeat the delete the "the" and update the title with the new title.
+# @slash_command(description="update scenarios", scopes=guild_ids)
+# async def updatescenarios(ctx):
+#    loggy.info("updatescenarios command")
+#    await ctx.defer()
+#    try:
+#       scenarios = db.queryAllScenarios()
+#       count = 0
+#       for scenario in scenarios:
+#          if scenario['TITLE'].startswith('"') and scenario['TITLE'].endswith('"'):
+#             new_title = scenario['TITLE'][1:-1]
+#             db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'TITLE': new_title}})
+#             count += 1
+#          if scenario['TITLE'].startswith("Defeat the "):
+#             new_title = scenario['TITLE'].replace("the", "")
+#             db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'TITLE': new_title}})
+#             count += 1
+#       await ctx.send(f"Updated {count} scenarios.")
+#    except Exception as ex:
+#       loggy.critical(f"Error in updatescenarios command: {ex}")
+#       await ctx.send("Issue with command.")
 
 @slash_command(name="createscenarios", description="create scenarios", scopes=guild_ids)
 @slash_option(name="mode", description="Mode to create scenarios for", opt_type=OptionType.STRING, choices=[

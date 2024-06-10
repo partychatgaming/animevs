@@ -1078,7 +1078,6 @@ class Profile(Extension):
             dungeon_arm = False
             boss_message = "Nice Arm!"
             abyss_arm = False
-            boss_message = "Nice Arm!"
             arm_cost = '{:,}'.format(1000)
             durability_message = f"{arm_cost}"
             if arm.universe == "Unbound":
@@ -1138,6 +1137,7 @@ class Profile(Extension):
                     if card.card_lvl >= threshold:
                         return values
                 return 100000, 40000, 20000
+            
             tier_values = {
                 2: 200000,
                 3: 450000,
@@ -1155,7 +1155,7 @@ class Profile(Extension):
 
             # Calculate the cost to max level
             current_level = card.card_lvl
-            max_level = 1000
+            max_level = 1500
             levels_needed = max_level - current_level
             max_level_cost = 0
             temp_level = current_level
@@ -1308,7 +1308,7 @@ class Profile(Extension):
                         await msg.edit(embed=embed,components=[])
                         return
 
-                    max_lvl = 1000
+                    max_lvl = 1500
                     if card.card_lvl >= max_lvl:
                         embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** is already at max smithing level. You may level up in battle, but you can no longer purchase levels for this card.", color=0xf1c40f)
                         await msg.edit(embed=embed, components=[])
@@ -1400,7 +1400,7 @@ class Profile(Extension):
                         await msg.edit(embeds=[embed], components=[])
                         return
 
-                    if card.card_=tier >= 10:
+                    if card.card_tier >= 10:
                         embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | {card.name} is already at max tiers.", color=0xf1c40f)
                         await msg.edit(embeds=[embed], components=[])
                         return
@@ -1509,6 +1509,10 @@ class Profile(Extension):
                 SlashCommandChoice(
                     name="🪐 Gravity",
                     value="GRAVITY",
+                ),
+                SlashCommandChoice(
+                    name="🔫 Gun",
+                    value="GUN",
                 ),
             ]
         )
