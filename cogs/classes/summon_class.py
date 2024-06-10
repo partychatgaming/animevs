@@ -40,6 +40,7 @@ class Summon:
         self.bond_message = ""
         self.level_message = ""
         self.dismantle_amount = 0
+        self.protections = ['BARRIER','PARRY']
         
         if self.drop_style == "TALES":
             self.is_tale_drop = True
@@ -82,12 +83,14 @@ class Summon:
                 self.type_message = f"{self.drop_emoji} {self.name} ({self.universe_crest}) Level: {self.level} | Bond: {self.bond} | Ability: {self.ability} | Ability Power: {self.ability_power_potential}"
 
                 self.exp_to_bond_up = ((self.ability_power_potential * 5) * (self.bond + 1))
-                self.exp_to_level_up = int(self.level) * 10
+                if self.ability in self.protections:
+                    self.exp_to_bond_up = ((self.ability_power_potential * 5) * (self.bond + 1))
+                self.exp_to_level_up = (int(self.level) * 100) * (int(self.bond) + 1)
                 
                 if self.exp_to_level_up <= 0:
-                    self.exp_to_level_up = 2
+                    self.exp_to_level_up = 25
                 if self.exp_to_bond_up <= 0:
-                    self.exp_to_bond_up = 5
+                    self.exp_to_bond_up = 100
                 
                 self.level_message = f"*{self.exp}/{self.exp_to_level_up}*"
                 self.bond_message = f"*{self.bond_exp}/{self.exp_to_bond_up}*"
@@ -98,6 +101,8 @@ class Summon:
                     self.level_message = "⭐"
 
                 self.ability_power = ((self.bond + 1) * self.level) + self.ability_power_potential
+                if self.ability in self.protections:
+                    self.ability_power = (self.bond + 1) + self.ability_power_potential
 
 
 
