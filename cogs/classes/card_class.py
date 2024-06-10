@@ -1177,7 +1177,7 @@ class Card:
     def set_poison_hit(self, battle_config, opponent_card):
         if opponent_card.poison_dmg:
             self.health = self.health - opponent_card.poison_dmg
-            self.max_health = self.max_health - opponent_card.poison_dmg
+            # self.max_health = self.max_health - opponent_card.poison_dmg
             if self.health <  0 or self.max_health < 0:
                 self.health = 0
             self.damage_received = self.damage_received + round(opponent_card.poison_dmg)
@@ -1545,7 +1545,7 @@ class Card:
                 "HASTE": lambda ap: ap,
                 "FEAR": lambda ap: ap,
                 "SOULCHAIN": lambda ap: ap,
-                "GAMBLE": lambda ap: random.randint(500, ap),
+                "GAMBLE": lambda ap: random.randint(500, ap if ap and ap >= 500 else 2500),
                 "WAVE": lambda ap: ap if battle_config.is_turn == 0 else (ap if battle_config.turn_total % 10 == 0 else ap / battle_config.turn_total),
                 "BLAST": lambda ap: ap if battle_config.turn_total == 0 else min(round(ap * battle_config.turn_total), 100 * self.tier),
                 "CREATION": lambda ap: ap if battle_config.is_turn == 0 else (ap if battle_config.turn_total % 10 == 0 else (ap * 2 if battle_config.turn_total == round(random.randint(2, 50)) else ap / battle_config.turn_total)),
@@ -1615,7 +1615,7 @@ class Card:
                     return message
             
             m = get_message(move, enh, enhancer_value, self.tier)
-            if enh in ['DRAIN', 'STAM']:
+            if enh in ['DRAIN', 'STAM', 'SLOW', 'HASTE', 'BLINK']:
                 move_stamina = 0
             
             if move_stamina != 15:
@@ -2768,9 +2768,6 @@ class Card:
             parry_damage_percentage = .50
             if player_title.foresight_effect:
                 parry_damage_percentage = .05
-            # if dmg['ELEMENT'] == "POISON": #Poison Update
-            #     if self.poison_dmg <= (self.max_health * .30):
-            #         self.poison_dmg = round(self.poison_dmg + (dmg['DMG'] * self.poison_damage_value))
             if self.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
                 if not dmg['SUMMON_USED'] and not self.is_ranger:
                     self.barrier_active = False
@@ -2984,7 +2981,14 @@ class Card:
             if opponent_card.health > opponent_card.max_health:
                 opponent_card.health = opponent_card.max_health
             opponent_card.health = opponent_card.health - dmg['DMG']
+
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} reaped {str(round(dmg['DMG'] * self.death_buff_by_value))} health from {opponent_card.name}]")
+
+            if opponent_card.health <= (opponent_card.max_base_health * .10):
+                opponent_card.health = 0
+                opponent_card.max_health = 0
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ☠️ [{opponent_card.name} was executed by {self.name}]")
+
 
         elif dmg['ELEMENT'] == "LIGHT":
             light_value = round((dmg['DMG'] * self.light_buff_by_value))
@@ -2995,7 +2999,7 @@ class Card:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {light_value:,} attack] [{light_value:,} damage stored]")
 
         elif dmg['ELEMENT'] == "DARK":
-            # opponent_card.stamina = opponent_card.stamina - self.dark_buff_by_value
+            opponent_card.stamina = opponent_card.stamina - self.dark_buff_by_value
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{opponent_card.name} lost {self.dark_buff_by_value} stamina]")
 

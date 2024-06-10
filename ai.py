@@ -39,6 +39,34 @@ async def summarize_last_moves(messages):
     return summary
 
 
+async def suggested_title_scenario(universe_title, characters):
+    await asyncio.sleep(1)
+    # Check if messages is not a list
+    if not isinstance(characters, list):
+        return False
+    
+    if not characters:
+        return " "
+
+    # Prepare the input for ChatGPT
+    character_names = ", ".join(characters)
+    
+    # Define the prompt to indicate the context of the anime card game assistant
+    prompt = f"I created an anime battle in which I have to defeat {character_names} from the {universe_title} universe. What is a good, short title for that battle? Only respond with the name of the title. Never add quotes around the title. Be creative and concise."
+    
+    # Call the OpenAI API to summarize messages using the GPT-4 model
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+    
+    # Extract the summary from the response
+    title = response.choices[0].message.content
+    return title
+
+
 async def focus_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant

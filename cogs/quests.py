@@ -464,6 +464,86 @@ async def milestones_exist_check(player_class):
                 ]
             },
             {
+                "TYPE": "EQUIPPED_CARD",
+                "milestones": [
+                    (5, 50000, "Equipped a Card 5 Times Milestone"),
+                    (10, 100000, "Equipped a Card 10 Times Milestone"),
+                    (25, 500000, "Equipped a Card 25 Times Milestone"),
+                    (50, 1000000, "Equipped a Card 50 Times Milestone"),
+                    (100, 5000000, "Equipped a Card 100 Times Milestone"),
+                    (150, 10000000, "Equipped a Card 150 Times Milestone"),
+                    (300, 50000000, "Equipped a Card 300 Times Milestone"),
+                    (450, 100000000, "Equipped a Card 450 Times Milestone"),
+                    (1000, 5000000000, "Equipped a Card 1000 Times Milestone"),
+                    (10000, 9000000000, "Equipped a Card 10000 Times Milestone"),
+                    (50000, 90000000000, "Equipped a Card 50000 Times Milestone")
+                ]
+            },
+            {
+                "TYPE": "EQUIPPED_TITLE",
+                "milestones": [
+                    (5, 50000, "Equipped a Title 5 Times Milestone"),
+                    (10, 100000, "Equipped a Title 10 Times Milestone"),
+                    (25, 500000, "Equipped a Title 25 Times Milestone"),
+                    (50, 1000000, "Equipped a Title 50 Times Milestone"),
+                    (100, 5000000, "Equipped a Title 100 Times Milestone"),
+                    (150, 10000000, "Equipped a Title 150 Times Milestone"),
+                    (300, 50000000, "Equipped a Title 300 Times Milestone"),
+                    (450, 100000000, "Equipped a Title 450 Times Milestone"),
+                    (1000, 5000000000, "Equipped a Title 1000 Times Milestone"),
+                    (10000, 9000000000, "Equipped a Title 10000 Times Milestone"),
+                    (50000, 90000000000, "Equipped a Title 50000 Times Milestone")
+                ]
+            },
+            {
+                "TYPE": "EQUIPPED_ARM",
+                "milestones": [
+                    (5, 50000, "Equipped an Arm 5 Times Milestone"),
+                    (10, 100000, "Equipped an Arm 10 Times Milestone"),
+                    (25, 500000, "Equipped an Arm 25 Times Milestone"),
+                    (50, 1000000, "Equipped an Arm 50 Times Milestone"),
+                    (100, 5000000, "Equipped an Arm 100 Times Milestone"),
+                    (150, 10000000, "Equipped an Arm 150 Times Milestone"),
+                    (300, 50000000, "Equipped an Arm 300 Times Milestone"),
+                    (450, 100000000, "Equipped an Arm 450 Times Milestone"),
+                    (1000, 5000000000, "Equipped an Arm 1000 Times Milestone"),
+                    (10000, 9000000000, "Equipped an Arm 10000 Times Milestone"),
+                    (50000, 90000000000, "Equipped an Arm 50000 Times Milestone")
+                ]
+            },
+            {
+                "TYPE": "EQUIPPED_TALISMAN",
+                "milestones": [
+                    (5, 50000, "Equipped a Talisman 5 Times Milestone"),
+                    (10, 100000, "Equipped a Talisman 10 Times Milestone"),
+                    (25, 500000, "Equipped a Talisman 25 Times Milestone"),
+                    (50, 1000000, "Equipped a Talisman 50 Times Milestone"),
+                    (100, 5000000, "Equipped a Talisman 100 Times Milestone"),
+                    (150, 10000000, "Equipped a Talisman 150 Times Milestone"),
+                    (300, 50000000, "Equipped a Talisman 300 Times Milestone"),
+                    (450, 100000000, "Equipped a Talisman 450 Times Milestone"),
+                    (1000, 5000000000, "Equipped a Talisman 1000 Times Milestone"),
+                    (10000, 9000000000, "Equipped a Talisman 10000 Times Milestone"),
+                    (50000, 90000000000, "Equipped a Talisman 50000 Times Milestone")
+                ]
+            },
+            {
+                "TYPE": "EQUIPPED_SUMMON",
+                "milestones": [
+                    (5, 50000, "Equipped a Summon 5 Times Milestone"),
+                    (10, 100000, "Equipped a Summon 10 Times Milestone"),
+                    (25, 500000, "Equipped a Summon 25 Times Milestone"),
+                    (50, 1000000, "Equipped a Summon 50 Times Milestone"),
+                    (100, 5000000, "Equipped a Summon 100 Times Milestone"),
+                    (150, 10000000, "Equipped a Summon 150 Times Milestone"),
+                    (300, 50000000, "Equipped a Summon 300 Times Milestone"),
+                    (450, 100000000, "Equipped a Summon 450 Times Milestone"),
+                    (1000, 5000000000, "Equipped a Summon 1000 Times Milestone"),
+                    (10000, 9000000000, "Equipped a Summon 10000 Times Milestone"),
+                    (50000, 90000000000, "Equipped a Summon 50000 Times Milestone")
+                ]
+            },
+            {
                 "TYPE": "CARDS_OWNED",
                 "milestones": [
                     (5, 50000, "5 Cards Acquired Milestone"), 

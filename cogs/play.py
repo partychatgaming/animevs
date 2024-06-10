@@ -133,6 +133,9 @@ class Play(Extension):
                                 break
                             configure_battle_log(battle_config)
                             early_game_tactics(battle_config)
+                            if check_if_game_over(battle_config):
+                                game_over_check = True
+                                break
 
                             # Uncommenting this will add the ai messages at the start of the game
                             await add_ai_start_messages(battle_config)
@@ -189,7 +192,10 @@ class Play(Extension):
 
                             pre_turn_one = tactics.beginning_of_turn_stat_trait_affects(battle_config.player2_card, battle_config.player2_title, battle_config.player1_card, battle_config, battle_config.player3_card)
 
-                            
+                            if check_if_game_over(battle_config):
+                                game_over_check = True
+                                break
+
                             if battle_config.is_turn == 1: 
                                 if await health_check(battle_config):
                                     continue
@@ -204,7 +210,7 @@ class Play(Extension):
                                     continue
 
                                 else:
-                                    if battle_config.is_pvp_game_mode:
+                                    if battle_config.is_pvp_game_mode and not battle_config.is_tutorial_game_mode:
                                         auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
                                         if auto_battle_handler_done:
                                             continue
@@ -240,7 +246,7 @@ class Play(Extension):
                                             await timeout_handler(self, ctx, battle_msg, battle_config)
                                     
                                     # Play Bot
-                                    if not battle_config.is_pvp_game_mode:
+                                    if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode:
                                         auto_battle_handler_done = await auto_battle_handler(ctx, battle_config, battle_msg, private_channel, button_ctx)
                                         if auto_battle_handler_done:
                                             continue
@@ -255,6 +261,9 @@ class Play(Extension):
 
                                 pre_turn_two = tactics.beginning_of_turn_stat_trait_affects(battle_config.player3_card, battle_config.player3_title, battle_config.player2_card, battle_config, battle_config.player1_card)
 
+                                if check_if_game_over(battle_config):
+                                    game_over_check = True
+                                    break
                                 if battle_config.is_turn == 2:
                                     if await health_check(battle_config):
                                         continue
@@ -313,6 +322,9 @@ class Play(Extension):
 
                                 pre_turn_three = tactics.beginning_of_turn_stat_trait_affects(battle_config.player2_card, battle_config.player2_title, battle_config.player3_card, battle_config, battle_config.player1_card)
 
+                                if check_if_game_over(battle_config):
+                                    game_over_check = True
+                                    break
                                 if battle_config.is_turn == 3: 
                                     if await health_check(battle_config):
                                         continue
@@ -414,12 +426,12 @@ async def add_ai_start_messages(battle_config):
         # player1_ai_start_message = await ai.match_start_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
         # battle_config.previous_moves.append(f"[{battle_config.player1_card.name}] - {player1_ai_start_message}")
         # # For player1_card
-        # append_previous_moves(battle_config.player1_card, "player1")
+        append_previous_moves(battle_config.player1_card, "player1")
 
         # player2_ai_start_message = await ai.match_start_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
         # battle_config.previous_moves.append(f"[{battle_config.player2_card.name}] - {player2_ai_start_message}")
         # # For player2_card
-        # append_previous_moves(battle_config.player2_card, "player2")
+        append_previous_moves(battle_config.player2_card, "player2")
 
         battle_config.turn_zero_has_happened = True
         return
@@ -456,8 +468,14 @@ def config_battle_starting_buttons(battle_config):
     5. Create an ActionRow with the configured buttons.
     6. Return the ActionRow.
     """
+    start_message = "Start The Match"
+    if battle_config.is_pvp_game_mode:
+        start_message = f"{battle_config.player2.disname} Press This To Begin"
+    
+    if battle_config.is_tutorial_game_mode:
+        start_message = "Start Your Tutorial ❤️"
 
-    start_message = "Start Match" if not battle_config.is_pvp_game_mode else f"{battle_config.player2.disname} Press This To Begin"
+    # start_message = "Start Match" if not battle_config.is_pvp_game_mode or battle_config.is_tutorial_game_mode else f"{battle_config.player2.disname} Press This To Begin"
 
     start_tales_buttons = [
         Button(
@@ -819,7 +837,7 @@ async def first_turn_experience(battle_config, private_channel):
                                         description=f"Follow the instructions to learn how to play the Game!",
                                         color=0xe91e63)
                 embedVar.add_field(name=f"**{battle_config.player1_card.name}'s Class**",value=f"The {battle_config.player1_card.class_message} Class\n{crown_utilities.class_emojis[battle_config.player1_card.card_class]} {crown_utilities.class_mapping[battle_config.player1_card.card_class]}")
-                embedVar.add_field(name="**Moveset**",value=f"{battle_config.player1_card.move1_emoji} - **Basic Attack** *10 ⚡ST*\n{battle_config.player1_card.move2_emoji} - **Special Attack** *30 ⚡ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate Move** *80 ⚡ST*\n🦠 - **Enhancer** *20 ⚡ST*\n🛡️ - **Block** *20 ⚡ST*\n⚡ - **Resolve** : Heal and Activate Resolve\n🧬 - **Summon** : {battle_config.player1.equippedsummon}")
+                embedVar.add_field(name="**Moveset**",value=f"{battle_config.player1_card.move1_emoji} - **Basic Attack** *10 ⚡ST*\n{battle_config.player1_card.move2_emoji} - **Special Attack** *30 ⚡ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate Move** *80 ⚡ST*\n🦠 - **Enhancer** *20 ⚡ST*\n🛡️ - **Block** *20 ⚡ST*\n⚡ - **Resolve** : Heal and Activate Resolve\n🧬 - **Summon** : {battle_config.player1.equipped_summon}")
                 embedVar.set_footer(text="Focus State : When Stamina = 0, You will focus to Heal and gain ATK and DEF ")
                 await private_channel.send(embed=embedVar)
                 await asyncio.sleep(2)
@@ -838,7 +856,7 @@ async def first_turn_experience(battle_config, private_channel):
                                         description=f"Follow the instructions to learn how to play the Game!",
                                         color=0xe91e63)
                 embedVar.add_field(name=f"**{battle_config.player1_card.name}'s Class**",value=f"The {battle_config.player1_card.class_message} Class\n{crown_utilities.class_emojis[battle_config.player1_card.card_class]} {crown_utilities.class_mapping[battle_config.player1_card.card_class]}")
-                embedVar.add_field(name="**Moveset**",value=f"{battle_config.player1_card.move1_emoji} - **Basic Attack** *10 ⚡ST*\n{battle_config.player1_card.move2_emoji} - **Special Attack** *30 ⚡ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate Move** *80 ⚡ST*\n🦠 - **Enhancer** *20 ⚡ST*\n🛡️ - **Block** *20 ⚡ST*\n⚡ - **Resolve** : Heal and Activate Resolve\n🧬 - **Summon** : {battle_config.player1.equippedsummon}")
+                embedVar.add_field(name="**Moveset**",value=f"{battle_config.player1_card.move1_emoji} - **Basic Attack** *10 ⚡ST*\n{battle_config.player1_card.move2_emoji} - **Special Attack** *30 ⚡ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate Move** *80 ⚡ST*\n🦠 - **Enhancer** *20 ⚡ST*\n🛡️ - **Block** *20 ⚡ST*\n⚡ - **Resolve** : Heal and Activate Resolve\n🧬 - **Summon** : {battle_config.player1.equipped_summon}")
                 embedVar.set_footer(text="Focus State : When Stamina = 0, You will focus to Heal and gain ATK and DEF ")
                 await private_channel.send(embed=embedVar)
                 await asyncio.sleep(2)

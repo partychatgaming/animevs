@@ -33,7 +33,7 @@ class Universe(Extension):
 
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
-        
+
 
     """
     Creates a list of all available tales/dungeons for the player to select from.
@@ -158,6 +158,7 @@ class Universe(Extension):
             player.make_available()
             custom_logging.debug(ex)
 
+
     """
     Creates the embed for the selected universe
     This is only for universes that are preselected in the command
@@ -176,8 +177,13 @@ class Universe(Extension):
             mode_check = "HAS_CROWN_TALES"
             completed_check = player.completed_tales
             if not universe_title[0].isdigit():
-                universe_title = universe_title.title()
-            universe = await asyncio.to_thread(db.queryUniverse, {"TITLE": universe_title})
+                universe_title = universe_title
+            universe = await asyncio.to_thread(db.queryUniverse, {"TITLE": {"$regex": f"^{str(universe_title)}$", "$options": "i"}})
+            if not universe:
+                embed = Embed(title= f"{universe_title} does not exist.", description="You may have misspelled the universe name. Please try again.")
+                await ctx.send(embed=embed)
+                player.make_available()
+                return
             # if mode in crown_utilities.DUNGEON_M and player.level <= 40:
             #     dungeon_unavailable_response = create_dungeon_locked_embed()
             #     await ctx.send(embed=dungeon_unavailable_response)
@@ -285,10 +291,15 @@ class Universe(Extension):
                     loggy.critical("Timeout Error")
                     await msg.edit(components=[])
                     return
-
+            else:
+                embed = Embed(title= f"{universe_title} does not exist.", description="You may have misspelled the universe name. Please try again.")
+                await ctx.send(embed=embed)
+                player.make_available()
+                return
         except Exception as ex:
             player.make_available()
             custom_logging.debug(ex)
+            loggy.error(ex)
             embed = Embed(title= f"{universe['TITLE']} Match Making Cancelled.", description="You have cancelled the match making process.")
             await ctx.send(embed=embed)
 

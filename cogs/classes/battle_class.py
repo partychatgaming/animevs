@@ -418,7 +418,10 @@ class Battle:
 
 
     def get_starting_match_title(self):
-        return   f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
+        self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
+        if self.is_tutorial_game_mode:
+            self.starting_match_title = "Click Start Match to Begin the Tutorial!"
+        return  self.starting_match_title
 
     def set_abyss_config(self, player):
         try:
@@ -543,7 +546,7 @@ class Battle:
 
 
     def set_tutorial(self, opponent_did):
-        bot_dids = ['837538366509154407', '845672426113466395']
+        bot_dids = ['837538366509154407', '845672426113466395', '263564778914578432']
         if opponent_did in bot_dids:
             self.is_tutorial_game_mode = True
             self.is_pvp_game_mode = True
@@ -862,6 +865,7 @@ class Battle:
 
         if self.is_auto_battle_game_mode:
             if self.turn_total >= 250:
+                self.match_has_ended = True
                 self.previous_moves.append(f"⚙️{player1_card.name} could not defeat {player2_card.name} before the turn Limit. The match has ended.")
                 player1_card.health = 0
         return self.match_has_ended
@@ -1431,9 +1435,9 @@ class Battle:
             {player.disname} 🆚 {opponent.disname}
             """))
         embedVar.add_field(name=f"{icon1} | {player.disname}",
-                                value=f"🎴 | {player.equipped_card}\n🎗️ | {player.equipped_title}\n🦾 | {player.equipped_arm}\n🧬 | {player.equipped_summon_name}")
+                                value=f"🎴 | {player.equipped_card}\n🎗️ | {player.equipped_title}\n🦾 | {player.equipped_arm}\n🧬 | {player._equipped_summon_name}")
         embedVar.add_field(name=f"{icon2} | {opponent.disname}",
-                                value=f"🎴 | {opponent.equipped_card}\n🎗️ | {opponent.equipped_title}\n🦾 | {opponent.equipped_arm}\n🧬 | {opponent.equipped_summon_name}")
+                                value=f"🎴 | {opponent.equipped_card}\n🎗️ | {opponent.equipped_title}\n🦾 | {opponent.equipped_arm}\n🧬 | {opponent._equipped_summon_name}")
         embedVar.set_footer(text=f_message)
         return embedVar
     

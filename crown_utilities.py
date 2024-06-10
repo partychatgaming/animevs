@@ -1300,14 +1300,14 @@ def scenario_gold_drop(scenario_lvl, fight_count, scenario_title, completed_scen
     if scenario_lvl > 900:
         gold = gold + (gold * .55)
 
-    if scenario_lvl > 1500:
+    if scenario_lvl > 1499:
         gold = gold + (gold * .85)
     
     if scenario_lvl > 2500:
-        gold = gold + (gold * 1.20)
+        gold = gold + (gold * 1.25)
     
     if scenario_lvl > 3500:
-        gold = gold + (gold * 1.75)
+        gold = gold + (gold * 2.75)
     
     if scenario_title in completed_scenarios:
         gold = gold * 0.3
@@ -2282,7 +2282,7 @@ crest_dict = { 'Unbound': '🉐',
               'Gurren Lagann': '<:gurren:1214432235927773205>'
 }
 
-scenario_level_config = 1500
+scenario_level_config = 1499
 
 
 EASY_BLOCKED = ['CDungeon', 'DDungeon', 'Dungeon', 'ADungeon', 'Boss', 'CBoss', 'Abyss', 'PVP', 'EXPLORE']

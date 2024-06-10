@@ -429,7 +429,7 @@ class GameModes(Extension):
             mode = random.choice(mode_options)
             universe = random.choice(crown_utilities.get_cached_universes())["name"]
 
-        if not universe:
+        if not universe and mode != "Tutorial":
             # Create embed that says to select a universe 
             embed = Embed(title="Select a Universe", description="All PVE game modes require universe selection. Please type or select a universe you would like to play in.", color=0x696969)
             await ctx.send(embed=embed)
@@ -464,7 +464,7 @@ class GameModes(Extension):
             #     return
 
             if mode == crown_utilities.TUTORIAL:
-                await tutorial(self, ctx, registered_player, mode)
+                await tutorial(self, ctx, player, mode)
                 return
 
             if mode == crown_utilities.SCENARIO:
@@ -504,9 +504,7 @@ class GameModes(Extension):
         except Exception as ex:
             player.make_available()
             custom_logging.debug(ex)
-            guild = self.bot.get_guild(self.bot.guild_id)
-            channel = guild.get_channel(self.bot.guild_channel)
-            await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+            loggy.critical(ex)
             return
 
 
@@ -566,8 +564,10 @@ class GameModes(Extension):
             if p2.get_locked_feature(mode):
                 await ctx.send(p2._locked_feature_message)
                 return
+            
+            u2 = self.bot.get_user(p2.did)
 
-            embed = Embed(title="🆚 PVP Battle Request", description=f"{p2.disname} do you accept the challenge?", color=0x696969)
+            embed = Embed(title="🆚 PVP Battle Request", description=f"{u2.mention} do you accept the challenge?", color=0x696969)
             msg = await ctx.send(embed=embed, components=[action_row])
 
             def check(component: Button) -> bool:
@@ -723,26 +723,21 @@ class GameModes(Extension):
 async def tutorial(self, ctx, player, mode):
     try:
         #
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
+        # await ctx.send("🆚 Building Tutorial Match...", delete_after=10)
 
-        await ctx.send("🆚 Building Tutorial Match...", delete_after=10)
-
-        tutorial_did = '837538366509154407'
+        tutorial_did = '263564778914578432'
+        opponent = db.queryUser({'DID': tutorial_did})
+        player2 = crown_utilities.create_player_from_data(opponent)
         battle = Battle(mode, player)
         battle.set_tutorial(tutorial_did)
         battle.mode = "PVP"
-        opponent = db.queryUser({'DID': tutorial_did})
-        player2 = crown_utilities.create_player_from_data(opponent)
-        
-
-        await battle_commands(self, ctx, battle, player, None, player2, None)
+        await BattleConfig.create_pvp_battle(self, ctx, battle, player2)
+    
     except Exception as ex:
         custom_logging.debug(ex)
-        guild = self.bot.get_guild(self.bot.guild_id)
-        channel = guild.get_channel(self.bot.guild_channel)
-        await channel.send(f"'PLAYER': **{str(ctx.author)}**, 'GUILD': **{str(ctx.author.guild)}**,  TYPE: {type(ex).__name__}, MESSAGE: {str(ex)}, TRACE: {trace}")
+        loggy.critical(ex)
+        embed = Embed(title="An error occurred when setting up the tutorial battle.", description=f"Error: {ex}", color=0x696969)
+        await ctx.send(embed=embed)
         return
 
 

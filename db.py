@@ -289,6 +289,13 @@ def createMenu(menu):
         return e
 
 
+def insertScenario(scenario):
+    try:
+        data = scenario_col.insert_one(scenario)
+        return True
+    except Exception as e:
+        return e
+
 def updateManyScenarios(new_value):
     scenario_col.update_many({}, new_value)
     return True
@@ -1730,6 +1737,13 @@ def queryCorruptedUniverse():
 def queryAllUniverses():
     data = universe_col.find({"HAS_CROWN_TALES": True})
     return data
+
+
+def queryAllUniversesForScenario(query):
+    data = universe_col.find(query)
+    return data
+
+
 
 def queryAllUniverse():
     data = universe_col.find({"HAS_CROWN_TALES": True})

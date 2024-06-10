@@ -10,6 +10,7 @@ import help_commands as h
 import uuid
 import asyncio
 import random
+from logger import loggy
 from .quests import Quests
 from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
@@ -128,20 +129,20 @@ async def reward_money(battle_config, player):
 
 
 def get_drop_rate(battle_config, player):
-    # Constant values can be better organized in a dictionary or named constants.
-    # I choose a list of tuples here for simplicity.
+    # Constant values organized in a list of tuples
     drop_values = [("GOLD", 125), ("RIFT", 140), ("REMATCH", 175), ("ARM", 195), ("SUMMON", 198), ("CARD", 200)]
     
-    # Calculate drop rate. Player's rebirth value increases the lower limit of the random range.
+    # Calculate drop rate
     drop_rate = random.randint(player.rebirth * 10, 200)
 
-    # Assign bonus to drop_rate if in hard difficulty.
+    # Assign bonus to drop_rate if in hard difficulty
     if battle_config.is_hard_difficulty:
         drop_rate += 80
 
-    # Check game mode and assign corresponding drop style and tiers. 
-    # If a game mode is not recognized, default to None.
+    # Initialize drop_style and tiers
     tiers, drop_style = None, None
+
+    # Check game mode and assign corresponding drop style and tiers
     if battle_config.is_dungeon_game_mode:
         drop_style = "DUNGEON"
         tiers = list(range(1, 8))
@@ -154,17 +155,18 @@ def get_drop_rate(battle_config, player):
         tiers = list(range(1, 6))
     elif battle_config.is_scenario_game_mode:
         drop_style = "SCENARIO"
-        # Not clear from original code what tiers should be in this case.
-        # I'll keep it as None for now.
-        
-    # Determine drop type based on drop rate.
+        # Not clear from original code what tiers should be in this case
+
+    # Determine drop type based on drop rate
     for drop_type, value in drop_values:
         if drop_rate <= value:
             return drop_type, drop_style
 
-    # If none of the conditions match, return None. This line can be omitted,
-    # as Python functions return None by default if no return statement is executed.
-    return None
+    # Log a warning if no drop type was determined
+    loggy.warning(f"No drop type determined for drop rate: {drop_rate}")
+
+    # Return default values if no conditions are met
+    return "NO_DROP", drop_style
 
 
 async def reward_message(battle_config, player, drop_type=None, reward_item=None, owned=None):
@@ -172,6 +174,7 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
     reward_money_message = await reward_money(battle_config, player)
     title_drop_message = player.save_title(battle_config.selected_universe)
     message = ""
+    print("reward_message")
 
     if drop_type == "GOLD" or drop_type is None:
         message = f"**{reward_money_message}**!"

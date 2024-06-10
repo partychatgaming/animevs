@@ -17,22 +17,61 @@ class GameState(Extension):
     async def on_ready(self):
         print('GameState Cog is ready!')
 
+    # async def save_spot(self, player, universe_title, mode, currentopponent):
+    #     """
+    #     Update this with the bot.py function that updates save_spot as well as to not store duplicate save spots
+    #     """
+    #     try:
+    #         player.make_available()
+    #         for save_spot in player.save_spot:
+    #             if save_spot['UNIVERSE'] == universe_title and save_spot['MODE'] == mode:
+    #                 query = {"DID": player.did}
+    #                 new_value = {"$pull": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode)}}}
+    #                 db.updateUserNoFilter(query, new_value)
+
+    #         user = {"DID": str(player.did)}
+    #         query = {"$addToSet": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode), "CURRENTOPPONENT": currentopponent}}}
+    #         response = db.updateUserNoFilter(user, query)
+    #         return
+    #     except Exception as ex:
+    #         custom_logging.debug(ex)
+
     async def save_spot(self, player, universe_title, mode, currentopponent):
         """
         Update this with the bot.py function that updates save_spot as well as to not store duplicate save spots
         """
         try:
             player.make_available()
-            for save_spot in player.save_spot:
-                if save_spot['UNIVERSE'] == universe_title and save_spot['MODE'] == mode:
-                    query = {"DID": player.did}
-                    new_value = {"$pull": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode)}}}
-                    db.updateUserNoFilter(query, new_value)
 
-            user = {"DID": str(player.did)}
-            query = {"$addToSet": {"SAVE_SPOT": {"UNIVERSE": universe_title, "MODE": str(mode), "CURRENTOPPONENT": currentopponent}}}
-            response = db.updateUserNoFilter(user, query)
-            return
+            # Remove existing save spot if it exists
+            query = {
+                "DID": player.did,
+                "SAVE_SPOT.UNIVERSE": universe_title,
+                "SAVE_SPOT.MODE": mode
+            }
+            update = {
+                "$pull": {
+                    "SAVE_SPOT": {
+                        "UNIVERSE": universe_title,
+                        "MODE": mode
+                    }
+                }
+            }
+            db.updateUserNoFilter(query, update)
+
+            # Add new save spot
+            query = {"DID": player.did}
+            update = {
+                "$addToSet": {
+                    "SAVE_SPOT": {
+                        "UNIVERSE": universe_title,
+                        "MODE": mode,
+                        "CURRENTOPPONENT": currentopponent
+                    }
+                }
+            }
+            db.updateUserNoFilter(query, update)
+            
         except Exception as ex:
             custom_logging.debug(ex)
 
@@ -365,12 +404,11 @@ class GameState(Extension):
 
 
                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
+                    battle_config.continue_fighting = False
                     if battle_config.is_dungeon_game_mode:
                         quest_response = await Quests.quest_check(battle_config.player1, "FULL DUNGEONS")
-                        milestone_reponse = await Quests.milestone_check(battle_config.player1, "DUNGEONS_COMPLETED", 1)
                     else:
                         quest_response = await Quests.quest_check(battle_config.player1, "FULL TALES")
-                        milestone_reponse = await Quests.milestone_check(battle_config.player1, "TALES_COMPLETED", 1)
                     total_complete = True
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                     if battle_config.is_co_op_mode:
@@ -378,7 +416,6 @@ class GameState(Extension):
 
                     # if battle_config.player1.autosave == True:
                     #     await self.save_spot(battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
-                    await self.delete_save_spot(battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
                     if battle_config.is_dungeon_game_mode:
                         embedVar = Embed(title=f"🔥 DUNGEON CONQUERED",description=f"**{battle_config.selected_universe} Dungeon** has been conquered\n\n{reward_drop}",
                                                 color=0xe91e63)
@@ -387,11 +424,22 @@ class GameState(Extension):
                             embedVar.add_field(name="**Quest Complete**",
                                 value=f"{quest_response}")
                         
-                        if milestone_reponse:
-                            for message in milestone_reponse:
-                                embedVar.add_field(name="🏆 Milestone", value=message)
+                        # Define a list of milestones to check
+                        milestones = [
+                            (battle_config.player1, "DUNGEONS_COMPLETED", 1),
+                            (battle_config.player1, battle_config.battle_mode, 1, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move1_element, battle_config.player1_card.move1_damage_dealt, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move2_element, battle_config.player1_card.move2_damage_dealt, battle_config.selected_universe),
+                            (battle_config.player1, battle_config.player1_card.move3_element, battle_config.player1_card.move3_damage_dealt, battle_config.selected_universe),
+                        ]
+
+                        # Check milestones and add messages to the embed
+                        for milestone in milestones:
+                            milestone_messages = await Quests.milestone_check(*milestone)
+                            if milestone_messages:
+                                for message in milestone_messages:
+                                    embedVar.add_field(name="🏆 Milestone", value=message)
                         
-                        embedVar.set_author(name=f"{battle_config.selected_universe} Boss has been unlocked!")
                         if battle_config.crestsearch:
                             await crown_utilities.blessguild(100000, battle_config.player1.association)
                             teambank = await crown_utilities.blessteam(100000, battle_config.player1.guild)
@@ -399,12 +447,12 @@ class GameState(Extension):
                             embedVar.add_field(name=f"**{battle_config.selected_universe}** CREST CLAIMED!",
                                             value=f"**{battle_config.player1.association}** earned the {battle_config.selected_universe} **Crest**")
 
-
                         if not battle_config.is_easy_difficulty:
                             upload_query = {'DID': str(battle_config.player1.did)}
                             new_upload_query = {'$addToSet': {'DUNGEONS': battle_config.selected_universe},
                                                 '$set': {'BOSS_FOUGHT' : False}}
                             r = db.updateUserNoFilter(upload_query, new_upload_query)
+                        
                         if battle_config.selected_universe in battle_config.player1.completed_dungeons:
                             await crown_utilities.bless(50000000, battle_config.player1.did)
                             await battle_msg.delete(delay=2)
@@ -427,8 +475,11 @@ class GameState(Extension):
                                 f"{user2.mention} You were awarded 🪙 500,000 for  assisting in the {battle_config.selected_universe} Dungeon!")
                         battle_msg = await private_channel.send(embed=embedVar)
                         battle_config.continue_fighting = False
-                        # await discord.TextChannel.delete(private_channel, reason=None)
-                    elif battle_config.is_tales_game_mode:
+
+                        await self.delete_save_spot(battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
+                        return
+                    
+                    if battle_config.is_tales_game_mode:
                         embedVar = Embed(title=f"🎊 UNIVERSE CONQUERED",
                                                 description=f"**{battle_config.selected_universe}** has been conquered\n\n{reward_drop}",
                                                 color=0xe91e63)
@@ -436,11 +487,9 @@ class GameState(Extension):
                             embedVar.add_field(name="**Quest Complete**",
                                 value=f"{quest_response}")
                         
-                        if milestone_reponse:
-                            embedVar.add_field(name="🏆 **Milestone**",
-                                value=f"{milestone_reponse}")
                         # Define a list of milestones to check
                         milestones = [
+                            (battle_config.player1, "TALES_COMPLETED", 1),
                             (battle_config.player1, battle_config.battle_mode, 1, battle_config.selected_universe),
                             (battle_config.player1, battle_config.player1_card.move1_element, battle_config.player1_card.move1_damage_dealt, battle_config.selected_universe),
                             (battle_config.player1, battle_config.player1_card.move2_element, battle_config.player1_card.move2_damage_dealt, battle_config.selected_universe),
@@ -458,10 +507,9 @@ class GameState(Extension):
                             embedVar.set_author(name=f"{battle_config.selected_universe} Dungeon has been unlocked!")
                             upload_query = {'DID': str(battle_config.player1.did)}
                             new_upload_query = {'$addToSet': {'CROWN_TALES': battle_config.selected_universe}}
-                            r = db.updateUserNoFilter(upload_query, new_upload_query)
+                            await asyncio.to_thread(db.updateUserNoFilter, upload_query, new_upload_query)
                         if battle_config.selected_universe in battle_config.player1.completed_tales:
                             await crown_utilities.bless(2500000, battle_config.player1.did)
-                            # await ctx.send(embed=embedVar)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             embedVar.add_field(name="Minor Reward",
@@ -474,7 +522,7 @@ class GameState(Extension):
                             
                             embedVar.add_field(name="Conquerors Reward",
                                         value=f"You were awarded 🪙 100,000,000 for completing the {battle_config.selected_universe} Tale!")
-                            #battle_msg = await private_channel.send(embed=embedVar)
+                            # battle_msg = await private_channel.send(embed=embedVar)
                         if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
             
                             await crown_utilities.bless(250000, battle_config.player3.did)
@@ -486,7 +534,9 @@ class GameState(Extension):
                             
                         battle_msg = await private_channel.send(embed=embedVar)
                         battle_config.continue_fighting = False
-
+                        
+                        await self.delete_save_spot(battle_config.player1, battle_config.selected_universe, battle_config.mode, 0)
+                        return
 
                 if battle_config.is_boss_game_mode:
                     battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
@@ -532,6 +582,7 @@ class GameState(Extension):
 
             if battle_config.is_scenario_game_mode:
                 await scenario_win(battle_config, battle_msg, private_channel, user1)
+                return
 
             if battle_config.is_abyss_game_mode:
                 await abyss_win(battle_config, battle_msg, private_channel, user1)
@@ -630,13 +681,14 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                 exp = (len(battle_config.list_of_opponents_by_name) * 100) * battle_config._ai_opponent_card_lvl
                 await crown_utilities.cardlevel(user1, "Scenario", exp)
 
-                milestone_response = await Quests.milestone_check(battle_config.player1, "SCENARIOS_COMPLETED", 1)
+                # milestone_response = await Quests.milestone_check(battle_config.player1, "SCENARIOS_COMPLETED", 1)
                 # Define a list of milestones to check
                 milestones = [
                     (battle_config.player1, battle_config.battle_mode, 1, battle_config.selected_universe),
                     (battle_config.player1, battle_config.player1_card.move1_element, battle_config.player1_card.move1_damage_dealt, battle_config.selected_universe),
                     (battle_config.player1, battle_config.player1_card.move2_element, battle_config.player1_card.move2_damage_dealt, battle_config.selected_universe),
                     (battle_config.player1, battle_config.player1_card.move3_element, battle_config.player1_card.move3_damage_dealt, battle_config.selected_universe),
+                    (battle_config.player1, "SCENARIOS_COMPLETED", 1, battle_config.selected_universe)
                 ]
 
                 # Check milestones and add messages to the embed

@@ -29,6 +29,8 @@ def unison_raid(player_card, battle_config, opponent_card, player_title):
         damage_calculation_response_special = player_card.damage_cal(2, battle_config, opponent_card)
         damage_calculation_response_summon = player_card.damage_cal(6, battle_config, opponent_card)
         damage_calculation_response_ultimate = player_card.damage_cal(3, battle_config, opponent_card)
+        # Adding this because the abilities used for the unison raid's stamina add up to 110, so I am offsetting the cost as to ensure there is virtually no stmaina cost for the trait 
+        player_card.stamina = player_card.stamina + 110
         opponent_card.health = opponent_card.health - (damage_calculation_response_special['DMG'] + damage_calculation_response_summon['DMG'] + damage_calculation_response_ultimate['DMG'])
         player_card.damage_dealt = player_card.damage_dealt + (1)
         player_card.fairy_tail_recovering = True

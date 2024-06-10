@@ -517,7 +517,7 @@ class Player:
 
     def dungeon_title_unlock_check(self, stats, universe, unlock_method, value, title):
         message = ""
-        for dungeon in stats['DUNGEON_STATS']:
+        for dungeon in stats.get('DUNGEON_STATS', []):
             if dungeon['UNIVERSE'] == universe:
                 if unlock_method == "DUNGEONS COMPLETED" and dungeon['TOTAL_CLEARS'] >= value:
                     update_query = {'$addToSet': {'TITLES': title['TITLE']}}

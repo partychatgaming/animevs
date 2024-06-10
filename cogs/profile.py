@@ -2092,67 +2092,93 @@ class Profile(Extension):
             )
     ])
     async def equipcard(self, ctx, card: str):
+        await ctx.defer()
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
 
         card_name = card
         user_query = {'DID': str(ctx.author.id)}
-        user = db.queryUser(user_query)
 
-        resp = db.queryCard({'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
+        user, card_resp = await asyncio.gather(
+            asyncio.to_thread(db.queryUser, user_query),
+            asyncio.to_thread(db.queryCard, {'NAME': {"$regex": f"^{str(card)}$", "$options": "i"}})
+        )
 
-        card_name = resp["NAME"]
+        if card_resp is None:
+            await ctx.send("Card not found. Please check the name and try again.", ephemeral=True)
+            return
+
+        card_name = card_resp["NAME"]
 
         if card_name in user['CARDS']:
-            response = db.updateUserNoFilter(user_query, {'$set': {'CARD': str(card_name)}})
-            embed = Embed(title=f"🎴 Card Successfully Equipped", description=f"{card_name} has been equipped.", color=0x00ff00)
+            player_class = crown_utilities.create_player_from_data(user)
+            await asyncio.to_thread(db.updateUserNoFilter, user_query, {'$set': {'CARD': str(card_name)}})
+            embed = Embed(title="🎴 Card Successfully Equipped", description=f"{card_name} has been equipped.", color=0x00ff00)
+            quest_message = await Quests.milestone_check(player_class, "EQUIPPED_CARD", 1)
+            if quest_message:
+                embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
             await ctx.send(embed=embed)
         else:
-            await ctx.send(m.USER_DOESNT_HAVE_THE_CARD, ephemeral=True)
+            await ctx.send("You do not own this card.", ephemeral=True)
 
-    @slash_command(description="Equip an Arm")
+
+    @slash_command(description="Equip an Arm", options=[
+            SlashCommandOption(
+                name="arm_name",
+                description="Type in the name of the arm you want to equip",
+                type=OptionType.STRING,
+                required=True,
+            )
+    
+    ])
     async def equiparm(self, ctx, arm_name: str):
-        user_query = {'DID': str(ctx.author.id)}
-        user = db.queryUser(user_query)
-        resp = db.queryArm({'ARM': {"$regex": f"^{str(arm_name)}$", "$options": "i"}})
+        try:
+            user_query = {'DID': str(ctx.author.id)}
 
-        player = crown_utilities.create_player_from_data(user)
-        a = crown_utilities.create_arm_from_data(resp)
+            # Perform user and arm queries asynchronously
+            user, resp = await asyncio.gather(
+                asyncio.to_thread(db.queryUser, user_query),
+                asyncio.to_thread(db.queryArm, {'ARM': {"$regex": f"^{str(arm_name)}$", "$options": "i"}})
+            )
 
-        
-        if a:
-            try:
-                equipped = False
-                for arm in player.arms:
-                    if a.name == arm['ARM']:
-                        response = db.updateUserNoFilter(user_query, {'$set': {'ARM': str(a.name)}})
-                        equipped = True
-                        embed = Embed(title="🦾 Arm Successfully Equipped", description=f"**{a.name}** has been equipped.", color=0x00ff00)
-                        await ctx.send(embed=embed)
+            if not resp:
+                embed = Embed(title="Whoops!", description="Arm not found.", color=0xff0000)
+                await ctx.send(embed=embed, ephemeral=True)
+                return
 
-                if not equipped:
-                    embed = Embed(title="🦾 Arm Not Equipped", description=f"You do not own the arm {a.name}", color=0x00ff00)
-                    await ctx.send(embed=embed)
-            except Exception as ex:
-                trace = []
-                tb = ex.__traceback__
-                while tb is not None:
-                    trace.append({
-                        "filename": tb.tb_frame.f_code.co_filename,
-                        "name": tb.tb_frame.f_code.co_name,
-                        "lineno": tb.tb_lineno
-                    })
-                    tb = tb.tb_next
-                print(str({
-                    'type': type(ex).__name__,
-                    'message': str(ex),
-                    'trace': trace
-                }))
-        else:
-            embed = Embed(title="Whoops!", description="Arm not found.", color=0x00ff00)
+            player = crown_utilities.create_player_from_data(user)
+            a = crown_utilities.create_arm_from_data(resp)
+
+            equipped = any(arm['ARM'] == a.name for arm in player.arms)
+            if equipped:
+                await asyncio.to_thread(db.updateUserNoFilter, user_query, {'$set': {'ARM': str(a.name)}})
+                embed = Embed(title="🦾 Arm Successfully Equipped", description=f"**{a.name}** has been equipped.", color=0x00ff00)
+                quest_message = await Quests.milestone_check(player, "EQUIPPED_ARM", 1)
+                if quest_message:
+                    embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+            else:
+                embed = Embed(title="🦾 Arm Not Equipped", description=f"You do not own the arm **{a.name}**.", color=0xff0000)
+
             await ctx.send(embed=embed)
-            return
+        except Exception as ex:
+            trace = []
+            tb = ex.__traceback__
+            while tb is not None:
+                trace.append({
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno
+                })
+                tb = tb.tb_next
+            print(str({
+                'type': type(ex).__name__,
+                'message': str(ex),
+                'trace': trace
+            }))
+            embed = Embed(title="Error", description="An unexpected error occurred. Please try again later.", color=0xff0000)
+            await ctx.send(embed=embed, ephemeral=True)
 
 
     @slash_command(description="Equip a Summon")
@@ -2171,6 +2197,10 @@ class Profile(Extension):
             if selected_pet:
                 response = db.updateUserNoFilter(user_query, {'$set': {'PET': selected_pet['NAME']}})
                 embed = Embed(title=f"🐦 Summon Equipped!", description=f"{selected_pet['NAME']} is now your active summon!", color=0x00ff00)
+                quest_message = await Quests.milestone_check(player, "EQUIPPED_SUMMON", 1)
+                if quest_message:
+                    embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
                 await ctx.send(embed=embed)
             else:
                 embed = Embed(title=f"🐦 Summon Not Found!", description=f"You do not have a summon named {summon}!", color=0xff0000)
@@ -2182,6 +2212,7 @@ class Profile(Extension):
             await ctx.send(embed=embed)
             return
 
+
 async def get_owned_items(user):
     """Extract owned items from the user object."""
     ownedcards = [card for card in user['CARDS']]
@@ -2190,6 +2221,7 @@ async def get_owned_items(user):
     ownedpets = [pet['NAME'] for pet in user['PETS']]
     ownedtalismans = [talisman['TYPE'] for talisman in user['TALISMANS']]
     return ownedcards, ownedtitles, ownedarms, ownedpets, ownedtalismans
+
 
 def get_preset_items(deck, index):
     """Extract preset items from the deck at the given index."""
@@ -2210,6 +2242,7 @@ def get_preset_items(deck, index):
             'talisman': "NULL",
         }
 
+
 def build_preset_message(preset):
     """Build the message and element for the talisman in the preset."""
     message = "📿"
@@ -2218,6 +2251,7 @@ def build_preset_message(preset):
         message = crown_utilities.set_emoji(preset['talisman'])
         element = preset['talisman'].title()
     return message, element
+
 
 def create_listed_options(presets):
     """Create a list of options for the embed."""
@@ -2231,6 +2265,7 @@ def create_listed_options(presets):
             f"**Talisman**: {message}{element}\n\n"
         )
     return listed_options
+
 
 async def handle_button_click(button_ctx, presets, owned_items):
     """Handle the button click and return the equipped and not owned items."""
@@ -2275,5 +2310,7 @@ async def handle_button_click(button_ctx, presets, owned_items):
         not_owned_items.append(f"❌ | {message}{element}")
 
     return equipped_items, not_owned_items, update_data
+
+
 def setup(bot):
     Profile(bot)

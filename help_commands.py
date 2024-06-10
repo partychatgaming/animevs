@@ -69,7 +69,7 @@ ELEMENTS_LIST = [
     "🌩️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.\n",
     "🌪️ Wind - On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.\n",
     "🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier\n",
-    "☠️ Death - Deals 40% DMG to opponent max health. Gain Attack equal to that amount.\n",
+    "☠️ Death - Deals 40% DMG to opponent max health. Gain Attack equal to that amount. Executes opponent if their health equals 10% of their base max health.\n",
     "❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.\n",
     "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus\n",
     "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",

@@ -252,7 +252,7 @@ class CustomPaginator(Paginator):
             case "equip":
                 if self.talisman_action:
                     self.equip_talisman = True
-                    response = self.activate_talisman_action(ctx, self._message.embeds[0], self.equip_talisman)
+                    response = await self.activate_talisman_action(ctx, self._message.embeds[0], self.equip_talisman)
                     await self._message.edit(embeds=[response], components=[])
                 if self.titles_action:
                     self.equip_title = True
@@ -283,7 +283,7 @@ class CustomPaginator(Paginator):
             case "unequip":
                 if self.talisman_action:
                     self.equip_talisman = True
-                    response = self.activate_talisman_action(ctx, self._message.embeds[0], self.equip_talisman)
+                    response = await self.activate_talisman_action(ctx, self._message.embeds[0], self.equip_talisman)
                 await self._message.edit(embeds=[response], components=[])
             case "dismantle":
                 if self.cards_action:
@@ -485,10 +485,16 @@ class CustomPaginator(Paginator):
             self.storage_title = True
 
     
-    def activate_talisman_action(self, ctx, data, action: str):
+    async def activate_talisman_action(self, ctx, data, action: str):
         user_query = {'DID': str(ctx.author.id)}
+        user_data = db.queryUser(user_query)
+        user = crown_utilities.create_player_from_data(user_data)
         # data.title is the talisman name
         embed = Embed(title=f"{data.title} Talisman {data.title.capitalize()} Successfully Completed")
+        quest_message = await Quests.milestone_check(user, "EQUIPPED_TALISMAN", 1)
+        if quest_message:
+            embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
 
         if action == self.equip_talisman:
             db.updateUserNoFilter(user_query, {'$set': {'TALISMAN': data.title.upper()}})
@@ -946,7 +952,7 @@ class CustomPaginator(Paginator):
     """
     async def activate_title_action(self, ctx, title, action):
         if self.equip_title:
-            response = self.equip_title_function(ctx, title)
+            response = await self.equip_title_function(ctx, title)
             return response
 
         if self.title_storage:
@@ -958,14 +964,19 @@ class CustomPaginator(Paginator):
             return response
             
 
-    def equip_title_function(self, ctx, title):
+    async def equip_title_function(self, ctx, title):
         try:
             user = db.queryUser({'DID': str(ctx.author.id)})
+            player = crown_utilities.create_player_from_data(user)
             if title in user['TITLES']:
                 user_query = {'DID': str(ctx.author.id)}
                 response = db.updateUserNoFilter(user_query, {'$set': {'TITLE': title}})
                 if response:
                     embed = Embed(title=f"🎗️ Title Equipped", description=f"Title {title} equipped")
+                    quest_message = await Quests.milestone_check(player, "EQUIPPED_TITLE", 1)
+                    if quest_message:
+                        embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
                     return embed
                 else:
                     embed = Embed(title=f"🎗️ Title Not Equipped", description=f"Failed to equip title {title}")
@@ -1275,6 +1286,10 @@ class CustomPaginator(Paginator):
                     response = db.updateUserNoFilter(user_query, {'$set': {'ARM': arm_name}})
                     if response:
                         embed = Embed(title=f"🦾 Arm Equipped", description=f"Arm {arm_name} equipped")
+                        quest_message = await Quests.milestone_check(player, "EQUIPPED_ARM", 1)
+                        if quest_message:
+                            embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
                         return embed
                     else:
                         embed = Embed(title=f"🦾 Arm Not Equipped", description=f"Failed to equip arm {arm_name}")
@@ -1628,8 +1643,13 @@ class CustomPaginator(Paginator):
             # Equip card if it exists in user's inventory
             if card in user['CARDS']:
                 response = await asyncio.to_thread(db.updateUserNoFilter, user_query, {'$set': {'CARD': card}})
+                player = crown_utilities.create_player_from_data(user)
                 if response:
                     embed = Embed(title="🎴 Card Equipped", description=f"{card} has been equipped")
+                    quest_message = await Quests.milestone_check(player, "EQUIPPED_CARD", 1)
+                    if quest_message:
+                        embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
                     await ctx.send(embed=embed)
                 else:
                     embed = Embed(title="🎴 Card Not Equipped", description=f"Failed to equip {card}. Please try again.")
@@ -2361,6 +2381,10 @@ class CustomPaginator(Paginator):
                             }
                 response = db.updateUserNoFilter(user_query, update_summon_query)
                 embed = Embed(title=f"🧬 Summon Equipped", description=f"Successfully equipped {summon_title}")
+                quest_message = await Quests.milestone_check(player, "EQUIPPED_SUMMON", 1)
+                if quest_message:
+                    embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)
+
                 updated = True
                 await ctx.send(embed=embed)
         
