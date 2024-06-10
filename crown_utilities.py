@@ -1629,7 +1629,8 @@ def update_arm_durability(player, player_arm, player_card):
         # Set arm universe to card universe if it is part of the pokemon universes
         if player_card.universe in pokemon_universes and player_arm.universe in pokemon_universes:
             arm_universe = player_card.universe
-
+        if player_card.universe = "Soul Eater":
+            arm_universe = player_card.universe
         # Increase decrease value and break value if arm universe doesn't match card universe
         if arm_universe != player_card.universe and arm_universe != "Unbound":
             decrease_value = -5
