@@ -1222,7 +1222,7 @@ class Profile(Extension):
             embedVar = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith - {icon}{'{:,}'.format(balance)}\n{user.balance_icon} {user.balance:,}", description=textwrap.dedent(f"""\
             Welcome {ctx.author.mention}!
             Use Universe Gems to purchase **Card XP** and **Arm Durability**!
-            🎴 Card:  **{card.name}** {licon}**{str(card.card_lvl)}**
+            🎴 Card:  🀄️**{card.card_tier}** **{card.name}** {licon}**{str(card.card_lvl)}**
             🦾 Arm: **{arm.name}** ⚒️*{str(arm.durability)}*
             
             **Card Level Boost**
@@ -1400,7 +1400,7 @@ class Profile(Extension):
                         await msg.edit(embeds=[embed], components=[])
                         return
 
-                    if card.card_tier >= 10:
+                    if card.card_=tier >= 10:
                         embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | {card.name} is already at max tiers.", color=0xf1c40f)
                         await msg.edit(embeds=[embed], components=[])
                         return
