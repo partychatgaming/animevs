@@ -1859,7 +1859,7 @@ async def gift(ctx, player, amount: int):
       return
 
 
-@slash_command(name="roll", description="For 🪙 coins roll for a chance at random cards, arms, summons, and gems", options=[
+@slash_command(name="roll", description="Spend 10,000 🪙coins per roll for a chance at random cards, arms, summons, and gems", options=[
     SlashCommandOption(name="rolls", description="Number of rolls to perform", choices=[
         SlashCommandChoice(name="1 Roll", value=1),
         SlashCommandChoice(name="5 Rolls", value=5),
@@ -1874,7 +1874,7 @@ async def roll(ctx, rolls: int = 1):
     if not a_registered_player:
         return
     
-    cost = 5000 * rolls
+    cost = 10000 * rolls
 
     user = crown_utilities.create_player_from_data(a_registered_player)
     if user.balance < cost:

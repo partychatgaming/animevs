@@ -97,7 +97,7 @@ class Summon:
                 if self.level == 10:
                     self.level_message = "⭐"
 
-                self.ability_power = (self.bond * self.level) + self.ability_power_potential
+                self.ability_power = ((self.bond + 1) * self.level) + self.ability_power_potential
 
 
 
