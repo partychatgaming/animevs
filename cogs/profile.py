@@ -374,6 +374,10 @@ class Profile(Extension):
                                     value="PHYSICAL",
                                 ),
                                 SlashCommandChoice(
+                                    name="⚔️ Sword",
+                                    value="SWORD",
+                                ),
+                                SlashCommandChoice(
                                     name="🔥 Fire",
                                     value="FIRE",
                                 ),
@@ -388,6 +392,10 @@ class Profile(Extension):
                                 SlashCommandChoice(
                                     name="⛰️ Earth",
                                     value="EARTH",
+                                ),
+                                SlashCommandChoice(
+                                    name="🌿 Nature",
+                                    value="NATURE",
                                 ),
                                 SlashCommandChoice(
                                     name="⚡️ Electric",
@@ -422,6 +430,14 @@ class Profile(Extension):
                                     value="POISON",
                                 ),
                                 SlashCommandChoice(
+                                    name="🩻 Rot",
+                                    value="ROT",
+                                ),
+                                SlashCommandChoice(
+                                    name="🔫 Gun",
+                                    value="GUN",
+                                ),
+                                SlashCommandChoice(
                                     name="🏹 Ranged",
                                     value="RANGED",
                                 ),
@@ -432,6 +448,10 @@ class Profile(Extension):
                                 SlashCommandChoice(
                                     name="♻️ Reckless",
                                     value="RECKLESS",
+                                ),
+                                SlashCommandChoice(
+                                    name="💤 Sleep",
+                                    value="SLEEP",
                                 ),
                                 SlashCommandChoice(
                                     name="⌛ Time",
