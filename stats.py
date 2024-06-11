@@ -129,6 +129,7 @@ def create_initial_stats(player):
         'NATURE_DAMAGE_DONE': [],
         'GUN_DAMAGE_DONE': [],
         'ROT_DAMAGE_DONE': [],
+        'SLEEP_DAMAGE_DONE': [],
     }
     return stats_dict
 

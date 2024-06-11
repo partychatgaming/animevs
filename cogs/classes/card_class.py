@@ -219,6 +219,7 @@ class Card:
             self.ranged_meter = 0
             self.ranged_hit_bonus = 0
             self.wind_element_activated = False
+            self.sword_crit = False
 
             self.water_buff_by_value = 150
             self.time_buff_by_value = 4
@@ -229,12 +230,12 @@ class Card:
             self.dark_buff_by_value = 15
             self.physical_parry_value = 1
             self.ranged_buff_value = 1
-            self.life_buff_value = .30
+            self.life_buff_value = .40
             self.reckless_buff_value = .40
             self.reckless_duration = 0
             self.reckless_rest = False
             self.psychic_barrier_buff_value = 1
-            self.psychic_debuff_value = .15
+            self.psychic_debuff_value = .35
             self.fire_buff_value = .50
             self.electric_buff_value = .10
             self.poison_damage_value = .35
@@ -245,11 +246,15 @@ class Card:
             self.ice_buff_value = 1
             self.energy_buff_value = 0
             self.energy_crit_bool =False
-            self.wind_buff_value = .50
+            self.wind_buff_value = .90
             self.nature_buff_value = .35
             self.sword_crit_bool = False
             self.sword_crit_count = 0
             self.sword_atk_buff_value = .40
+            self.nature_debuff_value = .35
+            self.sleep_counter = 0
+            self.sleep_rest_skips = 0
+            self.sleep_exhaustion_bool = False
             
 
             # Card Defense From Arm
@@ -461,8 +466,8 @@ class Card:
                 "CRYSTAL": {1: 10, 2: 15, 3: 20, 4: 25, 5: 30, 6: 35, 7: 40, 8: 45, 9: 50, 10: 55},
                 "STAM": {1: 5, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 35, 8: 40, 9: 45, 10: 50},
                 "DRAIN": {1: 5, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 35, 8: 40, 9: 45, 10: 50},
-                "SLOW": {1: 5, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 35, 8: 40, 9: 45, 10: 50},
-                "HASTE": {1: 5, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 35, 8: 40, 9: 45, 10: 50},
+                "SLOW": {1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 3, 7: 4, 8: 4, 9: 5, 10: 5},
+                "HASTE": {1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 3, 7: 4, 8: 4, 9: 5, 10: 5},
                 "CREATION": {1: 200, 2: 400, 3: 600, 4: 800, 5: 1000, 6: 1200, 7: 1400, 8: 1600, 9: 1800, 10: 2000},
                 "WAVE": {1: 200, 2: 300, 3: 400, 4: 500, 5: 600, 6: 700, 7: 800, 8: 900, 9: 1000, 10: 1100},
                 "STANCE": {1: 50, 2: 100, 3: 150, 4: 200, 5: 250, 6: 300, 7: 350, 8: 400, 9: 450, 10: 500},
@@ -709,18 +714,18 @@ class Card:
             self.death_buff_by_value = .70
             self.light_buff_by_value = .70
             self.dark_buff_by_value = 20
-            self.life_buff_value = .55
+            self.life_buff_value = .65
             self.psychic_barrier_buff_value = 2
-            self.psychic_debuff_value = .30
+            self.psychic_debuff_value = .65
             self.fire_buff_value = .80
             self.electric_buff_value = .25
             self.poison_damage_value = .60
             self.rot_damage_value = .30
             self.gravity_debuff_value = .80
-            self.bleed_hit_value = 25
+            self.bleed_hit_value = 30
             self.ice_buff_value = 2
             self.energy_buff_value = 2
-            self.wind_buff_value = .85
+            self.wind_buff_value = 1.50
             self.nature_buff_value = .60
         
         if self.card_class == "RANGER":
@@ -1659,7 +1664,7 @@ class Card:
                     return message
             
             m = get_message(move, enh, enhancer_value, self.tier)
-            if enh in ['DRAIN', 'STAM', 'SLOW', 'HASTE', 'BLINK']:
+            if enh in ['DRAIN', 'STAM']:
                 move_stamina = 0
             
             if move_stamina != 15:
@@ -1697,6 +1702,8 @@ class Card:
             try:
                 true_dmg = 50.5
                 defensepower = _opponent_card.defense - self.attack
+                if self.sleep_exhaustion_bool:
+                    defensepower = 2000
                 if defensepower <= 0:
                     defensepower = 1
 
@@ -1996,6 +2003,22 @@ class Card:
 
     async def focusing(self, _title, _opponent_title, _opponent_card, battle_config, _co_op_card=None, _co_op_title=None ):
         if self.stamina < self.stamina_required_to_focus:
+            if _opponent_card.sleep_exhaustion_bool:
+                _opponent_card.sleep_rest_skips = _opponent_card.sleep_rest_skips - 1
+
+                if _opponent_card.sleep_rest_skips <= 0:
+                    _opponent_card.sleep_exhaustion_bool = False
+                    _opponent_card.sleep_rest_skips = 0
+                    _opponent_card.sleep_counter = 0
+                    sleep_message = f"({battle_config.turn_total}) {_opponent_card.name} has woken up and can now focus"
+                    battle_config.add_to_battle_log(sleep_message)
+                else:
+                    sleep_message = f"({battle_config.turn_total}) {_opponent_card.name} is 💤 sleeping and cannot focus [{_opponent_card.sleep_rest_skips} turns to rest left]"
+                    battle_config.add_to_battle_log(sleep_message)
+                    battle_config.next_turn()
+                    return
+                    
+            
             self.used_focus = True
             if battle_config.is_tutorial_game_mode and battle_config.tutorial_focus is False:
                 # _opponent_card.used_focus = True
@@ -2562,15 +2585,9 @@ class Card:
                 self.stamina = round(self.stamina - dmg['DMG'])
                 opponent_card.stamina = round(opponent_card.stamina + dmg['DMG'])
             elif self.move4enh == 'SLOW':
-                tempstam = round(opponent_card.stamina + dmg['DMG'])
-                self.stamina = round(self.stamina - dmg['DMG'])
-                opponent_card.stamina = self.stamina
-                self.stamina = tempstam
+                battle_config.turn_total = battle_config.turn_total + dmg['DMG']
             elif self.move4enh == 'HASTE':
-                tempstam = round(opponent_card.stamina - dmg['DMG'])
-                self.stamina = round(self.stamina + dmg['DMG'])
-                opponent_card.stamina = self.stamina
-                self.stamina = tempstam
+                battle_config.turn_total = battle_config.turn_total -  dmg['DMG']
             elif self.move4enh == 'SOULCHAIN':
                 self.stamina = round(dmg['DMG'])
                 opponent_card.stamina = self.stamina
@@ -3154,6 +3171,25 @@ class Card:
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {str(round(dmg['DMG'] * self.electric_buff_value))} ap]")
 
+        
+        elif dmg['ELEMENT'] == "SLEEP":
+            sleep_stacks_added = 0
+            if not self.sleep_exhaustion_bool:
+                self.sleep_counter = self.sleep_counter + 1
+                if self.sleep_counter == 2:
+                    self.sleep_counter = 0
+                    sleep_stacks_added = random.choice([1, 2])
+                    self.sleep_rest_skips = self.sleep_rest_skips + sleep_stacks_added
+                    sleep_message = f"({battle_config.turn_total}) {self.name} added 💤 {sleep_stacks_added} sleep stacks [{self.sleep_rest_skips} total sleep stacks]"
+                else:
+                    sleep_message = f"({battle_config.turn_total}) {self.name} is prepping to add 💤 sleep stacks on next hit"
+                battle_config.add_to_battle_log(sleep_message)
+
+            if self.sleep_exhaustion_bool:
+                opponent_card.health = opponent_card.health - dmg['DMG']
+                sleep_message = f"({battle_config.turn_total}) 💤 {dmg['MESSAGE']}"
+                battle_config.add_to_battle_log(sleep_message)
+
         elif dmg['ELEMENT'] == "POISON":
             poison_capacity = self.max_health * .30
             if self.poison_dmg <= poison_capacity:
@@ -3165,7 +3201,10 @@ class Card:
             # Commented out to try new effect
             # opponent_card.health = opponent_card.health - dmg['DMG']
             # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🧪 The poison intensifies! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking.")
+            poison_capacity_message = f"({battle_config.turn_total}) 🧪 The poison intensifies! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
+            if self.poison_dmg == poison_capacity:
+                poison_capacity_message = f"({battle_config.turn_total}) 🧪 The poison has reached max capacity! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
+            battle_config.add_to_battle_log(poison_capacity_message)
 
         elif dmg['ELEMENT'] == "ROT":
             rot_capacity = self.max_health * .20
@@ -3178,8 +3217,10 @@ class Card:
             # Commented out to try new effect
             # opponent_card.health = opponent_card.health - dmg['DMG']
             # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩻 The rot intensifies! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking.")
-
+            rot_capacity_message = f"({battle_config.turn_total}) 🩻 The rot intensifies! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
+            if self.rot_dmg == rot_capacity:
+                rot_capacity_message = f"({battle_config.turn_total}) 🩻 The rot has reached max capacity! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
+            battle_config.add_to_battle_log(rot_capacity_message)
 
 
         elif dmg['ELEMENT'] == "ICE":

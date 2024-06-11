@@ -1302,26 +1302,11 @@ async def player_check(ctx):
 def scenario_gold_drop(scenario_lvl, fight_count, scenario_title, completed_scenarios, difficulty):
     gold = scenario_lvl * (500 * fight_count)
     if difficulty == "HARD":
-        gold = gold * 2
-
-    if scenario_lvl > 500:
-        gold = gold + (gold * .35)
-
-    if scenario_lvl > 900:
-        gold = gold + (gold * .55)
-
-    if scenario_lvl > 1499:
-        gold = gold + (gold * .85)
-    
-    if scenario_lvl > 2500:
-        gold = gold + (gold * 1.25)
-    
-    if scenario_lvl > 3500:
-        gold = gold + (gold * 2.75)
+        gold = gold * 3
     
     if scenario_title in completed_scenarios:
-        gold = gold * 0.3
-    
+        gold = gold * 0.5
+
     return gold
 
 
@@ -2083,7 +2068,7 @@ element_mapping = {
 'WIND': 'On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.',
 'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits gain a Barrier',
 'DEATH': 'Deals 45% DMG to opponent max health. Gain Attack equal to that amount.',
-'LIFE': 'Steals 30% damage done health and max health from opponent.',
+'LIFE': 'Steals 40% damage done health and max health from opponent.',
 'LIGHT': 'Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 50% of DMG.',
 'DARK': 'Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.',
 'POISON': 'Penetrates shields, stacks poison damage equal to 35% of damage done stacking up to 30% of max health. This damage hits the opponent when the opponent attacks.',
@@ -2094,6 +2079,7 @@ element_mapping = {
 'GUN': 'Goes through shields. Has a 40% chance to deal a double hit. Double striking lowers opponents defense by 35% of the current value.',
 'SPIRIT ENERGY': 'Has higher 35% higher chance of Crit.',
 'NATURE': 'Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well.',
+'SLEEP': 'Every 2nd attack adds a sleep stack. Before opponent focuses they must rest, skipping their turn, for each sleep stack. Opponent only takes sleep damage when sleeping.',
 'RECKLESS': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
 'RECOIL': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1',
 'TIME': 'Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn.',
@@ -2234,6 +2220,8 @@ autocomplete_advanced_search = [
     {'name': 'POISON', 'value': 'POISON'},
     # Add GUN, SWORD, NATURE, and ROT
     {'name': 'GUN', 'value': 'GUN'},
+    # Add SLEEP
+    {'name': 'SLEEP', 'value': 'SLEEP'},
     {'name': 'SWORD', 'value': 'SWORD'},
     {'name': 'NATURE', 'value': 'NATURE'},
     {'name': 'ROT', 'value': 'ROT'},

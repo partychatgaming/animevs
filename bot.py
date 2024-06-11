@@ -247,8 +247,8 @@ async def enhancers(ctx):
          name="`TIME MANIPULATION`", 
          value=(
             "**BLINK**  - Decreases Your Stamina by AP, Increases Opponent Stamina by AP. No swapping.\n\n"
-            "**SLOW** - Increases Opponent Stamina, Decreases Your Stamina, then Swaps Your Stamina with Opponent's.\n\n"
-            "**HASTE** - Increases Your Stamina, Decreases Opponent Stamina, then Swaps Stamina with Opponent's.\n\n"
+            "**SLOW** - Increases the turn total by AP.\n\n"
+            "**HASTE** - Decreases the turn total by AP.\n\n"
          )
       )
       embedVar5.set_footer(text="/help - Bot Help")
@@ -2512,24 +2512,24 @@ async def allowance(ctx, player, amount):
       return
    
 
-@slash_command(name="levelme", description="Level up your character", scopes=guild_ids)
-@slash_option(
-   name="exp",
-   description="exp_to_give",
-   opt_type=OptionType.INTEGER,
-   required=False,
-)
-async def levelme(ctx, exp: int = 0):
-   await ctx.defer()
-   try:
-      user = await bot.fetch_user(ctx.author.id)
-      mode = "Purchase"
-      await crown_utilities.cardlevel(user, mode, exp)
-      await ctx.send(f"blah")
-   except Exception as ex:
-      custom_logging.debug(ex)
-      await ctx.send(f"blah")
-      return
+# @slash_command(name="levelme", description="Level up your character", scopes=guild_ids)
+# @slash_option(
+#    name="exp",
+#    description="exp_to_give",
+#    opt_type=OptionType.INTEGER,
+#    required=False,
+# )
+# async def levelme(ctx, exp: int = 0):
+#    await ctx.defer()
+#    try:
+#       user = await bot.fetch_user(ctx.author.id)
+#       mode = "Purchase"
+#       await crown_utilities.cardlevel(user, mode, exp)
+#       await ctx.send(f"blah")
+#    except Exception as ex:
+#       custom_logging.debug(ex)
+#       await ctx.send(f"blah")
+#       return
 
 
 @slash_command(name="performance", description="Toggles Text Only Performance Mode", scopes=guild_ids)

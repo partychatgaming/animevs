@@ -67,10 +67,10 @@ ELEMENTS_LIST = [
     "💧 Water - Increases all water move AP by 100 Flat.\n",
     "⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 40% AP.\n",
     "🌩️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.\n",
-    "🌪️ Wind - On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.\n",
-    "🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 15% DMG. After 3 Hits Gain a Barrier\n",
+    "🌪️ Wind - On Miss or Crit, boosts all wind damage by 90% of damage dealt.\n",
+    "🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits Gain a Barrier\n",
     "☠️ Death - Deals 40% DMG to opponent max health. Gain Attack equal to that amount. Executes opponent if their health equals 10% of their base max health.\n",
-    "❤️‍🔥 Life - Create Max Health and Heal for 35% DMG.\n",
+    "❤️‍🔥 Life - Create Max Health and Heal for 40% DMG.\n",
     "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus\n",
     "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",
     "🧪 Poison - Penetrates shields, stacks poison damage equal to 35% of damage done stacking up to 30% of max health. This damage hits the opponent when the opponent attacks.\n",
@@ -84,6 +84,7 @@ ELEMENTS_LIST = [
     "🔫 Gun - Goes through shields. Has a 40% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.",
     "🌿 Nature - Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well."
     "⚔️ Sword - Every 3rd Strike will result in a critical attack that also increases Atack by 40% of damage dealt.",
+    "💤 Sleep - Every 2nd attack adds a sleep stack. Before opponent focuses they must rest, skipping their turn, for each sleep stack. Opponent only takes sleep damage when sleeping.",
 
 ]
 

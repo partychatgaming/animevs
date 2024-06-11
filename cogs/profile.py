@@ -756,6 +756,7 @@ class Profile(Extension):
                 SlashCommandChoice(name="⌛ Time", value="TIME"),
                 SlashCommandChoice(name="🅱️ Bleed", value="BLEED"),
                 SlashCommandChoice(name="🪐 Gravity", value="GRAVITY"),
+                SlashCommandChoice(name="💤 Sleep", value="SLEEP"),
             ]
         )
     ])
@@ -925,6 +926,7 @@ class Profile(Extension):
                 SlashCommandChoice(name="🩻 Rot", value="ROT"),
                 SlashCommandChoice(name="⚔️ Sword", value="SWORD"),
                 SlashCommandChoice(name="🌿 Nature", value="NATURE"),
+                SlashCommandChoice(name="💤 Sleep", value="SLEEP"),
                 SlashCommandChoice(name="🏹 Ranged", value="RANGED"),
                 SlashCommandChoice(name="🧿 Energy / Spirit", value="ENERGY"),
                 SlashCommandChoice(name="♻️ Reckless", value="RECKLESS"),
@@ -1571,7 +1573,11 @@ class Profile(Extension):
                 SlashCommandChoice(
                     name="🩻 Rot",
                     value="ROT",
-                )
+                ),
+                SlashCommandChoice(
+                    name="💤 Sleep",
+                    value="SLEEP",
+                ),
             ]
         )
     ])
