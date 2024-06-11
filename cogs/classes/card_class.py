@@ -224,13 +224,13 @@ class Card:
             self.water_buff_by_value = 150
             self.time_buff_by_value = 4
             self.earth_buff_by_value = .40
-            self.death_buff_by_value = .40
+            self.death_buff_by_value = .35
             self.light_buff_by_value = .40
             self.light_speed_attack_value = 0
             self.dark_buff_by_value = 15
             self.physical_parry_value = 1
             self.ranged_buff_value = 1
-            self.life_buff_value = .40
+            self.life_buff_value = .50
             self.reckless_buff_value = .40
             self.reckless_duration = 0
             self.reckless_rest = False
@@ -3057,7 +3057,7 @@ class Card:
                 opponent_card.health = opponent_card.max_health
             opponent_card.health = opponent_card.health - dmg['DMG']
 
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} reaped {str(round(dmg['DMG'] * self.death_buff_by_value))} health from {opponent_card.name}]")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} reaped {str(round(dmg['DMG'] * self.death_buff_by_value))} health from {opponent_card.name}]to gain Attack")
 
             if opponent_card.health <= (opponent_card.max_base_health * .10):
                 opponent_card.health = 0
@@ -3104,10 +3104,11 @@ class Card:
 
         elif dmg['ELEMENT'] == "LIFE":
             self.max_health = self.max_health + round(dmg['DMG'] * self.life_buff_value)
-            self.health = self.health + round((dmg['DMG'] * self.life_buff_value))
-            opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_buff_value)
+            self.health = self.health + round((dmg['DMG'] * self.life_buff_value +(self.max_health * 0.05)))
+            #buffing lifesteal instad of mac health damage to differrntiate from DEATH
+            #opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_buff_value)
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {str(round(dmg['DMG'] * self.life_buff_value))} health, while {opponent_card.name} lost {str(round(dmg['DMG'] * self.life_buff_value))} max health]")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} stole {str(round(dmg['DMG'] * self.life_buff_value *(self.max_health * .05))} health, while {opponent_card.name} lost {str(round(dmg['DMG'] * self.life_buff_value))} health]")
 
         elif dmg['ELEMENT'] in ["RECKLESS", "RECOIL"]:
             self.health = self.health - (dmg['DMG'] * self.reckless_buff_value)
