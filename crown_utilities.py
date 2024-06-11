@@ -170,6 +170,7 @@ def calculate_speed_modifier(speed):
 async def summonlevel(player, player_card):    
     xp_inc = 1
     bxp_inc = 1
+    protections = ['BARRIER', 'PARRY']
     if player.family != 'PCG':
         family_info = db.queryFamily({'HEAD':str(player.did)})
         familysummon = family_info['SUMMON']
@@ -192,11 +193,14 @@ async def summonlevel(player, player_card):
             bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
             if bond_req <= 0:
                 bond_req = 5
-            lvl_req = int(summon_lvl) * 10
+            lvl_req = (int(summon_lvl) * 25) * (1 + summon_bond)
             if lvl_req <= 0:
-                lvl_req = 2
+                lvl_req = 25
             
-            power = (summon_bond * summon_lvl) + int(summon_ability_power)
+            power = ((1 + summon_bond) * summon_lvl) + int(summon_ability_power)
+            if summon_type in protections:
+                power = summon_bond + int(summon_ability_power)
+                
             summon_path = summon_object['PATH']
             # lvl = familysummon['LVL']  # To Level Up -(lvl * 10 = xp required)
             # lvl_req = lvl * 10
@@ -254,13 +258,16 @@ async def summonlevel(player, player_card):
     try:
         protections = ['BARRIER', 'PARRY']
         query = {'DID': str(player.did)}
-        lvl_req = player_card.summon_lvl * 10
-        if lvl_req <= 0:
-            lvl_req = 2
-        bond_req = ((player_card.summon_power * 5) * (player_card.summon_bond + 1))
-        if bond_req <= 0:
-            bond_req = 5
         summon_type = player_card.summon_type
+        lvl_req = (player_card.summon_lvl * 25) * (player_card.summon_bond + 1)
+        if lvl_req <= 0:
+            lvl_req = 25
+        bond_req = ((player_card.summon_power * 5) * (player_card.summon_bond + 1))
+        if summon_type in protections:
+            bond_req = ((player_card.summon_power * 100) * (player_card.summon_bon +))
+        if bond_req <= 0:
+            bond_req = 100
+        
 
 
         if player_card.summon_lvl < 10:
