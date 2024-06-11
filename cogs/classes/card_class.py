@@ -224,13 +224,13 @@ class Card:
             self.water_buff_by_value = 150
             self.time_buff_by_value = 4
             self.earth_buff_by_value = .40
-            self.death_buff_by_value = .35
+            self.death_buff_by_value = .40
             self.light_buff_by_value = .40
             self.light_speed_attack_value = 0
             self.dark_buff_by_value = 15
             self.physical_parry_value = 1
             self.ranged_buff_value = 1
-            self.life_buff_value = .50
+            self.life_buff_value = .65
             self.reckless_buff_value = .40
             self.reckless_duration = 0
             self.reckless_rest = False
@@ -714,7 +714,7 @@ class Card:
             self.death_buff_by_value = .70
             self.light_buff_by_value = .70
             self.dark_buff_by_value = 20
-            self.life_buff_value = .65
+            self.life_buff_value = .90
             self.psychic_barrier_buff_value = 2
             self.psychic_debuff_value = .65
             self.fire_buff_value = .80
@@ -2186,7 +2186,7 @@ class Card:
     def light_speed_attack(self, oppponent_card, battle_config):
         if oppponent_card.light_speed_attack_value:
             self.health = self.health - oppponent_card.light_speed_attack_value
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {oppponent_card.name} used Light Speed Attack and hit {self.name} for {round(oppponent_card.light_speed_attack_value):,} light damage")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {oppponent_card.name} used 🌕 Light Speed Attack and hit {self.name} for {round(oppponent_card.light_speed_attack_value):,} light damage")
             oppponent_card.light_speed_attack_value = 0
             return
 
@@ -2802,7 +2802,7 @@ class Card:
 
     def active_parry_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.parry_active:
-            if dmg['ELEMENT'] == "POISON":
+            if dmg['ELEMENT'] in ["POISON", "ROT"]:
                 return False
             
             if dmg['ELEMENT'] in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:
@@ -3108,8 +3108,11 @@ class Card:
             #buffing lifesteal instad of mac health damage to differrntiate from DEATH
             #opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_buff_value)
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} stole {str(round(dmg['DMG'] * self.life_buff_value *(self.max_health * .05))} health, while {opponent_card.name} lost {str(round(dmg['DMG'] * self.life_buff_value))} health]")
-
+            battle_config.add_to_battle_log(
+                f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} stole "
+                f"{round(dmg['DMG'] * self.life_buff_value * (self.max_health * 0.05))} health, while "
+                f"{opponent_card.name} lost {round(dmg['DMG'] * self.life_buff_value)} health]"
+            )
         elif dmg['ELEMENT'] in ["RECKLESS", "RECOIL"]:
             self.health = self.health - (dmg['DMG'] * self.reckless_buff_value)
             if self.used_resolve:
@@ -3179,7 +3182,7 @@ class Card:
                 self.sleep_counter = self.sleep_counter + 1
                 if self.sleep_counter == 2:
                     self.sleep_counter = 0
-                    sleep_stacks_added = random.choice([1, 2])
+                    sleep_stacks_added = random.choice([1, 2, 3])
                     self.sleep_rest_skips = self.sleep_rest_skips + sleep_stacks_added
                     sleep_message = f"({battle_config.turn_total}) {self.name} added 💤 {sleep_stacks_added} sleep stacks [{self.sleep_rest_skips} total sleep stacks]"
                 else:
