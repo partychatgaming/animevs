@@ -3104,7 +3104,7 @@ class Card:
 
         elif dmg['ELEMENT'] == "LIFE":
             self.max_health = self.max_health + round(dmg['DMG'] * self.life_buff_value)
-            self.health = self.health + round((dmg['DMG'] * self.life_buff_value +(self.max_health * 0.05)))
+            self.health = self.health + round((dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05)))
             #buffing lifesteal instad of mac health damage to differrntiate from DEATH
             #opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_buff_value)
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
