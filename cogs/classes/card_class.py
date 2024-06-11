@@ -3052,7 +3052,7 @@ class Card:
             opponent_card.health = opponent_card.health - dmg['DMG']
 
         elif dmg['ELEMENT'] == "DEATH":
-            self.attack = self.attack + (dmg['DMG'] * self.death_buff_by_value)
+            self.attack = self.attack + round(dmg['DMG'] * self.death_buff_by_value)
             opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.death_buff_by_value)
             if opponent_card.health > opponent_card.max_health:
                 opponent_card.health = opponent_card.max_health
@@ -3111,7 +3111,7 @@ class Card:
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
             battle_config.add_to_battle_log(
                 f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} stole "
-                f"{round(dmg['DMG'] * self.life_buff_value * (self.max_health * 0.05))} health, while "
+                f"{round(dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05))} health, while "
                 f"{opponent_card.name} lost {round(dmg['DMG'] * self.life_buff_value)} health]"
             )
         elif dmg['ELEMENT'] in ["RECKLESS", "RECOIL"]:

@@ -248,9 +248,9 @@ class Player:
 
             if s_type in ['BARRIER', 'PARRY']:
                 if bond == 3 and lvl == 10:
-                    summon_ability_power = power + 1 
+                    summon_ability_power = power + (1 + bond)
             else:    
-                summon_ability_power = (bond * lvl) + power
+                summon_ability_power = ((1 + bond) * lvl) + ((1 + bond) * power)
 
             self.summon_power_message = f"{crown_utilities.set_emoji(s_type)} {s_type.title()} Damage: {summon_ability_power}"
 
