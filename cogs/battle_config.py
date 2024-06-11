@@ -15,8 +15,8 @@ class BattleConfig(Extension):
         self.tutorial_resolve = False
         self.tutorialsummon = False
         self.tutorial_enhancer = False
-=======
-
+        self.tutorial_talisman = False
+        
     @listen()
     async def on_ready(self):
         print('BattleConfig Cog is ready!')
