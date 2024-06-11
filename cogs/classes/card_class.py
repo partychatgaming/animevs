@@ -3110,7 +3110,7 @@ class Card:
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
             battle_config.add_to_battle_log(
                 f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} stole "
-                f"{round(dmg['DMG'] * self.life_buff_value * (self.max_health * 0.05))} health, while "
+                f"{round(dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05))} health, while "
                 f"{opponent_card.name} lost {round(dmg['DMG'] * self.life_buff_value)} health]"
             )
         elif dmg['ELEMENT'] in ["RECKLESS", "RECOIL"]:
