@@ -264,7 +264,7 @@ async def summonlevel(player, player_card):
             lvl_req = 25
         bond_req = ((player_card.summon_power * 5) * (player_card.summon_bond + 1))
         if summon_type in protections:
-            bond_req = ((player_card.summon_power * 100) * (player_card.summon_bon +))
+            bond_req = ((player_card.summon_power * 100) * (player_card.summon_bond + player_card.summon_lvl))
         if bond_req <= 0:
             bond_req = 100
         
@@ -1607,7 +1607,7 @@ def update_arm_durability(player, player_arm, player_card):
         # Set arm universe to card universe if it is part of the pokemon universes
         if player_card.universe in pokemon_universes and player_arm.universe in pokemon_universes:
             arm_universe = player_card.universe
-        if player_card.universe = "Soul Eater":
+        if player_card.universe == "Soul Eater":
             arm_universe = player_card.universe
         # Increase decrease value and break value if arm universe doesn't match card universe
         if arm_universe != player_card.universe and arm_universe != "Unbound":

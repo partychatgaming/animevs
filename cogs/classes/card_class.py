@@ -1864,6 +1864,7 @@ class Card:
                     self._assassin_value += 1
                     if self._assassin_value == self._assassin_attack:
                         self._assassin_active = False
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} is using a assassin strike that requires no stamina [{self._assassin_value} assassin strikes left]")
                 else:
                     if not self.used_block:
                         self.stamina = self.stamina - move_stamina

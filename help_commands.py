@@ -85,7 +85,6 @@ ELEMENTS_LIST = [
     "🌿 Nature - Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well.\n"
     "⚔️ Sword - Every 3rd Strike will result in a critical attack that also increases Atack by 40% of damage dealt.\n",
     "💤 Sleep - Every 2nd attack adds a sleep stack. Before opponent focuses they must rest, skipping their turn, for each sleep stack. Opponent only takes sleep damage when sleeping.\n",
-
 ]
 
 
