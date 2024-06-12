@@ -301,15 +301,15 @@ async def classes(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
     
    class_descriptions = [
-        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use summon from start of battle. Summon attacks are boosted based on card tier."),
-        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Initial Attacks cost 0 Stamina\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks. Bleed damage slightly boosted."),
-        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\nCommon - 3 Parry, Rare - 5 Parries, Legendary - 6 Parries. Double parry on Physical damage proc"),
-        (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 3 barriers, can attack through barrier\nCommon - 2 Barrier, Rare - 3 Barriers, Legendary - 4 Barriers"),
-        (crown_utilities.class_emojis['TANK'], "Tank", "Starts each fight with Card Tier * 500 Shield, gain same shield on resolve\nCommon - 500/1000/1500 Shield, Rare - 2000/2500, Legendary - 3000/3500"),
-        (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 3 Critical Strikes\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks. Bleed damage boosted."),
-        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 3 Double Strikes\nCommon - 1 Attack, Rare - 2 Attacks, Legendary - 3 Attacks."),
-        (crown_utilities.class_emojis['MAGE'], "Mage", "Increases elemental damage up to 60%\nElemental effects are greatly boosted"),
-        (crown_utilities.class_emojis['HEALER'], "Healer", "Stores up to 80% of damage taken and heals health and max health for the total amount each Focus\nLifesteal abilities are boosted"),
+        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use Summon from start of battle. Summon attacks are boosted based on Card Tier."),
+        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Initial Attacks cost 0 Stamina and have increased Critical Chance\nCommon - 1 Attack\nRare - 2 Attacks\nLegendary - 3 Attacks\nMythic - 4 Attacks\nGod - 5 Attacks.\Poison & Death damage boosted."),
+        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\nCommon - 2 Parry\nRare - 3 Parries\nLegendary - 4 Parries\nMythic - 5 Parries\nGod - 6 Parries.\nDouble Parry on Physical damage proc."),
+        (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 6 Barriers & can attack without disengaging Barrier\nCommon - 2 Barriers\nRare - 3 Barriers\nLegendary - 4 Barriers\nMythic - 5 Barriers\nGod - 6 Barriers."),
+        (crown_utilities.class_emojis['TANK'], "Tank", "Starts each fight with Card Tier * 500 Shield & gain the same Shield on Resolve\nCommon - 500/1000/1500 Shield\nRare - 2000/2500\nLegendary - 3000/3500\nMythic - 4000/4500\nGod - 5000."),
+        (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 6 Critical Strikes\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks\nBleed damage boosted."),
+        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 6 Double Strikes\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks."),
+        (crown_utilities.class_emojis['MAGE'], "Mage", "Increases Elemental damage up to 60%\nElemental effects are greatly boosted"),
+        (crown_utilities.class_emojis['HEALER'], "Healer", "Stores up to 80% of damage taken and heals Health and Max Health for the total amount each Focus\nLifesteal abilities are boosted\nStacked Status effects removed on Focus"),
     ]
     
    embed_list = []
