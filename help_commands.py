@@ -73,7 +73,7 @@ ELEMENTS_LIST = [
     "❤️‍🔥 Life - Create Max Health and Heal for 40% DMG.\n",
     "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus\n",
     "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",
-    "🧪 Poison - Penetrates shields, stacks poison damage equal to 35% of damage done stacking up to 30% of max health. This damage hits the opponent when the opponent attacks.\n",
+    "🧪 Poison - Penetrates shields, stacks poison damage equal to 35% of damage done. Stacking up to 30% of opponent max health. This damage hits the opponent when the opponent attacks.\n",
     "🩻 Rot - Penetrates shields, stacks rot damage equal to 15% of damage done stacking up to 20% of max health. This damage hits the opponents max health when the opponent attacks.\n",
     "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%\n",
     "🧿 Energy - Has higher 35% higher chance of Crit.\n",
@@ -82,9 +82,9 @@ ELEMENTS_LIST = [
     "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.\n",
     "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n",
     "🔫 Gun - Goes through shields. Has a 40% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.\n",
-    "🌿 Nature - Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well.\n"
-    "⚔️ Sword - Every 3rd Strike will result in a critical attack that also increases Atack by 40% of damage dealt.\n",
-    "💤 Sleep - Every 2nd attack adds a sleep stack. Before opponent focuses they must rest, skipping their turn, for each sleep stack. Opponent only takes sleep damage when sleeping.\n",
+    "🌿 Nature - Saps Opponent ATK and DEF for 35% of Damage & heals Health and Max Health for that amount as well.\n\n"
+    "⚔️ Sword - Every 3rd attack will result in a Critical Strike that also increases Atack by 40% of damage dealt.\n",
+    "💤 Sleep - Every 2nd attack adds a stack of Rest. Before Opponent focuses they must Rest, skipping their turn, for each stack of Rest. Opponent only takes sleep damage while Resting.\n",
 
 ]
 
