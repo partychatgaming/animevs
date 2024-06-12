@@ -3427,23 +3427,20 @@ async def updatescenariosanduniverses(ctx, password, key):
 
 
 @slash_command(description="update moves", options=[
-   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
+   SlashCommandOption(name="universe", description="Universe to update", type=OptionType.STRING, required=True)
 ], scopes=guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updatemoves(ctx, password, key):
+async def updatemoves(ctx, universe):
    await ctx.defer()
 
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
-   
-   if key != '937':
-      return await ctx.send("Admin Only")
+   if ctx.author.id not in [306429381948211210, 263564778914578432]:
+      await ctx.send("🛑 You know damn well this command isn't for you.")
+      return
 
    counter = 0
 
    try:
-      for card in db.queryAllCardByParam({"UNIVERSE": "Fairy Tail"}):
+      for card in db.queryAllCardByParam({"UNIVERSE": universe}):
       # Loop through all moves in the card's moveset
          for move in card['MOVESET']:
             # Check if the move has a STAM value of 10, 30, or 80
@@ -3500,6 +3497,8 @@ async def updatemoves(ctx, password, key):
             'message': str(ex),
             'trace': trace
          }))
+         embed = Embed(title="Error", description=f"An error occurred: {ex}", color=0xff0000)
+         await ctx.send(embed=embed)
 
 
 @slash_command(description="update title abilities", options=[

@@ -35,6 +35,7 @@ from cogs.universe_traits.one_punch_man import rank_hero, hero_reinforcements
 from cogs.universe_traits.seven_deadly_sins import increase_power
 from cogs.universe_traits.persona import summon_persona
 from cogs.universe_traits.overlord import fear_aura, fear, fear_duration_check
+from cogs.universe_traits.jujutsu_kaisen import cursed_energy, cursed_energy_reset
 
 class Card:
     try:
@@ -197,6 +198,7 @@ class Card:
             self.overlord_fear_bool = False
             self.overlord_fear_duration = 0
             self.overlord_opponent_original_defense = 0
+            self.jujutsu_kaisen_focus_crit_used = False
 
             # Elemental Effect Meters
             self.burn_dmg = 0
@@ -1862,9 +1864,11 @@ class Card:
                 
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
-                    if self._assassin_value == self._assassin_attack:
+                    self._assassin_attack = self._assassin_attack - 1
+                    # if self._assassin_value == self._assassin_attack:
+                    if self._assassin_attack == 0:
                         self._assassin_active = False
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} is using a assassin strike that requires no stamina [{self._assassin_value} assassin strikes left]")
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} is using a assassin strike that requires no stamina [{self._assassin_attack} assassin strikes left]")
                 else:
                     if not self.used_block:
                         self.stamina = self.stamina - move_stamina
@@ -1952,6 +1956,7 @@ class Card:
             hit_roll = hit_roll + self.ranged_hit_bonus
 
         self.sword_crit_strike(move_element, battle_config)
+        hit_roll = cursed_energy(self, hit_roll, battle_config)
 
         # This must ALWAYS stay at the bottom of the function
         if (_opponent_card.used_block or _opponent_card.used_defend) and hit_roll >= 20:
@@ -2168,6 +2173,8 @@ class Card:
             concentration(self, battle_config)
 
             fear_aura(self, _opponent_card, battle_config)
+
+            cursed_energy_reset(self, battle_config)
 
             self.light_speed_attack(_opponent_card, battle_config)
 
@@ -2683,18 +2690,262 @@ class Card:
             return True
         else:
             return
+        
+    
+    def light_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "LIGHT":
+            return
+
+        if opponent_card.shield_active or opponent_card.barrier_active:
+            return
+
+        deals_damage = not opponent_card.parry_active
+
+        light_value = round(dmg['DMG'] * self.light_buff_by_value)
+        self.attack += light_value
+        self.light_speed_attack_value += light_value
+
+        if deals_damage:
+            opponent_card.health -= dmg['DMG']
+            battle_log_msg = (
+                f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+                f"[🌕 {self.name} gained {light_value:,} attack] [{self.light_speed_attack_value:,} damage stored]"
+            )
+        else:
+            battle_log_msg = (
+                f"({battle_config.turn_total}) 🌕 [{self.name} gained {light_value:,} attack] "
+                f"[{self.light_speed_attack_value:,} damage stored]"
+            )
+
+        battle_config.add_to_battle_log(battle_log_msg)
+
+    
+    def water_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "WATER":
+            return
+
+        if opponent_card.shield_active or opponent_card.barrier_active:
+            return
+
+        # Deals damage if not opponent_card.parry_active or not opponent_card.shield_active
+        deals_damage = not opponent_card.parry_active and not opponent_card.shield_active
+
+        self.basic_water_buff = self.basic_water_buff + self.water_buff_by_value
+        self.special_water_buff = self.special_water_buff + self.water_buff_by_value
+        self.ultimate_water_buff = self.ultimate_water_buff + self.water_buff_by_value
+
+        if deals_damage:
+            opponent_card.health -= dmg['DMG']
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [+{self.water_buff} 💧 damage]")
+        else:
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) [+{self.water_buff} 💧 damage]")
+
+
+    def dark_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "DARK":
+            return
+        
+        opponent_card.stamina = opponent_card.stamina - self.dark_buff_by_value
+        opponent_card.health = opponent_card.health - dmg['DMG']
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{opponent_card.name} lost {self.dark_buff_by_value} stamina]")
+
+
+    def fire_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "FIRE":
+            return
+        
+        deals_damage = not opponent_card.parry_active
+        self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * self.fire_buff_value)
+
+        if deals_damage:
+            opponent_card.health = opponent_card.health - dmg['DMG']
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+
+
+    def earth_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "EARTH":
+            return
+
+        deals_damage = not opponent_card.parry_active
+        self.shield_active = True
+
+        shield_value = round(dmg['DMG'] * self.earth_buff_by_value)
+        self.defense += dmg['DMG'] * self.earth_buff_by_value
+        self._shield_value = max(0, self._shield_value + shield_value)
+        
+        add_solo_leveling_temp_values(self, 'SHIELD', opponent_card)
+
+        if deals_damage:
+            opponent_card.health -= dmg['DMG']
+            battle_log_msg = (
+                f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+                f"[{self.name} gained 🌐 {shield_value:,} shield]"
+            )
+        else:
+            battle_log_msg = (
+                f"({battle_config.turn_total}) "
+                f"[{self.name} gained 🌐 {shield_value:,} shield]"
+            )
+
+        battle_config.add_to_battle_log(battle_log_msg)
+
+
+    def death_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "DEATH":
+            return
+
+        deals_damage = not opponent_card.parry_active
+        death_buff_value = round(dmg['DMG'] * self.death_buff_by_value)
+        self.attack += death_buff_value
+        opponent_card.max_health -= death_buff_value
+
+        if opponent_card.health > opponent_card.max_health:
+            opponent_card.health = opponent_card.max_health
+
+        if deals_damage:
+            opponent_card.health -= dmg['DMG']
+
+        battle_log_message = (
+            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            if deals_damage else
+            f"({battle_config.turn_total})"
+        )
+        battle_log_message += f" [{self.name} ☠️ reaped {death_buff_value} health from {opponent_card.name}] to gain Attack"
+        battle_config.add_to_battle_log(battle_log_message)
+
+        if opponent_card.health <= (opponent_card.max_base_health * 0.10):
+            opponent_card.health = 0
+            opponent_card.max_health = 0
+            battle_config.add_to_battle_log(
+                f"({battle_config.turn_total}) ☠️ [{opponent_card.name} was executed by {self.name}]"
+            )
+    
+    def life_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "LIFE":
+            return
+        
+        deals_damage = not opponent_card.parry_active
+
+        if deals_damage:
+            opponent_card.health = round(opponent_card.health - dmg['DMG'])
+
+        self.max_health = self.max_health + round(dmg['DMG'] * self.life_buff_value)
+        self.health = self.health + round((dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05)))
+
+        battle_log_message = (
+            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            if deals_damage else
+            f"({battle_config.turn_total})"
+        )
+        battle_log_message += f" [{self.name} ❤️‍🔥 stole {round(dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05))} health, while {opponent_card.name} lost {round(dmg['DMG'] * self.life_buff_value)} health]"
+        battle_config.add_to_battle_log(battle_log_message)
+
+
+    def nature_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "NATURE":
+            return
+
+        deals_damage = not opponent_card.parry_active
+        
+        if deals_damage:
+            opponent_card.health = round(opponent_card.health - dmg['DMG'])
+            
+
+        opponent_card.attack = opponent_card.attack - (dmg['DMG'] * self.nature_debuff_value)
+        opponent_card.defense = opponent_card.defense - (dmg['DMG'] * self.nature_debuff_value)
+        opponent_card.health = opponent_card.health - dmg['DMG']
+        self.attack = self.attack + (dmg['DMG'] * self.nature_buff_value)
+        self.defense = self.defense + (dmg['DMG'] * self.nature_buff_value)
+        self.health = self.health + (dmg['DMG'] * self.nature_buff_value)
+        self.max_health = self.max_health + (dmg['DMG'] * self.nature_buff_value)
+        self.max_base_health = self.max_base_health + (dmg['DMG'] * self.nature_buff_value)
+        battle_log_message = (
+            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            if deals_damage else
+            f"({battle_config.turn_total})"
+        )
+        battle_log_message += f" [{self.name} gained {round(dmg['DMG'] * self.nature_buff_value)} attack, defense, and health, while {opponent_card.name} lost {round(dmg['DMG'] * self.nature_debuff_value)} attack and defense]"
+        if opponent_card.defense <= 30:
+            opponent_card.defense = 30
+        if opponent_card.attack <= 30:
+            opponent_card.attack = 30
+        battle_config.add_to_battle_log(battle_log_message)
+
+
+    def electric_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "ELECTRIC":
+            return
+
+        deals_damage = not opponent_card.parry_active
+        
+        if deals_damage:
+            opponent_card.health = round(opponent_card.health - dmg['DMG'])
+
+        self.shock_buff = self.shock_buff +  (dmg['DMG'] * self.electric_buff_value)
+        opponent_card.health = opponent_card.health - dmg['DMG']
+
+        battle_log_message = (
+            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            if deals_damage else
+            f"({battle_config.turn_total})"
+        )
+        battle_log_message += f" [{self.name} gained {round(dmg['DMG'] * self.electric_buff_value)} shock ap"
+        battle_config.add_to_battle_log(battle_log_message)
+
+
+    def ice_effect_handler(self, battle_config, dmg, opponent_card):
+        if dmg['ELEMENT'] != "ICE":
+            return
+        
+        deals_damage = not opponent_card.parry_active
+
+        if self.freeze_enh:
+            deals_damage = True
+
+        if deals_damage:
+            opponent_card.health = round(opponent_card.health - dmg['DMG'])
+
+        message = ""
+        if self.ice_duration == 0:
+            self.ice_counter += 1
+            hits_remaining = 3 - self.ice_counter
+            if hits_remaining > 0:
+                message = f"[{hits_remaining} more {'hit' if hits_remaining == 1 else 'hits'} until frozen]"
+            else:
+                message = f"[{opponent_card.name} is frozen]"
+                self.freeze_enh = True
+                self.ice_duration = self.ice_buff_value
+                self.ice_counter = 0
+                opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .50)
+                opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .50)
+                if opponent_card.defense <= 30:
+                    opponent_card.defense = 30
+                if opponent_card.attack <= 30:
+                    opponent_card.attack = 30
+
+        battle_log_message = (
+            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            if deals_damage else
+            f"({battle_config.turn_total})"
+        )
+        battle_log_message += f" {message}"
+        battle_config.add_to_battle_log(battle_log_message)
+
 
 
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.shield_active:
             if not opponent_title.impenetrable_shield_effect:
-                if dmg['ELEMENT'] in ["DARK", "POISON", "GUN", "ROT"]:
+                if dmg['ELEMENT'] in ["DARK", "POISON", "ROT", "SLEEP"]:
                     return False
                 if player_title.obliterate_effect:
                     return False
                 
                 if player_title.strategist_effect:
                     return False
+    
+                self.water_effect_handler(battle_config, dmg, opponent_card)
+
                 
                 if self.energy_crit_bool:
                     self.energy_crit_bool = False
@@ -2762,6 +3013,9 @@ class Card:
                 
                 return False
 
+            if dmg['ELEMENT'] == "SLEEP":
+                return False
+
             if player_title.pierce_effect:
                 return False
             
@@ -2803,7 +3057,7 @@ class Card:
 
     def active_parry_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.parry_active:
-            if dmg['ELEMENT'] in ["POISON", "ROT"]:
+            if dmg['ELEMENT'] in ["POISON", "ROT", "SLEEP", "BLEED"]:
                 return False
             
             if dmg['ELEMENT'] in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:
@@ -2825,6 +3079,23 @@ class Card:
 
             if player_title.strategist_effect:
                 return False
+
+            if dmg['ELEMENT'] in ["LIGHT", "FIRE", "WATER", "EARTH", "DEATH", "LIFE", "NATURE", "ELECTRIC", "ICE"]:
+                self.light_effect_handler(battle_config, dmg, opponent_card)
+                self.fire_effect_handler(battle_config, dmg, opponent_card)
+                self.water_effect_handler(battle_config, dmg, opponent_card)
+                self.earth_effect_handler(battle_config, dmg, opponent_card)
+                self.death_effect_handler(battle_config, dmg, opponent_card)
+                self.life_effect_handler(battle_config, dmg, opponent_card)
+                self.nature_effect_handler(battle_config, dmg, opponent_card)
+                self.electric_effect_handler(battle_config, dmg, opponent_card)
+                self.ice_effect_handler(battle_config, dmg, opponent_card)
+
+
+
+
+
+
 
             if self.energy_crit_bool:
                 self.energy_crit_bool = False
@@ -3010,15 +3281,7 @@ class Card:
             name = f"({battle_config.turn_total}) {self.name}"
 
         if dmg['ELEMENT'] == "WATER":
-            if self.move1_element == "WATER":
-                self.basic_water_buff = self.basic_water_buff + self.water_buff_by_value
-            if self.move2_element == "WATER":
-                self.special_water_buff = self.special_water_buff + self.water_buff_by_value
-            if self.move3_element == "WATER":
-                self.ultimate_water_buff = self.ultimate_water_buff + self.water_buff_by_value
-            self.water_buff = self.water_buff + self.water_buff_by_value
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [+{self.water_buff} 💧 damage]")
+            self.water_effect_handler(battle_config, dmg, opponent_card)
         
         elif dmg['ELEMENT'] == "GUN":
             opponent_card.health = opponent_card.health - dmg['DMG']
@@ -3032,7 +3295,7 @@ class Card:
         elif dmg['ELEMENT'] == "TIME":
             if self.stamina <= 50:
                 self.stamina = 0
-                self.card_lvl_ap_buff = self.card_lvl_ap_buff + round(dmg['DMG'] / (1 + battle_config.turn_total))
+                self.card_lvl_ap_buff = self.card_lvl_ap_buff + (round(dmg['DMG'] * ((battle_config.turn_total + 1) / 100)))
             self.used_block = True
             self.defense = round(self.defense * self.time_buff_by_value)
             battle_config.turn_total = battle_config.turn_total + 3
@@ -3040,44 +3303,17 @@ class Card:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [+3 turns]")
 
         elif dmg['ELEMENT'] == "EARTH":
-            self.shield_active = True
-            if self._shield_value <= 0:
-                self._shield_value = 0
-            self.defense = self.defense + (dmg['DMG'] * self.earth_buff_by_value)
-            self._shield_value = self._shield_value + round(dmg['DMG'] * self.earth_buff_by_value)
-            add_solo_leveling_temp_values(self, 'SHIELD', opponent_card)
-            if self._shield_value <= 0:
-                self._shield_value = 0
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained 🌐 {round(self._shield_value):,} shield]")
-            opponent_card.health = opponent_card.health - dmg['DMG']
+            self.earth_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "DEATH":
-            self.attack = self.attack + round(dmg['DMG'] * self.death_buff_by_value)
-            opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.death_buff_by_value)
-            if opponent_card.health > opponent_card.max_health:
-                opponent_card.health = opponent_card.max_health
-            opponent_card.health = opponent_card.health - dmg['DMG']
-
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} reaped {str(round(dmg['DMG'] * self.death_buff_by_value))} health from {opponent_card.name}]to gain Attack")
-
-            if opponent_card.health <= (opponent_card.max_base_health * .10):
-                opponent_card.health = 0
-                opponent_card.max_health = 0
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ☠️ [{opponent_card.name} was executed by {self.name}]")
+            self.death_effect_handler(battle_config, dmg, opponent_card)
 
 
         elif dmg['ELEMENT'] == "LIGHT":
-            light_value = round((dmg['DMG'] * self.light_buff_by_value))
-            self.attack = self.attack + light_value
-            self.light_speed_attack_value = self.light_speed_attack_value + light_value
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {light_value:,} attack] [{light_value:,} damage stored]")
+            self.light_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "DARK":
-            opponent_card.stamina = opponent_card.stamina - self.dark_buff_by_value
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{opponent_card.name} lost {self.dark_buff_by_value} stamina]")
+            self.dark_effect_handler(battle_config, dmg, opponent_card)
 
         elif dmg['ELEMENT'] == "PHYSICAL":
             self.physical_meter = self.physical_meter + 1
@@ -3090,7 +3326,8 @@ class Card:
             else:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
-            
+
+
         elif dmg['ELEMENT'] == "RANGED":
             self.ranged_meter = self.ranged_meter + 1
             if self.ranged_meter == 2:
@@ -3103,17 +3340,10 @@ class Card:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
+
         elif dmg['ELEMENT'] == "LIFE":
-            self.max_health = self.max_health + round(dmg['DMG'] * self.life_buff_value)
-            self.health = self.health + round((dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05)))
-            #buffing lifesteal instad of mac health damage to differrntiate from DEATH
-            #opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_buff_value)
-            opponent_card.health = round(opponent_card.health - dmg['DMG'])
-            battle_config.add_to_battle_log(
-                f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} stole "
-                f"{round(dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05))} health, while "
-                f"{opponent_card.name} lost {round(dmg['DMG'] * self.life_buff_value)} health]"
-            )
+            self.life_effect_handler(battle_config, dmg, opponent_card)
+        
         elif dmg['ELEMENT'] in ["RECKLESS", "RECOIL"]:
             self.health = self.health - (dmg['DMG'] * self.reckless_buff_value)
             if self.used_resolve:
@@ -3151,30 +3381,15 @@ class Card:
                 opponent_card.attack = 30
 
         elif dmg['ELEMENT'] == "NATURE":
-            opponent_card.attack = opponent_card.attack - (dmg['DMG'] * self.nature_debuff_value)
-            opponent_card.defense = opponent_card.defense - (dmg['DMG'] * self.nature_debuff_value)
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            self.attack = self.attack + (dmg['DMG'] * self.nature_buff_value)
-            self.defense = self.defense + (dmg['DMG'] * self.nature_buff_value)
-            self.health = self.health + (dmg['DMG'] * self.nature_buff_value)
-            self.max_health = self.max_health + (dmg['DMG'] * self.nature_buff_value)
-            self.max_base_health = self.max_base_health + (dmg['DMG'] * self.nature_buff_value)
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {str(round(dmg['DMG'] * self.nature_buff_value))} attack, defense, and health, while {opponent_card.name} lost {str(round(dmg['DMG'] * self.nature_debuff_value))} attack and defense]")
-            if opponent_card.defense <= 30:
-                opponent_card.defense = 30
-            if opponent_card.attack <= 30:
-                opponent_card.attack = 30
+            self.nature_effect_handler(battle_config, dmg, opponent_card)
 
 
         elif dmg['ELEMENT'] == "FIRE":
-            self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * self.fire_buff_value)
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
+            self.fire_effect_handler(battle_config, dmg, opponent_card)
+
 
         elif dmg['ELEMENT'] == "ELECTRIC":
-            self.shock_buff = self.shock_buff +  (dmg['DMG'] * self.electric_buff_value)
-            opponent_card.health = opponent_card.health - dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [{self.name} gained {str(round(dmg['DMG'] * self.electric_buff_value))} ap]")
+            self.electric_effect_handler(battle_config, dmg, opponent_card)
 
         
         elif dmg['ELEMENT'] == "SLEEP":
@@ -3195,6 +3410,7 @@ class Card:
                 sleep_message = f"({battle_config.turn_total}) 💤 {dmg['MESSAGE']}"
                 battle_config.add_to_battle_log(sleep_message)
 
+
         elif dmg['ELEMENT'] == "POISON":
             poison_capacity = self.max_health * .30
             if self.poison_dmg <= poison_capacity:
@@ -3210,6 +3426,7 @@ class Card:
             if self.poison_dmg == poison_capacity:
                 poison_capacity_message = f"({battle_config.turn_total}) 🧪 The poison has reached max capacity! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
             battle_config.add_to_battle_log(poison_capacity_message)
+
 
         elif dmg['ELEMENT'] == "ROT":
             rot_capacity = self.max_health * .20
@@ -3229,26 +3446,7 @@ class Card:
 
 
         elif dmg['ELEMENT'] == "ICE":
-            message = ""
-            if self.ice_duration == 0:
-                self.ice_counter += 1
-                hits_remaining = 3 - self.ice_counter
-                if hits_remaining > 0:
-                    message = f"[{hits_remaining} more {'hit' if hits_remaining == 1 else 'hits'} until frozen]"
-                else:
-                    message = f"[{opponent_card.name} is frozen]"
-                    self.freeze_enh = True
-                    self.ice_duration = self.ice_buff_value
-                    self.ice_counter = 0
-                    opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .50)
-                    opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .50)
-                    if opponent_card.defense <= 30:
-                        opponent_card.defense = 30
-                    if opponent_card.attack <= 30:
-                        opponent_card.attack = 30
-
-            opponent_card.health -= dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} {message}")
+            self.ice_effect_handler(battle_config, dmg, opponent_card)
 
 
         elif dmg['ELEMENT'] == "BLEED":
@@ -3259,6 +3457,7 @@ class Card:
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
 
+        
         elif dmg['ELEMENT'] == "GRAVITY":
             battle_config.turn_total = battle_config.turn_total - 3
             if (battle_config.turn_total - 3) < 0:

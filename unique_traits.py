@@ -77,7 +77,7 @@ traits = [{
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Energy Resolved!',
-    'TRAIT': 'Energy Resolved : Upon Resolve, Gain 2x ATK and all AP is doubled, but defense remains at 100 for remainder of the match.'
+    'TRAIT': 'Energy Resolved : Upon Resolve, Gain 2x ATK and all AP is doubled, but defense remains at 100 for remainder of the match. Meditation: On Block increase defense by 100 * card tier and ap by 10 * card tier.'
 },{
     'NAME': 'One Piece',
     'EFFECT': 'Haki : Tier Based Trait',
@@ -102,6 +102,10 @@ traits = [{
     'NAME': 'Overlord',
     'EFFECT': 'Fear, Fear Aura',
     'TRAIT': 'Fear: On Resolve, lower your opponent defense to 25 for 1 * tier turn. Fear Aura : Gain (20 * Tier) * Focus count AP each focus. On Focus, Reduce Opponent AP by 20 * Card Tier.'
+}, {
+    'NAME': 'Jujutsu Kaisen',
+    'EFFECT': 'Cursed Energy, Domain Expansion',
+    'TRAIT': 'Cursed Energy: The first attack after each focus is a critical hit. Domain Expansion: On Resolve, you no longer miss attacks. Your attack will remain higher than your opponents. Your attacks deal addition 30% damage to opponent on opponent turns for 5 + Card Tier turns.'
 }
 
 ]

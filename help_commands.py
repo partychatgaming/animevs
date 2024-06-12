@@ -63,7 +63,7 @@ LEGEND = textwrap.dedent(f"""\
 ELEMENTS_LIST = [
     "👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry\n",
     "🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks.\n",
-    "❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.\n",
+    "❄️ Ice - Every 3rd attack, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.\n",
     "💧 Water - Increases all water move AP by 100 Flat.\n",
     "⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 40% AP.\n",
     "🌩️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.\n",
@@ -76,15 +76,15 @@ ELEMENTS_LIST = [
     "🧪 Poison - Penetrates shields, stacks poison damage equal to 35% of damage done stacking up to 30% of max health. This damage hits the opponent when the opponent attacks.\n",
     "🩻 Rot - Penetrates shields, stacks rot damage equal to 15% of damage done stacking up to 20% of max health. This damage hits the opponents max health when the opponent attacks.\n",
     "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%\n",
-    "🧿 Energy - Has higher 35% higher chance of Crit.\n",
+    "🧿 Energy - Has higher 35% higher chance of Crit. This crit hit goes through all protections\n",
     "♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless at the cost of a turn to recover. If Reckless would kill you reduce HP to 1. reckless is buffed when resolved, but you take more damage as well.\n",
-    "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parrys.\n",
-    "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.\n",
+    "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parry and AP is increased by damage dealt * turn total / 100.\n",
+    "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent. Goes through protections.\n",
     "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n",
     "🔫 Gun - Goes through shields. Has a 40% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.\n",
     "🌿 Nature - Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well.\n"
     "⚔️ Sword - Every 3rd Strike will result in a critical attack that also increases Atack by 40% of damage dealt.\n",
-    "💤 Sleep - Every 2nd attack adds a sleep stack. Before opponent focuses they must rest, skipping their turn, for each sleep stack. Opponent only takes sleep damage when sleeping.\n",
+    "💤 Sleep - Every 2nd attack adds a sleep stack. Before opponent focuses they must rest, skipping their turn, for each sleep stack. Opponent only takes sleep damage when sleeping. Goes through protections.\n",
 ]
 
 

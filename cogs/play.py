@@ -258,7 +258,6 @@ class Play(Extension):
                                 if check_if_game_over(battle_config):
                                     game_over_check = True
                                     break
-
                                 pre_turn_two = tactics.beginning_of_turn_stat_trait_affects(battle_config.player3_card, battle_config.player3_title, battle_config.player2_card, battle_config, battle_config.player1_card)
 
                                 if check_if_game_over(battle_config):
