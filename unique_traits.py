@@ -81,7 +81,7 @@ traits = [{
 },{
     'NAME': 'One Piece',
     'EFFECT': 'Haki : Tier Based Trait',
-    'TRAIT': 'Observation: 1-7: 40% DMG Reduction. Armament: 4-7: 2x Focus. Conquerors: 6-7 Decrease OPP AP by 150'
+    'TRAIT': 'Observation: 1-10: 40% DMG Reduction. Armament: 4-7: 2x Focus. Conquerors: 8-10 Decrease OPP AP by 100 * Card Tier.'
 },{
     'NAME': 'Soul Eater',
     'EFFECT': 'Feint Attack, Spiritual Weapons',

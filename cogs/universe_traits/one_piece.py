@@ -16,7 +16,7 @@ def conquerors_haki(player_card, battle_config, opponent_card, player_title):
         resolve_defense_value = round(
             (.30 * player_card.defense) * (player_card.resolve_value / (.50 * player_card.defense)))
 
-        opponent_card.card_lvl_ap_buff = opponent_card.card_lvl_ap_buff - 150
+        opponent_card.card_lvl_ap_buff = opponent_card.card_lvl_ap_buff - (100 * player_card.tier)
         if opponent_card.card_lvl_ap_buff <=0:
             opponent_card.card_lvl_ap_buff = 1
         
