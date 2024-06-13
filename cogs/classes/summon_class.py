@@ -82,13 +82,13 @@ class Summon:
                 self.message = f"{self.drop_emoji} {self.name} ({self.universe_crest}) Level: {self.level} | Bond: {self.bond} | Ability: {self.ability} | Ability Power: {self.ability_power_potential}"
                 self.type_message = f"{self.drop_emoji} {self.name} ({self.universe_crest}) Level: {self.level} | Bond: {self.bond} | Ability: {self.ability} | Ability Power: {self.ability_power_potential}"
 
-                self.exp_to_bond_up = ((self.ability_power_potential * 25) * (self.bond + 1))
+                self.exp_to_bond_up = ((self.ability_power_potential * (self.bond + 1)) * (self.bond + 1))
                 if self.ability in self.protections:
-                    self.exp_to_bond_up = ((self.ability_power_potential * 100) * (self.bond + 1))
-                self.exp_to_level_up = (int(self.level) * 100) * (int(self.bond) + 1)
+                    self.exp_to_bond_up = ((self.ability_power_potential + self.bond) * 50) * (self.bond + 1))
+                self.exp_to_level_up = (int(self.level) * 10) * (int(self.bond) + 1)
                 
                 if self.exp_to_level_up <= 0:
-                    self.exp_to_level_up = 25
+                    self.exp_to_level_up = 10
                 if self.exp_to_bond_up <= 0:
                     self.exp_to_bond_up = 100
                 
