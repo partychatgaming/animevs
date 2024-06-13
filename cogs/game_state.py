@@ -454,19 +454,19 @@ class GameState(Extension):
                             r = db.updateUserNoFilter(upload_query, new_upload_query)
                         
                         if battle_config.selected_universe in battle_config.player1.completed_dungeons:
-                            await crown_utilities.bless(50000000, battle_config.player1.did)
+                            await crown_utilities.bless(1000000, battle_config.player1.did)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             embedVar.add_field(name="Minor Reward",
-                                        value=f"You were awarded 🪙 50,000,000 for completing the {battle_config.selected_universe} Dungeon again!")
+                                        value=f"You were awarded 🪙 1,000,000 for completing the {battle_config.selected_universe} Dungeon again!")
                             embedVar.add_field(name="Boss Key Aquired!",
                                         value=f"The Boss Arena has been Unlocked!")
                         else:
-                            await crown_utilities.bless(500000000, battle_config.player1.did)
+                            await crown_utilities.bless(5000000, battle_config.player1.did)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             embedVar.add_field(name="Dungeon Reward",
-                                        value=f"You were awarded 🪙 500,000,000 for completing the {battle_config.selected_universe} Dungeon!")
+                                        value=f"You were awarded 🪙 5,000,000 for completing the {battle_config.selected_universe} Dungeon!")
                         if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
                             await crown_utilities.bless(500000, battle_config.player3.did)
                             await asyncio.sleep(2)
@@ -509,19 +509,19 @@ class GameState(Extension):
                             new_upload_query = {'$addToSet': {'CROWN_TALES': battle_config.selected_universe}}
                             await asyncio.to_thread(db.updateUserNoFilter, upload_query, new_upload_query)
                         if battle_config.selected_universe in battle_config.player1.completed_tales:
-                            await crown_utilities.bless(2500000, battle_config.player1.did)
+                            await crown_utilities.bless(500000, battle_config.player1.did)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             embedVar.add_field(name="Minor Reward",
-                                        value=f"You were awarded 🪙 2,500,000 for completing the {battle_config.selected_universe} Tale again!")
+                                        value=f"You were awarded 🪙 500,000 for completing the {battle_config.selected_universe} Tale again!")
                         else:
-                            await crown_utilities.bless(100000000, battle_config.player1.did)
+                            await crown_utilities.bless(1000000, battle_config.player1.did)
                             # await ctx.send(embed=embedVar)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
                             
                             embedVar.add_field(name="Conquerors Reward",
-                                        value=f"You were awarded 🪙 100,000,000 for completing the {battle_config.selected_universe} Tale!")
+                                        value=f"You were awarded 🪙 1,000,000 for completing the {battle_config.selected_universe} Tale!")
                             # battle_msg = await private_channel.send(embed=embedVar)
                         if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
             
