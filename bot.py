@@ -1874,8 +1874,10 @@ async def roll(ctx, rolls: int = 1):
     if not a_registered_player:
         return
     
+   
     cost = 10000 * rolls
-
+   
+   
     user = crown_utilities.create_player_from_data(a_registered_player)
     if user.balance < cost:
         embed = Embed(title="Gacha", description=f"You do not have enough 🪙 to roll the Gacha. It costs 🪙 {cost:,} coin for {rolls} Rolls.")
@@ -1943,7 +1945,7 @@ async def roll(ctx, rolls: int = 1):
                     user.save_arm(crown_utilities.create_arm_from_data(selected_item))
                 items.append(selected_item)
         else:  # 95% chance
-            gem_amount = random.randint(25000, 50000)
+            gem_amount = random.randint(1000, 10000)
             selected_universe = random.choice(universe_list)
             user.save_gems(selected_universe["TITLE"], gem_amount)
             items.append({"type": "gems", "amount": gem_amount, "universe": selected_universe['TITLE']})
