@@ -441,8 +441,8 @@ class GameState(Extension):
                                     embedVar.add_field(name="🏆 Milestone", value=message)
                         
                         if battle_config.crestsearch:
-                            await crown_utilities.blessguild(100000, battle_config.player1.association)
-                            teambank = await crown_utilities.blessteam(100000, battle_config.player1.guild)
+                            await crown_utilities.blessguild(5000000, battle_config.player1.association)
+                            teambank = await crown_utilities.blessteam(5000000, battle_config.player1.guild)
                             await movecrest(battle_config.selected_universe, battle_config.player1.association)
                             embedVar.add_field(name=f"**{battle_config.selected_universe}** CREST CLAIMED!",
                                             value=f"**{battle_config.player1.association}** earned the {battle_config.selected_universe} **Crest**")
@@ -454,19 +454,19 @@ class GameState(Extension):
                             r = db.updateUserNoFilter(upload_query, new_upload_query)
                         
                         if battle_config.selected_universe in battle_config.player1.completed_dungeons:
-                            await crown_utilities.bless(1000000, battle_config.player1.did)
-                            await battle_msg.delete(delay=2)
-                            await asyncio.sleep(2)
-                            embedVar.add_field(name="Minor Reward",
-                                        value=f"You were awarded 🪙 1,000,000 for completing the {battle_config.selected_universe} Dungeon again!")
-                            embedVar.add_field(name="Boss Key Aquired!",
-                                        value=f"The Boss Arena has been Unlocked!")
-                        else:
                             await crown_utilities.bless(5000000, battle_config.player1.did)
                             await battle_msg.delete(delay=2)
                             await asyncio.sleep(2)
+                            embedVar.add_field(name="Minor Reward",
+                                        value=f"You were awarded 🪙 5,000,000 for completing the {battle_config.selected_universe} Dungeon again!")
+                            embedVar.add_field(name="Boss Key Aquired!",
+                                        value=f"The Boss Arena has been Unlocked!")
+                        else:
+                            await crown_utilities.bless(10000000, battle_config.player1.did)
+                            await battle_msg.delete(delay=2)
+                            await asyncio.sleep(2)
                             embedVar.add_field(name="Dungeon Reward",
-                                        value=f"You were awarded 🪙 5,000,000 for completing the {battle_config.selected_universe} Dungeon!")
+                                        value=f"You were awarded 🪙 10,000,000 for completing the {battle_config.selected_universe} Dungeon!")
                         if battle_config.is_co_op_mode and not battle_config.is_duo_mode:
                             await crown_utilities.bless(500000, battle_config.player3.did)
                             await asyncio.sleep(2)
