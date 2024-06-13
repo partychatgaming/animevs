@@ -882,7 +882,7 @@ async def register(ctx):
          'SERVER': str(ctx.author.guild), 
          'FAMILY': did,
          'FAMILY_DID': did,
-         'BALANCE': Int64(1500000),
+         'BALANCE': Int64(100000),
       }
       r_response = db.createUsers(data.newUser(user))
 
