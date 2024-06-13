@@ -76,7 +76,7 @@ class Profile(Extension):
 
             if button_ctx.ctx.custom_id == f"{_uuid}|no":
                 embed = Embed(title="Account Not Deleted", description="Your account has not been deleted.", color=0x00ff00)
-                await button_ctx.ctx.send(embeds=[embed])
+                await button_ctx.ctx.send(embed=[embed])
                 return
 
             if button_ctx.ctx.custom_id == f"{_uuid}|yes":
