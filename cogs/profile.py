@@ -75,7 +75,8 @@ class Profile(Extension):
             button_ctx = await self.bot.wait_for_component(components=[accept_buttons_action_row], timeout=300, check=check)
 
             if button_ctx.ctx.custom_id == f"{_uuid}|no":
-                await button_ctx.send("Account not deleted.")
+                embed = Embed(title="Account Not Deleted", description="Your account has not been deleted.", color=0x00ff00)
+                await button_ctx.ctx.send(embeds=[embed])
                 return
 
             if button_ctx.ctx.custom_id == f"{_uuid}|yes":
@@ -465,7 +466,6 @@ class Profile(Extension):
                                     name="🪐 Gravity",
                                     value="GRAVITY",
                                 ),
-                                # Add GUN, ROT, SWORD, and NATURE
                                 SlashCommandChoice(
                                     name="🔫 Gun",
                                     value="GUN",
@@ -972,7 +972,6 @@ class Profile(Extension):
                     for index, arm_data in enumerate(arm_data_list):
                         if filtered and arm_data['UNIVERSE'] != card.universe:
                             continue
-
                         arm = crown_utilities.create_arm_from_data(arm_data)
                         arm.set_durability(arm.name, player.arms)
                         arm.set_arm_message(player.performance, card.universe)

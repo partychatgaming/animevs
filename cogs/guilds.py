@@ -274,7 +274,7 @@ class Teams(Extension):
             await ctx.send(embed=embed)
             return
         
-        if team['OWNER'] != user['DISNAME']:
+        if team['OWNER'] != user['DID']:
             embed = Embed(title="Guild Disbandment", description=f"{ctx.author.mention}" +f" you are not the owner of this guild.".format(self), color=0x00ff00)
             await ctx.send(embed=embed)
             return

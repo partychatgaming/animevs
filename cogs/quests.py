@@ -664,7 +664,7 @@ async def milestones_exist_check(player_class):
                     (150, 200000, "150 Rolls Milestone"),
                     (200, 250000, "200 Rolls Milestone"), 
                     (300, 500000, "300 Rolls Milestone"), 
-                    (500, 1000000 "500 Rolls Milestone"), 
+                    (500, 1000000, "500 Rolls Milestone"), 
                     (750, 5000000, "750 Rolls Milestone"), 
                     (1000, 10000000, "1000 Rolls Milestone"), 
                     (2500, 1000000, "2500 Rolls Milestone"), 
