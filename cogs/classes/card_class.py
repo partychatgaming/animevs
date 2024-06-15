@@ -1019,7 +1019,7 @@ class Card:
                 self._siphon_value = self._siphon_value + arm_value
 
             if arm_type == "MANA":
-                self.move4ap = round(self.move4ap * (arm_value / 100))
+                self.move4ap = self.move4ap + round(self.move4ap * (arm_value / 100))
 
         except Exception as ex:
             custom_logging.debug(ex)
