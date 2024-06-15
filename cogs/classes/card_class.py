@@ -81,6 +81,7 @@ class Card:
             self.is_boss_drop = False
             self.is_destiny_drop = False
             self.is_raid_drop = False
+            self.is_tactician = False
             self.is_fighter = False
             self.is_mage = False
             self.is_ranger = False
@@ -700,6 +701,7 @@ class Card:
                 self.class_tier = "Creator God"
         self.class_value = value
         self.class_message = f"{self.class_tier} {self.card_class.title()}"
+        
         if self.card_class == "FIGHTER":
             self.is_fighter = True
             self.parry_active = True
@@ -730,6 +732,9 @@ class Card:
             self.wind_buff_value = 1.50
             self.nature_buff_value = .60
         
+        if self.card_class == "TACTICIAN":
+            self.is_tactician = True
+
         if self.card_class == "RANGER":
             self.is_ranger = True
             self.barrier_active = True
@@ -1736,6 +1741,9 @@ class Card:
                 if true_dmg <= 0 or true_dmg is None or not true_dmg:
                     true_dmg = 50
 
+                if opponent_title.enhanced_guard_effect and true_dmg > 25:
+                    true_dmg = true_dmg - (true_dmg * .8)
+
                 message = ""            
 
                 miss_hit = 1
@@ -1803,7 +1811,6 @@ class Card:
                     message = f'{move_emoji} {turn_card.name} hit {_opponent_card.name} for {true_dmg:,} damage'
                 
                 elif hit_roll >= 20:
-
                     if self.wind_element_activated:
                         battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * self.wind_buff_value))
                         battle_config.add_to_battle_log(f"All wind power increased by {round(true_dmg * self.wind_buff_value):,}")
@@ -1834,8 +1841,8 @@ class Card:
                     else:
                         message = f"{move_emoji} {turn_card.name} hit {_opponent_card.name} for {true_dmg:,} damage (strong hit)"
                 
-                if not self._talisman == move_element and not self._is_boss:
-                    if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit) :
+                if not self._talisman == move_element and not self._is_boss and not _opponent_card.is_tactician:
+                    if move_element in _opponent_card.resistances and not (hit_roll <= miss_hit):
                         true_dmg = round(true_dmg * .45)
                         if summon_used:
                             message = f"{move_emoji} {turn_card.name} hit {_opponent_card.name} for {true_dmg:,} damage (weak hit)"
@@ -1880,8 +1887,6 @@ class Card:
                 if _opponent_card._heal_active:
                     _opponent_card._heal_value = round(_opponent_card._heal_value + (true_dmg * _opponent_card._heal_buff))
 
-                if opponent_title.enhanced_guard_effect and true_dmg > 25:
-                    true_dmg = true_dmg - (true_dmg * .8)
 
                 response = {"DMG": true_dmg, "MESSAGE": message,
                             "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element, "STAMINA_USED": move_stamina, "SUMMON_USED": summon_used}
@@ -2935,7 +2940,7 @@ class Card:
 
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.shield_active:
-            if not opponent_title.impenetrable_shield_effect:
+            if not opponent_title.impenetrable_shield_effect and not opponent_card.is_tactician:
                 if dmg['ELEMENT'] in ["DARK", "POISON", "ROT", "SLEEP"]:
                     return False
                 if player_title.obliterate_effect:
@@ -2999,28 +3004,29 @@ class Card:
 
     def active_barrier_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.barrier_active:
-            if dmg['ELEMENT'] in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
-                if dmg['ELEMENT'] == "TIME" and opponent_card._barrier_value > 1:
-                    opponent_card._barrier_value = opponent_card._barrier_value - 1
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} hits {opponent_card.name} barrier 💠 [{opponent_card._barrier_value} barriers left]")
-                if dmg['ELEMENT'] == "TIME" and opponent_card._barrier_value == 1:
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} destroys {opponent_card.name} 💠 barrier")
-                    opponent_card._barrier_value = opponent_card._barrier_value - 1
-                    opponent_card.barrier_active = False
-                    opponent_card._barrier_value = 0
-                    opponent_card._arm_message = ""
-                    decrease_solo_leveling_temp_values_self(self, 'BARRIER', battle_config)
+            if not opponent_card.is_tactician:
+                if dmg['ELEMENT'] in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
+                    if dmg['ELEMENT'] == "TIME" and opponent_card._barrier_value > 1:
+                        opponent_card._barrier_value = opponent_card._barrier_value - 1
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} hits {opponent_card.name} barrier 💠 [{opponent_card._barrier_value} barriers left]")
+                    if dmg['ELEMENT'] == "TIME" and opponent_card._barrier_value == 1:
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} destroys {opponent_card.name} 💠 barrier")
+                        opponent_card._barrier_value = opponent_card._barrier_value - 1
+                        opponent_card.barrier_active = False
+                        opponent_card._barrier_value = 0
+                        opponent_card._arm_message = ""
+                        decrease_solo_leveling_temp_values_self(self, 'BARRIER', battle_config)
+                    
+                    return False
+
+                if dmg['ELEMENT'] == "SLEEP":
+                    return False
+
+                if player_title.pierce_effect:
+                    return False
                 
-                return False
-
-            if dmg['ELEMENT'] == "SLEEP":
-                return False
-
-            if player_title.pierce_effect:
-                return False
-            
-            if player_title.strategist_effect:
-                return False
+                if player_title.strategist_effect:
+                    return False
 
             if self.energy_crit_bool:
                 self.energy_crit_bool = False
@@ -3057,44 +3063,40 @@ class Card:
 
     def active_parry_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.parry_active:
-            if dmg['ELEMENT'] in ["POISON", "ROT", "SLEEP", "BLEED"]:
-                return False
-            
-            if dmg['ELEMENT'] in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:
-                if dmg['ELEMENT'] == "TIME" and opponent_card._parry_value > 1:
-                    opponent_card._parry_value = opponent_card._parry_value - 1
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} hits {opponent_card.name} parry 🔄 [{opponent_card._parry_value} parries left]")
-                if dmg['ELEMENT'] == "TIME" and opponent_card._parry_value == 1:
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} penetrates {opponent_card.name}'s parry 🔄")
-                    opponent_card._parry_value = opponent_card._parry_value - 1
-                    opponent_card.parry_active = False
-                    opponent_card._parry_value = 0
-                    opponent_card._arm_message = ""
-                    decrease_solo_leveling_temp_values_self(self, 'PARRY', battle_config)
+            if not opponent_card.is_tactician:
+                if dmg['ELEMENT'] in ["POISON", "ROT", "SLEEP", "BLEED"]:
+                    return False
+                
+                if dmg['ELEMENT'] in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:
+                    if dmg['ELEMENT'] == "TIME" and opponent_card._parry_value > 1:
+                        opponent_card._parry_value = opponent_card._parry_value - 1
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} hits {opponent_card.name} parry 🔄 [{opponent_card._parry_value} parries left]")
+                    if dmg['ELEMENT'] == "TIME" and opponent_card._parry_value == 1:
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} penetrates {opponent_card.name}'s parry 🔄")
+                        opponent_card._parry_value = opponent_card._parry_value - 1
+                        opponent_card.parry_active = False
+                        opponent_card._parry_value = 0
+                        opponent_card._arm_message = ""
+                        decrease_solo_leveling_temp_values_self(self, 'PARRY', battle_config)
 
-                return False
-            
-            if player_title.blitz_effect:
-                return False
+                    return False
+                
+                if player_title.blitz_effect:
+                    return False
 
-            if player_title.strategist_effect:
-                return False
+                if player_title.strategist_effect:
+                    return False
 
-            if dmg['ELEMENT'] in ["LIGHT", "FIRE", "WATER", "EARTH", "DEATH", "LIFE", "NATURE", "ELECTRIC", "ICE"]:
-                self.light_effect_handler(battle_config, dmg, opponent_card)
-                self.fire_effect_handler(battle_config, dmg, opponent_card)
-                self.water_effect_handler(battle_config, dmg, opponent_card)
-                self.earth_effect_handler(battle_config, dmg, opponent_card)
-                self.death_effect_handler(battle_config, dmg, opponent_card)
-                self.life_effect_handler(battle_config, dmg, opponent_card)
-                self.nature_effect_handler(battle_config, dmg, opponent_card)
-                self.electric_effect_handler(battle_config, dmg, opponent_card)
-                self.ice_effect_handler(battle_config, dmg, opponent_card)
-
-
-
-
-
+                if dmg['ELEMENT'] in ["LIGHT", "FIRE", "WATER", "EARTH", "DEATH", "LIFE", "NATURE", "ELECTRIC", "ICE"]:
+                    self.light_effect_handler(battle_config, dmg, opponent_card)
+                    self.fire_effect_handler(battle_config, dmg, opponent_card)
+                    self.water_effect_handler(battle_config, dmg, opponent_card)
+                    self.earth_effect_handler(battle_config, dmg, opponent_card)
+                    self.death_effect_handler(battle_config, dmg, opponent_card)
+                    self.life_effect_handler(battle_config, dmg, opponent_card)
+                    self.nature_effect_handler(battle_config, dmg, opponent_card)
+                    self.electric_effect_handler(battle_config, dmg, opponent_card)
+                    self.ice_effect_handler(battle_config, dmg, opponent_card)
 
 
             if self.energy_crit_bool:

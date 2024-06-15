@@ -1453,7 +1453,7 @@ class Profile(Extension):
                     
                     else:
                         new_tier = card.card_tier + 1
-                        await crown_utilities.curse(tier_values[card.card_tier], user.did)
+                        await crown_utilities.curse(tier_values[new_tier], user.did)
                         update_query = {'$inc': {'CARD_LEVELS.$[type].' + "TIER": 1}}
                         filter_query = [{'type.' + "CARD": card.name}]
                         response = await asyncio.to_thread(db.updateUser, user.user_query, update_query, filter_query)

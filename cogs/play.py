@@ -410,6 +410,7 @@ async def add_ai_start_messages(battle_config):
             "HEALER": "{name} the {class_message} boosted their healing spells",
             "SUMMONER": "{name} the {class_message} the ability to summon their companion before resolving",
             "FIGHTER": "{name} the {class_message} gained 🔁 {class_value} parries",
+            "TACTICIAN": "{name} the {class_message} has improved protections and affinites",
         }
 
         def append_previous_moves(card, player_name):
