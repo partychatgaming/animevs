@@ -238,6 +238,13 @@ class Profile(Extension):
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
+                        Embed(title=f"{player_name} Ability Breakdown", description="List of element effects per ability.", color=0x000000)
+                            .add_field(name=f"__Basic Attack__", value=f"{c.move1_emoji} {c.move1_element.title()} - {crown_utilities.element_mapping[c.move1_element]}\n")
+                            .add_field(name=f"__Special Attack__", value=f"{c.move2_emoji} {c.move2_element.title()} - {crown_utilities.element_mapping[c.move2_element]}\n")
+                            .add_field(name=f"__Ultimate Attack__", value=f"{c.move3_emoji} {c.move3_element.title()} - {crown_utilities.element_mapping[c.move3_element]}\n")
+                            .set_image(url="attachment://image.png")
+                            .set_thumbnail(url=ctx.author.avatar_url),
+
                         Embed(title=f"{player_name} Build Talisman View", description="Talismans are powerful accessories that can be attuned to your card to bypass a single affinity.", color=0x000000)
                             .add_field(name="__Talisman Name & Effects__", value=player.talisman_message, inline=True)
                             .set_image(url="attachment://image.png")

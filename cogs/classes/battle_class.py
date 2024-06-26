@@ -830,6 +830,10 @@ class Battle:
                 self.match_has_ended = False
                 player2_card.health = 100
                 return self.match_has_ended
+            if self.is_tutorial_game_mode and not self.all_tutorial_tasks_complete:
+                self.match_has_ended = False
+                player2_card.health = 100
+                return self.match_has_ended
             self.match_has_ended = True
             self.player1_wins = True
 
@@ -937,6 +941,11 @@ class Battle:
             else:
                 talisman_message = f"{crown_utilities.set_emoji(card._talisman)} {card._talisman.title()} Talisman"
             return f"🎴 {card.name}\n{talisman_message}\n{focus}{round(card.health):,} {resolve}{round(card.stamina)} 🗡️{round(card.attack):,}/🛡️{round(card.defense):,}\n{title.title_battle_message_handler()} {card._arm_message}"
+            if card._tactician_stack_3:
+                talisman_message = f"🆚 Tactician's Talisman"
+            else:
+                talisman_message = f"{crown_utilities.set_emoji(card._talisman)} {card._talisman.title()} Talisman"
+            return f"🎴 {card.name}\n{talisman_message}\n{focus}{round(card.health):,} {resolve}{round(card.stamina)} 🗡️{round(card.attack):,}/🛡️{round(card.defense):,}\n{title.title_battle_message_handler()} {card._arm_message}"
 
         if self.is_co_op_mode or self.is_duo_mode:
             if self.is_turn in [1, 0]:
@@ -974,6 +983,8 @@ class Battle:
             aiMove = 6
         elif your_card.is_tactician and your_card.stamina >= 20 and your_card.stamina <30:
             aiMove = 0
+        elif your_card.is_tactician and your_card.stamina >= 20 and your_card.stamina <30:
+            aiMove = 0
         elif your_card.move4enh == "WAVE" and (self_turn_mod in [0, 1]):
             aiMove = 4 if stamina >= 20 else 1
         elif your_card.barrier_active and not your_card.is_ranger:
@@ -997,6 +1008,7 @@ class Battle:
         elif your_card.universe in self.blocking_traits and stamina == 20:
             if opponent_card.attack >= your_card.defense and opponent_card.attack <= (your_card.defense * 2):
                 aiMove = 0 if your_card.used_focus else 4
+            elif your_card.universe == "Attack On Titan" and health_ratio <= 0.70:
             elif your_card.universe == "Attack On Titan" and health_ratio <= 0.70:
                 aiMove = 0
             elif opponent_card.barrier_active and opponent_card.stamina <= 20 and your_card.universe == "Bleach":
@@ -1314,6 +1326,7 @@ class Battle:
                     response = f"Your Game timed out. Your channel has been closed but your spot in the tales has been saved where you last left off."
             else:
                 response = f"Your Game timed out. Your channel has been closed, restart the tutorial with **/play**."
+                response = f"Your Game timed out. Your channel has been closed, restart the tutorial with **/play**."
         else:
             response = f"Your game timed out. Your channel has been closed and your Abyss Floor was Reset."
         self.match_has_ended = True
@@ -1413,25 +1426,37 @@ class Battle:
             close_message = "Boss"
             picon = "👹"
             f_message = f"🪦 | You fail to claim {opponent_card.name}'s Soul"
+            f_message = f"🪦 | You fail to claim {opponent_card.name}'s Soul"
         if self.is_abyss_game_mode:
             close_message = "Abyss"
             picon = ":new_moon:"
+            f_message = f"🪦 | The Abyss Claims Another..."
             f_message = f"🪦 | The Abyss Claims Another..."
         if self.is_explore_game_mode:
             close_message = "Explore Battle"
             picon = "🌌"
             f_message = f"🪦 | Explore Battle Failed!"
+            f_message = f"🪦 | Explore Battle Failed!"
         if self.is_scenario_game_mode:
             close_message = "Scenario Battle"
             picon = "📹"
+            f_message = f"🪦 | Scenario Ended."
             f_message = f"🪦 | Scenario Ended."
         if self.is_raid_scenario:
             close_message = "Raid Battle"
             picon = "💀"
             f_message = f"🪦 | Scenario Raid Ended."
+            picon = "💀"
+            f_message = f"🪦 | Scenario Raid Ended."
         if self.is_raid_game_mode:
             close_message = "Arena Battle"
+            close_message = "Arena Battle"
             picon = "⛩️"
+            f_message = f"🪦 | Unsuccessful Arena."
+        if self.is_tutorial_game_mode:
+            close_message = "Tutorial Battle"
+            picon = "🧠"
+            f_message = f"🧠 | Tutorial will teach you about Game Mechanics and Card Abiltiies!"
             f_message = f"🪦 | Unsuccessful Arena."
         if self.is_tutorial_game_mode:
             close_message = "Tutorial Battle"
@@ -1474,6 +1499,339 @@ class Battle:
                                 value=f"🎴 | {opponent.equipped_card}\n🎗️ | {opponent.equipped_title}\n🦾 | {opponent.equipped_arm}\n🧬 | {opponent._equipped_summon_name}")
         embedVar.set_footer(text=f_message)
         return embedVar
+    
+    def tutorial_messages(self, player_card, opponent_card, message_type):
+        embedVar = False
+        if message_type == 'BASIC':
+            embedVar = Embed(title=f":boom:Basic Attack!",
+                                    description=f"**Basic Attacks** cost **10 ST(Stamina)**\n")
+            embedVar.add_field(
+                name=f"{player_card.move1_emoji} {player_card.move1} inflicts {player_card.move1_element.title()}",
+                value=f"**{player_card.move1_element}** : *{crown_utilities.get_element_mapping(player_card.move1_element)}*\n")
+            # embedVar.set_footer(
+            #     text=f"Basic Attacks are great when you are low on stamina. Enter Focus State to Replenish!")
+            return embedVar
+        elif message_type == 'SPECIAL':
+            embedVar = Embed(title=f":comet:Special Attack!",
+                                    description=f"**Special Attacks** cost **30 ST(Stamina)**\n")
+            embedVar.add_field(
+                name=f"{player_card.move2_emoji} {player_card.move2} inflicts {player_card.move2_element.title()}",
+                value=f"**{player_card.move2_element}** : *{crown_utilities.get_element_mapping(player_card.move2_element)}*\n")
+            # embedVar.set_footer(
+            #     text=f"Special Attacks are used to control the Focus Count! Use Them to Maximize your Focus and build stronger Combos!")
+            return embedVar
+        elif message_type == "ULTIMATE":
+            embedVar =  Embed(title=f":rosette:Ultimate Move!",
+                                    description=f"**Ultimate Move** cost **80 ST(Stamina)**\n")
+            embedVar.add_field(
+                name=f"{player_card.move3_emoji} {player_card.move3} inflicts {player_card.move3_element.title()}",
+                value=f"**{player_card.move3_element}** : *{crown_utilities.get_element_mapping(player_card.move3_element)}*\n")
+            # embedVar.add_field(name=f"Ultimate GIF",
+            #                 value="Using your ultimate move also comes with a bonus GIF to deliver that final blow!\n*Enter performance mode to disable GIFs\n/performace*")
+            # embedVar.set_footer(
+            #     text=f"Ultimate moves will consume most of your ST(Stamina) for Incredible Damage! Use Them Wisely!")
+            return embedVar
+        elif message_type == "ENHANCER":
+            self.tutorial_enhancer = True
+            embedVar = Embed(title=f"🦠Enhancers!",
+                                    description=f"**Enhancers** cost **20 ST(Stamina)** to Boost your Card or Debuff Your Opponent!\n")
+            embedVar.add_field(
+                name=f"🦠 {player_card.move4} is a {player_card.move4enh.title()}",
+                value=f"\n**{player_card.move4enh}** : *{crown_utilities.get_enhancer_mapping(player_card.move4enh)}*\n")
+            # embedVar.set_footer(
+            #     text=f"Use /help to view a full list of Enhancers! Look for the {player_card.move4enh} Enhancer")
+            return embedVar
+        elif message_type == "SUMMON":
+            self.tutorial_summon = True
+            embedVar = Embed(title=f"{player_card.name} Summoned 🧬 {player_card.summon_name}",
+                             description=f"**{player_card.summon_name}** used their {player_card.summon_emoji} {player_card.summon_type} ability\n")
+            embedVar.add_field(name=f"Summon Rest",
+                            value="*You can use _🧬Summons_ once per Focus without losing a turn*\n")
+            if player_card.is_summoner:
+                protections = ['BARRIER', 'PARRY']
+                if player_card.summon_type in protections:
+                    summoner_buff = f"grants {player_card.card_tier} more protections!"
+                else:
+                    summoner_buff = f"is {player_card.card_tier}x more Effective!"
+                embedVar.add_field(name=f"{crown_utilities.class_emojis['SUMMONER']}**Summoner Class**!",
+                            value=f"*The Summoner class can call forth their ally from the start of battle! Your summon {summoner_buff}*\n")
+            if player_card.universe in crown_utilities.summon_traits:
+                title, text = self.summon_trait_handler(player_card)
+                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                                value=f"{text}")
+            # embedVar.set_footer(
+            #     text=f"🧬Summons will Level Up and build Bond as you win battles! Train up your summons to perform better in the field!")
+            return embedVar
+        elif message_type == "BLOCK":
+            self.tutorial_block = True
+            embedVar = Embed(title=f"🛡️Blocking!",
+                                    description=f"**Blocking** cost **20 ST(Stamina)** to Double your **DEF** until your next turn!\n")
+            embedVar.add_field(name=f"**Damage Mitigation**",
+                            value="You will take less DMG when your **DEF** is greater than your opponents **ATK**\n")
+            if (player_card.is_tactician or player_card.is_tank):
+                if player_card.is_tactician:
+                    embedVar.add_field(name=f"{crown_utilities.class_emojis['TACTICIAN']}** Tactician Class**!",
+                            value="*Enter Focus by Blocking to Strategize, Buffing yourself while debuffing your opponent*\n")
+                    if player_card.stamina < 10:
+                        embedVar.add_field(name=f"Stategy Point Created!**!",
+                        value="*Great Job! Focusing into Block grants increasingly strong buffs or debuffs for each point gained*\n")
+                if player_card.is_tank:
+                    embedVar.add_field(name=f"{crown_utilities.class_emojis['TANK']}** Tank Class**!",
+                            value="*On Block gain 3x Defense, instead of 2x*\n")
+            if player_card.universe in crown_utilities.blocking_traits:
+                title, text = self.blocking_trait_handler(player_card)
+                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                            value=f"{text}")
+            # embedVar.set_footer(
+            #     text=f"Use 🛡️Block strategically to defend against your opponents strongest abilities!")
+            return embedVar
+        elif message_type == "FOCUS":
+            embedVar = Embed(title=f"🌀{player_card.name} is **Focusing**!",
+                                    description=f"Entering **Focus State** sacrifices a turn to **Heal** and Regain **90 ST(Stamina)**\n")
+            embedVar.add_field(name=f"Focusing",
+                            value=f"*Increase your ATK and DEF stacking bonuses with each 🌀Focus*\n")
+            if player_card.universe in crown_utilities.focus_traits:
+                title, text = self.focus_trait_handler(player_card, opponent_card)
+                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                            value=f"{text}")
+            # embedVar.set_footer(
+            #     text=f"Pay attention to your opponents ST(Stamina). If they are entering Focus State, you may have an opportunity to attack twice!")
+            return embedVar
+        elif message_type == "RESOLVE":
+            embedVar = Embed(title=f"⚡**Resolve Transformation**!",
+                                    description=f"Sacrifice DEF to **Heal**, Boost **ATK**, and gain 🧬**Summon**!\n*Focusing will no longer increase ATK or DEF*")
+            if (player_card.is_swordsman or player_card.is_tank or player_card.is_monstrosity):
+                if player_card.is_swordsman:
+                    embedVar.add_field(name=f"{crown_utilities.class_emojis['SWORDSMAN']}** Swordsman Class**!",
+                            value=f"On Resolve gain Critical Strikes **[{player_card.class_value}]**\n")
+                if player_card.is_monstrosity:
+                    embedVar.add_field(name=f"{crown_utilities.class_emojis['MONSTROSITY']}** Monstrosity Class**!",
+                            value=f"On Resolve gain Double Strikes **[{player_card.class_value}]**\n")
+                if player_card.is_tank:
+                    embedVar.add_field(name=f"{crown_utilities.class_emojis['TANK']}** Tank Class**!",
+                            value=f"On Resolve gain increase your shield by 500 * Card Tier **[{500 * player_card.card_tier}]**\n")
+            if player_card.universe in crown_utilities.resolve_traits:
+                title, text = self.resolve_trait_handler(player_card)
+                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                            value=f"{text}")
+            # embedVar.set_footer(
+            #     text=f"You can only enter ⚡Resolve once per match! Use this ability Wisely!!!")
+            return embedVar
+        elif message_type == "OPPONENT":
+            embedVar = Embed(title=f"🌀 Your Opponent **{player_card.name}** is **Focusing**!",
+                                    description=f"Your opponent will now sacrifice a turn to **Heal** and Regain **90 ST(Stamina)**\n")
+            if opponent_card.universe in crown_utilities.opponent_focus_trait:
+                title, text = self.opponent_focus_trait_handler(player_card, opponent_card)
+                embedVar.add_field(name=f"\n{opponent_card.universe_crest} {opponent_card.universe} Trait: {title}",
+                            value=f"{text}")
+            return embedVar
+        elif message_type == "HEALTH":
+            embedVar = Embed(title=f"❤️ **{player_card.name}'s** Health Trait Activated",
+                                    description=f"Some universe Traits trigger when your health reaches a certain point!")
+            if player_card.universe in crown_utilities.death_traits:
+                title, text = self.death_trait_handler(player_card)
+                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                            value=f"{text}")
+            return embedVar
+    
+    def blocking_trait_handler(self, player_card):
+        name = False
+        value = False
+        if player_card.universe == "Attack On Titan":
+            name = "Rally"
+            value =f"On Block\nGain 50 * Card Tier Health and Max Health **[{50 * player_card.card_tier}]**"
+            return name, value
+        if player_card.universe == "Black Clover":
+            name = "Grimoire"
+            value =f"On Block\nIncrease ST(Stamina) by 50\nGain 25 * card tier AP **[{25 * player_card.card_tier}]**"
+        if player_card.universe == "Bleach":
+            name = "Spiritual Pressure"
+            value =f"On Block\nStrike with your `BASIC` Attack.\nYour `BASIC` Attack: {player_card.move1_emoji} {player_card.move1} inflicts {player_card.move1_element}\n**{player_card.move1_element}** : *{crown_utilities.get_element_mapping(player_card.move1_element)}*"
+        if player_card.universe == "Death Note":
+            name = "Shinigami Eyes"
+            value =f"On Block\nspend 50% Max Health [{.50 * player_card.max_health}] to increase turn count by 10 + Card Tier **[{10 + player_card.card_tier}]**."
+        if player_card.universe == "My Hero Academia":
+            name = "Plus Ultra"
+            value =f"On Block\nIncrease All AP values by 20 [{player_card.my_hero_ap_buff}]"
+        if player_card.universe == "YuYu Hakusho":
+            name = "Meditation"
+            value = f"On Block\nGain 100 * Card Tier Defense **[{100 * player_card.card_tier}]** and 10 * Card Tier AP **[{10 * player_card.card_tier}]**." 
+        return name, value
+    
+    def summon_trait_handler(self, player_card):
+        name = False
+        value = False
+        if player_card.universe == "Persona":
+            name = "Summon Persona"
+            value =f"On Summon\nstrike with your `BASIC` attack\nYour `BASIC` Attack: {player_card.move1_emoji} {player_card.move1} inflicts {player_card.move1_element}\n**{player_card.move1_element}** : *{crown_utilities.get_element_mapping(player_card.move1_element)}*"
+        if player_card.universe == "Soul Eater":
+            name = "Meister"
+            value =f"On Summon\nSoul Eater Summons double their Protection Value and Triple their Attack damage\nSummons Always trigger Feint Attack"
+        if player_card.universe == "That Time I Got Reincarnated as a Slime":
+            name = "Summon Slime"
+            value =f"On Summon\nGain (5 * Card Tier) Stamina**[{5 * player_card.card_tier}]**."
+        return name, value
+       
+    def resolve_trait_handler(self, player_card):
+        if player_card.universe == "Attack On Titan":
+            name = "Titan Mode"
+            value =f"On Resolve\nGain 100 * (Focus Count * Card Tier) Health and Max Health **[{100 * (player_card.focus_count * player_card.card_tier)}]**"
+        if player_card.universe == "Digimon":
+            name = "Mega-Digivolution"
+            value =f"On Resolve\nIf turn count < 5, Double your Attack and Defense"
+        if player_card.universe == "Naruto":
+            name = "Hashirama Cells"
+            value =f"On Resolve\nHealth for the amount of stored Hashirama Cells**[{player_card.naruto_heal_buff}]**"
+        if player_card.universe == "Demon Slayer":
+            name = "Total Concentration Constant"
+            value =f"On Resolve\nIf your opponents Attack or Defense is greater than yours, they become equal. If yours are equal or better gain Card Level AP **[{player_card.card_lvl}]** of either Stat."
+        if player_card.universe == "YuYu Hakusho":
+            name = "Spirit Energy"
+            value =f"On Resolve\nSet defense to 100 but Double Attack and all Move AP"
+        if player_card.universe == "Jujutsu Kaisen":
+            if player_card.card_tier >= 10:
+                class_ranking = 6
+            elif player_card.card_tier in [8,9]:
+                class_ranking = 7
+            elif player_card.card_tier in [6,7]:
+                class_ranking = 8
+            elif player_card.card_tier in [4,5]:
+                class_ranking = 9
+            else:
+                class_ranking = 10
+            jjk_value = class_ranking - player_card.focus_count
+            if class_ranking - player_card.focus_count <= 0:
+                jjk_value = 1
+            name = "Domain Expansion"
+            value =f"On Resolve\nYour opponent must suceed a damage check they have (10 - Class Ranking - Focus Count) [{jjk_value}] turns to complete, each turn they lose 5% Max Health\nOn Failure they `DIE`\nIf your opponent suceeds and their Focus Count is higher than yours,You Lose the same amount of Max Health "
+        if player_card.universe == "Overlord":
+            name = "Fear"
+            value =f"On Resolve\nOpponent is stricken with fear, opponents defense becomes 25 for Card Tier x 1 turns **[{player_card.card_tier * 1}]**"
+        if player_card.universe == "One Piece" and player_card.card_tier in crown_utilities.HIGH_TIER_CARDS:
+            name = "Conquerors Haki"
+            value =f"On Resolve\nOpponent loses 100 * Card Tier AP **[{100 * player_card.card_tier}]**"
+        if player_card.universe == "Souls":
+            name = "Phase 2: Enhanced Moveset"
+            value =f"On Resolve\nYour `BASIC` attack becomes your `SPECIAL` attack & your `SPECIAL` Attack becomes a 30 ST(Stamina) `ULTIMATE` attack.\n\nNew `SPECIAL` Attack: {player_card.move2_emoji} {player_card.move2} inflicts {player_card.move2_element}\n\nNew `BASIC` Attack: {player_card.move1_emoji} {player_card.move1} inflicts {player_card.move1_element}\n\n**{player_card.summon_name}** used their {player_card.summon_emoji} {player_card.summon_type} ability"
+        if player_card.universe == "Fate":
+            name = "Command Seal"
+            value =f"On Resolve\nStrike with your Ultimate Attack.\nYour Ultimate Attack: {player_card.move3_emoji} {player_card.move3} inflicts {player_card.move3_element}\n**{player_card.move3_element}** : *{crown_utilities.get_element_mapping(player_card.move3_element)}*"
+        if player_card.universe == "Bleach":
+            name = "Bankai"
+            value =f"On Resolve\nDouble your Attack and double the amount of attack gained on Resolve **[{player_card.attack}]**."
+        if player_card.universe == "My Hero Academia":
+            name = "Quirk Awakening"
+            value =f"On Resolve\nGain (Plus Ultra AP  * Focus Count) AP to all Attacks **[{player_card.my_hero_academia_buff}]**"
+        if player_card.universe == "Fairy Tail":
+            name = "Unison Raid"
+            value =f"On Resolve\nStrike with your Special, Ultimate and Summon abilitiy! After this powerful attack you lose 1 run to Recover\n\n`SPECIAL` Attack: {player_card.move2_emoji} {player_card.move2} inflicts {player_card.move2_element}\n\n`ULTIMATE` Attack: {player_card.move3_emoji} {player_card.move3} inflicts {player_card.move3_element}\n\n`SUMMON` Attack: {player_card.summon_emoji} **{player_card.summon_name}** inflicts {player_card.summon_type}"
+        if player_card.universe == "Pokemon":
+            name = "Evolution"
+            value =f"On Resolve\nIncrease defense by Card Tier\nIf turn count > 20 Mega-Evolve and gain 250 * Card Tier Health **[{250 * player_card.card_tier}]**\nIf Turn Count > 30 **Gigantomax** and double it **[{(250 * player_card.card_tier) * 2}]**" 
+        if player_card.universe == "That Time I Got Reincarnated as a Slime":
+            name = "Skill Evolution"
+            value =f"On Resolve\nIncrease `ULTIMATE` AP by total ap of your `BASIC` and `SPECIAL` attack **[{player_card.slime_buff}]** which both become `25` ."
+        return name, value
+    
+    def focus_trait_handler(self, player_card, opponent_card):
+        if player_card.universe == "Digimon":
+            name = "Digivolve"
+            value =f"On Focus\nResolve and increase ATK and DEF **[{100 * player_card.card_tier}]**"
+        if player_card.universe == "Naruto":
+            name = "Substition Jutsu"
+            value =f"On Focus\nYou cannot be hit by attacks, convert any attack damage into `Hashirama Cells` **[{player_card.naruto_heal_buff}]**"
+        if player_card.universe == "Black Clover":
+            name = "Mana Zone"
+            value =f"On Focus\nGain 100 Stamina and increase your AP by (25% * Card Level[Base 50])**[{round((player_card.card_lvl + 49) * .10)}]**"
+        if player_card.universe == "Solo Leveling":
+            name = "Rulers Authority"
+            value =f"On Focus\nOpponent loses (40 + Turn Count) * Card Tier Defense **[{(40 + self.turn_total) * player_card.card_tier}]**"
+        if player_card.universe == "One Punch Man":
+            name = "Hero Rankings & Monster Threat Levels"
+            value =f"On Focus\n\n**Heroes**: Gain 15 * Hero Card Tier AP **[{15 * player_card.card_tier}]**\n\n**Monsters**: Gain 30 * Monster Card Tier **[{30 * player_card.card_tier}]**"
+        if player_card.universe == "Jujutsu Kaisen":
+            name = "Cursed Energy"
+            value =f"After Focus\nYour next attack is a **Critical Strike**!"
+        if player_card.universe == "One Piece" and (player_card.card_tier in crown_utilities.MID_TIER_CARDS or player_card.card_tier in crown_utilities.HIGH_TIER_CARDS):
+            name = "Armament Haki"
+            value =f"On Focus\nDouble Attack and Defense gained during Focus"
+        if player_card.universe == "Overlord":
+            name = "Fear Aura"
+            value =f"On Focus\nOpponent loses Card Tier * 20 AP **[{player_card.card_tier * 20}]**." 
+        if player_card.universe == "Fairy Tail":
+            name = "Concentration"
+            value =f"On Focus\nGain 15 * Card tier * Focus Count AP **[{(15 * player_card.tier) * (player_card.focus_count + 1)}]**." 
+        if player_card.universe == "That Time I Got Reincarnated as a Slime":
+            o_beezlebub_value = round(opponent_card.attack * (((player_card.tier) / 100 ) * (player_card.focus_count + 1)))
+            d_beezlebub_value = round(opponent_card.defense * (((player_card.tier) / 100 ) * (player_card.focus_count + 1)))
+            name = "Beezlebuth"
+            value =f"On Focus\nSteal (Card Tier * Focus Count)% Attack **[{o_beezlebub_value}]** and Defense **[{d_beezlebub_value}]** from your opponent." 
+        
+        return name, value
+    
+    def opponent_focus_trait_handler(self, player_card, opponent_card):
+        """
+        Handle the opponent focus trait for the player's card.
+
+        Args:
+            player_card (Card): The player's card.
+            opponent_card (Card): The opponent's card.
+
+        Returns:
+            tuple: A tuple containing the name and value of the trait.
+
+        Raises:
+            None
+
+        """
+        name = False
+        value = False
+        if opponent_card.universe == "7ds":
+            fortitude = round(opponent_card.health * .1)
+            if fortitude <= 100:
+                fortitude = 100
+            attack_calculation = round((.10 * opponent_card.attack))
+            defense_calculation = round((.10 * opponent_card.defense))
+            f_attack_calculation = round((fortitude * (opponent_card.tier / 10)) + (.05 * opponent_card.attack))
+            f_defense_calculation = round((fortitude * (opponent_card.tier / 10)) + (.05 * opponent_card.defense))
+            name = "Increase Power & Power of Friendship"
+            value = f"On Opponent Focus:\n**Increase Power**: Gain 10% Attack and Defense and 60 Stamina [+🗡️{attack_calculation}| +🛡️{defense_calculation}]\n\n**Power of Friendship**: On Opponent Focus your Summon Rest, Summoning amplifies Increase Power into a Focus Buff[+🗡️{f_attack_calculation}| +🛡️{f_defense_calculation}]"
+        if opponent_card.universe == "One Punch Man":
+            name = "Hero Reinforcements & Monster Rejuvination"
+            value = f"On Opponent Focus:\n\n**Heroes**: gain 50 * Opponent Card Tier Health and Max Health **[{50 * player_card.card_tier}]**\n\n**Monsters**: Gain 25 * Monster Card Tier Health and Max Health **[{25 * opponent_card.card_tier}]**"
+        if opponent_card.universe == "Souls":
+            name = "Phase 1: Combo Recognition"
+            value = f"On Opponent Focus:\nGain (10 * Card Tier) + Turn Count Attack **[{10 * opponent_card.card_tier + self.turn_total}]**"
+        return name, value
+
+    def starting_trait_handler(self, player_card, opponent_card):
+        if player_card.universe == "Death Note":
+            name = "Death Note"
+            value =f"On Turn 50\nYour opponent **[{opponent_card.name}]** will have a heart attack and `DIE`"
+        if player_card.universe == "One Piece":
+            name = "Observation Haki"
+            value =f"Reduce incoming damage by 40% until your first focus"
+        if player_card.universe == "Chainsawman":
+            name = "Fearful"
+            value =f"Strong Fear Affliction\n\nThe Fear enhancer does not sacrifice Health"
+        if player_card.universe == "Demon Slayer":
+            name = "Total Concentration Breathing"
+            value =f"Gain 40% of your opponents base max health at the start of battle **[{round(.40 * opponent_card.max_base_health)}]**"
+        return name, value
+    
+    def death_trait_handler(self, player_card):
+        if player_card.universe == "Dragon Ball Z":
+            name = "Final Stand"
+            value =f"On Death\n\nRevive and heal for 75% of your Attack and Defense [{.75 * (player_card.attack + player_card.defense)}]"
+        if player_card.universe == "Souls":
+            name = "Phase 3: Enhanced Aggresssion"
+            value =f"After Resolve\n\nIf health below 40% each attack double strikes with your old Basic Attack\n\n`Phase 3` Attack: {crown_utilities.set_emoji(self.move_souls_element)} {player_card.move_souls} inflicts {player_card.move_souls_element}"
+        if player_card.universe == "Chainsawman":
+            name = "Devilization"
+            value =f"When Health <= 50%\n\nDouble your Attack, Defense Max Health."
+        return name, value
+    
+
     
     def tutorial_messages(self, player_card, opponent_card, message_type):
         embedVar = False
@@ -2001,6 +2359,7 @@ class Battle:
 
 
 
+
     async def get_non_drop_rewards(self, player):
         reward_data = {}
 
@@ -2021,6 +2380,7 @@ class Battle:
         reward_data['ESSENCE'] = essence
 
         return reward_data
+    
     
 
     async def get_rematch_buttons(self, player):
@@ -2320,6 +2680,7 @@ class Battle:
     def create_embed_var(self, winner, winner_card, loser, loser_card, gameClock):
         embedVar = self.embed_title(winner, winner_card)
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.format_game_clock(gameClock)}")
+        embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.format_game_clock(gameClock)}")
         self.add_stat_fields_to_embed(embedVar, winner_card, loser_card)
         return embedVar
 
@@ -2386,6 +2747,7 @@ class Battle:
         h_message = self.get_most_damage_healed(winner_card, opponent_card)
         embedVar.add_field(name=f"❤️‍🩹 | Healing",
                         value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}")
+        
         
 
 
