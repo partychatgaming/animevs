@@ -417,7 +417,7 @@ def set_emoji(element):
         emoji = "⌛"
     if element == "GRAVITY":
         emoji = "🪐"
-    if element == "None" or element == "NULL":
+    if element == "None" or element == "NULL" or element == "NONE":
         emoji = "📿"
     if element == "SHIELD":
         emoji = "🌐"
@@ -449,23 +449,25 @@ def set_emoji(element):
 
 
 def getTime(hgame, mgame, sgame, hnow, mnow, snow):
+    # Calculate the differences between the current time and game time
     hoursPassed = hnow - hgame
     minutesPassed = mnow - mgame
     secondsPassed = snow - sgame
-    if hoursPassed > 0:
-        minutesPassed = mnow
-        if minutesPassed > 0:
-            secondsPassed = snow
-        else:
-            secondsPassed = snow - sgame
-    else:
-        minutesPassed = mnow - mgame
-        if minutesPassed > 0:
-            secondsPassed = snow
-        else:
-            secondsPassed = snow - sgame
-    gameTime = str(hoursPassed) + str(minutesPassed) + str(secondsPassed)
+
+    # Adjust for negative values
+    if secondsPassed < 0:
+        secondsPassed += 60
+        minutesPassed -= 1
+
+    if minutesPassed < 0:
+        minutesPassed += 60
+        hoursPassed -= 1
+
+    # Convert to strings and return the result concatenated
+    gameTime = str(hoursPassed) + ":" + str(minutesPassed) + ":" + str(secondsPassed)
+    #print(gameTime)
     return gameTime
+
 
 
 def showsummon(url, summon, message, lvl, bond):
@@ -2355,7 +2357,7 @@ class_mapping = {
 'ASSASSIN' : 'First [1-5] Attack cost 0 Stamina and Ignore Protections',  
 'FIGHTER' : 'Starts each fight with up to 7 additional Parries',
 'MAGE' : 'Increases Elemental Damage up to 60%',
-'TANK' : ' Starts each fight with 500 * Card Tier Shield',
+'TANK' : ' Starts each fight with 500 x Card Tier Shield',
 'RANGER' : 'Starts each fight with up to 6 additional Barriers',
 'SWORDSMAN' : 'On Resolve, Gain up to 6 Critical Strikes',
 'SUMMONER' : 'Starts each fight with summons available',

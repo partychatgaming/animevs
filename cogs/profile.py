@@ -567,7 +567,8 @@ class Profile(Extension):
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
-                await ctx.send("You currently have no Talismans. Attune Talismans using /attune")
+                embed = Embed(title="📿 No Talismans Available!", description="Talismans must be Attuned\nUse /attune to craft 🔅 Elemental Essence into Talismans!", color=0xff0000)
+                await ctx.send(embed=embed)
                 return
                 
         except Exception as ex:

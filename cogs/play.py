@@ -54,9 +54,9 @@ class Play(Extension):
 
         try:
             battle_config._uuid = uuid.uuid4()
-            starttime = time.asctime()
-            h_gametime, m_gametime, s_gametime = starttime[11:13], starttime[14:16], starttime[17:19]
-
+            # starttime = time.asctime()
+            # h_gametime, m_gametime, s_gametime = starttime[11:13], starttime[14:16], starttime[17:19]
+            h_gametime, m_gametime, s_gametime = set_battle_start_time()
             if not hasattr(self, 'bot'):
                 self.bot = self.client
 
@@ -128,7 +128,6 @@ class Play(Extension):
                         
                         game_over_check = False
                         while not game_over_check:
-                            
                             
                             if check_if_game_over(battle_config):
                                 game_over_check = True
@@ -375,10 +374,10 @@ class Play(Extension):
                                             continue
 
                         if game_over_check:
-                            gameClock = get_battle_time()
-                            await gs.pvp_end_game(self, battle_config, private_channel, battle_msg)
+                            gameClock = get_battle_time(h_gametime, m_gametime, s_gametime)
+                            await gs.pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock)
 
-                            await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, user1, user2=None)
+                            await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
                             await gs.you_win_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
@@ -407,14 +406,11 @@ async def add_ai_start_messages(battle_config):
         class_effects = {
             "ASSASSIN": "{name} the {class_message} gained {class_value} sneak attacks",
             "MAGE": "{name} the {class_message} gained a {class_value}% boost to elemental attacks",
-            "MAGE": "{name} the {class_message} gained a {class_value}% boost to elemental attacks",
             "RANGER": "{name} the {class_message} gained 💠 {class_value} barriers",
             "TANK": "{name} the {class_message} gained a 🌐 {class_value} shield",
             "HEALER": "{name} the {class_message} boosted their healing by {class_value}%",
-            "HEALER": "{name} the {class_message} boosted their healing by {class_value}%",
             "SUMMONER": "{name} the {class_message} the ability to summon their companion before resolving",
             "FIGHTER": "{name} the {class_message} gained 🔁 {class_value} parries",
-            "TACTICIAN": "{name} the {class_message} Can Enter focus using Block to strategize against their opponent!",
             "TACTICIAN": "{name} the {class_message} Can Enter focus using Block to strategize against their opponent!",
         }
 
@@ -441,18 +437,26 @@ async def add_ai_start_messages(battle_config):
 
         battle_config.turn_zero_has_happened = True
         return
+    
+def set_battle_start_time():
+    # Get the current local time when the battle starts
+    start_time = time.localtime()
+    h_gametime = start_time.tm_hour
+    m_gametime = start_time.tm_min
+    s_gametime = start_time.tm_sec
+    # print(f"{str(h_gametime)} : {str(m_gametime)} : {str(s_gametime)}")
+    return h_gametime, m_gametime, s_gametime
 
-def get_battle_time():
-    wintime = time.asctime()
+def get_battle_time(h_gametime, m_gametime, s_gametime):
+    current_time = time.localtime()
+    h_playtime = current_time.tm_hour
+    m_playtime = current_time.tm_min
+    s_playtime = current_time.tm_sec
 
-    h_gametime = wintime[11:13]
-    m_gametime = wintime[14:16]
-    s_gametime = wintime[17:19]
-    h_playtime = int(wintime[11:13])
-    m_playtime = int(wintime[14:16])
-    s_playtime = int(wintime[17:19])
-    gameClock = getTime(int(h_gametime), int(m_gametime), int(s_gametime), h_playtime, m_playtime,
-                        s_playtime)
+    # print(f"{str(h_playtime)} : {str(m_playtime)} : {str(s_playtime)}")
+
+    gameClock = crown_utilities.getTime(h_gametime, m_gametime, s_gametime, h_playtime, m_playtime, s_playtime)
+    # print(gameClock)
     return gameClock
 
 
@@ -669,12 +673,7 @@ def check_if_game_over(battle_config):
         battle_config.turn_total -= 1
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ❌ Tutorial Task Incomplete!\nComplete your Tutorial Task to defeat the Training Dummy!")
         battle_config.turn_total += 1
-    if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
-        battle_config.turn_total -= 1
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ❌ Tutorial Task Incomplete!\nComplete your Tutorial Task to defeat the Training Dummy!")
-        battle_config.turn_total += 1
     game_over_check = battle_config.set_game_over(battle_config.player1_card, battle_config.player2_card, player3_card)
-    
     
     return bool(game_over_check)
 
@@ -688,24 +687,24 @@ def configure_battle_log(battle_config):
             battle_config.previous_moves = battle_config.previous_moves[-battle_config.player1.battle_history:]
 
 
-def getTime(hgame, mgame, sgame, hnow, mnow, snow):
-    hoursPassed = hnow - hgame
-    minutesPassed = mnow - mgame
-    secondsPassed = snow - sgame
-    if hoursPassed > 0:
-        minutesPassed = mnow
-        if minutesPassed > 0:
-            secondsPassed = snow
-        else:
-            secondsPassed = snow - sgame
-    else:
-        minutesPassed = mnow - mgame
-        if minutesPassed > 0:
-            secondsPassed = snow
-        else:
-            secondsPassed = snow - sgame
-    gameTime = str(hoursPassed) + str(minutesPassed) + str(secondsPassed)
-    return gameTime
+# def getTime(hgame, mgame, sgame, hnow, mnow, snow):
+#     hoursPassed = hnow - hgame
+#     minutesPassed = mnow - mgame
+#     secondsPassed = snow - sgame
+#     if hoursPassed > 0:
+#         minutesPassed = mnow
+#         if minutesPassed > 0:
+#             secondsPassed = snow
+#         else:
+#             secondsPassed = snow - sgame
+#     else:
+#         minutesPassed = mnow - mgame
+#         if minutesPassed > 0:
+#             secondsPassed = snow
+#         else:
+#             secondsPassed = snow - sgame
+#     gameTime = str(hoursPassed) + str(minutesPassed) + str(secondsPassed)
+#     return gameTime
 
 
 async def start_to_focus(battle_msg, private_channel, battle_config):
@@ -783,13 +782,6 @@ def damage_check_turn_check(battle_config):
 
 
 async def tutorial_focusing(battle_config, private_channel):
-    if battle_config.is_tutorial_game_mode:
-        #print(battle_config.is_turn)
-        if battle_config.is_turn == 0 and battle_config.tutorial_focus and not battle_config.tutorial_opponent_focus:
-            await private_channel.send(embed=battle_config._tutorial_message)
-            battle_config.tutorial_opponent_focus = True  
-            await asyncio.sleep(2)
-        if battle_config.is_turn != 0 and not battle_config.tutorial_focus:
     if battle_config.is_tutorial_game_mode:
         #print(battle_config.is_turn)
         if battle_config.is_turn == 0 and battle_config.tutorial_focus and not battle_config.tutorial_opponent_focus:
@@ -1067,7 +1059,6 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
 
 
 
-
 async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
     """
     Displays the player move embed during their turn in the battle.
@@ -1128,21 +1119,12 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         talisman_message = f"🆚 Ultimate Strategy equipped"
     player1_arm_message = f"**You have the following equipment**{turn_card._arm_message}{talisman_message}\n{summon_message}"
     tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
-    talisman_message = f"{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman equipped"
-    if turn_card.is_tactician and turn_card._tactician_stack_3:
-        talisman_message = f"🆚 Tactician's Talisman equipped"
-    if turn_card.is_tactician and turn_card._tactician_stack_5:
-        talisman_message = f"🆚 Ultimate Strategy equipped"
-    player1_arm_message = f"**You have the following equipment**{turn_card._arm_message}{talisman_message}\n{summon_message}"
-    tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
     embedVar = Embed(title=f"", color=0xe74c3c)
     # if turn_player.performance:
     #     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{turn_card.get_perfomance_header(turn_title)}")
     # else:
     embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{player1_arm_message}")
-    if battle_config.is_tutorial_game_mode:
-        embedVar.add_field(name=f"🧠**Tutorial Task!**", value=f"{tutorial_embed_message}")
     if battle_config.is_tutorial_game_mode:
         embedVar.add_field(name=f"🧠**Tutorial Task!**", value=f"{tutorial_embed_message}")
 
@@ -1206,8 +1188,6 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
     7. Perform player damage calculation asynchronously.
 
     At some point tutorial messages can be moved to handler
-
-    At some point tutorial messages can be moved to handler
     """
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
@@ -1221,17 +1201,8 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
             embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BASIC')
             await private_channel.send(embed=embedVar)
 
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_basic == False:
-            battle_config.tutorial_basic = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BASIC')
-            await private_channel.send(embed=embedVar)
-
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|2":
         damage_calculation_response = await player_use_special_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_special == False:
-            battle_config.tutorial_special = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'SPECIAL')
-            await private_channel.send(embed=embedVar)
         if battle_config.is_tutorial_game_mode and battle_config.tutorial_special == False:
             battle_config.tutorial_special = True
             embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'SPECIAL')
@@ -1243,10 +1214,6 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
             battle_config.tutorial_ultimate = True
             embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'ULTIMATE')
             await private_channel.send(embed=embedVar)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_ultimate == False:
-            battle_config.tutorial_ultimate = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'ULTIMATE')
-            await private_channel.send(embed=embedVar)
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|4":
         damage_calculation_response = await player_use_enhancer_ability(battle_config, private_channel, button_ctx, battle_msg)
@@ -1254,17 +1221,9 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
             battle_config.tutorial_enhancer = True
             embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'ENHANCER')
             await private_channel.send(embed=embedVar)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_enhancer == False:
-            battle_config.tutorial_enhancer = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'ENHANCER')
-            await private_channel.send(embed=embedVar)
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|6":
         await player_use_summon_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_summon == False:
-            battle_config.tutorial_summon = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'SUMMON')
-            await private_channel.send(embed=embedVar)
         if battle_config.is_tutorial_game_mode and battle_config.tutorial_summon == False:
             battle_config.tutorial_summon = True
             embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'SUMMON')
@@ -1277,18 +1236,10 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
             battle_config.tutorial_resolve = True
             embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'RESOLVE')
             await private_channel.send(embed=embedVar)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_resolve == False:
-            battle_config.tutorial_resolve = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'RESOLVE')
-            await private_channel.send(embed=embedVar)
         return
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|0":
         blocking = await player_use_block_ability(battle_config, private_channel, button_ctx, battle_msg)
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_block == False:
-            battle_config.tutorial_block = True
-            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BLOCK')
-            await private_channel.send(embed=embedVar)
         if battle_config.is_tutorial_game_mode and battle_config.tutorial_block == False:
             battle_config.tutorial_block = True
             embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BLOCK')
@@ -1311,7 +1262,6 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
 
     complete_damage_calculation = await player_damage_calculation(battle_config, button_ctx, damage_calculation_response)         
 
-#def tutorial_message_handler(turn_card, battle_config, private_channel, message_type):
 #def tutorial_message_handler(turn_card, battle_config, private_channel, message_type):
 
 async def player_use_basic_ability(battle_config, private_channel, button_ctx, battle_msg):
@@ -1419,7 +1369,6 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
                                     color=0xe91e63)
             embedVar.add_field(
                 name=f"{turn_card.move1_emoji} {turn_card.move1} inflicts {turn_card.move1_element.title()}",
-                name=f"{turn_card.move1_emoji} {turn_card.move1} inflicts {turn_card.move1_element.title()}",
                 value=f"**{turn_card.move1_element}** : *{crown_utilities.element_mapping[turn_card.move1_element]}*")
             embedVar.set_footer(
                 text=f"Basic Attacks are great when you are low on stamina. Enter Focus State to Replenish!")
@@ -1434,7 +1383,6 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
                                     color=0xe91e63)
             embedVar.add_field(
                 name=f"{turn_card.move2_emoji} {turn_card.move2} inflicts {turn_card.move2_element.title()}",
-                name=f"{turn_card.move2_emoji} {turn_card.move2} inflicts {turn_card.move2_element.title()}",
                 value=f"**{turn_card.move2_element}** : *{crown_utilities.element_mapping[turn_card.move2_element]}*")
             embedVar.set_footer(
                 text=f"Special Attacks are great when you need to control the Focus game! Use Them to Maximize your Focus and build stronger Combos!")
@@ -1443,16 +1391,12 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
         
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|3":
         #print("Entered into Ultimate Move")
-        #print("Entered into Ultimate Move")
         if battle_config.is_tutorial_game_mode and battle_config.tutorial_ultimate==False:
             battle_config.tutorial_ultimate=True
             embedVar = Embed(title=f"🏵️ Ultimate Attack!",
                                     description=f"🏵️ **Ultimate Attack** cost **80 ST(Stamina)** to deal incredible Damage!",
-            embedVar = Embed(title=f"🏵️ Ultimate Attack!",
-                                    description=f"🏵️ **Ultimate Attack** cost **80 ST(Stamina)** to deal incredible Damage!",
                                     color=0xe91e63)
             embedVar.add_field(
-                name=f"{turn_card.move3_emoji} {turn_card.move3} inflicts {turn_card.move3_element.title()}",
                 name=f"{turn_card.move3_emoji} {turn_card.move3} inflicts {turn_card.move3_element.title()}",
                 value=f"**{turn_card.move3_element}** : *{crown_utilities.element_mapping[turn_card.move3_element]}*")
             # embedVar.add_field(name=f"Ultimate GIF",
@@ -1533,7 +1477,6 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
                                     description=f"🛡️**Blocking** cost **20 ST(Stamina)** to Double your **DEF** until your next turn!",
                                     color=0xe91e63)
             embedVar.add_field(name=f"**Engagements**",
-                            value="You will take less DMG when your **DEF** is greater than your opponents **ATK**")
                             value="You will take less DMG when your **DEF** is greater than your opponents **ATK**")
             embedVar.add_field(name=f"**Engagement Insight**",
                             value="💢: %33-%50 of AP\n❕: %50-%75 AP\n‼️: %75-%120 AP\n〽️x1.5: %120-%150 AP\n❌x2: $150-%200 AP")

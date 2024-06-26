@@ -92,7 +92,7 @@ class GameState(Extension):
             custom_logging.debug(ex)
 
 
-    async def pvp_end_game(self, battle_config, private_channel, battle_msg):
+    async def pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock):
         try:
             if battle_config.is_pvp_game_mode:
                 total_complete = False
@@ -108,12 +108,12 @@ class GameState(Extension):
                     await private_channel.send(f"{arm_durability_message}")
 
                 if battle_config.player1_wins:
-                    pvp_response = await battle_config.pvp_victory_embed(battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
+                    pvp_response = await battle_config.pvp_victory_embed(gameClock, battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
                 else:
                     if battle_config.is_tutorial_game_mode:
-                        pvp_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, companion_card = None)
+                        pvp_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card,  companion_card = None)
                     else:
-                        pvp_response = await battle_config.pvp_victory_embed(battle_config.player2, battle_config.player2_card, battle_config.player2_arm, battle_config.player2_title, battle_config.player1, battle_config.player1_card)
+                        pvp_response = await battle_config.pvp_victory_embed(gameClock, battle_config.player2, battle_config.player2_card, battle_config.player2_arm, battle_config.player2_title, battle_config.player1, battle_config.player1_card)
 
                 if not battle_config.is_tutorial_game_mode and battle_config.is_co_op_mode:
                     co_op_talisman_response = crown_utilities.decrease_talisman_count(battle_config.player2.did, battle_config.player2.equipped_talisman)
@@ -133,7 +133,7 @@ class GameState(Extension):
             return False
 
 
-    async def you_lose_non_pvp(self, battle_config, private_channel, battle_msg, user1, user2=None):
+    async def you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None):
         if battle_config.player2_wins:
             total_complete = False
             battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
@@ -191,9 +191,9 @@ class GameState(Extension):
                     co_op_arm_durability_message = crown_utilities.update_arm_durability(battle_config.player3, battle_config.player3_arm, battle_config.player3_card)
                     if co_op_arm_durability_message != False:
                         await private_channel.send(f"{co_op_arm_durability_message}")
-                loss_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
+                loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
             else:
-                loss_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, None)
+                loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, None)
             
             # await battle_msg.delete()
             await asyncio.sleep(1)
@@ -207,9 +207,9 @@ class GameState(Extension):
 
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|play_again_no":
                     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
-                        loss_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
+                        loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
                     else:
-                        loss_response = await battle_config.you_lose_embed(battle_config.player1_card, battle_config.player2_card, None)
+                        loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, None)
                     # await battle_msg.delete()
                     await end_msg.edit(embed=loss_response, components=[])
                     
@@ -356,7 +356,7 @@ class GameState(Extension):
                     elif battle_config.is_co_op_mode and not battle_config.is_duo_mode:
                         if battle_config.is_co_op_mode:
                             battle_config.player3_card.stats_handler(battle_config, battle_config.player3, total_complete)
-                        embedVar = Embed(title=f"👥 CO-OP VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n👤**{battle_config.player1.disname}:** {drop_response}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence\n👥**{battle_config.player3.disname}:** {cdrop_response}\nEarned {p3_win_rewards['ESSENCE']} {p3_win_rewards['RANDOM_ELEMENT']} Essence",description=textwrap.dedent(f"""
+                        embedVar = Embed(title=f"👥 CO-OP VICTORY\nThe game lasted {battle_config.turn_total} rounds.\n\n👤**{battle_config.player1.disname}:** {reward_msg}\nEarned {p1_win_rewards['ESSENCE']} {p1_win_rewards['RANDOM_ELEMENT']} Essence\n👥**{battle_config.player3.disname}:** {cdrop_response}\nEarned {p3_win_rewards['ESSENCE']} {p3_win_rewards['RANDOM_ELEMENT']} Essence",description=textwrap.dedent(f"""
                         {battle_config.get_previous_moves_embed()}
                         
                         """),color=0x1abc9c)
@@ -602,10 +602,10 @@ async def explore_win(battle_config, battle_msg, private_channel, user1):
         return False
 
 
-async def raid_win(battle_config, battle_msg, private_channel, user1):
+async def raid_win(battle_config, battle_msg, gameClock,  private_channel, user1):
     if battle_config.is_raid_game_mode:
         shield_response = battle_config.raid_victory()
-        raid_response = await battle_config.pvp_victory_embed(battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
+        raid_response = await battle_config.pvp_victory_embed(gameClock, battle_config.player1, battle_config.player1_card, battle_config.player1_arm, battle_config.player1_title, battle_config.player2, battle_config.player2_card)
         await battle_msg.delete(delay=2)
         await asyncio.sleep(2)
         battle_msg = await private_channel.send(embed=raid_response)
