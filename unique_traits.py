@@ -1,7 +1,7 @@
 traits = [{
     'NAME': 'My Hero Academia',
     'EFFECT': 'Quirk Awakening, Plus Ultra',
-    'TRAIT': 'You gain 50 stored ap each turn. On Resolve, you gain stored ap multiplied by focus count in ap, but you lose 150 ap each turn.',
+    'TRAIT': 'You gain 50 stored ap each Turn and 20 Stored AP each Block. On Resolve, you gain stored ap multiplied by focus count in ap, but you lose 150 ap each turn.',
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot, Pentakill',
@@ -21,7 +21,7 @@ traits = [{
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Devilization, Fearful',
-    'TRAIT': 'Devilization : When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. Fearful : Strong Fear Infliction.'
+    'TRAIT': 'Devilization : When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. Fearful : You do not lose Health from the Fear Enhancer.'
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, SpiritualPressure',
@@ -29,11 +29,11 @@ traits = [{
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
-    'TRAIT': 'Rally : On Block, Create (100 * Card Tier) Health. Titan Mode : Gain (200 x Your Focus Count) worth of Health upon Resolve.'
+    'TRAIT': 'Rally : On Block, Create (50 * Card Tier) Health. Titan Mode : Gain 100 x (Your Focus Count + Card Tier) worth of Health upon Resolve.'
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone, Grimoire',
-    'TRAIT': 'Grimoire : Gain 100 Stamina on Focus. Gain 50 Stamina and 30 * Card Tier AP on Block. Mana Zone : AP is increased by 10% of card level on Focus.'
+    'TRAIT': 'Grimoire : Gain 100 Stamina on Focus. Gain 50 Stamina and 25 * Card Tier AP on Block. Mana Zone : AP is increased by 10% of card leve(+50) on Focus.'
 },{
     'NAME': 'Fate',
     'EFFECT': 'Command Seal',
@@ -41,7 +41,7 @@ traits = [{
 },{
     'NAME': 'Demon Slayer',
     'EFFECT': 'Total Concentration Breathing, Constant',
-    'TRAIT': 'Breathing : Gain 60% of Opponent HP as your own. Constant:  On Resolve, Your ATK & DEF = Opp ATK and DEF + 1K only if your Opp ATK and DEF are higher than yours.'
+    'TRAIT': 'Breathing : Gain 40% of Opponent HP as your own. Constant:  On Resolve, if your Opponents ATK or DEF is higher than yours, increase your stats to be equal, if your stats are higher gain Card Level * 1 AP.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Blood Orb, Ascension',
@@ -49,11 +49,11 @@ traits = [{
 },{
     'NAME': '7ds',
     'EFFECT': 'Increase Power, Power Of Friendship',
-    'TRAIT': 'Increase Power : On Opp Focus gain 60 Stamina. Power Of Friendship : On Opp Focus gain Summon Rest.'
+    'TRAIT': 'Increase Power : On Opp Focus gain 10% Attack & Defense and 60 Stamina. Power Of Friendship : On Opp Focus gain Summon Rest, Summoning amplifies Increase Power to a Focus Buff'
 },{
     'NAME': 'One Punch Man',
-    'EFFECT': 'Hero Reinforcement, Hero Rankings',
-    'TRAIT': 'Hero Rankings : On Focus gain (15 * Card Tier) AP. Hero Reinforcement : On Opp Focus you create (100 * Card Tier) Health. '
+    'EFFECT': 'Heroes & Monsters',
+    'TRAIT': 'Hero Rankings/Monster Threat Levels: On Focus gain AP - Heroes gain 15 * Card Tier AP / Monsters Gain 30 * Card Tier | Hero Reinforcements/Monster Rejuvination: On Opponent Focus gain Health and Max Health: Heroes gain 50 * Opponent Card Tier / Monsters: Gain 25 * Monster Card Tier'
 },{
     'NAME': 'Solo Leveling',
     'EFFECT': 'Rulers Authority, Arise!',
@@ -84,8 +84,8 @@ traits = [{
     'TRAIT': 'Observation: 1-10: 40% DMG Reduction. Armament: 4-7: 2x Focus. Conquerors: 8-10 Decrease OPP AP by 100 * Card Tier.'
 },{
     'NAME': 'Soul Eater',
-    'EFFECT': 'Feint Attack, Spiritual Weapons',
-    'TRAIT': 'Feint Attack : If you miss, Crit! Meister: If the summon you are using is from Soul Eater, it deals 3x damage.'
+    'EFFECT': 'Feint Attack, Meister',
+    'TRAIT': 'Feint Attack : If you miss, Crit! Meister: If the summon you are using is from Soul Eater, it deals 3x damage and always critically strikes.'
 },{
     'NAME': 'Crown Rift Madness',
     'EFFECT': 'Madness, Beast Blood',
@@ -105,7 +105,127 @@ traits = [{
 }, {
     'NAME': 'Jujutsu Kaisen',
     'EFFECT': 'Cursed Energy, Domain Expansion',
-    'TRAIT': 'Cursed Energy: The first attack after each focus is a critical hit. Domain Expansion: On Resolve, you no longer miss attacks. Your attack will remain higher than your opponents. Your attacks deal addition 30% damage to opponent on opponent turns for 5 + Card Tier turns.'
+    'TRAIT': 'Cursed Energy: The first attack after each focus is a critical hit. Domain Expansion: On Resolve, Your opponent must suceed a Damage check in (Class Rank Value[10-6] - Focus Count) turns or DIE. During the damage check your opponent loses 5% max health each turn during the Damage Check. If your opponents Focus Count is higher than yours, the Domain FAILS and you lose the same Max Health.'
+}, {
+    'NAME': 'That Time I Got Reincarnated as a Slime',
+    'EFFECT': 'Skill Evolution, Summon Slime, Beezlebub',
+    'TRAIT': 'Skill Evolution: On Resolve, increase Ultimate AP by total ap of your basic and special attack which become 25. Gift: On Summon, gain 5 * Card Tier Stamina. Beezlebuth:On Focus Flog and Wither your opponent for (Card Tier * (Focus Count + 1)) Attack and Defense.'
+}
+
+]
+
+formatted_traits = [{
+    'NAME': 'My Hero Academia',
+    'EFFECT': 'Quirk Awakening, Plus Ultra',
+    'TRAIT': '\n**Plus Ultra:** On Block, gain 20 stored AP. Each Turn, gain 50 stored AP\n\n**Quirk Awakening:** On Resolve, you gain stored ap multiplied by focus count in ap, but you lose 150 ap each turn.',
+},{
+    'NAME': 'League Of Legends',
+    'EFFECT': 'Turret Shot, Pentakill',
+    'TRAIT': '\n**Turret Shot:** On Focus you deal (60 + Turn Count) DMG.\n\n**Pentakill:** On Resolve, you deal (150 x Total Focus Count) Damage.'
+},{
+    'NAME': 'Pokemon',
+    'EFFECT': 'Evolutions',
+    'TRAIT': '\n\n**Evolutions:** On Resolve Gain 2x Defense.\n**Mega:** Turn >20 grow 250 * Tier HP\n**Gigantomax:** Turn >40 grow 500 * Tier HP.'
+},{
+    'NAME': 'Digimon',
+    'EFFECT': 'Digivolve, MegaDigivolution',
+    'TRAIT': '\n**Digivolve:** On Focus you Resolve gain 50% ATK and DEF.\n\n**Mega Digivolution:** If turn count <5 Double ATK and DEF increase Health by 500.'
+},{
+    'NAME': 'Naruto',
+    'EFFECT': 'Substitution, Hashirama Cells',
+    'TRAIT': '\n**Substitution:** If Focused, you cannot be hit.\n\n**Hashirama Cells:** On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
+},{
+    'NAME': 'Chainsawman',
+    'EFFECT': 'Devilization, Fearful',
+    'TRAIT': '\n**Devilization:** When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health.\n\n**Fearful:** You do not lose Health from the Fear Enhancer or Title.'
+},{
+    'NAME': 'Bleach',
+    'EFFECT': 'Bankai, SpiritualPressure',
+    'TRAIT': '\n**Bankai:** On Resolve, Gain 2x Attack.\n\n**Spiritual Pressure:** On Block, Defend then Deal Damage equal to your Basic Attack.'
+},{
+    'NAME': 'Attack On Titan',
+    'EFFECT': 'Rally, Titan Mode',
+    'TRAIT': '\n**Rally:** On Block, Create (50 * Card Tier) Health.\n\n**Titan Mode:** Gain 100 x (Your Focus Count + Card Tier) worth of Health upon Resolve.'
+},{
+    'NAME': 'Black Clover',
+    'EFFECT': 'Mana Zone, Grimoire',
+    'TRAIT': '\n**Grimoire:** Gain 100 Stamina on Focus. Gain 50 Stamina and 25 * Card Tier AP on Block.\n\n**Mana Zone:** AP is increased by 10% of card leve(+50) on Focus.'
+},{
+    'NAME': 'Fate',
+    'EFFECT': 'Command Seal',
+    'TRAIT': '\n**Command Seal:** On Resolve, Strike with Ultimate with no Stamina cost.'
+},{
+    'NAME': 'Demon Slayer',
+    'EFFECT': 'Total Concentration Breathing, Constant',
+    'TRAIT': '\n**Total Concentration Breathing:** Gain 40% of Opponent HP as your own.\n\n**Total Concentration Constant:** On Resolve, if your Opponents ATK or DEF is higher than yours, increase your stats to be equal, if your stats are higher gain Card Level * 1 AP.'
+},{
+    'NAME': 'God Of War',
+    'EFFECT': 'Blood Orb, Ascension',
+    'TRAIT': '\n*You can Resolve twice.*\n**Blood Orb:** 1st Resolve Heal 1/2 of Max Health.\n\n**Ascension:** 2nd Resolve Heal Max Health'
+},{
+    'NAME': '7ds',
+    'EFFECT': 'Increase Power, Power Of Friendship',
+    'TRAIT': '\n**Increase Power:** On Opp Focus gain 10% Attack & Defense and 60 Stamina.\n\n**Power Of Friendship:** On Opp Focus gain Summon Rest, Summoning amplifies Increase Power to a Focus Buff'
+},{
+    'NAME': 'One Punch Man',
+    'EFFECT': 'Heroes & Monsters',
+    'TRAIT': '\n**Hero Rankings / Monster Threat Levels:** On Focus gain AP:\nHeroes: gain 15 * Card Tier AP\nMonsters: Gain 30 * Card Tier AP\n\n**Hero Reinforcements / Monster Rejuvination:** On Opponent Focus gain Health and Max Health:\nHeroes gain 50 * Opponent Card Tier\nMonsters: Gain 25 * Monster Card Tier'
+},{
+    'NAME': 'Solo Leveling',
+    'EFFECT': 'Rulers Authority, Arise!',
+    'TRAIT': '\n**Rulers Authority:** On Focus, opponent loses (40 + turn * Card Tier) Defense.\n\n**Arise!:** When Opponent Arm Breaks it revives as your Arm.'
+},{
+    'NAME': 'Souls',
+    'EFFECT': 'Phases: Combo Recognition, Enhanced Moveset, Enhanced Aggression',
+    'TRAIT': '\n**Phase 1 - Combo Recognition:** On Opp Focus, gain (60 + turn) ATK.\n\n**Phase 2 - Enhanced Moveset!:** On Resolve, BASIC = SPECIAL, and SPECIAL = ULTIMATE.\n\n**Phase 3 - Enhanced Aggression:** While <40% Health Double Strike with old BASIC.'
+},{
+    'NAME': 'Death Note',
+    'EFFECT': 'Scheduled Death, Shinigami Eyes',
+    'TRAIT': '\n**Scheduled Death:** Your First Focus After Scheduled Death 50 Turns You Win.\n\n**Shinigami Eyes:** On Block, Sacrifice 50% Max Health to Increase Turn by (10 + Card Tier).'
+},{
+    'NAME': 'Dragon Ball Z',
+    'EFFECT': 'Final Stand, Saiyan Energy',
+    'TRAIT': '\n**Final Stand:**  When you die, Resolve with 75% ATK + DEF as Health.\n\n**Saiyan Energy:**  On Focus, heal for opponent Stamina amount + turn count.'
+},{
+    'NAME': 'Persona',
+    'EFFECT': 'Summon Persona, Summoners Battle',
+    'TRAIT': '\n**Summon Persona:** Summon also deals Damage equal to your Basic Attack.\n\n**Summoners Battle:** Summoning disables Opp summon. '
+},{
+    'NAME': 'YuYu Hakusho',
+    'EFFECT': 'Energy Resolved!',
+    'TRAIT': '\n**Energy Resolved:** Upon Resolve, Gain 2x ATK and all AP is doubled, but defense remains at 100 for remainder of the match.\n\n**Meditation:** On Block increase defense by 100 * card tier and ap by 10 * card tier.'
+},{
+    'NAME': 'One Piece',
+    'EFFECT': 'Haki : Tier Based Trait',
+    'TRAIT': '\n**Observation Haki:** Tier 1-10: 40% DMG Reduction before First Focus\n\n**Armament Haki:** Tier 4-7: On Focus Double ATK & DEF gained\n\n**Conquerors Haki:** Tier 8-10 Decrease OPP AP by 100 * Card Tier.'
+},{
+    'NAME': 'Soul Eater',
+    'EFFECT': 'Feint Attack, Meister',
+    'TRAIT': '\n**Feint Attack:** If you miss, strke with you Feint Attack and Crit!\n\n**Meister:** If the summon you are using is from Soul Eater, it deals 3x damage and always triggers Feint Attack.'
+},{
+    'NAME': 'Crown Rift Madness',
+    'EFFECT': 'Madness, Beast Blood',
+    'TRAIT': 'Madness : Do not lose turn on Focus, but also do not Heal. Beast Blood : Continue to Gain ATK and DEF after Resolved'
+},{
+    'NAME': 'Crown Rift Awakening',
+    'EFFECT': 'Blood Awakening, Bloodlines',
+    'TRAIT': 'Blood Awakening : Deal 4x damage on Crit, Increased Crit Chance. Bloodlines : Can use Titles from all Universes'
+},{
+    'NAME': 'Fairy Tail',
+    'EFFECT': 'Unison Raid, Concentration',
+    'TRAIT': '\n**Unison Raid:** On Resolve, Deal your Special, Ultimate, and Summon attacks at once. You lose a turn to recover.\n\n**Concentration:** Gain (20 * Tier) * Focus count AP each focus.'
+},{
+    'NAME': 'Overlord',
+    'EFFECT': 'Fear, Fear Aura',
+    'TRAIT': '\n**Fear:** On Resolve, lower your opponent defense to 25 for 1 * tier turn. Fear Aura : Gain (20 * Tier) * Focus count AP each focus.\n\n**Fear Aura:** On Focus, Reduce Opponent AP by 20 * Card Tier.'
+}, {
+    'NAME': 'Jujutsu Kaisen',
+    'EFFECT': 'Cursed Energy, Domain Expansion',
+    'TRAIT': '\n**Cursed Energy:** The first attack after each focus is a critical hit.\n\n**Domain Expansion:** On Resolve, Your opponent must suceed a Damage check in (Class Rank Value[10-6] - Focus Count) turns or DIE. During the damage check your opponent loses 5% max health each turn during the Damage Check. If your opponents Focus Count is higher than yours, the Domain FAILS and you lose the same Max Health.'
+}, {
+    'NAME': 'That Time I Got Reincarnated as a Slime',
+    'EFFECT': 'Skill Evolution, Gift, Beezlebub',
+    'TRAIT': '\n**Skill Evolution:** On Resolve, increase Ultimate AP by total ap of your Basic and Special attack which become 25.\n\n**Gift:** On Summon, gain 5 * Card Tier Stamina.\n\n**Beezlebuth:** On Focus Flog and Wither your opponent for (Card Tier% * (Focus Count + 1)) Attack and Defense.'
 }
 
 ]

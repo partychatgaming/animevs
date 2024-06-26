@@ -40,10 +40,6 @@ def spiritual_pressure(player_card, battle_config, opponent_card):
     if player_card.universe == "Bleach":
         dmg = player_card.damage_cal(1, battle_config, opponent_card)
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} attacked with their spiritual pressure")
-        if player_card.universe == "One Piece" and (player_card.name_tier in crown_utilities.LOW_TIER_CARDS or player_card.name_tier in crown_utilities.MID_TIER_CARDS or player_card.name_tier in crown_utilities.HIGH_TIER_CARDS):
-            if player_card.focus_count == 0:
-                dmg['DMG'] = dmg['DMG'] * .6
-        
         player_card.activate_element_check(battle_config, dmg, opponent_card)
 
 

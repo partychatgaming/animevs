@@ -301,27 +301,31 @@ async def classes(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
     
    class_descriptions = [
-        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use Summon from start of battle. Summon attacks are boosted based on Card Tier."),
-        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Initial Attacks cost 0 Stamina and have increased Critical Chance\nCommon - 1 Attack\nRare - 2 Attacks\nLegendary - 3 Attacks\nMythic - 4 Attacks\nGod - 5 Attacks.\Poison & Death damage boosted."),
-        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\nCommon - 2 Parry\nRare - 3 Parries\nLegendary - 4 Parries\nMythic - 5 Parries\nGod - 6 Parries.\nDouble Parry on Physical damage proc."),
-        (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 6 Barriers & can attack without disengaging Barrier\nCommon - 2 Barriers\nRare - 3 Barriers\nLegendary - 4 Barriers\nMythic - 5 Barriers\nGod - 6 Barriers."),
-        (crown_utilities.class_emojis['TANK'], "Tank", "Starts each fight with Card Tier * 500 Shield & gain the same Shield on Resolve\nCommon - 500/1000/1500 Shield\nRare - 2000/2500\nLegendary - 3000/3500\nMythic - 4000/4500\nGod - 5000."),
-        (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 6 Critical Strikes\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks\nBleed damage boosted."),
-        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 6 Double Strikes\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks."),
-        (crown_utilities.class_emojis['MAGE'], "Mage", "Increases Elemental damage up to 60%\nElemental effects are greatly boosted"),
-        (crown_utilities.class_emojis['HEALER'], "Healer", "Stores up to 80% of damage taken and heals Health and Max Health for the total amount each Focus\nLifesteal abilities are boosted\nStacked Status effects removed on Focus"),
+        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use Summon from start of battle.\nSummon attacks are boosted based on Card Tier.\nBarrier and Paryy Summons gain 1 charge per tier\nAttack Summons Boost Damage by (20% * Card Tier) AP\n\nCommon - 20%/40%/60%\nRare - 80%/100%\nLegendary - 120%/140%\nMythic - 160%/180%\nGod - 200%\n"),
+        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Initial Attacks cost 0 Stamina, penetrate all protections and have increased Critical Chance\n\nCommon - 1 Attack\nRare - 2 Attacks\nLegendary - 3 Attacks\nMythic - 4 Attacks\nGod - 5 Attacks.\n\nBleed, Poison & Death damage boosted."),
+        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\n\nCommon - 3 Parry\nRare - 4 Parries\nLegendary - 5 Parries\nMythic - 6 Parries\nGod - 7 Parries.\n\nDouble Parry on Physical damage proc."),
+        (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 6 Barriers & can attack without disengaging Barrier\n\nCommon - 2 Barriers\nRare - 3 Barriers\nLegendary - 4 Barriers\nMythic - 5 Barriers\nGod - 6 Barriers.\n\nRanged Damage Increased"),
+        (crown_utilities.class_emojis['TANK'], "Tank", "Starts each fight with Card Tier * 500 Shield & gain the same Shield on Resolve\n\nCommon - 500/1000/1500 Shield\nRare - 2000/2500\nLegendary - 3000/3500\nMythic - 4000/4500\nGod - 5000.\n\nTriples Defense on Block"),
+        (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 6 Critical Strikes\n\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks\n\nSword & Bleed damage boosted."),
+        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 6 Double Strikes\n\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks."),
+        (crown_utilities.class_emojis['MAGE'], "Mage", "Increases Elemental damage up to 60%\n\nCommon - 35%\nRare - 45%\nLegendary - 50%\nMythic - 55%\nGod - 60%\nElemental damage effects are enhanced"),
+        (crown_utilities.class_emojis['HEALER'], "Healer", "Stores up to 70% of damage taken and heals Health and Max Health each Focus\n\nCommon - 30%\nRare - 40%\nLegendary - 50%\nMythic - 60%\nGod - 70%\n\nLifesteal abilities are boosted\n\nStacked Status effects removed on Focus"),
+        (crown_utilities.class_emojis['TACTICIAN'], "Tactician", "Enter Focus using Block to craft Strategy Points\n\n1: Gain Parry, Barrier and Shield based on Tier\n\nCommon - 1 Parry, 1 Barrier, 200/400/600 Shield\nRare - 2 Parry, 2 Barrier, 800/1000 Shield\nLegendary - 3 Parry, 3 Barrier, 1200/1400 Shield\nMythic - 4 Parry, 4 Barrier, 1600/1800 Shield\nGod - 5 Parry, 5 Barrier, 2000 Shield\n\n2: Disable opponent Talisman\n\n3: Craft Tactician Talisman [Bypass All Affinities]\n\n4: Gain 1 Critical Strike and Destroy Opponents Protections\n\n5: Disable opponents Summon and they become weak to all your Dmg\n"),
     ]
     
    embed_list = []
    embedVar = Embed(title=f"Classes", description=textwrap.dedent(f"""\
    🥋 **Card Class**
+                                                                  
    Your Class grants you a boost in battle
    The boost is determined by your Card Tier Range
+                                                                  
    Common : [1 - 3]
    Rare : [4 - 5]
    Legendary : [6 - 7]
    Mythical : [8 - 9]
    God : [10]
+                                                                  
    """),color=0x7289da)
    embed_list.append(embedVar)
    for emoji, title, description in class_descriptions:
@@ -864,6 +868,12 @@ async def register(ctx):
       disname = str(ctx.author)
       did = str(ctx.author.id)
       name = disname.split("#",1)[0]
+      is_admin = False
+      is_creator = False
+      admin_did = ['339423274117103617','306429381948211210','570660973640286211','263564778914578432']
+      if did in admin_did:
+         is_admin = True
+         is_creator = True
       summon_info = {
          "NAME": "Chick",
          "LVL": 1,
@@ -883,6 +893,8 @@ async def register(ctx):
          'FAMILY': did,
          'FAMILY_DID': did,
          'BALANCE': Int64(100000),
+         'IS_ADMIN': is_admin,
+         'CREATOR': is_creator,
       }
       r_response = db.createUsers(data.newUser(user))
 
@@ -981,7 +993,7 @@ async def register(ctx):
                      {traitmessage}
                      """))
                      embedVar.set_image(url=uni['PATH'])
-                     embedVar.set_footer(text="You can earn or purchase items after Abyss floor 0")
+                     embedVar.set_footer(text="You can earn items in all universes! This is just a starting point!")
                      universe_embed_list.append(embedVar)
                      
                paginator = CustomPaginator.create_from_embeds(bot, *universe_embed_list, custom_buttons=["Register"], paginator_type="Register")
@@ -2381,7 +2393,7 @@ async def deletemember(ctx, member):
 )
 async def traits(ctx: InteractionContext, universe: str = ""):
    try: 
-      traits = ut.traits
+      traits = ut.formatted_traits
 
       if not universe:
          embed_list = []

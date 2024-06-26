@@ -259,12 +259,12 @@ async def summonlevel(player, player_card):
         protections = ['BARRIER', 'PARRY']
         query = {'DID': str(player.did)}
         summon_type = player_card.summon_type
-        lvl_req = (player_card.summon_lvl * 25) * (player_card.summon_bond + 1)
+        lvl_req = (player_card.summon_lvl * 20) * (player_card.summon_bond + 1)
         if lvl_req <= 0:
             lvl_req = 25
-        bond_req = ((player_card.summon_power * 5) * (player_card.summon_bond + 1))
+        bond_req = ((player_card.summon_power * (player_card.summon_bond + 1)) * (player_card.summon_bond + 1))
         if summon_type in protections:
-            bond_req = ((player_card.summon_power * 100) * (player_card.summon_bond + player_card.summon_lvl))
+            bond_req = ((player_card.summon_power + player_card.summon_bond) * 50) * (player_card.summon_bond + 1)
         if bond_req <= 0:
             bond_req = 100
         
@@ -372,7 +372,10 @@ async def updateRetry(player_id, mode, math_calc):
     else:
         print("Could not find player info")
         return False
-
+    
+def set_class_emoji(card_class):
+    emoji = class_emojis[card_class]
+    return emoji
 
 def set_emoji(element):
     emoji = ""
@@ -432,6 +435,14 @@ def set_emoji(element):
         emoji = "⚔️"
     if element == "SLEEP":
         emoji = "💤"
+    if element == "DRACONIC":
+        emoji = "🐲"
+    if element == "BASIC":
+        emoji = "💥"
+    if element == "SPECIAL":
+        emoji = "☄️"
+    if element == "ULTIMATE":
+        emoji = "🏵️"
     
         
     return emoji
@@ -1464,7 +1475,7 @@ def essence_cost(user, element):
                 }
             }
         tresponse = db.updateUserNoFilter(query, talisman_query)
-        msg = f"You have successfully attuned a {set_emoji(element)} {element.title()} Talisman!"
+        msg = f"You have successfully attuned and equipped a {set_emoji(element)} {element.title()} Talisman!"
         return msg
     except Exception as ex:
         trace = []
@@ -1582,6 +1593,10 @@ def create_arm_from_data(arm_data):
 
 def create_player_from_data(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'])
+    return player
+
+def create_tutorial_bot(player_data):
+    player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], "Starter", "Training Dummy", "Stock", "Chick", "None", player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'])
     return player
 
 def create_summon_from_data(summon_data):
@@ -1869,8 +1884,8 @@ title_enhancer_suffix_mapping = {'ATK': '% each turn',
     'CRYSTAL': '% each turn',
     'GROWTH': '% each turn',
     'FEAR': '% each turn',
-    'STANCE': '% each turn',
-    'CONFUSE': '% each turn',
+    'STANCE': 'Flat each turn',
+    'CONFUSE': 'Flat each turn',
     'CREATION': '% each turn',
     'DESTRUCTION': '% each turn',
     'SPEED': '% each focus',
@@ -1952,6 +1967,81 @@ title_prefix_mapping = {
     'DIVINITY': 'Ignore elemental effects until resolved',
 }
 
+blocking_traits = [
+    'Attack On Titan',
+    'Black Clover',
+    'Bleach',
+    'Death Note',
+    'My Hero Academia',
+    'YuYu Hakusho',
+]
+
+starting_traits = [
+    'Death Note',
+    'One Piece',
+    'Demon Slayer',
+]
+
+
+death_traits = [
+    'Dragon Ball Z',
+    'Souls',
+    'Chainsawman'
+]
+
+miss_crit_traits = [
+    'Jujutsu Kaisen',
+    'Soul Eater',
+]
+
+summon_traits = [
+    'Persona',
+    'Soul Eater',
+    'That Time I Got Reincarnated as a Slime'
+]
+
+
+opponent_focus_trait = [
+    '7ds',
+    'One Punch Man',
+    'Souls',
+    # Add more traits here
+]
+focus_traits = [
+    'Digimon',
+    'Dragonball Z',
+    'Solo Leveling',
+    'Black Clover',
+    'One Punch Man',
+    'Jujutsu Kaisen',
+    'Overlord',
+    'Fairy Tail',
+    'League Of Legends',
+    'Naruto',
+    'One Piece',
+    'That Time I Got Reincarnated as a Slime'
+]
+
+resolve_traits = [
+    'Digimon',
+    'God of War',
+    'Attack On Titan',
+    'Jujutsu Kaisen',
+    'Pokemon',
+    'Bleach',
+    'Jujutsu Kaisen',
+    'Naruto',
+    'My Hero Academia',
+    'Demon Slayer',
+    'YuYu Hakusho',
+    'One Piece',
+    'Souls',
+    'Fate',
+    'That Time I Got Reincarnated as a Slime',
+    'Fairy Tail'
+]
+
+
 
 passive_enhancer_suffix_mapping = {'ATK': ' %',
 'DEF': ' %',
@@ -1989,6 +2079,8 @@ passive_enhancer_suffix_mapping = {'ATK': ' %',
 'SIPHON': ' Healing 💉'
 }
 
+def get_enhancer_mapping(enhancer):
+    return enhancer_mapping[enhancer]
 
 enhancer_mapping = {
 'ATK': 'Increase Attack %',
@@ -2065,6 +2157,8 @@ title_enhancer_mapping = {
 'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
 
+def get_element_mapping(element):
+    return element_mapping[element]
 
 element_mapping = {
 'PHYSICAL': 'If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry',
@@ -2094,6 +2188,7 @@ element_mapping = {
 'BLEED': 'Every 2 Attacks deal 10x turn count damage to opponent. Goes through protections.',
 'SWORD': 'Every 3rd Strike will result in a critical attack that also increases Atack by 40% of damage dealt.',
 'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.',
+'DRACONIC':'Combines the AP values from your Basic and Special attacks, procing both elemental effects simultaneously. Draconic Attacks can only be Ultimate Attacks',
 'SHIELD': 'Blocks Incoming DMG, until broken',
 'BARRIER': 'Nullifies Incoming Attacks, until broken',
 'PARRY': 'Returns 25% Damage, until broken',
@@ -2130,7 +2225,8 @@ elements = [
     "NATURE",
     "SLEEP",
     "SWORD",
-    "ROT"
+    "ROT",
+    "DRACONIC"
 ]
 
 
@@ -2230,6 +2326,8 @@ autocomplete_advanced_search = [
     {'name': 'GUN', 'value': 'GUN'},
     # Add SLEEP
     {'name': 'SLEEP', 'value': 'SLEEP'},
+    # Add DRACONIC
+    {'name': 'DRACONIC', 'value': 'DRACONIC'},
     {'name': 'SWORD', 'value': 'SWORD'},
     {'name': 'NATURE', 'value': 'NATURE'},
     {'name': 'ROT', 'value': 'ROT'},
@@ -2249,19 +2347,21 @@ autocomplete_advanced_search = [
     {'name': 'SUMMONER', 'value': 'SUMMONER'},
     {'name': 'MONSTROSITY', 'value': 'MONSTROSITY'},
     {'name': 'HEALER', 'value': 'HEALER'},
+    {'name': 'TACTICIAN', 'value': 'TACTICIAN'}
 ]
 
 
 class_mapping = {
-'ASSASSIN' : 'First [1-3] Attack cost 0 Stamina',  
-'FIGHTER' : 'Starts each fight with up to 3 additional Parries',
-'MAGE' : 'Increases Elemental Damage up to 30%',
-'TANK' : ' Starts each fight with 300 * Card Tier Shield',
-'RANGER' : 'Starts each fight with up to 3 additional Barriers',
-'SWORDSMAN' : 'On Resolve, Gain up to 3 Critical Strikes',
+'ASSASSIN' : 'First [1-5] Attack cost 0 Stamina and Ignore Protections',  
+'FIGHTER' : 'Starts each fight with up to 7 additional Parries',
+'MAGE' : 'Increases Elemental Damage up to 60%',
+'TANK' : ' Starts each fight with 500 * Card Tier Shield',
+'RANGER' : 'Starts each fight with up to 6 additional Barriers',
+'SWORDSMAN' : 'On Resolve, Gain up to 6 Critical Strikes',
 'SUMMONER' : 'Starts each fight with summons available',
-'MONSTROSITY' : 'On Resolve, Gain up to 3 Double Strikes',
-'HEALER' : 'Stores up to 35% Damage recieved and increases healing on focus by that amount'
+'MONSTROSITY' : 'On Resolve, Gain up to 6 Double Strikes',
+'HEALER' : 'Stores up to 70% Damage recieved and increases healing on Focus by that amount',
+'TACTICIAN' : 'Enter Focus using Block to craft Strategy Points'
 }
 
 
@@ -2302,6 +2402,8 @@ crest_dict = { 'Unbound': '🉐',
               'Gurren Lagann': '<:gurren:1214432235927773205>',
               'Jujutsu Kaisen': '<:jjk:1249819520650969138>',
               'Katekyo Hitman Reborn': '<:reborn:1249819879293321301>',
+              'Full Metal Alchemist': '<:you:823268958974902327>',
+              'Unbound': '🉐',
 }
 
 scenario_level_config = 1499
@@ -2345,7 +2447,8 @@ class_emojis = {
     'RANGER': '<:NewUI_Class_Hunter:1085081189708210196>',
     'SUMMONER': '<:summon:1085347631108194314>',
     'SWORDSMAN': '<:Gold_Sword:1085347570282405958>',
-    'MONSTROSITY': '<:monster:1085347567384154172>'
+    'MONSTROSITY': '<:monster:1085347567384154172>',
+    'TACTICIAN': '<:Tactician:1085080853882884126>'
 }
 
 utility_emojis = {
@@ -2354,15 +2457,16 @@ utility_emojis = {
 }
 
 class_descriptions = {
-    'SUMMONER': f"{class_emojis['SUMMONER']} Summoners can use their summons from the start of battle instead of waiting to resolve.",
-    'ASSASSIN': f"{class_emojis['ASSASSIN']} Assassins have the ability to attack without using stamina at the beginning of the match. Can someone say free ultimates? This class effect varies based on card tier.",
-    'FIGHTER': f"{class_emojis['FIGHTER']} Fighters start each fight with up to 6 parries. This class effect varies based on card tier. On physical damage proc, fighters gain 2 parries instead of 1.",
-    'RANGER': f"{class_emojis['RANGER']} Rangers start each fight with up to 3 barriers. This class effect varies based on card tier. Rangers can attack through barriers.",
-    'TANK': f"{class_emojis['TANK']} Tanks start each fight with up to 1500 shield. This class effect varies based on card tier. Tanks gain the same shield amount on resolve.",
-    'SWORDSMAN': f"{class_emojis['SWORDSMAN']} Swordsmen gain up to 3 critical strikes on resolve. This class effect varies based on card tier. Bleed damage is boosted for the swordsman class.",
-    'MONSTROSITY': f"{class_emojis['MONSTROSITY']} Monstrosities gain up to 3 double strikes on resolve. This class effect varies based on card tier.",
-    'MAGE': f"{class_emojis['MAGE']} Mages increase elemental damage up to 60%. This class effect varies based on card tier. Elemental effects are greatly boosted.",
-    'HEALER': f"{class_emojis['HEALER']} Healers store up to 40% of the damage taken and heal for the total amount each focus. This class effect varies based on card tier. Lifesteal abilities are boosted for the healer class."
+    'SUMMONER': f"{class_emojis['SUMMONER']} *Summoners can use their summons from the start of battle instead of waiting to resolve. Summons deal bonus damaged based on card Tier*",
+    'ASSASSIN': f"{class_emojis['ASSASSIN']} *Assassins have the ability to attack without using stamina at the beginning of the match with increase Crit Chance ignoring enemy protections.This class effect varies based on card tier. Increase Bleed, Poison and Death DMG*",
+    'FIGHTER': f"{class_emojis['FIGHTER']} *Fighters start each fight with up to 7 parries. This class effect varies based on card tier. On physical damage proc, fighters gain 2 parries instead of 1.*",
+    'RANGER': f"{class_emojis['RANGER']} *Rangers start each fight with up to 6 barriers. This class effect varies based on card tier. Rangers can attack through barriers.*",
+    'TANK': f"{class_emojis['TANK']} *Tanks start each fight with up to 2500 shield. This class effect varies based on card tier. Tanks gain the same shield amount on resolve and Tripled Defense on Block*",
+    'SWORDSMAN': f"{class_emojis['SWORDSMAN']} *Swordsmen gain up to 6 critical strikes on resolve. This class effect varies based on card tier. Sword & Bleed damage is boosted for the swordsman class.*",
+    'MONSTROSITY': f"{class_emojis['MONSTROSITY']} *Monstrosities gain up to 6 double strikes on resolve. This class effect varies based on card tier.*",
+    'MAGE': f"{class_emojis['MAGE']} *Mages increase elemental damage up to 60%. This class effect varies based on card tier. Elemental effects are greatly boosted.*",
+    'HEALER': f"{class_emojis['HEALER']} *Healers store up to 70% of the damage taken and heal for the total amount each focus. This class effect varies based on card tier. Lifesteal abilities are boosted for the healer class and they Remove stacked effects on focus [Bleed, Poison, Rot]*",
+    'TACTICIAN': f"{class_emojis['TACTICIAN']} *Enter Focus using Block to craft Strategy Points.1- Enhance Protections, 2 - Sabotage Talisman, 3 - Enhance Talisman,4 - Sabotage Protections,5 - The Ultimate Strategy!*" 
    }
 
 Healer_Enhancer_Check = ['HLT', 'LIFE']

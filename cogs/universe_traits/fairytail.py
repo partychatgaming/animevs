@@ -47,7 +47,7 @@ def unison_raid(player_card, battle_config, opponent_card, player_title):
 def fairy_tail_recovery(player_card, battle_config):
     if player_card.universe == "Fairy Tail" and player_card.fairy_tail_recovering:
         if player_card.fairy_tail_recovering_duration > 0:
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} is recovering from their unison raid attack")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} is 🛏️ recovering from their unison raid attack")
             battle_config.next_turn()
         if player_card.fairy_tail_recovering_duration == 0:
             player_card.fairy_tail_recovering = False
@@ -58,7 +58,7 @@ def fairy_tail_recovery(player_card, battle_config):
 
 def concentration(player_card, battle_config):
     if player_card.universe == "Fairy Tail":
-        player_card.card_lvl_ap_buff = player_card.card_lvl_ap_buff + (15 * player_card.tier) * player_card.focus_count
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} gains {(15 * player_card.tier) * player_card.focus_count} AP from their concentration")
+        player_card.card_lvl_ap_buff = player_card.card_lvl_ap_buff + ((15 * player_card.tier) * (player_card.focus_count))
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} gains {(15 * player_card.tier) * (player_card.focus_count+ 1)} AP from their concentration")
         return
 

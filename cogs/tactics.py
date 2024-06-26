@@ -183,8 +183,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     opponent_card.damage_dealt = round(opponent_card.damage_dealt)
     player_card.damage_healed = round(player_card.damage_healed)
     opponent_card.damage_healed = round(opponent_card.damage_healed)
-    activate_my_hero_academia_trait(player_card)
-    activate_my_hero_academia_trait(opponent_card)
+    activate_my_hero_academia_trait(player_card,battle_config)
+    activate_my_hero_academia_trait(opponent_card,battle_config)
 
     devilization(player_card, battle_config)
     devilization(opponent_card, battle_config)
@@ -228,7 +228,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
 
 
     if companion:
-        activate_my_hero_academia_trait(companion)
+        activate_my_hero_academia_trait(companion, battle_config)
         companion.reset_stats_to_limiter(opponent_card)
         devilization(companion, battle_config)
         activate_demon_slayer_trait(companion, battle_config, opponent_card)

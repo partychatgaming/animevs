@@ -12,6 +12,7 @@ class BattleConfig(Extension):
         self.tutorial_ultimate = False
         self.tutorial_block = False
         self.tutorial_focus = False
+        self.tutorial_opponent_focus = False
         self.tutorial_resolve = False
         self.tutorialsummon = False
         self.tutorial_enhancer = False

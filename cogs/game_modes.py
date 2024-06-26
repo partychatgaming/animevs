@@ -725,9 +725,9 @@ async def tutorial(self, ctx, player, mode):
         #
         # await ctx.send("🆚 Building Tutorial Match...", delete_after=10)
 
-        tutorial_did = '263564778914578432'
+        tutorial_did = '837538366509154407'
         opponent = db.queryUser({'DID': tutorial_did})
-        player2 = crown_utilities.create_player_from_data(opponent)
+        player2 = crown_utilities.create_tutorial_bot(opponent)
         battle = Battle(mode, player)
         battle.set_tutorial(tutorial_did)
         battle.mode = "PVP"

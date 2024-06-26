@@ -479,7 +479,7 @@ class Title:
                     self.title_battle_messages.append(f"🔸 +{power} 🌀 stamina")
 
             if ability == "DRAIN":
-                if opponent_card.stamina > 15:
+                if opponent_card.stamina > 15 and player_card.stamina >=10:
                     opponent_card.stamina = opponent_card.stamina - power
                     player_card.stamina = player_card.stamina + power
                     self.title_battle_messages.append(f"🔸 drained +{power} 🌀 stamina from opponent")
@@ -521,11 +521,12 @@ class Title:
                 self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ health / +{round(equation)} 🛡️ defense")
 
             if ability == "FEAR":
+                equation = 0
                 if player_card.universe != "Chainsawman":
+                    equation = (player_card.max_health * .03)
                     player_card.max_health = player_card.max_health - (player_card.max_health * .03)
                     if player_card.health > player_card.max_health:
                         player_card.health = player_card.max_health
-                player_card.max_health = player_card.max_health - (player_card.max_health * .03)
                 if player_card.health > player_card.max_health:
                     player_card.health = player_card.max_health
                 opponent_card.defense = opponent_card.defense - power
@@ -537,14 +538,17 @@ class Title:
                     opponent_card.defense = 25
                 if opponent_card.card_lvl_ap_buff <= 0:
                     opponent_card.card_lvl_ap_buff = 1
+                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ max health / -{round(power)} opponent 🗡️ attack and 🛡️ defense")
             
             if ability == "GROWTH":
+                equation = round(player_card.max_health * .03)
                 player_card.max_health = player_card.max_health - (player_card.max_health * .03)
                 if player_card.health > player_card.max_health:
                     player_card.health = player_card.max_health
                 player_card.defense = player_card.defense + power
                 player_card.attack = player_card.attack + power
                 player_card.card_lvl_ap_buff = player_card.card_lvl_ap_buff + power
+                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ max health / +{round(power)} opponent 🗡️ attack and 🛡️ defense")
             
             if ability == "SLOW":
                 if battle.turn_total != 0:
@@ -561,19 +565,19 @@ class Title:
                 tempattack = player_card.attack + power
                 player_card.attack = player_card.defense
                 player_card.defense = tempattack
-                self.title_battle_messages.append(f"🔸 swapped +{power} 🗡️ attack and 🛡️ defense stats")
+                self.title_battle_messages.append(f"🔸 swapped  🗡️ attack and 🛡️ defense / +{power} 🛡️ defense")
 
             if ability == "CONFUSE":
                 tempattack = opponent_card.attack - power
                 opponent_card.attack = opponent_card.defense
                 opponent_card.defense = tempattack
-                self.title_battle_messages.append(f"🔸 opponent swapped -{power} 🗡️ attack and 🛡️ defense stats")
+                self.title_battle_messages.append(f"🔸 swapped opponent 🗡️ attack and 🛡️ defense / -{power} opponent 🛡️ defense")
 
             if ability == "BLINK":
                 player_card.stamina = player_card.stamina - player_card.passive_value
                 if opponent_card.stamina >=10:
                     opponent_card.stamina = opponent_card.stamina + power
-                self.title_battle_messages.append(f"🔸 swapped stamina with opponent")
+                self.title_battle_messages.append(f"🔸 swapped {power} stamina with opponent")
 
             if ability == "CREATION":
                 equation = (power / 100) * player_card.max_health

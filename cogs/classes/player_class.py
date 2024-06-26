@@ -393,10 +393,10 @@ class Player:
             #     response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
             
 
-            update_query = {'$addToSet': {'CARDS': card.name}}
+            update_query = {'$addToSet': {'CARDS': card.name}, '$set': {'CARD': card.name}}
 
             if not any(card.name in d['CARD'] for d in self.card_levels):
-                update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'TIER': card.tier, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
+                update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'TIER': card.tier, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}, '$set': {'CARD': card.name}}
             db.updateUserNoFilter(self.user_query,{'$addToSet':{'CARDS': card.name}})
             db.updateUserNoFilter(self.user_query, update_query)
             # response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
@@ -785,6 +785,7 @@ class Player:
         _card.summon_name = self._equipped_summon_name
         _card.summon_image = self._equipped_summon_image
         _card.summon_universe = self._equipped_summon_universe
+        
     
 
     def get_talisman_ready(self, card):

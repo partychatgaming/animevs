@@ -25,7 +25,7 @@ def titan_mode(player_card, battle_config, player_title):
         player_card.defense = round(player_card.defense - resolve_defense_value)
         player_card.used_resolve = True
         player_card.usedsummon = False
-        health_boost = 100 * player_card.focus_count
+        health_boost = 100 * (player_card.focus_count * player_card.card_tier)
         player_card.health = player_card.health + health_boost
         player_card.damage_healed = player_card.damage_healed + resolve_health + health_boost
 
