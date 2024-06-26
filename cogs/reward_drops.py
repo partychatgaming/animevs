@@ -46,10 +46,10 @@ async def scenario_drop(player, scenario, difficulty):
             rewards = scenario.get(easy, [])
             mode = "TALES"
             scenario_gold = round(scenario_gold / 3)
-        if difficulty == "NORMAL":
+        if difficulty == "NORMAL" and scenario_level < 1500:
             rewards = scenario.get(normal, [])
             mode = "TALES"
-        if difficulty == "HARD":
+        if difficulty == "HARD" or scenario_level >= 1500:
             rewards = scenario.get(hard, [])
             mode = "DUNGEON"
             scenario_gold = round(scenario_gold * 3)
@@ -136,7 +136,7 @@ async def reward_money(battle_config, player):
 
 def get_drop_rate(battle_config, player):
     # Constant values organized in a list of tuples
-    drop_values = [("GOLD", 125), ("RIFT", 140), ("REMATCH", 175), ("ARM", 195), ("SUMMON", 198), ("CARD", 200)]
+    drop_values = [("GOLD", 125), ("REMATCH", 140), ("ARM", 175), ("SUMMON", 190), ("CARD", 200)]
     
     # Calculate drop rate
     drop_rate = random.randint(player.rebirth * 10, 200)

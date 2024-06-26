@@ -38,14 +38,16 @@ def quirk_awakening(player_card, battle_config, player_title):
 
 
 def plus_ultra(player_card, battle_config):
-    if player_card.universe == "My Hero Academia" and not player_card.used_block:
+    if player_card.universe == "My Hero Academia":
         player_card.my_hero_academia_buff_counter += 20
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} went plus ultra increasing their ap to {player_card.my_hero_academia_buff_counter}")
 
 
-def activate_my_hero_academia_trait(player_card):
+def activate_my_hero_academia_trait(player_card, battle_config):
     if player_card.universe == "My Hero Academia" and not player_card.used_resolve:
         player_card.my_hero_academia_buff_counter += 50
+        if player_card.stamina < 10:
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} stored AP before focusing[{player_card.my_hero_academia_buff_counter}]")
     
     if player_card.universe == "My Hero Academia" and player_card.used_resolve and player_card.my_hero_academia_buff > 150:
         player_card.my_hero_academia_buff -= 150

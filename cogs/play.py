@@ -128,6 +128,7 @@ class Play(Extension):
                         
                         game_over_check = False
                         while not game_over_check:
+                            
                             if check_if_game_over(battle_config):
                                 game_over_check = True
                                 break
@@ -404,13 +405,13 @@ async def add_ai_start_messages(battle_config):
     if not battle_config.turn_zero_has_happened:
         class_effects = {
             "ASSASSIN": "{name} the {class_message} gained {class_value} sneak attacks",
-            "MAGE": "{name} the {class_message} gained a boost to attacks",
+            "MAGE": "{name} the {class_message} gained a {class_value}% boost to elemental attacks",
             "RANGER": "{name} the {class_message} gained 💠 {class_value} barriers",
             "TANK": "{name} the {class_message} gained a 🌐 {class_value} shield",
-            "HEALER": "{name} the {class_message} boosted their healing spells",
+            "HEALER": "{name} the {class_message} boosted their healing by {class_value}%",
             "SUMMONER": "{name} the {class_message} the ability to summon their companion before resolving",
             "FIGHTER": "{name} the {class_message} gained 🔁 {class_value} parries",
-            "TACTICIAN": "{name} the {class_message} has improved protections and affinites",
+            "TACTICIAN": "{name} the {class_message} Can Enter focus using Block to strategize against their opponent!",
         }
 
         def append_previous_moves(card, player_name):
@@ -660,8 +661,12 @@ async def exit_battle_embed(battle_config, button_ctx, private_channel):
 
 def check_if_game_over(battle_config):
     player3_card = battle_config.player3_card if battle_config.is_duo_mode or battle_config.is_co_op_mode else None
+    if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
+        battle_config.turn_total -= 1
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ❌ Tutorial Task Incomplete!\nComplete your Tutorial Task to defeat the Training Dummy!")
+        battle_config.turn_total += 1
     game_over_check = battle_config.set_game_over(battle_config.player1_card, battle_config.player2_card, player3_card)
-
+    
     return bool(game_over_check)
 
 
@@ -769,8 +774,13 @@ def damage_check_turn_check(battle_config):
 
 
 async def tutorial_focusing(battle_config, private_channel):
-    if battle_config.is_turn == 0:
-        if battle_config.is_tutorial_game_mode and not battle_config.tutorial_focus:
+    if battle_config.is_tutorial_game_mode:
+        #print(battle_config.is_turn)
+        if battle_config.is_turn == 0 and battle_config.tutorial_focus and not battle_config.tutorial_opponent_focus:
+            await private_channel.send(embed=battle_config._tutorial_message)
+            battle_config.tutorial_opponent_focus = True  
+            await asyncio.sleep(2)
+        if battle_config.is_turn != 0 and not battle_config.tutorial_focus:
             await private_channel.send(embed=battle_config._tutorial_message)
             battle_config.tutorial_focus = True
             await asyncio.sleep(2)
@@ -834,12 +844,23 @@ async def first_turn_experience(battle_config, private_channel):
 
         if battle_config.is_turn == 0:
             if battle_config.is_tutorial_game_mode:
+                #Insert Health Based Traits Here
+                battle_config.player2_card.stamina = 20
+                block_message = f"🛡️ - **Block** *⚡20 ST*\n"
+                if battle_config.player1_card.card_class == "TANK":
+                    block_message = f"🛡️ - **Heavy Block** [3x Defense] *⚡20 ST*\n"
                 embedVar = Embed(title=f"Welcome to **Anime VS+**!",
                                         description=f"Follow the instructions to learn how to play the Game!",
                                         color=0xe91e63)
-                embedVar.add_field(name=f"**{battle_config.player1_card.name}'s Class**",value=f"The {battle_config.player1_card.class_message} Class\n{crown_utilities.class_emojis[battle_config.player1_card.card_class]} {crown_utilities.class_mapping[battle_config.player1_card.card_class]}")
-                embedVar.add_field(name="**Moveset**",value=f"{battle_config.player1_card.move1_emoji} - **Basic Attack** *10 ⚡ST*\n{battle_config.player1_card.move2_emoji} - **Special Attack** *30 ⚡ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate Move** *80 ⚡ST*\n🦠 - **Enhancer** *20 ⚡ST*\n🛡️ - **Block** *20 ⚡ST*\n⚡ - **Resolve** : Heal and Activate Resolve\n🧬 - **Summon** : {battle_config.player1.equipped_summon}")
-                embedVar.set_footer(text="Focus State : When Stamina = 0, You will focus to Heal and gain ATK and DEF ")
+                embedVar.add_field(name=f"[{crown_utilities.class_emojis[battle_config.player1_card.card_class]}] **{battle_config.player1_card.name}'s Class**",value=f"*The {battle_config.player1_card.class_message}\n{crown_utilities.class_mapping[battle_config.player1_card.card_class]}*\n{battle_config.player1_card.class_tutorial_message}\n")
+                if battle_config.player1_card.universe in crown_utilities.starting_traits:
+                    title, text = battle_config.starting_trait_handler(battle_config.player1_card, battle_config.player2_card)
+                    
+                    embedVar.add_field(name=f"{battle_config.player1_card.universe_crest} {battle_config.player1_card.universe} Trait: {title}",
+                                value=f"{text}")
+                embedVar.add_field(name="**Moveset**",value=f"{battle_config.player1_card.move1_emoji} - **Basic {battle_config.player1_card.move1_element.title()} Attack** *⚡10 ST*\n{battle_config.player1_card.move2_emoji} - **Special {battle_config.player1_card.move2_element.title()} Attack** *⚡30 ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate {battle_config.player1_card.move3_element.title()} Attack** *⚡80 ST*\n🦠 - **{battle_config.player1_card.move4enh.title()} Enhancer** *⚡20 ST*\n{block_message}\n⚡ - **Resolve** : Heal and Activate Resolve\n🧬 - ** {battle_config.player1_card.summon_type.title()} Summon** : {battle_config.player1.equipped_summon}\n")
+                #embedVar.add_field(name=f"🧠**Tutorial Task!**", value=f"*Interactively learn about your Elemental Attacks and Card Abilities!*")
+                embedVar.set_footer(text="Focus State: When your ST(Stamina) is < 10, You will FOCUS to gain ATK and DEF and heal a portion of missing HP(Health)")
                 await private_channel.send(embed=embedVar)
                 await asyncio.sleep(2)
         
@@ -853,12 +874,21 @@ async def first_turn_experience(battle_config, private_channel):
                 await private_channel.send(embed=embedVar)
                 await asyncio.sleep(2)
             if battle_config.is_tutorial_game_mode:
+                block_message = f"🛡️ - **Block** *⚡20 ST*\n"
+                if battle_config.player1_card.card_class == "TANK":
+                    block_message = f"🛡️ - **Heavy Block** [3x Defense] *⚡20 ST*\n"
                 embedVar = Embed(title=f"Welcome to **Anime VS+**!",
                                         description=f"Follow the instructions to learn how to play the Game!",
                                         color=0xe91e63)
-                embedVar.add_field(name=f"**{battle_config.player1_card.name}'s Class**",value=f"The {battle_config.player1_card.class_message} Class\n{crown_utilities.class_emojis[battle_config.player1_card.card_class]} {crown_utilities.class_mapping[battle_config.player1_card.card_class]}")
-                embedVar.add_field(name="**Moveset**",value=f"{battle_config.player1_card.move1_emoji} - **Basic Attack** *10 ⚡ST*\n{battle_config.player1_card.move2_emoji} - **Special Attack** *30 ⚡ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate Move** *80 ⚡ST*\n🦠 - **Enhancer** *20 ⚡ST*\n🛡️ - **Block** *20 ⚡ST*\n⚡ - **Resolve** : Heal and Activate Resolve\n🧬 - **Summon** : {battle_config.player1.equipped_summon}")
-                embedVar.set_footer(text="Focus State : When Stamina = 0, You will focus to Heal and gain ATK and DEF ")
+                embedVar.add_field(name=f"[{crown_utilities.class_emojis[battle_config.player1_card.card_class]}] **{battle_config.player1_card.name}'s Class**",value=f"*The {battle_config.player1_card.class_message}\n{crown_utilities.class_mapping[battle_config.player1_card.card_class]}*")
+                if battle_config.player1_card.universe in crown_utilities.starting_traits:
+                    title, text = battle_config.starting_trait_handler(battle_config.player1_card, battle_config.player2_card)
+                    
+                    embedVar.add_field(name=f"{battle_config.player1_card.universe_crest} {battle_config.player1_card.universe} Trait: {title}",
+                                value=f"{text}")
+                embedVar.add_field(name="**Moveset**",value=f"{battle_config.player1_card.move1_emoji} - **Basic {battle_config.player1_card.move1_element.title()} Attack** *⚡10 ST*\n{battle_config.player1_card.move2_emoji} - **Special {battle_config.player1_card.move2_element.title()} Attack** *⚡30 ST*\n{battle_config.player1_card.move3_emoji} - **Ultimate {battle_config.player1_card.move3_element.title()} Attack** *⚡80 ST*\n🦠 - **{battle_config.player1_card.move4enh.title()} Enhancer** *⚡20 ST*\n{block_message}\n⚡ - **Resolve** : Heal and Activate Resolve\n🧬 - ** {battle_config.player1_card.summon_type.title()} Summon** : {battle_config.player1.equipped_summon}\n")
+                #embedVar.add_field(name=f"🧠**Tutorial Task!**", value=f"*Interactively learn about your Elemental Attacks and Card Abilities!*")
+                embedVar.set_footer(text="Focus State: When your ST(Stamina) is < 10, You will FOCUS to gain ATK and DEF and heal a portion of missing HP(Health)")
                 await private_channel.send(embed=embedVar)
                 await asyncio.sleep(2)
 
@@ -1020,6 +1050,7 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
         custom_logging.debug(ex)
 
 
+
 async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
     """
     Displays the player move embed during their turn in the battle.
@@ -1073,14 +1104,21 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
     author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
 
     summon_message = f"🧬 {turn_card.summon_name} is equipped" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
-
-    player1_arm_message = f"**You have the following equipment** {turn_card._arm_message}{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman equipped\n{summon_message}"
+    talisman_message = f"{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman equipped"
+    if turn_card.is_tactician and turn_card._tactician_stack_3:
+        talisman_message = f"🆚 Tactician's Talisman equipped"
+    if turn_card.is_tactician and turn_card._tactician_stack_5:
+        talisman_message = f"🆚 Ultimate Strategy equipped"
+    player1_arm_message = f"**You have the following equipment**{turn_card._arm_message}{talisman_message}\n{summon_message}"
+    tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
     embedVar = Embed(title=f"", color=0xe74c3c)
     # if turn_player.performance:
     #     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{turn_card.get_perfomance_header(turn_title)}")
     # else:
     embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{player1_arm_message}")
+    if battle_config.is_tutorial_game_mode:
+        embedVar.add_field(name=f"🧠**Tutorial Task!**", value=f"{tutorial_embed_message}")
 
 
     # ai_results = summarize_last_moves(battle_config.previous_moves)
@@ -1140,6 +1178,8 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
     5. If the move is resolving or blocking, return immediately.
     6. Handle co-op mode moves if applicable.
     7. Perform player damage calculation asynchronously.
+
+    At some point tutorial messages can be moved to handler
     """
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
@@ -1148,26 +1188,54 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|1":
         damage_calculation_response = await player_use_basic_ability(battle_config, private_channel, button_ctx, battle_msg)
-    
+        if battle_config.is_tutorial_game_mode and battle_config.tutorial_basic == False:
+            battle_config.tutorial_basic = True
+            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BASIC')
+            await private_channel.send(embed=embedVar)
+
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|2":
         damage_calculation_response = await player_use_special_ability(battle_config, private_channel, button_ctx, battle_msg)
+        if battle_config.is_tutorial_game_mode and battle_config.tutorial_special == False:
+            battle_config.tutorial_special = True
+            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'SPECIAL')
+            await private_channel.send(embed=embedVar)
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|3":
         damage_calculation_response = await player_use_ultimate_ability(battle_config, private_channel, button_ctx, battle_msg)
+        if battle_config.is_tutorial_game_mode and battle_config.tutorial_ultimate == False:
+            battle_config.tutorial_ultimate = True
+            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'ULTIMATE')
+            await private_channel.send(embed=embedVar)
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|4":
         damage_calculation_response = await player_use_enhancer_ability(battle_config, private_channel, button_ctx, battle_msg)
+        if battle_config.is_tutorial_game_mode and battle_config.tutorial_enhancer == False:
+            battle_config.tutorial_enhancer = True
+            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'ENHANCER')
+            await private_channel.send(embed=embedVar)
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|6":
         await player_use_summon_ability(battle_config, private_channel, button_ctx, battle_msg)
+        if battle_config.is_tutorial_game_mode and battle_config.tutorial_summon == False:
+            battle_config.tutorial_summon = True
+            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'SUMMON')
+            await private_channel.send(embed=embedVar)
         return
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|5":
         resolving = await player_use_resolve(battle_config, private_channel, button_ctx, battle_msg)
+        if battle_config.is_tutorial_game_mode and battle_config.tutorial_resolve == False:
+            battle_config.tutorial_resolve = True
+            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'RESOLVE')
+            await private_channel.send(embed=embedVar)
         return
 
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|0":
         blocking = await player_use_block_ability(battle_config, private_channel, button_ctx, battle_msg)
+        if battle_config.is_tutorial_game_mode and battle_config.tutorial_block == False:
+            battle_config.tutorial_block = True
+            embedVar = battle_config.tutorial_messages(turn_card, opponent_card, 'BLOCK')
+            await private_channel.send(embed=embedVar)
         return
     
     if battle_config.is_co_op_mode:
@@ -1186,6 +1254,7 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
 
     complete_damage_calculation = await player_damage_calculation(battle_config, button_ctx, damage_calculation_response)         
 
+#def tutorial_message_handler(turn_card, battle_config, private_channel, message_type):
 
 async def player_use_basic_ability(battle_config, private_channel, button_ctx, battle_msg):
     try:
@@ -1291,7 +1360,7 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
                                     description=f"💥**Basic Attack** cost **10 ST(Stamina)** to deal decent Damage!",
                                     color=0xe91e63)
             embedVar.add_field(
-                name=f"Your Basic Attack: {turn_card.move1_emoji} {turn_card.move1} inflicts {turn_card.move1_element}",
+                name=f"{turn_card.move1_emoji} {turn_card.move1} inflicts {turn_card.move1_element.title()}",
                 value=f"**{turn_card.move1_element}** : *{crown_utilities.element_mapping[turn_card.move1_element]}*")
             embedVar.set_footer(
                 text=f"Basic Attacks are great when you are low on stamina. Enter Focus State to Replenish!")
@@ -1305,7 +1374,7 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
                                     description=f":comet:**Special Attack** cost **30 ST(Stamina)** to deal great Damage!",
                                     color=0xe91e63)
             embedVar.add_field(
-                name=f"Your Special Attack: {turn_card.move2_emoji} {turn_card.move2} inflicts {turn_card.move2_element}",
+                name=f"{turn_card.move2_emoji} {turn_card.move2} inflicts {turn_card.move2_element.title()}",
                 value=f"**{turn_card.move2_element}** : *{crown_utilities.element_mapping[turn_card.move2_element]}*")
             embedVar.set_footer(
                 text=f"Special Attacks are great when you need to control the Focus game! Use Them to Maximize your Focus and build stronger Combos!")
@@ -1313,14 +1382,14 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
             await asyncio.sleep(1)
         
     if button_ctx.ctx.custom_id == f"{battle_config._uuid}|3":
-        print("Entered into Ultimate Move")
+        #print("Entered into Ultimate Move")
         if battle_config.is_tutorial_game_mode and battle_config.tutorial_ultimate==False:
             battle_config.tutorial_ultimate=True
-            embedVar = Embed(title=f"🏵️ Ultimate Move!",
-                                    description=f"🏵️ **Ultimate Move** cost **80 ST(Stamina)** to deal incredible Damage!",
+            embedVar = Embed(title=f"🏵️ Ultimate Attack!",
+                                    description=f"🏵️ **Ultimate Attack** cost **80 ST(Stamina)** to deal incredible Damage!",
                                     color=0xe91e63)
             embedVar.add_field(
-                name=f"Your Ultimate: {turn_card.move3_emoji} {turn_card.move3} inflicts {turn_card.move3_element}",
+                name=f"{turn_card.move3_emoji} {turn_card.move3} inflicts {turn_card.move3_element.title()}",
                 value=f"**{turn_card.move3_element}** : *{crown_utilities.element_mapping[turn_card.move3_element]}*")
             # embedVar.add_field(name=f"Ultimate GIF",
             #                 value="Using your ultimate move also comes with a bonus GIF to deliver that final blow!\n*Enter performance mode to disable GIFs\n/performace*")
@@ -1400,7 +1469,7 @@ async def player_tutorial_message_ability_use(battle_config, private_channel, bu
                                     description=f"🛡️**Blocking** cost **20 ST(Stamina)** to Double your **DEF** until your next turn!",
                                     color=0xe91e63)
             embedVar.add_field(name=f"**Engagements**",
-                            value="You will take less DMG when your **DEF** is greater than your opponenents **ATK**")
+                            value="You will take less DMG when your **DEF** is greater than your opponents **ATK**")
             embedVar.add_field(name=f"**Engagement Insight**",
                             value="💢: %33-%50 of AP\n❕: %50-%75 AP\n‼️: %75-%120 AP\n〽️x1.5: %120-%150 AP\n❌x2: $150-%200 AP")
             embedVar.set_footer(

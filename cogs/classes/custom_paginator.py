@@ -2688,8 +2688,9 @@ class CustomPaginator(Paginator):
         titles_gained = []
 
         for title in list_of_titles:
-            db.updateUserNoFilter(player.user_query,{'$addToSet':{'TITLES': title}})
+            db.updateUserNoFilter(player.user_query,{'$addToSet':{'TITLES': title}, '$set': {'TITLE': title}})
             titles_gained.append(f"🎗️ **{title}**!")
+
 
         titles_gained_message = "\n".join(titles_gained)
 
@@ -2710,7 +2711,7 @@ class CustomPaginator(Paginator):
             selection = random.choice(selectable_arms)
             selected_arms.append(selection)
             arm = list_of_arms[selection]['ARM']
-            db.updateUserNoFilter(player.user_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 75}}})        
+            db.updateUserNoFilter(player.user_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 75}}, '$set': {'ARM': arm}})        
             arm_message.append(f"**{arm}**!")                   
             count = count + 1
 

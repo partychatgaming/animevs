@@ -570,6 +570,7 @@ class GameState(Extension):
                         await battle_config.set_boss_win(battle_config.player1, battle_config.player2_card, battle_config.player3)
                     battle_config.continue_fighting = False
                 
+                
             if battle_config.is_explore_game_mode:
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
