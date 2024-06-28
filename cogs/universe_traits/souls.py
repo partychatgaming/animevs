@@ -34,8 +34,8 @@ def combat_phases(player_card):
 
 def combo_recognition(player_card, battle_config, opponent_card):
     if opponent_card.universe == "Souls":
-        opponent_card.attack = round(opponent_card.attack + ((10 * opponent_card.card_tier) + battle_config.turn_total))
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {opponent_card.name} increased attack by {60 + battle_config.turn_total} 🔺")
+        opponent_card.attack = round(opponent_card.attack + ((25 * opponent_card.card_tier) + battle_config.turn_total))
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {opponent_card.name} increased attack by {((25 * opponent_card.card_tier) + battle_config.turn_total)} 🔺")
 
 def souls_third_phase(player_card, battle_config):
     if player_card.universe == "Souls" and player_card.used_resolve and player_card.health <= (player_card.max_health * .40):

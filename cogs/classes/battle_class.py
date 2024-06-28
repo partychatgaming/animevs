@@ -1786,7 +1786,7 @@ class Battle:
             value = f"On Opponent Focus:\n\n**Heroes**: gain 50 * Opponent Card Tier Health and Max Health **[{50 * player_card.card_tier}]**\n\n**Monsters**: Gain 25 * Monster Card Tier Health and Max Health **[{25 * opponent_card.card_tier}]**"
         if opponent_card.universe == "Souls":
             name = "Phase 1: Combo Recognition"
-            value = f"On Opponent Focus:\nGain (10 * Card Tier) + Turn Count Attack **[{10 * opponent_card.card_tier + self.turn_total}]**"
+            value = f"On Opponent Focus:\nGain (25 * Card Tier) + Turn Count Attack **[{25 * opponent_card.card_tier + self.turn_total}]**"
         return name, value
 
     def starting_trait_handler(self, player_card, opponent_card):

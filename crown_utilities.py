@@ -516,7 +516,7 @@ def showsummon(url, summon, message, lvl, bond):
         pilmoji = Pilmoji(im)
         for line in lines:
             font = moveset_font
-            width, height = font.getsize(line)
+            width, height = font.textsize(line)
             x_position = round((1730 - width) / 2)
             pilmoji.text((x_position, y_text), line, (255, 255, 255), font=font, stroke_width=2, stroke_fill=(0, 0, 0))
             y_text += height

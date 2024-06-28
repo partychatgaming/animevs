@@ -728,7 +728,7 @@ class Card:
             self._parry_value = self._parry_value + p_value
             self.physical_parry_value = 1
             self.class_value = p_value
-            self.class_tutorial_message = f"🔄+{p_value} Parries!"
+            self.class_tutorial_message = f"🔄 +{p_value} Parries!"
         
         if self.card_class == "MAGE":
             self.is_mage = True
@@ -754,7 +754,7 @@ class Card:
             self.wind_buff_value = 90
             self.nature_buff_value = .60
             self.class_value = round(mage_buff * 100)
-            self.class_tutorial_message = f"🌦️+{self.class_value} Elemental Damage!"
+            self.class_tutorial_message = f"🌦️ +{self.class_value}% Elemental Damage!"
         
         if self.card_class == "TACTICIAN":
             self.is_tactician = True
@@ -773,7 +773,7 @@ class Card:
             self.shield_active = True
             self._shield_value = self._shield_value + (self.tier * 250) + self.card_lvl
             self.class_value = self._shield_value
-            self.class_tutorial_message = f"🌐+{(self.tier * 250) + self.card_lvl} Shield!"
+            self.class_tutorial_message = f"🌐 +{(self.tier * 250) + self.card_lvl} Shield!"
         
         if self.card_class == "HEALER":
             self.is_healer = True
@@ -782,7 +782,7 @@ class Card:
             self._heal_buff = heal_buff
             self.life_buff_value = .50
             self.class_value = round(heal_buff * 100)
-            self.class_tutorial_message = f"❤️‍🩹 +{self.class_value} Healing!"
+            self.class_tutorial_message = f"❤️‍🩹 +{self.class_value}% Healing!"
         
         if self.card_class == "ASSASSIN":
             self.is_assassin = True
@@ -809,7 +809,7 @@ class Card:
             self.is_monstrosity = True
             self._monstrosity_active = True
             self._monstrosity_value = value - 1
-            self.class_tutorial_message = f"{self.class_emoji} +{(value - 1)} Double Strikes!"
+            self.class_tutorial_message = f"{self.class_emoji} +{(value)} Double Strikes!"
 
 
     # AI ONLY BUFFS
@@ -2671,9 +2671,9 @@ class Card:
                     # print(250 * int(self.card_tier))
                     if self._shield_value <= 0:
                         self._shield_value = 0
-                    self._shield_value = self._shield_value + (250 * int(self.card_tier))
+                    self._shield_value = self._shield_value + (100 * int(self.card_tier))
                     #print(self._shield_value)
-                    response = f"🆚 Craft Protections! {self.name} Crafted 🛠️\n🔁 {self.p_value - 2} Parry\n💠{self.class_value - 1} Barrier\n🌐{(250 * int(self.card_tier))} Shield\n[{self._tactician_points} {self.class_tier} Strategy Points]"
+                    response = f"🆚 Craft Protections! {self.name} Crafted 🛠️\n🔁 {self.p_value - 2} Parry\n💠{self.class_value - 1} Barrier\n🌐{(100 * int(self.card_tier))} Shield\n[{self._tactician_points} {self.class_tier} Strategy Points]"
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {response}")
                 return 
             else:
