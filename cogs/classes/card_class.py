@@ -247,7 +247,7 @@ class Card:
             self.light_speed_attack_value = 0
             self.dark_buff_by_value = 15
             self.physical_parry_value = 1
-            self.ranged_buff_value = 1
+            self.ranged_buff_value = 2
             self.life_buff_value = .65
             self.reckless_buff_value = .40
             self.reckless_duration = 0
@@ -264,7 +264,7 @@ class Card:
             self.ice_buff_value = 1
             self.energy_buff_value = 0
             self.energy_crit_bool =False
-            self.wind_buff_value = .90
+            self.wind_buff_value = .75
             self.nature_buff_value = .35
             self.sword_crit_bool = False
             self.sword_crit_count = 0
@@ -751,29 +751,29 @@ class Card:
             self.bleed_hit_value = 30
             self.ice_buff_value = 2
             self.energy_buff_value = 2
-            self.wind_buff_value = 1.50
+            self.wind_buff_value = 90
             self.nature_buff_value = .60
             self.class_value = round(mage_buff * 100)
             self.class_tutorial_message = f"🌦️+{self.class_value} Elemental Damage!"
         
         if self.card_class == "TACTICIAN":
             self.is_tactician = True
-            self.class_tutorial_message = f"Craftable Protections\n🔄+{p_value - 2} Parries\n🌐+{(self.tier * 250)} Shield\n💠+{(self.class_value - 1)} Barrier"
+            self.class_tutorial_message = f"Craftable Protections\n🔄+{p_value - 2} Parries\n🌐+{(self.tier * 100)} Shield\n💠+{(self.class_value - 1)} Barrier"
 
         if self.card_class == "RANGER":
             self.is_ranger = True
             self.barrier_active = True
             self._barrier_value = self._barrier_value + value
-            self.ranged_buff_value = 3
+            self.ranged_buff_value = 4
             self.class_tutorial_message = f"💠+{value} Barrier!"
             
         
         if self.card_class == "TANK":
             self.is_tank = True
             self.shield_active = True
-            self._shield_value = self._shield_value + (self.tier * 500)
+            self._shield_value = self._shield_value + (self.tier * 250) + self.card_lvl
             self.class_value = self._shield_value
-            self.class_tutorial_message = f"🌐+{(self.tier * 500)} Shield!"
+            self.class_tutorial_message = f"🌐+{(self.tier * 250) + self.card_lvl} Shield!"
         
         if self.card_class == "HEALER":
             self.is_healer = True
@@ -808,8 +808,8 @@ class Card:
         if self.card_class == "MONSTROSITY":
             self.is_monstrosity = True
             self._monstrosity_active = True
-            self._monstrosity_value = value
-            self.class_tutorial_message = f"{self.class_emoji} +{value} Double Strikes!"
+            self._monstrosity_value = value - 1
+            self.class_tutorial_message = f"{self.class_emoji} +{(value - 1)} Double Strikes!"
 
 
     # AI ONLY BUFFS
@@ -1957,10 +1957,11 @@ class Card:
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
                     self._assassin_attack = self._assassin_attack - 1
-                    # if self._assassin_value == self._assassin_attack:
-                    if self._assassin_attack == 0:
+                    if self._assassin_attack < 0:
                         self._assassin_active = False
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} is using a assassin strike that requires no stamina and ignores protections [{self._assassin_attack} assassin strikes left]")
+                    #print(self._assassin_attack)
+                    strike_value = self._assassin_attack
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} is using a assassin strike that requires no stamina and ignores protections [{strike_value} assassin strikes left]")
                 else:
                     if not self.used_block:
                         self.stamina = self.stamina - move_stamina
@@ -3177,9 +3178,10 @@ class Card:
 
             if self._assassin_active:
                 return False
+
             
             if not opponent_title.impenetrable_shield_effect:
-                if dmg['ELEMENT'] in ["DARK", "POISON", "ROT", "SLEEP"]:
+                if dmg['ELEMENT'] in ["DARK", "POISON", "ROT", "SLEEP", "DRACONIC"]:
                     return False
                 if player_title.obliterate_effect:
                     return False
@@ -3251,10 +3253,10 @@ class Card:
             if self._assassin_active:
                 return False
             
-            if dmg['ELEMENT'] in ["PSYCHIC", "DARK", "TIME", "GRAVITY"]:
+            if dmg['ELEMENT'] in ["PSYCHIC", "DARK", "TIME", "GRAVITY", "DRACONIC"]:
                 if dmg['ELEMENT'] == "TIME" and opponent_card._barrier_value > 1:
                     opponent_card._barrier_value = opponent_card._barrier_value - 1
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {attacker} hits {opponent_card.name} barrier 💠 [{opponent_card._barrier_value} barriers left]")
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {attacker} reduces {opponent_card.name} barrier 💠 [{opponent_card._barrier_value} barriers left]")
                 if dmg['ELEMENT'] == "TIME" and opponent_card._barrier_value == 1:
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) {attacker} destroys {opponent_card.name} 💠 barrier")
                     opponent_card._barrier_value = opponent_card._barrier_value - 1
@@ -3318,7 +3320,7 @@ class Card:
             if self._assassin_active:
                 return False
             
-            if dmg['ELEMENT'] in ["POISON", "ROT", "SLEEP", "BLEED"]:
+            if dmg['ELEMENT'] in ["POISON", "ROT", "SLEEP", "BLEED", "DRACONIC"]:
                 return False
             
             if dmg['ELEMENT'] in ["EARTH", "DARK", "PSYCHIC", "TIME", "GRAVITY"]:
@@ -3414,6 +3416,7 @@ class Card:
 
     def direct_hit_handler(self, battle_config, dmg, opponent_card, naruto_trait_active, protection_enabled):
         if not protection_enabled:
+            # If assassin_strike is greater than 0, reduce asssassin strike by 1
             if self.universe == "One Piece" and (self.tier in crown_utilities.LOW_TIER_CARDS or self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                 if self.focus_count == 0:
                     dmg['DMG'] = dmg['DMG'] * .6
@@ -3666,7 +3669,7 @@ class Card:
                     sleep_message = f"({battle_config.turn_total}) {self.name} is prepping to add 💤 sleep stacks on next hit"
                 battle_config.add_to_battle_log(sleep_message)
 
-            if self.sleep_exhaustion_bool:
+            if self.sleep_exhaustion_bool or opponent_card.reckless_rest:
                 opponent_card.health = opponent_card.health - dmg['DMG']
                 sleep_message = f"({battle_config.turn_total}) 💤 {dmg['MESSAGE']}"
                 battle_config.add_to_battle_log(sleep_message)

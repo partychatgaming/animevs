@@ -28,7 +28,7 @@ from logger import loggy
 import uuid
 from .classes.custom_paginator import CustomPaginator
 from interactions.ext.paginators import Paginator
-from interactions import Client, ActionRow, Button, ButtonStyle, File, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, slash_option
+from interactions import Client, ActionRow, Button, ButtonStyle, File, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension, slash_option, AutocompleteContext
 
 
 emojis = ['👍', '👎']
@@ -252,6 +252,7 @@ class Profile(Extension):
 
                         Embed(title=f"{player_name} Build Class View", description="Each card class has a unique ability or passive that activates during battle.", color=0x000000)
                             .add_field(name="__Card Class Effect__", value=crown_utilities.class_descriptions[c.card_class], inline=True)
+                            .add_field(name="__My Bonus__", value=c.class_tutorial_message, inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
@@ -368,132 +369,137 @@ class Profile(Extension):
             await ctx.send(embed=embed, ephemeral=True)
             return
     
-    
-    @slash_command(description="Infuse Elemental Essence into Talisman's for aid",
-                    options=[
-                        SlashCommandOption(
-                            name="selection",
-                            description="select an option to continue",
-                            type=OptionType.STRING,
-                            required=True,
-                            choices=[
-                                SlashCommandChoice(
-                                    name="👊 Physical",
-                                    value="PHYSICAL",
-                                ),
-                                SlashCommandChoice(
-                                    name="⚔️ Sword",
-                                    value="SWORD",
-                                ),
-                                SlashCommandChoice(
-                                    name="🔥 Fire",
-                                    value="FIRE",
-                                ),
-                                SlashCommandChoice(
-                                    name="❄️ Ice",
-                                    value="ICE",
-                                ),
-                                SlashCommandChoice(
-                                    name="💧 Water",
-                                    value="WATER",
-                                ),
-                                SlashCommandChoice(
-                                    name="⛰️ Earth",
-                                    value="EARTH",
-                                ),
-                                SlashCommandChoice(
-                                    name="🌿 Nature",
-                                    value="NATURE",
-                                ),
-                                SlashCommandChoice(
-                                    name="⚡️ Electric",
-                                    value="ELECTRIC",
-                                ),
-                                SlashCommandChoice(
-                                    name="🌪️ Wind",
-                                    value="WIND",
-                                ),
-                                SlashCommandChoice(
-                                    name="🔮 Psychic",
-                                    value="PSYCHIC",
-                                ),
-                                SlashCommandChoice(
-                                    name="☠️ Death",
-                                    value="DEATH",
-                                ),
-                                SlashCommandChoice(
-                                    name="❤️‍🔥 Life",
-                                    value="LIFE"
-                                ),
-                                SlashCommandChoice(
-                                    name="🌕 Light",
-                                    value="LIGHT",
-                                ),
-                                SlashCommandChoice(
-                                    name="🌑 Dark",
-                                    value="DARK",
-                                ),
-                                SlashCommandChoice(
-                                    name="🧪 Poison",
-                                    value="POISON",
-                                ),
-                                SlashCommandChoice(
-                                    name="🩻 Rot",
-                                    value="ROT",
-                                ),
-                                SlashCommandChoice(
-                                    name="🔫 Gun",
-                                    value="GUN",
-                                ),
-                                SlashCommandChoice(
-                                    name="🏹 Ranged",
-                                    value="RANGED",
-                                ),
-                                SlashCommandChoice(
-                                    name="🧿 Energy / Spirit",
-                                    value="ENERGY",
-                                ),
-                                SlashCommandChoice(
-                                    name="♻️ Reckless",
-                                    value="RECKLESS",
-                                ),
-                                SlashCommandChoice(
-                                    name="💤 Sleep",
-                                    value="SLEEP",
-                                ),
-                                SlashCommandChoice(
-                                    name="⌛ Time",
-                                    value="TIME",
-                                ),
-                                SlashCommandChoice(
-                                    name="🅱️ Bleed",
-                                    value="BLEED",
-                                ),
-                                SlashCommandChoice(
-                                    name="🪐 Gravity",
-                                    value="GRAVITY",
-                                ),
-                                SlashCommandChoice(
-                                    name="🔫 Gun",
-                                    value="GUN",
-                                ),
-                                SlashCommandChoice(
-                                    name="🩻 Rot",
-                                    value="ROT",
-                                ),
-                                SlashCommandChoice(
-                                    name="⚔️ Sword",
-                                    value="SWORD",
-                                ),
-                                SlashCommandChoice(
-                                    name="🌿 Nature",
-                                    value="NATURE",
-                                )
-                            ]
-                        )
-                    ]
-        )
-    async def attune(self, ctx, selection):
+    @slash_command(description="Infuse Elemental Essence into Talisman's for aid")
+    #                 options=[
+    #                     SlashCommandOption(
+    #                         name="selection",
+    #                         description="select an option to continue",
+    #                         type=OptionType.STRING,
+    #                         required=True,
+    #                         choices=[
+    #                             SlashCommandChoice(
+    #                                 name="👊 Physical",
+    #                                 value="PHYSICAL",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="⚔️ Sword",
+    #                                 value="SWORD",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🔥 Fire",
+    #                                 value="FIRE",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="❄️ Ice",
+    #                                 value="ICE",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="💧 Water",
+    #                                 value="WATER",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="⛰️ Earth",
+    #                                 value="EARTH",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🌿 Nature",
+    #                                 value="NATURE",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="⚡️ Electric",
+    #                                 value="ELECTRIC",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🌪️ Wind",
+    #                                 value="WIND",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🔮 Psychic",
+    #                                 value="PSYCHIC",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="☠️ Death",
+    #                                 value="DEATH",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="❤️‍🔥 Life",
+    #                                 value="LIFE"
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🌕 Light",
+    #                                 value="LIGHT",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🌑 Dark",
+    #                                 value="DARK",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🧪 Poison",
+    #                                 value="POISON",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🩻 Rot",
+    #                                 value="ROT",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🔫 Gun",
+    #                                 value="GUN",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🏹 Ranged",
+    #                                 value="RANGED",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🧿 Energy / Spirit",
+    #                                 value="ENERGY",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="♻️ Reckless",
+    #                                 value="RECKLESS",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="💤 Sleep",
+    #                                 value="SLEEP",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="⌛ Time",
+    #                                 value="TIME",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🅱️ Bleed",
+    #                                 value="BLEED",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🪐 Gravity",
+    #                                 value="GRAVITY",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🔫 Gun",
+    #                                 value="GUN",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🩻 Rot",
+    #                                 value="ROT",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="⚔️ Sword",
+    #                                 value="SWORD",
+    #                             ),
+    #                             SlashCommandChoice(
+    #                                 name="🌿 Nature",
+    #                                 value="NATURE",
+    #                             )
+    #                         ]
+    #                     )
+    #                 ]
+    #     )
+    @slash_option(
+        name="elements",
+        description="Elemental Abilities",
+        opt_type=OptionType.STRING,
+        autocomplete=True
+    )
+    async def attune(self, ctx : InteractionContext, selection : str = ""):
         try:
             a_registered_player = await crown_utilities.player_check(ctx)
             if not a_registered_player:
@@ -532,6 +538,31 @@ class Profile(Extension):
             await ctx.send(embed=embed)
             return
 
+    @attune.autocomplete("elements")
+    async def element_autocomplete(self, ctx: AutocompleteContext):
+        choices = []
+        options = crown_utilities.element_emojis
+        """
+        for option in options
+        if ctx.input_text is empty, append the first 24 options in the list to choices
+        if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
+        """
+            # Iterate over the options and append matching ones to the choices list
+        for option in options:
+                if not ctx.input_text:
+                    # If input_text is empty, append the first 24 options to choices
+                    if len(choices) < 24:
+                        choices.append(option)
+                    else:
+                        break
+                else:
+                    # If input_text is not empty, append the first 24 options that match the input to choices
+                    if option.lower().startswith(ctx.input_text.lower()):
+                        choices.append(option)
+                        if len(choices) == 24:
+                            break
+
+        await ctx.send(choices=choices)
 
     @slash_command(description="View your talismen that are in storage")
     async def talismans(self, ctx):
@@ -567,7 +598,7 @@ class Profile(Extension):
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
             else:
-                embed = Embed(title="📿 No Talismans Available!", description="Talismans must be Attuned\nUse /attune to craft 🔅 Elemental Essence into Talismans!", color=0xff0000)
+                embed = Embed(title="📿 No Talismans Available!", description="Talismans must be Attuned\nUse `/attune` to craft 🔅 Elemental Essence into Talismans!", color=0xff0000)
                 await ctx.send(embed=embed)
                 return
                 

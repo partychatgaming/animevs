@@ -7,21 +7,23 @@ CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
 **/deleteaccount**: Delete your account
 **/player**: Lookup your account, or a friends
 **/build**: View your current build, cards, titles, arms, talismans, summons and more
+                                        
+**PVE**
+**/play** - Battle through a variety of PVE modes                                      
 
+                                        
 **PVE Game Modes**
 **🆘 The Tutorial** - Learn Anime VS+ battle system
 **⚡ Randomize** - Select and start a Random Game Mode Below
 **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
 **🔥 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
 **📽️ Scenario Battle** - Battle through unique scenarios to earn Cards and Moves
-**💀  Raid Battle** - Battle through High Level scenarios to earn Mythical Cards and Moves
-
-**PVE**
-**/play** - Battle through a variety of PVE modes
+**💀 Raid Battle** - Battle through High Level scenarios to earn Mythical Cards and Moves
+**🌌 Explore Battle** - Random Encounter battles to earn rare cards and major rewards
                                         
 **PVP**
 **/pvp** - Battle a rival in PVP mode
-
+                                        
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
 
@@ -30,6 +32,7 @@ UNIVERSE_STUFF = textwrap.dedent(f"""\
 **View Universes!**
 **/universes** - View all available universe info including all available cards, accessories, and destinies
 
+**/view** - Lookup/View all available game items.
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)
 
@@ -64,29 +67,29 @@ LEGEND = textwrap.dedent(f"""\
 ELEMENTS_LIST = [
     "👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry\n",
     "⚔️ Sword - Every 3rd attack will result in a Critical Strike that also increases Atack by 40% of damage dealt.\n",
-    "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 4 Ranged Attacks Increase Hit Chance by 5%\n",
+    "🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Hit Chance by 10%\n",
     "🔫 Gun - Goes through shields. Has a 40% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.\n",
     "♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless at the cost of a turn to recover. If Reckless would kill you reduce HP to 1. Reckless is buffed when resolved, but you take more damage as well.\n",
-    "🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks.\n",
-    "💧 Water - Increases all water move AP by 100 Flat.\n",
-    "⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 40% AP.\n",
-    "🌩️ Electric- Add 10% DMG Dealt to Shock damage, added to all Move AP.\n",
-    "🌪️ Wind - On Miss or Crit, boosts all wind damage by 90% of damage dealt.\n",
+    "🔥 Fire - Does 50% damage of previous attack over the next opponent turns, burn effect bypasses shields and stacks.\n",
+    "💧 Water - Each strike increases all water move AP by 100. Every 300 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage.\n",
+    "⛰️ Earth - Penetrates Parry. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG.\n",
+    "🌩️ Electric- Add 35% DMG Dealt to Shock damage, Shock damage amplifies all Move AP.\n",
+    "🌪️ Wind - On Miss or Crit, boosts all wind damage by 75% of damage dealt.\n",
     "🌿 Nature - Saps Opponent ATK and DEF for 35% of Damage & heals Health and Max Health for that amount as well.\n",
     "❄️ Ice - Every 3rd attack, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.\n",
-    "🅱️ Bleed - Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent. Goes through protections.\n",
+    "🅱️ Bleed - Penetrates Parry. Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.\n",
     "🧿 Energy - Has higher 35% higher chance of Crit. This crit hit goes through all protections\n",
     "🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits Gain a Barrier\n",
     "💤 Sleep - Every 2nd attack adds a stack of Rest. Before Opponent focuses they must Rest, skipping their turn, for each stack of Rest. Opponent only takes sleep damage while Resting.\n",
     "☠️ Death - Deals 40% DMG to opponent max health. Gain Attack equal to that amount. Executes opponent if their health equals 10% of their base max health.\n",
     "❤️‍🔥 Life - Create Max Health and Heal for 40% DMG.\n",
     "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus\n",
-    "🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.\n",
-    "🧪 Poison - Penetrates shields, stacks poison damage equal to 35% of damage done. Stacking up to 30% of opponent max health. This damage hits the opponent when the opponent attacks.\n",
-    "🩻 Rot - Penetrates shields, stacks rot damage equal to 15% of damage done stacking up to 20% of max health. This damage hits the opponents max health when the opponent attacks.\n",
+    "🌑 Dark- Penetrates all Protections & decreases opponent ST(Stamina) by 15.\n",
+    "🧪 Poison - Penetrates Shields and Parry. Stacks Poison damage equal to 35% of damage done. Stacking up to 30% of opponent max health. The Opponent takes damage when they attack.\n",
+    "🩻 Rot - Penetrates Shields and Parry. Stacks Rot damage equal to 15% of damage done stacking up to 20% of max health. The Opponent takes damage when they attack.\n",
     "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parry and AP is increased by damage dealt * turn total / 100.\n",
     "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n",
-    "🐲 Draconic - Draconic attacks can only be ULTIMATE, combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.",
+    "🐲 Draconic - Draconic attacks can only be ULTIMATE. Pentrates all protections. Combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.",
 
 ]
 
@@ -96,12 +99,18 @@ ELEMENTS = textwrap.dedent(f"""\
 👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry
                            
 ⚔️ Sword - Every 3rd attack will result in a Critical Strike that also increases Atack by 40% of damage dealt.
+                           
+🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Hit Chance by 10%
+                           
+🔫 Gun - Penetrates Shield. Has a 40% chance to deal a double hit. Double striking lowers opponents defense by 35% of the current value.
+                           
+♻️ Reckless - Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1. After striking you enter a resting state, skipping your turn.
 
-🔥 Fire - Does 50% damage of previous attack over the next opponent turns, stacks.
+🔥 Fire - Does 50% damage of previous attack over the next opponent turns, burn effect bypasses shields and stacks.
 
-❄️ Ice - Every 2 attacks, opponent freezes and loses 1 turn.
+❄️ Ice - Every 3 attacks, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.
 
-💧 Water - Increases all water move AP by 100 Flat.
+💧 Water - Each strike increases all water move AP by 100. Every 300 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage
 
 ⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 30% AP.
                            
@@ -127,13 +136,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🩻 Rot - Penetrates shields, stacks rot damage equal to 15% of damage done stacking up to 20% of max health. This damage hits the opponents max health when the opponent attacks.
 
-🏹 Ranged - If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Hit Chance by 5%
-                           
-🔫 Gun - Goes through shields. Has a 40% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.
-
 🧿 Energy - Has higher 35% higher chance of Crit.
-
-♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless. If Reckless would kill you reduce HP to 1
 
 ⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and lower opponent protections and goes through parry.
 
@@ -191,8 +194,18 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 
 
 CTAP_COMMANDS = textwrap.dedent(f"""\
-**Main Menu!⚒️**
-**/menu** - Access your current build, cards, titles, arms, quests, and destinies. You can also open the shop and visit the blacksmith here!
+                                
+**Inventory Commands**
+**/cards** - View your available cards
+**/titles** - View your available titles
+**/arms** - View your available arms
+**/summons** - View your available summons
+**/talismans** - View your available talismans
+**/attune** - Attune elemental talismans from essence
+                                
+**Shop Commands**
+**/marketplace** - View the online marketplace
+**/blacksmith** - View the blacksmith
 
 **Reward Codes! ⌨️**
 **/code** - Enter in codes to earn in-game rewards!
@@ -203,18 +216,17 @@ CTAP_COMMANDS = textwrap.dedent(f"""\
 
 **Gift! 🪙**
 **/gift** - Gift a friend some 🪙!
+[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+""")
 
-**Card Analysis! 🎴**
-**/analysis** - View specific card statistics and optimal builds for that card
+OPTION_COMMANDS = textwrap.dedent(f"""\
 
-**Do you already know the card or accessories name?**
-*If you already know what you want to equip / view, use the fast equip commands below to equip your item...*
-*/equipcard*
-*/equiparm*
-*/equiptitle*
-*/equipsummon*
-------------------
-*/view*
+**Options**
+**/help** - View all heklp commands and manual
+**/explore**  - Toggle Explore mode
+**/difficulty** - Change the difficulty of the game
+**/autosave** - Toggle autosave on or off
+**/battlehistory** - Update battle history length
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)

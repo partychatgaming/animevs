@@ -699,67 +699,67 @@ class Views(Extension):
 
         await ctx.send(choices=choices)
 
-    @slash_command(description="View all Homes for purchase")
-    async def houses(self, ctx: InteractionContext):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
-        try:
-            house_data = db.queryAllHouses()
+    # @slash_command(description="View all Homes for purchase")
+    # async def houses(self, ctx: InteractionContext):
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
+    #     try:
+    #         house_data = db.queryAllHouses()
 
-            house_list = []
-            for homes in house_data:
-                house_list.append(
-                    f"🏠 | **{homes['HOUSE']}**\n🪙 | **COST: **{'{:,}'.format(homes['PRICE'])}\n:part_alternation_mark: | **MULT: **{homes['MULT']}x\n_______________")
+    #         house_list = []
+    #         for homes in house_data:
+    #             house_list.append(
+    #                 f"🏠 | **{homes['HOUSE']}**\n🪙 | **COST: **{'{:,}'.format(homes['PRICE'])}\n:part_alternation_mark: | **MULT: **{homes['MULT']}x\n_______________")
 
-            total_houses = len(house_list)
+    #         total_houses = len(house_list)
 
-            embed_list = []
-            for i in range(0, len(house_list), 5):
-                sublist = house_list[i:i + 5]
-                embedVar = Embed(title=f"🏠 House List",description="\n".join(sublist), color=0x7289da)
-                embedVar.set_footer(text=f"{total_houses} Total Houses\n/view *House Name* `🏠 It's a House` - View House Details")
-                embed_list.append(embedVar)
+    #         embed_list = []
+    #         for i in range(0, len(house_list), 5):
+    #             sublist = house_list[i:i + 5]
+    #             embedVar = Embed(title=f"🏠 House List",description="\n".join(sublist), color=0x7289da)
+    #             embedVar.set_footer(text=f"{total_houses} Total Houses\n/view *House Name* `🏠 It's a House` - View House Details")
+    #             embed_list.append(embedVar)
 
-            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-            await paginator.send(ctx)
-        except Exception as ex:
-            print(ex)
-            embed = Embed(title="Houses Error", description="Something went wrong. Please try again later.", color=0xff0000)
-            await ctx.send(embed=embed)
-            return
-
-
-    @slash_command(description="View all Halls for purchase")
-    async def halls(self, ctx: InteractionContext):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
-
-        try:
-            hall_data = db.queryAllHalls()
-
-            hall_list = []
-            for homes in hall_data:
-                hall_list.append(f"🎏 | **{homes['HALL']}**\n🛡️ | **DEF: **{homes['DEFENSE']}\n🪙 | **COST: **{'{:,}'.format(homes['PRICE'])}\n:part_alternation_mark: | **MULT: **{homes['MULT']}x\n💰 | **SPLIT: **{'{:,}'.format(homes['SPLIT'])}x\n:yen: | **FEE: **{'{:,}'.format(homes['FEE'])}\n_______________")
-
-            total_halls = len(hall_list)
-
-            embed_list = []
-            for i in range(0, len(hall_list), 5):
-                sublist = hall_list[i:i+5]
-                embedVar = Embed(title=f"🎏 Hall List", description="\n".join(sublist), color=0x7289da)
-                embedVar.set_footer(text=f"{total_halls} Total Halls\n/view Hall Name `🎏 It's A Hall` - View Hall Details")
-                embed_list.append(embedVar)
+    #         paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+    #         await paginator.send(ctx)
+    #     except Exception as ex:
+    #         print(ex)
+    #         embed = Embed(title="Houses Error", description="Something went wrong. Please try again later.", color=0xff0000)
+    #         await ctx.send(embed=embed)
+    #         return
 
 
-            paginator = Paginator.create_from_embeds(self.bot, *embed_list)
-            await paginator.send(ctx)
-        except Exception as e:
-            print(e)
-            embed = Embed(title="Halls Error", description="Something went wrong. Please try again later.", color=0xff0000)
-            await ctx.send(embed=embed)
-            return
+    # @slash_command(description="View all Halls for purchase")
+    # async def halls(self, ctx: InteractionContext):
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
+
+    #     try:
+    #         hall_data = db.queryAllHalls()
+
+    #         hall_list = []
+    #         for homes in hall_data:
+    #             hall_list.append(f"🎏 | **{homes['HALL']}**\n🛡️ | **DEF: **{homes['DEFENSE']}\n🪙 | **COST: **{'{:,}'.format(homes['PRICE'])}\n:part_alternation_mark: | **MULT: **{homes['MULT']}x\n💰 | **SPLIT: **{'{:,}'.format(homes['SPLIT'])}x\n:yen: | **FEE: **{'{:,}'.format(homes['FEE'])}\n_______________")
+
+    #         total_halls = len(hall_list)
+
+    #         embed_list = []
+    #         for i in range(0, len(hall_list), 5):
+    #             sublist = hall_list[i:i+5]
+    #             embedVar = Embed(title=f"🎏 Hall List", description="\n".join(sublist), color=0x7289da)
+    #             embedVar.set_footer(text=f"{total_halls} Total Halls\n/view Hall Name `🎏 It's A Hall` - View Hall Details")
+    #             embed_list.append(embedVar)
+
+
+    #         paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+    #         await paginator.send(ctx)
+    #     except Exception as e:
+    #         print(e)
+    #         embed = Embed(title="Halls Error", description="Something went wrong. Please try again later.", color=0xff0000)
+    #         await ctx.send(embed=embed)
+    #         return
 
 
 def setup(bot):

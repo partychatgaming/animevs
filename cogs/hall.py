@@ -17,40 +17,40 @@ class Hall(Extension):
     async def cog_check(self, ctx):
         return await self.bot.validate_user(ctx)
 
-    @slash_command(description="Buy a Hall for your guild")
-    async def buyhall(self, ctx, hall: str):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
+    # #@slash_command(description="Buy a Hall for your guild")
+    # async def buyhall(self, ctx, hall: str):
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
 
-        hall_name = hall
-        leadername = str(ctx.author.id)
-        user_query = {'DID' : leadername}
-        leader_info = db.queryUser(user_query)
-        guildname = leader_info['GUILD']
-        if guildname == 'PCG':
-            await ctx.send(m.NOT_LEADER, delete_after=5)
-            return
-        guild_query = {'GNAME' : guildname}
-        guild = db.queryGuildAlt(guild_query)
-        hall = db.queryHall({'HALL': {"$regex": f"^{str(hall)}$", "$options": "i"}})
-        currentBalance = guild['BANK']
-        cost = hall['PRICE']
-        hall_name = hall['HALL']
-        if hall:
-            if hall_name in guild['HALL']:
-                await ctx.send(m.USERS_ALREADY_HAS_HALL, delete_after=5)
-            else:
-                newBalance = currentBalance - cost
-                if newBalance < 0 :
-                    await ctx.send("You have an insufficent Balance")
-                else:
-                    await crown_utilities.curseguild(cost, str(guildname))
-                    response = db.updateGuildAlt(guild_query,{'$set':{'HALL': str(hall_name)}})
-                    await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Hall!")
-                    return
-        else:
-            await ctx.send(m.HALL_DOESNT_EXIST)
+    #     hall_name = hall
+    #     leadername = str(ctx.author.id)
+    #     user_query = {'DID' : leadername}
+    #     leader_info = db.queryUser(user_query)
+    #     guildname = leader_info['GUILD']
+    #     if guildname == 'PCG':
+    #         await ctx.send(m.NOT_LEADER, delete_after=5)
+    #         return
+    #     guild_query = {'GNAME' : guildname}
+    #     guild = db.queryGuildAlt(guild_query)
+    #     hall = db.queryHall({'HALL': {"$regex": f"^{str(hall)}$", "$options": "i"}})
+    #     currentBalance = guild['BANK']
+    #     cost = hall['PRICE']
+    #     hall_name = hall['HALL']
+    #     if hall:
+    #         if hall_name in guild['HALL']:
+    #             await ctx.send(m.USERS_ALREADY_HAS_HALL, delete_after=5)
+    #         else:
+    #             newBalance = currentBalance - cost
+    #             if newBalance < 0 :
+    #                 await ctx.send("You have an insufficent Balance")
+    #             else:
+    #                 await crown_utilities.curseguild(cost, str(guildname))
+    #                 response = db.updateGuildAlt(guild_query,{'$set':{'HALL': str(hall_name)}})
+    #                 await ctx.send(m.PURCHASE_COMPLETE_H + "Enjoy your new Hall!")
+    #                 return
+    #     else:
+    #         await ctx.send(m.HALL_DOESNT_EXIST)
 
 def setup(bot):
     Hall(bot)
