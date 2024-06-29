@@ -1,23 +1,24 @@
 import crown_utilities
 import random
 
-def handle_card(card, other_card, battle_config, dmg):
-    if card.health <= 0 and card._final_stand and card.universe == "Dragon Ball Z":
-        if card.barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not dmg['SUMMON_USED']:
-            card.barrier_active = False
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {card.name} disengaged their barrier to engage with an attack")
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {card.name} is undergoing a transformation")
-        card.health = 1 + round(.75 * (card.attack + card.defense))
-        if card.health < 0:
-            card.health = 100 + round(.75 * (card.base_attack + card.base_defense))
-        card.damage_healed = card.damage_healed + card.health
-        card.used_resolve = True
-        card.used_focus = True
-        card._final_stand = False
-        return True
-    return False
+# def handle_card(card, other_card, battle_config, dmg):
+#     if card.health <= 0 and card.philosopher_stone and card.universe == "Full Metal Alchemist":
+#         if card.barrier_active and dmg['ELEMENT'] != "PSYCHIC" and not dmg['SUMMON_USED']:
+#             card.barrier_active = False
+#             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {card.name} disengaged their barrier to engage with an attack")
+#         # battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {card.name} is crafting a philosphers stone!")
+#         if card.health < 0:
+            
 
-def philosopher_stone(player_card, battle_config, dmg, opponent_card):
+#         card.damage_healed = card.damage_healed + card.health
+#         card.used_resolve = True
+#         card.used_focus = True
+#         card._final_stand = False
+#         return True
+#     return False
+
+def philosopher_stone(player_card, battle_config, dmg, opponent_card=None):
+    
     if handle_card(player_card, opponent_card, battle_config, dmg):
         return True
     if handle_card(opponent_card, player_card, battle_config, dmg):
@@ -27,10 +28,26 @@ def philosopher_stone(player_card, battle_config, dmg, opponent_card):
     return False
 
 
-def philosopher_lifesteal(player_card, battle_config, opponent_card):
-    if player_card.universe == "Dragon Ball Z":
-        player_card.health = player_card.health + opponent_card.stamina + battle_config.turn_total
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name}'s fighting spirit healted them for {opponent_card.stamina + battle_config.turn_total} health ❤️")
+def equivalent_exchange(player_card, battle_config, attack_damage, stamina_used):
+    if player_card.universe == "Full Metal Alchemist":
+        if player_card.used_resolve:
+            healing_percent = round(((player_card.focus_count * player_card.tier) / 100) * attack_damage)
+            player_card.health += healing_percent
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name}'s Philosopher's stone healed them for {healing_percent} health ❤️")
+        player_card.equivalent_exchange += round(stamina_used/ 2)
+        player_card.universe_trait_value = player_card.equivalent_exchange
+        player_card.universe_trait_value_name = "Equivalent Exchange"
+        bonus_attack = player_card.equivalent_exchange * player_card.tier
+        return bonus_attack
 
-
+def equivalent_exchange_resolve(player_card, battle_config):
+    if player_card.universe == "Full Metal Alchemist":
+        if player_card.used_resolve:
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} sacrificed {philosopher_stone_amount} health to craft a philosphers stone!")
+            philosopher_stone_amount = player_card.equivalent_exchange * player_card.tier
+            player_card.health -= philosopher_stone_amount
+            if player_card.health < 0:
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} crafted a philosophers stone! They are reviving with {philosopher_stone_amount} health!")
+                player_card.health = philosopher_stone_amount * 2
+            return
 

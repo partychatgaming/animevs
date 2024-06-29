@@ -33,10 +33,11 @@ from cogs.universe_traits.digimon import digivolve
 from cogs.universe_traits.solo_leveling import rulers_authority, add_solo_leveling_temp_values, decrease_solo_leveling_temp_values, decrease_solo_leveling_temp_values_self
 from cogs.universe_traits.one_punch_man import rank_hero, hero_reinforcements
 from cogs.universe_traits.seven_deadly_sins import increase_power
-from cogs.universe_traits.persona import summon_persona
+from cogs.universe_traits.persona import summon_persona, summon_blitz
 from cogs.universe_traits.overlord import fear_aura, fear, fear_duration_check
 from cogs.universe_traits.jujutsu_kaisen import cursed_energy, cursed_energy_reset
 from cogs.universe_traits.slime import  skill_evolution, summon_slime, beezlebub
+from cogs.universe_traits.fma import philosopher_stone, equivalent_exchange, equivalent_exchange_resolve
 
 class Card:
     try:
@@ -182,6 +183,10 @@ class Card:
             self.death_blow_had_protections = False
 
             # Universe Traits
+            self.philosopher_stone = False
+            if self.universe == "Full Metal Alchemist":
+                self.philosopher_stone = True
+            self.equivalent_exchange = 0
             self._final_stand = False
             if self.universe == "Dragon Ball Z":
                 self._final_stand =True
@@ -214,6 +219,14 @@ class Card:
             self.overlord_opponent_original_defense = 0
             self.jujutsu_kaisen_focus_crit_used = False
             self.slime_buff = 0
+            self.universe_trait_value = 0
+            self.universe_trait_value_name = ""
+            if self.universe == "Naruto":
+                self.universe_trait_value_name = "Hashirama Cells"
+            if self.universe == "Full Metal Alchemist":
+                self.universe_trait_value_name = "Equivalent Exchange"
+            if self.universe == "My Hero Academia":
+                self.universe_trait_value_name = "Quirk Energy"
 
 
             # Elemental Effect Meters
@@ -312,7 +325,9 @@ class Card:
             self.usedsummon = False
             self.used_block = False
             self.used_defend = False
-            self.used_boost = False
+            self.used_blitz = False
+            self.blitz_buff = 0
+            self.blitz_count = 0 
             self.focus_count = 0
             self.ai_focus_message_sent = False
             self.damage_received = 0
@@ -429,6 +444,14 @@ class Card:
             self.move4ap = list(self.enhancer.values())[0]
             self.move4base = self.move4ap
             self.move4enh_suffix = crown_utilities.enhancer_suffix_mapping[self.move4enh]
+            self.enh_short_name = self.move4enh
+            if self.move4enh in ['HLT','DESTRUCTION','CREATION']:
+                if self.move4enh == 'HLT':
+                    self.enh_short_name = 'HEAL'
+                if self.move4enh == 'DESTRUCTION':
+                    self.enh_short_name = 'DESTROY'
+                if self.move4enh == 'CREATION':
+                    self.enh_short_name = 'CREATE'
 
             self.dungeon_card_details
             
@@ -754,7 +777,7 @@ class Card:
             self.wind_buff_value = 90
             self.nature_buff_value = .60
             self.class_value = round(mage_buff * 100)
-            self.class_tutorial_message = f"🌦️ +{self.class_value}% Elemental Damage!"
+            self.class_tutorial_message = f"🔅 +{self.class_value}% Elemental Damage!"
         
         if self.card_class == "TACTICIAN":
             self.is_tactician = True
@@ -809,7 +832,7 @@ class Card:
             self.is_monstrosity = True
             self._monstrosity_active = True
             self._monstrosity_value = value - 1
-            self.class_tutorial_message = f"{self.class_emoji} +{(value)} Double Strikes!"
+            self.class_tutorial_message = f"{self.class_emoji} +{(self._monstrosity_value)} Double Strikes!"
 
 
     # AI ONLY BUFFS
@@ -941,7 +964,7 @@ class Card:
                 if self.summon_bond == 3 and self.summon_lvl == 10:
                     self.summon_power = self.summon_power + 1
             else:
-                self.summon_power = round((int(self.summon_bond + 1) * int(self.summon_lvl + 1)) + int(self.summon_power))
+                self.summon_power = round((int(self.summon_bond + 1) * int(self.summon_lvl + 1)) +  (( 1 + self.summon_bond) * int(self.summon_power)))
         except Exception as ex:
             custom_logging.debug(ex)
             return False
@@ -1786,7 +1809,11 @@ class Card:
                 if defensepower <= 0:
                     defensepower = 1
 
-                attackpower = (self.attack - _opponent_card.defense) + ap
+                bonus_damage = 0
+                if self.universe == "Full Metal Alchemist":
+                    bonus_damage = equivalent_exchange(self, battle_config, self.attack, move_stamina)
+                attackpower = (self.attack - _opponent_card.defense) + ap + bonus_damage
+                
                 if attackpower <= 0:
                     attackpower = ap
 
@@ -1973,6 +2000,9 @@ class Card:
                 if _opponent_card._heal_active:
                     _opponent_card._heal_value = round(_opponent_card._heal_value + (true_dmg * _opponent_card._heal_buff))
 
+                
+                    
+
 
                 response = {"DMG": true_dmg, "MESSAGE": message,
                             "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element, "STAMINA_USED": move_stamina, "SUMMON_USED": summon_used}
@@ -2102,11 +2132,11 @@ class Card:
         if self.barrier_active:
             self._arm_message += f"{weapon_emojis['barrier']} {self._barrier_value} Barrier{'s' if self._barrier_value > 1 else ''}\n"
         if self.shield_active:
-            self._arm_message += f"{weapon_emojis['shield']} {self._shield_value:,} Shield{'s' if self._shield_value > 1 else ''}\n"
+            self._arm_message += f"{weapon_emojis['shield']} {self._shield_value:,} Shield\n"
         if self.parry_active:
             self._arm_message += f"{weapon_emojis['parry']} {self._parry_value} Parr{'ies' if self._parry_value > 1 else 'y'}\n"
         if self.siphon_active:
-            self._arm_message += f"{weapon_emojis['siphon']} {self._siphon_value} Siphon{'s' if self._siphon_value > 1 else ''}\n"
+            self._arm_message += f"{weapon_emojis['siphon']} {self._siphon_value} Siphon\n"
 
         
         if len(self._arm_message) > 0:
@@ -2135,11 +2165,11 @@ class Card:
             if battle_config.is_tutorial_game_mode:
                 #print(battle_config.is_turn)
 
-                if battle_config.is_turn != 0 and not battle_config.tutorial_opponent_focus:
+                if self.name == "Training Dummy" and not battle_config.tutorial_opponent_focus:
                     #print(battle_config.is_turn)
                     embedVar = battle_config.tutorial_messages(player_card=self, opponent_card=_opponent_card, message_type="OPPONENT")
                     battle_config._tutorial_message = embedVar
-                if battle_config.is_turn == 0 and not battle_config.tutorial_focus:
+                if self.name != "Training Dummy" and not battle_config.tutorial_focus and not self.used_blitz:
                     embedVar = battle_config.tutorial_messages(player_card=self, opponent_card=_opponent_card, message_type='FOCUS')
                     battle_config._tutorial_message = embedVar
                 
@@ -2183,30 +2213,12 @@ class Card:
                 health_calculation = 0
                 attack_calculation = 0
                 defense_calculation = 0
-
-            
-
-            # if _title.passive_type:
-            #     if _title.passive_type == "GAMBLE":
-            #         health_calculation = _title.passive_value
-            #     if _title.passive_type == "BLAST":
-            #         _opponent_card.health = _opponent_card.health - (_title.passive_value * battle_config.turn_total)
-            #     if _title.passive_type == "SOULCHAIN":
-            #         self.stamina = self.stamina - _title.passive_value
-
-            # if _opponent_title.passive_type:
-            #     if _opponent_title.passive_type == "GAMBLE":
-            #         health_calculation = _opponent_title.passive_value
-            #     if _opponent_title.passive_type == "BLAST":
-            #         self.health = self.health - (_opponent_title.passive_value * battle_config.turn_total)
-            #     if _opponent_title.passive_type == "SOULCHAIN":
-            #         self.stamina = self.stamina - _opponent_title.passive_value
             
             new_health_value = 0
             heal_message = ""
             message_number = 0
-            if self.universe == "Crown Rift Madness":
-                heal_message = "yet inner **Madness** drags on..."
+            if self.used_blitz:
+                heal_message = "blitzed"
                 message_number = 3
             else:
                 if self.health <= self.max_health:
@@ -2233,22 +2245,30 @@ class Card:
             #     battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {self.name} went mad and focused, {heal_message} [+🗡️ {attack_calculation} | +🛡️{defense_calculation}]")
             # else:
             #     battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🌀 {self.name} focused and {heal_message}")
-            
-            if self.universe == "Crown Rift Madness" and self.used_resolve:
-                self.attack = self.attack + attack_calculation
-                self.defense = self.defense + defense_calculation
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) (🌀) 🩸 {self.name} beast blood gains them attack and defense [+🗡️ {attack_calculation} | +🛡️{defense_calculation}]")
-            
+            blitz_buff = round((self.speed + self.blitz_buff + self.tier) / 2)
             if not self.used_resolve or _title.high_iq_effect:
                 armament(self, health_calculation, battle_config, attack_calculation, defense_calculation)
-
-                if self.universe != "Crown Rift Madness":
+                
+                if self.is_assassin:
+                    blitz_buff += self.speed
+                if not self.used_blitz:
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) (🌀) {self.name} [+❤️{health_calculation} | +🗡️ {attack_calculation} | +🛡️{defense_calculation}]")
-                self.attack = self.attack + attack_calculation
-                self.defense = self.defense + defense_calculation
+                else:
+                    attack_calculation += blitz_buff
+                    defense_calculation += blitz_buff
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) (🌀) {self.name} [+💢{blitz_buff} : +🗡️ {attack_calculation} | +🛡️{defense_calculation}]")
+                self.attack += attack_calculation
+                self.defense += defense_calculation
             
-            if self.used_resolve and self.universe != "Crown Rift Madness":
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) (🌀) {self.name} [+❤️{health_calculation}]")
+            if self.used_resolve:
+                if self.used_blitz:
+                    attack_calculation += blitz_buff
+                    defense_calculation += blitz_buff
+                    self.attack += attack_calculation
+                    self.defense += defense_calculation
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) (🌀) {self.name} [+💢{blitz_buff} : +🗡️ {attack_calculation} | +🛡️{defense_calculation}]")
+                else:
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) (🌀) {self.name} [+❤️{health_calculation}]")
 
             if _opponent_card.poison_dmg:
                 _opponent_card.poison_dmg = round(_opponent_card.poison_dmg / 2)
@@ -2299,8 +2319,6 @@ class Card:
 
             beezlebub(self, battle_config, _opponent_card)
 
-           # activate_my_hero_academia_trait(self, battle_config)
-
             self.light_speed_attack(_opponent_card, battle_config)
 
             battle_config.turn_total = battle_config.turn_total + 1
@@ -2311,9 +2329,10 @@ class Card:
             # ai_focus_message = await ai.focus_message(self.name, self.universe, _opponent_card.name, _opponent_card.universe)
             # battle_config.add_to_battle_log(f"({battle_config.turn_total}) [{self.name}] - {ai_focus_message}")
             
-            if self.universe != "Crown Rift Madness":
+            if not self.used_blitz:
                 battle_config.next_turn()
             else:
+                self.used_blitz = False
                 battle_config.repeat_turn()
 
     def light_speed_attack(self, oppponent_card, battle_config):
@@ -2367,7 +2386,7 @@ class Card:
             self.attack = 25
         if not self.used_resolve and self.used_focus:
             if self.is_tank:
-                self._shield_value = self._shield_value + (self.tier * 500)
+                self._shield_value +=  (self.tier * 250) + self.card_lvl
 
             if self.overwhelming_power:
                 self.parry_active = True
@@ -2400,7 +2419,9 @@ class Card:
 
             slime_resolve = skill_evolution(self, battle_config, player_title)
 
-            if not any([mha_resolve, overlord_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve]):
+            fma_resolve = equivalent_exchange_resolve(self, battle_config)
+
+            if not any([mha_resolve, overlord_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve,fma_resolve]):
                 self.standard_resolve_effect(battle_config, opponent_card, player_title)
 
             if player_title.synthesis_effect:
@@ -2673,7 +2694,7 @@ class Card:
                         self._shield_value = 0
                     self._shield_value = self._shield_value + (100 * int(self.card_tier))
                     #print(self._shield_value)
-                    response = f"🆚 Craft Protections! {self.name} Crafted 🛠️\n🔁 {self.p_value - 2} Parry\n💠{self.class_value - 1} Barrier\n🌐{(100 * int(self.card_tier))} Shield\n[{self._tactician_points} {self.class_tier} Strategy Points]"
+                    response = f"🆚 Craft Protections! {self.name} Crafted 🛠️\n💠{self.class_value - 1} Barrier\n🔁 {self.p_value - 2} Parry\n🌐{(100 * int(self.card_tier))} Shield\n[{self._tactician_points} {self.class_tier} Strategy Points]"
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {response}")
                 return 
             else:
@@ -2696,25 +2717,23 @@ class Card:
             battle_config.repeat_turn()
             
     
-    def use_boost(self, battle_config, companion_card=None):
-        if self.stamina >= 20:
-            if companion_card:
-                companion_card.stamina = companion_card.stamina + 10
-                companion_card.health = companion_card.health + 50
-                boost_message = f"{self.name} boosted {companion_card.name} [+10 🌀 +100❤️]"
-                self.used_boost = True
-                self.stamina = self.stamina - 10
-            else:
-                self.stamina = self.stamina + 10
-                self.health = self.health + 50
-                boost_message = f"{self.name} boosted [+10 🌀 +100❤️]"
-                self.stamina = self.stamina
-
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {boost_message}")   
+    def use_blitz(self, battle_config, opponent_card):
+        if self.stamina <= 50:
+            self.blitz_count += 1
+            self.used_blitz = True 
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 💢 blitzed {opponent_card.name}")
+            self.blitz_buff = self.stamina
+            self.stamina -= self.stamina
+            persona_trait = summon_blitz(self, battle_config, opponent_card)
+            if self.is_assassin:
+                if not self._assassin_active:
+                    self._assassin_active = True
+                self._assassin_attack += 1
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} gained +1 Assassin Strike [{self._assassin_attack}]")
             battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
         else:
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} is too tired to boost")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} is too tired to blitz")
             battle_config.repeat_turn()
     
 
@@ -3614,7 +3633,7 @@ class Card:
                 self.reckless_buff_value = .55
             if self.health <= 0:
                 self.health = 1
-            if self.reckless_duration == 0:
+            if self.reckless_duration <= 0:
                 if not self.used_resolve:
                     self.reckless_duration = 1
                     self.reckless_rest = True

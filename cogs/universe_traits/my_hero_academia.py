@@ -46,6 +46,8 @@ def plus_ultra(player_card, battle_config):
 def activate_my_hero_academia_trait(player_card, battle_config):
     if player_card.universe == "My Hero Academia" and not player_card.used_resolve:
         player_card.my_hero_academia_buff_counter += 50
+        player_card.universe_trait_value = player_card.my_hero_academia_buff_counter
+        player_card.universe_trait_value_name = "Quirk Energy"
         if player_card.stamina < 10:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} stored AP before focusing[{player_card.my_hero_academia_buff_counter}]")
     

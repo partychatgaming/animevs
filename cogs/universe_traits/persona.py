@@ -12,3 +12,12 @@ def summon_persona(player_card, battle_config, opponent_card):
         player_card.damage_dealt = player_card.damage_dealt + dmg['DMG']
     else:
         return False
+    
+def summon_blitz(player_card, battle_config, opponent_card):
+    if player_card.universe == "Persona":
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} summoned {player_card.summon_name} to blitz!")
+        dmg = player_card.damage_cal(6, battle_config, opponent_card)
+        player_card.damage_done(battle_config, dmg, opponent_card)
+        
+    else:
+        return False

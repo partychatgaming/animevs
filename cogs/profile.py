@@ -245,7 +245,7 @@ class Profile(Extension):
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
-                        Embed(title=f"{player_name} Build Talisman View", description="Talismans are powerful accessories that can be attuned to your card to bypass a single affinity.", color=0x000000)
+                        Embed(title=f"{player_name} Build Talisman View", description="Talismans are powerful accessories that can be attuned to your card to bypass a single affinity. Create Talismans with /attune", color=0x000000)
                             .add_field(name="__Talisman Name & Effects__", value=player.talisman_message, inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),

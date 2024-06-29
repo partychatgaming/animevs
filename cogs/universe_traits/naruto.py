@@ -5,7 +5,10 @@ import random
 def substitution_jutsu(player_card, opponent_card, dmg, battle_config):
     if opponent_card.universe == "Naruto" and opponent_card.stamina < 10:
         stored_damage = round(dmg['DMG'])
-        opponent_card.naruto_heal_buff = opponent_card.naruto_heal_buff + stored_damage
+        if not opponent_card.used_resolve:
+            opponent_card.naruto_heal_buff = opponent_card.naruto_heal_buff + stored_damage
+            opponent_card.universe_trait_value = (opponent_card.naruto_heal_buff * opponent_card.tier)
+        opponent_card.universe_trait_value_name = "Hashirama Cells"
         opponent_card.health = opponent_card.health 
 
         if player_card.barrier_active and dmg['ELEMENT'] != "PSYCHIC":
@@ -17,7 +20,7 @@ def substitution_jutsu(player_card, opponent_card, dmg, battle_config):
                 player_card.decrease_solo_leveling_temp_values('BARRIER', opponent_card, battle_config)
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {opponent_card.name} substitution jutsu")
         if not opponent_card.used_resolve:
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {stored_damage} hashira cells was stored and {opponent_card.naruto_heal_buff} is stored in total")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {stored_damage} hashirama cells was stored and {opponent_card.naruto_heal_buff} is stored in total")
 
         return True
     else:
@@ -48,7 +51,7 @@ def hashirama_cells(player_card, battle_config, player_title):
         player_card.damage_healed = player_card.damage_healed + resolve_health + player_card.naruto_heal_buff
         
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 Stored hashira cells healed {player_card.name} for {player_card.naruto_heal_buff} health")
-
+        player_card.naruto_heal_buff = "*Spent*"
         player_card.used_resolve = True
         player_card.usedsummon = False
 

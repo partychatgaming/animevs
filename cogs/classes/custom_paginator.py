@@ -2718,6 +2718,7 @@ class CustomPaginator(Paginator):
         list_of_cards = [x for x in db.queryAllCardsBasedOnUniverse({'UNIVERSE': str(universe_title), 'TIER': {'$in': acceptable}}) if x['DROP_STYLE'] == "TALES" and x['NAME'] not in player.cards]
         count = 0
         selected_cards = [1000]
+        player_cards = []
         while count < 3:
             selectable_cards = list(range(0, len(list(list_of_cards))))
             for selected in selected_cards:
@@ -2726,11 +2727,13 @@ class CustomPaginator(Paginator):
             selection = random.choice(selectable_cards)
             # print(selection)
             selectable_cards.append(selection)
-            card = crown_utilities.create_card_from_data(db.queryCard({'NAME': list_of_cards[selection]['NAME']}))
-            # db.updateUserNoFilter(player.user_query,{'$addToSet':{'CARDS': card.name}})
-            player.save_card(card)
-            card_message.append(f"**{card.name}**!")
-            count = count + 1
+            if list_of_cards[selection]['NAME'] not in player_cards:
+                card = crown_utilities.create_card_from_data(db.queryCard({'NAME': list_of_cards[selection]['NAME']}))
+                player_cards.append(card.name)
+                # db.updateUserNoFilter(player.user_query,{'$addToSet':{'CARDS': card.name}})
+                player.save_card(card)
+                card_message.append(f"**{card.name}**!")
+                count = count + 1
 
 
         arm_drop_message_into_embded = "\n".join(arm_message)

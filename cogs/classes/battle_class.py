@@ -4,6 +4,7 @@ import interactions
 import datetime
 import textwrap
 import time
+from logger import loggy
 now = time.asctime()
 import unique_traits as ut
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
@@ -171,6 +172,7 @@ class Battle:
         self.tutorial_ultimate = False
         self.tutorial_enhancer = False
         self.tutorial_block = False
+        self.tutorial_blitz = False
         self.tutorial_resolve = False
         self.tutorial_focus = False
         self.tutorial_summon = False
@@ -1115,7 +1117,7 @@ class Battle:
         u_butts = []
         c_butts = []
         if self.is_turn == 3:
-            options = ["q", "Q", "0", "1", "2", "3", "4", "7"]
+            options = ["q", "Q", "0", "1", "2", "3", "4", "7","b"]
             if your_card.used_focus:
                 if your_card.used_resolve:
                     options += [6]
@@ -1125,7 +1127,7 @@ class Battle:
                 options += ['6']
             self.battle_options = options
         else:
-            options = ["q", "Q", "0", "1", "2", "3", "4"]
+            options = ["q", "Q", "0", "1", "2", "3", "4","b"]
             if self.is_co_op_mode:
                 options += ["7", "8", "9", "s", "b"]
             else:
@@ -1140,15 +1142,6 @@ class Battle:
             self.battle_options = options
 
         if your_card.stamina >= 10:
-            # if your_card.universe == "Souls" and your_card.used_resolve:
-            #     b_butts.append(
-            #         Button(
-            #             style=ButtonStyle.GREEN,
-            #             label=f"{your_card.move2_emoji} 10",
-            #             custom_id=f"{self._uuid}|1"
-            #         )
-            #     )
-            # else:
             b_butts.append(
                 Button(
                     style=ButtonStyle.GREEN,
@@ -1157,21 +1150,23 @@ class Battle:
                 )
             )
 
+
         if your_card.stamina >= 30:
-            # if your_card.universe == "Souls" and your_card.used_resolve:
-            #     b_butts.append(
-            #         Button(
-            #             style=ButtonStyle.GREEN,
-            #             label=f"{your_card.move3_emoji} 30",
-            #             custom_id=f"{self._uuid}|2"
-            #         )
-            #     )
-            # else:
             b_butts.append(
                 Button(
                     style=ButtonStyle.GREEN,
                     label=f"{your_card.move2_emoji}30",
                     custom_id=f"{self._uuid}|2"
+                )
+            )
+
+        #add variable to card to check if card can blitz, flip that variable to true if card is focused or they are an assassin and use it here
+        if your_card.stamina <= 50 and your_card.used_focus:
+            b_butts.append(
+                Button(
+                    style=ButtonStyle.BLUE,
+                    label=f"💢 Blitz {your_card.stamina}",
+                    custom_id=f"{self._uuid}|b"
                 )
             )
 
@@ -1188,7 +1183,7 @@ class Battle:
             b_butts.append(
                 Button(
                     style=ButtonStyle.BLUE,
-                    label=f"🦠20",
+                    label=f"🦠{your_card.move4enh.title()} 20",
                     custom_id=f"{self._uuid}|4"
                 )
             )
@@ -1259,7 +1254,7 @@ class Battle:
         u_butts.append(
             Button(
                 style=ButtonStyle.GREY,
-                label="Quit",
+                label="Surrender",
                 custom_id=f"{self._uuid}|q"
             ),
         )
@@ -1373,6 +1368,7 @@ class Battle:
         ultimate_task = incomplete_task
         enhancer_task = incomplete_task
         block_task = incomplete_task
+        blitz_task = incomplete_task
         resolve_task = incomplete_task
         focus_task = incomplete_task
         summon_task = incomplete_task
@@ -1388,12 +1384,17 @@ class Battle:
             enhancer_task = complete_task
         if self.tutorial_block == True:
             block_task = complete_task
+        if self.tutorial_blitz == True:
+            blitz_task = complete_task
         if self.tutorial_focus == True:
             focus_task = complete_task
         if self.tutorial_resolve == True:
             resolve_task = complete_task
         if self.tutorial_summon == True:
             summon_task = complete_task
+        blitz_stamina = player_card.stamina
+        if player_card.stamina >=50:
+            blitz_stamina = "<50"
         #If all of the above are true, create a variable that will be used to end the tutorial match
         self.all_tutorial_tasks_complete = (basic_task == complete_task and special_task == complete_task and ultimate_task == complete_task and enhancer_task == complete_task and block_task == complete_task and resolve_task == complete_task and focus_task == complete_task and summon_task == complete_task)
         if self.all_tutorial_tasks_complete:
@@ -1401,12 +1402,12 @@ class Battle:
         if player_card.is_summoner and not self.tutorial_focus:
             return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{summon_task}🧬Summon!*"
         if self.tutorial_focus == True and self.tutorial_resolve == True:
-            return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{resolve_task}⚡Resolve!\n{summon_task}🧬Summon!*"
+            return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{blitz_task}💢Blitz {blitz_stamina}\n{resolve_task}⚡Resolve!\n{summon_task}🧬Summon!*"
         elif self.tutorial_focus == True:
             if player_card.is_summoner:
-                return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{resolve_task}⚡Resolve!\n{summon_task}🧬Summon!*"
+                return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{blitz_task}💢Blitz {blitz_stamina}\n{resolve_task}⚡Resolve!\n{summon_task}🧬Summon!*"
             else:
-                return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{resolve_task}⚡Resolve!*"
+                return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{blitz_task}💢Blitz {blitz_stamina}\n{resolve_task}⚡Resolve!*"
         else:
             return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus*"
 
@@ -1538,11 +1539,11 @@ class Battle:
                     summoner_buff = f"grants {player_card.card_tier} more protections!"
                 else:
                     summoner_buff = f"is {player_card.card_tier}x more Effective!"
-                embedVar.add_field(name=f"{crown_utilities.class_emojis['SUMMONER']}**Summoner Class**!",
+                embedVar.add_field(name=f"[{crown_utilities.class_emojis['SUMMONER']}]**Summoner Class**!",
                             value=f"*The Summoner class can call forth their ally from the start of battle! Your summon {summoner_buff}*\n")
             if player_card.universe in crown_utilities.summon_traits:
                 title, text = self.summon_trait_handler(player_card)
-                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
                                 value=f"{text}")
             # embedVar.set_footer(
             #     text=f"🧬Summons will Level Up and build Bond as you win battles! Train up your summons to perform better in the field!")
@@ -1558,26 +1559,42 @@ class Battle:
                     embedVar.add_field(name=f"{crown_utilities.class_emojis['TACTICIAN']}** Tactician Class**!",
                             value="*Enter Focus by Blocking to Strategize, Buffing yourself while debuffing your opponent*\n")
                     if player_card.stamina < 10:
-                        embedVar.add_field(name=f"Stategy Point Created!**!",
+                        embedVar.add_field(name=f"Strategy Point Created!!",
                         value="*Great Job! Focusing into Block grants increasingly strong buffs or debuffs for each point gained*\n")
                 if player_card.is_tank:
                     embedVar.add_field(name=f"{crown_utilities.class_emojis['TANK']}** Tank Class**!",
                             value="*On Block gain 3x Defense, instead of 2x*\n")
             if player_card.universe in crown_utilities.blocking_traits:
                 title, text = self.blocking_trait_handler(player_card)
-                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
                             value=f"{text}")
             # embedVar.set_footer(
             #     text=f"Use 🛡️Block strategically to defend against your opponents strongest abilities!")
+            return embedVar
+        elif message_type == "BLITZ":
+            self.tutorial_blitz = True
+            embedVar = Embed(title=f"💢Blitzing!",
+                                    description=f"**Blitzing** cost **All ST(Stamina)** to enter Focus, sacrificing your heal to boost your ATK and DEF gained by 50% of (Stamina + Speed + Tier) **[{round((player_card.blitz_buff + player_card.speed + player_card.tier) / 2)}]**\n")
+            embedVar.add_field(name=f"**Blitzing Stamina**",
+                            value="You cannot blitz with greater than 50 stamina. However You will not lose a turn during Focus after blitzing!\n")
+            if player_card.is_assassin:
+                    embedVar.add_field(name=f"[{crown_utilities.class_emojis['ASSASSIN']}]** Assassin Class**!",
+                            value=f"*Increase Blitz bonus by 2x Speed***[+{player_card.speed}]**\n")
+            if player_card.universe in crown_utilities.blitz_traits:
+                title, text = self.blitz_trait_handler(player_card)
+                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
+                            value=f"{text}")
             return embedVar
         elif message_type == "FOCUS":
             embedVar = Embed(title=f"🌀{player_card.name} is **Focusing**!",
                                     description=f"Entering **Focus State** sacrifices a turn to **Heal** and Regain **90 ST(Stamina)**\n")
             embedVar.add_field(name=f"Focusing",
                             value=f"*Increase your ATK and DEF stacking bonuses with each 🌀Focus*\n")
+            embedVar.add_field(name=f"💢Blitzing!",
+                            value=f"*Unlock Blitzing! Trade Focus Healing for Increased ATK & DEF buffs!*\n")
             if player_card.universe in crown_utilities.focus_traits:
                 title, text = self.focus_trait_handler(player_card, opponent_card)
-                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
                             value=f"{text}")
             # embedVar.set_footer(
             #     text=f"Pay attention to your opponents ST(Stamina). If they are entering Focus State, you may have an opportunity to attack twice!")
@@ -1587,17 +1604,17 @@ class Battle:
                                     description=f"Sacrifice DEF to **Heal**, Boost **ATK**, and gain 🧬**Summon**!\n*Focusing will no longer increase ATK or DEF*")
             if (player_card.is_swordsman or player_card.is_tank or player_card.is_monstrosity):
                 if player_card.is_swordsman:
-                    embedVar.add_field(name=f"{crown_utilities.class_emojis['SWORDSMAN']}** Swordsman Class**!",
+                    embedVar.add_field(name=f"[{crown_utilities.class_emojis['SWORDSMAN']}]** Swordsman Class**!",
                             value=f"On Resolve gain Critical Strikes **[{player_card.class_value}]**\n")
                 if player_card.is_monstrosity:
-                    embedVar.add_field(name=f"{crown_utilities.class_emojis['MONSTROSITY']}** Monstrosity Class**!",
+                    embedVar.add_field(name=f"[{crown_utilities.class_emojis['MONSTROSITY']}]** Monstrosity Class**!",
                             value=f"On Resolve gain Double Strikes **[{player_card.class_value}]**\n")
                 if player_card.is_tank:
-                    embedVar.add_field(name=f"{crown_utilities.class_emojis['TANK']}** Tank Class**!",
-                            value=f"On Resolve gain increase your shield by 500 * Card Tier **[{500 * player_card.card_tier}]**\n")
+                    embedVar.add_field(name=f"[{crown_utilities.class_emojis['TANK']}]** Tank Class**!",
+                            value=f"On Resolve gain increase your shield by (250 * Card Tier) + Card Level **[{(250 * player_card.card_tier) + player_card.card.level}]**\n")
             if player_card.universe in crown_utilities.resolve_traits:
                 title, text = self.resolve_trait_handler(player_card)
-                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
                             value=f"{text}")
             # embedVar.set_footer(
             #     text=f"You can only enter ⚡Resolve once per match! Use this ability Wisely!!!")
@@ -1607,7 +1624,7 @@ class Battle:
                                     description=f"Your opponent will now sacrifice a turn to **Heal** and Regain **90 ST(Stamina)**\n")
             if opponent_card.universe in crown_utilities.opponent_focus_trait:
                 title, text = self.opponent_focus_trait_handler(player_card, opponent_card)
-                embedVar.add_field(name=f"\n{opponent_card.universe_crest} {opponent_card.universe} Trait: {title}",
+                embedVar.add_field(name=f"\n[{opponent_card.universe_crest}] {opponent_card.universe} Trait: {title}",
                             value=f"{text}")
             return embedVar
         elif message_type == "HEALTH":
@@ -1615,7 +1632,7 @@ class Battle:
                                     description=f"Some universe Traits trigger when your health reaches a certain point!")
             if player_card.universe in crown_utilities.death_traits:
                 title, text = self.death_trait_handler(player_card)
-                embedVar.add_field(name=f"\n{player_card.universe_crest} {player_card.universe} Trait: {title}",
+                embedVar.add_field(name=f"\n[{player_card.universe_crest}] {player_card.universe} Trait: {title}",
                             value=f"{text}")
             return embedVar
     
@@ -1710,6 +1727,9 @@ class Battle:
         if player_card.universe == "Fairy Tail":
             name = "Unison Raid"
             value =f"On Resolve\nStrike with your Special, Ultimate and Summon abilitiy! After this powerful attack you lose 1 run to Recover\n\n`SPECIAL` Attack: {player_card.move2_emoji} {player_card.move2} inflicts {player_card.move2_element}\n\n`ULTIMATE` Attack: {player_card.move3_emoji} {player_card.move3} inflicts {player_card.move3_element}\n\n`SUMMON` Attack: {player_card.summon_emoji} **{player_card.summon_name}** inflicts {player_card.summon_type}"
+        if player_card.universe == "Full Metal Alchemist":
+            name = "Equivalent Exchange"
+            value =f"On Resolve\nLose Equivalent Exchange amount Health **[{player_card.equivalent_exchange}]**. If this kills you, revive with 2x Equivalent Exchange Health **[{2 * player_card.equivalent_exchange}]**\n\nAll attacks now Lifesteal for (Focus Count * Card Tier*)% Damage **[{round((player_card.focus_count * player_card.tier)/100)}%]." 
         if player_card.universe == "Pokemon":
             name = "Evolution"
             value =f"On Resolve\nIncrease defense by Card Tier\nIf turn count > 20 Mega-Evolve and gain 250 * Card Tier Health **[{250 * player_card.card_tier}]**\nIf Turn Count > 30 **Gigantomax** and double it **[{(250 * player_card.card_tier) * 2}]**" 
@@ -1724,7 +1744,7 @@ class Battle:
             value =f"On Focus\nResolve and increase ATK and DEF **[{100 * player_card.card_tier}]**"
         if player_card.universe == "Naruto":
             name = "Substition Jutsu"
-            value =f"On Focus\nYou cannot be hit by attacks, convert any attack damage into `Hashirama Cells` **[{player_card.naruto_heal_buff}]**"
+            value =f"On Focus\nYou cannot be hit by attacks, convert any attack damage into `Hashirama Cells` multipled by Card Tier**[{player_card.naruto_heal_buff * player_card.tier}]**"
         if player_card.universe == "Black Clover":
             name = "Mana Zone"
             value =f"On Focus\nGain 100 Stamina and increase your AP by (25% * Card Level[Base 50])**[{round((player_card.card_lvl + 49) * .10)}]**"
@@ -1791,17 +1811,20 @@ class Battle:
 
     def starting_trait_handler(self, player_card, opponent_card):
         if player_card.universe == "Death Note":
-            name = "Death Note"
-            value =f"On Turn 50\nYour opponent **[{opponent_card.name}]** will have a heart attack and `DIE`"
+            name = "\nDeath Note"
+            value =f"On Turn 50\n*Your opponent [{opponent_card.name}] will have a heart attack and* `DIE`"
         if player_card.universe == "One Piece":
-            name = "Observation Haki"
-            value =f"Reduce incoming damage by 40% until your first focus"
+            name = "\nObservation Haki"
+            value =f"*Reduce incoming damage by 40% until your first focus*"
         if player_card.universe == "Chainsawman":
-            name = "Fearful"
-            value =f"Strong Fear Affliction\n\nThe Fear enhancer does not sacrifice Health"
+            name = "\nFearful"
+            value =f"*Strong Fear Affliction\n\nThe Fear enhancer does not sacrifice Health*"
+        if player_card.universe == "Full Metal Alchemist":
+            name = "\nEquivalent Exchange"
+            value =f"Each Attack\n*Store 50% Stamina as Equivalent Exchange, Increase your Attack Power by (Equivalent Exchange x Card Tier).*" 
         if player_card.universe == "Demon Slayer":
-            name = "Total Concentration Breathing"
-            value =f"Gain 40% of your opponents base max health at the start of battle **[{round(.40 * opponent_card.max_base_health)}]**"
+            name = "\nTotal Concentration Breathing"
+            value =f"*Gain 40% of your opponents base max health at the start of battle.* **[{round(.40 * opponent_card.max_base_health)}]**"
         return name, value
     
     def death_trait_handler(self, player_card):
@@ -1816,7 +1839,14 @@ class Battle:
             value =f"When Health <= 50%\n\nDouble your Attack, Defense Max Health."
         return name, value
     
-
+    def blitz_trait_handler(self, player_card):
+        if player_card.universe == "Bleach":
+            name = "Shikai"
+            value =f"On Resolve\n Gain Attack and Defense multiplied by your blitz count"
+        if player_card.universe == "Persona":
+            name = "Summon Blitz"
+            value =f"On Blitz\nStrike with your summon!\nYour Summon: {player_card.summon_name} used their {player_card.summon_emoji} {player_card.summon_type} ability"
+        return name, value
 
     def next_turn(self):
         if self.is_co_op_mode:

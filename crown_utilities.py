@@ -1975,7 +1975,6 @@ blocking_traits = [
     'Black Clover',
     'Bleach',
     'Death Note',
-    'My Hero Academia',
     'YuYu Hakusho',
 ]
 
@@ -1983,6 +1982,12 @@ starting_traits = [
     'Death Note',
     'One Piece',
     'Demon Slayer',
+    'Full Metal Alchemist',
+]
+
+blitz_traits = [
+    'Bleach',
+    'Persona'
 ]
 
 
@@ -2008,7 +2013,14 @@ opponent_focus_trait = [
     '7ds',
     'One Punch Man',
     'Souls',
+    
     # Add more traits here
+]
+
+universe_stack_traits = [
+    'Naruto',
+    'Full Metal Alchemist',
+    'My Hero Academia',
 ]
 focus_traits = [
     'Digimon',
@@ -2022,7 +2034,7 @@ focus_traits = [
     'League Of Legends',
     'Naruto',
     'One Piece',
-    'That Time I Got Reincarnated as a Slime'
+    'That Time I Got Reincarnated as a Slime',
 ]
 
 resolve_traits = [
@@ -2041,7 +2053,8 @@ resolve_traits = [
     'Souls',
     'Fate',
     'That Time I Got Reincarnated as a Slime',
-    'Fairy Tail'
+    'Fairy Tail',
+    'Full Metal Alchemist',
 ]
 
 
@@ -2436,7 +2449,7 @@ crest_dict = { 'Unbound': '🉐',
               'Gurren Lagann': '<:gurren:1214432235927773205>',
               'Jujutsu Kaisen': '<:jjk:1249819520650969138>',
               'Katekyo Hitman Reborn': '<:reborn:1249819879293321301>',
-              'Full Metal Alchemist': '<:you:823268958974902327>',
+              'Full Metal Alchemist': '<:fma:1256672084327792730>',
               'Unbound': '🉐',
 }
 

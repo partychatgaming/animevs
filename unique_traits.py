@@ -17,7 +17,7 @@ traits = [{
 },{
     'NAME': 'Naruto',
     'EFFECT': 'Substitution, Hashirama Cells',
-    'TRAIT': 'Substitution : If Focused, you cannot be hit.  Hashirama Cells : On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
+    'TRAIT': 'Substitution : If Focused, you cannot be hit. Store Damage * Card Tier as Hashirama Cells. Hashirama Cells : On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Devilization, Fearful',
@@ -25,7 +25,7 @@ traits = [{
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, SpiritualPressure',
-    'TRAIT': 'Bankai : On Resolve, Gain 2x Attack. SpiritualPressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
+    'TRAIT': 'Bankai : On Resolve, Gain Attack and Defense multiplied by your Blitz Count. SpiritualPressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
@@ -72,8 +72,8 @@ traits = [{
     'TRAIT': 'Final Stand :  When you die, Resolve with 75% ATK + DEF as Health. Saiyan Energy :  On Focus, heal for opponent Stamina amount + turn count.'
 },{
     'NAME': 'Persona',
-    'EFFECT': 'Summon Persona, Summoners Battle',
-    'TRAIT': 'Summon Persona : Summon also deals Damage equal to your Basic Attack. Summoners Battle : Summoning disables Opp summon. '
+    'EFFECT': 'Summon Persona, Summoners Battle, Summon Blitz',
+    'TRAIT': 'Summon Persona : Summon also deals Damage equal to your Basic Attack. Summoners Battle : Summoning disables Opp summon. Summon Blitz: On Blitz, strike with Summon.'
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Energy Resolved!',
@@ -87,29 +87,25 @@ traits = [{
     'EFFECT': 'Feint Attack, Meister',
     'TRAIT': 'Feint Attack : If you miss, Crit! Meister: If the summon you are using is from Soul Eater, it deals 3x damage and always critically strikes.'
 },{
-    'NAME': 'Crown Rift Madness',
-    'EFFECT': 'Madness, Beast Blood',
-    'TRAIT': 'Madness : Do not lose turn on Focus, but also do not Heal. Beast Blood : Continue to Gain ATK and DEF after Resolved'
-},{
-    'NAME': 'Crown Rift Awakening',
-    'EFFECT': 'Blood Awakening, Bloodlines',
-    'TRAIT': 'Blood Awakening : Deal 4x damage on Crit, Increased Crit Chance. Bloodlines : Can use Titles from all Universes'
-},{
     'NAME': 'Fairy Tail',
     'EFFECT': 'Unison Raid, Concentration',
     'TRAIT': 'Unison Raid : On Resolve, Deal your Special, Ultimate, and Summon attacks at once. You lose a turn to recover. Concentration : Gain (20 * Tier) * Focus count AP each focus.'
 },{
     'NAME': 'Overlord',
     'EFFECT': 'Fear, Fear Aura',
-    'TRAIT': 'Fear: On Resolve, lower your opponent defense to 25 for 1 * tier turn. Fear Aura : Gain (20 * Tier) * Focus count AP each focus. On Focus, Reduce Opponent AP by 20 * Card Tier.'
-}, {
+    'TRAIT': 'Fear: On Resolve, lower your opponent defense to 25 for 1 * Card Tier turn. Fear Aura : Gain (20 * Tier) * Focus count AP each focus. On Focus, Reduce Opponent AP by 20 * Card Tier.'
+},{
     'NAME': 'Jujutsu Kaisen',
     'EFFECT': 'Cursed Energy, Domain Expansion',
     'TRAIT': 'Cursed Energy: The first attack after each focus is a critical hit. Domain Expansion: On Resolve, Your opponent must suceed a Damage check in (Class Rank Value[10-6] - Focus Count) turns or DIE. During the damage check your opponent loses 5% max health each turn during the Damage Check. If your opponents Focus Count is higher than yours, the Domain FAILS and you lose the same Max Health.'
-}, {
+},{
     'NAME': 'That Time I Got Reincarnated as a Slime',
     'EFFECT': 'Skill Evolution, Summon Slime, Beezlebub',
     'TRAIT': 'Skill Evolution: On Resolve, increase Ultimate AP by total ap of your basic and special attack which become 25. Gift: On Summon, gain 5 * Card Tier Stamina. Beezlebuth:On Focus Flog and Wither your opponent for (Card Tier * (Focus Count + 1)) Attack and Defense.'
+},{
+    'NAME': 'Full Metal Alchemist',
+    'EFFECT': 'Equivalent Exchange, Phisolophers Stone',
+    'TRAIT': 'Equivalent Exchange: Each Attack, store 50% stamina cost as equivalent exchange. Your Attack Power is increased by (Equivalent Exchange * Card Tier). Philosphers Stone: On Resolve, Lose health equal to your Equivalent Exchange amount. If you die during this process - Revive with 2x Equivalent Exchange Health - Equivalent Exchange now adds (Focus Count * Card Tier)% Lifesteal to each attack.'
 }
 
 ]
@@ -133,7 +129,7 @@ formatted_traits = [{
 },{
     'NAME': 'Naruto',
     'EFFECT': 'Substitution, Hashirama Cells',
-    'TRAIT': '\n**Substitution:** If Focused, you cannot be hit.\n\n**Hashirama Cells:** On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
+    'TRAIT': '\n**Substitution:** If Focused, you cannot be hit. Store Damage * Card Tier as Hashirama Cells\n\n**Hashirama Cells:** On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Devilization, Fearful',
@@ -141,7 +137,7 @@ formatted_traits = [{
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, SpiritualPressure',
-    'TRAIT': '\n**Bankai:** On Resolve, Gain 2x Attack.\n\n**Spiritual Pressure:** On Block, Defend then Deal Damage equal to your Basic Attack.'
+    'TRAIT': '\n**Bankai:** On Resolve, Gain Attack and Defense Multiplied by your Blitz Count.\n\n**Spiritual Pressure:** On Block, Defend then Deal Damage equal to your Basic Attack.'
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
@@ -188,8 +184,8 @@ formatted_traits = [{
     'TRAIT': '\n**Final Stand:**  When you die, Resolve with 75% ATK + DEF as Health.\n\n**Saiyan Energy:**  On Focus, heal for opponent Stamina amount + turn count.'
 },{
     'NAME': 'Persona',
-    'EFFECT': 'Summon Persona, Summoners Battle',
-    'TRAIT': '\n**Summon Persona:** Summon also deals Damage equal to your Basic Attack.\n\n**Summoners Battle:** Summoning disables Opp summon. '
+    'EFFECT': 'Summon Persona, Summoners Battle, Summon Blitz',
+    'TRAIT': '\n**Summon Persona:** Summon also deals Damage equal to your Basic Attack.\n\n**Summoners Battle:** Summoning disables Opp summon.\n\n**Summon Blitz:** On Blitz, strike with Summon.'
 },{
     'NAME': 'YuYu Hakusho',
     'EFFECT': 'Energy Resolved!',
@@ -203,21 +199,13 @@ formatted_traits = [{
     'EFFECT': 'Feint Attack, Meister',
     'TRAIT': '\n**Feint Attack:** If you miss, strke with you Feint Attack and Crit!\n\n**Meister:** If the summon you are using is from Soul Eater, it deals 3x damage and always triggers Feint Attack.'
 },{
-    'NAME': 'Crown Rift Madness',
-    'EFFECT': 'Madness, Beast Blood',
-    'TRAIT': 'Madness : Do not lose turn on Focus, but also do not Heal. Beast Blood : Continue to Gain ATK and DEF after Resolved'
-},{
-    'NAME': 'Crown Rift Awakening',
-    'EFFECT': 'Blood Awakening, Bloodlines',
-    'TRAIT': 'Blood Awakening : Deal 4x damage on Crit, Increased Crit Chance. Bloodlines : Can use Titles from all Universes'
-},{
     'NAME': 'Fairy Tail',
     'EFFECT': 'Unison Raid, Concentration',
     'TRAIT': '\n**Unison Raid:** On Resolve, Deal your Special, Ultimate, and Summon attacks at once. You lose a turn to recover.\n\n**Concentration:** Gain (20 * Tier) * Focus count AP each focus.'
 },{
     'NAME': 'Overlord',
     'EFFECT': 'Fear, Fear Aura',
-    'TRAIT': '\n**Fear:** On Resolve, lower your opponent defense to 25 for 1 * tier turn. Fear Aura : Gain (20 * Tier) * Focus count AP each focus.\n\n**Fear Aura:** On Focus, Reduce Opponent AP by 20 * Card Tier.'
+    'TRAIT': '\n**Fear:** On Resolve, lower your opponent defense to 25 for 1 * Card Tier turn.\n\n**Fear Aura:** On Focus, Reduce Opponent AP by 20 * Card Tier & Reduce Opponent AP by 20 * Card Tier'
 }, {
     'NAME': 'Jujutsu Kaisen',
     'EFFECT': 'Cursed Energy, Domain Expansion',
@@ -225,7 +213,11 @@ formatted_traits = [{
 }, {
     'NAME': 'That Time I Got Reincarnated as a Slime',
     'EFFECT': 'Skill Evolution, Gift, Beezlebub',
-    'TRAIT': '\n**Skill Evolution:** On Resolve, increase Ultimate AP by total ap of your Basic and Special attack which become 25.\n\n**Gift:** On Summon, gain 5 * Card Tier Stamina.\n\n**Beezlebuth:** On Focus Flog and Wither your opponent for (Card Tier% * (Focus Count + 1)) Attack and Defense.'
+    'TRAIT': '\n**Skill Evolution:** On Resolve, increase Ultimate AP by total ap of your Basic and Special attack which become 25.\n\n**Gift:** On Summon, gain 5 * Card Tier Stamina.\n\n**Beezlebuth:** On Focus Flog and Wither your opponent for (Card Tier% x (Focus Count + 1)) Attack and Defense.'
+},{
+    'NAME': 'Full Metal Alchemist',
+    'EFFECT': 'Equivalent Exchange, Phisolophers Stone',
+    'TRAIT': '\n**Equivalent Exchange:** Each Attack, store 50% stamina cost as equivalent exchange. Your Attack Power is increased by (Equivalent Exchange * Card Tier).\n\n**Philosphers Stone:** On Resolve, Lose health equal to your Equivalent Exchange amount. If you die during this process - Revive with 2x Equivalent Exchange Health.\n\n**After Resolve**, Equivalent Exchange now adds (Focus Count * Card Tier)% Lifesteal to each attack.'
 }
 
 ]
