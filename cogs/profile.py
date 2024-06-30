@@ -758,41 +758,22 @@ class Profile(Extension):
             await ctx.send(embed=embed)
 
 
-    @slash_command(description="View all of your cards", options=[
-        SlashCommandOption(
-            name="element_filter",
-            description="select an option to continue",
-            type=OptionType.STRING,
-            required=False,
-            choices=[
-                SlashCommandChoice(name="👊 Physical", value="PHYSICAL"),
-                SlashCommandChoice(name="🔥 Fire", value="FIRE"),
-                SlashCommandChoice(name="❄️ Ice", value="ICE"),
-                SlashCommandChoice(name="💧 Water", value="WATER"),
-                SlashCommandChoice(name="⛰️ Earth", value="EARTH"),
-                SlashCommandChoice(name="⚡️ Electric", value="ELECTRIC"),
-                SlashCommandChoice(name="🌪️ Wind", value="WIND"),
-                SlashCommandChoice(name="🔮 Psychic", value="PSYCHIC"),
-                SlashCommandChoice(name="☠️ Death", value="DEATH"),
-                SlashCommandChoice(name="❤️‍🔥 Life", value="LIFE"),
-                SlashCommandChoice(name="🌕 Light", value="LIGHT"),
-                SlashCommandChoice(name="🌑 Dark", value="DARK"),
-                SlashCommandChoice(name="🧪 Poison", value="POISON"),
-                SlashCommandChoice(name="🔫 Gun", value="GUN"),
-                SlashCommandChoice(name="🩻 Rot", value="ROT"),
-                SlashCommandChoice(name="⚔️ Sword", value="SWORD"),
-                SlashCommandChoice(name="🌿 Nature", value="NATURE"),
-                SlashCommandChoice(name="🏹 Ranged", value="RANGED"),
-                SlashCommandChoice(name="🧿 Energy / Spirit", value="ENERGY"),
-                SlashCommandChoice(name="♻️ Reckless", value="RECKLESS"),
-                SlashCommandChoice(name="⌛ Time", value="TIME"),
-                SlashCommandChoice(name="🅱️ Bleed", value="BLEED"),
-                SlashCommandChoice(name="🪐 Gravity", value="GRAVITY"),
-                SlashCommandChoice(name="💤 Sleep", value="SLEEP"),
-            ]
-        )
-    ])
-    async def cards(self, ctx, element_filter=None):
+    @slash_command(description="View all of your cards", scopes=crown_utilities.guild_ids)
+    @slash_option(
+        name="universe_filter",
+        description="Universe",
+        opt_type=OptionType.STRING,
+        required=False,
+        autocomplete=True
+    )
+    @slash_option(
+        name="element_filter",
+        description="Elemental Abilities",
+        opt_type=OptionType.STRING,
+        required=False,
+        autocomplete=True
+    )
+    async def cards(self, ctx, universe_filter: str = "", element_filter: str = ""):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -817,6 +798,9 @@ class Profile(Extension):
             
             for i, card_data in enumerate(card_data_list):
                 c = crown_utilities.create_card_from_data(card_data)
+                if universe_filter:
+                    if universe_filter.lower() != c.universe.lower():
+                        continue
                 if element_filter and element_filter not in [c.move1_element, c.move2_element, c.move3_element]:
                     continue
 
@@ -864,7 +848,59 @@ class Profile(Extension):
             embed = Embed(title="🎴 Cards Error", description="There's an issue with loading your cards. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0xff0000)
             await ctx.send(embed=embed)
             return
-        
+
+    @cards.autocomplete("element_filter")
+    async def cards_type_filter_autocomplete(self, ctx: AutocompleteContext):
+        choices = []
+        options = crown_utilities.get_element_types()
+        """
+        for option in options
+        if ctx.input_text is empty, append the first 24 options in the list to choices
+        if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
+        """
+            # Iterate over the options and append matching ones to the choices list
+        for option in options:
+                if not ctx.input_text:
+                    # If input_text is empty, append the first 24 options to choices
+                    if len(choices) < 24:
+                        choices.append(option)
+                    else:
+                        break
+                else:
+                    # If input_text is not empty, append the first 24 options that match the input to choices
+                    if option["name"].lower().startswith(ctx.input_text.lower()):
+                        choices.append(option)
+                        if len(choices) == 24:
+                            break
+
+        await ctx.send(choices=choices)
+
+    @cards.autocomplete("universe_filter")
+    async def cards_universe_filter_autocomplete(self, ctx: AutocompleteContext):
+        choices = []
+        options = crown_utilities.get_cached_universes()
+        """
+        for option in options
+        if ctx.input_text is empty, append the first 24 options in the list to choices
+        if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
+        """
+            # Iterate over the options and append matching ones to the choices list
+        for option in options:
+                if not ctx.input_text:
+                    # If input_text is empty, append the first 24 options to choices
+                    if len(choices) < 24:
+                        choices.append(option)
+                    else:
+                        break
+                else:
+                    # If input_text is not empty, append the first 24 options that match the input to choices
+                    if option["name"].lower().startswith(ctx.input_text.lower()):
+                        choices.append(option)
+                        if len(choices) == 24:
+                            break
+
+        await ctx.send(choices=choices)
+
     @slash_command(name="titles", description="View all of your titles", scopes=crown_utilities.guild_ids)
     @slash_option(
         name="filtered",
