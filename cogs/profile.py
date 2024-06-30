@@ -871,9 +871,16 @@ class Profile(Extension):
             description="Filter by Universe of the card you have equipped",
             type=OptionType.BOOLEAN,
             required=True,
+        ),
+        SlashCommandOption(
+            name="type_filter",
+            description="select an option to continue",
+            type=OptionType.STRING,
+            required=False,
+            choices=crown_utilities.title_choices
         )
-    ])
-    async def titles(self, ctx, filtered):
+    ], scopes=crown_utilities.guild_ids)
+    async def titles(self, ctx, filtered, type_filter=None):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -898,6 +905,15 @@ class Profile(Extension):
                 if filtered:
                     if resp['UNIVERSE'] != card.universe:
                         continue
+                if type_filter:
+                    has_type = False
+                    for ability in resp['ABILITIES']:
+                        if ability['ABILITY'] == type_filter:
+                            has_type = True
+                            break
+                    if not has_type:
+                        continue
+
                 index = player.titles.index(title)
                 t = crown_utilities.create_title_from_data(resp)
                 embedVar = Embed(title=f"{t.name}", description=f"{crown_utilities.crest_dict[t.universe]} | {t.universe} Title", color=0x7289da)

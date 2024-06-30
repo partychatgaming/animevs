@@ -1986,6 +1986,18 @@ title_prefix_mapping = {
     'DIVINITY': 'Ignore elemental effects until resolved',
 }
 
+
+title_types = [
+    'ATK', 'DEF', 'STAM', 'HLT', 'LIFE', 'DRAIN', 'FLOG', 'WITHER', 
+    'RAGE', 'BRACE', 'BZRK', 'CRYSTAL', 'GROWTH', 'FEAR', 'STANCE', 
+    'CONFUSE', 'CREATION', 'DESTRUCTION', 'SPEED', 'SLOW', 'HASTE', 
+    'SOULCHAIN', 'GAMBLE', 'SINGULARITY', 'IQ', 'HIGH IQ', 'BLITZ', 
+    'FORESIGHT', 'OBLITERATE', 'IMPENETRABLE SHIELD', 'PIERCE', 
+    'SYNTHESIS', 'SPELL SHIELD', 'ELEMENTAL BUFF', 'ELEMENTAL DEBUFF', 
+    'ENHANCED GUARD', 'STRATEGIST', 'SHARPSHOOTER', 'DIVINITY'
+]
+title_choices = [SlashCommandChoice(name=title, value=title) for title in title_types]
+
 blocking_traits = [
     'Attack On Titan',
     'Black Clover',
