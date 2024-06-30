@@ -161,6 +161,9 @@ class Profile(Extension):
                 lvl_req = round((float(c.card_lvl) / 0.0999) ** 1.25)
                 player.set_talisman_message()
                 player.setsummon_messages()
+                summon_power_message = player.summon_power_message
+                if player._equipped_summon_type == "DRACONIC":
+                    summon_power_message = f"{crown_utilities.set_emoji(player._equipped_summon_type)} {player._equipped_summon_type.title()} Damage: {int(c.move1ap + c.move2ap)}"
 
                 a.set_arm_message(player.performance, c.universe)
                 t.set_title_message(player.performance, c.universe)
@@ -172,7 +175,7 @@ class Profile(Extension):
                 drebirth_bonus = ((player.rebirth + 1) * ((player.prestige * 10) + 100)) * (4 if has_universe_soul else 1)
 
                 trebirth_message = f"_🌹⚔️Tales: {rebirth_bonus}xp_" if has_universe_soul else f"_⚔️Tales: {rebirth_bonus}xp_"
-                drebirth_message = f"_🌹🔥Dungeon: {drebirth_bonus}xp_" if has_universe_soul else f"_🔥Dungeon: {drebirth_bonus}xp_"
+                drebirth_message = f"_🌹👺Dungeon: {drebirth_bonus}xp_" if has_universe_soul else f"_👺Dungeon: {drebirth_bonus}xp_"
 
                 level_up_message = lvl_req - c.card_exp if c.card_lvl < crown_utilities.MAX_LEVEL else "👑 | Max Level!!"
                 level_up_message = "🎆 Battle To Level Up!" if lvl_req - c.card_exp <= 0 else level_up_message
@@ -234,7 +237,7 @@ class Profile(Extension):
                             .set_thumbnail(url=ctx.author.avatar_url),
 
                         Embed(title=f"{player_name} Build Summon View", description="Summons are powerful companions that can be called upon to aid you in battle after you resolve, unless you're a summoner.", color=0x000000)
-                            .add_field(name=f"__Summon Name & Effects__\n🧬 {player.equipped_summon}", value=f"{player.summon_power_message}\n📶 {player.summon_lvl_message}", inline=True)
+                            .add_field(name=f"__Summon Name & Effects__\n🧬 {player.equipped_summon}", value=f"{summon_power_message}\n📶 {player.summon_lvl_message}", inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 

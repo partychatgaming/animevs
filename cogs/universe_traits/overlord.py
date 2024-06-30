@@ -33,7 +33,7 @@ def fear(player_card, battle_config, opponent_card, player_title):
         player_card.overlord_fear_bool = True
         player_card.overlord_fear_duration = player_card.tier * 1
         player_card.overlord_opponent_original_defense = opponent_card.defense
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} 🩸 resolved and caused {opponent_card.name} to succumb to fear, lowering their defense to 25 for {player_card.overlord_fear_duration} turns {title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} ♾️ resolved and caused {opponent_card.name} to succumb to fear, lowering their defense to 25 for {player_card.overlord_fear_duration} turns {title_message}")
         battle_config.next_turn()
         return True
     

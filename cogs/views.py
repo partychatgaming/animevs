@@ -1316,7 +1316,7 @@ def get_dungeon_info(universe_data, player):
     number_of_dungeon_fights = len(universe_data['DUNGEONS']) if universe_data['DUNGEONS'] else "TBD"
 
     dungeon_order_embed = Embed(title=f"{universe_data['TITLE']}", description=f"Here is the order of the dungeon battles in this universe", color=0x7289da)
-    dungeon_order_embed.add_field(name="⚔️ Dungeon Battles", value=dungeon_list, inline=False)
+    dungeon_order_embed.add_field(name="👺 Dungeon Battles", value=dungeon_list, inline=False)
 
     return dungeon_list, dungeon_completed, number_of_dungeon_fights, dungeon_order_embed
 

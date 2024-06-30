@@ -14,7 +14,7 @@ def shinigami_eyes(player_card, battle_config):
 def scheduled_death(player_card, battle_config, opponent_card):
     if player_card.universe == "Death Note":
         if battle_config.turn_total >= (50):
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {opponent_card.name} had a heart attack and died, as was written")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {opponent_card.name} had a heart attack and died, as was written")
             opponent_card.health = -1000
 
 
@@ -22,4 +22,4 @@ def set_deathnote_message(player_card, battle_config):
     if not player_card.scheduled_death_message:
         if player_card.universe == "Death Note":
             player_card.scheduled_death_message = True
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} scheduled death 📓 turn 50")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} scheduled death 📓 turn 50")

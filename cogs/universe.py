@@ -130,12 +130,12 @@ class Universe(Extension):
             can_fight_message = ""
             for universe in selected_universes:
                 if count < 25:
-                    can_fight_message = f"🔥 Dungeon | {universe['TITLE']} : /universes to view all Dungeon Drops."
+                    can_fight_message = f"👺 Dungeon | {universe['TITLE']} : /universes to view all Dungeon Drops."
                     universe_crest_owner_message = f"{crown_utilities.crest_dict[universe['TITLE']]} *Crest Unclaimed*"
                     if universe[mode_check] == True:
                         if universe['TITLE'] in completed_check:
                             completed_message = f"**Completed**: {crown_utilities.utility_emojis['ON']}"
-                            can_fight_message = f"🔥 Dungeon | Conquer {universe['TITLE']} Dungeon again for a Boss Key and Minor Reward."
+                            can_fight_message = f"👺 Dungeon | Conquer {universe['TITLE']} Dungeon again for a Boss Key and Minor Reward."
 
                         if player.difficulty != "EASY":
                             for save in player.save_spot:
@@ -217,7 +217,7 @@ class Universe(Extension):
             
             if mode in crown_utilities.DUNGEON_M:
                 entrance_fee = 20000
-                fight_emoji = "🔥"
+                fight_emoji = "👺"
                 list_of_opponents = "DUNGEONS"
                 save_spot_check = crown_utilities.DUNGEON_M
                 mode_check = "HAS_DUNGEON"
@@ -230,7 +230,7 @@ class Universe(Extension):
                 #     return
                 if universe_title in player.completed_dungeons:
                     completed_message = f"**Completed**: {crown_utilities.utility_emojis['ON']}"
-                    can_fight_message = f"🔥 Dungeon | Conquer {universe['TITLE']} Dungeon again for a Boss Key and Minor Reward."
+                    can_fight_message = f"👺 Dungeon | Conquer {universe['TITLE']} Dungeon again for a Boss Key and Minor Reward."
 
             if universe[mode_check] == True:
                 if player.difficulty != "EASY":
@@ -318,11 +318,11 @@ def create_universe_embed(universe, ctx, mode, save_spot_text, completed_message
     if mode not in crown_utilities.DUNGEON_M:
         if player.rift_on:
             if universe['TIER'] == 9:
-                embedVar.set_footer(text=f"🔮 Rift | Traverse {universe['TITLE']} : /universes to view all Rift Drops.")
+                embedVar.set_footer(text=f"🔮 Rift | Use  /universes to view all Rift Drops.")
             else:
-                embedVar.set_footer(text=f"⚔️ Tales | Traverse {universe['TITLE']} : /universes to view all Tales Drops.")
+                embedVar.set_footer(text=f"⚔️ Tales | Use /universes to view all Tales Drops.")
         else:
-            embedVar.set_footer(text=f"⚔️ Tales | Traverse {universe['TITLE']} : /universes to view all Tales Drops.")
+            embedVar.set_footer(text=f"⚔️ Tales | Use /universes to view all Tales Drops.")
     # else:
     #     embedVar.set_author(name="test")
         # embedVar.set_footer(text=f"{can_fight_message}")

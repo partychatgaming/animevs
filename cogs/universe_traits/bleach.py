@@ -31,7 +31,7 @@ def bankai(player_card, battle_config, player_title):
         # # player_card.defense = 120
         player_card.used_resolve = True
         player_card.usedsummon = False
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} resolved using their bankai to increase attack and defense{title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} resolved using their bankai to increase attack and defense{title_message}")
 
         battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
@@ -42,7 +42,7 @@ def spiritual_pressure(player_card, battle_config, opponent_card):
     if player_card.universe == "Bleach":
         dmg = player_card.damage_cal(1, battle_config, opponent_card)
         dmg['SUMMON_USED'] = False
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {player_card.name} attacked with their spiritual pressure")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} attacked with their spiritual pressure")
         player_card.activate_element_check(battle_config, dmg, opponent_card)
 
 

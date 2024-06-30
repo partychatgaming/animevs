@@ -400,13 +400,13 @@ class GameState(Extension):
 
                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                         if battle_config.is_dungeon_game_mode:
-                            win_embed.add_field(name=f"🔥 Dungeon Conquered", value=f"{reward_drop}")
+                            win_embed.add_field(name=f"👺 Dungeon Conquered", value=f"{reward_drop}")
                             if battle_config.selected_universe in battle_config.player1.completed_dungeons:
-                                win_embed.add_field(name="🔥 Dungeon Conquered 🪙 Reward",
+                                win_embed.add_field(name="👺 Dungeon Conquered 🪙 Reward",
                                             value=f"You were awarded 🪙 {completion_earnings:,} for completing the {battle_config.selected_universe} Dungeon again!")
                             else:
                                 await crown_utilities.bless(10000000, battle_config.player1.did)
-                                win_embed.add_field(name="🔥 Dungeon Conquered 🪙 Reward",
+                                win_embed.add_field(name="👺 Dungeon Conquered 🪙 Reward",
                                             value=f"You were awarded 🪙 {10000000:,} for completing the {battle_config.selected_universe} Dungeon!")
 
                         if battle_config.is_tales_game_mode:

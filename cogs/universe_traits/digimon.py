@@ -27,7 +27,7 @@ def digivolve(player_card, battle_config, opponent_card):
             player_card.health = player_card.health + 500
             player_card.damage_healed = player_card.damage_healed + 500
             player_card.max_health = player_card.max_health + 500
-            battle_config.add_to_battle_log(f"(⚡) {player_card.name} 🩸Mega Digivolved")
+            battle_config.add_to_battle_log(f"(⚡) {player_card.name} ♾️Mega Digivolved")
         else:
-            battle_config.add_to_battle_log(f"(⚡) {player_card.name} 🩸 Digivolved")
+            battle_config.add_to_battle_log(f"(⚡) {player_card.name} ♾️ Digivolved")
     

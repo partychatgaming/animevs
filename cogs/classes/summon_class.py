@@ -32,7 +32,9 @@ class Summon:
         self.level = 0
         self.exp = 0
         self.ability_power_potential = 0
-        self.ability_power = 0
+        self.ability_power = self.passive_value
+        if self.passive_value <= 0:
+            self.ability_power = 0
         self.bond = 0
         self.bond_exp = 0
         self.exp_to_level_up = 0
@@ -48,7 +50,7 @@ class Summon:
             self.dismantle_amount = 2500
         elif self.drop_style == "DUNGEON":
             self.is_dungeon_drop = True
-            self.drop_emoji = f"🔥"
+            self.drop_emoji = f"👺"
             self.dismantle_amount = 15000
         elif self.drop_style == "SCENARIO":
             self.is_scenario_drop = True

@@ -308,7 +308,7 @@ async def classes(ctx):
         (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 6 Barriers & can attack without disengaging Barrier\n\nCommon - 2 Barriers\nRare - 3 Barriers\nLegendary - 4 Barriers\nMythic - 5 Barriers\nGod - 6 Barriers.\n\nRanged Damage Increased"),
         (crown_utilities.class_emojis['TANK'], "Tank", "Starts each fight with (Card Tier * 250) + Card Level Shield & gain the same Shield on Resolve\n\nCommon - 250/500/750 Shield\nRare - 1000/1250\nLegendary - 1500/1750\nMythic - 2000/2250\nGod - 2500.\n\nTriples Defense on Block"),
         (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 6 Critical Strikes\n\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks\n\nSword & Bleed damage boosted."),
-        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 6 Double Strikes\n\nCommon - 1 Attack\nRare - 2 Attacks\nLegendary - 3 Attacks\nMythic - 4 Attacks\nGod - 5 Attacks."),
+        (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 5 Double Strikes\n\nCommon - 1 Attack\nRare - 2 Attacks\nLegendary - 3 Attacks\nMythic - 4 Attacks\nGod - 5 Attacks."),
         (crown_utilities.class_emojis['MAGE'], "Mage", "Increases Elemental damage up to 60%\n\nCommon - 35%\nRare - 45%\nLegendary - 50%\nMythic - 55%\nGod - 60%\nElemental damage effects are enhanced"),
         (crown_utilities.class_emojis['HEALER'], "Healer", "Stores up to 70% of damage taken and heals Health and Max Health each Focus\n\nCommon - 30%\nRare - 40%\nLegendary - 50%\nMythic - 60%\nGod - 70%\n\nLifesteal abilities are boosted\n\nStacked Status effects removed on Focus"),
         (crown_utilities.class_emojis['TACTICIAN'], "Tactician", "Enter Focus using Block to craft Strategy Points\n\n1: Gain Parry, Barrier and Shield based on Tier\n\nCommon - 1 Parry, 1 Barrier, 100/200/300 Shield\nRare - 2 Parry, 2 Barrier, 400/500 Shield\nLegendary - 3 Parry, 3 Barrier, 600/700 Shield\nMythic - 4 Parry, 4 Barrier, 800/900 Shield\nGod - 5 Parry, 5 Barrier, 1000 Shield\n\n2: Disable opponent Talisman\n\n3: Craft Tactician Talisman [Bypass All Affinities]\n\n4: Gain 1 Critical Strike and Destroy Opponents Protections\n\n5: Disable opponents Summon and they become weak to all your Dmg\n"),
@@ -417,7 +417,7 @@ async def animevs(ctx):
       embedVar11 = Embed(title=f"Card Types", description=textwrap.dedent(f"""                                                                           
       🎴 **Universe Cards** - Purchasable in the **Shop** and Drops in **Tales**
       🃏 **Card Skins** - Create in the **/craft**
-      🔥 **Dungeon Cards** - Drops in **Dungeons**
+      👺 **Dungeon Cards** - Drops in **Dungeons**
       ✨ **Destiny Cards** - Earned via **Destinies**
       👹 **Boss Cards** - Exchange for **Boss Souls**
       

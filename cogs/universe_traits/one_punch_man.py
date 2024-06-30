@@ -37,7 +37,7 @@ def rank_hero(player_card, battle_config, opponent_card):
                 rank = "Wolf Level Threat"
         
         player_card.card_lvl_ap_buff = player_card.card_lvl_ap_buff + ap_boost
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {rank} {player_card.name} increased ap by {ap_boost}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {rank} {player_card.name} increased ap by {ap_boost}")
 
         
 def hero_reinforcements(player_card, battle_config, opponent_card):
@@ -51,5 +51,5 @@ def hero_reinforcements(player_card, battle_config, opponent_card):
             factor = (r_points * opponent_card.tier)
         opponent_card.health = round(opponent_card.health + factor)
         opponent_card.max_health = round(opponent_card.max_health + factor)
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🩸 {rank}! {opponent_card.name} increased health and max health by ❤️ {factor}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {rank}! {opponent_card.name} increased health and max health by ❤️ {factor}")
 

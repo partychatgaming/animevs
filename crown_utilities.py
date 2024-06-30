@@ -430,14 +430,14 @@ def set_emoji(element):
         emoji = "⌛"
     if element == "GRAVITY":
         emoji = "🪐"
-    if element == "None" or element == "NULL" or element == "NONE":
-        emoji = "📿"
     if element == "SHIELD":
         emoji = "🌐"
     if element == "PARRY":
         emoji = "🔄"
     if element == "BARRIER":
         emoji = "💠"
+    if element == "SIPHON":
+        emoji = "💉"
     if element == "GUN":
         emoji = "🔫"
     if element == "ROT":
@@ -456,6 +456,8 @@ def set_emoji(element):
         emoji = "☄️"
     if element == "ULTIMATE":
         emoji = "🏵️"
+    if element == "None" or element == "NULL" or element == "NONE":
+        emoji = "📿"
     
         
     return emoji
@@ -2491,7 +2493,7 @@ crest_dict = { 'Unbound': '🉐',
               'Solo Leveling': '<:jin:1090240014891352114>',
               'Souls': '<:dark_souls_icon:1088702666688966726>',
               'Dragon Ball Z': '<:dbz:1088698675338952774>',
-              'Pokemon': '<:sinnoh:1090448834435481650>',
+              'Pokemon': '<:pokemon:1088966251541450752>',
               'Death Note': '<:death_note:1088702980682956800>',
               'Crown Rift Awakening': ':u7a7a:',
               'Crown Rift Slayers': ':sa:',
@@ -2502,11 +2504,11 @@ crest_dict = { 'Unbound': '🉐',
               'Overlord': '<:overlord:1091223691729305681>',
               'Fairy Tail': '<:FairyTail:1091223690445865062>',
               'That Time I Got Reincarnated as a Slime': '<:slime:1091223689007210517>',
-              'Soul Eater': '<:souleater:1249589073686036613>',
+              'Soul Eater': '<:souleater:1257056890832031756>',
               'Kill La Kill': '<:killlakill:1214431376070410281>',
               'Gurren Lagann': '<:gurren:1214432235927773205>',
               'Jujutsu Kaisen': '<:jjk:1249819520650969138>',
-              'Katekyo Hitman Reborn': '<:reborn:1249819879293321301>',
+              'Katekyo Hitman Reborn': '<:reborn:1257057934634909817>',
               'Full Metal Alchemist': '<:fma:1256672084327792730>',
               'Unbound': '🉐',
 }

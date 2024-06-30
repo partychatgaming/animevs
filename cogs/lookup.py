@@ -163,7 +163,7 @@ class Lookup(Extension):
                 ↘️ **Tales Damage Dealt** {player_stat_distribution['TALES']['DAMAGE_DEALT']:,}
                 ↘️ **Tales Damage Taken** {player_stat_distribution['TALES']['DAMAGE_TAKEN']:,}
 
-                🔥 | **Dungeons Played: **{player_stat_distribution['DUNGEONS']['MATCHES']:,}
+                👺 | **Dungeons Played: **{player_stat_distribution['DUNGEONS']['MATCHES']:,}
                 ↘️ **Dungeons Completed: **{player_stat_distribution['DUNGEONS']['COMPLETED']:,}
                 ↘️ **Dungeon Damage Dealt** {player_stat_distribution['DUNGEONS']['DAMAGE_DEALT']:,}
                 ↘️ **Dungeon Damage Taken** {player_stat_distribution['DUNGEONS']['DAMAGE_TAKEN']:,}
@@ -196,15 +196,15 @@ class Lookup(Extension):
                     embed4.set_thumbnail(url=player_class.avatar)
                     embed4.add_field(name="🏅 | " + "Completed Tales" , value="\n".join(crown_list))
                     if dungeon_list:
-                        embed4.add_field(name="🔥 | " + "Completed Dungeons", value="\n".join(dungeon_list))
+                        embed4.add_field(name="👺 | " + "Completed Dungeons", value="\n".join(dungeon_list))
                     else:
-                        embed4.add_field(name="🔥 | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
+                        embed4.add_field(name="👺 | " + "Completed Dungeons", value="No Dungeons Completed, yet!")
                         embed4.add_field(name="👹 | " + "Boss Souls", value="No Boss Souls Collected, yet!")
                 else:
                     embed4 = Embed(title=f"{player_class.disname}'s Achievements".format(self), description="🏦 Party Chat Gaming Database™️")
                     embed4.set_thumbnail(url=player_class.avatar)
                     embed4.add_field(name="Completed Tales" + " 🏅", value="No Completed Tales, yet!")
-                    embed4.add_field(name="Completed Dungeons" + " 🔥 ", value="No Dungeons Completed, yet!")
+                    embed4.add_field(name="Completed Dungeons" + " 👺 ", value="No Dungeons Completed, yet!")
                     embed4.add_field(name="Boss Souls" + " 👹 ", value="No Boss Souls Collected, yet!")
 
                 embeds = [embed6, embed1, embed5, embed3, embed2, embed4]

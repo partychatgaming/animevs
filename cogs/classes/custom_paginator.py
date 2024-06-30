@@ -2877,7 +2877,7 @@ class CustomPaginator(Paginator):
                 ),
                 Button(
                     style=ButtonStyle.PRIMARY,
-                    label="🔥 Dungeon Cards",
+                    label="👺 Dungeon Cards",
                     custom_id=f"{self._uuid}|dungeon"
                 ),
                 Button(
@@ -3010,7 +3010,7 @@ class CustomPaginator(Paginator):
         sorted_summons = sorted(summons, key=lambda summon: summon["PET"])
         for index, summon in enumerate(sorted_summons):
             s = crown_utilities.create_summon_from_data(summon)
-            all_summons.append(f"{s.universe_crest} : 🧬 **{s.name}**\n{s.emoji} {s.ability_type.title()}\n")
+            all_summons.append(f"{s.universe_crest} : 🧬 **{s.name}**\n{s.emoji} {s.ability_type.title()} - {s.ability_power}\n")
 
         for i in range(0, len(all_summons), 10):
             sublist = all_summons[i:i+10]

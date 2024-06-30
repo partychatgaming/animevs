@@ -16,7 +16,7 @@ CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
 **🆘 The Tutorial** - Learn Anime VS+ battle system
 **⚡ Randomize** - Select and start a Random Game Mode Below
 **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
-**🔥 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
+**👺 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
 **📽️ Scenario Battle** - Battle through unique scenarios to earn Cards and Moves
 **💀 Raid Battle** - Battle through High Level scenarios to earn Mythical Cards and Moves
 **🌌 Explore Battle** - Random Encounter battles to earn rare cards and major rewards
@@ -89,7 +89,7 @@ ELEMENTS_LIST = [
     "🩻 Rot - Penetrates Shields and Parry. Stacks Rot damage equal to 15% of damage done stacking up to 20% of max health. The Opponent takes damage when they attack.\n",
     "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parry and AP is increased by damage dealt * turn total / 100.\n",
     "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n",
-    "🐲 Draconic - Draconic attacks can only be ULTIMATE. Pentrates all protections. Combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.",
+    "🐲 Draconic - Draconic attacks can only be ULTIMATE or Summoned. Pentrates all protections. Combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.",
 
 ]
 
@@ -144,7 +144,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3, goes through barrier and parry.
                            
-🐲 Draconic - Draconic attacks can only be ULTIMATE, combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.
+🐲 Draconic - Draconic attacks can only be ULTIMATE or Summoned, combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.
 
 [Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
 """)

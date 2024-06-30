@@ -252,6 +252,7 @@ class Player:
             bond = activesummon['BOND']
             lvl = activesummon['LVL']
             s_type = activesummon['TYPE']
+            self._equipped_summon_type = s_type
             if bond == 3:
                 bond_message = "🌟"
             else:

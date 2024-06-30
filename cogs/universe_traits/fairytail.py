@@ -39,7 +39,7 @@ def unison_raid(player_card, battle_config, opponent_card, player_title):
         player_card.used_resolve = True
         player_card.usedsummon = False
         battle_config.turn_total = battle_config.turn_total + 1
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} 🩸 resolved and used their unison raid attack dealing {round(damage_calculation_response_special['DMG'] + damage_calculation_response_summon['DMG'] + damage_calculation_response_ultimate['DMG']):,} damage {title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} ♾️ resolved and used their unison raid attack dealing {round(damage_calculation_response_special['DMG'] + damage_calculation_response_summon['DMG'] + damage_calculation_response_ultimate['DMG']):,} damage {title_message}")
         battle_config.next_turn()
         return True
     

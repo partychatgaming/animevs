@@ -256,7 +256,7 @@ class GameModes(Extension):
                                        value="DuoTales"
                                    ),
                                    SlashCommandChoice(
-                                       name="🔥 Duo Dungeon (Hard)",
+                                       name="👺 Duo Dungeon (Hard)",
                                        value="DDungeon"
                                    )
                                ]
@@ -330,7 +330,7 @@ class GameModes(Extension):
     #                                    value="CoopTales"
     #                                ),
     #                                SlashCommandChoice(
-    #                                    name="🔥 Co-Op Dungeon (Hard)",
+    #                                    name="👺 Co-Op Dungeon (Hard)",
     #                                    value="CoopDungeon"
     #                                ),
     #                                SlashCommandChoice(
@@ -399,7 +399,7 @@ class GameModes(Extension):
                 value="Tales"
             ),
             SlashCommandChoice(
-                name="🔥 Dungeon Run",
+                name="👺 Dungeon Run",
                 value="Dungeon"
             ),
             SlashCommandChoice(

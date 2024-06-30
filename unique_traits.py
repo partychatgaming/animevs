@@ -21,7 +21,7 @@ traits = [{
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Fearful, Contracts, Devilization',
-    'TRAIT': 'Fearful : You do not lose Health from the Fear Enhancer. Contracts: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF. Devilization: At 50% HP, increase Max Health by (Card Tier * Offering).Increase HP and AP by Offering Amount and your ATK & DEF equal your HP + Offering for the rest of the match. On Death revive for 3 + Card Tier Turns and then Die.'
+    'TRAIT': 'Fearful : You do not lose Health from the Fear Enhancer. Contracts: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF. Devilization: At 50% HP, increase Max Health by (Card Tier * Offering).Increase HP and AP by Offering Amount and your ATK & DEF equal your HP + Offering for the rest of the match. On Death revive for 3  Turns and then Die.'
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, Spiritual Pressure',
@@ -76,7 +76,7 @@ traits = [{
     'TRAIT': 'Summon Persona : Summon also deals Damage equal to your Basic Attack. Summoners Battle : Summoning disables Opp summon. Summon Blitz: On Blitz, strike with Summon.'
 },{
     'NAME': 'YuYu Hakusho',
-    'EFFECT': 'Energy Resolved!',
+    'EFFECT': 'Energy Resolved, Meditation',
     'TRAIT': 'Energy Resolved : Upon Resolve, Gain 2x ATK and all AP is doubled, but defense remains at 100 for remainder of the match. Meditation: On Block increase defense by 100 * card tier and ap by 10 * card tier.'
 },{
     'NAME': 'One Piece',
@@ -85,7 +85,7 @@ traits = [{
 },{
     'NAME': 'Soul Eater',
     'EFFECT': 'Feint Attack, Meister',
-    'TRAIT': 'Feint Attack : If you miss, Crit! Meister: If the summon you are using is from Soul Eater, it deals 3x damage and always critically strikes.'
+    'TRAIT': 'Feint Attack : If you miss, Crit! Meister: If the summon you are using is from Soul Eater, it deals 2x damage and always critically strikes.'
 },{
     'NAME': 'Fairy Tail',
     'EFFECT': 'Unison Raid, Concentration',
@@ -133,10 +133,10 @@ formatted_traits = [{
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Fearful, Contracts, Devilization',
-    'TRAIT': '\n**Fearful**: You do not lose Health from the Fear Enhancer.\n\n**Contracts**: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF.\n\n**Devilization**: At 50% HP, increase Max Health by (Card Tier * Offering).\nIncrease HP and AP by Offering\nYour ATK & DEF equal your HP + Offering for the rest of the match.\nOn Death revive for 3 + Card Tier Turns and then Die.'
+    'TRAIT': '\n**Fearful**: You do not lose Health from the Fear Enhancer.\n\n**Contracts**: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF.\n\n**Devilization**: At 50% HP, increase Max Health by (Card Tier * Offering).\nIncrease HP and AP by Offering\nYour ATK & DEF equal your HP + Offering for the rest of the match.\nOn Death revive for 3 Turns and then Die.'
 },{
     'NAME': 'Bleach',
-    'EFFECT': 'Bankai, SpiritualPressure',
+    'EFFECT': 'Bankai, Spiritual Pressure',
     'TRAIT': '\n**Bankai:** On Resolve, Gain Attack and Defense Multiplied by your Blitz Count.\n\n**Spiritual Pressure:** On Block, Defend then Deal Damage equal to your Basic Attack.'
 },{
     'NAME': 'Attack On Titan',
@@ -188,7 +188,7 @@ formatted_traits = [{
     'TRAIT': '\n**Summon Persona:** Summon also deals Damage equal to your Basic Attack.\n\n**Summoners Battle:** Summoning disables Opp summon.\n\n**Summon Blitz:** On Blitz, strike with Summon.'
 },{
     'NAME': 'YuYu Hakusho',
-    'EFFECT': 'Energy Resolved!',
+    'EFFECT': 'Energy Resolved, Meditation',
     'TRAIT': '\n**Energy Resolved:** Upon Resolve, Gain 2x ATK and all AP is doubled, but defense remains at 100 for remainder of the match.\n\n**Meditation:** On Block increase defense by 100 * card tier and ap by 10 * card tier.'
 },{
     'NAME': 'One Piece',
@@ -197,7 +197,7 @@ formatted_traits = [{
 },{
     'NAME': 'Soul Eater',
     'EFFECT': 'Feint Attack, Meister',
-    'TRAIT': '\n**Feint Attack:** If you miss, strke with you Feint Attack and Crit!\n\n**Meister:** If the summon you are using is from Soul Eater, it deals 3x damage and always triggers Feint Attack.'
+    'TRAIT': '\n**Feint Attack:** If you miss, strke with you Feint Attack and Crit!\n\n**Meister:** If the summon you are using is from Soul Eater, it deals 2x damage and always triggers Feint Attack.'
 },{
     'NAME': 'Fairy Tail',
     'EFFECT': 'Unison Raid, Concentration',

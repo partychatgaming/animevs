@@ -409,7 +409,7 @@ async def add_ai_start_messages(battle_config):
             "RANGER": "{name} the {class_message} gained 💠 {class_value} barriers",
             "TANK": "{name} the {class_message} gained a 🌐 {class_value} shield",
             "HEALER": "{name} the {class_message} boosted their healing by {class_value}%",
-            "SUMMONER": "{name} the {class_message} the ability to summon their companion before resolving",
+            "SUMMONER": "{name} the {class_message} calls forth {summon_name} with {summoner_value}% increased ability",
             "FIGHTER": "{name} the {class_message} gained 🔁 {class_value} parries",
             "TACTICIAN": "{name} the {class_message} Can Enter focus using Block to strategize against their opponent!",
         }
@@ -419,8 +419,10 @@ async def add_ai_start_messages(battle_config):
                 battle_config.previous_moves.append(
                     class_effects[card.card_class].format(
                         name=card.name, 
+                        summon_name=card.summon_name,
                         class_message=card.class_message, 
-                        class_value=card.class_value
+                        class_value= card.class_value,
+                        summoner_value= card.class_value * 10
                     )
                 )
 
