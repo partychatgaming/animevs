@@ -222,6 +222,22 @@ class Player:
         summon_path = summon_object['PATH']
         return summon_object
     
+
+    def get_new_essence_value_from_rewards(self, element, essence_value):
+        new_value = 0
+
+        for essence in self.essence:
+            if essence['ELEMENT'] == element:
+                new_value = essence['VALUE'] + essence_value
+                return new_value
+
+        if new_value == 0:
+            new_value = essence_value
+        
+        return new_value
+
+
+
     
     def setsummon_messages(self):
         try:

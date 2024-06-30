@@ -379,7 +379,7 @@ class Play(Extension):
 
                             await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
-                            await gs.you_win_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
+                            await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()

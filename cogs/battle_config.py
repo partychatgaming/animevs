@@ -31,7 +31,7 @@ class BattleConfig(Extension):
         """
 
         if universe['TITLE'] in player.crestlist:
-            await ctx.send(f"{crown_utilities.crest_dict[universe['TITLE']]} | :flags: {player.association} {universe['TITLE']} Crest Activated! No entrance fee!")
+            await ctx.send(f"{crown_utilities.crest_dict[universe['TITLE']]} | 🎏 {player.association} {universe['TITLE']} Crest Activated! No entrance fee!")
         else:
             if int(player.balance) <= entrance_fee:
                 await ctx.send(f"Tales require an 🪙 {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)

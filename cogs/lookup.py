@@ -519,7 +519,7 @@ class Lookup(Extension):
                 
 
                 association_page = Embed(title="Association", description=textwrap.dedent(f"""
-                **:flags: Association** | {association}
+                **🎏 Association** | {association}
                 **:shinto_shrine: Hall** | {hall_name}
                 **:yen: Split** | Earn **{split}x** 🪙 per match!
                 """), color=0x7289da)
@@ -794,13 +794,13 @@ class Lookup(Extension):
     #                 else:
     #                     transactions_embed = "\n".join(transactions)
 
-    #             # embed1 = Embed(title=f":flags: {guild_name} Guild Card - {icon}{'{:,}'.format(balance)}".format(self), description="🏦 Party Chat Gaming Database", color=000000)
+    #             # embed1 = Embed(title=f"🎏 {guild_name} Guild Card - {icon}{'{:,}'.format(balance)}".format(self), description="🏦 Party Chat Gaming Database", color=000000)
     #             # if guild['LOGO_FLAG']:
     #             #     embed1.set_image(url=logo)
     #             # embed1.add_field(name="Founder :dolls:", value= founder_name.split("#",1)[0], inline=True)
     #             # embed1.add_field(name="Sworn :dolls:", value= sworn_name.split("#",1)[0], inline=True)
     #             main_page = Embed(title= f"{guild_name}".format(self), description=textwrap.dedent(f"""\
-    #             :flags: | **Association:** {guild_name}
+    #             🎏 | **Association:** {guild_name}
     #             {icon} | **Bank:** {icon}{'{:,}'.format(balance)}
     #             :nesting_dolls: | **Founder: ~** {founder_name.split("#",1)[0]}
     #             :dolls: | **Sworn: ~** {sworn_name.split("#",1)[0]}
@@ -814,7 +814,7 @@ class Lookup(Extension):
     #             main_page.set_footer(text=f"/ally to join the {guild_name} Association")
                 
     #             arena_page = Embed(title= f"Hall Information".format(self), description=textwrap.dedent(f"""\
-    #             :flags: | **{guild_name} Raid Arena**
+    #             🎏 | **{guild_name} Raid Arena**
     #             🪙 | **Raid Fee: **{'{:,}'.format(hall_fee)}
     #             :yen: | **Bounty: **{'{:,}'.format(bounty)}
     #             💰 | **Victory Bonus: **{'{:,}'.format(bonus)}
@@ -831,11 +831,11 @@ class Lookup(Extension):
     #             arena_page.set_image(url=hall_img)
     #             arena_page.set_footer(text=f"/raid {guild_name} - Raid Association")
                 
-    #             guilds_page = Embed(title=f"Guild Information".format(self), description=f":flags: |  {guild_name} **Guild** List\n⛩️ | Guilds Earn **{hall_split}x**🪙\n🏦 |  Party Chat Gaming Database", color=000000)
+    #             guilds_page = Embed(title=f"Guild Information".format(self), description=f"🎏 |  {guild_name} **Guild** List\n⛩️ | Guilds Earn **{hall_split}x**🪙\n🏦 |  Party Chat Gaming Database", color=000000)
     #             guilds_page.add_field(name=f":military_helmet: Guilds | **:ninja: ~ {sword_count}/:knife: {total_blade_count}**", value="\n".join(f'**{t}**'.format(self) for t in sword_list), inline=False)
     #             guilds_page.set_footer(text=f"/guild - View Association Guild")
                 
-    #             crest_page = Embed(title=f"Universe Crest".format(self), description=f":flags: |  {guild_name} **Universe Crest**\n🏦 |  Party Chat Gaming Database", color=000000)
+    #             crest_page = Embed(title=f"Universe Crest".format(self), description=f"🎏 |  {guild_name} **Universe Crest**\n🏦 |  Party Chat Gaming Database", color=000000)
     #             crest_page.add_field(name=f":secret: | **OWNED**", value="\n".join(f'**{c}**'.format(self) for c in crest_list), inline=False)
     #             crest_page.set_footer(text=f"Earn Universe Crest in Dungeons and Boss Fights!")
                 

@@ -84,6 +84,8 @@ async def focus_message(your_card_name, your_card_universe, opponent_card, oppon
     summary = response.choices[0].message.content
     return summary
 
+
+
 async def resolve_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
@@ -101,8 +103,8 @@ async def resolve_message(your_card_name, your_card_universe, opponent_card, opp
     summary = response.choices[0].message.content
     return summary
 
+
 async def win_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
-    await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
     prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe. You have won the battle. Write a 1 sentence message to {opponent_card} to show your victory and dominance. Do not include quotes. Be as raw and true to your character's nature as possible."
     
@@ -117,6 +119,24 @@ async def win_message(your_card_name, your_card_universe, opponent_card, opponen
     # Extract the summary from the response
     summary = response.choices[0].message.content
     return summary
+
+
+async def lose_message(losing_card_name, your_card_universe, winning_card_name, opponent_card_universe):
+    # Define the prompt to indicate the context of the anime card game assistant
+    prompt = f"You are {losing_card_name} from the {your_card_universe} universe and you are fighting against {winning_card_name} from the {opponent_card_universe} universe. You have lost the battle and are about to die. Write a 1 sentence message to {winning_card_name} to reflect your loss and your final words. Do not include quotes. Be as raw and true to your character's nature as possible."
+    
+    # Call the OpenAI API to summarize messages using the GPT-4 model
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+    
+    # Extract the summary from the response
+    summary = response.choices[0].message.content
+    return summary
+
 
 async def match_start_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
     await asyncio.sleep(1)

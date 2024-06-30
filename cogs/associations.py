@@ -185,7 +185,7 @@ class Guild(Extension):
                                                 for c in crest:
                                                     crest_list.append(f"{crown_utilities.crest_dict[c]} | {c}")
                                                 
-                                                embed1 = Embed(title= f":flags: |{str(guild_name)} Association Card - 🪙 {'{:,}'.format(2000000)}".format(self), description=textwrap.dedent(f"""\
+                                                embed1 = Embed(title= f"🎏 |{str(guild_name)} Association Card - 🪙 {'{:,}'.format(2000000)}".format(self), description=textwrap.dedent(f"""\
                 
                                                 :nesting_dolls: | **Founder ~** {founder_profile['NAME']}
                                                 :dolls: | **Sworn ~** {sworn_profile['NAME']}
@@ -367,7 +367,7 @@ class Guild(Extension):
                                             for c in crest:
                                                 crest_list.append(f"{crown_utilities.crest_dict[c]} | {c}")
                                             
-                                            embed1 = Embed(title= f":flags: |{str(guild_name)} Association Card - 🪙 {'{:,}'.format(2000000)}".format(self), description=textwrap.dedent(f"""\
+                                            embed1 = Embed(title= f"🎏 |{str(guild_name)} Association Card - 🪙 {'{:,}'.format(2000000)}".format(self), description=textwrap.dedent(f"""\
             
                                             :nesting_dolls: | **Founder ~** {founder_profile['NAME']}
                                             :dolls: | **Sworn ~** {sworn_profile['NAME']}
@@ -742,7 +742,7 @@ class Guild(Extension):
                                 )
                             ]
                             trade_buttons_action_row = ActionRow(*trade_buttons)
-                            await ctx.send(f"{blade.mention}" +f" will you defend **:flags:{guildname}**?".format(self), components=[trade_buttons_action_row])
+                            await ctx.send(f"{blade.mention}" +f" will you defend **🎏{guildname}**?".format(self), components=[trade_buttons_action_row])
                             
                             def check(button_ctx):
                                 return button_ctx.author == blade

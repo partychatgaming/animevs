@@ -569,7 +569,7 @@ def createGuild(guild, user, name):
                 new_value = {'$set': {'GUILD': guild_name}}
                 users_col.update_one(query, new_value)
                 find_user = queryUser({'DID': str(user.id)})
-                return f":flags: **{find_user['NAME']}** has founded the Association: **{find_user['GUILD']}** . "
+                return f"🎏 **{find_user['NAME']}** has founded the Association: **{find_user['GUILD']}** . "
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -596,7 +596,7 @@ def deleteGuild(guild, user):
                 teams_col.update_many({'GUILD': guild['GNAME']}, {'$set': {'GUILD': 'PCG'}})
                 universe_col.update_many({'GUILD': guild['GNAME']}, {'$set': {'GUILD': 'PCG'}})
                 guild_col.delete_one({'FDID': guild['FDID']})
-                return f":flags: Association **{guild['GNAME']}** deleted."
+                return f"🎏 Association **{guild['GNAME']}** deleted."
             else:
                 return "This user is not a member of the Association."
         else:
@@ -617,7 +617,7 @@ def deleteGuildSworn(query, value, user, new_user):
                 new_value = {'$set': {'GUILD': 'PCG'}}
                 users_col.update_one(query, new_value)
                 find_user = queryUser({'DID': str(new_user.id)})
-                return f":flags: **{find_user['NAME']}** has been removed from **{guild['GNAME']}**. "
+                return f"🎏 **{find_user['NAME']}** has been removed from **{guild['GNAME']}**. "
             else:
                 return "This user is not a member of the Association."
         else:
@@ -651,7 +651,7 @@ def deleteGuildSwornAlt(query, value, user):
                 new_value = {'$set': {'GUILD': 'PCG'}}
                 users_col.update_one(query, new_value)
                 find_user = queryUser({'DID': str(user.id)})
-                return f":flags: **{find_user['NAME']}** has been removed from **{guild['GNAME']}**."
+                return f"🎏 **{find_user['NAME']}** has been removed from **{guild['GNAME']}**."
             else:
                 return "This user is not a member of the Association."
         else:
@@ -686,7 +686,7 @@ def addGuildShield(query, add_to_guild_query, user, new_user):
                 new_value = {'$set': {'GUILD': guild['GNAME']}}
                 users_col.update_one(query, new_value)
                 find_user = queryUser({'DID': str(new_user.id)})
-                return f":flags: **{find_user['NAME']}** became the **Shield** of **{guild['GNAME']}**. "
+                return f"🎏 **{find_user['NAME']}** became the **Shield** of **{guild['GNAME']}**. "
             else:
                 return "The Owner of the Association can add new members. "
         else:
@@ -720,7 +720,7 @@ def addGuildSworn(query, add_to_guild_query, user, new_user):
                 new_value = {'$set': {'GUILD': guild['GNAME']}}
                 users_col.update_one(query, new_value)
                 find_user = queryUser({'DID': str(new_user.id)})
-                return f":flags: **{find_user['NAME']}** became the **Sworn** of **{guild['GNAME']}**. "
+                return f"🎏 **{find_user['NAME']}** became the **Sworn** of **{guild['GNAME']}**. "
             else:
                 return "The Owner of the Association can add new members. "
         else:
@@ -753,7 +753,7 @@ def addGuildSword(query, add_to_guild_query, user, new_team):
                 query = {'TEAM_NAME': new_team.lower()}
                 new_value = {'$set': {'GUILD': guild['GNAME']}}
                 teams_col.update_one(query, new_value) 
-                return f":flags: **{new_team}** enlisted as a {guild['GNAME']} **Sword**!. "
+                return f"🎏 **{new_team}** enlisted as a {guild['GNAME']} **Sword**!. "
             else:
                 return "The Leaders of Associations can add new members. "
         else:
@@ -785,7 +785,7 @@ def deleteGuildSword(query, value, user, new_team):
                 query = {'TEAM_NAME': new_team}
                 new_value = {'$set': {'GUILD': 'PCG'}}
                 teams_col.update_one(query, new_value) 
-                return f":flags: **{new_team}** renounced their oath to **{guild['GNAME']}**!."
+                return f"🎏 **{new_team}** renounced their oath to **{guild['GNAME']}**!."
             else:
                 return "This user is not a member of the Association."
         else:
@@ -817,7 +817,7 @@ def deleteGuildSwordAlt(query, value, new_team):
             query = {'TEAM_NAME': new_team}
             new_value = {'$set': {'GUILD': 'PCG'}}
             teams_col.update_one(query, new_value) 
-            return f":flags: **{new_team}** renounced their oath to **{guild['GNAME']}**!."
+            return f"🎏 **{new_team}** renounced their oath to **{guild['GNAME']}**!."
         else:
             return "Association does not exist."
 

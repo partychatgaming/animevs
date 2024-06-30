@@ -1531,7 +1531,7 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
                 entrance_fee = 5000
                 
             if selected_universe in p.crestlist:
-                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {p.association} {selected_universe} Crest Activated! No entrance fee!")
+                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | 🎏 {p.association} {selected_universe} Crest Activated! No entrance fee!")
             else:
                 if int(p._balance) <= entrance_fee:
                     await ctx.send(f"Tales require an 🪙 {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)
@@ -1629,7 +1629,7 @@ async def select_universe(self, ctx, player_data: object, mode: str, p2: None):
             #Universe Cost
             entrance_fee = 10000
             if selected_universe in p.crestlist:
-                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | :flags: {p.association} {selected_universe} Crest Activated! No entrance fee!")
+                await ctx.send(f"{crown_utilities.crest_dict[selected_universe]} | 🎏 {p.association} {selected_universe} Crest Activated! No entrance fee!")
             else:
                 if p._balance <= entrance_fee:
                     await ctx.send(f"Bosses require an 🪙 {'{:,}'.format(entrance_fee)} entrance fee!", delete_after=5)

@@ -610,9 +610,9 @@ class Battle:
         response = db.updateGuildAlt(guild_query, update_query)
         if self._is_title_match:
             if self._is_test_match:
-                self._raid_end_message  = f":flags: {self._association_name} DEFENSE TEST OVER!"
+                self._raid_end_message  = f"🎏 {self._association_name} DEFENSE TEST OVER!"
             elif self._is_training_match:
-                self._raid_end_message  = f":flags: {self._association_name} TRAINING COMPLETE!"
+                self._raid_end_message  = f"🎏 {self._association_name} TRAINING COMPLETE!"
             else:
                 transaction_message = f"🛡️{self.player.name} becomes the new Shield!"
                 update_query = {'$push': {'TRANSACTIONS': transaction_message}}
@@ -620,7 +620,7 @@ class Battle:
                 newshield = db.updateGuild(guild_query, {'$set': {'SHIELD': str(self._player.disname)}})
                 newshieldid = db.updateGuild(guild_query, {'$set': {'SDID': str(self._player.id)}})
                 guildwin = db.updateGuild(guild_query, {'$set': {'BOUNTY': winbonus, 'STREAK': 1}})
-                self._raid_end_message  = f":flags: {self._association_name} SHIELD CLAIMED!"
+                self._raid_end_message  = f"🎏 {self._association_name} SHIELD CLAIMED!"
                 prev_team_update = {'$set': {'SHIELDING': False}}
                 remove_shield = db.updateTeam({'TEAM_NAME': str(self._shield_guild)}, prev_team_update)
                 update_shielding = {'$set': {'SHIELDING': True}}
