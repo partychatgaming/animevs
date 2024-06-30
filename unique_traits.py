@@ -20,8 +20,8 @@ traits = [{
     'TRAIT': 'Substitution : If Focused, you cannot be hit. Store Damage * Card Tier as Hashirama Cells. Hashirama Cells : On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
 },{
     'NAME': 'Chainsawman',
-    'EFFECT': 'Devilization, Fearful',
-    'TRAIT': 'Devilization : When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health. Fearful : You do not lose Health from the Fear Enhancer.'
+    'EFFECT': 'Fearful, Contracts, Devilization',
+    'TRAIT': 'Fearful : You do not lose Health from the Fear Enhancer.Contracts: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF. Devilization: At 50% HP, increase Max Health by (Card Tier * Offering).Increase HP and AP by Offering Amount and your ATK & DEF equal your HP + Offering for the rest of the match. On Death revive for 3 + Card Tier Turns and then Die.'
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, SpiritualPressure',
@@ -132,8 +132,8 @@ formatted_traits = [{
     'TRAIT': '\n**Substitution:** If Focused, you cannot be hit. Store Damage * Card Tier as Hashirama Cells\n\n**Hashirama Cells:** On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
 },{
     'NAME': 'Chainsawman',
-    'EFFECT': 'Devilization, Fearful',
-    'TRAIT': '\n**Devilization:** When Health reaches 50% gain Double ATK, Double DEF, and Double Max Health.\n\n**Fearful:** You do not lose Health from the Fear Enhancer or Title.'
+    'EFFECT': 'Fearful, Contracts, Devilization',
+    'TRAIT': '\n**Fearful**: You do not lose Health from the Fear Enhancer.\n\n**Contracts**: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF.\n\n**Devilization**: At 50% HP, increase Max Health by (Card Tier * Offering).\nIncrease HP and AP by Offering\nYour ATK & DEF equal your HP + Offering for the rest of the match.\nOn Death revive for 3 + Card Tier Turns and then Die.'
 },{
     'NAME': 'Bleach',
     'EFFECT': 'Bankai, SpiritualPressure',

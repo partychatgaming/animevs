@@ -176,6 +176,7 @@ class Battle:
         self.tutorial_resolve = False
         self.tutorial_focus = False
         self.tutorial_summon = False
+        self.tutorial_health_check = False
         self.tutorial_opponent_focus = False
         self.all_tutorial_tasks_complete = False
         self.double_focus_check = False
@@ -1817,8 +1818,8 @@ class Battle:
             name = "\nObservation Haki"
             value =f"*Reduce incoming damage by 40% until your first focus*"
         if player_card.universe == "Chainsawman":
-            name = "\nFearful"
-            value =f"*Strong Fear Affliction\n\nThe Fear enhancer does not sacrifice Health*"
+            name = "\nFearful, Devilization"
+            value =f"*Strong Fear Affliction\n\nThe Fear enhancer does not sacrifice Health\n\nWhen Health Reaches < 50% Increase ATK, DEF and Max Health by Missing Health. If you have 25% or less when this triggers gain AP as well*"
         if player_card.universe == "Full Metal Alchemist":
             name = "\nEquivalent Exchange"
             value =f"Each Attack\n*Store 50% Stamina as Equivalent Exchange, Increase your Attack Power by (Equivalent Exchange x Card Tier).*" 

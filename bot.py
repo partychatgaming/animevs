@@ -1780,7 +1780,7 @@ async def daily(ctx):
          }
          updated_server = db.updateServer(server_query, update_server_query)
       
-      boss_key_message = "🗝️ | Boss Arena Unlocked" if player.boss_fought == True else ""
+      # boss_key_message = "🗝️ | Boss Arena Unlocked" if player.boss_fought == True else ""
       bonus_message =f"❤️‍🔥 | *+🪙{'{:,}'.format(difference)}*" if difference > 0 else ""
       # prestige_message =f"**{aicon} Prestige {player.prestige} |** Quest Requirements Reduced!" if player.prestige > 0 else ""
 
@@ -1823,7 +1823,6 @@ async def daily(ctx):
       Welcome back, {ctx.author.mention}!
       {retry_message}
       🪙 | +{'{:,}'.format(daily_bonus)}
-      {boss_key_message}
       """), color=0xf1c40f)
 
       if milestone_message:
@@ -3446,10 +3445,10 @@ async def updatescenariosanduniverses(ctx, password, key):
       await ctx.send("Issue with command")
 
 
-# @slash_command(description="update moves", options=[
-#    SlashCommandOption(name="universe", description="Universe to update", type=OptionType.STRING, required=True)
-# ], scopes=guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
+@slash_command(description="update moves", options=[
+   SlashCommandOption(name="universe", description="Universe to update", type=OptionType.STRING, required=True)
+], scopes=guild_ids)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def updatemoves(ctx, universe):
    await ctx.defer()
 
