@@ -40,6 +40,7 @@ async def on_ready():
    server_count = len(bot.guilds)
    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
    loggy.info('The bot is up and running')
+   await bot.synchronise_interactions()
    check_heartbeat.start()
 
 

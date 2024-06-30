@@ -1998,7 +1998,96 @@ title_types = [
     'SYNTHESIS', 'SPELL SHIELD', 'ELEMENTAL BUFF', 'ELEMENTAL DEBUFF', 
     'ENHANCED GUARD', 'STRATEGIST', 'SHARPSHOOTER', 'DIVINITY'
 ]
-title_choices = [SlashCommandChoice(name=title, value=title) for title in title_types]
+
+def get_title_types():
+    try:
+        title_type_list_of_dicts = []
+        for title_type in title_types:
+            title_type_list_of_dicts.append({'name': title_type, 'value': title_type})
+        return title_type_list_of_dicts
+    except Exception as e:
+        print(e)
+        return False
+    
+
+element_choices = [
+    {"name": "Physical 👊", "value": "PHYSICAL"},
+    {"name": "Fire 🔥", "value": "FIRE"},
+    {"name": "Ice ❄️", "value": "ICE"},
+    {"name": "Water 💧", "value": "WATER"},
+    {"name": "Earth ⛰️", "value": "EARTH"},
+    {"name": "Electric ⚡️", "value": "ELECTRIC"},
+    {"name": "Wind 🌪️", "value": "WIND"},
+    {"name": "Psychic 🔮", "value": "PSYCHIC"},
+    {"name": "Death ☠️", "value": "DEATH"},
+    {"name": "Life ❤️‍🔥", "value": "LIFE"},
+    {"name": "Light 🌕", "value": "LIGHT"},
+    {"name": "Dark 🌑", "value": "DARK"},
+    {"name": "Poison 🧪", "value": "POISON"},
+    {"name": "Gun 🔫", "value": "GUN"},
+    {"name": "Rot 🩻", "value": "ROT"},
+    {"name": "Sword ⚔️", "value": "SWORD"},
+    {"name": "Nature 🌿", "value": "NATURE"},
+    {"name": "Ranged 🏹", "value": "RANGED"},
+    {"name": "Energy / Spirit 🧿", "value": "ENERGY"},
+    {"name": "Reckless ♻️", "value": "RECKLESS"},
+    {"name": "Time ⌛", "value": "TIME"},
+    {"name": "Bleed 🅱️", "value": "BLEED"},
+    {"name": "Gravity 🪐", "value": "GRAVITY"},
+    {"name": "Sleep 💤", "value": "SLEEP"}
+]
+
+def get_element_types():
+    try:
+        element_type_list_of_dicts = []
+        for element in element_choices:
+            element_type_list_of_dicts.append({'name': element["name"], 'value': element["value"]})
+        return element_type_list_of_dicts
+    except Exception as e:
+        print(e)
+        return False
+    
+arm_choices = [
+    {"name": "Physical 👊", "value": "PHYSICAL"},
+    {"name": "Fire 🔥", "value": "FIRE"},
+    {"name": "Ice ❄️", "value": "ICE"},
+    {"name": "Water 💧", "value": "WATER"},
+    {"name": "Earth ⛰️", "value": "EARTH"},
+    {"name": "Electric ⚡️", "value": "ELECTRIC"},
+    {"name": "Wind 🌪️", "value": "WIND"},
+    {"name": "Psychic 🔮", "value": "PSYCHIC"},
+    {"name": "Death ☠️", "value": "DEATH"},
+    {"name": "Life ❤️‍🔥", "value": "LIFE"},
+    {"name": "Light 🌕", "value": "LIGHT"},
+    {"name": "Dark 🌑", "value": "DARK"},
+    {"name": "Poison 🧪", "value": "POISON"},
+    {"name": "Gun 🔫", "value": "GUN"},
+    {"name": "Rot 🩻", "value": "ROT"},
+    {"name": "Sword ⚔️", "value": "SWORD"},
+    {"name": "Nature 🌿", "value": "NATURE"},
+    {"name": "Sleep 💤", "value": "SLEEP"},
+    {"name": "Ranged 🏹", "value": "RANGED"},
+    {"name": "Energy / Spirit 🧿", "value": "ENERGY"},
+    {"name": "Reckless ♻️", "value": "RECKLESS"},
+    {"name": "Time ⌛", "value": "TIME"},
+    {"name": "Bleed 🅱️", "value": "BLEED"},
+    {"name": "Gravity 🪐", "value": "GRAVITY"},
+    {"name": "Draconic 🐲", "value": "DRACONIC"},
+    {"name": "Parry 🔄", "value": "PARRY"},
+    {"name": "Shield 🌐", "value": "SHIELD"},
+    {"name": "Barrier 💠", "value": "BARRIER"},
+    {"name": "Siphon 💉", "value": "SIPHON"}
+]
+
+def get_arm_types():
+    try:
+        arm_type_list_of_dicts = []
+        for arm in arm_choices:
+            arm_type_list_of_dicts.append({'name': arm["name"], 'value': arm["value"]})
+        return arm_type_list_of_dicts
+    except Exception as e:
+        print(e)
+        return False
 
 blocking_traits = [
     'Attack On Titan',
