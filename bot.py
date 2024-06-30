@@ -31,9 +31,6 @@ logging.basicConfig()
 cls_log = logging.getLogger(const.logger_name)
 cls_log.setLevel(logging.WARNING)
 
-guild_ids = None
-guild_id = None
-guild_channel = None
 
 # bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False)
 bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False, token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN'))
@@ -42,7 +39,7 @@ bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_traceback
 async def on_ready():
    server_count = len(bot.guilds)
    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
-   loggy.info('Bot is ready!')
+   loggy.info('The bot is up and running')
    check_heartbeat.start()
 
 
@@ -57,14 +54,6 @@ def add_universes_names_to_autocomplete_list():
       loggy.critical(e)
       return False
 
-
-if config('ENV') == "production":
-   guild_id = 543442011156643871
-   guild_channel = 957061470192033812
-else:
-   guild_ids = [839352855000776735]
-   guild_id = 839352855000776735
-   guild_channel = 962580388432195595
 
 def load(ctx, extension):
    bot.load_extension(f'cogs.{extension}')
@@ -144,7 +133,7 @@ for filename in os.listdir('./cogs'):
                             ]
                         )
                     ]
- ,scopes=guild_ids)
+ ,scopes=crown_utilities.guild_ids)
 async def help(ctx: InteractionContext, selection):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
    
@@ -228,7 +217,7 @@ async def validate_user(ctx):
       return False
 
 
-# @slash_command(name="Enhancers", description="List of Enhancers", scopes=guild_ids)
+# @slash_command(name="Enhancers", description="List of Enhancers", scopes=crown_utilities.guild_ids)
 async def enhancers(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
 
@@ -350,7 +339,7 @@ async def classes(ctx):
    await paginator.send(ctx)
 
 
-# @slash_command(description="Anime VS+ Manual", scopes=guild_ids)
+# @slash_command(description="Anime VS+ Manual", scopes=crown_utilities.guild_ids)
 async def animevs(ctx):
    try:
       avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
@@ -784,7 +773,7 @@ async def animevs(ctx):
       await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
       return
 
-@slash_command(description="rewards for voting", scopes=guild_ids)
+@slash_command(description="rewards for voting", scopes=crown_utilities.guild_ids)
 async def voted(ctx):
    try:
       query = {'DID': str(ctx.author.id)}
@@ -862,7 +851,7 @@ async def voted(ctx):
 
 
 # Update Later
-@slash_command(description="Register for Anime VS+", scopes=guild_ids)
+@slash_command(description="Register for Anime VS+", scopes=crown_utilities.guild_ids)
 async def register(ctx):
    await ctx.defer()
    server_created = db.queryServer({"GNAME": str(ctx.author.guild)})
@@ -1021,7 +1010,7 @@ async def register(ctx):
       await ctx.send(m.RESPONSE_NOT_DETECTED, delete_after=3)
 
 # # Update Later
-# @slash_command(name="rebirth", description="Rebirth for permanent buffs", scopes=guild_ids)
+# @slash_command(name="rebirth", description="Rebirth for permanent buffs", scopes=crown_utilities.guild_ids)
 # async def rebirth(ctx):
 #    query = {'DID': str(ctx.author.id)}
 #    user_is_validated = db.queryUser(query)
@@ -1754,7 +1743,7 @@ async def register(ctx):
 #       # }))
 
 
-@slash_command(name="daily", description="Receive your daily reward and quests", scopes=guild_ids)
+@slash_command(name="daily", description="Receive your daily reward and quests", scopes=crown_utilities.guild_ids)
 @cooldown(Buckets.USER, 1, 86400)
 async def daily(ctx):
    try:
@@ -1853,7 +1842,7 @@ def check_quest_wins(win_value, prestige_level):
 
 @slash_command(name="gift", description="Give money to friend", options=[
    SlashCommandOption(name="player", description="Player to gift", type=OptionType.USER, required=True),
-], scopes=guild_ids)
+], scopes=crown_utilities.guild_ids)
 @cooldown(Buckets.USER, 1, 5)
 async def gift(ctx, player, amount: int):
    user2 = player
@@ -1883,7 +1872,7 @@ async def gift(ctx, player, amount: int):
         SlashCommandChoice(name="10 Rolls", value=10),
         SlashCommandChoice(name="25 Rolls", value=25),
     ], type=OptionType.INTEGER, required=False),
-], scopes=guild_ids)
+], scopes=crown_utilities.guild_ids)
 @cooldown(Buckets.USER, 1, 45)
 async def roll(ctx, rolls: int = 1):
     await ctx.defer()
@@ -2006,7 +1995,7 @@ async def roll(ctx, rolls: int = 1):
 # Should you only be able to donate to your own guild?
 @slash_command(name="donate", description="Donate money to Guild, Convert 10% as Gems", options=[
    SlashCommandOption(name="amount", description="Amount to donate", type=OptionType.INTEGER, required=True),
-], scopes=guild_ids)
+], scopes=crown_utilities.guild_ids)
 @cooldown(Buckets.USER, 1, 60)
 async def donate(ctx, amount):
    await ctx.defer()
@@ -2082,7 +2071,7 @@ async def donate(ctx, amount):
       return
 
 
-# @slash_command(name="invest", description="Invest money in your Family", scopes=guild_ids)
+# @slash_command(name="invest", description="Invest money in your Family", scopes=crown_utilities.guild_ids)
 # @cooldown(Buckets.USER, 1, 10)
 # async def invest(ctx, amount):
 #    user = db.queryUser({'DID': str(ctx.author.id)})
@@ -2106,7 +2095,7 @@ async def donate(ctx, amount):
 @slash_command(name="pay", description="Pay a Guild Member", options=[
    SlashCommandOption(name="player", description="Player to pay", type=OptionType.USER, required=True),
    SlashCommandOption(name="amount", description="Amount to pay", type=OptionType.INTEGER, required=True),
-], scopes=guild_ids)
+], scopes=crown_utilities.guild_ids)
 @cooldown(Buckets.USER, 1, 10)
 async def pay(ctx, player, amount):
    await ctx.defer()
@@ -2208,7 +2197,7 @@ async def pay(ctx, player, amount):
          ]
    )
    ],
-scopes=guild_ids)
+scopes=crown_utilities.guild_ids)
 async def guildoperations(ctx, player, operation: str):
    await ctx.defer()
    try:
@@ -2388,7 +2377,7 @@ async def deletemember(ctx, member):
       await ctx.send(m.TEAM_DOESNT_EXIST, delete_after=5)
 
 
-@slash_command(name="traits", description="List of Universe Traits", scopes=guild_ids)
+@slash_command(name="traits", description="List of Universe Traits", scopes=crown_utilities.guild_ids)
 @slash_option(
    name="universe",
    description="Universe to list traits for",
@@ -2483,7 +2472,7 @@ async def traits_autocomplete(ctx: AutocompleteContext):
 
 # @slash_command(name="allowance", description="Gift Family member an allowance", options=[
 #    SlashCommandOption(name="player", description="Player to give allowance to", type=OptionType.USER, required=True),
-# ], scopes=guild_ids)
+# ], scopes=crown_utilities.guild_ids)
 # @cooldown(Buckets.USER, 1, 60)
 async def allowance(ctx, player, amount):
    try: 
@@ -2531,7 +2520,7 @@ async def allowance(ctx, player, amount):
       return
    
 
-# @slash_command(name="levelme", description="Level up your character", scopes=guild_ids)
+# @slash_command(name="levelme", description="Level up your character", scopes=crown_utilities.guild_ids)
 # @slash_option(
 #    name="exp",
 #    description="exp_to_give",
@@ -2551,7 +2540,7 @@ async def allowance(ctx, player, amount):
 #       return
 
 
-# @slash_command(name="performance", description="Toggles Text Only Performance Mode", scopes=guild_ids)
+# @slash_command(name="performance", description="Toggles Text Only Performance Mode", scopes=crown_utilities.guild_ids)
 # async def performance(ctx):
 #    try:
 #       player = db.queryUser({"DID": str(ctx.author.id)})
@@ -2583,7 +2572,7 @@ async def allowance(ctx, player, amount):
       
 
 
-@slash_command(name="autosave", description="Toggles Autosave on Battle Start.", scopes=guild_ids)
+@slash_command(name="autosave", description="Toggles Autosave on Battle Start.", scopes=crown_utilities.guild_ids)
 async def autosave(ctx):
    try:
       player = db.queryUser({"DID": str(ctx.author.id)})
@@ -2641,7 +2630,7 @@ async def autosave(ctx):
                             ]
                         )
                     ]
-        ,scopes=guild_ids)
+        ,scopes=crown_utilities.guild_ids)
 @cooldown(Buckets.USER, 1, 10)
 async def difficulty(ctx, mode):
    try:
@@ -2686,7 +2675,7 @@ async def difficulty(ctx, mode):
                         SlashCommandChoice(name="5 Messages", value=5),
                         SlashCommandChoice(name="6 Messages", value=6)
                      ]
-)], scopes=guild_ids)
+)], scopes=crown_utilities.guild_ids)
 @cooldown(Buckets.USER, 1, 10)
 async def battlehistory(ctx, history: int):
    try:
@@ -2700,7 +2689,7 @@ async def battlehistory(ctx, history: int):
 
 # @slash_command(name="bounty", description="Set Association Bounty", options=[
 #    SlashCommandOption(name="amount", description="Amount to set bounty to", type=OptionType.INTEGER, required=True),
-# ], scopes=guild_ids)
+# ], scopes=crown_utilities.guild_ids)
 async def bounty(ctx, amount):
    negCurseAmount = 0 - abs(int(amount))
    posCurseAmount = 0 + abs(int(amount))
@@ -2734,7 +2723,7 @@ async def bounty(ctx, amount):
 # @slash_command(name="sponsor", description="Sponsor Guild with Association Funds", options=[
 #    SlashCommandOption(name="guild", description="Guild to sponsor", type=OptionType.STRING, required=True),
 #    SlashCommandOption(name="amount", description="Amount to sponsor", type=OptionType.INTEGER, required=True),
-# ], scopes=guild_ids)
+# ], scopes=crown_utilities.guild_ids)
 async def sponsor(ctx, guild, amount):
    team = guild
    user = db.queryUser({'DID': str(ctx.author.id)})
@@ -2784,7 +2773,7 @@ async def sponsor(ctx, guild, amount):
 
 # @slash_command(name="fund", description="Fund Association From Guild Bank", options=[
 #    SlashCommandOption(name="amount", description="Amount to fund", type=OptionType.INTEGER, required=True),
-# ], scopes=guild_ids)
+# ], scopes=crown_utilities.guild_ids)
 async def fund(ctx, amount):
    try:
       user = db.queryUser({'DID': str(ctx.author.id)})
@@ -2855,7 +2844,7 @@ async def blessguild_Alt(amount, guild):
    SlashCommandOption(name="summon", description="Summon to give", type=OptionType.STRING, required=False),
    SlashCommandOption(name="exp_to_give", description="Exp to give", type=OptionType.INTEGER, required=False),
 
-], scopes=guild_ids)
+], scopes=crown_utilities.guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def createcode(ctx, code_input, coin, gems, card=None, exp_to_give=0):
    is_creator = db.queryUser({'DID': str(ctx.author.id)})['CREATOR']
@@ -2893,7 +2882,7 @@ async def createcode(ctx, code_input, coin, gems, card=None, exp_to_give=0):
 
 @slash_command(description="Input Codes", options=[
    SlashCommandOption(name="code_input", description="Code to input", type=OptionType.STRING, required=True),
-], scopes=guild_ids)
+], scopes=crown_utilities.guild_ids)
 @cooldown(Buckets.USER, 1, 60)
 async def code(ctx, code_input: str):
    await ctx.defer()
@@ -2972,7 +2961,7 @@ async def code(ctx, code_input: str):
 #    SlashCommandOption(name="field_type", description="Field Type", type=OptionType.STRING, required=True),
 #    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
 #    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ], scopes=guild_ids)
+# ], scopes=crown_utilities.guild_ids)
 # @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def addfield(ctx, collection, new_field, field_type, password, key):
    if password != 'casperjayden':  
@@ -3056,7 +3045,7 @@ async def addfield(ctx, collection, new_field, field_type, password, key):
 # @slash_command(description="admin only", options=[
 #    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
 #    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ],scopes=guild_ids)
+# ],scopes=crown_utilities.guild_ids)
 # @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def updatename(ctx, collection, name, new_name, password, key):
    await ctx.defer()
@@ -3269,7 +3258,7 @@ async def updatename(ctx, collection, name, new_name, password, key):
 # @slash_command(description="admin only", options=[
 #    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
 #    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ],scopes=guild_ids)
+# ],scopes=crown_utilities.guild_ids)
 # @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def updatesaves(ctx, password, key):
    await ctx.defer()
@@ -3328,7 +3317,7 @@ async def updatesaves(ctx, password, key):
 # @slash_command(description="admin only", options=[
 #    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
 #    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ],scopes=guild_ids)
+# ],scopes=crown_utilities.guild_ids)
 # @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def updatepokemonuniverses(ctx, password, key):
    await ctx.defer()
@@ -3401,7 +3390,7 @@ async def updatepokemonuniverses(ctx, password, key):
 # @slash_command(description="admin only", options=[
 #    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
 #    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ],scopes=guild_ids)
+# ],scopes=crown_utilities.guild_ids)
 # @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def updatescenariosanduniverses(ctx, password, key):
    await ctx.defer()
@@ -3523,7 +3512,7 @@ async def updatemoves(ctx, universe):
 # @slash_command(description="update title abilities", options=[
 #    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
 #    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ], scopes=guild_ids)
+# ], scopes=crown_utilities.guild_ids)
 # @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def updatetitleabilities(ctx, password, key):
    await ctx.defer()
@@ -3555,7 +3544,7 @@ async def updatetitleabilities(ctx, password, key):
    await ctx.send(f"Updated {counter} titles")
 
    
-#@slash_command(description="update moves", scopes=guild_ids)
+#@slash_command(description="update moves", scopes=crown_utilities.guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def updateclass(ctx):
    await ctx.defer()
@@ -3591,7 +3580,7 @@ async def updateclass(ctx):
 
 
 # Create a slash_command that gets a list of 50 cards and saves it to my account in the database
-#@slash_command(description="save cards", scopes=guild_ids)
+#@slash_command(description="save cards", scopes=crown_utilities.guild_ids)
 async def savecards(ctx):
    loggy.info("savecards command")
    await ctx.defer()
@@ -3632,7 +3621,7 @@ async def savecards(ctx):
       
 # Create a slash_command that pulls all scenarios and if the title of the scenario starts and ends with quotation marks like "" update the title with removed quotation marks. 
 # In addition to this, if the scenario title starts with Defeat the delete the "the" and update the title with the new title.
-# @slash_command(description="update scenarios", scopes=guild_ids)
+# @slash_command(description="update scenarios", scopes=crown_utilities.guild_ids)
 # async def updatescenarios(ctx):
 #    loggy.info("updatescenarios command")
 #    await ctx.defer()
@@ -3653,7 +3642,7 @@ async def savecards(ctx):
 #       loggy.critical(f"Error in updatescenarios command: {ex}")
 #       await ctx.send("Issue with command.")
 
-@slash_command(name="createscenarios", description="create scenarios", scopes=guild_ids)
+@slash_command(name="createscenarios", description="create scenarios", scopes=crown_utilities.guild_ids)
 @slash_option(name="mode", description="Mode to create scenarios for", opt_type=OptionType.STRING, choices=[
    SlashCommandChoice(name="Scenario", value="normal"),
    SlashCommandChoice(name="Raid", value="raid")
@@ -3792,16 +3781,6 @@ async def createscenarios_autocomplete(ctx: AutocompleteContext):
    await ctx.send(choices=choices)
 
 
-
-
-if config('ENV') == "production":
-   DISCORD_TOKEN = config('DISCORD_TOKEN')
-else:
-   DISCORD_TOKEN = config('NEW_TEST_DISCORD_TOKEN')
-
-bot.start(DISCORD_TOKEN)
-
-
 async def restart_bot():
     await bot.stop()
     await bot.start()
@@ -3820,6 +3799,18 @@ async def check_heartbeat():
       except Exception as e:
          loggy.error(f'Error during heartbeat check: {e}')
          await restart_bot()
+
+
+
+
+# if config('ENV') == "production":
+#    DISCORD_TOKEN = config('DISCORD_TOKEN')
+# else:
+#    DISCORD_TOKEN = config('NEW_TEST_DISCORD_TOKEN')
+
+# bot.start(DISCORD_TOKEN)
+
+
 
 
 # Run the bot

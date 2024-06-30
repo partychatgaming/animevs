@@ -41,7 +41,7 @@ class Profile(Extension):
     async def on_ready(self):
         print('Profile Cog is ready!')
 
-
+    
     @slash_command(description="Delete your account")
     async def deleteaccount(self, ctx):
         _uuid = uuid.uuid4()
@@ -928,7 +928,7 @@ class Profile(Extension):
             await ctx.send(embed=embed)
 
 
-    @slash_command(description="View all of your arms", options=[
+    @slash_command(name="arms", description="View all of your arms or add filters to view specific arms", options=[
         SlashCommandOption(
             name="filtered",
             description="Filter by Universe of the card you have equipped",
@@ -969,10 +969,10 @@ class Profile(Extension):
                 SlashCommandChoice(name="🔄 Parry", value="PARRY"),
                 SlashCommandChoice(name="🌐 Shield", value="SHIELD"),
                 SlashCommandChoice(name="💠 Barrier", value="BARRIER"),
-                SlashCommandChoice(name="Siphon", value="SIPHON"),
+                SlashCommandChoice(name="💉 Siphon", value="SIPHON"),
             ]
         )
-    ])
+    ], scopes=crown_utilities.guild_ids)
     async def arms(self, ctx, filtered, type_filter=None):
         await ctx.defer()
         try:
