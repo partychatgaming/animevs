@@ -545,11 +545,6 @@ async def scenario_win(battle_config, battle_msg, private_channel, user1):
                     
                 milestone_response = await Quests.milestone_check(battle_config.player1, "SCENARIOS_RUN", 1)
 
-                # Potentially bring this back if you notice milestones not loading properly
-                # if milestone_response:
-                #     embedVar.add_field(name="🏆 **Milestone**",
-                #         value=f"{milestone_response}")
-
                 # Define a list of milestones to check
                 milestones = [
                     (battle_config.player1, battle_config.battle_mode, 1, battle_config.selected_universe),
