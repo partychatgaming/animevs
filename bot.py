@@ -3436,7 +3436,7 @@ async def updatescenariosanduniverses(ctx, password, key):
 
 @slash_command(description="update moves", options=[
    SlashCommandOption(name="universe", description="Universe to update", type=OptionType.STRING, required=True)
-], scopes=guild_ids)
+], scopes=crown_utilities.guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def updatemoves(ctx, universe):
    await ctx.defer()
