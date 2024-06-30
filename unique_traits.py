@@ -16,16 +16,16 @@ traits = [{
     'TRAIT': 'Digivolve: On Focus you Resolve gain 50% ATK and DEF.  Mega Digivolution : If turn count <5 Double ATK and DEF increase Health by 500.'
 },{
     'NAME': 'Naruto',
-    'EFFECT': 'Substitution, Hashirama Cells',
-    'TRAIT': 'Substitution : If Focused, you cannot be hit. Store Damage * Card Tier as Hashirama Cells. Hashirama Cells : On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
+    'EFFECT': 'Substitution, Hashirama Cells, Chakra Control',
+    'TRAIT': 'Substitution : If Focused, you cannot be hit. Store Damage * Card Tier as Hashirama Cells. Hashirama Cells : On Resolve, Hashirama Cells heal from Damage stored during Substitution. Chakra Control: Each attack delivered while you have over 100 stamina will deal 60% more damage.'
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Fearful, Contracts, Devilization',
-    'TRAIT': 'Fearful : You do not lose Health from the Fear Enhancer.Contracts: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF. Devilization: At 50% HP, increase Max Health by (Card Tier * Offering).Increase HP and AP by Offering Amount and your ATK & DEF equal your HP + Offering for the rest of the match. On Death revive for 3 + Card Tier Turns and then Die.'
+    'TRAIT': 'Fearful : You do not lose Health from the Fear Enhancer. Contracts: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF. Devilization: At 50% HP, increase Max Health by (Card Tier * Offering).Increase HP and AP by Offering Amount and your ATK & DEF equal your HP + Offering for the rest of the match. On Death revive for 3 + Card Tier Turns and then Die.'
 },{
     'NAME': 'Bleach',
-    'EFFECT': 'Bankai, SpiritualPressure',
-    'TRAIT': 'Bankai : On Resolve, Gain Attack and Defense multiplied by your Blitz Count. SpiritualPressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
+    'EFFECT': 'Bankai, Spiritual Pressure',
+    'TRAIT': 'Bankai : On Resolve, Gain Attack and Defense multiplied by your Blitz Count. Spiritual Pressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
@@ -33,7 +33,7 @@ traits = [{
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone, Grimoire',
-    'TRAIT': 'Grimoire : Gain 100 Stamina on Focus. Gain 50 Stamina and 25 * Card Tier AP on Block. Mana Zone : AP is increased by 10% of card leve(+50) on Focus.'
+    'TRAIT': 'Grimoire : Gain 100 Stamina on Focus. Gain 50 Stamina and 25 * Card Tier AP on Block. Mana Zone : AP is increased by 10% of card level (+50) on Focus.'
 },{
     'NAME': 'Fate',
     'EFFECT': 'Command Seal',
@@ -128,8 +128,8 @@ formatted_traits = [{
     'TRAIT': '\n**Digivolve:** On Focus you Resolve gain 50% ATK and DEF.\n\n**Mega Digivolution:** If turn count <5 Double ATK and DEF increase Health by 500.'
 },{
     'NAME': 'Naruto',
-    'EFFECT': 'Substitution, Hashirama Cells',
-    'TRAIT': '\n**Substitution:** If Focused, you cannot be hit. Store Damage * Card Tier as Hashirama Cells\n\n**Hashirama Cells:** On Resolve, Hashirama Cells heal from Damage stored during Substitution.'
+    'EFFECT': 'Substitution, Hashirama Cells, Chakra Control',
+    'TRAIT': '\n**Substitution:** If Focused, you cannot be hit. Store Damage * Card Tier as Hashirama Cells\n\n**Hashirama Cells:** On Resolve, Hashirama Cells heal from Damage stored during Substitution.\n\n**Chakra Control:** Each attack delivered while you have over 100 stamina will deal 60% more damage.'
 },{
     'NAME': 'Chainsawman',
     'EFFECT': 'Fearful, Contracts, Devilization',
@@ -145,7 +145,7 @@ formatted_traits = [{
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone, Grimoire',
-    'TRAIT': '\n**Grimoire:** Gain 100 Stamina on Focus. Gain 50 Stamina and 25 * Card Tier AP on Block.\n\n**Mana Zone:** AP is increased by 10% of card leve(+50) on Focus.'
+    'TRAIT': '\n**Grimoire:** Gain 100 Stamina on Focus. Gain 50 Stamina and 25 * Card Tier AP on Block.\n\n**Mana Zone:** AP is increased by 10% of card level (+50) on Focus.'
 },{
     'NAME': 'Fate',
     'EFFECT': 'Command Seal',

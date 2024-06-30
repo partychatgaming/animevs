@@ -1856,6 +1856,9 @@ class Card:
                 if opponent_title.enhanced_guard_effect and true_dmg > 25:
                     true_dmg = true_dmg - (true_dmg * .8)
 
+                if self.universe == "Naruto" and self.stamina > 100:
+                    true_dmg = round(true_dmg + (true_dmg * .60))
+
                 message = ""            
 
                 miss_hit = 1
