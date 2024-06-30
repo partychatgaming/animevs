@@ -865,22 +865,20 @@ class Profile(Extension):
             await ctx.send(embed=embed)
             return
         
-    @slash_command(description="View all of your titles", options=[
-        SlashCommandOption(
-            name="filtered",
-            description="Filter by Universe of the card you have equipped",
-            type=OptionType.BOOLEAN,
-            required=True,
-        ),
-        SlashCommandOption(
-            name="type_filter",
-            description="select an option to continue",
-            type=OptionType.STRING,
-            required=False,
-            choices=crown_utilities.title_choices
-        )
-    ], scopes=crown_utilities.guild_ids)
-    async def titles(self, ctx, filtered, type_filter=None):
+    @slash_command(name="titles", description="View all of your titles", scopes=crown_utilities.guild_ids)
+    @slash_option(
+        name="filtered",
+        description="Filter by Universe of the card you have equipped",
+        opt_type=OptionType.BOOLEAN
+    )
+    @slash_option(
+        name="type_filter",
+        description="select an option to continue",
+        opt_type=OptionType.STRING,
+        required=False,
+        autocomplete=True
+    )
+    async def titles(self, ctx, filtered, type_filter: str = ""):
         await ctx.defer()
         a_registered_player = await crown_utilities.player_check(ctx)
         if not a_registered_player:
@@ -944,52 +942,47 @@ class Profile(Extension):
             await ctx.send(embed=embed)
 
 
-    @slash_command(name="arms", description="View all of your arms or add filters to view specific arms", options=[
-        SlashCommandOption(
-            name="filtered",
-            description="Filter by Universe of the card you have equipped",
-            type=OptionType.BOOLEAN,
-            required=True,
-            ),
-        SlashCommandOption(
-            name="type_filter",
-            description="select an option to continue",
-            type=OptionType.STRING,
-            required=False,
-            choices=[
-                SlashCommandChoice(name="👊 Physical", value="PHYSICAL"),
-                SlashCommandChoice(name="🔥 Fire", value="FIRE"),
-                SlashCommandChoice(name="❄️ Ice", value="ICE"),
-                SlashCommandChoice(name="💧 Water", value="WATER"),
-                SlashCommandChoice(name="⛰️ Earth", value="EARTH"),
-                SlashCommandChoice(name="⚡️ Electric", value="ELECTRIC"),
-                SlashCommandChoice(name="🌪️ Wind", value="WIND"),
-                SlashCommandChoice(name="🔮 Psychic", value="PSYCHIC"),
-                SlashCommandChoice(name="☠️ Death", value="DEATH"),
-                SlashCommandChoice(name="❤️‍🔥 Life", value="LIFE"),
-                SlashCommandChoice(name="🌕 Light", value="LIGHT"),
-                SlashCommandChoice(name="🌑 Dark", value="DARK"),
-                SlashCommandChoice(name="🧪 Poison", value="POISON"),
-                SlashCommandChoice(name="🔫 Gun", value="GUN"),
-                SlashCommandChoice(name="🩻 Rot", value="ROT"),
-                SlashCommandChoice(name="⚔️ Sword", value="SWORD"),
-                SlashCommandChoice(name="🌿 Nature", value="NATURE"),
-                SlashCommandChoice(name="💤 Sleep", value="SLEEP"),
-                SlashCommandChoice(name="🏹 Ranged", value="RANGED"),
-                SlashCommandChoice(name="🧿 Energy / Spirit", value="ENERGY"),
-                SlashCommandChoice(name="♻️ Reckless", value="RECKLESS"),
-                SlashCommandChoice(name="⌛ Time", value="TIME"),
-                SlashCommandChoice(name="🅱️ Bleed", value="BLEED"),
-                SlashCommandChoice(name="🪐 Gravity", value="GRAVITY"),
-                SlashCommandChoice(name="🐲 Draconic", value="DRACONIC"),
-                SlashCommandChoice(name="🔄 Parry", value="PARRY"),
-                SlashCommandChoice(name="🌐 Shield", value="SHIELD"),
-                SlashCommandChoice(name="💠 Barrier", value="BARRIER"),
-                SlashCommandChoice(name="💉 Siphon", value="SIPHON"),
-            ]
-        )
-    ], scopes=crown_utilities.guild_ids)
-    async def arms(self, ctx, filtered, type_filter=None):
+    @titles.autocomplete("type_filter")
+    async def titles_autocomplete(self, ctx: AutocompleteContext):
+        choices = []
+        options = crown_utilities.get_title_types()
+        """
+        for option in options
+        if ctx.input_text is empty, append the first 24 options in the list to choices
+        if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
+        """
+            # Iterate over the options and append matching ones to the choices list
+        for option in options:
+                if not ctx.input_text:
+                    # If input_text is empty, append the first 24 options to choices
+                    if len(choices) < 24:
+                        choices.append(option)
+                    else:
+                        break
+                else:
+                    # If input_text is not empty, append the first 24 options that match the input to choices
+                    if option["name"].lower().startswith(ctx.input_text.lower()):
+                        choices.append(option)
+                        if len(choices) == 24:
+                            break
+
+        await ctx.send(choices=choices)
+
+
+    @slash_command(name="arms", description="View all of your arms or add filters to view specific arms", scopes=crown_utilities.guild_ids)
+    @slash_option(
+        name="filtered",
+        description="Filter by Universe of the card you have equipped",
+        opt_type=OptionType.BOOLEAN
+    )
+    @slash_option(
+        name="type_filter",
+        description="select an option to continue",
+        opt_type=OptionType.STRING,
+        required=False,
+        autocomplete=True
+    )
+    async def arms(self, ctx, filtered, type_filter: str = ""):
         await ctx.defer()
         try:
             a_registered_player = await crown_utilities.player_check(ctx)
@@ -1072,6 +1065,32 @@ class Profile(Extension):
             embed = Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
             await ctx.send(embed=embed)
             return
+
+    @arms.autocomplete("type_filter")
+    async def arms_autocomplete(self, ctx: AutocompleteContext):
+        choices = []
+        options = crown_utilities.get_arm_types()
+        """
+        for option in options
+        if ctx.input_text is empty, append the first 24 options in the list to choices
+        if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
+        """
+            # Iterate over the options and append matching ones to the choices list
+        for option in options:
+                if not ctx.input_text:
+                    # If input_text is empty, append the first 24 options to choices
+                    if len(choices) < 24:
+                        choices.append(option)
+                    else:
+                        break
+                else:
+                    # If input_text is not empty, append the first 24 options that match the input to choices
+                    if option["name"].lower().startswith(ctx.input_text.lower()):
+                        choices.append(option)
+                        if len(choices) == 24:
+                            break
+
+        await ctx.send(choices=choices)
 
     @slash_command(description="View all of your gems")
     async def gems(self, ctx):
