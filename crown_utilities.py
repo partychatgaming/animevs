@@ -16,6 +16,7 @@ import textwrap
 from io import BytesIO
 from pilmoji import Pilmoji
 import textwrap
+from decouple import config
 now = time.asctime()
 import re
 import random
@@ -31,6 +32,18 @@ print("Crown Utilities initiated")
 # Create separate caches
 cache_universes = LRUCache(maxsize=100)
 cache_cards = LRUCache(maxsize=100)
+
+guild_ids = None
+guild_id = None
+guild_channel = None
+
+if config('ENV') == "production":
+   guild_id = 543442011156643871
+   guild_channel = 957061470192033812
+else:
+   guild_ids = [839352855000776735]
+   guild_id = 839352855000776735
+   guild_channel = 962580388432195595
 
 # Decorator to use a specific cache
 def cached_with_key(cache, key):
