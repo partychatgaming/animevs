@@ -499,7 +499,7 @@ class Profile(Extension):
         opt_type=OptionType.STRING,
         autocomplete=True
     )
-    async def attune(self, ctx : InteractionContext, selection : str = ""):
+    async def attune(self, ctx : InteractionContext, elements : str = ""):
         try:
             a_registered_player = await crown_utilities.player_check(ctx)
             if not a_registered_player:
@@ -514,10 +514,12 @@ class Profile(Extension):
                 await ctx.send(embed=embed)
             else:
                 quest_message = await Quests.milestone_check(player, "TALISMANS_OWNED", 1)
-                response = crown_utilities.essence_cost(user, selection)
+                element_value = next((element['value'] for element in crown_utilities.element_emojis if element['name'] == elements), None)
+                
+                response = crown_utilities.essence_cost(user, element_value)
                 embed = Embed(title="📿 Talisman", description=response, color=0x00ff00)
                 if quest_message:
-                    embed.add_field(name="🏆 Milestone", value=quest_message)
+                    embed.add_field(name="🏆 Milestone", value=quest_message[0])
                 await ctx.send(embed=embed)
         except Exception as ex:
             trace = []
@@ -542,26 +544,17 @@ class Profile(Extension):
     async def element_autocomplete(self, ctx: AutocompleteContext):
         choices = []
         options = crown_utilities.element_emojis
-        """
-        for option in options
-        if ctx.input_text is empty, append the first 24 options in the list to choices
-        if ctx.input_text is not empty, append the first 24 options in the list that match the input to choices as typed
-        """
-            # Iterate over the options and append matching ones to the choices list
         for option in options:
-                if not ctx.input_text:
-                    # If input_text is empty, append the first 24 options to choices
-                    if len(choices) < 24:
-                        choices.append(option)
-                    else:
-                        break
+            if not ctx.input_text:
+                if len(choices) < 25:
+                    choices.append(option['name'])
                 else:
-                    # If input_text is not empty, append the first 24 options that match the input to choices
-                    if option.lower().startswith(ctx.input_text.lower()):
-                        choices.append(option)
-                        if len(choices) == 24:
-                            break
-
+                    break
+            else:
+                if option['name'].lower().startswith(ctx.input_text.lower()):
+                    choices.append(option['name'])
+                    if len(choices) == 25:
+                        break
         await ctx.send(choices=choices)
 
     @slash_command(description="View your talismen that are in storage")
@@ -972,6 +965,7 @@ class Profile(Extension):
                 SlashCommandChoice(name="⌛ Time", value="TIME"),
                 SlashCommandChoice(name="🅱️ Bleed", value="BLEED"),
                 SlashCommandChoice(name="🪐 Gravity", value="GRAVITY"),
+                SlashCommandChoice(name="🐲 Draconic", value="DRACONIC"),
                 SlashCommandChoice(name="🔄 Parry", value="PARRY"),
                 SlashCommandChoice(name="🌐 Shield", value="SHIELD"),
                 SlashCommandChoice(name="💠 Barrier", value="BARRIER"),
@@ -1615,6 +1609,10 @@ class Profile(Extension):
                 SlashCommandChoice(
                     name="💤 Sleep",
                     value="SLEEP",
+                ),
+                SlashCommandChoice(
+                    name="🐲 Draconic",
+                    value="DRACONIC",
                 ),
             ]
         )

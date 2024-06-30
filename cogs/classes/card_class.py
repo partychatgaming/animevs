@@ -15,6 +15,7 @@ from pilmoji import Pilmoji
 from io import BytesIO
 from cogs.universe_traits.naruto import substitution_jutsu, hashirama_cells
 from cogs.universe_traits.dbz import final_stand, saiyan_spirit
+from cogs.universe_traits.chainsawman import devils_endurance, contracts
 from cogs.universe_traits.demon_slayer import total_concentration_breathing
 from cogs.universe_traits.one_piece import conquerors_haki, armament
 from cogs.universe_traits.yuyu_hakusho import spirit_resolved, meditation
@@ -191,8 +192,15 @@ class Card:
             if self.universe == "Dragon Ball Z":
                 self._final_stand =True
             self._chainsawman_activated = False
+            self._chainsawman_revive_active = False
+            if self.universe == "Chainsawman":
+                self._chainsawman_activated = True
+                self._chainsawman_revive_active = True
             self._atk_chainsawman_buff = False
             self._def_chainsawman_buff = False
+            self.devils_endurance_timer = 3
+            self.devils_endurance_active = False
+            self.contract_buff = 0
             self._demon_slayer_buff = 0
             self.naruto_heal_buff = 0
             self._gow_resolve = False
@@ -227,6 +235,8 @@ class Card:
                 self.universe_trait_value_name = "Equivalent Exchange"
             if self.universe == "My Hero Academia":
                 self.universe_trait_value_name = "Quirk Energy"
+            if self.universe == "Chainsawman":
+                self.universe_trait_value_name = "Contract Offering"
 
 
             # Elemental Effect Meters
@@ -1594,7 +1604,7 @@ class Card:
                 summoner_buff = 1
                 # print(self.card_tier)
                 # print(self.summon_type)
-                # print(self.summon_power)
+                print(self.summon_power)
                 if self.is_summoner:
                     if move_element in protections:
                         summoner_buff = self.card_tier
@@ -2877,6 +2887,7 @@ class Card:
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🦠 {dmg['MESSAGE']}")
             if opponent_card.health <= 0:
                 final_stand(self, battle_config, dmg['DMG'], opponent_card)
+                devils_endurance(self, battle_config, opponent_card)
             else:
                 battle_config.turn_total = battle_config.turn_total + 1
 
@@ -3439,7 +3450,8 @@ class Card:
             if self.universe == "One Piece" and (self.tier in crown_utilities.LOW_TIER_CARDS or self.tier in crown_utilities.MID_TIER_CARDS or self.tier in crown_utilities.HIGH_TIER_CARDS):
                 if self.focus_count == 0:
                     dmg['DMG'] = dmg['DMG'] * .6
-
+            if self.universe == "Chainsawman":
+                contracts(self, dmg, battle_config) 
             if self.siphon_active:
                 siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
                 self.damage_healed = self.damage_healed + (dmg['DMG'] * .15) + self._siphon_value

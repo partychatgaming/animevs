@@ -1455,6 +1455,7 @@ def essence_cost(user, element):
         talisman_list = user["TALISMANS"]
         talisman_exists = False
         msg = ""
+        essence = None
         for e in essence_list:
             if e["ELEMENT"] == element:
                 essence = e["ESSENCE"]
@@ -1463,7 +1464,9 @@ def essence_cost(user, element):
             if t["TYPE"] == element.upper():
                 talisman_exists = True
 
-        
+        if not essence:
+            msg = f"You do not have any {set_emoji(element)} {element.title()} essence."
+            return msg
         if talisman_exists:
             msg = f"You already have a {set_emoji(element)} {element.title()} Talisman."
             return msg       
@@ -1991,11 +1994,17 @@ blocking_traits = [
     'YuYu Hakusho',
 ]
 
+revive_traits = [
+    'Dragon Ball Z',
+    'Chainsawman',
+]
+
 starting_traits = [
     'Death Note',
     'One Piece',
     'Demon Slayer',
     'Full Metal Alchemist',
+    "Chainsawman"
 ]
 
 blitz_traits = [
@@ -2034,6 +2043,7 @@ universe_stack_traits = [
     'Naruto',
     'Full Metal Alchemist',
     'My Hero Academia',
+    'Chainsawman',
 ]
 focus_traits = [
     'Digimon',
@@ -2244,9 +2254,7 @@ elements = [
     "POISON",
     "RANGED",
     "ENERGY",
-    "SPIRIT"
     "RECKLESS",
-    "RECOIL",
     "TIME",
     "BLEED",
     "GRAVITY",
@@ -2258,36 +2266,61 @@ elements = [
     "DRACONIC"
 ]
 
-
-element_emojis = [
-    "👊Physical",
-    "🔥Fire",
-    "❄️Ice",
-    "💧Water",
-    "⛰️Earth",
-    "🌩️Electric",
-    "🌪️Wind",
-    "🔮Psychic",
-    "☠️Death",
-    "❤️‍🔥Life",
-    "🌕Light",
-    "🌑Dark",
-    "🧪Poison",
-    "🏹Ranged",
-    "🧿Energy",
-    "🧿Spirit"
-    "♻️Reckless",
-    "♻️Recoil",
-    "⌛Time",
-    "🅱️Bleed",
-    "🪐Gravity",
-    "🔫Gun",
-    "🌿Nature",
-    "💤Sleep",
-    "⚔️Sword",
-    "🩻Rot",
-    "🐲Draconic"
+element_emojis = [  
+    {'name': '👊Physical', 'value': 'PHYSICAL'},
+    {'name': '⚔️Sword', 'value': 'SWORD'},
+    {'name': '🏹Ranged', 'value': 'RANGED'},
+    {'name': '🔫Gun', 'value': 'GUN'},
+    {'name': '♻️Reckless', 'value': 'RECKLESS'},
+    {'name': '🅱️Bleed', 'value': 'BLEED'},
+    {'name': '🔥Fire', 'value': 'FIRE'},
+    {'name': '❄️Ice', 'value': 'ICE'},
+    {'name': '💧Water', 'value': 'WATER'},
+    {'name': '⛰️Earth', 'value': 'EARTH'},
+    {'name': '🌿Nature', 'value': 'NATURE'},
+    {'name': '🌩️Electric', 'value': 'ELECTRIC'},
+    {'name': '🌪️Wind', 'value': 'WIND'},
+    {'name': '🧿Energy/Spirit', 'value': 'ENERGY'},
+    {'name': '🔮Psychic', 'value': 'PSYCHIC'},
+    {'name': '☠️Death', 'value': 'DEATH'},
+    {'name': '❤️‍🔥Life', 'value': 'LIFE'},
+    {'name': '🌕Light', 'value': 'LIGHT'},
+    {'name': '🌑Dark', 'value': 'DARK'},
+    {'name': '🧪Poison', 'value': 'POISON'},
+    {'name': '🩻Rot', 'value': 'ROT'},
+    {'name': '⌛Time', 'value': 'TIME'},
+    {'name': '🪐Gravity', 'value': 'GRAVITY'},
+    {'name': '💤Sleep', 'value': 'SLEEP'},
+    {'name': '🐲Draconic', 'value': 'DRACONIC'},
 ]
+
+# element_emojis = {
+#     "👊Physical": "PHYSICAL",
+#     "⚔️Sword":"SWORD",
+#     "🏹Ranged": ,
+#     "🔫Gun":,
+#     "♻️Reckless":,
+#     "🅱️Bleed",
+#     "🔥Fire",
+#     "❄️Ice",
+#     "💧Water",
+#     "⛰️Earth",
+#     "🌿Nature",
+#     "🌩️Electric",
+#     "🌪️Wind",
+#     "🧿Energy/Spirit",
+#     "🔮Psychic",
+#     "☠️Death",
+#     "❤️‍🔥Life",
+#     "🌕Light",
+#     "🌑Dark",
+#     "🧪Poison",
+#     "🩻Rot",
+#     "⌛Time",
+#     "🪐Gravity",
+#     "💤Sleep",
+#     "🐲Draconic",
+# }
 
 
 protections_list = [

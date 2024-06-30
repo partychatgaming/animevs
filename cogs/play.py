@@ -889,7 +889,7 @@ async def first_turn_experience(battle_config, private_channel):
                 embedVar = Embed(title=f"Welcome to **Anime VS+**!",
                                         description=f"Follow the instructions to learn how to play the Game!",
                                         color=0xe91e63)
-                embedVar.add_field(name=f"\n[{crown_utilities.class_emojis[battle_config.player1_card.card_class]}] **{battle_config.player1_card.name}'s Class**",value=f"*The {battle_config.player1_card.class_message}\n{crown_utilities.class_mapping[battle_config.player1_card.card_class]}*")
+                embedVar.add_field(name=f"\n[{crown_utilities.class_emojis[battle_config.player1_card.card_class]}] **{battle_config.player1_card.name}'s Class**",value=f"*The {battle_config.player1_card.class_message}\n{crown_utilities.class_mapping[battle_config.player1_card.card_class]}*\n{battle_config.player1_card.class_tutorial_message}\n\n")
                 if battle_config.player1_card.universe in crown_utilities.starting_traits:
                     title, text = battle_config.starting_trait_handler(battle_config.player1_card, battle_config.player2_card)
                     
@@ -1113,7 +1113,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
 
-    summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_type} Ability: {turn_card.summon_power}" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
+    summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_emoji}{turn_card.summon_type.title()} Ability: {turn_card.summon_power}" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
     talisman_message = f"{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman"
     universe_stacks = f"{turn_card.universe_crest} {turn_card.universe_trait_value_name}: {turn_card.universe_trait_value}"
     if turn_card.is_tactician and turn_card._tactician_stack_3:
@@ -1281,7 +1281,6 @@ async def player_use_basic_ability(battle_config, private_channel, button_ctx, b
         turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
         if battle_config.is_turn == 1:
-            await player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg)
             await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
         damage_calculation_response = turn_card.damage_cal(int(button_ctx.ctx.custom_id.split('|')[1]), battle_config, opponent_card)
         return damage_calculation_response
@@ -1293,7 +1292,6 @@ async def player_use_special_ability(battle_config, private_channel, button_ctx,
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     
     if battle_config.is_turn == 1:
-        await player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg)
         await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
     damage_calculation_response = turn_card.damage_cal(int(button_ctx.ctx.custom_id.split('|')[1]), battle_config, opponent_card)
     return damage_calculation_response  
@@ -1303,7 +1301,6 @@ async def player_use_ultimate_ability(battle_config, private_channel, button_ctx
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
     if battle_config.is_turn == 1:
-        await player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg)
         await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
     damage_calculation_response = turn_card.damage_cal(int(button_ctx.ctx.custom_id.split('|')[1]), battle_config, opponent_card)    
     # if turn_card.gif != "N/A" and not turn_player.performance:
@@ -1317,7 +1314,6 @@ async def player_use_enhancer_ability(battle_config, private_channel, button_ctx
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     
     if battle_config.is_turn == 1:
-        await player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg)
         await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
     damage_calculation_response = turn_card.damage_cal(int(button_ctx.ctx.custom_id.split('|')[1]), battle_config, opponent_card)
     return damage_calculation_response
@@ -1329,7 +1325,6 @@ async def player_use_resolve(battle_config, private_channel, button_ctx, battle_
     # Resolve Check and Calculation
     if not turn_card.used_resolve and turn_card.used_focus:
         if battle_config.is_turn == 1:
-            await player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg)
             await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
         await turn_card.resolving(battle_config, turn_title, opponent_card, turn_player)
 
@@ -1339,7 +1334,6 @@ async def player_use_summon_ability(battle_config, private_channel, button_ctx, 
     if turn_card.used_resolve and turn_card.used_focus or turn_card._summoner_active:
         if not turn_card.usedsummon:
             if battle_config.is_turn == 1:
-                await player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg)
                 await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
     
     summon_response = turn_card.usesummon(battle_config, opponent_card)
@@ -1363,7 +1357,6 @@ async def player_use_block_ability(battle_config, private_channel, button_ctx, b
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     
     if battle_config.is_turn == 1:
-        await player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg)
         await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
 
     turn_card.use_block(battle_config, opponent_card, partner_card)  
@@ -1373,138 +1366,11 @@ async def player_use_blitz_ability(battle_config, private_channel, button_ctx, b
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     
     if battle_config.is_turn == 1:
-        await player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg)
         await player_boss_message_ability_use(battle_config, private_channel, button_ctx)
 
     turn_card.use_blitz(battle_config, opponent_card)  
     return True
 
-async def player_tutorial_message_ability_use(battle_config, private_channel, button_ctx, battle_msg):
-    turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
-
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|1":
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_basic == False:
-            battle_config.tutorial_basic =True
-            embedVar = Embed(title=f"💥Basic Attack!",
-                                    description=f"💥**Basic Attack** cost **10 ST(Stamina)** to deal decent Damage!",
-                                    color=0xe91e63)
-            embedVar.add_field(
-                name=f"{turn_card.move1_emoji} {turn_card.move1} inflicts {turn_card.move1_element.title()}",
-                value=f"**{turn_card.move1_element}** : *{crown_utilities.element_mapping[turn_card.move1_element]}*")
-            embedVar.set_footer(
-                text=f"Basic Attacks are great when you are low on stamina. Enter Focus State to Replenish!")
-            await private_channel.send(embed=embedVar, components=[])
-            await asyncio.sleep(2)
-    
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|2":
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_special==False:
-            battle_config.tutorial_special = True
-            embedVar = Embed(title=f":comet:Special Attack!",
-                                    description=f":comet:**Special Attack** cost **30 ST(Stamina)** to deal great Damage!",
-                                    color=0xe91e63)
-            embedVar.add_field(
-                name=f"{turn_card.move2_emoji} {turn_card.move2} inflicts {turn_card.move2_element.title()}",
-                value=f"**{turn_card.move2_element}** : *{crown_utilities.element_mapping[turn_card.move2_element]}*")
-            embedVar.set_footer(
-                text=f"Special Attacks are great when you need to control the Focus game! Use Them to Maximize your Focus and build stronger Combos!")
-            await private_channel.send(embed=embedVar)
-            await asyncio.sleep(1)
-        
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|3":
-        #print("Entered into Ultimate Move")
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_ultimate==False:
-            battle_config.tutorial_ultimate=True
-            embedVar = Embed(title=f"🏵️ Ultimate Attack!",
-                                    description=f"🏵️ **Ultimate Attack** cost **80 ST(Stamina)** to deal incredible Damage!",
-                                    color=0xe91e63)
-            embedVar.add_field(
-                name=f"{turn_card.move3_emoji} {turn_card.move3} inflicts {turn_card.move3_element.title()}",
-                value=f"**{turn_card.move3_element}** : *{crown_utilities.element_mapping[turn_card.move3_element]}*")
-            # embedVar.add_field(name=f"Ultimate GIF",
-            #                 value="Using your ultimate move also comes with a bonus GIF to deliver that final blow!\n*Enter performance mode to disable GIFs\n/performace*")
-            embedVar.set_footer(
-                text=f"Ultimate moves will consume most of your ST(Stamina) for Incredible Damage! Use Them Wisely!")
-            await private_channel.send(embed=embedVar)
-            await asyncio.sleep(1)
-    
-        
-        # if turn_card.gif != "N/A" and not turn_player.performance:
-        #     # await button_ctx.ctx.defer(ignore=True)
-        #     # await battle_msg.delete()
-        #     # await asyncio.sleep(1)
-        #     battle_msg = await private_channel.send(f"{turn_card.gif}")
-        #     await asyncio.sleep(1)
-    
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|4":
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_enhancer == False:
-            battle_config.tutorial_enhancer = True
-            embedVar = Embed(title=f"🦠Enhancers!",
-                                    description=f"🦠**Enhancers** cost **20 ST(Stamina)** to Boost your Card or Debuff Your Opponent!",
-                                    color=0xe91e63)
-            embedVar.add_field(
-                name=f"Your Enhancer:🦠 {turn_card.move4} is a {turn_card.move4enh}",
-                value=f"**{turn_card.move4enh}** : *{crown_utilities.enhancer_mapping[turn_card.move4enh]}*")
-            embedVar.set_footer(
-                text=f"Use /enhancers to view a full list of Enhancers! Look for the {turn_card.move4enh} Enhancer")
-            await private_channel.send(embed=embedVar)
-            await asyncio.sleep(2)
-
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|5":
-        # Resolve Check and Calculation
-        if not turn_card.used_resolve and turn_card.used_focus:
-            if battle_config.is_tutorial_game_mode and battle_config.tutorial_resolve == False:
-                battle_config.tutorial_resolve = True
-                embedVar = Embed(title=f"⚡**Resolve Transformation**!",
-                                        description=f"**Heal**, Boost **ATK**, and 🧬**Summon**!",
-                                        color=0xe91e63)
-                embedVar.add_field(name=f"Trade Offs!",
-                                value="Sacrifice **DEF** and **Focusing** will not increase **ATK** or **DEF**")
-                embedVar.add_field(name=f"🧬Your Summon",
-                                value=f"**{turn_card.summon_name}**")
-                embedVar.set_footer(
-                    text=f"You can only enter ⚡Resolve once per match! Use the Heal Wisely!!!")
-                await private_channel.send(embed=embedVar)
-                await asyncio.sleep(2)
-
-            if battle_config.is_boss_game_mode:
-                await button_ctx.ctx.send(embed=battle_config._boss_embed_message)
-        # else:
-        #     emessage = m.CANNOT_USE_RESOLVE
-        #     embedVar = Embed(title=emessage, color=0xe91e63)
-        #     battle_config.add_to_battle_log(f"({battle_config.turn_total}) **{turn_card.name}** cannot resolve")
-        #     await private_channel.defer(ignore=True)
-    
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|6":
-        # Resolve Check and Calculation
-        if turn_card.used_resolve and turn_card.used_focus or turn_card._summoner_active:
-            if not turn_card.usedsummon:
-                if battle_config.is_tutorial_game_mode and battle_config.tutorialsummon == False:
-                    battle_config.tutorialsummon = True
-                    embedVar = Embed(title=f"{turn_card.name} Summoned 🧬 **{turn_card.summon_name}**",color=0xe91e63)
-                    embedVar.add_field(name=f"🧬**Summon Assitance**!",
-                                    value="You can use 🧬**Summons** once per Focus without losing a turn!")
-                    embedVar.add_field(name=f"Resting",
-                                    value="🧬**Summons** need to rest after using their ability! **Focus** to Replenish your 🧬**Summon**")
-                    embedVar.set_footer(
-                        text=f"🧬Summons will Level Up and build Bond as you win battles! Train up your 🧬summons to perform better in the field!")
-                    await private_channel.send(embed=embedVar)
-                    await asyncio.sleep(2)
-
-
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|0":
-        if battle_config.is_tutorial_game_mode and battle_config.tutorial_block==False:
-            battle_config.tutorial_block=True
-            embedVar = Embed(title=f"🛡️Blocking!",
-                                    description=f"🛡️**Blocking** cost **20 ST(Stamina)** to Double your **DEF** until your next turn!",
-                                    color=0xe91e63)
-            embedVar.add_field(name=f"**Engagements**",
-                            value="You will take less DMG when your **DEF** is greater than your opponents **ATK**")
-            embedVar.add_field(name=f"**Engagement Insight**",
-                            value="💢: %33-%50 of AP\n❕: %50-%75 AP\n‼️: %75-%120 AP\n〽️x1.5: %120-%150 AP\n❌x2: $150-%200 AP")
-            embedVar.set_footer(
-                text=f"Use 🛡️Block strategically to defend against your opponents strongest abilities!")
-            await private_channel.send(embed=embedVar)
-            await asyncio.sleep(2)
 
 
 async def player_boss_message_ability_use(battle_config, private_channel, button_ctx):
