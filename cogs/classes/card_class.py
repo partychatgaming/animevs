@@ -1556,6 +1556,7 @@ class Card:
         move_element = ""
         move_emoji = ""
         summon_used = False
+        enhancer_critical = False
 
         ENHANCERS = [4]
         MOVES = [1,2,3,6]
@@ -1659,6 +1660,9 @@ class Card:
             enhancer = True
             enh = self.move4enh
             ap = self.move4ap
+            if random.randint(1, 20) == 20:
+                ap = ap * 2
+                enhancer_critical = True
             move_stamina = self.stamina if enh == "GAMBLE" else self.move4_stamina
             move = self.move4
 
@@ -1771,6 +1775,11 @@ class Card:
                         message = f"{turn_card.name} synchronized {'stamina' if enh == 'SOULCHAIN' else 'health'}  to {enhancer_value}"
                     else:
                         message = f"{turn_card.name} inflicted {enh.lower()}"
+                    
+                    # If enhancer is a critical hit, add a critical hit to the message
+                    if enhancer_critical:
+                        # add to message critical hit
+                        message = f"[Critical] {message}"
                     return message
             
             m = get_message(move, enh, enhancer_value, self.tier)
@@ -2744,6 +2753,7 @@ class Card:
         else:
             return False
     
+    
     def use_defend(self, battle_config, companion_card):
         if self.stamina >= 20:
             self.used_defend = True
@@ -2862,7 +2872,7 @@ class Card:
                     self.health = round(dmg['DMG'])
             elif self.move4enh == 'FEAR':
                 if self.universe != "Chainsawman":
-                    self.max_health = round(self.max_health - (self.max_health * .20))
+                    self.max_health = round(self.max_health - (self.max_health * .10))
                     if self.health > self.max_health:
                         self.health = self.max_health
 
