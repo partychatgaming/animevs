@@ -203,6 +203,7 @@ class Card:
             self.devils_endurance_active = False
             self.contract_buff = 0
             self._demon_slayer_buff = 0
+            self._demon_slayer_crit = False
             self.naruto_heal_buff = 0
             self._gow_resolve = False
             self.temp_opp_arm_shield_active = False
@@ -972,10 +973,12 @@ class Card:
 
             self.set_enhancer_value()
             if self.summon_type in ['BARRIER', 'PARRY']:
-                if self.summon_bond == 3 and self.summon_lvl == 10:
+                if self.summon_bond >= 3 and self.summon_lvl >= 10:
                     self.summon_power = self.summon_power + 1
             else:
                 self.summon_power = round((int(self.summon_bond + 1) * int(self.summon_lvl + 1)) +  (( 1 + self.summon_bond) * int(self.summon_power)))
+                if self.summon_type == "DRACONIC":
+                    self.summon_power = self.move1ap + self.move2ap
         except Exception as ex:
             custom_logging.debug(ex)
             return False
@@ -1900,22 +1903,13 @@ class Card:
                 #Summon used checks
                 # Added 100x multiplier to increase damage
                 summoner_buff = 1
-                # print(self.card_tier)
-                # print(self.summon_type)
+
                 if summon_used and self.is_summoner:
-                    # print("true_dmg")
-                    # print(true_dmg)
                     summoner_buff = round(true_dmg * ((self.tier  /10) * 2))
-                    # print('summoner_buff')
-                    # print(summoner_buff)
                     true_dmg = round(true_dmg + summoner_buff)
-                    # print("summoner_dmg")
-                    # print(true_dmg)
                 # Soul Eater Meister Trait
                 if self.summon_universe == "Soul Eater" and self.universe == "Soul Eater":
                     true_dmg = true_dmg * 2
-                    # print("soul_eater_dmg")
-                    # print(true_dmg)
                 # print(ap)
                 if summon_used and self.universe == "Soul Eater":
                     hit_roll = 0
@@ -1927,6 +1921,9 @@ class Card:
 
                 #crit tracker
                 is_crit = False
+                if self._demon_slayer_crit:
+                    hit_roll = 20
+                    self._demon_slayer_crit = False
                 if hit_roll < miss_hit:
                     if self.universe == 'Soul Eater':
                         is_crit = True
@@ -2313,7 +2310,7 @@ class Card:
                 _opponent_card.poison_dmg = round(_opponent_card.poison_dmg / 2)
                 if self.is_healer:
                     _opponent_card.poison_dmg = 0
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s Healing Aura !  ⚕️🧪 poison cured!")
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura !  ⚕️🧪 poison cured!")
                 else:
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s 🔻🧪 poison damage reduced to {_opponent_card.poison_dmg}")
 
@@ -2322,13 +2319,13 @@ class Card:
                 _opponent_card.rot_dmg = round(_opponent_card.rot_dmg / 2)
                 if self.is_healer:
                     _opponent_card.rot_dmg = 0
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s Healing Aura !  ⚕️🩻 rot cured!")
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura !  ⚕️🩻 rot cured!")
                 else:
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s 🔻🩻 rot damage reduced to {_opponent_card.rot_dmg}")
 
             if _opponent_card.burn_dmg and self.is_healer:
                 _opponent_card.burn_dmg = 0
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s Healing Aura ! ⚕️🔥 burn cured!")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura ! ⚕️🔥 burn cured!")
 
             digivolve(self, battle_config, _opponent_card)
 
@@ -2424,14 +2421,9 @@ class Card:
             self.defense = 25
         if self.attack <= 0:
             self.attack = 25
+        # ai_resolve_message = await ai.resolve_message(self.name, self.universe, opponent_card.name, opponent_card.universe)
+        # battle_config.add_to_battle_log(f"(💬) [{self.name}] - {ai_resolve_message}")
         if not self.used_resolve and self.used_focus:
-            if self.is_tank:
-                self._shield_value +=  (self.tier * 250) + self.card_lvl
-
-            if self.overwhelming_power:
-                self.parry_active = True
-                self._parry_value = round(random.randint(10, 20))
-                battle_config.add_to_battle_log(f"[{self.name} is overwhemlingly powerful, parrying the next {str(self._parry_value)} attacks")
 
             mha_resolve = quirk_awakening(self, battle_config, player_title)
 
@@ -2468,6 +2460,10 @@ class Card:
                 self.health = self.health + player_title.synthesis_damage_stored
                 player_title.synthesis_damage_stored = 0
                 battle_config.add_to_battle_log(f"🎗️ [{self.name} is synthesizing, gaining {player_title.synthesis_value} health]")
+            if self.overwhelming_power:
+                self.parry_active = True
+                self._parry_value = round(random.randint(10, 20))
+                battle_config.add_to_battle_log(f"[{self.name} is overwhemlingly powerful, parrying the next {str(self._parry_value)} attacks")
             
             if battle_config.is_boss_game_mode:
                 if (battle_config.is_turn == 0 or battle_config.is_turn == 2):
@@ -2479,14 +2475,17 @@ class Card:
                     embedVar.set_footer(text=f"{self.name} this is your chance!")
                     battle_config._boss_embed_message = embedVar
     
-            ai_resolve_message = await ai.resolve_message(self.name, self.universe, opponent_card.name, opponent_card.universe)
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) [{self.name}] ⚡ - {ai_resolve_message}")
+            # Adjusting turn to generate arrow on summon & class messages
+            battle_config.turn_total = battle_config.turn_total + 1
             if not self.is_summoner:
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} summoned 🧬 {self.summon_name} to aid them in battle with their {self.summon_type.title()} ability")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🧬 {self.name} summoned {self.summon_emoji}{self.summon_name} to aid them in battle with their {self.summon_type.title()} ability")
             if self._monstrosity_active:
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} gained {self._monstrosity_value} double strikes")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained {self._monstrosity_value} double strikes")
             if self._swordsman_active:
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} gained {self._swordsman_value} critical strikes")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained {self._swordsman_value} critical strikes")
+            if self.is_tank:
+                self._shield_value +=  (self.tier * 250) + self.card_lvl
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained +🌐{(self.tier * 250) + self.card_lvl} shield")
             battle_config.turn_total = battle_config.turn_total + 1
 
 
@@ -2700,7 +2699,7 @@ class Card:
                 if self._tactician_points >= 5:
                     self._tactician_stack_5 = True
                     #self._double_strike_count = self._double_strike_count + 1
-                    response = f"🆚 The Ultimate Strategy! {opponent_card.name}'s Summon is disabled and they weak to ALL damage! [{self._tactician_points} Strategy Points!]"
+                    response = f"🥋 The Ultimate Strategy! {opponent_card.name}'s Summon is disabled and they weak to ALL damage! [{self._tactician_points} Strategy Points!]"
                 elif self._tactician_points == 4:
                     self._tactician_stack_4 = True
                     opponent_card._tactician_stack_1 = True
@@ -2711,13 +2710,13 @@ class Card:
                     opponent_card.shield_active = False
                     opponent_card._shield_value = 0
                     self._critical_strike_count = self._critical_strike_count + 1
-                    response = f"🆚 Sabotage Protections! {self.name} gained 1 Critical Strike and destroyed {opponent_card.name}'s protections [{self._tactician_points} Strategy Points]"
+                    response = f"🥋 Sabotage Protections! {self.name} gained 1 Critical Strike and destroyed {opponent_card.name}'s protections [{self._tactician_points} Strategy Points]"
                 elif self._tactician_points == 3:
                     self._tactician_stack_3 = True
-                    response = f"🆚 Enhance Talisman! {self.name} will bypass all  {opponent_card.name}'s affinities [{self._tactician_points} Strategy Points]"
+                    response = f"🥋 Enhance Talisman! {self.name} will bypass all  {opponent_card.name}'s affinities [{self._tactician_points} Strategy Points]"
                 elif self._tactician_points == 2:
                     self._tactician_stack_2 = True
-                    response = f"🆚 Sabotage Talisman! {self.name} disabled {opponent_card.name}'s {opponent_card._talisman.title()} talisman [{self._tactician_points} Strategy Points]"
+                    response = f"🥋 Sabotage Talisman! {self.name} disabled {opponent_card.name}'s {opponent_card._talisman.title()} talisman [{self._tactician_points} Strategy Points]"
                     opponent_card._talisman = "None"
                 elif self._tactician_points == 1:
                     self._tactician_stack_1 = True
@@ -2735,7 +2734,7 @@ class Card:
                         self._shield_value = 0
                     self._shield_value = self._shield_value + (100 * int(self.card_tier))
                     #print(self._shield_value)
-                    response = f"🆚 Craft Protections! {self.name} Crafted 🛠️\n💠{self.class_value - 1} Barrier\n🔁 {self.p_value - 2} Parry\n🌐{(100 * int(self.card_tier))} Shield\n[{self._tactician_points} {self.class_tier} Strategy Points]"
+                    response = f"🥋 {self.name} Crafted Protections!🛠️\n💠{self.class_value - 1} Barrier\n🔁 {self.p_value - 2} Parry\n🌐{(100 * int(self.card_tier))} Shield\n[{self._tactician_points} {self.class_tier} Strategy Points]"
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {response}")
                 return 
             else:
@@ -2762,7 +2761,7 @@ class Card:
         if self.stamina <= 50:
             self.blitz_count += 1
             self.used_blitz = True 
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 💢 blitzed {opponent_card.name}")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 💢 blitzed {opponent_card.name} [-🌀{self.stamina}]")
             self.blitz_buff = self.stamina
             self.stamina -= self.stamina
             persona_trait = summon_blitz(self, battle_config, opponent_card)
@@ -2770,7 +2769,11 @@ class Card:
                 if not self._assassin_active:
                     self._assassin_active = True
                 self._assassin_attack += 1
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} gained +1 Assassin Strike [{self._assassin_attack}]")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained +1 Assassin Strike [{self._assassin_attack}]")
+            if self.universe == "Demon Slayer":
+                if not self._demon_slayer_crit:
+                    self._demon_slayer_crit = True
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {self.name} activated demon slayer mark, their next attack will critically strike")
             battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
         else:
@@ -2987,23 +2990,27 @@ class Card:
         self.ultimate_water_buff = self.ultimate_water_buff + self.water_buff_by_value
         self.water_buff = self.water_buff + self.water_buff_by_value
 
-        if deals_damage:
-            opponent_card.health -= dmg['DMG']
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']} [+{self.water_buff} 💧 damage]")
-        else:
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} Increased Water Damage! [+{self.water_buff} 💧 damage]")
-
         #Grant shield every 200 water buff
+        water_message = f""
         if self.water_buff % 200 == 0:
             opponent_card.health -= self.water_buff
-            battle_config.add_to_battle_log(f"({battle_config.turn_total})High Tide! {self.name} creates +{self.water_buff} 🌐 shield")
+            water_message = f"| +{self.water_buff} 🌐 shield"
+            # battle_config.add_to_battle_log(f"({battle_config.turn_total})High Tide! {self.name} creates +{self.water_buff} 🌐 shield")
+            self.shield_active = True
             if self._shield_value <= 0:
                 self._shield_value = 0
             self._shield_value = self._shield_value + self.water_buff
         #True Damage every 400 water buff
         if self.water_buff % 400 == 0:
             opponent_card.health -= self.water_buff
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} Tsunami Strike! {opponent_card.name} takes {self.water_buff} 💧 damage")
+            water_message = f"| {opponent_card.name} takes 💧{self.water_buff} true damage"
+            # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} Tsunami Strike! {opponent_card.name} takes {self.water_buff} 💧 damage")
+
+        if deals_damage:
+            opponent_card.health -= dmg['DMG']
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[💧 +{self.water_buff} AP {water_message}]")
+        else:
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} Increased Water Damage!\n[💧 +{self.water_buff} {water_message}]")
             
 
 

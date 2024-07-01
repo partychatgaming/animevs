@@ -89,7 +89,7 @@ async def focus_message(your_card_name, your_card_universe, opponent_card, oppon
 async def resolve_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
-    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe. You have strenghend yoru conviction and resolve to win. Write a 1 sentence message to {opponent_card} to show how serious you are about your victory. Do not include quotes. Be as raw and true to your character's nature as possible. "
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are fighting against {opponent_card} from the {opponent_card_universe} universe. You have strenghend your conviction and resolve to win. Write a 1 sentence message to {opponent_card} to show how serious you are about your victory. Do not include quotes. Be as raw and true to your character's nature as possible. "
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
