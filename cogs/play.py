@@ -133,13 +133,15 @@ class Play(Extension):
                                 game_over_check = True
                                 break
                             configure_battle_log(battle_config)
+                            
+                            # Uncommenting this will add the ai messages at the start of the game
+                            await add_ai_start_messages(battle_config)
+
                             early_game_tactics(battle_config)
                             if check_if_game_over(battle_config):
                                 game_over_check = True
                                 break
 
-                            # Uncommenting this will add the ai messages at the start of the game
-                            await add_ai_start_messages(battle_config)
 
 
                             if battle_config.is_turn == 0:

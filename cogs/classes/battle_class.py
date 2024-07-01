@@ -1818,8 +1818,8 @@ class Battle:
             name = "\nObservation Haki"
             value =f"*Reduce incoming damage by 40% until your first focus*"
         if player_card.universe == "Chainsawman":
-            name = "\nFearful, Devilization"
-            value =f"*Strong Fear Affliction\n\nThe Fear enhancer does not sacrifice Health\n\nWhen Health Reaches < 50% Increase ATK, DEF and Max Health by Missing Health. If you have 25% or less when this triggers gain AP as well*"
+            name = "\nFearful, Contracts, Devilization"
+            value =f"*Fearful\nThe Fear enhancer does not sacrifice Health\n\nContracts\nOffer 10% Max health to open a Contract, eech attack lose 10% Damage as Max Health. This amount is added to your ATK and DEF.\nDevilization\nWhen Health Reaches < 50% Increase Health by Offering amount, your ATK and DEF = Health + Contract Bonus*"
         if player_card.universe == "Full Metal Alchemist":
             name = "\nEquivalent Exchange"
             value =f"Each Attack\n*Store 50% Stamina as Equivalent Exchange, Increase your Attack Power by (Equivalent Exchange x Card Tier).*" 

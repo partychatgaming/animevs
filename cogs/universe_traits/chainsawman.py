@@ -7,7 +7,7 @@ def devilization(player_card, battle_config):
             player_card._first_offering = True
             player_card.contract_buff = round(player_card.max_health * .10)
             player_card.universe_trait_value = round(player_card.contract_buff / 2)
-            contract_split = player_card.contract_buff / 2
+            contract_split = round(player_card.contract_buff / 2)
             player_card.max_health -= round(player_card.contract_buff)
             player_card.attack += round(contract_split)
             player_card.defense += round(contract_split)

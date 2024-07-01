@@ -136,7 +136,7 @@ async def reward_money(battle_config, player):
 
 def get_drop_rate(battle_config, player):
     # Constant values organized in a list of tuples
-    drop_values = [("GOLD", 125), ("REMATCH", 140), ("ARM", 175), ("SUMMON", 190), ("CARD", 200)]
+    drop_values = [("GOLD", 0), ("REMATCH", 100), ("ARM", 150), ("SUMMON", 190), ("CARD", 200)]
     
     # Calculate drop rate
     drop_rate = random.randint(player.rebirth * 10, 200)
@@ -165,7 +165,9 @@ def get_drop_rate(battle_config, player):
 
     # Determine drop type based on drop rate
     for drop_type, value in drop_values:
-        if drop_rate <= value:
+        if drop_rate >= 200:
+            return "CARD", drop_style
+        elif drop_rate >= value:
             return drop_type, drop_style
 
     # Log a warning if no drop type was determined
@@ -268,7 +270,13 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
             return reward_money(battle_config, player)
         owned_arms = [arm['ARM'] for arm in player.arms]
         try:
-            if drop_type == "ARM":
+            if drop_type == "REMATCH":
+                if player.retries <= 25:
+                    message = await reward_message(battle_config, player, drop_type)
+                else:
+                    message = reward_money(battle_config, player)
+                return message
+            elif drop_type == "ARM":
                 all_available_drop_arms_cursor = db.queryDropArms(battle_config.selected_universe, drop_style)
                 all_available_drop_arms = list(all_available_drop_arms_cursor)  # Convert cursor to list
                 if all_available_drop_arms:
