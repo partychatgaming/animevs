@@ -406,14 +406,14 @@ class Play(Extension):
 async def add_ai_start_messages(battle_config):
     if not battle_config.turn_zero_has_happened:
         class_effects = {
-            "ASSASSIN": "{name} the {class_message} gained {class_value} sneak attacks",
-            "MAGE": "{name} the {class_message} gained a {class_value}% boost to elemental attacks",
-            "RANGER": "{name} the {class_message} gained 💠 {class_value} barriers",
-            "TANK": "{name} the {class_message} gained a 🌐 {class_value} shield",
-            "HEALER": "{name} the {class_message} boosted their healing by {class_value}%",
-            "SUMMONER": "{name} the {class_message} calls forth {summon_name} with {summoner_value}% increased ability",
-            "FIGHTER": "{name} the {class_message} gained 🔁 {class_value} parries",
-            "TACTICIAN": "{name} the {class_message} Can Enter focus using Block to strategize against their opponent!",
+            "ASSASSIN": "🥋 {name} the {class_message} gained {class_value} sneak attacks",
+            "MAGE": "🥋 {name} the {class_message} gained a {class_value}% boost to elemental attacks",
+            "RANGER": "🥋 {name} the {class_message} gained 💠 {class_value} barriers",
+            "TANK": "🥋 {name} the {class_message} gained a 🌐 {class_value} shield",
+            "HEALER": "🥋 {name} the {class_message} boosted their healing by {class_value}%",
+            "SUMMONER": "🥋 {name} the {class_message} calls forth {summon_name} with {summoner_value}% increased ability",
+            "FIGHTER": "🥋 {name} the {class_message} gained 🔁 {class_value} parries",
+            "TACTICIAN": "🥋 {name} the {class_message} can strategize against their opponent!",
         }
 
         def append_previous_moves(card, player_name):
@@ -1117,13 +1117,13 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
 
-    summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_emoji}{turn_card.summon_type.title()} Ability: {turn_card.summon_power}" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
+    summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_emoji}{turn_card.summon_type.title()} Ability" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
     talisman_message = f"{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman"
     universe_stacks = f"{turn_card.universe_crest} {turn_card.universe_trait_value_name}: {turn_card.universe_trait_value}"
     if turn_card.is_tactician and turn_card._tactician_stack_3:
-        talisman_message = f"🆚 Tactician's Talisman"
+        talisman_message = f"🥋 Tactician's Talisman"
     if turn_card.is_tactician and turn_card._tactician_stack_5:
-        talisman_message = f"🆚 Ultimate Strategy"
+        talisman_message = f"🥋 Ultimate Strategy"
     player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
     if turn_card.universe in crown_utilities.universe_stack_traits:
         player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"

@@ -71,7 +71,7 @@ ELEMENTS_LIST = [
     "🔫 Gun - Goes through shields. Has a 40% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.\n",
     "♻️ Reckless - Deals Incredible Bonus Damage, take 40% as reckless at the cost of a turn to recover. If Reckless would kill you reduce HP to 1. Reckless is buffed when resolved, but you take more damage as well.\n",
     "🔥 Fire - Does 50% damage of previous attack over the next opponent turns, burn effect bypasses shields and stacks.\n",
-    "💧 Water - Each strike increases all water move AP by 100. Every 300 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage.\n",
+    "💧 Water - Each strike increases all water move AP by 100. Every 200 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage.\n",
     "⛰️ Earth - Penetrates Parry. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG.\n",
     "🌩️ Electric- Add 35% DMG Dealt to Shock damage, Shock damage amplifies all Move AP.\n",
     "🌪️ Wind - On Miss or Crit, boosts all wind damage by 75% of damage dealt.\n",
@@ -110,7 +110,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ❄️ Ice - Every 3 attacks, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.
 
-💧 Water - Each strike increases all water move AP by 100. Every 300 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage
+💧 Water - Each strike increases all water move AP by 100. Every 200 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage
 
 ⛰️ Earth - Cannot be Parried. Grants Shield and Increases Def by 30% AP.
                            
