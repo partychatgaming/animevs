@@ -374,50 +374,34 @@ class Player:
 
     def save_card(self, card):
         try:
-            # if card.name in (self.cards or self.storage):
-            #     print("Card already in storage")
-            #     return False
-            
             if len(self.cards) >= 80:
                 return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
 
-            # if self.cards_length == 25:
-            #     if self.card_storage_full:
-            #         return False
-            #     else:
-            #         print("Adding card to storage")
-            #         update_query = {'$addToSet': {'STORAGE': card.name}}
-            #         # Check if the card.name is in 'CARD' field of the CARD_LEVELS array
-            #         # If not, add it to the CARD_LEVELS array
-            #         # print(card.name)
-            #         if any(card.name in d['CARD'] for d in self.card_levels):
-            #             print(f"Card found in CARD_LEVELS array: {card.name}")
+            code = random.randint(1000000, 9999999)
 
-            #         if not any(card.name in d['CARD'] for d in self.card_levels):
-            #             print(f"Card not found in CARD_LEVELS array: {card.name}")
-            #             update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
+            # First update: Push the card name to CARDS array
+            db.updateUserNoFilter(self.user_query, {'$push': {'CARDS': card.name}})
 
-            #         response = db.updateUserNoFilter(self.user_query, update_query)
-            # else:
-            #     update_query = {'$addToSet': {'CARDS': card.name}}
-            #     if any(card.name in d['CARD'] for d in self.card_levels):
-            #         print(f"Card has been found in CARD_LEVELS array: {card.name}")
-            #     if not any(card.name in d['CARD'] for d in self.card_levels):
-            #         print(f"Card not found in CARD_LEVELS array: {card.name}")
-            #         update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}}
-            #     db.updateUserNoFilter(self.user_query,{'$addToSet':{'CARDS': card.name}})
-            #     db.updateUserNoFilter(self.user_query, update_query)
-            #     response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
+            # Second update: Add card details to CARD_LEVELS array
+            update_query = {
+                '$addToSet': {
+                    'CARD_LEVELS': {
+                        'CARD': card.name,
+                        'LVL': 1,
+                        'TIER': card.tier,
+                        'EXP': 0,
+                        'ATK': 0,
+                        'DEF': 0,
+                        'AP': 0,
+                        'HLT': 0,
+                        'CLASS': card.card_class,
+                        'ID': str(code)  # Convert UUID to string
+                    }
+                },
+                '$set': {'CARD': card.name}
+            }
             
-
-            update_query = {'$addToSet': {'CARDS': card.name}, '$set': {'CARD': card.name}}
-            code = uuid.uuid4()
-            # if not any(card.name in d['CARD'] for d in self.card_levels):
-            update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'TIER': card.tier, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0, 'CLASS': card.card_class, 'ID': code}}, '$set': {'CARD': card.name}}
-            db.updateUserNoFilter(self.user_query,{'$push':{'CARDS': card.name}})
-            db.updateUserNoFilter(self.user_query, update_query)
-            # response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
-
+            result = db.updateUserNoFilter(self.user_query, update_query)
 
             if card.card_lvl > 1:
                 atk_def_buff = 0
@@ -430,21 +414,23 @@ class Player:
                 if (card.card_lvl + 1) % 20 == 0:
                     hlt_buff = crown_utilities.level_sync["HLT"] or 10
 
-                update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0},
-                                '$inc': {'CARD_LEVELS.$[type].' + "LVL": card.card_lvl, 
-                                        'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
-                                        'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
-                                        'CARD_LEVELS.$[type].' + "AP": ap_buff, 
-                                        'CARD_LEVELS.$[type].' + "HLT": hlt_buff
-                                        }}
-                filter_query = [{'type.' + "CARD": str(card.name)}]
+                update_query = {
+                    '$set': {'CARD_LEVELS.$[type].EXP': 0},
+                    '$inc': {
+                        'CARD_LEVELS.$[type].LVL': card.card_lvl,
+                        'CARD_LEVELS.$[type].ATK': atk_def_buff,
+                        'CARD_LEVELS.$[type].DEF': atk_def_buff,
+                        'CARD_LEVELS.$[type].AP': ap_buff,
+                        'CARD_LEVELS.$[type].HLT': hlt_buff
+                    }
+                }
+                filter_query = [{'type.CARD': str(card.name)}]
                 response = db.updateUser(self.user_query, update_query, filter_query)
-        
+
             return True
         except Exception as ex:
             custom_logging.debug(ex)
             return False
-
 
     def remove_card(self, card):
         try:

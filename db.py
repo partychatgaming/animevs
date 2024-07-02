@@ -1914,7 +1914,7 @@ def updateUser(query, new_value, arrayFilters):
 
 def updateUserNoFilter(query, new_value):
     try:
-        update = users_col.update_one(query, new_value)
+        update = users_col.update_one(query, new_value, upsert=True)
         return True
     except:
         return False

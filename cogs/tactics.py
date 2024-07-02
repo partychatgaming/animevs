@@ -189,9 +189,11 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
 
     devilization(player_card, battle_config)
     devilization(opponent_card, battle_config)
-    if opponent_card.jujutsu_kaisen_domain_expansion_active:
-        new_turn = domain_expansion_check(opponent_card, player_card, battle_config)
-        battle_config.is_turn = new_turn['TURN']
+    if player_card.jujutsu_kaisen_domain_expansion_active:
+        # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} has {player_card.jujutsu_kaisen_damage_check_turn_count} more ticks of their Domain Expansion")
+        battle_config.next_turn()
+        return
+
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']

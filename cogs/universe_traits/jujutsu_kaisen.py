@@ -49,43 +49,62 @@ def domain_expansion(player_card, battle_config, player_title, opponent_card):
         player_card.defense = round(player_card.defense - resolve_defense_value)
         player_card.used_resolve = True
         player_card.usedsummon = False
-        if opponent_card.used_resolve:
-            player_card.jujutsu_kaisen_oppenent_resolved_before_self = True
         player_card.jujutsu_kaisen_domain_expansion_active = True
-        player_card.jujutsu_kaisen_damage_check_turn_count = 10 - opponent_card.focus_count
-        player_card.jujutsu_kaisen_damage_meter = round((player_card.max_health * 0.5) + player_card.level)
-        player_card.jujutsu_kaisen_damage_meter_max = round((player_card.max_health * 0.5) + player_card.level)
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} has activated their Domain Expansion [Deal {player_card.jujutsu_kaisen_damage_meter:,} damage in {player_card.jujutsu_kaisen_damage_check_turn_count} turns to break the domain]")
+        if opponent_card.used_resolve:
+            player_card.jujutsu_kaisen_opponent_resolved_before_self = True
+        player_card.jujutsu_kaisen_damage_check_turn_count = 10 - player_card.focus_count
+        if player_card.focus_count >= 10:
+            player_card.jujutsu_kaisen_damage_check_turn_count = 1
+        player_card.jujutsu_kaisen_damage_meter = round((player_card.max_health * 0.5) + player_card.card_lvl)
+        player_card.jujutsu_kaisen_damage_meter_max = round((player_card.max_health * 0.5) + player_card.card_lvl)
+        message = f"({battle_config.turn_total}) {player_card.name} has activated their Domain Expansion [Deal {player_card.jujutsu_kaisen_damage_meter:,} damage in {player_card.jujutsu_kaisen_damage_check_turn_count} turns to break the domain]"
+        if opponent_card.jujutsu_kaisen_domain_expansion_active:
+            if (player_card.attack + player_card.defense) > (opponent_card.attack + opponent_card.defense):
+                opponent_card.jujutsu_kaisen_domain_expansion_active = False
+                opponent_card.jujutsu_kaisen_damage_check_turn_count = 0
+                opponent_card.jujutsu_kaisen_damage_meter = 0
+                player_card.jujutsu_kaisen_domain_expansion_active = True
+                message = f"({battle_config.turn_total}) {player_card.name} has activated their Domain Expansion, breaking {opponent_card.name}'s Domain"
+            else:
+                # You are unable to activate your domain and will succumb to your opponents domain
+                message = f"({battle_config.turn_total}) {player_card.name}'s Domain Expansion was immediately cancelled by {opponent_card.name}'s Domain"
+                player_card.jujutsu_kaisen_domain_expansion_active = False
+        battle_config.add_to_battle_log(message)
 
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True
 
 
-def domain_expansion_check(opponent_card, player_card, battle_config, damage=None):
-    if opponent_card.universe == "Jujutsu Kaisen":
-        if opponent_card.jujutsu_kaisen_domain_expansion_active:
-            if damage is None:
-                battle_config.next_turn()
-                return {"TURN": battle_config.is_turn}
-            if opponent_card.jujutsu_kaisen_damage_check_turn_count == 0 and damage < opponent_card.jujutsu_kaisen_damage_meter:
-                opponent_card.jujutsu_kaisen_domain_expansion_active = False
-                opponent_card.jujutsu_kaisen_damage_check_turn_count = 0
-                opponent_card.jujutsu_kaisen_damage_meter = 0
-                player_card.health = 0
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} has been executed in {opponent_card.name}'s Domain")
+def domain_expansion_check(player_card, opponent_card, battle_config, damage=0):
+    if not opponent_card.jujutsu_kaisen_domain_expansion_active:
+        return
+    
+    def deactivate_domain():
+            opponent_card.jujutsu_kaisen_domain_expansion_active = False
+            opponent_card.jujutsu_kaisen_damage_check_turn_count = 0
+            opponent_card.jujutsu_kaisen_damage_meter = 0
 
-            if opponent_card.jujutsu_kaisen_damage_check_turn_count == 0 and damage >= opponent_card.jujutsu_kaisen_damage_meter:
-                opponent_card.jujutsu_kaisen_domain_expansion_active = False
-                opponent_card.jujutsu_kaisen_damage_check_turn_count = 0
-                opponent_card.jujutsu_kaisen_damage_meter = 0
+    def mxhealth_and_damage_operation():
+        player_card.max_health = player_card.max_health - round(player_card.max_health * (opponent_card.tier / 100))
+        opponent_card.jujutsu_kaisen_damage_check_turn_count -= 1
+        opponent_card.jujutsu_kaisen_damage_meter -= damage
+
+    if opponent_card.jujutsu_kaisen_damage_check_turn_count > 0:
+        mxhealth_and_damage_operation()
+
+        if opponent_card.jujutsu_kaisen_damage_meter <= 0:
+            deactivate_domain()
+            if opponent_card.jujutsu_kaisen_opponent_resolved_before_self:
                 opponent_card.health = opponent_card.health - round(damage + opponent_card.jujutsu_kaisen_damage_meter_max)
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {opponent_card.name}'s Domain has been broken by {player_card.name} [{opponent_card.name} was dealt {(damage + opponent_card.jujutsu_kaisen_damage_meter_max):,} damage]")
-
-            if opponent_card.jujutsu_kaisen_damage_check_turn_count > 0:
-                opponent_card.max_health = opponent_card.max_health - round(opponent_card.max_health * (opponent_card.tier / 100))
-                opponent_card.jujutsu_kaisen_damage_check_turn_count -= 1
-                opponent_card.jujutsu_kaisen_damage_meter -= damage
+            else:
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {opponent_card.name}'s Domain has been broken by {player_card.name}")
+        
+        if opponent_card.jujutsu_kaisen_damage_meter > 0:
+            if opponent_card.jujutsu_kaisen_damage_check_turn_count > 1:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {opponent_card.name}'s Domain is still active for {opponent_card.jujutsu_kaisen_damage_check_turn_count} turns [{opponent_card.jujutsu_kaisen_damage_meter:,} damage remaining]")
-
-        return
+            if opponent_card.jujutsu_kaisen_damage_check_turn_count == 0:
+                deactivate_domain()
+                player_card.health = 0
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} has been executed in {opponent_card.name}'s Domain")

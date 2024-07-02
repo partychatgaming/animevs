@@ -1214,208 +1214,119 @@ class Profile(Extension):
     async def blacksmith(self, ctx):
         try:
             _uuid = uuid.uuid4()
-            user_query = {'DID': str(ctx.author.id)}
-            user = crown_utilities.create_player_from_data(db.queryUser(user_query))
+            user = crown_utilities.create_player_from_data(db.queryUser({'DID': str(ctx.author.id)}))
             card = crown_utilities.create_card_from_data(db.queryCard({"NAME": user.equipped_card}))
             card.set_card_level_buffs(user.card_levels)
             arm = crown_utilities.create_arm_from_data(db.queryArm({"ARM": user.equipped_arm}))
             arm.set_durability(user.equipped_arm, user.arms)
 
-            preset_message = "Preset Upgraded!"
-            if not user.preset_upgraded:
-                preset_message = "1,000,000"
+            preset_message = "Preset Upgraded!" if user.preset_upgraded else "1,000,000"
 
+            arm_cost = 25000 if arm.universe == "Unbound" else 5000 if arm.drop_style == "Dungeon Drop" else 1000
+            durability_message = "UNAVAILABLE" if arm.drop_style == "Boss Drop" else f"{arm_cost:,}"
+            boss_message = "Cannot Repair" if arm.drop_style == "Boss Drop" else "Dungeon eh?!" if arm.drop_style == "Dungeon Drop" else "That's Abyssal!!" if arm.universe == "Unbound" else "Nice Arm!"
 
-
-            boss_arm = False
-            dungeon_arm = False
-            boss_message = "Nice Arm!"
-            abyss_arm = False
-            arm_cost = '{:,}'.format(1000)
-            durability_message = f"{arm_cost}"
-            if arm.universe == "Unbound":
-                abyss_arm= True
-                arm_cost = '{:,}'.format(25000)
-                durability_message = f"{arm_cost}"
-            if arm.drop_style == "Boss Drop":
-                boss_arm = True 
-            
-            if arm.drop_style == "Dungeon Drop":
-                dungeon_arm= True
-                arm_cost = '{:,}'.format(5000)
-                durability_message = f"{arm_cost}"
-
-            if boss_arm:
-                boss_message = "Cannot Repair"
-                durability_message = "UNAVAILABLE"
-            elif dungeon_arm:
-                boss_message = "Dungeon eh?!"
-            elif abyss_arm:
-                boss_message = "That's Abyssal!!"
-
-            balance = 0
+            balance = next((gems['GEMS'] for gems in user.gems if gems['UNIVERSE'] == card.universe), 0)
             icon = "💎"
 
-            for gems in user.gems:
-                if gems['UNIVERSE'] == card.universe:
-                    balance = gems['GEMS']
-                    break   
-            
-            def get_level_icons(level):
-                levels_icons = {
-                    200: "🔱",
-                    700: "⚜️",
-                    999: "🏅"
-                }
-                for threshold, icon in sorted(levels_icons.items(), reverse=True):
-                    if card.card_lvl >= threshold:
-                        return icon
+            def get_level_icon(level):
+                if level >= 999: return "🏅"
+                if level >= 700: return "⚜️"
+                if level >= 200: return "🔱"
                 return "🔰"
 
             def get_level_values(level):
-                levels_values = {
-                    200: (200000, 80000, 25000),
-                    300: (300000, 125000, 50000),
-                    400: (600000, 250000, 100000),
-                    500: (1000000, 550000, 250000),
-                    600: (2750000, 1200000, 500000),
-                    700: (5000000, 2500000, 1000000),
-                    800: (7500000, 4000000, 2500000),
-                    900: (10000000, 7500000, 5000000),
-                    1000: (50000000, 25000000, 10000000),
-                    2000: (500000000, 250000000, 100000000)
-                }
-
-                for threshold, values in sorted(levels_values.items(), reverse=True):
-                    if card.card_lvl >= threshold:
+                levels = [
+                    (2000, (500000000, 250000000, 100000000)),
+                    (1000, (50000000, 25000000, 10000000)),
+                    (900, (10000000, 7500000, 5000000)),
+                    (800, (7500000, 4000000, 2500000)),
+                    (700, (5000000, 2500000, 1000000)),
+                    (600, (2750000, 1200000, 500000)),
+                    (500, (1000000, 550000, 250000)),
+                    (400, (600000, 250000, 100000)),
+                    (300, (300000, 125000, 50000)),
+                    (200, (200000, 80000, 25000))
+                ]
+                for threshold, values in levels:
+                    if level >= threshold:
                         return values
-                return 100000, 40000, 20000
-            
-            tier_values = {
-                2: 200000,
-                3: 450000,
-                4: 1000000,
-                5: 5000000,
-                6: 10000000,
-                7: 25000000,
-                8: 100000000,
-                9: 500000000,
-                10: 1000000000, 
-            }
-            level_up_card_tier_message = f"⭐ **Increase Card Tier**: 💸 **{tier_values[(card.card_tier + 1)]:,}**" if card.card_tier < 10 else f"🌟 Your card has max tiers"
-            licon = get_level_icons(card.card_lvl)
+                return (100000, 40000, 20000)
+
+            licon = get_level_icon(card.card_lvl)
             hundred_levels, thirty_levels, ten_levels = get_level_values(card.card_lvl)
 
-            # Calculate the cost to max level
-            current_level = card.card_lvl
             max_level = 1500
-            levels_needed = max_level - current_level
-            max_level_cost = 0
-            temp_level = current_level
+            levels_needed = max_level - card.card_lvl
+            max_level_cost = sum(get_level_values(lvl)[2] for lvl in range(card.card_lvl, max_level, 10))
 
-            while temp_level < max_level:
-                _, _, cost_per_100 = get_level_values(temp_level)
-                if temp_level + 100 <= max_level:
-                    max_level_cost += cost_per_100
-                    temp_level += 100
-                else:
-                    _, cost_per_30, cost_per_10 = get_level_values(temp_level)
-                    if temp_level + 30 <= max_level:
-                        max_level_cost += cost_per_30
-                        temp_level += 30
-                    else:
-                        max_level_cost += cost_per_10
-                        temp_level += 10
+            tier_values = {i: 200000 * (2 ** (i-2)) for i in range(2, 11)}
+            level_up_card_tier_message = f"⭐ **Increase Card Tier**: 💸 **{tier_values.get(card.card_tier + 1, 0):,}**" if card.card_tier < 10 else "🌟 Your card has max tiers"
 
-            max_level_cost = f"{max_level_cost:,}"
-
-            sell_buttons = [
-                    Button(
-                        style=ButtonStyle.GREEN,
-                        label="🔋 1️⃣",
-                        custom_id=f"{_uuid}|1"
-                    ),
-                    Button(
-                        style=ButtonStyle.BLUE,
-                        label="🔋 2️⃣",
-                        custom_id=f"{_uuid}|2"
-                    ),
-                    Button(
-                        style=ButtonStyle.RED,
-                        label="🔋 3️⃣",
-                        custom_id=f"{_uuid}|3"
-                    ),
-                    Button(
-                        style=ButtonStyle.RED,
-                        label="⚒️ 4️⃣",
-                        custom_id=f"{_uuid}|5"
-                    ),
-                    Button(
-                        style=ButtonStyle.GREY,
-                        label="Cancel",
-                        custom_id=f"{_uuid}|cancel"
-                    )
+            buttons = [
+                [
+                    Button(style=ButtonStyle.GREEN, label="🔋 1️⃣", custom_id=f"{_uuid}|1"),
+                    Button(style=ButtonStyle.BLUE, label="🔋 2️⃣", custom_id=f"{_uuid}|2"),
+                    Button(style=ButtonStyle.RED, label="🔋 3️⃣", custom_id=f"{_uuid}|3"),
+                    Button(style=ButtonStyle.RED, label="⚒️ 4️⃣", custom_id=f"{_uuid}|5"),
+                    Button(style=ButtonStyle.BLURPLE, label="Max Level", custom_id=f"{_uuid}|max")
+                ],
+                [
+                    Button(style=ButtonStyle.GREY, label="⭐ Increase Card Tier", custom_id=f"{_uuid}|6"),
+                    Button(style=ButtonStyle.GREY, label="Gabe's Preset 🔖", custom_id=f"{_uuid}|7"),
+                    Button(style=ButtonStyle.GREY, label="Cancel", custom_id=f"{_uuid}|cancel")
                 ]
-            
-            util_sell_buttons = [
-                    Button(
-                        style=ButtonStyle.GREY,
-                        label="⭐ Increase Card Tier",
-                        custom_id=f"{_uuid}|6"
-                    ),
-                    Button(
-                        style=ButtonStyle.GREY,
-                        label="Gabe's Preset 🔖",
-                        custom_id=f"{_uuid}|7"
-                    )
             ]
+
+            embed = Embed(
+                title=f"{card.universe_crest} {card.universe} Blacksmith - {icon}{balance:,}\n{user.balance_icon} {user.balance:,}",
+                description=textwrap.dedent(f"""\
+                Welcome {ctx.author.mention}!
+                Use Universe Gems to purchase **Card XP** and **Arm Durability**!
+                🎴 Card:  🀄️**{card.card_tier}** **{card.name}** {licon}**{card.card_lvl}**
+                🦾 Arm: **{arm.name}** ⚒️*{arm.durability}*
+                
+                **Card Level Boost**
+                🔋 1️⃣ **10 Levels** for {icon} **{ten_levels:,}**
+                🔋 2️⃣ **30 Levels** for {icon} **{thirty_levels:,}**
+                🔋 3️⃣ **100 Levels** for {icon} **{hundred_levels:,}**
+                🔋 Max **{levels_needed} Levels** for {icon} **{max_level_cost:,}**
+                ⚒️ 4️⃣ **50 Durability** for {icon} **{durability_message}**
+                
+                **Miscellaneous Upgrades**
+                {level_up_card_tier_message}
+                🔖 **Gabe's Preset Upgrade**: 💸 **{preset_message}**
+                
+                What would you like to buy?
+                """),
+                color=0xf1c40f
+            )
+            embed.set_footer(text="Boosts are used immediately upon purchase. Click cancel to exit purchase.", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
             
-            sell_buttons_action_row = ActionRow(*sell_buttons)
-            util_sell_buttons_action_row = ActionRow(*util_sell_buttons)
-            embedVar = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith - {icon}{'{:,}'.format(balance)}\n{user.balance_icon} {user.balance:,}", description=textwrap.dedent(f"""\
-            Welcome {ctx.author.mention}!
-            Use Universe Gems to purchase **Card XP** and **Arm Durability**!
-            🎴 Card:  🀄️**{card.card_tier}** **{card.name}** {licon}**{str(card.card_lvl)}**
-            🦾 Arm: **{arm.name}** ⚒️*{str(arm.durability)}*
-            
-            **Card Level Boost**
-            🔋 1️⃣ **10 Levels** for {icon} **{'{:,}'.format(ten_levels)}**
-            🔋 2️⃣ **30 Levels** for {icon} **{'{:,}'.format(thirty_levels)}**
-            🔋 3️⃣ **100 Levels** for {icon} **{'{:,}'.format(hundred_levels)}**
-            ⚒️ 4️⃣ **50 Durability** for {icon} **{durability_message}**
-            
-            **Miscellaneous Upgrades**
-            {level_up_card_tier_message}
-            🔖 **Gabe's Preset Upgrade**: 💸 **{preset_message}**
-            
-            What would you like to buy?
-            """), color=0xf1c40f)
-            embedVar.set_footer(text="Boosts are used immediately upon purchase. Click cancel to exit purchase.", icon_url="https://cdn.discordapp.com/emojis/784402243519905792.gif?v=1")
-            msg = await ctx.send(embed=embedVar, components=[sell_buttons_action_row, util_sell_buttons_action_row])
+            msg = await ctx.send(embed=embed, components=buttons)
 
             def check(component: Button) -> bool:
                 return component.ctx.author == ctx.author
 
             try:
-                button_ctx = await self.bot.wait_for_component(components=[sell_buttons_action_row, util_sell_buttons_action_row], timeout=120,check=check)
+                button_ctx = await self.bot.wait_for_component(components=buttons, timeout=120, check=check)
                 await button_ctx.ctx.defer(edit_origin=True)
-                option = button_ctx.ctx.custom_id
-                levels_gained = 0
-                price = 0
-                exp_boost_buttons = [f"{_uuid}|1", f"{_uuid}|2", f"{_uuid}|3"]
-                if option == f"{_uuid}|max":
-                    levels_gained = levels_needed
-                    price = max_level_cost.replace(",", "")
-                    price = int(price)
-                    
+                option = button_ctx.ctx.custom_id.split('|')[1]
+
+                if option == 'cancel':
+                    await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Blacksmith cancelled.", color=0xf1c40f), components=[])
+                    return
+
+                if option in ['1', '2', '3', 'max']:
+                    levels_gained = {'1': 10, '2': 30, '3': 100, 'max': levels_needed}.get(option)
+                    price = {'1': ten_levels, '2': thirty_levels, '3': hundred_levels, 'max': max_level_cost}.get(option)
+
                     if price > balance:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase.", color=0xf1c40f)
-                        await msg.edit(embed=embed, components=[])
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase. Cost: {icon}{price:,}", color=0xf1c40f), components=[])
                         return
-                    
+
                     if card.card_lvl >= max_level:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** is already at max smithing level. You may level up in battle, but you can no longer purchase levels for this card.", color=0xf1c40f)
-                        await msg.edit(embed=embed, components=[])
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** is already at max smithing level. You may level up in battle, but you can no longer purchase levels for this card.", color=0xf1c40f), components=[])
                         return
 
                     if (levels_gained + card.card_lvl) > max_level:
@@ -1425,160 +1336,92 @@ class Profile(Extension):
                     ap_buff = round(levels_gained / 3)
                     hlt_buff = (round(levels_gained / 20) * 25)
 
-                    update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0}, '$inc': {'CARD_LEVELS.$[type].' + "LVL": levels_gained, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff, 'CARD_LEVELS.$[type].' + "DEF": atk_def_buff, 'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                    filter_query = [{'type.'+ "CARD": str(card.name)}]
-                    response = db.updateUser(user.user_query, update_query, filter_query)
+                    update_query = {
+                        '$set': {'CARD_LEVELS.$[type].EXP': 0},
+                        '$inc': {
+                            'CARD_LEVELS.$[type].LVL': levels_gained,
+                            'CARD_LEVELS.$[type].ATK': atk_def_buff,
+                            'CARD_LEVELS.$[type].DEF': atk_def_buff,
+                            'CARD_LEVELS.$[type].AP': ap_buff,
+                            'CARD_LEVELS.$[type].HLT': hlt_buff
+                        }
+                    }
+                    filter_query = [{'type.CARD': str(card.name)}]
+                    await asyncio.to_thread(db.updateUser, user.user_query, update_query, filter_query)
                     user.remove_gems(card.universe, price)
                     gems_left = balance - price
-                    embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** gained {levels_gained} levels!\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
+
+                    embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** gained {levels_gained} levels!\nCost: {icon}{price:,}\nYou have {icon}{gems_left:,} gems left.", color=0xf1c40f)
                     milestone_message = await Quests.milestone_check(user, "BLACKSMITH", 1)
                     if milestone_message:
                         embed.add_field(name="🏆 **Milestone**", value=milestone_message)
                     await msg.edit(embed=embed, components=[])
-                    return
-                
-                if option == f"{_uuid}|1":
-                    levels_gained = 10
-                    price = ten_levels
-                if option == f"{_uuid}|2":
-                    levels_gained = 30
-                    price = thirty_levels
-                if option == f"{_uuid}|3":
-                    levels_gained = 100
-                    price=hundred_levels
-                if option == f"{_uuid}|5":
-                    levels_gained = 50
-                    price=1000
-                if option == f"{_uuid}|cancel":
-                    embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Blacksmith cancelled.", color=0xf1c40f)
-                    await msg.edit(embed=embed, components=[])
-                    return
-                
-                if option in exp_boost_buttons:
-                    gems_left = balance - price
-                    if price > balance:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase.", color=0xf1c40f)
-                        await msg.edit(embed=embed,components=[])
+
+                elif option == '5':
+                    if arm.drop_style == "Boss Drop":
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"Cannot repair {arm.name}.", color=0xf1c40f), components=[])
                         return
 
-                    max_lvl = 1500
-                    if card.card_lvl >= max_lvl:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** is already at max smithing level. You may level up in battle, but you can no longer purchase levels for this card.", color=0xf1c40f)
-                        await msg.edit(embed=embed, components=[])
-                        return
-
-                    if (levels_gained + card.card_lvl) > max_lvl:
-                        levels_gained =  max_lvl - card.card_lvl
-
-
-                    atk_def_buff = round(levels_gained / 2)
-                    ap_buff = round(levels_gained / 3)
-                    hlt_buff = (round(levels_gained / 20) * 25)
-
-                    update_query = {'$set': {'CARD_LEVELS.$[type].' + "EXP": 0}, '$inc': {'CARD_LEVELS.$[type].' + "LVL": levels_gained, 'CARD_LEVELS.$[type].' + "ATK": atk_def_buff, 'CARD_LEVELS.$[type].' + "DEF": atk_def_buff, 'CARD_LEVELS.$[type].' + "AP": ap_buff, 'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
-                    filter_query = [{'type.'+ "CARD": str(card.name)}]
-                    response = db.updateUser(user.user_query, update_query, filter_query)
-                    user.remove_gems(card.universe, price)
-                    embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"**{card.name}** gained {levels_gained} levels!\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
-                    await msg.edit(embed=embed, components=[])
-                    if option == "cancel":
-                        embed = Embed(title=f"{card.universe_crest} | {card.universe} Blacksmith - {icon}{'{:,}'.format(balance)} ", description="Blacksmith cancelled.", color=0xf1c40f)
-                        await msg.edit(embed=embed, components=[])
-                        return
-                    
-                if option == f"{_uuid}|7":
-                    price = 100000
-                    if price > user.balance:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Insufficent funds.", color=0xf1c40f)
-                        # await button_ctx.ctx.send("Insufficent funds.", ephemeral=True)
-                        await msg.edit(embeds=[embed], components=[])
-                        return
-                    if user.preset_upgraded:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="You already have Gabe's Preset.", color=0xf1c40f)
-                        # await button_ctx.ctx.send("You already have 5 Presets!", ephemeral=True)
-                        await msg.edit(embeds=[embed], components=[])
-                        return
-                    else:
-                        await crown_utilities.curse(price, user.did)
-                        await asyncio.to_thread(db.updateUserNoFilter, {'DID': user.did}, {'$push': {'DECK' : {'CARD' : user.equipped_card, 'TITLE': user.equipped_title, 'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}}})
-                        await asyncio.to_thread(db.updateUserNoFilter,{'DID': user.did}, {'$push': {'DECK' : {'CARD' : user.equipped_card, 'TITLE': user.equipped_title, 'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}}})
-                        await asyncio.to_thread(db.updateUserNoFilterAlt, user_query, {'$set': {'U_PRESET': True}})
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🔖 | Preset Upgraded", color=0xf1c40f)
-                        # await button_ctx.ctx.send("🔖 | Preset Upgraded")
-                        await msg.edit(embeds=[embed], components=[])
-                        return
-                
-                if option == f"{_uuid}|5":
-                    if dungeon_arm:
-                        price = 5000
-                    if abyss_arm:
-                        price = 25000
-
-                    gems_left = balance - price
-
-                    if price > balance:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase.", color=0xf1c40f)
-                        await msg.edit(embed=embed,components=[])
-                        return
-                    
                     if arm.durability >= 100:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"{arm.name} is already at Max Durability ⚒️", color=0xf1c40f)
-                        await msg.edit(embed=embed, components=[])
-                        return
-                    else:
-                        try:
-                            new_durability = arm.durability + levels_gained
-                            full_repair = False
-                            if new_durability > 100:
-                                levels_gained = 100 - arm.durability
-                                full_repair=True
-                            update_query = {'$inc': {'ARMS.$[type].' + 'DUR': levels_gained}}
-                            filter_query = [{'type.' + "ARM": str(arm.name)}]
-                            resp = db.updateUser(user.user_query, update_query, filter_query)
-
-                            user.remove_gems(card.universe, price)
-                            if full_repair:
-                                embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🦾 | {arm.name}'s ⚒️ durability has increased by **{levels_gained}**!\n*Maximum Durability Reached!*\n\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
-                            else:
-                                embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🦾 | {arm.name}'s ⚒️ durability has increased by **{levels_gained}**!\nYou have {icon}{'{:,}'.format(gems_left)} gems left.", color=0xf1c40f)
-                            await msg.edit(embed=embed, components=[])
-                            return
-                        except:
-                            await ctx.send("Unsuccessful to purchase durability boost.", ephemeral=True)
-
-                if option == f"{_uuid}|6":
-                    if tier_values[(card.card_tier + 1)] > user.balance:
-                        # await button_ctx.ctx.send("Insufficent funds.", ephemeral=True)
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="Insufficent funds.", color=0xf1c40f)
-                        await msg.edit(embeds=[embed], components=[])
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"{arm.name} is already at Max Durability ⚒️", color=0xf1c40f), components=[])
                         return
 
+                    price = arm_cost
+                    if price > balance:
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"You do not have enough {card.universe} gems to make this purchase. Cost: {icon}{price:,}", color=0xf1c40f), components=[])
+                        return
+
+                    durability_increase = min(50, 100 - arm.durability)
+                    update_query = {'$inc': {'ARMS.$[type].DUR': durability_increase}}
+                    filter_query = [{'type.ARM': str(arm.name)}]
+                    await asyncio.to_thread(db.updateUser, user.user_query, update_query, filter_query)
+                    user.remove_gems(card.universe, price)
+                    gems_left = balance - price
+
+                    embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🦾 | {arm.name}'s ⚒️ durability has increased by **{durability_increase}**!\nCost: {icon}{price:,}\nYou have {icon}{gems_left:,} gems left.", color=0xf1c40f)
+                    await msg.edit(embed=embed, components=[])
+
+                elif option == '6':
                     if card.card_tier >= 10:
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | {card.name} is already at max tiers.", color=0xf1c40f)
-                        await msg.edit(embeds=[embed], components=[])
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | {card.name} is already at max tiers.", color=0xf1c40f), components=[])
                         return
-                    
-                    else:
-                        new_tier = card.card_tier + 1
-                        await crown_utilities.curse(tier_values[new_tier], user.did)
-                        update_query = {'$inc': {'CARD_LEVELS.$[type].' + "TIER": 1}}
-                        filter_query = [{'type.' + "CARD": card.name}]
-                        response = await asyncio.to_thread(db.updateUser, user.user_query, update_query, filter_query)
-                        # await button_ctx.ctx.send(f"⭐ | Your card has been upgraded to Tier {new_tier}!", ephemeral=True)
-                        embed = Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | Your card has been upgraded to Tier {new_tier}!", color=0xf1c40f)
-                        await msg.edit(embeds=[embed], components=[])
+
+                    new_tier = card.card_tier + 1
+                    print(f"New Tier: {new_tier}")
+                    price = tier_values[new_tier]
+                    if price > user.balance:
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"Insufficient funds. Cost: 💸{price:,}", color=0xf1c40f), components=[])
                         return
+
+                    await crown_utilities.curse(price, user.did)
+                    update_query = {'$inc': {'CARD_LEVELS.$[type].TIER': 1}}
+                    filter_query = [{'type.CARD': card.name}]
+                    await asyncio.to_thread(db.updateUser, user.user_query, update_query, filter_query)
+                    await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"⭐ | Your card has been upgraded to Tier {new_tier}!\nCost: 💸{price:,}", color=0xf1c40f), components=[])
+
+                elif option == '7':
+                    price = 1000000
+                    if price > user.balance:
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"Insufficient funds. Cost: 💸{price:,}", color=0xf1c40f), components=[])
+                        return
+
+                    if user.preset_upgraded:
+                        await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description="You already have Gabe's Preset.", color=0xf1c40f), components=[])
+                        return
+
+                    await crown_utilities.curse(price, user.did)
+                    new_preset = {'CARD': user.equipped_card, 'TITLE': user.equipped_title, 'ARM': user.equipped_arm, 'PET': "Chick", 'TALISMAN': user.equipped_talisman}
+                    await asyncio.to_thread(db.updateUserNoFilter, {'DID': user.did}, {'$push': {'DECK': new_preset}})
+                    await asyncio.to_thread(db.updateUserNoFilter, {'DID': user.did}, {'$push': {'DECK': new_preset}})
+                    await asyncio.to_thread(db.updateUserNoFilterAlt, user.user_query, {'$set': {'U_PRESET': True}})
+                    await msg.edit(embed=Embed(title=f"{card.universe_crest} {card.universe} Blacksmith", description=f"🔖 | Preset Upgraded\nCost: 💸{price:,}", color=0xf1c40f), components=[])
+
             except asyncio.TimeoutError:
                 await ctx.send("Blacksmith closed.", ephemeral=True)
-            except Exception as ex:
-                custom_logging.debug(ex)
-                await ctx.send("Blacksmith closed unexpectedly. Seek support.", ephemeral=True)
-        except asyncio.TimeoutError:
-            await ctx.send("Blacksmith closed.", ephemeral=True)
+
         except Exception as ex:
             custom_logging.debug(ex)
             await ctx.send("Blacksmith closed unexpectedly. Seek support.", ephemeral=True)
-    
 
     @slash_command(description="View your summons", options=[
         SlashCommandOption(

@@ -230,7 +230,7 @@ class Card:
             self.overlord_opponent_original_defense = 0
             self.jujutsu_kaisen_focus_crit_used = False
             self.jujutsu_kaisen_domain_expansion_active = False
-            self.jujutsu_kaisen_oppenent_resolved_before_self = False
+            self.jujutsu_kaisen_opponent_resolved_before_self = False
             self.jujutsu_kaisen_damage_check_turn_count = 0
             self.jujutsu_kaisen_damage_meter = 0
             # This is how much damage will be dealt to you under the second phase of the domain expansion trait
@@ -2941,6 +2941,9 @@ class Card:
                 battle_config.add_to_battle_log(f"(🦠) {self.name} reached their full power")
 
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🦠 {dmg['MESSAGE']}")
+            if opponent_card.jujutsu_kaisen_domain_expansion_active:
+                domain_expansion_check(self, opponent_card, battle_config)
+                
             if opponent_card.health <= 0:
                 final_stand(self, battle_config, dmg['DMG'], opponent_card)
                 devils_endurance(opponent_card, battle_config)
@@ -3515,11 +3518,6 @@ class Card:
                     dmg['DMG'] = dmg['DMG'] * .6
             if self.universe == "Chainsawman":
                 contracts(self, dmg, battle_config)
-            if opponent_card.jujutsu_kaisen_domain_expansion_active:
-                # This is where the domain expansion check will only deal damage to the damage check
-                # The domain expansion check in the tactics.py file is changing the turn to the opponent again
-                domain_expansion_check(self, opponent_card, battle_config, dmg['DMG'])
-                pass
             if self.siphon_active:
                 siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
                 self.damage_healed = self.damage_healed + (dmg['DMG'] * .15) + self._siphon_value
@@ -3573,6 +3571,10 @@ class Card:
         turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
         if not dmg['REPEL'] and not dmg['ABSORB']:
+            if opponent_card.jujutsu_kaisen_domain_expansion_active:
+                domain_expansion_check(self, opponent_card, battle_config, dmg['DMG'])
+                return
+
             if dmg['SUMMON_USED']:
                 name = f"🧬 {self.name} summoned **{self.summon_name}**\n"
             else:
