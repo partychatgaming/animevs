@@ -36,7 +36,7 @@ from cogs.universe_traits.one_punch_man import rank_hero, hero_reinforcements
 from cogs.universe_traits.seven_deadly_sins import increase_power
 from cogs.universe_traits.persona import summon_persona, summon_blitz
 from cogs.universe_traits.overlord import fear_aura, fear, fear_duration_check
-from cogs.universe_traits.jujutsu_kaisen import cursed_energy, cursed_energy_reset
+from cogs.universe_traits.jujutsu_kaisen import cursed_energy, cursed_energy_reset, domain_expansion, domain_expansion_check
 from cogs.universe_traits.slime import  skill_evolution, summon_slime, beezlebub
 from cogs.universe_traits.fma import philosopher_stone, equivalent_exchange, equivalent_exchange_resolve
 
@@ -93,6 +93,7 @@ class Card:
             self.is_assassin = False
             self.is_swordsman = False
             self.is_summoner = False
+            self.card_id = 0
             self.is_monstrosity = False
             self.class_tutorial_message = ""
             self.class_tutorial_message_r = ""
@@ -228,6 +229,13 @@ class Card:
             self.overlord_fear_duration = 0
             self.overlord_opponent_original_defense = 0
             self.jujutsu_kaisen_focus_crit_used = False
+            self.jujutsu_kaisen_domain_expansion_active = False
+            self.jujutsu_kaisen_opponent_resolved_before_self = False
+            self.jujutsu_kaisen_damage_check_turn_count = 0
+            self.jujutsu_kaisen_damage_meter = 0
+            # This is how much damage will be dealt to you under the second phase of the domain expansion trait
+            self.jujutsu_kaisen_damage_meter_max = 0
+
             self.slime_buff = 0
             self.universe_trait_value = 0
             self.universe_trait_value_name = ""
@@ -952,6 +960,8 @@ class Card:
                         self.card_exp = x.get('EXP', 0)
                         self.card_tier = x.get('TIER', self.tier)
                         self.tier = x.get('TIER', self.tier)
+                        self.card_class = x.get('CLASS', self.card_class)
+                        self.card_id = x.get('ID', self.card_id)
                         break
 
             
@@ -1563,6 +1573,7 @@ class Card:
         move_element = ""
         move_emoji = ""
         summon_used = False
+        enhancer_critical = False
 
         ENHANCERS = [4]
         MOVES = [1,2,3,6]
@@ -1665,6 +1676,9 @@ class Card:
             enhancer = True
             enh = self.move4enh
             ap = self.move4ap
+            if random.randint(1, 20) == 20:
+                ap = ap * 2
+                enhancer_critical = True
             move_stamina = self.stamina if enh == "GAMBLE" else self.move4_stamina
             move = self.move4
 
@@ -1777,6 +1791,11 @@ class Card:
                         message = f"{turn_card.name} synchronized {'stamina' if enh == 'SOULCHAIN' else 'health'}  to {enhancer_value}"
                     else:
                         message = f"{turn_card.name} inflicted {enh.lower()}"
+                    
+                    # If enhancer is a critical hit, add a critical hit to the message
+                    if enhancer_critical:
+                        # add to message critical hit
+                        message = f"[Critical] {message}"
                     return message
             
             m = get_message(move, enh, enhancer_value, self.tier)
@@ -2476,6 +2495,8 @@ class Card:
 
             fma_resolve = equivalent_exchange_resolve(self, battle_config)
 
+            jjk_resolve = domain_expansion(self, battle_config, player_title, opponent_card)
+
             if not any([mha_resolve, overlord_resolve, yuyu_resolve, one_piece_resolve, demon_slayer_resolve, naruto_resolve, aot_resolve, bleach_resolve, gow_resolve, fate_resolve, pokemon_resolve, fairytail_resolve,fma_resolve]):
                 self.standard_resolve_effect(battle_config, opponent_card, player_title)
 
@@ -2890,7 +2911,7 @@ class Card:
                     self.health = round(dmg['DMG'])
             elif self.move4enh == 'FEAR':
                 if self.universe != "Chainsawman":
-                    self.max_health = round(self.max_health - (self.max_health * .20))
+                    self.max_health = round(self.max_health - (self.max_health * .10))
                     if self.health > self.max_health:
                         self.health = self.max_health
 
@@ -2944,6 +2965,9 @@ class Card:
                 battle_config.add_to_battle_log(f"(🦠) {self.name} reached their full power")
 
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🦠 {dmg['MESSAGE']}")
+            if opponent_card.jujutsu_kaisen_domain_expansion_active:
+                domain_expansion_check(self, opponent_card, battle_config)
+                
             if opponent_card.health <= 0:
                 final_stand(self, battle_config, dmg['DMG'], opponent_card)
                 devils_endurance(opponent_card, battle_config)
@@ -3249,10 +3273,13 @@ class Card:
                 self.ice_counter = 0
                 opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .50)
                 opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .50)
+                # write to battle log that the opponent lost attack and defense
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {opponent_card.name} lost {round(dmg['DMG'] * .50):,} attack and defense")
                 if opponent_card.defense <= 30:
                     opponent_card.defense = 30
                 if opponent_card.attack <= 30:
                     opponent_card.attack = 30
+                
 
         battle_log_message = (
             f"({battle_config.turn_total}) {dmg['MESSAGE']} "
@@ -3514,7 +3541,7 @@ class Card:
                 if self.focus_count == 0:
                     dmg['DMG'] = dmg['DMG'] * .6
             if self.universe == "Chainsawman":
-                contracts(self, dmg, battle_config) 
+                contracts(self, dmg, battle_config)
             if self.siphon_active:
                 siphon_damage = (dmg['DMG'] * .15) + self._siphon_value
                 self.damage_healed = self.damage_healed + (dmg['DMG'] * .15) + self._siphon_value
@@ -3568,6 +3595,10 @@ class Card:
         turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
         if not dmg['REPEL'] and not dmg['ABSORB']:
+            if opponent_card.jujutsu_kaisen_domain_expansion_active:
+                domain_expansion_check(self, opponent_card, battle_config, dmg['DMG'])
+                return
+
             if dmg['SUMMON_USED']:
                 name = f"🧬 {self.name} summoned **{self.summon_name}**\n"
             else:
@@ -3627,7 +3658,8 @@ class Card:
     def activate_element_check(self, battle_config, dmg, opponent_card):
         if dmg['REPEL']:
             self.health = self.health - dmg['DMG']
-        elif dmg['ABSORB']:
+        
+        if dmg['ABSORB']:
             opponent_card.health = opponent_card.health + dmg['DMG']
 
         if dmg['SUMMON_USED']:
@@ -3663,7 +3695,6 @@ class Card:
         elif dmg['ELEMENT'] == "DEATH":
             self.death_effect_handler(battle_config, dmg, opponent_card)
 
-
         elif dmg['ELEMENT'] == "LIGHT":
             self.light_effect_handler(battle_config, dmg, opponent_card)
 
@@ -3685,7 +3716,6 @@ class Card:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
 
-
         elif dmg['ELEMENT'] == "RANGED":
             self.ranged_meter = self.ranged_meter + 1
             if self.ranged_meter == 2:
@@ -3697,7 +3727,6 @@ class Card:
             else:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             opponent_card.health = opponent_card.health - dmg['DMG']
-
 
         elif dmg['ELEMENT'] == "LIFE":
             self.life_effect_handler(battle_config, dmg, opponent_card)
@@ -3741,15 +3770,12 @@ class Card:
         elif dmg['ELEMENT'] == "NATURE":
             self.nature_effect_handler(battle_config, dmg, opponent_card)
 
-
         elif dmg['ELEMENT'] == "FIRE":
             self.fire_effect_handler(battle_config, dmg, opponent_card)
 
-
         elif dmg['ELEMENT'] == "ELECTRIC":
             self.electric_effect_handler(battle_config, dmg, opponent_card)
-
-        
+ 
         elif dmg['ELEMENT'] == "SLEEP":
             sleep_stacks_added = 0
             if not self.sleep_exhaustion_bool:
@@ -3768,7 +3794,6 @@ class Card:
                 sleep_message = f"({battle_config.turn_total}) 💤 {dmg['MESSAGE']}"
                 battle_config.add_to_battle_log(sleep_message)
 
-
         elif dmg['ELEMENT'] == "POISON":
             poison_capacity = self.max_health * .30
             if self.poison_dmg <= poison_capacity:
@@ -3784,7 +3809,6 @@ class Card:
             if self.poison_dmg == poison_capacity:
                 poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name}'s poison has reached max capacity! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
             battle_config.add_to_battle_log(poison_capacity_message)
-
 
         elif dmg['ELEMENT'] == "ROT":
             rot_capacity = self.max_health * .20

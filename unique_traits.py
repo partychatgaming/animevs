@@ -209,7 +209,7 @@ formatted_traits = [{
 }, {
     'NAME': 'Jujutsu Kaisen',
     'EFFECT': 'Cursed Energy, Domain Expansion',
-    'TRAIT': '\n**Cursed Energy:** The first attack after each focus is a critical hit.\n\n**Domain Expansion:** On Resolve, Your opponent must suceed a Damage check in (Class Rank Value[10-6] - Focus Count) turns or DIE. During the damage check your opponent loses 5% max health each turn during the Damage Check. If your opponents Focus Count is higher than yours, the Domain FAILS and you lose the same Max Health.'
+    'TRAIT': '\n**Cursed Energy:** The first attack after each focus, and their first attack at the start of the match, is a critical hit.\n\n**Domain Expansion:**\n• Activates on Resolve\n• Opponent has (10 - Focus Count) turns to pass a Damage Check\n• Damage Check value = 50% of your max health + card level\n• Each turn during Damage Check:\n  - Opponent loses 5% max health\n• If opponent fails Damage Check: They are executed\n• If opponent succeeds Damage Check: Domain fails\n\nSpecial cases:\n1. If opponent Resolved first:\n   • On their success, you take damage equal to the Damage Check value\n\n2. Against Jujutsu Kaisen opponents:\n   • If they use Domain Expansion first\n   • If your (ATK + DEF) > their (ATK + DEF):\n     - Their domain is cancelled\n     - Your domain activates'
 }, {
     'NAME': 'That Time I Got Reincarnated as a Slime',
     'EFFECT': 'Skill Evolution, Gift, Beezlebub',

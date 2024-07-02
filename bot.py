@@ -2838,8 +2838,8 @@ async def blessguild_Alt(amount, guild):
 
 @slash_command(description="Create Code for Droppables", options=[
    SlashCommandOption(name="code_input", description="Code to create", type=OptionType.STRING, required=True),
-   SlashCommandOption(name="coin", description="Coin amount", type=OptionType.INTEGER, required=True),
-   SlashCommandOption(name="gems", description="Gem amount", type=OptionType.INTEGER, required=True),
+   SlashCommandOption(name="coin", description="Coin amount", type=OptionType.INTEGER, required=False),
+   SlashCommandOption(name="gems", description="Gem amount", type=OptionType.INTEGER, required=False),
    SlashCommandOption(name="card", description="Card to give", type=OptionType.STRING, required=False),
    SlashCommandOption(name="arm", description="Arm to give", type=OptionType.STRING, required=False),
    SlashCommandOption(name="summon", description="Summon to give", type=OptionType.STRING, required=False),
@@ -2847,7 +2847,7 @@ async def blessguild_Alt(amount, guild):
 
 ], scopes=crown_utilities.guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def createcode(ctx, code_input, coin, gems, card=None, exp_to_give=0):
+async def createcode(ctx, code_input, coin=None, gems=None, card=None, exp_to_give=0):
    is_creator = db.queryUser({'DID': str(ctx.author.id)})['CREATOR']
    if not is_creator:
       await ctx.send("Creator only command.", ephemeral=True)
@@ -2905,7 +2905,7 @@ async def code(ctx, code_input: str):
          arm_drop = db.queryArm({'NAME': arm}) if arm else ""
          embed_list = []
          if code_input not in user.used_codes:
-            if gems != 0:
+            if gems:
                if not user.gems:
                   universe_to_add_gems = equipped_card.universe
                   user.save_gems(universe_to_add_gems, gems)
@@ -2914,22 +2914,25 @@ async def code(ctx, code_input: str):
                embed = Embed(title="Gems Increased", description=f"💎 **{gems:,}** gems have been added to your balance!", color=0x00ff00)
                embed_list.append(embed)
 
-            if coin != 0:
+            if coin:
                await crown_utilities.bless(int(coin), user.did)
                embed = Embed(title="Gold Increased", description=f"🪙 **{coin:,}** gold have been added to your balance!", color=0x00ff00)
                embed_list.append(embed)
+            
             if card_drop:
                card = crown_utilities.create_card_from_data(card_drop)
                if card not in user.cards or card not in user.storage:
                   user.save_card(card)
                   embed = Embed(title="🎴 Card Drop", description=f"You received **{card.name}** from {card.universe_crest} {card.universe}!", color=0x00ff00)
                   embed_list.append(embed)
+            
             if arm_drop:
                arm = crown_utilities.create_arm_from_data(arm_drop)
                if arm not in user.arms or arm not in user.storage:
                   user.save_arm(arm)
                   embed = Embed(title="🛡️ Arm Drop", description=f"You received **{arm.name}** from {arm.universe_crest} {arm.universe}!", color=0x00ff00)
                   embed_list.append(embed)
+            
             if exp:
                user = await bot.fetch_user(ctx.author.id)
                mode = "Purchase"
@@ -3508,6 +3511,27 @@ async def updatemoves(ctx, universe):
          }))
          embed = Embed(title="Error", description=f"An error occurred: {ex}", color=0xff0000)
          await ctx.send(embed=embed)
+
+
+# @slash_command(description="update cards", scopes=crown_utilities.guild_ids)
+# async def updatecardswithclassandid(ctx, universe):
+#    await ctx.defer()
+
+#    if ctx.author.id not in [306429381948211210, 263564778914578432]:
+#       await ctx.send("🛑 You know damn well this command isn't for you.")
+#       return
+
+#    counter = 0
+#    # query all users
+#    all_users = db.queryAllUsers()
+#    for user in all_users:
+#       user_class = crown_utilities.create_player_from_data(user)
+#       for card in user_class.card_levels:
+#          card_data = crown_utilities.create_card_from_data(db.queryCard({'NAME': card['CARD']}))
+#          card['CLASS'] = card_data.class_name
+#          card['ID'] = card_data.id
+#          counter += 1
+#       db.updateUserNoFilter({'DID': user['DID']}, {'$set': {'CARD_LEVELS': user_class.card_levels}})
 
 
 # @slash_command(description="update title abilities", options=[
