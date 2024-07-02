@@ -932,11 +932,11 @@ async def register(ctx):
                )
          ]
 
-         embed = Embed(title="Anime VS+ Registration", description="Welcome to Anime VS+! Embark on an epic journey through the multiverse of anime and video games. Collect your favorite characters, unlock unique gear and companions, and dominate countless universes. Dive into solo adventures, customize your experience, and earn awesome rewards. Are you ready to register and choose your starter universe? Let's see how powerful you can become!", color=0x7289da)
+         embed = Embed(title="🆚 | Anime VS+ Registration", description="Welcome to **Anime VS+!**\n\nEmbark on an epic journey through the multiverse of anime and video games.\n**Collect** your favorite **Characters**, incredible **Items** and unique **Summons** to dominate the multiverse.\n**Let's see how powerful 🫵🏼You can become!**", color=0x7289da)
 
-         embed.add_field(name="__What happens if you continue?__", value="Click Continue to start your registration. You'll choose your starting universe, granting you access to 3 unique Cards, a Title, and an Arm to kickstart your adventure.", inline=False)
+         embed.add_field(name="ℹ️ | __What happens if you continue?__", value="Click **Continue** to start your registration!\nYou'll choose your **Starting Universe**, granting you 1 Universe **Title**, and 3 unique **Cards** & **Arms** to kickstart your adventure.", inline=False)
 
-         embed.add_field(name="__What happens if you cancel?__", value="You'll be removed from the registration process. You can always come back and register later.", inline=False)
+         # embed.add_field(name="__What happens if you cancel?__", value="You'll be removed from the registration process. You can always come back and register later.", inline=False)
 
          embed.set_footer(text="Anime VS+ | Registration")
 
@@ -979,15 +979,14 @@ async def register(ctx):
                      available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
                      
                      embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
-                     **{available} Select A Starting Universe, {ctx.author.mention}!**
+                     **{available} | Select A Starting Universe!**
+                     Welcome {ctx.author.mention}!
+                     Select a universe to earn *3* 🎴 Cards and 🦾 Arms to begin! 
 
-                     Selecting a Starter Universe will give you *3* additional 🎴 Cards and 🦾 Arms to begin! 
-
-                     Don't overthink it! You can always earn more cards, arms, titles and more later!
-                     
-                     ♾️ - Unique Universe Trait
-                     {traitmessage}
+                     ℹ️**Don't overthink it!** 
+                     You can always earn more cards, arms, titles and more later!
                      """))
+                     embedVar.add_field(name="♾️ | Unique Universe Trait", value=f"{traitmessage}")
                      embedVar.set_image(url=uni['PATH'])
                      embedVar.set_footer(text="You can earn items in all universes! This is just a starting point!")
                      universe_embed_list.append(embedVar)

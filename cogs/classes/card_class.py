@@ -247,6 +247,8 @@ class Card:
                 self.universe_trait_value_name = "Quirk Energy"
             if self.universe == "Chainsawman":
                 self.universe_trait_value_name = "Contract Offering"
+            if self.universe == "Jujustu Kaisen":
+                self.universe_trait_value_name = "Domain Expansion"
 
 
             # Elemental Effect Meters
@@ -1574,7 +1576,7 @@ class Card:
         move_emoji = ""
         summon_used = False
         enhancer_critical = False
-
+        ap = 25
         ENHANCERS = [4]
         MOVES = [1,2,3,6]
         #Checking here for Souls Third Phase move
@@ -1588,7 +1590,7 @@ class Card:
             is_physical_element = False
             ranged_attack = False
             wind_buff = 0
-
+            
             if selected_move == 1:
                 move = self.move1
                 ap = self.move1ap
@@ -1835,8 +1837,8 @@ class Card:
 
         else:
             try:
-                print(ap)
-                print(true_dmg)
+                # print(ap)
+                # print(true_dmg)
                 if true_dmg <= 50:
                     true_dmg = 50
                 defensepower = _opponent_card.defense - self.attack
@@ -1844,20 +1846,20 @@ class Card:
                     defensepower = 2000
                 if defensepower <= 0:
                     defensepower = 1
-                    print("defensepower: ", defensepower)
+                    # print("defensepower: ", defensepower)
 
                 bonus_damage = 0
                 if self.universe == "Full Metal Alchemist":
                     bonus_damage = equivalent_exchange(self, battle_config, self.attack, move_stamina)
                 attackpower = (self.attack - _opponent_card.defense) + ap + bonus_damage
-                print("attackpower: ", attackpower)
+                # print("attackpower: ", attackpower)
                 if attackpower <= 0:
                     attackpower = ap
 
                 abilitypower = round(attackpower / defensepower)
                 if abilitypower <= 0:
                     abilitypower = 25
-                print("dmg: ", abilitypower)   
+                # print("dmg: ", abilitypower)   
 
                 dmg = abilitypower
                 if self.attack >= (_opponent_card.defense * 2):
@@ -1926,16 +1928,16 @@ class Card:
                 #Summon used checks
                 # Added 100x multiplier to increase damage
                 summoner_buff = 0
-                print(f"here 1: {true_dmg}")
+                # print(f"here 1: {true_dmg}")
                 if summon_used and self.is_summoner:
                     summoner_buff = self.calculate_summoner_buff(true_dmg)
-                    print(f"here 1.1: {true_dmg}")
+                    # print(f"here 1.1: {true_dmg}")
                     true_dmg += round(summoner_buff)
-                    print(f"here 2: {true_dmg}")
+                    # print(f"here 2: {true_dmg}")
                 # Soul Eater Meister Trait
                 if self.summon_universe == "Soul Eater" and self.universe == "Soul Eater":
                     true_dmg = true_dmg * 2
-                    print(f"here 3: {true_dmg}")
+                    # print(f"here 3: {true_dmg}")
                 # print(ap)
                 if summon_used and self.universe == "Soul Eater":
                     hit_roll = 0
@@ -2004,8 +2006,6 @@ class Card:
                         true_dmg = round(true_dmg * 1.5)
 
                 does_repel = False
-                # print("pre_affinity")
-                # print(true_dmg)
                 if (move_element in _opponent_card.weaknesses or self._tactician_stack_5 ==True) and not (hit_roll <= miss_hit):
                     true_dmg = round(true_dmg * 1.6)
                     hit_type = "hit"
@@ -2030,22 +2030,23 @@ class Card:
                         else:
                             message = f"{move_emoji} {turn_card.name} cannot effect {_opponent_card.name} ({move_emoji} immunity)"
                     if move_element in _opponent_card.repels and not (hit_roll <= miss_hit):
+                        self.health = self.health - true_dmg
                         if summon_used:
-                            self.health = self.health - true_dmg
                             message = f"{_opponent_card.name} repelled {turn_card.summon_name}'s attack dealing {true_dmg:,} damage ({move_emoji} repelled)"
                         else:
                             message = f"{_opponent_card.name} repelled {turn_card.name}'s attack dealing {true_dmg:,} damage ({move_emoji} repelled)"
                         does_repel = True
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {message}")
                     if move_element in _opponent_card.absorbs and not (hit_roll <= miss_hit):
+                        _opponent_card.health = _opponent_card.health + true_dmg
                         if summon_used:
-                            _opponent_card.health = _opponent_card.health + true_dmg
                             message = f"{_opponent_card.name} absorbed {turn_card.summon_name}'s attack for {true_dmg:,} healing ({move_emoji} absorbed)"
                         else:
                             message = f"{_opponent_card.name} absorbed {turn_card.name}'s attack for {true_dmg:,} healing ({move_emoji} absorbed)"
                         does_absorb = True
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {message}")
+                        
                 
-                # print("post_affinity")
-                # print(true_dmg)
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
                     self._assassin_attack = self._assassin_attack - 1
@@ -2166,7 +2167,7 @@ class Card:
 
         # Calculate the boosted damage
         boosted_damage = round(int(ap * ( multiplier)))
-        print(boosted_damage)
+        #print(boosted_damage)
         return boosted_damage
 
 

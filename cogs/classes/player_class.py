@@ -184,7 +184,7 @@ class Player:
                     if t["TYPE"].upper() == self.equipped_talisman.upper():
                         talisman_emoji = crown_utilities.set_emoji(self.equipped_talisman.upper())
                         talisman_durability = t["DUR"]
-                        self.talisman_message = f"{talisman_emoji} {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
+                        self.talisman_message = f"{talisman_emoji} {self.equipped_talisman.title()} Talisman ⚒️{talisman_durability}"
         except Exception as ex:
             trace = []
             tb = ex.__traceback__

@@ -440,7 +440,7 @@ class GameState(Extension):
                     battle_stats_embed.add_field(name=f"❤️‍🩹 | Healing",
                                     value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.damage_healed}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.damage_healed}")
                     #Pet Level Embed
-                    pet_level_embed = Embed(title=f"🧬 | Summon Level", description=f"View the summon xp", color=0x1abc9c)
+                    pet_level_embed = Embed(title=f"🧬 Summon Level", description=f"View the summon xp", color=0x1abc9c)
                     pet_level_embed.add_field(name=f"🧬 | {battle_config.player1_card.summon_name}'s Growth",
                                     value=petlogger)
                     return win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed

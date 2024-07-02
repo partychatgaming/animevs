@@ -2681,7 +2681,7 @@ class CustomPaginator(Paginator):
 
 
         embed1 = Embed(title=f"Registration Complete", description=f"Welcome to Anime VS+ {ctx.author.mention}! You have selected **{universe_title}** as your starting universe. Let's get you started!")
-        embed1.add_field(name=f"__New Beginnings__", value=f"By default, you will start the game with Naruto, Luffy, and Ichigo as starting cards. Now that you've selected a starting universe, **{universe_title}**, you will receive an additional 3 cards, some arms, and a title from {universe_title} to give you a head start in the game. Check the next pages for an understanding of what you've received.")
+        embed1.add_field(name=f"__New Beginnings__", value=f"Now that you've selected **{universe_title}**, you'll receive 3 cards, some arms, and a title to give you a head start. By default, you also start the game with 3 additional starting cards: Naruto, Luffy, and Ichigo.\n\n**Check the next pages to see what you've received.**")
         embed1.set_footer(text="🎗️Use /daily for Daily Reward and Quest\n🔥/difficulty - Change difficulty setting of the game!", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
         
         list_of_titles = [x['TITLE'] for x in db.queryAllTitlesBasedOnUniverses({'UNIVERSE': universe_title}) if x['UNLOCK_METHOD']['METHOD'] == "TALES RUN" and x['UNLOCK_METHOD']['VALUE'] == 0]
@@ -2694,8 +2694,8 @@ class CustomPaginator(Paginator):
 
         titles_gained_message = "\n".join(titles_gained)
 
-        embed2 = Embed(title=f"🎗️ Titles Gained", description=f"🎗️ You have gained the following titles from {crown_utilities.crest_dict[universe_title]} **{universe_title}**:\n{titles_gained_message}")
-        embed2.add_field(name=f"__🎗️ Title My Valor__", value=f"Titles are unique descriptors that provide passive buffs to your cards' stats, debuff opponents, or grant special battle effects. These effects can include bypassing enemy defenses, boosting elemental damage, ensuring your attacks never miss, and more.", inline=False)
+        embed2 = Embed(title=f"🎗️ Titles Gained", description=f"🎗️ You earned the following titles from {crown_utilities.crest_dict[universe_title]} **{universe_title}**:\n{titles_gained_message}")
+        embed2.add_field(name=f"__🎗️ Title: My Valor__", value=f"Titles are unique descriptors that provide passive buffs to your cards' stats, debuff opponents, or grant special battle effects.", inline=False)
         embed2.set_footer(text="🎗️ Use /titles to view the titles you own.", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
         
         list_of_arms = [x for x in db.queryAllArmsBasedOnUniverses({'UNIVERSE': universe_title}) if x["DROP_STYLE"] ==  "TALES" and x['AVAILABLE'] and x['ARM'] not in current_arms]
@@ -2739,23 +2739,23 @@ class CustomPaginator(Paginator):
         arm_drop_message_into_embded = "\n".join(arm_message)
         card_drop_message_into_embded = "\n".join(card_message)
 
-        embed3 = Embed(title=f"🎴 Cards Gained", description=f"You have gained the following cards from {crown_utilities.crest_dict[universe_title]} **{universe_title}**:\n{card_drop_message_into_embded}")
-        embed3.add_field(name=f"__🎴 My Cards, My Power__", value=f"Cards are the characters you will use to battle in Anime VS+. Each card has a unique set of stats, abilities, and elements that can be used to defeat your opponents. Cards can be leveled up, evolved, and equipped with arms and titles to increase their power.", inline=False)
+        embed3 = Embed(title=f"🎴 Cards Gained", description=f"You earned the following cards from {crown_utilities.crest_dict[universe_title]} **{universe_title}**:\n{card_drop_message_into_embded}")
+        embed3.add_field(name=f"__🎴 My Cards, My Power__", value=f"Cards are the characters you will use to battle in Anime VS+. Each card has a unique set of stats, abilities, and elements to master. Cards can be leveled up, evolved, and equipped with arms and titles to increase their power.", inline=False)
         embed3.set_footer(text="🎴 Use /cards to view the cards you own.", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
                           
-        embed4 = Embed(title=f"🦾 Arms Gained", description=f"You have gained the following arms from {crown_utilities.crest_dict[universe_title]} **{universe_title}**:\n{arm_drop_message_into_embded}")
-        embed4.add_field(name=f"__🦾 My Arms, My Arsenal__", value=f"Arms are the weapons or protections you will use to battle in Anime VS+. Each arm has a unique set of abilities that can be used to defeat your opponents. Arms can be equipped to your cards to increase their power and give them new abilities.", inline=False)
+        embed4 = Embed(title=f"🦾 Arms Gained", description=f"You earned the following arms from {crown_utilities.crest_dict[universe_title]} **{universe_title}**:\n{arm_drop_message_into_embded}")
+        embed4.add_field(name=f"__🦾 My Arms, My Arsenal__", value=f"Arms are the abilties, weapons or protections you will use to battle in Anime VS+. Arms can be equipped to your cards to increase their power and give them new abilities.", inline=False)
         embed4.set_footer(text="🦾 Use /arms to view the arms you own.", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
 
-        embed5 = Embed(title="🔧Build and Strategize", description="Now that you have some cards, arms, and titles, it's time to build. We have you covered to start with a default build that is designed to win battles. Use the **/build** command to see the default build", color=0x7289da)
-        embed5.add_field(name="__Build Freedom__", value="Your build is crucial to your success. Spend some time mix and matching to find what works best for you. Use the **/cards, /titles, /arms, /summons, and /talismans** commands to equip what works best for your strategy.", inline=False)
+        embed5 = Embed(title="🔧Build and Strategize", description="Now that you have some items, it's time to **Build**. We have you covered to start with a default build that is designed to win battles. Use the **/build** command to see the default build", color=0x7289da)
+        embed5.add_field(name="__Build Freedom__", value="Your build is crucial to your success. Spend some time mix and matching to find what works best for you. Use the **/cards, /titles, /arms, /summons, and /talismans** and develop a winning strategy.", inline=False)
         embed5.set_footer(text="🔧 Use /build to view your current build.", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
                           
-        embed6 = Embed(title="Talismans? Summons? What are those?", description="Oh yeah! Almost forgot. In addition to your cards, titles, and arms there are equippable summons and talismans. Summons are companions you can use during battle to attack or protect you, and talismans are equippable items that can be used to force an ability element of yours to bypass an opponents resistances. Neat, right?", color=0x7289da)
+        embed6 = Embed(title="📿Talismans?🧬 Summons?", description="Oh yeah! Almost forgot. In addition to your cards, titles, and arms there are equippable summons and talismans. Summons are companions you can call on during battle to attack or protect you, and talismans are equippables that can be used to bypass elemental resistances. Neat, right?", color=0x7289da)
         embed6.add_field(name="__🔮 Summoning and Talismans__", value="Use the **/summons** command to view the summons you own and the **/talismans** command to view the talismans you own.", inline=False)
 
         embed7 = Embed(title="Ready To Play", description="You're all set to start playing Anime VS+! Use the **/daily** command to claim your daily reward and check your quests. If you have any questions, feel free to ask in the support channel or check the **/help** command for more information.", color=0x7289da)
-        embed7.add_field(name="__🎮 Let's Play__", value="Use the **/play** command and select the Tutorial to learn the combat systems interactively.", inline=False)
+        embed7.add_field(name="__🎮 Let's Play__", value="Use the **/play** command and select the 🆘Anime VS+ Tutorial to learn the combat systems interactively.", inline=False)
         
         embed_list = [embed1, embed2, embed3, embed4, embed5, embed6, embed7]
 

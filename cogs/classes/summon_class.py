@@ -109,7 +109,7 @@ class Summon:
                     self.ability_power = (self.bond * 1) + self.ability_power_potential
 
     def calculate_ability_power(self):
-        self.ability_power = round(self.ability_power_potential * (1 + self.level / 18.25) * (1 + self.bond / 18.25))
+        self.ability_power = round((self.ability_power_potential * (self.bond + 1)) * (1 + self.level / 18.25) * (1 + self.bond / 18.25))
         return self.ability_power
 
 

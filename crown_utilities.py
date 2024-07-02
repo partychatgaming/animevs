@@ -281,8 +281,8 @@ async def summonlevel(player, player_card):
         if bond_req <= 0:
             bond_req = 100
         new_ap = player_card.summon_power  
-        level_message = f"{player_card.summon_lvl} | {player_card.summon_exp}/{lvl_req}"
-        bond_message = f"{player_card.summon_bond}"
+        level_message = f"Level: {player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
+        bond_message = f"Bond: {player_card.summon_bond}"
 
         if player_card.summon_lvl <= 100:
             # Non Level Up Code
@@ -290,16 +290,16 @@ async def summonlevel(player, player_card):
                 update_query = {'$inc': {'PETS.$[type].' + "EXP": xp_inc}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"{player_card.summon_lvl} | 🔼{player_card.summon_exp}/{lvl_req}"
+                level_message = f"Level: {player_card.summon_lvl} | XP: 🔼+{player_card.summon_exp}/{lvl_req}"
 
             # Level Up Code
             if player_card.summon_exp >= (lvl_req):
                 update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"{player_card.summon_emoji}{player_card.summon_lvl} | {player_card.summon_exp}/{lvl_req}"
+                level_message = f"Level: {player_card.summon_emoji}{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
-        if player_card.summon_lvl % 10:
+        if player_card.summon_lvl % 10 == 0:
             if player_card.summon_bond < 10:
                 # Non Bond Level Up Code
                 # if player_card.summon_bondexp < (bond_req - 1):
@@ -311,7 +311,7 @@ async def summonlevel(player, player_card):
                 update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                bond_message = f"🔼💓{player_card.summon_bond}"
+                bond_message = f"Bond: +💓{player_card.summon_bond}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
                 
         
@@ -1831,6 +1831,17 @@ def get_class_value(card_class):
         }
     value = tier_value.get(card_class, 1)
     return value
+
+def get_jjk_class_value(card_class):
+    tier_value = {
+            1: 10, 2: 10, 3: 10,
+            4: 9, 5: 9,
+            6: 8, 7: 8,
+            8: 7, 9: 7,
+            10: 6
+        }
+    value = tier_value.get(card_class, 1)
+    return value
     
 def card_being_traded(player_did, card_name):
     trade_data = db.queryTrade({'MERCHANT': player_did, 'OPEN': True})
@@ -2177,6 +2188,7 @@ universe_stack_traits = [
     'Full Metal Alchemist',
     'My Hero Academia',
     'Chainsawman',
+    'Jujustu Kaisen',
 ]
 focus_traits = [
     'Digimon',
