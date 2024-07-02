@@ -374,9 +374,9 @@ class Player:
 
     def save_card(self, card):
         try:
-            if card.name in (self.cards or self.storage):
-                print("Card already in storage")
-                return False
+            # if card.name in (self.cards or self.storage):
+            #     print("Card already in storage")
+            #     return False
             
             if len(self.cards) >= 80:
                 return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
@@ -411,10 +411,10 @@ class Player:
             
 
             update_query = {'$addToSet': {'CARDS': card.name}, '$set': {'CARD': card.name}}
-
-            if not any(card.name in d['CARD'] for d in self.card_levels):
-                update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'TIER': card.tier, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0}}, '$set': {'CARD': card.name}}
-            db.updateUserNoFilter(self.user_query,{'$addToSet':{'CARDS': card.name}})
+            code = uuid.uuid4()
+            # if not any(card.name in d['CARD'] for d in self.card_levels):
+            update_query = {'$addToSet': {'CARD_LEVELS': {'CARD': card.name, 'LVL': 1, 'TIER': card.tier, 'EXP': 0, 'ATK': 0, 'DEF': 0, 'AP': 0, 'HLT': 0, 'CLASS': card.card_class, 'ID': code}}, '$set': {'CARD': card.name}}
+            db.updateUserNoFilter(self.user_query,{'$push':{'CARDS': card.name}})
             db.updateUserNoFilter(self.user_query, update_query)
             # response = True # db.updateUserNoFilterAlt(self.user_query, update_query)
 
@@ -435,7 +435,8 @@ class Player:
                                         'CARD_LEVELS.$[type].' + "ATK": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "DEF": atk_def_buff,
                                         'CARD_LEVELS.$[type].' + "AP": ap_buff, 
-                                        'CARD_LEVELS.$[type].' + "HLT": hlt_buff}}
+                                        'CARD_LEVELS.$[type].' + "HLT": hlt_buff
+                                        }}
                 filter_query = [{'type.' + "CARD": str(card.name)}]
                 response = db.updateUser(self.user_query, update_query, filter_query)
         
@@ -445,26 +446,26 @@ class Player:
             return False
 
 
-    def remove_card(self, card_name):
+    def remove_card(self, card):
         try:
-            if card_name in self.cards:
-                update_query = {'$pull': {'CARDS': card_name}}
+            if card.name in self.cards:
+                update_query = {'$pull': {'CARDS': card.name}}
                 response = db.updateUserNoFilter(self.user_query, update_query)
 
 
             for card in self.card_levels:
-                if card['CARD'] == card_name:
+                if card['ID'] == card.card_id:
                     update_query = {'$pull': {'CARD_LEVELS': card}}
                     response = db.updateUserNoFilter(self.user_query, update_query)
 
 
-            if card_name in self.storage:
-                update_query = {'$pull': {'STORAGE': card_name}}
+            if card.name in self.storage:
+                update_query = {'$pull': {'STORAGE': card.name}}
                 response = db.updateUserNoFilter(self.user_query, update_query)
 
 
             for deck in self.deck:
-                if card_name == deck['CARD']:
+                if card.name == deck['CARD']:
                     update_query = {'$pull': {'DECK': deck}}
                     response = db.updateUserNoFilter(self.user_query, update_query)
 

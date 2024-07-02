@@ -1853,7 +1853,7 @@ class CustomPaginator(Paginator):
 
                         if response:
 
-                            remove_card_response = player.remove_card(card)
+                            remove_card_response = player.remove_card(c)
                             await crown_utilities.bless(dismantle_amount, player.did)
                             if remove_card_response:
                                 embed = Embed(title=f"🎴 Card Dismantled", description=f"{c.name} has been dismantled for 🪙 {dismantle_amount:,} Coin & 💎 {gem_amount:,} {c.universe_crest} {c.universe} Gems.")

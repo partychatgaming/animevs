@@ -6,6 +6,7 @@ from cogs.universe_traits.one_piece import observation_haki
 from cogs.universe_traits.chainsawman import devilization
 from cogs.universe_traits.solo_leveling import set_solo_leveling_config, activate_solo_leveling_trait
 from cogs.universe_traits.fairytail import fairy_tail_recovery
+from cogs.universe_traits.jujutsu_kaisen import domain_expansion_check
 import db
 import dataclasses as data
 import messages as m
@@ -188,6 +189,9 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
 
     devilization(player_card, battle_config)
     devilization(opponent_card, battle_config)
+    if opponent_card.jujutsu_kaisen_domain_expansion_active:
+        new_turn = domain_expansion_check(opponent_card, player_card, battle_config)
+        battle_config.is_turn = new_turn['TURN']
     if opponent_card.freeze_enh:
         new_turn = player_card.frozen(battle_config, opponent_card)
         battle_config.is_turn = new_turn['TURN']

@@ -318,10 +318,10 @@ class Trade(Extension):
                     c.set_card_level_buffs(level_array)
                     if str(card['DID']) == str(merchant.did):
                         trade_partner.save_card(c)
-                        merchant.remove_card(c.name)
+                        merchant.remove_card(c)
                     else:
                         merchant.save_card(c)
-                        trade_partner.remove_card(c.name)
+                        trade_partner.remove_card(c)
             
             if trade_info.arms:
                 for arm in trade_info.arms:

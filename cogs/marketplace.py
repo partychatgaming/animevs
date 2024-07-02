@@ -224,7 +224,7 @@ class Marketplace(Extension):
                 c = crown_utilities.create_card_from_data(card_data)
                 card_level = [{"CARD": c.name, "LVL": market_item_info["CARD_LEVEL"], "EXP": 0}]
                 c.set_card_level_buffs(card_level)
-                market_seller.remove_card(c.name)
+                market_seller.remove_card(c)
                 embed = Embed(title="🏷️ Marketplace", description=f"Are you sure you want to purchase {c.name}?", color=0x7289da)
                 message = await ctx.send(embed=embed, components=[row])
                 
