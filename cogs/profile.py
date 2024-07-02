@@ -1713,11 +1713,10 @@ class Profile(Extension):
                         continue
 
                 summon.set_player_summon_info(player)
-
+                # {summon.bond_message}
                 embedVar = Embed(title= f"{summon.name}", description=textwrap.dedent(f"""
                 🧬
-                _Bond_ **{summon.bond}** | {summon.bond_message}
-                _Level_ **{summon.level}** | {summon.level_message}
+                _Bond_ **{summon.bond}** | _Level_ **{summon.level}** | {summon.level_message}
 
                 {summon.emoji} {summon.ability_type.capitalize()} Ability 
                 **{summon.ability}:** {summon.ability_power}

@@ -272,42 +272,58 @@ async def summonlevel(player, player_card):
         protections = ['BARRIER', 'PARRY']
         query = {'DID': str(player.did)}
         summon_type = player_card.summon_type
-        lvl_req = (player_card.summon_lvl * 20) * (player_card.summon_bond + 1)
+        lvl_req = ((player_card.summon_lvl * (1 + player_card.summon_bond)) * (player_card.summon_bond + 1)) +  round(.10 * player_card.base_summon_power)
         if lvl_req <= 0:
             lvl_req = 25
-        bond_req = ((player_card.summon_power * (player_card.summon_bond + 1)) * (player_card.summon_bond + 1))
+        bond_req = ((player_card.summon_power * (player_card.summon_bond + 1)))
         if summon_type in protections:
-            bond_req = ((player_card.summon_power + player_card.summon_bond) * 50) * (player_card.summon_bond + 1)
+            bond_req = ((player_card.summon_power + player_card.summon_bond)) * (player_card.summon_bond + 1)
         if bond_req <= 0:
             bond_req = 100
-        
+        new_ap = player_card.summon_power  
+        level_message = f"{player_card.summon_lvl} | {player_card.summon_exp}/{lvl_req}"
+        bond_message = f"{player_card.summon_bond}"
 
-
-        if player_card.summon_lvl < 10:
+        if player_card.summon_lvl <= 100:
             # Non Level Up Code
             if player_card.summon_exp < (lvl_req - 1):
                 update_query = {'$inc': {'PETS.$[type].' + "EXP": xp_inc}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
+                level_message = f"{player_card.summon_lvl} | 🔼{player_card.summon_exp}/{lvl_req}"
 
             # Level Up Code
             if player_card.summon_exp >= (lvl_req):
                 update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-
-        if player_card.summon_bond < 3:
-            # Non Bond Level Up Code
-            if player_card.summon_bondexp < (bond_req - 1):
-                update_query = {'$inc': {'PETS.$[type].' + "BONDEXP": bxp_inc}}
-                filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
-                response = db.updateUser(query, update_query, filter_query)
-
-            # Bond Level Up Code
-            if player_card.summon_bondexp >= (bond_req - 1):
+                level_message = f"{player_card.summon_emoji}{player_card.summon_lvl} | {player_card.summon_exp}/{lvl_req}"
+                new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
+        if player_card.summon_lvl % 10:
+            if player_card.summon_bond < 10:
+                # Non Bond Level Up Code
+                # if player_card.summon_bondexp < (bond_req - 1):
+                #     update_query = {'$inc': {'PETS.$[type].' + "BONDEXP": bxp_inc}}
+                #     filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
+                #     response = db.updateUser(query, update_query, filter_query)
+                # Bond Level Up Code
+                # if player_card.summon_bondexp >= (bond_req - 1):
                 update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
+                bond_message = f"🔼💓{player_card.summon_bond}"
+                new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
+                
+        
+
+        if player_card.summon_bond >= 10:
+            bond_message = "🌟"
+        if player_card.summon_lvl  >= 100:
+            level_message = "⭐"
+        ap_message = f"{new_ap}"
+        summon_level_message = f"{bond_message} | {level_message}\n{player_card.summon_name} | {player_card.summon_emoji}{player_card.summon_ability_name} -{ap_message}"
+        return summon_level_message
+
     except Exception as ex:
         trace = []
         tb = ex.__traceback__
@@ -324,6 +340,10 @@ async def summonlevel(player, player_card):
             'trace': trace
         }))
         return
+    
+def calculate_summon__ability_power(ability_power_potential, level, bond):
+        ability_power = round(ability_power_potential * (1 + level / 18.25) * (1 + bond / 18.25))
+        return ability_power
 
 
 async def updateRetry(player_id, mode, math_calc):
@@ -1801,7 +1821,17 @@ def get_trade_eligibility(trader, trade_player):
     
     return False
 
-
+def get_class_value(card_class):
+    tier_value = {
+            1: 1, 2: 1, 3: 1,
+            4: 2, 5: 2,
+            6: 3, 7: 3,
+            8: 4, 9: 4,
+            10: 5
+        }
+    value = tier_value.get(card_class, 1)
+    return value
+    
 def card_being_traded(player_did, card_name):
     trade_data = db.queryTrade({'MERCHANT': player_did, 'OPEN': True})
     if not trade_data:

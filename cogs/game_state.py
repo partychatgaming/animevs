@@ -439,11 +439,14 @@ class GameState(Extension):
                     h_message = battle_config.get_most_damage_healed(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"❤️‍🩹 | Healing",
                                     value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.damage_healed}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.damage_healed}")
-
-                    return win_embed, reward_embed, battle_history_embed, battle_stats_embed
+                    #Pet Level Embed
+                    pet_level_embed = Embed(title=f"🧬 | Summon Level", description=f"View the summon xp", color=0x1abc9c)
+                    pet_level_embed.add_field(name=f"🧬 | {battle_config.player1_card.summon_name}'s Growth",
+                                    value=petlogger)
+                    return win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed
 
                 if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
-                    win_embed, reward_embed, battle_history_embed, battle_stats_embed = await compile_generic_results_embeds()
+                    win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed = await compile_generic_results_embeds()
                     if battle_config.is_dungeon_game_mode:
                         quest_embed, milestone_embed = await dungeon_handler()
                     if battle_config.is_tales_game_mode:
@@ -454,7 +457,7 @@ class GameState(Extension):
                     await asyncio.sleep(2)
                     # battle_msg = await private_channel.send(embed=embedVar)
 
-                    embed_list = [win_embed, reward_embed, quest_embed, milestone_embed, battle_history_embed, battle_stats_embed]
+                    embed_list = [win_embed, reward_embed, quest_embed, milestone_embed, battle_history_embed, battle_stats_embed, pet_level_embed]
                     paginator = Paginator.create_from_embeds(self.bot, *embed_list)
                     paginator.show_select_menu = True
                     paginator._author_id = battle_config.player1.did
