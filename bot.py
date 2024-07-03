@@ -932,9 +932,9 @@ async def register(ctx):
                )
          ]
 
-         embed = Embed(title="🆚 | Anime VS+ Registration", description="Welcome to **Anime VS+!**\n\nEmbark on an epic journey through the multiverse of anime and video games.\n**Collect** your favorite **Characters**, incredible **Items** and unique **Summons** to dominate the multiverse.\n**Let's see how powerful 🫵🏼You can become!**", color=0x7289da)
+         embed = Embed(title="🆚 | Anime VS+ Registration", description="Welcome to **Anime VS+**,\nEmbark on an epic journey through a multiverse of anime, manga and video games.\n**Collect** your favorite **Characters**, incredible **Items** and unique **Summons** to dominate the multiverse.\n**Let's see how powerful 🫵🏼You can become!**", color=0x7289da)
 
-         embed.add_field(name="ℹ️ | __What happens if you continue?__", value="Click **Continue** to start your registration!\nYou'll choose your **Starting Universe**, granting you 1 Universe **Title**, and 3 unique **Cards** & **Arms** to kickstart your adventure.", inline=False)
+         embed.add_field(name="[ℹ️]__What happens if you continue?__", value="Click **Continue** to start your registration!\nYou'll choose your **Starting Universe**, granting you 1 Universe **Title**, and 3 unique **Cards** & **Arms** to kickstart your adventure.", inline=False)
 
          # embed.add_field(name="__What happens if you cancel?__", value="You'll be removed from the registration process. You can always come back and register later.", inline=False)
 
@@ -963,7 +963,7 @@ async def register(ctx):
                for uni in universe_data:
                   available = ""
                   if uni['HAS_CROWN_TALES'] == True:
-                     traits = ut.traits
+                     traits = ut.formatted_traits
                      mytrait = {}
                      traitmessage = ''
                      o_show = uni['TITLE']
@@ -975,7 +975,7 @@ async def register(ctx):
                               if trait['NAME'] == 'Pokemon':
                                  mytrait = trait
                      if mytrait:
-                        traitmessage =f"**{mytrait['EFFECT']}|** {mytrait['TRAIT']}"
+                        traitmessage =f"*{mytrait['EFFECT']}* {mytrait['TRAIT']}"
                      available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
                      
                      embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
@@ -983,8 +983,9 @@ async def register(ctx):
                      Welcome {ctx.author.mention}!
                      Select a universe to earn *3* 🎴 Cards and 🦾 Arms to begin! 
 
-                     ℹ️**Don't overthink it!** 
-                     You can always earn more cards, arms, titles and more later!
+                     [ℹ️]**Don't overthink it!** 
+                     You can always earn cards, arms, titles and more from all universes later!
+
                      """))
                      embedVar.add_field(name="♾️ | Unique Universe Trait", value=f"{traitmessage}")
                      embedVar.set_image(url=uni['PATH'])

@@ -20,7 +20,7 @@ from cogs.universe_traits.demon_slayer import total_concentration_breathing
 from cogs.universe_traits.one_piece import conquerors_haki, armament
 from cogs.universe_traits.yuyu_hakusho import spirit_resolved, meditation
 from cogs.universe_traits.my_hero_academia import plus_ultra, quirk_awakening, activate_my_hero_academia_trait
-from cogs.universe_traits.aot import titan_mode, rally
+from cogs.universe_traits.aot import titan_mode, rally, omnigear
 from cogs.universe_traits.bleach import bankai, spiritual_pressure
 from cogs.universe_traits.god_of_war import acension
 from cogs.universe_traits.fate import command_seal
@@ -235,6 +235,9 @@ class Card:
             self.jujutsu_kaisen_damage_meter = 0
             # This is how much damage will be dealt to you under the second phase of the domain expansion trait
             self.jujutsu_kaisen_damage_meter_max = 0
+            self.titan_bonus = 0
+            self.omingear_bonus = 0
+
 
             self.slime_buff = 0
             self.universe_trait_value = 0
@@ -249,6 +252,8 @@ class Card:
                 self.universe_trait_value_name = "Contract Offering"
             if self.universe == "Jujustu Kaisen":
                 self.universe_trait_value_name = "Domain Expansion"
+            if self.universe == "Attack On Titan":
+                self.universe_trait_value_name = f"Titan Fortitude: {self.titan_bonus}\nOmnigear Velocity"
 
 
             # Elemental Effect Meters
@@ -2812,6 +2817,7 @@ class Card:
             self.blitz_buff = self.stamina
             self.stamina -= self.stamina
             persona_trait = summon_blitz(self, battle_config, opponent_card)
+            aot = omnigear(self, battle_config)
             if self.is_assassin:
                 if not self._assassin_active:
                     self._assassin_active = True

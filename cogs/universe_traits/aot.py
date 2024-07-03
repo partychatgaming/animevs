@@ -41,3 +41,14 @@ def rally(player_card, battle_config):
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} gained {(50 * player_card.tier)} health and max health rallying the survey corps ❤️")
         player_card.max_health = round(player_card.max_health + (50 * player_card.tier))
         player_card.health = player_card.health + (50 * player_card.tier)
+
+def omnigear(player_card, battle_config):
+    if player_card.universe == "Attack On Titan":
+        speed_boost = round(player_card.speed * (.05 * player_card.tier))
+        ap_boost = round(player_card.arbitrary_ap_buff * (.05 * player_card.tier))
+        player_card.speed += round(speed_boost)
+        if player_card.arbitrary_ap_buff <= 0:
+            ap_boost = round(player_card.speed * (.05 * player_card.tier))
+            player_card.arbitrary_ap_buff += round(ap_boost)
+        player_card.arbitrary_ap_buff += round(ap_boost)
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} activated their omnigear, gaining {(ap_boost)} ap and {(speed_boost)} speed bonus")
