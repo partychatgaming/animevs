@@ -18,6 +18,7 @@ import ai
 from logger import loggy
 # import bot as main
 import cogs.tactics as tactics
+from cogs.universe_traits.bleach import second_release
 from cogs.universe_traits.death_note import set_deathnote_message
 from cogs.universe_traits.solo_leveling import activate_solo_leveling_trait
 from cogs.universe_traits.souls import souls_third_phase
@@ -1262,6 +1263,10 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
             await private_channel.send(embed=embedVar)
         return
     
+    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|bleach":
+        response = await second_release(turn_card, opponent_card, battle_config)
+        return
+
     if battle_config.is_co_op_mode:
         if button_ctx.ctx.custom_id == f"{battle_config._uuid}|7":
             turn_card.use_companion_enhancer(battle_config, opponent_card, partner_card)
