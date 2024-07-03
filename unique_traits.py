@@ -151,7 +151,6 @@ formatted_traits = [{
     'TRAIT': '\n**Fearful**: You do not lose Health from the Fear Enhancer.\n\n**Contracts**:\n*Match Start* - Offer 10% of max health to gain ATK and DEF\n*Each Attack* - 10% of damage dealt is offered in Max Health and split to boost your ATK and DEF.\n\n**Devilization**: At 40% HP, increase Max Health, Health and AP by Offering amount\nYour ATK & DEF become equal to your Health + Offering for the rest of the match.\nOn Death revive for 3 Turns and then Die.'
 },{
     'NAME': 'Bleach',
-<<<<<<< HEAD
     'EFFECT': 'First Release, Second Release, Spiritual Pressure',
     'TRAIT': '''**SP:** Block: Defend, deal Basic Attack dmg.
 **Soul Reaper:**
@@ -169,10 +168,6 @@ formatted_traits = [{
 **Fullbringer:**
 *Fullbring Activation*: Resolve: Focus stamina 200, keep buffs. Repeat turn
 *Fullbring Completion*: Execute: +AP/ATK/DEF by (Stamina × Tier). Repeat turn'''
-=======
-    'EFFECT': 'Spiritual Pressure, First Release, Second Release',
-    'TRAIT': '\n\n\n**Spiritual Pressure:** On Block, Defend then Deal Damage equal to your Basic Attack.\n\n**First Release** - *Coming Soon*\n\n**Second Release** - *Coming Soon*'
->>>>>>> 70a104809b0b9bff8859ffd6d5dce26ab65a989d
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Omnigear, Titan Mode',
