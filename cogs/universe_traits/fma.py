@@ -30,7 +30,7 @@ def philosopher_stone(player_card, battle_config, dmg, opponent_card=None):
 
 def equivalent_exchange(player_card, battle_config, attack_damage, stamina_used):
     if player_card.universe == "Full Metal Alchemist":
-        if player_card.used_resolve:
+        if player_card.used_resolve and player_card.philospher_stone:
             healing_percent = round(((player_card.focus_count * player_card.tier) / 100) * attack_damage)
             player_card.health += healing_percent
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name}'s Philosopher's stone healed them for {healing_percent} health ❤️")
@@ -49,5 +49,6 @@ def equivalent_exchange_resolve(player_card, battle_config):
             if player_card.health < 0:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} crafted a philosophers stone! They are reviving with {philosopher_stone_amount} health!")
                 player_card.health = philosopher_stone_amount * 2
-            return
+                player_card.philospher_stone = True
+        return True
 

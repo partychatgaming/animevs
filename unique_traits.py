@@ -141,7 +141,7 @@ formatted_traits = [{
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Omnigear, Titan Mode',
-    'TRAIT': '\n**Rally:** On Block, Create (50 * Card Tier) Health.\n\n**Omnigear:** On Blitz, increase Speed and Ap by [Card Tier * 5]%.\n\n**Titan Mode:** Gain 100 x (Your Focus Count * Card Tier) worth of Health upon Resolve.'
+    'TRAIT': '\n**Rally:** On Block, Create (50 * Card Tier) Health.\n\n**Omnigear:** On Blitz, increase Speed and Ap by [Class Level * 5]%.\n\n**Titan Mode:** Gain 100 x (Your Focus Count * Card Tier) worth of Health upon Resolve.'
 },{
     'NAME': 'Black Clover',
     'EFFECT': 'Mana Zone, Grimoire',

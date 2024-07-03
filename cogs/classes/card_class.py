@@ -377,6 +377,7 @@ class Card:
             self.class_emoji = crown_utilities.class_emojis[self.card_class]
             self.level_icon = "🔰"
             self.class_tier = ""
+            self.class_level = crown_utilities.get_class_value(self.tier)
             if self.universe == "Fate":
                 self.class_tier = "Elite"
             if self.tier in [4,5]:
@@ -1094,6 +1095,8 @@ class Card:
                 self.move1base = self.move1ap
                 self.move2base = self.move2ap
                 self.move3base = self.move3ap
+                self.attack += arm_value
+                self.defense += arm_value
 
             if arm_type == "SHIELD":
                 self.shield_active = True
@@ -1112,6 +1115,9 @@ class Card:
                 self._siphon_value = self._siphon_value + arm_value
 
             if arm_type == "MANA":
+                self.move1ap = round(self.move1ap * (arm_value / 100))
+                self.move2ap = round(self.move2ap * (arm_value / 100))
+                self.move3ap = round(self.move3ap * (arm_value / 100))
                 self.move4ap = round(self.move4ap * (arm_value / 100))
 
         except Exception as ex:
@@ -1121,16 +1127,16 @@ class Card:
 
     def set_universal_buffs(self, arm_universe, title_universe):
         if (arm_universe == self.universe) and (title_universe == self.universe):
-            self.attack = self.attack + 20
-            self.defense = self.defense + 20
-            self.health = self.health + (150 * self.tier)
-            self.max_health = self.max_health  + (150 * self.tier)
+            self.attack += 100 + round(self.attack * (.05 * self.class_level))
+            self.defense += 100 + round(self.defense * (.05 * self.class_level))
+            self.health += 100 + round (self.health * (.05 * self.class_level))    
+            self.max_health += 100 + round (self.max_health * (.05 * self.class_level))
             self.universe_buff_message = "__Universe Buff Applied__"
-            if self.has_collection:
-                self.attack = self.attack + 25
-                self.defense = self.defense + 25
-                self.health = self.health + (50 * self.tier)
-                self.max_health = self.max_health  + (50 * self.tier)
+            if self.drop_style == "DESTINY":
+                self.attack += 500 + round(self.attack * (.05 * self.tier))
+                self.defense += 500 + round(self.defense * (.05 * self.tier))
+                self.health += 500 + round (self.health * (.05 * self.tier))
+                self.max_health += 500 + round (self.max_health * (.05 * self.tier))
                 self.universe_buff_message = "__Destiny Buff Applied__"
 
 
@@ -1842,8 +1848,6 @@ class Card:
 
         else:
             try:
-                # print(ap)
-                # print(true_dmg)
                 if true_dmg <= 50:
                     true_dmg = 50
                 defensepower = _opponent_card.defense - self.attack
@@ -1851,20 +1855,23 @@ class Card:
                     defensepower = 2000
                 if defensepower <= 0:
                     defensepower = 1
-                    # print("defensepower: ", defensepower)
 
                 bonus_damage = 0
                 if self.universe == "Full Metal Alchemist":
                     bonus_damage = equivalent_exchange(self, battle_config, self.attack, move_stamina)
                 attackpower = (self.attack - _opponent_card.defense) + ap + bonus_damage
-                # print("attackpower: ", attackpower)
                 if attackpower <= 0:
                     attackpower = ap
-
+                print("Attack Power: ", attackpower)
+                print("Defense Power: ", defensepower)
+                alt_abilitypower = round(attackpower - defensepower)
+                if alt_abilitypower <= 0:
+                    alt_abilitypower = 25
                 abilitypower = round(attackpower / defensepower)
                 if abilitypower <= 0:
-                    abilitypower = 25
-                # print("dmg: ", abilitypower)   
+                    abilitypower = 25 
+                print("Current Damage", abilitypower)
+                print("Potenial Change", round(alt_abilitypower))
 
                 dmg = abilitypower
                 if self.attack >= (_opponent_card.defense * 2):
