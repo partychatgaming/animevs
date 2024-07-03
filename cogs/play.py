@@ -425,7 +425,7 @@ async def add_ai_start_messages(battle_config):
                         summon_name=card.summon_name,
                         class_message=card.class_message, 
                         class_value= card.class_value,
-                        summoner_value= card.class_value * 10
+                        summoner_value= card.tier * 20
                     )
                 )
 
@@ -1118,7 +1118,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
 
-    summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_emoji}{turn_card.summon_type.title()} Ability" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
+    summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_emoji}{turn_card.summon_type.title()} Ability - {turn_card.summon_power}" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
     talisman_message = f"{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman"
     universe_stacks = f"{turn_card.universe_crest} {turn_card.universe_trait_value_name}: {turn_card.universe_trait_value}"
     if turn_card.is_tactician and turn_card._tactician_stack_3:

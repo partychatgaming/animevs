@@ -218,48 +218,49 @@ class Profile(Extension):
 
                     embed_pages = [
                         Embed(title=f"{player_name} Build Overview", description="For details, please check the other pages.", color=0x000000)
-                            .add_field(name="__Build Summary__", value=f"Equipped Title 🎗️ **{t.name}**\n"
-                            f"Equipped Arm 🦾 **{a.name}**\n"
-                            f"Equipped Summon 🧬 **{player.equipped_summon}**\n"
-                            f"Equipped Talisman **{player.talisman_message}**\n", inline=False)
+                            .add_field(name="__[🎒]My Equipment__", value=f"Title ~ 🎗️ **{t.name}**\n"
+                            f"Arm ~ 🦾 **{a.name}**\n"
+                            f"Summon ~ 🧬 **{player.equipped_summon}**\n"
+                            f"Talisman ~ **{player.talisman_message}**\n", inline=False)
                             .set_image(url="attachment://image.png")
                     ]
 
                     embed_pages.extend([
-                        Embed(title=f"{player_name} Build Title View", description="Titles are buffs or boosts for your card, or against your opponents card, initiated each turn, focus, or resolve.", color=0x000000)
+                        Embed(title=f"{player_name} Build Title View", description="Titles are buffs for your card, or banes against your opponents, initiated on each turn, focus, or resolve.", color=0x000000)
                             .add_field(name=f"__Title Name & Effects__\n🎗️ {t.name}", value=title_message, inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
-                        Embed(title=f"{player_name} Build Arm View", description="Arms are protections for your card that are initiated by themselves until broken in battle, or they swappable abilities.", color=0x000000)
+                        Embed(title=f"{player_name} Build Arm View", description="Arms are protections for your card or swappable attacks moves.", color=0x000000)
                             .add_field(name=f"__Arm Name & Effects__\n🦾 {a.name.capitalize()}", value=f"{a.arm_message}\n⚒️ {a.durability} *Durability*", inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
-                        Embed(title=f"{player_name} Build Summon View", description="Summons are powerful companions that can be called upon to aid you in battle after you resolve, unless you're a summoner.", color=0x000000)
+                        Embed(title=f"{player_name} Build Summon View", description="Summons are powerful companions that can be called upon after you resolve.", color=0x000000)
                             .add_field(name=f"__Summon Name & Effects__\n🧬 {player.equipped_summon}", value=f"{summon_power_message}\n📶 {player.summon_lvl_message}", inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
-                        Embed(title=f"{player_name} Ability Breakdown", description="List of element effects per ability.", color=0x000000)
+                        Embed(title=f"{player_name} Ability Breakdown", description="List of element effects per ability and your Enhancer", color=0x000000)
                             .add_field(name=f"__Basic Attack__", value=f"{c.move1_emoji} {c.move1_element.title()} - {crown_utilities.element_mapping[c.move1_element]}\n")
                             .add_field(name=f"__Special Attack__", value=f"{c.move2_emoji} {c.move2_element.title()} - {crown_utilities.element_mapping[c.move2_element]}\n")
                             .add_field(name=f"__Ultimate Attack__", value=f"{c.move3_emoji} {c.move3_element.title()} - {crown_utilities.element_mapping[c.move3_element]}\n")
+                            .add_field(name=f"__Enhancer Move__", value=f"🦠 {c.move4enh.title()} - {crown_utilities.get_enhancer_mapping(c.move4enh)}\n")
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
-                        Embed(title=f"{player_name} Build Talisman View", description="Talismans are powerful accessories that can be attuned to your card to bypass a single affinity. Create Talismans with /attune", color=0x000000)
+                        Embed(title=f"{player_name} Build Talisman View", description="Talismans are powerful accessories that can be attuned to your card to bypass a single affinity.\nCraft Talismans with /attune", color=0x000000)
                             .add_field(name="__Talisman Name & Effects__", value=player.talisman_message, inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
-                        Embed(title=f"{player_name} Build Class View", description="Each card class has a unique ability or passive that activates during battle.", color=0x000000)
+                        Embed(title=f"{player_name} Build Class View", description="Each card class has a unique ability or passive that activates during battle.\nIncrease your Card Tier to improve your bonus.", color=0x000000)
                             .add_field(name="__Card Class Effect__", value=crown_utilities.class_descriptions[c.card_class], inline=True)
-                            .add_field(name="__My Bonus__", value=c.class_tutorial_message, inline=True)
+                            .add_field(name=f"__{c.class_message} Bonus__", value=c.class_tutorial_message, inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
 
-                        Embed(title=f"{player_name} Build Evasion View", description="Evasion is a stat that improves your evasiveness against attacks. With high evasion you will be hit less often.", color=0x000000)
+                        Embed(title=f"{player_name} Build Evasion View", description="Card Speed improves your evasiveness against attacks. With high evasion you will be hit less often.", color=0x000000)
                             .add_field(name="__Evasion Stat & Boost__", value=f"🏃 | {c.evasion_message}", inline=True)
                             .set_image(url="attachment://image.png")
                             .set_thumbnail(url=ctx.author.avatar_url),
@@ -1556,11 +1557,10 @@ class Profile(Extension):
                         continue
 
                 summon.set_player_summon_info(player)
-
+                # {summon.bond_message}
                 embedVar = Embed(title= f"{summon.name}", description=textwrap.dedent(f"""
                 🧬
-                _Bond_ **{summon.bond}** | {summon.bond_message}
-                _Level_ **{summon.level}** | {summon.level_message}
+                _Bond_ **{summon.bond}** | _Level_ **{summon.level}** | {summon.level_message}
 
                 {summon.emoji} {summon.ability_type.capitalize()} Ability 
                 **{summon.ability}:** {summon.ability_power}

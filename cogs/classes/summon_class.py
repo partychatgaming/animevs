@@ -43,7 +43,10 @@ class Summon:
         self.level_message = ""
         self.dismantle_amount = 0
         self.protections = ['BARRIER','PARRY']
-        
+        #print(self.drop_style)
+        if self.drop_style == "UNBOUND":
+            self.drop_emoji = f"🎴"
+            self.dismantle_amount = 1
         if self.drop_style == "TALES":
             self.is_tale_drop = True
             self.drop_emoji = f"🎴"
@@ -84,11 +87,10 @@ class Summon:
                 self.message = f"{self.drop_emoji} {self.name} ({self.universe_crest}) Level: {self.level} | Bond: {self.bond} | Ability: {self.ability} | Ability Power: {self.ability_power_potential}"
                 self.type_message = f"{self.drop_emoji} {self.name} ({self.universe_crest}) Level: {self.level} | Bond: {self.bond} | Ability: {self.ability} | Ability Power: {self.ability_power_potential}"
 
-                self.exp_to_bond_up = ((self.ability_power_potential * (self.bond + 1)) * (self.bond + 1))
+                self.exp_to_bond_up = ((self.ability_power_potential * (self.bond + 1)))
                 if self.ability in self.protections:
-                    self.exp_to_bond_up = ((self.ability_power_potential + self.bond) * 50) * (self.bond + 1)
-                self.exp_to_level_up = (int(self.level) * 20) * (int(self.bond) + 1)
-                
+                    self.exp_to_bond_up = ((self.ability_power_potential + self.bond)) * (self.bond + 1)
+                self.exp_to_level_up = ((int(self.level) * (1 + self.bond)) * (int(self.bond) + 1)) + round(.10 * self.ability_power_potential)
                 if self.exp_to_level_up <= 0:
                     self.exp_to_level_up = 20
                 if self.exp_to_bond_up <= 0:
@@ -97,14 +99,18 @@ class Summon:
                 self.level_message = f"*{self.exp}/{self.exp_to_level_up}*"
                 self.bond_message = f"*{self.bond_exp}/{self.exp_to_bond_up}*"
                 
-                if self.bond == 3:
+                if self.bond >= 10:
                     self.bond_message = "🌟"
-                if self.level == 10:
+                if self.level >= 100:
                     self.level_message = "⭐"
 
-                self.ability_power = ((self.bond + 1) * self.level) + ((1 + self.bond) * self.ability_power_potential)
+                self.ability_power = self.calculate_ability_power()
                 if self.ability in self.protections:
-                    self.ability_power = (self.bond + 1) + self.ability_power_potential
+                    self.ability_power = (self.bond * 1) + self.ability_power_potential
+
+    def calculate_ability_power(self):
+        self.ability_power = round((self.ability_power_potential * (self.bond + 1)) * (1 + self.level / 18.25) * (1 + self.bond / 18.25))
+        return self.ability_power
 
 
 

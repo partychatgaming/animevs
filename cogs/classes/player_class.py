@@ -184,7 +184,7 @@ class Player:
                     if t["TYPE"].upper() == self.equipped_talisman.upper():
                         talisman_emoji = crown_utilities.set_emoji(self.equipped_talisman.upper())
                         talisman_durability = t["DUR"]
-                        self.talisman_message = f"{talisman_emoji} {self.equipped_talisman.title()} Talisman Equipped ⚒️ {talisman_durability}"
+                        self.talisman_message = f"{talisman_emoji} {self.equipped_talisman.title()} Talisman ⚒️{talisman_durability}"
         except Exception as ex:
             trace = []
             tb = ex.__traceback__
@@ -253,23 +253,23 @@ class Player:
             lvl = activesummon['LVL']
             s_type = activesummon['TYPE']
             self._equipped_summon_type = s_type
-            if bond == 3:
+            if bond >= 10:
                 bond_message = "🌟"
             else:
                 bond_message = " "
             
-            if lvl == 10:
+            if lvl >= 10:
                 lvl_message = "⭐"
             else:
                 lvl_message = " "
 
             if s_type in ['BARRIER', 'PARRY']:
-                if bond == 3 and lvl == 10:
-                    summon_ability_power = power + (1 + bond)
+                if bond <= 3:
+                    self._equipped_summon_power = power + bond
             else:    
-                summon_ability_power = ((1 + bond) * lvl) + ((1 + bond) * power)
+                self._equipped_summon_power = ((1 + bond) * (lvl)) + ((1 + bond) * power)
 
-            self.summon_power_message = f"{crown_utilities.set_emoji(s_type)} {s_type.title()} Damage: {summon_ability_power}"
+            self.summon_power_message = f"{crown_utilities.set_emoji(s_type)} {s_type.title()} Damage: {self._equipped_summon_power}"
 
 
             self.summon_lvl_message = f"Bond {bond_message}{str(bond)} & Level {lvl_message}{str(lvl)}"
@@ -769,10 +769,11 @@ class Player:
 
     def _assign_summon_attributes(self, summon_object, ability_name, power):
         common_attributes = ['BOND', 'BONDEXP', 'LVL', 'TYPE', 'NAME', 'PATH', 'EXP']
+
         for attr in common_attributes:
             setattr(self, f'_equipped_summon_{attr.lower()}', summon_object[attr])
         setattr(self, '_equipped_summon_ability_name', ability_name)
-        setattr(self, '_equipped_summon_power', power)
+        setattr(self, '_equipped_summon_power', list(summon_object.values())[3])
         setattr(self, '_equipped_summon_image', summon_object['PATH'])
         setattr(self, '_equipped_summon_universe', db.querySummon({'PET': summon_object['NAME']})['UNIVERSE'])
 
@@ -780,6 +781,7 @@ class Player:
     def getsummon_ready(self, _card):
         _card.summon_ability_name = self._equipped_summon_ability_name
         _card.summon_power = self._equipped_summon_power
+        _card.base_summon_power = self._equipped_summon_power
         _card.summon_lvl = self._equipped_summon_lvl
         _card.summon_type = self._equipped_summon_type
         _card.summon_emoji = crown_utilities.set_emoji(self._equipped_summon_type)

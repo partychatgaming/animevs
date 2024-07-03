@@ -2,68 +2,96 @@ import textwrap
 
 
 CROWN_UNLIMITED_GAMES = textwrap.dedent(f"""\
-**🆕How to Register, Delete, Lookup your account**
+__Account Management__
 **/register**: 🆕 Register your account
 **/deleteaccount**: Delete your account
 **/player**: Lookup your account, or a friends
 **/build**: View your current build, cards, titles, arms, talismans, summons and more
-                                        
-**PVE**
-**/play** - Battle through a variety of PVE modes                                      
+                                                                            
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
 
-                                        
-**PVE Game Modes**
+PVE_MODES = textwrap.dedent(f"""\
+__PVP Commands__
+**/play** - Battle through a variety of PVE modes
+**/explore** - Toggle Explore mode                           
+
+__PVE Game Modes__
 **🆘 The Tutorial** - Learn Anime VS+ battle system
 **⚡ Randomize** - Select and start a Random Game Mode Below
 **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
 **👺 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
-**📽️ Scenario Battle** - Battle through unique scenarios to earn Cards and Moves
-**💀 Raid Battle** - Battle through High Level scenarios to earn Mythical Cards and Moves
-**🌌 Explore Battle** - Random Encounter battles to earn rare cards and major rewards
-                                        
-**PVP**
-**/pvp** - Battle a rival in PVP mode
-                                        
-[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+**📽️ Scenario** - Battle through unique scenarios to earn Cards and Moves
+**💀 Raid** - Battle through High Level scenarios to earn Mythical Cards and Moves
+**🌌 Explore** - Random Encounter battles to earn rare cards and major rewards
+                                          
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)                                          
 """)
 
+PVP_MODES = textwrap.dedent(f"""\
+__PVP Game Modes__
+**/pvp** - Battle a rival in PVP mode
+*More PVP modes coming soon!*
+                            
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
 
 UNIVERSE_STUFF = textwrap.dedent(f"""\
-**View Universes!**
+__Universe Information__
 **/universes** - View all available universe info including all available cards, accessories, and destinies
 
 **/view** - Lookup/View all available game items.
-[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+                                 
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)
 
-
-LEGEND = textwrap.dedent(f"""\
-**Card Basics**
+CARD_LEGEND = textwrap.dedent(f"""\
+__Card Basics__
+♾️ - **Card Universe**
 🀄 - **Card Tier** *1-10*
 🔱 - **Card Level**
 🥋 - **Card Class**
 ❤️ - **Card Health** (HLT)
 🌀 / ⚡ - **Card Stamina** (ST)
-🗡️ - **Attack (ATK)** Blue Crystal 🟦
-🛡️ - **Defense (DEF)** Red Crystal 🟥
-🏃 - **Speed**
-
-**Accessories & Summons**
-⚠️ - Your title or arm does not match your universe
-🎗️ - **Title accessory**  *Title enhancers are applied each turn, passively.*
-🦾 - **Arm accessory** *Arm enhancers are applied passively throughout the duration of battle.*
-📿 - **Talisman** *Equip Elemntal  Talismans to bypass opponent affinities*
-🧬 - **Summon!** *Summons use Active Enhancers that are available during battle after you Resolve*
-
-**Currency**
-💰 - **Coins** *Buy items in the shop and blacksmith*
-💎 - **Gems** *Craft universe hearts, souls, cards, and destiny lines!*
-🪔 - **Essence** *Craft Elemental Talismans*
-
-[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+🗡️ - **Card Attack (ATK)** Blue Crystal 🟦
+🛡️ - **Card Defense (DEF)** Red Crystal 🟥
+🏃 - **Card Evasion** (EVASION)
+                              
+__Card Moveset__
+💥 - **Card Basic** Attack
+☄️ - **Card Special** Attack            
+🏵️ - **Card Ultimate* Attack
+🦠 - **Card Enhancer** Ability
+                              
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)
 
+EQUIPMENT_LEGEND = textwrap.dedent(f"""\
+__Equipment & Summons__
+⚠️ - Your title or arm does not match your universe
+🎗️ - **Title**  *Title effects are applied each turn, passively.*
+🦾 - **Arm** *Arms grant new Attacks, Increased ability or grant protections.*
+🧬 - **Summon** *Summons use Attacks or Protections during battle*
+📿 - **Talisman** *Equip Elemntal  Talismans to bypass opponent affinities*
+⚒️ - **Durability** *Durability of your arm or talisman, decreases with each use*
+                                   
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
 
+CURRENCY_LEGEND = textwrap.dedent(f"""\
+__Currency Commands__
+**/balance** - View your current balance and guild balance
+**/gems** - View your current gems
+**/essence** - View your current essence
+
+**Currency**
+💰 - **Coins** *Buy items in Marketplace or via trade.*
+💎 - **Gems** *Craft Card levels and items in the Blacksmith*
+🪔 - **Essence** *Craft Elemental Talismans*
+                                  
+ [Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
+      
 ELEMENTS_LIST = [
     "👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry\n",
     "⚔️ Sword - Every 3rd attack will result in a Critical Strike that also increases Atack by 40% of damage dealt.\n",
@@ -92,7 +120,6 @@ ELEMENTS_LIST = [
     "🐲 Draconic - Draconic attacks can only be ULTIMATE or Summoned. Pentrates all protections. Combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.",
 
 ]
-
 
 ELEMENTS = textwrap.dedent(f"""\
 **🔅 Elements**    
@@ -146,12 +173,11 @@ ELEMENTS = textwrap.dedent(f"""\
                            
 🐲 Draconic - Draconic attacks can only be ULTIMATE or Summoned, combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.
 
-[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)
 
-
 BOT_COMMANDS = textwrap.dedent(f"""\
-**Guild Commands**
+__Guild Commands__
 **/guild** - Guild lookup, configurations, and apply for
 **/guildoperations** - Guild operations
 **/createguild** - Create guild 
@@ -161,66 +187,84 @@ BOT_COMMANDS = textwrap.dedent(f"""\
 **/pay** - Send Guild Members coin
 **/donate** - Donate coin to Guild Bank
 
-
-**Association Commands**
-**/association** - Association lookup
-**/oath** - Create Association/Reswear Association
-**/disband** - Delete Association (Founder Only)
-**/betray** - Leave Association (Sworn Only)
-**/knight** - Set Association Shield to Player (Association Owners Only)
-**/ally** - Add Guild To Association (Association Owners Only)
-**/exile** - Kick Guild from Association (Association Owners Only)
-**/renounce** - Leave Association (Guild Owner Only)
-**/sponsor** - Send Guild coin (Association Owners Onlu)
-**/fund** - Donate coin to Association Bank
-**/bounty** - Set Association Bounty (Association Owners Only)
-**/viewhall** - View Hall Information
-
-
-**Family Commands**
-**/family** - Family Menu
-**/marry** - Invite User to join Family
-**/divorce** - Ask for divorce from partner
-**/adopt** - Adopt kid into family
-**/disown** - Remove Kid From Family
-**/leavefamily** - Leave from family (Kid Only)
-**/allowance** - Send Family Members coin (Head/Partner Only)
-**/invest** - Invest coin into family Bank
-**/houses** - Show list of available houses
-**/viewhouse** - View House Information
-
-[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)
 
+FAMILY_COMMANDS = textwrap.dedent(f"""\
+__Family Commands__
+**/family** - Family Menu
+**/familyoperations** - Family Operations
+**/allowance** - Send Family Members coin from Family Bank
+**/invest** - Invest coin into family Bank
+
+_House Commands_
+**/houses** - Show list of available houses
+**/viewhouse** - View House Information
+**/buyhouse** - Buy a house from Family Bank
+                   
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
+
+ASSOCIATION_COMMANDS = textwrap.dedent(f"""\
+__Association Commands__
+**/association** - Association lookup
+**/associatoinoperations** - Association Operations
+**/sponsor** - Send Guild coin from Association Bank
+**/fund** - Donate coin to Association Bank from Guild Bank
+**/bounty** - Set Association Bounty
+                                       
+__Hall Commands__
+**/halls** - Show list of available halls
+**/viewhall** - View Hall Information
+**/buyhall** - Buy a hall from Association Bank
+                   
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
 
 CTAP_COMMANDS = textwrap.dedent(f"""\
-                                
-**Inventory Commands**
+__Build Commands__
 **/cards** - View your available cards
 **/titles** - View your available titles
 **/arms** - View your available arms
 **/summons** - View your available summons
 **/talismans** - View your available talismans
 **/attune** - Attune elemental talismans from essence
-                                
-**Shop Commands**
+                            
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
+
+SHOP_COMMANDS = textwrap.dedent(f"""\
+__Shop Commands__
 **/marketplace** - View the online marketplace
-**/blacksmith** - View the blacksmith
+**/blacksmith** - View the blacksmith               
 
-**Reward Codes! ⌨️**
-**/code** - Enter in codes to earn in-game rewards!
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
 
-**Trade! 🎴 🎗️ 🦾**
+TRADE_COMMANDS = textwrap.dedent(f"""\
+__Trade Commands__
 **/trade** - Start a trade with a friend!
-**/tradecoins** - Add 🪙 to your trade!
+**/tradecoins** - Add 🪙 to your trade!              
 
-**Gift! 🪙**
-**/gift** - Gift a friend some 🪙!
-[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+__Gift__
+**/gift** - Gift a friend some 🪙Coin!
+                                 
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
+""")
+
+REWARDS_COMMANDS = textwrap.dedent(f"""\
+__Rewards Commands__
+**/daily** - Claim your daily reward
+**/vote** - Claim your voted reward
+
+__Gacha Gacha! ⌨️__
+**/code** - Enter in codes to earn in-game rewards!
+**/roll** - Spend gold to open lootboxes!
+                                   
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)
 
 OPTION_COMMANDS = textwrap.dedent(f"""\
-
 **Options**
 **/help** - View all heklp commands and manual
 **/explore**  - Toggle Explore mode
@@ -228,5 +272,5 @@ OPTION_COMMANDS = textwrap.dedent(f"""\
 **/autosave** - Toggle autosave on or off
 **/battlehistory** - Update battle history length
 
-[Join the Anime VS+ Support Server](https://discord.gg/2JkCqcN3hB)
+[Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)

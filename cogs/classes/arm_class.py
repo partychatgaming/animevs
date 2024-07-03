@@ -129,7 +129,7 @@ class Arm:
 
 
     def set_arm_message(self, performance_mode, card_universe):
-        if self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_arm==True):
+        if self.universe == card_universe or (card_universe in crown_utilities.pokemon_universes and self.pokemon_arm==True) or self.universe == "Unbound":
             self.armicon = "🦾 "
             self.footer = f"{self.passive_type.title()}: {crown_utilities.enhancer_mapping[self.passive_type]}"
             if self.passive_type in move_types:
