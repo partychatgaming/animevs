@@ -4,7 +4,7 @@ import dataclasses as data
 import messages as m
 import numpy as np
 import help_commands as h
-from interactions import Client, ActionRow, Button, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import Client, ActionRow, Button, ButtonStyle, slash_option, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 class Titles(Extension):
     def __init__(self, bot):
@@ -20,6 +20,7 @@ class Titles(Extension):
         return await self.bot.validate_user(ctx)
 
     @slash_command(description="Equip a Title")
+    @slash_option(name="title", description="Title to equip", required=True, opt_type=OptionType.STRING)
     async def equiptitle(self, ctx, title: str):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:

@@ -24,8 +24,23 @@ traits = [{
     'TRAIT': 'Fearful : You do not lose Health from the Fear Enhancer. Contracts: Each attack 10% of damage dealt is offered in Max Health and split into your ATK and DEF. Devilization: At 50% HP, increase Max Health by (Card Tier * Offering).Increase HP and AP by Offering Amount and your ATK & DEF equal your HP + Offering for the rest of the match. On Death revive for 3  Turns and then Die.'
 },{
     'NAME': 'Bleach',
-    'EFFECT': 'Bankai, Spiritual Pressure',
-    'TRAIT': 'Bankai : On Resolve, Gain Attack and Defense multiplied by your Blitz Count. Spiritual Pressure : On Block, Defend then Deal Damage equal to your Basic Attack.'
+    'EFFECT': 'First Release, Second Release, Spiritual Pressure',
+    'TRAIT': '''**SP:** Block: Defend, deal Basic Attack dmg.
+**Soul Reaper:**
+*Shikai*: Resolve: +ATK/DEF × Blitz Count
+*Bankai*: Execute: (Turn × Blitz × Tier) true dmg
+
+**Quincy:**
+*Vollständig*: Resolve: If Blitzed, 2×Ult AP; else +50% AP. -25% DEF
+*Schrift*: Execute: Full heal
+
+**Hollow:**
+*Resurrección*: Resolve: +Card lvl to AP, ATK, DEF
+*Segunda Etapa*: Execute: Crit all attacks if HP > 50%
+
+**Fullbringer:**
+*Fullbring Activation*: Resolve: Focus stamina 200, keep buffs. Repeat turn
+*Fullbring Completion*: Execute: +AP/ATK/DEF by (Stamina × Tier). Repeat turn'''
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Titan Mode',
@@ -136,8 +151,23 @@ formatted_traits = [{
     'TRAIT': '\n**Fearful**: You do not lose Health from the Fear Enhancer.\n\n**Contracts**:\n*Match Start* - Offer 10% of max health to gain ATK and DEF\n*Each Attack* - 10% of damage dealt is offered in Max Health and split to boost your ATK and DEF.\n\n**Devilization**: At 40% HP, increase Max Health, Health and AP by Offering amount\nYour ATK & DEF become equal to your Health + Offering for the rest of the match.\nOn Death revive for 3 Turns and then Die.'
 },{
     'NAME': 'Bleach',
-    'EFFECT': 'Spiritual Pressure, First Release, Second Release',
-    'TRAIT': '\n\n\n**Spiritual Pressure:** On Block, Defend then Deal Damage equal to your Basic Attack.\n\n**First Release** - *Coming Soon*\n\n**Second Release** - *Coming Soon*'
+    'EFFECT': 'First Release, Second Release, Spiritual Pressure',
+    'TRAIT': '''**SP:** Block: Defend, deal Basic Attack dmg.
+**Soul Reaper:**
+*Shikai*: Resolve: +ATK/DEF × Blitz Count
+*Bankai*: Execute: (Turn × Blitz × Tier) true dmg
+
+**Quincy:**
+*Vollständig*: Resolve: If Blitzed, 2×Ult AP; else +50% AP. -25% DEF
+*Schrift*: Execute: Full heal
+
+**Hollow:**
+*Resurrección*: Resolve: +Card lvl to AP, ATK, DEF
+*Segunda Etapa*: Execute: Crit all attacks if HP > 50%
+
+**Fullbringer:**
+*Fullbring Activation*: Resolve: Focus stamina 200, keep buffs. Repeat turn
+*Fullbring Completion*: Execute: +AP/ATK/DEF by (Stamina × Tier). Repeat turn'''
 },{
     'NAME': 'Attack On Titan',
     'EFFECT': 'Rally, Omnigear, Titan Mode',

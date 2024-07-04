@@ -21,7 +21,7 @@ from cogs.universe_traits.one_piece import conquerors_haki, armament
 from cogs.universe_traits.yuyu_hakusho import spirit_resolved, meditation
 from cogs.universe_traits.my_hero_academia import plus_ultra, quirk_awakening, activate_my_hero_academia_trait
 from cogs.universe_traits.aot import titan_mode, rally, omnigear
-from cogs.universe_traits.bleach import bankai, spiritual_pressure
+from cogs.universe_traits.bleach import first_release, spiritual_pressure
 from cogs.universe_traits.god_of_war import acension
 from cogs.universe_traits.fate import command_seal
 from cogs.universe_traits.pokemon import evolutions
@@ -239,6 +239,20 @@ class Card:
             self.jujutsu_kaisen_damage_meter = 0
             # This is how much damage will be dealt to you under the second phase of the domain expansion trait
             self.jujutsu_kaisen_damage_meter_max = 0
+            self.bleach_first_release_used = False
+            self.bleach_first_release_shikai = False
+            self.bleach_first_release_vollstandig = False
+            self.bleach_first_release_fullbring_activation = False
+            self.bleach_first_release_resurreccion = False
+            self.bleach_second_release_used = False
+            self.bleach_second_release_bankai = False
+            self.bleach_second_release_segunda_etapa = False
+            self.bleach_second_release_segunda_etapa_activated = False
+            self.bleach_second_release_fullbring_completion = False
+            self.bleach_second_release_schrift = False
+            self.bleach_quincy_ap_buff = 0
+            self.bleach_hollow_ap_buff = 0
+            self.bleach_fullbring_ap_buff = 0
             self.titan_bonus = 0
             self.omingear_bonus = 0
             self.soul_resonance = False
@@ -2308,7 +2322,6 @@ class Card:
                     battle_config.next_turn()
                     return
                     
-            
             self.used_focus = True
             if battle_config.is_tutorial_game_mode:
                 #print(battle_config.is_turn)
@@ -2321,8 +2334,6 @@ class Card:
                     embedVar = battle_config.tutorial_messages(player_card=self, opponent_card=_opponent_card, message_type='FOCUS')
                     battle_config._tutorial_message = embedVar
                 
-                    
-
             self.usedsummon = False
             if self.used_blitz and not self.is_assassin:
                 self.focus_count = self.focus_count
@@ -2393,7 +2404,7 @@ class Card:
                     message_number = 0
             
             blitz_buff = round((self.speed + self.blitz_buff + self.tier) / 2)
-            if not self.used_resolve or _title.high_iq_effect:
+            if not self.used_resolve or _title.high_iq_effect or self.bleach_first_release_fullbring_activation:
                 armament(self, health_calculation, battle_config, attack_calculation, defense_calculation)
                 
                 if self.is_assassin:
@@ -2427,7 +2438,6 @@ class Card:
                         battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura !  ⚕️🧪 poison cured!")
                     else:
                         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s 🔻🧪 poison damage reduced to {_opponent_card.poison_dmg}")
-
 
                 if _opponent_card.rot_dmg:
                     _opponent_card.rot_dmg = round(_opponent_card.rot_dmg / 2)
@@ -2557,7 +2567,7 @@ class Card:
 
             aot_resolve = titan_mode(self, battle_config, player_title)
 
-            bleach_resolve = bankai(self, battle_config, player_title)
+            bleach_resolve = first_release(self, battle_config, player_title)
             
             gow_resolve = acension(self, battle_config, player_title)
             
@@ -4004,9 +4014,9 @@ class Card:
                 self.move2ap = 25
                 self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.slime_buff)
             else:
-                self.move1ap = self.move1base + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff + self.yuyu_1ap_buff + self.my_hero_academia_buff)
-                self.move2ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff + self.yuyu_2ap_buff + self.my_hero_academia_buff)
-                self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_3ap_buff + self.my_hero_academia_buff + self.slime_buff)
+                self.move1ap = self.move1base + round(self.card_lvl_ap_buff + self.shock_buff + self.basic_water_buff + self.arbitrary_ap_buff + self.yuyu_1ap_buff + self.my_hero_academia_buff + self.bleach_fullbring_ap_buff + self.bleach_hollow_ap_buff)
+                self.move2ap = self.move2base + round(self.card_lvl_ap_buff + self.shock_buff + self.special_water_buff + self.arbitrary_ap_buff + self.yuyu_2ap_buff + self.my_hero_academia_buff + self.bleach_fullbring_ap_buff + self.bleach_hollow_ap_buff)
+                self.move3ap = self.move3base + round(self.card_lvl_ap_buff + self.shock_buff + self.ultimate_water_buff + self.arbitrary_ap_buff + self.yuyu_3ap_buff + self.my_hero_academia_buff + self.slime_buff + self.bleach_fullbring_ap_buff + self.bleach_hollow_ap_buff + self.bleach_quincy_ap_buff)
             
             # _opponent_card.move1ap = _opponent_card.list(self.m1.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff
             # _opponent_card.move2ap = _opponent_card.list(self.m2.values())[0] + _opponent_card.card_lvl_ap_buff + _opponent_card.shock_buff + _opponent_card.basic_water_buff + _opponent_card.arbitrary_ap_buff

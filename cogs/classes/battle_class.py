@@ -1118,7 +1118,7 @@ class Battle:
         u_butts = []
         c_butts = []
         if self.is_turn == 3:
-            options = ["q", "Q", "0", "1", "2", "3", "4", "7","b"]
+            options = ["q", "Q", "0", "1", "2", "3", "4", "7","b", "bleach"]
             if your_card.used_focus:
                 if your_card.used_resolve:
                     options += [6]
@@ -1128,7 +1128,7 @@ class Battle:
                 options += ['6']
             self.battle_options = options
         else:
-            options = ["q", "Q", "0", "1", "2", "3", "4","b"]
+            options = ["q", "Q", "0", "1", "2", "3", "4","b", "bleach"]
             if self.is_co_op_mode:
                 options += ["7", "8", "9", "s", "b"]
             else:
@@ -1195,6 +1195,27 @@ class Battle:
                         custom_id=f"{self._uuid}|0"
                     )
                 )
+
+
+        if your_card.used_resolve and your_card.universe == "Bleach" and not your_card.bleach_second_release_used:
+            button_label = "Power Up"
+            if your_card.bleach_second_release_bankai:
+                button_label = "Bankai"
+            if your_card.bleach_second_release_segunda_etapa:
+                button_label = "Segunda Etapa"
+            if your_card.bleach_second_release_fullbring_completion:
+                button_label = "Fullbring"
+            if your_card.bleach_second_release_schrift:
+                button_label = "Shrift"
+
+            b_butts.append(
+                Button(
+                    style=ButtonStyle.BLUE,
+                    label=f"{button_label}",
+                    custom_id=f"{self._uuid}|bleach"
+                )
+            )
+
                 
         if your_card.stamina >= 20 and self.is_co_op_mode and self.mode in crown_utilities.DUO_M:
             if your_card.stamina >= 20:
