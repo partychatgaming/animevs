@@ -465,7 +465,7 @@ class Player:
     def save_title(self, universe):
         titles = [x for x in db.queryAllTitles() if x['UNIVERSE'] == universe and x['TITLE'] not in self.titles]
         stats = db.query_stats_by_player(self.did)
-        message = ""
+        message = None
         for title in titles:
             if title['UNLOCK_METHOD'] and title['AVAILABLE']:
                 unlock_method = title['UNLOCK_METHOD']['METHOD']

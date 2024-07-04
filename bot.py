@@ -280,22 +280,22 @@ async def enhancers(ctx):
    try:
       embedVar1 = Embed(title=f"Enhancer Type: Boosts",color=0x7289da)
       embedVar1.set_thumbnail(url=avatar)
-      embedVar1.add_field(name="`BOOSTS`", value="**ATK** - Increase Attack By AP %.\n\n**DEF** Increase Defense by AP %.\n\n**HLT** - Increase Health By Flat AP + 16% of Missing.\n\n**STAM** - Increase Stamina by Flat AP\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
+      embedVar1.add_field(name="`BOOSTS`", value="**ATK** - Increase Attack By AP %.\n\n**DEF** Increase Defense by AP %.\n\n**HLT** - Increase Health By Flat AP + 16% of Missing Health.\n\n**STAM** - Increase Stamina by Flat AP\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar1.set_footer(text=f"/help - Bot Help")
 
       embedVar2 = Embed(title=f"Enhancer Type: Steals",color=0x7289da)
       embedVar2.set_thumbnail(url=avatar)
-      embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\nSteal Opponent Health and Add it to your Current Health by Flat AP + 9% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n")
+      embedVar2.add_field(name="`STEALS`", value="**FLOG**- Steal Opponent Attack and Add it to Your Attack by AP %\n\n**WITHER**- Steal Opponent Defense and Add it to Your Defense by AP %\n\n**LIFE**\nSteal Opponent Health and Add it to your Current Health by Flat AP + 9% of Opponent Current Health. \n\n**DRAIN** - Steal Opponent Stamina and Add it to your Stamina by Flat AP\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar2.set_footer(text=f"/help - Bot Help")
 
       embedVar3 = Embed(title=f"Enhancer Type: Sacrifice",color=0x7289da)
       embedVar3.set_thumbnail(url=avatar)
-      embedVar3.add_field(name="`SACRIFICE`", value="**RAGE** - Decrease Your Defense by AP %, Increase All Moves AP by Amount of Decreased Defense\n\n**BRACE** - Decrease Your Attack by AP %, Increase All Moves AP By Amount of Decreased Attack\n\n**BZRK** - Decrease Your Current Health by AP %,  Increase Your Attack by Amount of Decreased Health\n\n**CRYSTAL** - Decrease Your Health by AP %, Increase Your Defense by Amount of Decreased Health\n\n")
+      embedVar3.add_field(name="`SACRIFICE`", value="**RAGE** - Decrease Your Defense by AP %, Increase All Moves AP by Amount of Decreased Defense\n\n**BRACE** - Decrease Your Attack by AP %, Increase All Moves AP By Amount of Decreased Attack\n\n**BZRK** - Decrease Your Current Health by AP %,  Increase Your Attack by Amount of Decreased Health\n\n**CRYSTAL** - Decrease Your Health by AP %, Increase Your Defense by Amount of Decreased Health\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar3.set_footer(text=f"/help - Bot Help")
 
       embedVar4 = Embed(title=f"Enhancer Type: Conversion",color=0x7289da)
       embedVar4.set_thumbnail(url=avatar)
-      embedVar4.add_field(name="`CONVERSION`", value="**STANCE** - Swap Your Attack and Defense, Increase Your Defense By Flat AP\n\n**CONFUSE** - Swap Opponenet Attack and Defense, Decrease Opponent Defense by Flat AP\n\n")
+      embedVar4.add_field(name="`CONVERSION`", value="**STANCE** - Swap Your Attack and Defense, Increase Your Defense By Flat AP\n\n**CONFUSE** - Swap Opponenet Attack and Defense, Decrease Opponent Defense by Flat AP\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar4.set_footer(text=f"/help - Bot Help")
 
       embedVar5 = Embed(title=f"Enhancer Type: Time Manipulation",color=0x7289da)
@@ -305,33 +305,33 @@ async def enhancers(ctx):
          value=(
             "**BLINK**  - Decreases Your Stamina by AP, Increases Opponent Stamina by AP.\n\n"
             "**SLOW** - Decreases the turn total by AP.\n\n"
-            "**HASTE** - Increases the turn total by AP.\n\n"
+            "**HASTE** - Increases the turn total by AP.\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)"
          )
       )
       embedVar5.set_footer(text="/help - Bot Help")
 
       embedVar6 = Embed(title=f"Enhancer Type: Control",color=0x7289da)
       embedVar6.set_thumbnail(url=avatar)
-      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN** - You and Your Opponent's Stamina Equal AP\n\n**GAMBLE** - At the cost of your total stamina, You and Your Opponent's Health Equal between 500 & AP value\n\n")
+      embedVar6.add_field(name="`CONTROL`", value="**SOULCHAIN** - You and Your Opponent's Stamina Equal AP\n\n**GAMBLE** - At the cost of your total stamina, You and Your Opponent's Health Equal between 500 & AP value\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar6.set_footer(text=f"/help - Bot Help")
 
       embedVar7 = Embed(title=f"Enhancer Type: Fortitude",color=0x7289da)
       embedVar7.set_thumbnail(url=avatar)
-      embedVar7.add_field(name="`FORTITUDE`", value="**GROWTH**- Decrease Your Max Health by 10%, Increase Your Attack, Defense and AP Buff by AP\n\n**FEAR** - Decrease Your Max Health and Health by 20%, Decrease Opponent Attack, Defense, and reduce Opponent AP Buffs by AP\n\n")
+      embedVar7.add_field(name="`FORTITUDE`", value="**GROWTH**- Decrease Your Max Health by 10%, Increase Your Attack, Defense and AP Buff by AP\n\n**FEAR** - Decrease Your Max Health and Health by 20%, Decrease Opponent Attack, Defense, and reduce Opponent AP Buffs by AP\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar7.set_footer(text=f"/help - Bot Help")
 
       embedVar8 = Embed(title=f"Enhancer Type: Damage",color=0x7289da)
       embedVar8.set_thumbnail(url=avatar)
-      embedVar8.add_field(name="`DAMAGE`", value="**WAVE** - Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal 75% AP Damage.*\n\n**BLAST** - Deal Flat AP Damage to Opponent. AP Increases each turn.\n\n")
+      embedVar8.add_field(name="`DAMAGE`", value="**WAVE** - Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal 75% AP Damage.*\n\n**BLAST** - Deal Flat AP Damage to Opponent. AP Increases each turn.\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar8.set_footer(text=f"/help - Bot Help")
 
       embedVar9 = Embed(title=f"Enhancer Type: Divinity",color=0x7289da)
       embedVar9.set_thumbnail(url=avatar)
-      embedVar9.add_field(name="`DIVINITY`", value="**CREATION** - Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for 75% AP.*\n\n**DESTRUCTION** - Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn.\n\n")
+      embedVar9.add_field(name="`DIVINITY`", value="**CREATION** - Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for 75% AP.*\n\n**DESTRUCTION** - Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn.\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar9.set_footer(text=f"/help - Bot Help")  
 
-      embedVar = Embed(title=f"Arm Enhancements", description=textwrap.dedent(f"""\
-      __🎗️Enhancer Abilities__
+      embedVar = Embed(title=f"Card Enhancers", description=textwrap.dedent(f"""\
+      __🦠Enhancer Abilities__
                                                                      
       Your Enhancer buffs or debuffs your opponent for 20 Stamina
       
@@ -474,7 +474,7 @@ async def titles(ctx):
       paginator.show_select_menu = True
       await paginator.send(ctx)
    except Exception as ex:
-            loggy.error(f"Error in enhancers: {ex}")
+            loggy.error(f"Error in titles: {ex}")
             await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
             return
 
@@ -483,12 +483,12 @@ async def arms(ctx):
    try:
       embedVar10 = Embed(title=f"Arm Enhancer Type: Ability",color=0x7289da)
       embedVar10.set_thumbnail(url=avatar)
-      embedVar10.add_field(name="`OFFENSE`", value="💥 **BASIC** - Equip a new Basic Attack and Element \n\n☄️ **SPECIAL** - Equip a new Special Attack and Element \n\n🏵️ **ULTIMATE** - Equip a new Ultimate Attack and Element \n\n💮 **ULTIMAX** - Increase Attack Move AP and ATK & DEF by Value \n\n🔮 **MANA** - Increase Attack Move AP and Enhancer AP by Percentage \n\n💉 **SIPHON** - Heal for 10% DMG + AP\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
+      embedVar10.add_field(name="`OFFENSE`", value="💥 **BASIC** - Equip a new Basic Attack and Element \n\n☄️ **SPECIAL** - Equip a new Special Attack and Element \n\n🏵️ **ULTIMATE** - Equip a new Ultimate Attack and Element \n\n💮 **ULTIMAX** - Increase Attack Move AP and ATK & DEF by Value \n\n🪬 **MANA** - Increase Attack Move AP and Enhancer AP by Percentage \n\n💉 **SIPHON** - Heal for 10% DMG + AP\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar10.set_footer(text=f"/help - Bot Help")
       
       embedVar11 = Embed(title=f"Arm Enhancer Type: Protections",color=0x7289da)
       embedVar11.set_thumbnail(url=avatar)
-      embedVar11.add_field(name="`DEFENSE`", value="🌐 **SHIELD**- Grant Damage absorbing Shield until destroyed \n\n💠 **BARRIER** - Blocks all Attack Damage until player Attacks or is Destoyed (Enhancers Exempt)\n\n🔄 **PARRY** - Reflects 50% Damage back to Attacker, reduce incoming damage by 25%\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
+      embedVar11.add_field(name="`DEFENSE`", value="💠 **BARRIER** - Blocks all Attack Damage until player Attacks or is Destoyed (Enhancers Exempt)\n\n🌐 **SHIELD**- Grant Damage absorbing Shield until destroyed \n\n🔄 **PARRY** - Reflects 50% Damage back to Attacker, reduce incoming damage by 25%\n\n[Join the Anime VS+ Support Server](https://discord.gg/pcn)")
       embedVar11.set_footer(text=f"/help - Bot Help")
       
       embedVar = Embed(title=f"Arm Enhancements", description=textwrap.dedent(f"""\
@@ -506,7 +506,7 @@ async def arms(ctx):
       ☄️ **SPECIAL**
       🏵️ **ULTIMATE**
       💮 **ULTIMAX**
-      🔮 **MANA**
+      🪬 **MANA**
       💉 **SIPHON** 
 
       [Join the Anime VS+ Support Server](https://discord.gg/pcn)                                                 
@@ -611,69 +611,81 @@ async def animevs(ctx):
                                                                           
       🀄 **Card Tier**
       Card Tier Determines Base Stats, Class Level and Enhancer Values.
-      - Common: Class Level 1 [Tier 1 - 3]
-      - Rare: Class Level 2 [Tier 4 - 5]
-      - Legendary: Class Level 3 [Tier 6 - 7]
-      - Mythical: Class Level 4 [Tier 8 - 9]
-      - God: Class Level 5 [Tier 10]
+      - **Common:** Level 1 [Tier 1-3]
+      - **Rare:** Level 2 [Tier 4-5]
+      - **Legendary:** Level 3 [Tier 6-7]
+      - **Mythical:** Level 4 [Tier 8-9]
+      - **God:** Level 5 [Tier 10]
                                                                           
       🔱**Card Level**
       As you battle your card will level up, increasing Stats and Ability Power 
                                                                           
-      🎴**Card Stats**
-      [HP]Health - Vitality, when your health reaches 0 you lose
-      [ST]Stamina - Used to perform attacks and skills
-      [ATK]Attack - Increases damage dealt
-      [DEF]Defense - Reduces damage taken
-      [EVA]Evasion - Increases chance to dodge attacks
-      [AP]Ability Power - Determines the strength of your abilities
       [Join the Anime VS+ Support Server](https://discord.gg/pcn)"""), color=0x7289da)
       
       embedVar3.set_thumbnail(url=avatar)
+
+      embedVar3_s = Embed(title=f"Card Stats", description=textwrap.dedent(f"""\
+      __Card Stats__                                                          
+      - [HP]**Health: When your health reaches 0 you lose
+      - [ST]**Stamina:** Used to perform attacks and skills
+      - [ATK]**Attack:** Increases damage dealt
+      - [DEF]**Defense:** Reduces damage taken
+      - [EVA]**Evasion:** Increases chance to dodge attacks
+      - [AP]**Ability Power:** Determines the strength of your abilities
+
+      __Card Affinities__
+      🔅 **Affinities**
+      Affinities determine how you card reacts to **Damage types**
+      - Weaknesses: Take more damage
+      - Resistances: Take less damage
+      - Immunities: Immune to damage
+      - Repels: Reflects damage back
+      - Absorb: Absorbs damage as Health 
+                                                                           
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)"""), color=0x7289da)
+      
+      embedVar3_s.set_thumbnail(url=avatar)
 
       embedVar3_1 = Embed(title=f"Card Moveset", description=textwrap.dedent(f"""\
       __Attack Moves__
       Attacks inflict damage on the opponent and apply elemental effects.
       Each Attack matches an **Emoji** and **Stamina Cost** in the Movelist.
-      💥 Basic Attack _uses 10 stamina_
-      ☄️ Special Attack _uses 30 stamina_
-      🏵️ Ultimate Attack _uses 80 stamina_
+      - 💥 Basic Attack _uses 10 stamina_
+      - ☄️ Special Attack _uses 30 stamina_
+      - 🏵️ Ultimate Attack _uses 80 stamina_
                                                                              
       🔅**Elemental Damage**
       Attacks have bonus effects based on the 🔅**Element** Type
       Use /help to find information on **Elements**
-
-      __Skills__                                                       
-      **Enhancer**
-      Enhancers either boost your stats or inflict status effects on your opponent. Use **/help** for full list of **Enhancers** and their effects.
-      🦠 Enhancer _uses 20 stamina_
-      
-      **Block**
-      Doubles Defense for 1 turn
-      🛡️ _uses 20 stamina_ 
                                                                              
-      **Blitz**
-      Enters Focus, trades healing for increased Stat boost
-      💢 _uses All stamina, can only be used after focus with < 50 stamina_ 
       [Join the Anime VS+ Support Server](https://discord.gg/pcn)"""), color=0x7289da)
       
       embedVar3_1.set_thumbnail(url=avatar)
+
+      embedVar3_2 = Embed(title=f"Card Skills", description=textwrap.dedent(f"""\
+      __Skills__
+      **Enhancer**
+      Enhancers either boost your stats or inflict status effects on your opponent. Use **/help** for full list of **Enhancers** and their effects.
+      - 🦠 Enhancer _uses 20 stamina_
       
-      embedVar11 = Embed(title=f"Card Details", description=textwrap.dedent(f"""
+      **Block**
+      Doubles Defense for 1 turn
+      - 🛡️ Block _uses 20 stamina_ 
+                                                                             
+      **Blitz**
+      Enters Focus, trades healing for increased Stat boost
+      - 💢 Blitz _uses all stamina, can only be used after focus with < 50 stamina_ 
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)"""), color=0x7289da)
+      
+      embedVar3_2.set_thumbnail(url=avatar)
+      
+      embedVar11 = Embed(title=f"Card Types", description=textwrap.dedent(f"""
       __Card Types__                                                                           
       🎴 **Universe Cards** - Purchasable in the **Shop** and Drops in **Tales**
       🃏 **Card Skins** - Create in the **/craft**
       👺 **Dungeon Cards** - Drops in **Dungeons**
       ✨ **Destiny Cards** - Earned via **Destinies**
       👹 **Boss Cards** - Exchange for **Boss Souls**                                                                                                                           
-      
-      🔅 **Affinities**
-      Affinities determine how you card reacts to **Damage types**
-      Weaknesses - Take more damage
-      Resistances - Take less damage
-      Immunities - Immune to damage
-      Repels - Reflects damage back
-      Absorb - Absorbs damage as Health 
 
       ✨ **Destinies**
       Card Specific Quests in scenarios that earn **Destiny Cards**
@@ -681,25 +693,28 @@ async def animevs(ctx):
       
       embedVar11.set_thumbnail(url=avatar)
       
-      embedVar17 = Embed(title=f"Damage, Elements & Talismans", description=textwrap.dedent(f"""    
+      embedVar17 = Embed(title=f"Damage Calculation", description=textwrap.dedent(f"""    
       __Damage Calculation__                                                                                                                                                             
-      🗯️**Engagements** Each of your Attack Moves deals damage based on the **Engagement**.
-      - **Desperate Engagement**: Opponent DEF > My Attack x 2 [Deal %33-%50 of AP]
-      - **Brave Engagement**: Opponent DEF > My Attack Deal %50-%90 AP
-      ‼️: **Nuetral Engagement**: Your attack and defense are nuetral. Deal %75-%120 AP
-      〽️: **Aggressive Engagement**: Your attacks deal additional damage. Deal %120-%150 AP
-      ❌x2: **Lethal Engagement**: Your attacks are lethal! Deal $150-%200 AP
+      🗯️**Engagements** Each of your ATK Moves deals damage based on the **Engagement**.
+      - **Brave Engagement**: Opponent DEF > My ATK x 2 [Deal %33-%50 of AP]
+      - **Cautious Engagement**: Opponent DEF > My ATK [Deal %50-%90 AP]
+      - **Nuetral Engagement**: Your ATK and DEF are nuetral. [Deal %75-%120 AP]
+      - **Aggressive Engagement**: My ATK > Opponent DEF [Deal %120-%150 AP]
+      - **Lethal Engagement**: Your ATK > Opponent DEF x 2 Deal $150-%200 AP
       
       The Engagement is a factor of Attack + Move Ap vs Opponent Defense
       When your attack is higher than your oppoenents defense you will deal more damage
       
-      🏃**Evasion**
+      🏃**Speed**
       Your cards speed determines your evasion stat.
-      **Fast** Cards SPD [70-100] increase their evasion by 5% every 10 Speed STAT i.e SPD 80 = 10% Evasion
-      **Slow** Cards SPD [0-30] decrease their evasion by 5% i.e SPD 10 = -15% Evasion
-      **Nuetral** Cards SPD [31-69] do not modify evasion
+      Evasion [70+]: gain 5% evasion per 10 Speed
+      Slow [30-]: lose 5% evasion per 10 Speed
+      - **God** Cards SPD [75+]
+      - **Fast** Cards SPD [70-100]
+      - **Nuetral** Cards SPD [31-69]
+      - **Slow** Cards SPD [0-30]
       
-      🧮**Strike Calculation** Strike calcalation adds variance and balance to Engagements.
+      🧮**Strike Calculation**
       Your ability also deals damage based on the type of **Strike**
       Strike is determined by your Move Accuracy vs Opponent Evasion
       :palm_down_hand: **Miss** - You completely miss... No Damage
@@ -707,16 +722,13 @@ async def animevs(ctx):
       :bangbang: **Connects** - Your ability strikes. No Reduction
       🗯️ **Hits** - Land a significant Strike. 20% Increase
       💥 **Critical Hit** - You land a lethal blow. 250% Increase
-      
-      📿**Talismans**
-      Talismans nullify the affinities of the chosen **Element**. 
-      **/attune** and equip /**talismans** from stored **Essence**
+   
       [Join the Anime VS+ Support Server](https://discord.gg/pcn)"""), color=0x7289da)
       
       embedVar17.set_thumbnail(url=avatar)
 
-      embedVar4 = Embed(title=f"Titles, Arms, and Summons ", description=textwrap.dedent(f"""\
-      **Titles** & **Arms** 
+      embedVar4 = Embed(title=f"Titles & Arms", description=textwrap.dedent(f"""\
+      __Titles** & **Arms__
       Modify your or the Opponents **Stats** by applying **Enhancers** during battle.
       
       🎗️ **Title Exlusivity**
@@ -735,16 +747,24 @@ async def animevs(ctx):
 
       ✨ **Destiny Universe Buff** Destiny Cards gain an additional **Buff**.
       **Buff**: **Universe Buff** + 500 + (Card Tier * 5%) **HLT**, **ATK** & **DEF**.
+      
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)""") ,color=0x7289da)
+      
+      embedVar4.set_thumbnail(url=avatar)
 
+      embedVar4_1 = Embed(title=f"Talismans & Summons ", description=textwrap.dedent(f"""\
+      📿**Talismans**
+      Talismans nullify the affinities of the chosen **Element**. 
+      **/attune** and equip /**talismans** from stored **Essence**
+      
       🧬 **Summons**
       Can assist during battle with an **Elemental Attack** or **Defensive Boost**.
       Earn **Summons** through Tales, Dungeon and Boss **Drops** or through trade with other Players!
       Battle with your **Summon** to gain **EXP** to increase Summon **Ability Power**. 
 
-      Mix and Match Titles, Arms and Summons to gain the **Tactical Advantage**!
-      """) ,color=0x7289da)
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)""") ,color=0x7289da)
       
-      embedVar4.set_thumbnail(url=avatar)
+      embedVar4_1.set_thumbnail(url=avatar)
 
       embedVar5 = Embed(title=f"Battle Mechanics", description=textwrap.dedent(f"""\
       Players take turns dealing damage using one of their 5 **Abilities**.
@@ -757,7 +777,8 @@ async def animevs(ctx):
       Sacrifice 1 turn to Heal and Reduce Stacked Damage Effects
 
       The Match is over when a players **Health** reaches 0.
-      """) ,color=0x7289da)
+      
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)""") ,color=0x7289da)
       
       embedVar5.set_thumbnail(url=avatar)
 
@@ -783,7 +804,7 @@ async def animevs(ctx):
       Summons Enhancers either use an Elemental Attack or Grant the player a Defensive Arm. Summon moves do not end the player turn!
       🧬 Summon __activates once per focus after resolve__
 
-      """) ,color=0x7289da)
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)""") ,color=0x7289da)
       
       embedVar6.set_thumbnail(url=avatar)
       
@@ -805,7 +826,7 @@ async def animevs(ctx):
       - Normal Mode but with increasing scaling, drops and rewards
       - Clout
 
-      """),color=0x7289da)
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)"""),color=0x7289da)
       
       embedVar16.set_thumbnail(url=avatar)
 
@@ -822,7 +843,8 @@ async def animevs(ctx):
       __PVP Game Modes__
       **/pvp** - Battle a rival in PVP mode
       *More PVP modes coming soon!*
-      """),color=0x7289da)
+                                                             
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)"""),color=0x7289da)
       
       embedVar7.set_thumbnail(url=avatar)
 
@@ -834,7 +856,9 @@ async def animevs(ctx):
       
       **Preset Builds**
       You can bring your preset builds into Duo Battles!
-      """) ,color=0x7289da)
+                                                                     
+
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)""") ,color=0x7289da)
       
       embedVar9.set_thumbnail(url=avatar)
 
@@ -859,7 +883,7 @@ async def animevs(ctx):
       💎 - Gems - When Items break they turn into **Gems**, You can also dismantle items from your inventory into **Gems**! 
       🪔 Essence - Essence can be used to craft Elemental Talismans
       
-      """) ,color=0x7289da)
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)""") ,color=0x7289da)
       
       embedVar10.set_thumbnail(url=avatar)
       
@@ -892,7 +916,8 @@ async def animevs(ctx):
       - Officer: Can Add members, Delete members, Pay members, Buy, Swap, and Toggle Buffs
       - Captain: Can Toggly Buffs, Pay members
       - Member: No operations
-      """),color=0x7289da)
+                                                                      
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)"""),color=0x7289da)
       
       embedVar15.set_thumbnail(url=avatar)
 
@@ -990,7 +1015,7 @@ async def animevs(ctx):
       
       # embedVar14.set_thumbnail(url=avatar)
 
-      embeds = [embedVar1, embedVar0, embedVar3,embedVar3_1, embedVar11,embedVar17, embedVar4, embedVar5, embedVar6, embedVar16, embedVar7, embedVar9, embedVar10,embedVar15]
+      embeds = [embedVar1, embedVar0, embedVar3, embedVar3_s, embedVar3_1, embedVar3_2, embedVar11, embedVar17, embedVar4, embedVar4_1, embedVar5, embedVar6, embedVar16, embedVar7, embedVar9, embedVar10, embedVar15]
       paginator = Paginator.create_from_embeds(bot, *embeds)
       paginator.show_select_menu = True
       await paginator.send(ctx)
@@ -2830,7 +2855,37 @@ async def autosave(ctx):
       # }))
       await ctx.send("There's an issue with your Autosave. Seek support in the Anime 🆚+ support server", ephemeral=True)
    
-      
+@slash_command(name="battleview", description="Toggles Opponent Stats in Battle", scopes=crown_utilities.guild_ids)
+async def battleview(ctx):
+   try:
+      player = db.queryUser({"DID": str(ctx.author.id)})
+      opponent_info = player.get("RIFT", 0)
+
+      if not opponent_info:
+         db.updateUserNoFilter({"DID": str(ctx.author.id)}, {"$set": {"RIFT": 1}})
+         embed = Embed(title="Battle View Deactivated", description="You can still view your opponent stats on the Card")
+         await ctx.send(embed=embed)
+      else:
+         db.updateUserNoFilter({"DID": str(ctx.author.id)}, {"$set": {"RIFT": 0}})
+         embed = Embed(title="Battle View Activated", description="You can now see extra details in the battle header.")
+         await ctx.send(embed=embed)
+   except Exception as ex:
+      loggy.error(f"Error in Battle View command: {ex}")
+      # trace = []
+      # tb = ex.__traceback__
+      # while tb is not None:
+      #       trace.append({
+      #          "filename": tb.tb_frame.f_code.co_filename,
+      #          "name": tb.tb_frame.f_code.co_name,
+      #          "lineno": tb.tb_lineno
+      #       })
+      #       tb = tb.tb_next
+      # print(str({
+      #       'type': type(ex).__name__,
+      #       'message': str(ex),
+      #       'trace': trace
+      # }))
+      await ctx.send("There's an issue with your Battle View . Seek support in the Anime 🆚+ support server", ephemeral=True)
 
 
 @slash_command(name="difficulty", description="Change the difficulty setting of Anime VS+",
@@ -3184,14 +3239,14 @@ async def code(ctx, code_input: str):
       return
 
 
-# @slash_command(description="admin only", options=[
-#    SlashCommandOption(name="collection", description="Collection to update", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="new_field", description="New Field to add", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="field_type", description="Field Type", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ], scopes=crown_utilities.guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
+@slash_command(description="admin only", options=[
+   SlashCommandOption(name="collection", description="Collection to update", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="new_field", description="New Field to add", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="field_type", description="Field Type", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
+   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
+], scopes=crown_utilities.guild_ids)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def addfield(ctx, collection, new_field, field_type, password, key):
    if password != 'casperjayden':  
       return await ctx.send("Admin Only")

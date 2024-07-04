@@ -267,6 +267,20 @@ class GameState(Extension):
             
             except Exception as ex:
                 custom_logging.debug(ex)
+                if battle_config.is_duo_mode or battle_config.is_co_op_mode:
+                    loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
+                else:
+                    loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, None)
+                # await battle_msg.delete()
+                await end_msg.edit(embed=loss_response, components=[])
+                
+                
+                if battle_config.player1.autosave and battle_config.match_can_be_saved:
+                    await end_msg.edit(embed = battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
+                    
+                else:
+                    await end_msg.edit(embed = battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+                battle_config.continue_fighting = False
                 return
         else:
             return False 
@@ -391,7 +405,8 @@ class GameState(Extension):
 
                     return quest_embed, milestone_embed
 
-                async def compile_generic_results_embeds():
+                async def compile_generic_results_embeds(reward_msg):
+                    print(reward_msg)
                     winning_message = await ai.win_message(battle_config.player1_card.name, battle_config.player1_card.universe, battle_config.player2_card.name, battle_config.player2_card.universe)
                     losing_message = await ai.lose_message(battle_config.player2_card.name, battle_config.player2_card.universe, battle_config.player1_card.name, battle_config.player1_card.universe)
                     
@@ -400,7 +415,7 @@ class GameState(Extension):
 
                     if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                         if battle_config.is_dungeon_game_mode:
-                            win_embed.add_field(name=f"👺 Dungeon Conquered", value=f"{reward_drop}")
+                            win_embed.add_field(name=f"👺 Dungeon Conquered", value=f"{reward_msg}")
                             if battle_config.selected_universe in battle_config.player1.completed_dungeons:
                                 win_embed.add_field(name="👺 Dungeon Conquered 🪙 Reward",
                                             value=f"You were awarded 🪙 {completion_earnings:,} for completing the {battle_config.selected_universe} Dungeon again!")
@@ -410,7 +425,7 @@ class GameState(Extension):
                                             value=f"You were awarded 🪙 {10000000:,} for completing the {battle_config.selected_universe} Dungeon!")
 
                         if battle_config.is_tales_game_mode:
-                            win_embed.add_field(name=f"🎊 | Tales Conquered", value=f"{reward_drop}")
+                            win_embed.add_field(name=f"🎊 | Tales Conquered", value=f"{reward_msg}")
                             if battle_config.selected_universe in battle_config.player1.completed_tales:
                                 win_embed.add_field(name="🎊 Tales Conquered 🪙 Reward",
                                             value=f"You were awarded 🪙 {completion_earnings:,} for completing the {battle_config.selected_universe} Tales again!")
@@ -428,9 +443,14 @@ class GameState(Extension):
                     
                     battle_stats_embed = Embed(title=f"📊 Battle Stats", description=f"View the battle stats here", color=0x1abc9c)
 
+                    #Most Focus
                     f_message = battle_config.get_most_focused(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"🌀 | Focus Count",
                                     value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.focus_count}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.focus_count}")
+                    #Most Blitz
+                    b_message = battle_config.get_most_blitzed(battle_config.player1_card, battle_config.player2_card)
+                    battle_stats_embed.add_field(name=f"💢 | Blitz Count",
+                                    value=f"**{battle_config.player2_card.name}**: {battle_config.player2_card.blitz_count}\n**{battle_config.player1_card.name}**: {battle_config.player1_card.blitz_count}")
                     #Most Damage Dealth
                     d_message = battle_config.get_most_damage_dealt(battle_config.player1_card, battle_config.player2_card)
                     battle_stats_embed.add_field(name=f"💥 | Damage Dealt",
@@ -446,7 +466,7 @@ class GameState(Extension):
                     return win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed
 
                 if battle_config.current_opponent_number != (battle_config.total_number_of_opponents):
-                    win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed = await compile_generic_results_embeds()
+                    win_embed, reward_embed, battle_history_embed, battle_stats_embed, pet_level_embed = await compile_generic_results_embeds(reward_msg)
                     if battle_config.is_dungeon_game_mode:
                         quest_embed, milestone_embed = await dungeon_handler()
                     if battle_config.is_tales_game_mode:
@@ -470,7 +490,7 @@ class GameState(Extension):
                 if battle_config.current_opponent_number == (battle_config.total_number_of_opponents):
                     total_complete = True
                     battle_config.continue_fighting = False
-                    win_embed, reward_embed, battle_history_embed, battle_stats_embed = await compile_generic_results_embeds()
+                    win_embed, reward_embed, battle_history_embed, battle_stats_embed = await compile_generic_results_embeds(reward_msg)
                     if battle_config.is_dungeon_game_mode:
                         quest_embed, milestone_embed = await dungeon_handler()
                     if battle_config.is_tales_game_mode:

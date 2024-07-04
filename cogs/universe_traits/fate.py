@@ -30,11 +30,11 @@ def command_seal(player_card, battle_config, opponent_card, player_title):
         damage_calculation_response = player_card.damage_cal(3, battle_config, opponent_card)
         opponent_card.health = opponent_card.health - damage_calculation_response['DMG']
         player_card.damage_dealth = player_card.damage_dealt + damage_calculation_response['DMG']
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} ♾️ resolved with their command seal {title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} ♾️ activated ⚡Command Seal {title_message}")
 
         # player_card.stamina = 0
         player_card.used_resolve = True
         player_card.usedsummon = False
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True

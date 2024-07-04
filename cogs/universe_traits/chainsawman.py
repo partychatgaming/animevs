@@ -33,12 +33,12 @@ def devilization(player_card, battle_config):
             player_card.attack = round(player_card.health + (player_card.contract_buff / 2))
             player_card.defense = round(player_card.health + (player_card.contract_buff /2))
         
-def contract_fulfilled(player_card, battle_config, resolve_health):
+def contract_fulfilled(player_card, battle_config, resolve_health, title):
     if player_card._atk_chainsawman_buff == True and player_card.used_resolve:
         player_card.universe_trait_value = round(player_card.contract_buff)
         player_card.attack = player_card.health + player_card.contract_buff
         player_card.defense = player_card.health + player_card.contract_buff
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name}'s contract fulfilled [+❤️{resolve_health:,} : [+🗡️{player_card.contract_buff:,} | +🛡️{player_card.contract_buff:,}]")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name}'s ⚡Contract Fulfilled {title} [+❤️{resolve_health:,} : [+🗡️{player_card.contract_buff:,} | +🛡️{player_card.contract_buff:,}]")
         return True
     else:
         return False
@@ -59,6 +59,9 @@ def devils_endurance(player_card, battle_config):
     if player_card.universe == "Chainsawman":
         if player_card._chainsawman_revive_active == True:
             if player_card.health <= 0:
+                if battle_config.is_tutorial_game_mode and not battle_config.tutorial_health_check and player_card.name != "Training Dummy":
+                    battle_config.tutorial_health_check = True
+                    battle_config.tutorial_messages(player_card,None,"HEALTH")
                 player_card._chainsawman_revive_active = False
                 player_card.devils_endurance_active = True
                 player_card.devils_endurance_timer = 3
@@ -66,7 +69,10 @@ def devils_endurance(player_card, battle_config):
                 player_card.stamina = 100
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} has fallen but the devil lives for {player_card.devils_endurance_timer} turns [❤️{player_card.health:,} | 🌀{player_card.stamina:,}]")
         elif player_card.devils_endurance_active == True:
-            player_card.health = 666
+            if player_card.health <= 0:
+                player_card.devils_endurance_active = False
+                player_card.health = -1000
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ The Devil returns to Hell")
             if player_card.devils_endurance_timer == 3:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} has fallen but the devil lives for {player_card.devils_endurance_timer} turns")
                 player_card.devils_endurance_timer -= 1

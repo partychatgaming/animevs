@@ -58,17 +58,17 @@ def domain_expansion(player_card, battle_config, player_title, opponent_card):
             player_card.jujutsu_kaisen_damage_check_turn_count = 1
         player_card.jujutsu_kaisen_damage_meter = round((player_card.max_health * 0.5) + player_card.card_lvl)
         player_card.jujutsu_kaisen_damage_meter_max = round((player_card.max_health * 0.5) + player_card.card_lvl)
-        message = f"({battle_config.turn_total}) ♾️ {player_card.name} has activated their Domain Expansion [Deal {player_card.jujutsu_kaisen_damage_meter:,} damage in {player_card.jujutsu_kaisen_damage_check_turn_count} turns to break the domain]"
+        message = f"({battle_config.turn_total}) ♾️ {player_card.name} activated ⚡Domain Expansion [Deal {player_card.jujutsu_kaisen_damage_meter:,} damage in {player_card.jujutsu_kaisen_damage_check_turn_count} turns to break the domain]"
         if opponent_card.jujutsu_kaisen_domain_expansion_active:
             if (player_card.attack + player_card.defense) > (opponent_card.attack + opponent_card.defense):
                 opponent_card.jujutsu_kaisen_domain_expansion_active = False
                 opponent_card.jujutsu_kaisen_damage_check_turn_count = 0
                 opponent_card.jujutsu_kaisen_damage_meter = 0
                 player_card.jujutsu_kaisen_domain_expansion_active = True
-                message = f"({battle_config.turn_total}) ♾️ {player_card.name} has activated their Domain Expansion, breaking {opponent_card.name}'s Domain"
+                message = f"({battle_config.turn_total}) ♾️ {player_card.name} activated ⚡Domain Expansion, breaking {opponent_card.name}'s Domain"
             else:
                 # You are unable to activate your domain and will succumb to your opponents domain
-                message = f"({battle_config.turn_total}) ♾️ {player_card.name}'s Domain Expansion was immediately cancelled by {opponent_card.name}'s Domain"
+                message = f"({battle_config.turn_total}) ♾️ {player_card.name}'s ⚡Domain Expansion was immediately cancelled by {opponent_card.name}'s Domain"
                 player_card.jujutsu_kaisen_domain_expansion_active = False
         battle_config.add_to_battle_log(message)
 

@@ -28,10 +28,12 @@ def titan_mode(player_card, battle_config, player_title):
         health_boost = 100 * (player_card.focus_count * player_card.card_tier)
         player_card.health = player_card.health + health_boost
         player_card.damage_healed = player_card.damage_healed + resolve_health + health_boost
+        player_card.titan_bonus = "Spent"
+        player_card.universe_trait_value_name = f"Titan Fortitude: {player_card.titan_bonus}\n{player_card.universe_crest}Omnigear Velocity"
 
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} resolved, entering their titan form, healing for {health_boost} {title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} entered ⚡Titan Form, healing for {health_boost} {title_message}")
 
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True
 
@@ -45,11 +47,17 @@ def rally(player_card, battle_config):
 def omnigear(player_card, battle_config):
     if player_card.universe == "Attack On Titan":
         class_level = crown_utilities.get_class_value(player_card.tier)
-        speed_boost = round(player_card.speed * (.05 * class_level))
-        ap_boost = round(player_card.arbitrary_ap_buff * (.05 * class_level))
+        speed_boost = round(player_card.speed * (.10 * class_level))
+        ap_boost = round(player_card.arbitrary_ap_buff * (.10 * class_level))
         player_card.speed += round(speed_boost)
         if player_card.arbitrary_ap_buff <= 0:
-            ap_boost = round(player_card.speed * (.05 * class_level))
+            ap_boost = round(player_card.speed * (.10 * class_level))
             player_card.arbitrary_ap_buff += round(ap_boost)
         player_card.arbitrary_ap_buff += round(ap_boost)
+        player_card.universe_trait_value += ap_boost
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} activated their omnigear, gaining {(ap_boost)} ap and {(speed_boost)} speed bonus")
+
+def calculate_titan(player_card, battle_config):
+    if player_card.universe == "Attack On Titan" and not player_card.used_resolve:
+        player_card.titan_bonus = round(player_card.focus_count * player_card.tier * 100)
+        player_card.universe_trait_value_name = f"Titan Fortitude: {player_card.titan_bonus}\n{player_card.universe_crest}Omnigear Velocity"

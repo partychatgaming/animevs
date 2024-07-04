@@ -16,7 +16,7 @@ from io import BytesIO
 from cogs.universe_traits.naruto import substitution_jutsu, hashirama_cells
 from cogs.universe_traits.dbz import final_stand, saiyan_spirit
 from cogs.universe_traits.chainsawman import devils_endurance, contracts, contract_fulfilled
-from cogs.universe_traits.demon_slayer import total_concentration_breathing
+from cogs.universe_traits.demon_slayer import total_concentration_breathing, demon_slayer_blitz
 from cogs.universe_traits.one_piece import conquerors_haki, armament
 from cogs.universe_traits.yuyu_hakusho import spirit_resolved, meditation
 from cogs.universe_traits.my_hero_academia import plus_ultra, quirk_awakening, activate_my_hero_academia_trait
@@ -39,6 +39,7 @@ from cogs.universe_traits.overlord import fear_aura, fear, fear_duration_check
 from cogs.universe_traits.jujutsu_kaisen import cursed_energy, cursed_energy_reset, domain_expansion, domain_expansion_check
 from cogs.universe_traits.slime import  skill_evolution, summon_slime, beezlebub
 from cogs.universe_traits.fma import philosopher_stone, equivalent_exchange, equivalent_exchange_resolve
+from cogs.universe_traits.soul_eater import soul_eater, soul_resonance, meister
 
 class Card:
     try:
@@ -54,6 +55,7 @@ class Card:
             self.skin_for = skin_for
             self.max_health = max_health
             self.health = health
+            self.health_color = crown_utilities.health_color(self.health, self.max_health)
             self.max_stamina = max_stamina
             self.stamina = stamina
             self.moveset = moveset
@@ -65,6 +67,7 @@ class Card:
             self.evasion = 0
             self.evasion_message = ""
             self.universe = universe
+            self.universe_crest = crown_utilities.crest_dict[self.universe]
             self.tier = tier
             self.weaknesses = weaknesses
             self.resistances = resistances
@@ -205,6 +208,7 @@ class Card:
             self.contract_buff = 0
             self._demon_slayer_buff = 0
             self._demon_slayer_crit = False
+            self._blood_demon_art = False
             self.naruto_heal_buff = 0
             self._gow_resolve = False
             self.temp_opp_arm_shield_active = False
@@ -237,6 +241,8 @@ class Card:
             self.jujutsu_kaisen_damage_meter_max = 0
             self.titan_bonus = 0
             self.omingear_bonus = 0
+            self.soul_resonance = False
+            self.soul_resonance_amount = 0
 
 
             self.slime_buff = 0
@@ -253,7 +259,9 @@ class Card:
             if self.universe == "Jujustu Kaisen":
                 self.universe_trait_value_name = "Domain Expansion"
             if self.universe == "Attack On Titan":
-                self.universe_trait_value_name = f"Titan Fortitude: {self.titan_bonus}\nOmnigear Velocity"
+                self.universe_trait_value_name = f"Titan Fortitude: {self.titan_bonus}\n{self.universe_crest}Omnigear Velocity"
+            if self.universe == "Soul Eater":
+                self.universe_trait_value_name = "Souls"
 
 
             # Elemental Effect Meters
@@ -281,38 +289,44 @@ class Card:
 
             self.water_buff_by_value = 100
             self.time_buff_by_value = 4
-            self.earth_buff_by_value = .40
-            self.death_buff_by_value = .40
-            self.light_buff_by_value = .40
+            self.earth_buff_by_value = .25
+            self.death_buff_by_value = .25
+            self.light_buff_by_value = .25
             self.light_speed_attack_value = 0
             self.dark_buff_by_value = 15
             self.physical_parry_value = 1
             self.ranged_buff_value = 2
-            self.life_buff_value = .65
+            self.life_buff_value = .40
             self.reckless_buff_value = .40
             self.reckless_duration = 0
             self.reckless_rest = False
             self.psychic_barrier_buff_value = 1
-            self.psychic_debuff_value = .35
+            self.psychic_debuff_value = .10
             self.fire_buff_value = .50
             self.electric_buff_value = .10
             self.poison_damage_value = .35
             self.rot_damage_value = .15
-            self.gravity_debuff_value = .50
+            self.gravity_debuff_value = .25
             self.bleed_hit_value = 10
             self.ice_duration = 0
             self.ice_buff_value = 1
             self.energy_buff_value = 0
             self.energy_crit_bool =False
-            self.wind_buff_value = .75
-            self.nature_buff_value = .35
+            self.wind_buff_value = .50
+            self.nature_buff_value = .25
             self.sword_crit_bool = False
             self.sword_crit_count = 0
             self.sword_atk_buff_value = .40
-            self.nature_debuff_value = .35
+            self.nature_debuff_value = .25
             self.sleep_counter = 0
             self.sleep_rest_skips = 0
             self.sleep_exhaustion_bool = False
+
+            #Title Checks For Damage
+            self.title_blitz = False #parry
+            self.title_strategist = False #all
+            self.title_pierce = False #barrier
+            self.title_obliterate = False #shield
             
 
             # Card Defense From Arm
@@ -523,7 +537,7 @@ class Card:
             self.universe_image = ""
             self.tip = ""
             self.view_card_message = ""
-            self.universe_crest = crown_utilities.crest_dict[self.universe]
+            
             self.index = ""
             self.enhancer_values = {
                 "ATK": {1: 10, 2: 15, 3: 20, 4: 30, 5: 40, 6: 50, 7: 60, 8: 70, 9: 80, 10: 90},
@@ -787,23 +801,23 @@ class Card:
             self._magic_value = mage_buff
             self.water_buff_by_value = 200
             self.time_buff_by_value = 8
-            self.earth_buff_by_value = .70
-            self.death_buff_by_value = .70
-            self.light_buff_by_value = .70
+            self.earth_buff_by_value = .50
+            self.death_buff_by_value = .50
+            self.light_buff_by_value = .50
             self.dark_buff_by_value = 20
-            self.life_buff_value = .90
+            self.life_buff_value = .60
             self.psychic_barrier_buff_value = 2
-            self.psychic_debuff_value = .65
-            self.fire_buff_value = .80
+            self.psychic_debuff_value = .50
+            self.fire_buff_value = .75
             self.electric_buff_value = .25
-            self.poison_damage_value = .60
+            self.poison_damage_value = .50
             self.rot_damage_value = .30
-            self.gravity_debuff_value = .80
+            self.gravity_debuff_value = .50
             self.bleed_hit_value = 30
             self.ice_buff_value = 2
             self.energy_buff_value = 2
-            self.wind_buff_value = 90
-            self.nature_buff_value = .60
+            self.wind_buff_value = 75
+            self.nature_buff_value = .50
             self.class_value = round(mage_buff * 100)
             self.class_tutorial_message = f"🔅 +{self.class_value}% Elemental Damage!"
         
@@ -1389,11 +1403,16 @@ class Card:
                 self.evasion_message = f"*{speed_type}\n{round(self.evasion)}% evasion boost*"
             else:
                 self.evasion_message = f"*{speed_type}\n{round(self.evasion)}% evasion boost*"
-        if self.speed <= 69:
+        elif self.speed <= 30:
             if player.performance:
-                self.evasion_message = f"*{speed_type}\nNo evasion boost*"
+                self.evasion_message = f"*{speed_type}\n{round(self.evasion)}% Slow*"
             else:
-                self.evasion_message = f"*{speed_type}\nNo evasion boost*"
+                self.evasion_message = f"*{speed_type}\n{round(self.evasion)}% Slow*"
+        else:
+            if player.performance:
+                self.evasion_message = f"{speed_type}\nNo evasion boost"
+            else:
+                self.evasion_message = f"{speed_type}\nNo evasion boost"
 
 
         return self.evasion_message
@@ -1538,6 +1557,7 @@ class Card:
         ranged_attack = False
         wind_buff = 0
         move_stamina = 0
+        standard_traits = ['Soul Eater','Persona', 'Bleach']
         if universe == "Souls":
             move = self.move_souls
             ap = self.move_souls_ap
@@ -1552,7 +1572,9 @@ class Card:
                 is_physical_element = True
             move_emoji = crown_utilities.set_emoji(move_element)
 
-        if universe == "Persona" or universe == "Bleach":
+        if universe in standard_traits:
+            if universe == "Soul Eater":
+                self.soul_resonance = True
             move = self.move1
             ap = self.move1ap
             move_stamina = 0
@@ -1847,77 +1869,100 @@ class Card:
             return response
 
         else:
-            try:
-                if true_dmg <= 50:
-                    true_dmg = 50
+            try:  
+                #Getting the defense power of the opponent
                 defensepower = _opponent_card.defense - self.attack
-                if self.sleep_exhaustion_bool:
-                    defensepower = 2000
+                # if self.sleep_exhaustion_bool:
+                #     defensepower = 2000
                 if defensepower <= 0:
-                    defensepower = 1
+                    defensepower = 0
 
+                #Checking for Bonus Attack or Defense
                 bonus_damage = 0
                 if self.universe == "Full Metal Alchemist":
                     bonus_damage = equivalent_exchange(self, battle_config, self.attack, move_stamina)
-                attackpower = (self.attack - _opponent_card.defense) + ap + bonus_damage
+
+                #Getting Attack Power of the Attacked
+                attackpower = round(self.attack + ap + bonus_damage)
                 if attackpower <= 0:
-                    attackpower = ap
+                    attackpower = 25
+
+                #Getting the Ability Power
+                abilitypower = attackpower - defensepower
+                if abilitypower <= 0:
+                    abilitypower = ap + bonus_damage
+                print("Card Name: ", self.name)
+                print("__Engagement Checks__")
+                print("Attack", self.attack)
+                print("AP: ", ap)
+                print("Opponent Defense: ", _opponent_card.defense)
                 print("Attack Power: ", attackpower)
                 print("Defense Power: ", defensepower)
-                alt_abilitypower = round(attackpower - defensepower)
-                if alt_abilitypower <= 0:
-                    alt_abilitypower = 25
-                abilitypower = round(attackpower / defensepower)
-                if abilitypower <= 0:
-                    abilitypower = 25 
-                print("Current Damage", abilitypower)
-                print("Potenial Change", round(alt_abilitypower))
+                print("Ability Power: ", abilitypower) 
 
+                #Engagement Checks
                 dmg = abilitypower
+                if dmg >= ap * 2:
+                    dmg = ap * 2
+                if dmg <= ap / 3:
+                    dmg = ap / 3
+                engagement_low = .70
+                engagmement_high = .90
                 if self.attack >= (_opponent_card.defense * 2):
-                    if dmg > (ap * 1.5):
-                        dmg = ap * 1.5
-                elif self.attack >=(_opponent_card.defense * 1.5):
-                    if dmg > (ap * 1.2): 
-                        dmg = ap * 1.2
-                elif dmg < (ap / 2):  
-                    if _opponent_card.defense >= (self.attack * 2):
-                        dmg = ap / 3
-                    else:
-                        dmg = ap / 2
-                low = dmg - (dmg * .20)
+                    engagement_low = 1.0
+                    engagmement_high = 1.2
+                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
+                    print("Lethal Engagement Damage", dmg)
+                elif self.attack > (_opponent_card.defense + (_opponent_card.defense * .05)):
+                    engagement_low = 0.80
+                    engagmement_high = 1.1
+                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
+                    print("Agrresssive Engagement Damage", dmg)
+                elif self.attack < (_opponent_card.defense - (_opponent_card.defense * .05)):  
+                    engagement_low = .50
+                    engagmement_high = .80
+                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
+                    print("Cautious Engagement Damage", dmg)
+                elif self.attack <= (_opponent_card.defense / 2):
+                    engagement_low = .30
+                    engagmement_high = .60
+                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
+                    print("Brave Engagement Damage", dmg)
+                else:
+                    dmg = round(dmg * random.uniform(engagement_low, engagmement_high))
+                    print("Neutral Engagement Damage", dmg)
+                #Variance for flavor
+                low = dmg - (dmg * .05)
                 high = dmg + (dmg * .05)
-                true_dmg = (round(random.randint(int(low), int(high)))) + 25
+                true_dmg = (round(random.randint(int(low), int(high))))
+                print("Current Damage After Flavor", true_dmg)
+
+                #Checking for Minimum True Damage
                 if true_dmg <= 0 or true_dmg is None or not true_dmg:
                     true_dmg = 50
 
-                if opponent_title.enhanced_guard_effect and true_dmg > 25:
+                #Enhanced Guard Effect
+                if opponent_title.enhanced_guard_effect:
                     true_dmg = true_dmg - (true_dmg * .8)
 
-                if self.universe == "Naruto" and self.stamina > 100:
+                #Naruto Chakra Control Trait
+                if self.universe == "Naruto" and self.stamina >= 100:
                     true_dmg = round(true_dmg + (true_dmg * .60))
-
+                
+                #Setting Evastion Variables and Message Variable
                 message = ""            
-
                 miss_hit = 1
                 low_hit = 6
                 med_hit = 15
                 standard_hit = 19
                 high_hit = 20
 
-                # hit_roll = round(random.randint(0, 20))
-                hit_roll = round(random.randint(1, 20))  # generate a random integer between 1 and 20 inclusive
-                evasion = crown_utilities.calculate_speed_modifier(_opponent_card.speed)
-                accuracy = self.speed - _opponent_card.speed
-                if accuracy <= 0:
-                    accuracy = 0
-                if accuracy >= 3:
-                    accuracy = 3
-                hit_roll += evasion + accuracy
+                #Generate a random integer between 1 and 20 inclusive
+                hit_roll = round(random.randint(1, 20))  
                 
-                #Evasion Modifier
+                #Evasion Modifiers
                 hit_roll = self.adjust_hit_roll(battle_config, hit_roll, _opponent_card, summon_used, true_dmg, move_element, low_hit, med_hit, standard_hit, high_hit, miss_hit)
-
+                print("Final Hit Roll: ", hit_roll)
                 if move_element in ["RECKLESS", "RECOIL"] and hit_roll > miss_hit:
                     if self.used_resolve:
                         true_dmg = round(true_dmg * 3)
@@ -1935,22 +1980,15 @@ class Card:
 
                 if self.wind_element_activated and hit_roll < miss_hit:
                     battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * self.wind_buff_value))
-                    battle_config.add_to_battle_log(f"All wind power increased by {round(true_dmg * self.wind_buff_value):,}")
+                    battle_config.add_to_battle_log(f"🌪️ All wind power increased by {round(true_dmg * self.wind_buff_value):,}")
                     true_dmg = round(true_dmg + battle_config._wind_buff)
-                #Summon used checks
-                # Added 100x multiplier to increase damage
+
+                #Summon Ability Buffs
                 summoner_buff = 0
-                # print(f"here 1: {true_dmg}")
                 if summon_used and self.is_summoner:
                     summoner_buff = self.calculate_summoner_buff(true_dmg)
-                    # print(f"here 1.1: {true_dmg}")
                     true_dmg += round(summoner_buff)
-                    # print(f"here 2: {true_dmg}")
-                # Soul Eater Meister Trait
-                if self.summon_universe == "Soul Eater" and self.universe == "Soul Eater":
-                    true_dmg = true_dmg * 2
-                    # print(f"here 3: {true_dmg}")
-                # print(ap)
+
                 if summon_used and self.universe == "Soul Eater":
                     hit_roll = 0
 
@@ -1959,17 +1997,13 @@ class Card:
                 if summon_used:
                     attacker = self.summon_name
 
-                #crit tracker
+
+                #Apply Hit Dice and Final Damage Modification and create message
                 is_crit = False
-                if self._demon_slayer_crit:
-                    hit_roll = 20
-                    self._demon_slayer_crit = False
-                if hit_roll < miss_hit:
+                if hit_roll < miss_hit: #Missed Hit
                     if self.universe == 'Soul Eater':
                         is_crit = True
                         true_dmg = round(true_dmg * 2.5)
-                        # if summon_used and self.summon_universe == "Soul Eater":
-                        #     true_dmg = round(true_dmg * 5)
                         message = f'🩸Feint Attack! {move_emoji} {attacker} critically hit {_opponent_card.name} for {true_dmg:,} damage'
                     elif self.wind_element_activated:
                         true_dmg = round(true_dmg)
@@ -1981,23 +2015,23 @@ class Card:
                         true_dmg = 0
                         message = f'{move_emoji} {attacker} attack missed {_opponent_card.name} 💨'
                 
-                elif hit_roll <= low_hit and hit_roll > miss_hit:
+                elif hit_roll <= low_hit and hit_roll > miss_hit:#Low Hit
                     true_dmg = round(true_dmg * .70)
                     message = f'{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage'
                 
-                elif hit_roll <= med_hit and hit_roll > low_hit:
+                elif hit_roll <= med_hit and hit_roll > low_hit:#Med Hit
                     true_dmg = round(true_dmg)
                     message = f'{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage'
                 
-                elif hit_roll <= standard_hit and hit_roll > med_hit:
+                elif hit_roll <= standard_hit and hit_roll > med_hit:#Standard Hit
                     true_dmg = round(true_dmg * 1.2)
                     message = f'{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage'
                 
-                elif hit_roll >= 20:
+                elif hit_roll >= 20:#Critical Hit
                     is_crit = True
                     if self.wind_element_activated:
                         battle_config._wind_buff = round(battle_config._wind_buff + round(true_dmg * self.wind_buff_value))
-                        battle_config.add_to_battle_log(f"All wind power increased by {round(true_dmg * self.wind_buff_value):,}")
+                        battle_config.add_to_battle_log(f"🌪️ All wind power increased by {round(true_dmg * self.wind_buff_value):,}")
                         true_dmg = round(true_dmg + battle_config._wind_buff)
 
                     if self.stagger:
@@ -2017,6 +2051,7 @@ class Card:
                     if self.stamina > 80:
                         true_dmg = round(true_dmg * 1.5)
 
+                #Affinity Checks to update message
                 does_repel = False
                 if (move_element in _opponent_card.weaknesses or self._tactician_stack_5 ==True) and not (hit_roll <= miss_hit):
                     true_dmg = round(true_dmg * 1.6)
@@ -2058,26 +2093,28 @@ class Card:
                         does_absorb = True
                         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {message}")
                         
-                
+                #Assasin Strike Checks
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1
                     self._assassin_attack = self._assassin_attack - 1
-                    if self._assassin_attack < 0:
+                    if self._assassin_attack >= 0:
+                        strike_value = self._assassin_attack
+                        battle_config.add_to_battle_log(f"(🥋) {self.name}'s sneak attack cost 0 & ignores protections [{strike_value} left]")
+                    else:
                         self._assassin_active = False
-                    #print(self._assassin_attack)
-                    strike_value = self._assassin_attack
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} is using a assassin strike that requires no stamina and ignores protections [{strike_value} assassin strikes left]")
                 else:
                     if not self.used_block:
                         self.stamina = self.stamina - move_stamina
-                
+                #Damage Checks Checks
                 if _opponent_card.damage_check_activated:
                     true_dmg = 5
                     message = f"{_opponent_card.name} is in damage check mode"
 
+                #Healer Checks
                 if _opponent_card._heal_active:
                     _opponent_card._heal_value = round(_opponent_card._heal_value + (true_dmg * _opponent_card._heal_buff))
-
+                print("__Damage Done__")
+                print("Final Damage Done:", true_dmg)
                 response = {"DMG": true_dmg, "MESSAGE": message,
                             "CAN_USE_MOVE": can_use_move_flag, "ENHANCE": False, "REPEL": does_repel, "ABSORB": does_absorb, "ELEMENT": move_element, "STAMINA_USED": move_stamina, "SUMMON_USED": summon_used}
                 return response
@@ -2087,6 +2124,17 @@ class Card:
 
 
     def adjust_hit_roll(self, battle_config, hit_roll, _opponent_card, summon_used, true_dmg, move_element, low_hit, med_hit, standard_hit, high_hit, miss_hit):
+        evasion =  - 1 * crown_utilities.calculate_speed_modifier(_opponent_card.speed)
+        accuracy =  -1 * crown_utilities.calculate_speed_modifier(self.speed)
+        evasion_bonus = accuracy - evasion
+        print("__Evasion Checks__")
+        print("Hit Roll: ", hit_roll)
+        print("Evasion: ", evasion)
+        print("Accuracy: ", accuracy)
+        print("Evasion Bonus: ", evasion_bonus)
+
+        hit_roll += evasion_bonus
+        
         if _opponent_card.damage_check_activated:
             hit_roll += 3
             _opponent_card.damage_check_counter += true_dmg
@@ -2118,6 +2166,13 @@ class Card:
 
         if self.universe == "Soul Eater" and hit_roll <= low_hit:
             hit_roll = hit_roll - 3
+        elif self.universe == "Soul Eater" and self.soul_resonance:
+            hit_roll = 20
+
+        #Crit tracker
+        if self._demon_slayer_crit:
+            hit_roll = 20
+            self._demon_slayer_crit = False
 
         if self._swordsman_active and self.used_resolve:
                 self._swordsman_value = self._swordsman_value - 1
@@ -2133,13 +2188,13 @@ class Card:
             hit_roll = hit_roll + 3
             self.health = self.health + (.35 * true_dmg)
 
-        if (move_element == "ENERGY" or self.stagger or move_element == "SPIRIT") and hit_roll >= 11 and self.energy_buff_value:
-            hit_roll = hit_roll + 9
+        if (move_element == "ENERGY" or self.stagger or move_element == "SPIRIT") and hit_roll >= 13 and self.energy_buff_value:
+            hit_roll = hit_roll + 7
             if hit_roll >= 20:
                 self.energy_crit_bool = True
         
-        if (move_element == "ENERGY" or self.stagger or move_element == "SPIRIT") and hit_roll >= 13 and not self.energy_buff_value:
-            hit_roll = hit_roll + 7
+        if (move_element == "ENERGY" or self.stagger or move_element == "SPIRIT") and hit_roll >= 15 and not self.energy_buff_value:
+            hit_roll = hit_roll + 5
             if hit_roll >= 20:
                 self.energy_crit_bool = True
 
@@ -2269,7 +2324,10 @@ class Card:
                     
 
             self.usedsummon = False
-            self.focus_count = self.focus_count + 1            
+            if self.used_blitz and not self.is_assassin:
+                self.focus_count = self.focus_count
+            else:
+                self.focus_count += 1            
 
             if battle_config.is_boss_game_mode and battle_config.is_turn not in [1,3]:
                 embedVar = interactions.Embed(title=f"{battle_config._punish_boss_description}")
@@ -2359,56 +2417,62 @@ class Card:
                 else:
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) (🌀) {self.name} [+❤️{health_calculation}]")
 
-            if _opponent_card.poison_dmg:
-                _opponent_card.poison_dmg = round(_opponent_card.poison_dmg / 2)
-                if self.is_healer:
-                    _opponent_card.poison_dmg = 0
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura !  ⚕️🧪 poison cured!")
-                else:
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s 🔻🧪 poison damage reduced to {_opponent_card.poison_dmg}")
+            #Check is player blitz to disable focus traits
+            if not self.used_blitz:
+                #Activate Elemental Stack Reductions
+                if _opponent_card.poison_dmg:
+                    _opponent_card.poison_dmg = round(_opponent_card.poison_dmg / 2)
+                    if self.is_healer:
+                        _opponent_card.poison_dmg = 0
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura !  ⚕️🧪 poison cured!")
+                    else:
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s 🔻🧪 poison damage reduced to {_opponent_card.poison_dmg}")
 
 
-            if _opponent_card.rot_dmg:
-                _opponent_card.rot_dmg = round(_opponent_card.rot_dmg / 2)
-                if self.is_healer:
-                    _opponent_card.rot_dmg = 0
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura !  ⚕️🩻 rot cured!")
-                else:
-                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s 🔻🩻 rot damage reduced to {_opponent_card.rot_dmg}")
+                if _opponent_card.rot_dmg:
+                    _opponent_card.rot_dmg = round(_opponent_card.rot_dmg / 2)
+                    if self.is_healer:
+                        _opponent_card.rot_dmg = 0
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura !  ⚕️🩻 rot cured!")
+                    else:
+                        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name}'s 🔻🩻 rot damage reduced to {_opponent_card.rot_dmg}")
 
-            if _opponent_card.burn_dmg and self.is_healer:
-                _opponent_card.burn_dmg = 0
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura ! ⚕️🔥 burn cured!")
+                if _opponent_card.burn_dmg and self.is_healer:
+                    _opponent_card.burn_dmg = 0
+                    battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name}'s Healing Aura ! ⚕️🔥 burn cured!")
 
-            digivolve(self, battle_config, _opponent_card)
+                #Activate Focus Traits
+                digivolve(self, battle_config, _opponent_card)
 
-            turret_shot(self, battle_config, _opponent_card)
+                turret_shot(self, battle_config, _opponent_card)
 
-            saiyan_spirit(self, battle_config, _opponent_card)
+                saiyan_spirit(self, battle_config, _opponent_card)
 
-            rulers_authority(self, battle_config, _opponent_card)
+                rulers_authority(self, battle_config, _opponent_card)
 
-            mana_zone(self, battle_config)
+                mana_zone(self, battle_config)
 
-            scheduled_death(self, battle_config, _opponent_card)
+                scheduled_death(self, battle_config, _opponent_card)
 
-            rank_hero(self, battle_config, _opponent_card)
+                rank_hero(self, battle_config, _opponent_card)
 
-            hero_reinforcements(self, battle_config, _opponent_card)
+                hero_reinforcements(self, battle_config, _opponent_card)
 
-            increase_power(self, battle_config, _opponent_card)
+                increase_power(self, battle_config, _opponent_card)
 
-            combo_recognition(self, battle_config, _opponent_card)
+                combo_recognition(self, battle_config, _opponent_card)
 
-            concentration(self, battle_config)
+                concentration(self, battle_config)
 
-            fear_aura(self, _opponent_card, battle_config)
+                fear_aura(self, _opponent_card, battle_config)
 
-            cursed_energy_reset(self, battle_config)
+                cursed_energy_reset(self, battle_config)
 
-            beezlebub(self, battle_config, _opponent_card)
+                beezlebub(self, battle_config, _opponent_card)
 
-            self.light_speed_attack(_opponent_card, battle_config)
+                soul_eater(self, battle_config, _opponent_card)
+
+                self.light_speed_attack(_opponent_card, battle_config)
 
             battle_config.turn_total = battle_config.turn_total + 1
 
@@ -2428,7 +2492,7 @@ class Card:
     def light_speed_attack(self, oppponent_card, battle_config):
         if oppponent_card.light_speed_attack_value:
             self.health = self.health - oppponent_card.light_speed_attack_value
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {oppponent_card.name} used 🌕 Light Speed Attack and hit {self.name} for {round(oppponent_card.light_speed_attack_value):,} light damage")
+            battle_config.add_to_battle_log(f"(🌕) {oppponent_card.name} used Light Speed Attack and hit {self.name} for {round(oppponent_card.light_speed_attack_value):,} light damage")
             oppponent_card.light_speed_attack_value = 0
             return
 
@@ -2462,12 +2526,13 @@ class Card:
         self.usedsummon = False
 
         lol = pentakill(self, battle_config, opponent_card)
-        souls = souls_resolve(self, battle_config)
-        chainsawman = contract_fulfilled(self, battle_config, resolve_health)
-        if not any([lol, souls, chainsawman]):
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ⚡ {self.name} resolved {title_message} [+❤️{resolve_health} | +🗡️ {resolve_attack_value} | --🛡️{resolve_defense_value}]")
+        souls = souls_resolve(self, battle_config, resolve_health, resolve_attack_value, resolve_defense_value, title_message)
+        chainsawman = contract_fulfilled(self, battle_config, resolve_health, title_message)
+        soul_eater = soul_resonance(self, battle_config, resolve_health, resolve_attack_value, resolve_defense_value, title_message)
+        if not any([lol, souls, chainsawman, soul_eater]):
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ⚡  {self.name} resolved {title_message} [+❤️{resolve_health} | +🗡️ {resolve_attack_value} | --🛡️{resolve_defense_value}]")
 
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
 
 
@@ -2533,7 +2598,7 @@ class Card:
                     battle_config._boss_embed_message = embedVar
     
             # Adjusting turn to generate arrow on summon & class messages
-            battle_config.turn_total = battle_config.turn_total + 1
+            # battle_config.turn_total = battle_config.turn_total + 1
             if not self.is_summoner:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🧬 {self.name} summoned {self.summon_emoji}{self.summon_name} to aid them in battle with their {self.summon_type.title()} ability")
             if self._monstrosity_active:
@@ -2554,6 +2619,7 @@ class Card:
                 self.damage_done(battle_config, damage_calculation_response, opponent_card)
                 summon_persona(self, battle_config, opponent_card)
                 summon_slime(self, battle_config, opponent_card)
+                meister(self,damage_calculation_response)
                 battle_config.repeat_turn()
                 return damage_calculation_response
             else:
@@ -2785,14 +2851,12 @@ class Card:
                     if self._barrier_value > 0:
                         self.barrier_active = True
                     self.shield_active = True
-                    # print(self._shield_value)
-                    # print(self.card_tier)
-                    # print(250 * int(self.card_tier))
+
                     if self._shield_value <= 0:
                         self._shield_value = 0
-                    self._shield_value = self._shield_value + (100 * int(self.card_tier))
+                    self._shield_value = self._shield_value + (100 * int(self.tier))
                     #print(self._shield_value)
-                    response = f"🥋 {self.name} Crafted Protections!🛠️\n💠{self.class_value - 1} Barrier\n🔁 {self.p_value - 2} Parry\n🌐{(100 * int(self.card_tier))} Shield\n[{self._tactician_points} {self.class_tier} Strategy Points]"
+                    response = f"🥋 {self.name} Crafted Protections!🛠️\n💠{self.class_value - 1} Barrier\n🌐{(100 * int(self.tier))} Shield\n🔁 {self.p_value - 2} Parry\n[{self._tactician_points} {self.class_tier} Strategy Points]"
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {response}")
                 return 
             else:
@@ -2817,23 +2881,28 @@ class Card:
             
 
     def use_blitz(self, battle_config, opponent_card):
-        if self.stamina <= 50:
+        if self.stamina <= 50 or self.is_assassin:
             self.blitz_count += 1
             self.used_blitz = True 
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 💢 blitzed {opponent_card.name} [-🌀{self.stamina}]")
             self.blitz_buff = self.stamina
             self.stamina -= self.stamina
-            persona_trait = summon_blitz(self, battle_config, opponent_card)
-            aot = omnigear(self, battle_config)
+
+            if self.is_assassin:
+                self.blitz_buff += self.speed
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} 💢 blitzed {opponent_card.name} [-🌀{self.blitz_buff} | +💢{self.blitz_buff}]")
+            
+            summon_blitz(self, battle_config, opponent_card)
+            omnigear(self, battle_config)
+            demon_slayer_blitz(self, battle_config)
+
             if self.is_assassin:
                 if not self._assassin_active:
                     self._assassin_active = True
+                if self._assassin_attack <0:
+                    self._assassin_attack = 0
                 self._assassin_attack += 1
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained +1 Assassin Strike [{self._assassin_attack}]")
-            if self.universe == "Demon Slayer":
-                if not self._demon_slayer_crit:
-                    self._demon_slayer_crit = True
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {self.name} activated demon slayer mark, their next attack will critically strike")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained +1 Sneak Attack [{self._assassin_attack}]")
+
             battle_config.turn_total = battle_config.turn_total + 1
             battle_config.next_turn()
         else:
@@ -3003,7 +3072,7 @@ class Card:
                     battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} disengaged their barrier to attack")
                     decrease_solo_leveling_temp_values(self, 'BARRIER', opponent_card, battle_config)
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
-            battle_config.turn_total = battle_config.turn_total + 1
+            # battle_config.turn_total = battle_config.turn_total + 1
             
             return True
         else:
@@ -3018,7 +3087,8 @@ class Card:
             return
 
         deals_damage = not opponent_card.parry_active
-
+        if self.title_blitz or self.title_strategist:
+            deals_damage = True
         light_value = round(dmg['DMG'] * self.light_buff_by_value)
         self.attack += light_value
         self.light_speed_attack_value += light_value
@@ -3026,7 +3096,7 @@ class Card:
         if deals_damage:
             opponent_card.health -= dmg['DMG']
             battle_log_msg = (
-                f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+                f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
                 f"[🌕 {self.name} gained {light_value:,} attack] [{self.light_speed_attack_value:,} damage stored]"
             )
         else:
@@ -3046,7 +3116,9 @@ class Card:
             return
 
         # Deals damage if not opponent_card.parry_active or not opponent_card.shield_active
-        deals_damage = not opponent_card.parry_active and not opponent_card.shield_active
+        deals_damage = (not opponent_card.parry_active and not opponent_card.shield_active) 
+        if (self.title_blitz or self.title_strategist or self.title_obliterate):
+            deals_damage = True
 
         self.basic_water_buff = self.basic_water_buff + self.water_buff_by_value
         self.special_water_buff = self.special_water_buff + self.water_buff_by_value
@@ -3058,7 +3130,6 @@ class Card:
         if self.water_buff % 200 == 0:
             opponent_card.health -= self.water_buff
             water_message = f"| +{self.water_buff} 🌐 shield"
-            # battle_config.add_to_battle_log(f"({battle_config.turn_total})High Tide! {self.name} creates +{self.water_buff} 🌐 shield")
             self.shield_active = True
             if self._shield_value <= 0:
                 self._shield_value = 0
@@ -3067,7 +3138,6 @@ class Card:
         if self.water_buff % 400 == 0:
             opponent_card.health -= self.water_buff
             water_message = f"| {opponent_card.name} takes 💧{self.water_buff} true damage"
-            # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} Tsunami Strike! {opponent_card.name} takes {self.water_buff} 💧 damage")
 
         if deals_damage:
             opponent_card.health -= dmg['DMG']
@@ -3090,6 +3160,8 @@ class Card:
             return
         
         deals_damage = not opponent_card.parry_active
+        if self.title_blitz or self.title_strategist:
+            deals_damage = True
         self.burn_dmg = self.burn_dmg + round(dmg['DMG'] * self.fire_buff_value)
 
         if deals_damage:
@@ -3105,28 +3177,23 @@ class Card:
         # Draconic Moves can ONLY be ultimate attacks
         draconic_ap = round(self.move1ap + self.move2ap)
         dmg['DMG'] = draconic_ap
-        # print(self.move1_element)
-        # print(self.move2_element)
+
         draconic_basic_element = self.move1_element
         draconic_special_element = self.move2_element
 
         # Splitting the Damage for Two Elemental Effects
         basic_dmg_var = dmg.copy()  # Create a copy of the dmg dictionary
         special_dmg_var = dmg.copy()  # Create a copy of the dmg dictionary
-        # print(basic_dmg_var)
-        # print(special_dmg_var)
         
         basic_dmg_var['DMG'] = round(dmg['DMG'] / 2)
         special_dmg_var['DMG'] = round(dmg['DMG'] / 2)
         basic_dmg_var['ELEMENT'] = draconic_basic_element
         special_dmg_var['ELEMENT'] = draconic_special_element
-        # print(basic_dmg_var)
-        # print(special_dmg_var)
+
         
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} combined elements [{draconic_basic_element} & {draconic_special_element}]")
         self.activate_element_check(battle_config, basic_dmg_var, opponent_card)
         self.activate_element_check(battle_config, special_dmg_var, opponent_card)
-        # opponent_card.health = opponent_card.health - dmg['DMG']
 
 
     def earth_effect_handler(self, battle_config, dmg, opponent_card):
@@ -3134,6 +3201,8 @@ class Card:
             return
 
         deals_damage = not opponent_card.parry_active
+        if self.title_blitz or self.title_strategist:
+            deals_damage = True
         self.shield_active = True
 
         shield_value = round(dmg['DMG'] * self.earth_buff_by_value)
@@ -3145,7 +3214,7 @@ class Card:
         if deals_damage:
             opponent_card.health -= dmg['DMG']
             battle_log_msg = (
-                f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+                f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
                 f"[{self.name} gained 🌐 {shield_value:,} shield]"
             )
         else:
@@ -3162,6 +3231,8 @@ class Card:
             return
 
         deals_damage = not opponent_card.parry_active
+        if self.title_blitz or self.title_strategist:
+            deals_damage = True
         death_buff_value = round(dmg['DMG'] * self.death_buff_by_value)
         self.attack += death_buff_value
         opponent_card.max_health -= death_buff_value
@@ -3173,11 +3244,11 @@ class Card:
             opponent_card.health -= dmg['DMG']
 
         battle_log_message = (
-            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
             if deals_damage else
             f"({battle_config.turn_total})"
         )
-        battle_log_message += f"\n[{self.name} ☠️ reaped {death_buff_value} health [🗡️{death_buff_value:,}]"
+        battle_log_message += f"[{self.name} ☠️ reaped {death_buff_value} health [+🗡️{death_buff_value:,}]"
         battle_config.add_to_battle_log(battle_log_message)
 
         if opponent_card.health <= (opponent_card.max_base_health * 0.10):
@@ -3193,19 +3264,21 @@ class Card:
             return
         
         deals_damage = not opponent_card.parry_active
-
+        if self.title_blitz or self.title_strategist:
+            deals_damage = True
         if deals_damage:
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
 
+        opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_debuff_value)
         self.max_health = self.max_health + round(dmg['DMG'] * self.life_buff_value)
         self.health = self.health + round((dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05)))
 
         battle_log_message = (
-            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
             if deals_damage else
             f"({battle_config.turn_total})"
         )
-        battle_log_message += f"\n[{self.name} ❤️‍🔥 stole {round(dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05))} health]"
+        battle_log_message += f"[{self.name} ❤️‍🔥 stole {round(dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05))} health]"
         battle_config.add_to_battle_log(battle_log_message)
 
 
@@ -3214,7 +3287,8 @@ class Card:
             return
 
         deals_damage = not opponent_card.parry_active
-        
+        if self.title_blitz or self.title_strategist:
+            deals_damage = True
         if deals_damage:
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
             
@@ -3246,7 +3320,8 @@ class Card:
             return
 
         deals_damage = not opponent_card.parry_active
-        
+        if self.title_blitz or self.title_strategist:
+            deals_damage = True
         if deals_damage:
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
 
@@ -3254,11 +3329,11 @@ class Card:
         opponent_card.health = opponent_card.health - dmg['DMG']
 
         battle_log_message = (
-            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
             if deals_damage else
             f"({battle_config.turn_total})"
         )
-        battle_log_message += f"\n[{self.name} gained {round(dmg['DMG'] * self.electric_buff_value)} shock ap]"
+        battle_log_message += f"[{self.name} gained {round(dmg['DMG'] * self.electric_buff_value)} shock ap]"
         battle_config.add_to_battle_log(battle_log_message)
 
 
@@ -3267,7 +3342,8 @@ class Card:
             return
         
         deals_damage = not opponent_card.parry_active
-
+        if self.title_blitz or self.title_strategist:
+            deals_damage = True
         if self.freeze_enh:
             deals_damage = True
 
@@ -3279,16 +3355,15 @@ class Card:
             self.ice_counter += 1
             hits_remaining = 3 - self.ice_counter
             if hits_remaining > 0:
-                message = f"[{hits_remaining} more {'hit' if hits_remaining == 1 else 'hits'} until frozen]"
+                message = f"[{hits_remaining} more {'hit' if hits_remaining == 1 else 'hits'} until {opponent_card.name} freezes]"
             else:
-                message = f"[{opponent_card.name} is frozen]"
+                message = f"[{opponent_card.name} is frozen {opponent_card.name} lost {round(dmg['DMG'] * .50):,} attack and defense]"
                 self.freeze_enh = True
                 self.ice_duration = self.ice_buff_value
                 self.ice_counter = 0
                 opponent_card.attack = opponent_card.attack - (dmg['DMG'] * .50)
                 opponent_card.defense = opponent_card.defense - (dmg['DMG'] * .50)
                 # write to battle log that the opponent lost attack and defense
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) {opponent_card.name} lost {round(dmg['DMG'] * .50):,} attack and defense")
                 if opponent_card.defense <= 30:
                     opponent_card.defense = 30
                 if opponent_card.attack <= 30:
@@ -3296,12 +3371,13 @@ class Card:
                 
 
         battle_log_message = (
-            f"({battle_config.turn_total}) {dmg['MESSAGE']} "
+            f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
             if deals_damage else
             f"({battle_config.turn_total})"
         )
         battle_log_message += f"\n{message}"
         battle_config.add_to_battle_log(battle_log_message)
+        battle_config.add_to_battle_log()
 
 
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
@@ -3318,9 +3394,11 @@ class Card:
                 if dmg['ELEMENT'] in ["DARK", "POISON", "ROT", "SLEEP", "DRACONIC"]:
                     return False
                 if player_title.obliterate_effect:
+                    self.title_obliterate = True
                     return False
                 
                 if player_title.strategist_effect:
+                    self.title_strategist = True
                     return False
     
                 self.water_effect_handler(battle_config, dmg, opponent_card)
@@ -3405,9 +3483,11 @@ class Card:
                 return False
 
             if player_title.pierce_effect:
+                self.title_pierce = True
                 return False
             
             if player_title.strategist_effect:
+                self.title_strategist = True
                 return False
             
             
@@ -3472,9 +3552,11 @@ class Card:
                 return False
             
             if player_title.blitz_effect:
+                self.title_blitz = True
                 return False
 
             if player_title.strategist_effect:
+                self.title_strategist = True
                 return False
             
 
@@ -3643,7 +3725,7 @@ class Card:
             final_stand(self, battle_config, dmg, opponent_card)
             devils_endurance(opponent_card, battle_config)
             #Check for Fire Poison Etc Here
-            battle_config.turn_total = battle_config.turn_total + 1
+            # battle_config.turn_total = battle_config.turn_total + 1
         else:
             return
 
@@ -3651,6 +3733,7 @@ class Card:
     def damage_done(self, battle_config, dmg, opponent_card):
         try:
             if dmg['CAN_USE_MOVE'] and dmg['CAN_USE_MOVE'] is not None:
+                print(dmg)
                 enhancer_used = self.enhancer_handler(battle_config, dmg, opponent_card)
                 attack_missed = False
                 if not enhancer_used:
@@ -3658,7 +3741,7 @@ class Card:
                 
                 if not any([enhancer_used, attack_missed]):
                     self.attack_handler(battle_config, dmg, opponent_card)
-
+                battle_config.turn_total = battle_config.turn_total + 1
             else:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
                 battle_config.repeat_turn()
@@ -3751,12 +3834,12 @@ class Card:
                 self.reckless_buff_value = .30
             if self.health <= 0:
                 self.health = 1
-            if self.reckless_duration <= 0:
+            if self.reckless_duration <= 0 and not dmg['SUMMON_USED']:
                 if not self.used_resolve:
-                    self.reckless_duration = 2
+                    self.reckless_duration = 1
                     self.reckless_rest = True
                 else:
-                    self.reckless_duration = 1
+                    self.reckless_duration = 0
                     self.reckless_rest = True
             opponent_card.health = opponent_card.health - dmg['DMG']
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}\n[{self.name} was dealt {str(round(dmg['DMG'] * self.reckless_buff_value))} reckless damage]")
@@ -3977,6 +4060,9 @@ class Card:
         if self.used_resolve:
             self.resolve_icon = '⚡'
 
+    def set_health_color(self):
+        self.health_color = crown_utilities.health_color(self.health, self.max_health)
+        return self.health_color
 
     def get_performance_stats(self):
         if round(self.health) == round(self.max_health):

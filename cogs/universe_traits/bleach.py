@@ -33,7 +33,7 @@ def bankai(player_card, battle_config, player_title):
         player_card.usedsummon = False
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} resolved using their bankai to increase attack and defense{title_message}")
 
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True
 

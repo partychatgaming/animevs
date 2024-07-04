@@ -186,10 +186,12 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
 
     if drop_type == "GOLD" or drop_type is None:
         message = f"**{reward_money_message}**!"
+        print("money")
 
     elif drop_type == "REMATCH":
         response = db.updateUserNoFilter(user_query, {'$inc': {'RETRIES': 1}})
         message = f"You earned 1 Rematch!\n{reward_money_message}"
+        print("rematch")
     
     elif drop_type == "ARM":
         if reward_item in owned:
@@ -208,6 +210,7 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 if milestone_message:
                     message += f"\n🏆 {milestone_message}"
         message += f"\n{reward_money_message}"
+        print("arm")
     
     elif drop_type == "SUMMON":
         if len(player.summons) >= 25:
@@ -231,7 +234,7 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 if milestone_message:
                     message += f"\n🏆 {milestone_message}"
         message += f"\n{reward_money_message}"
-    
+        print("summon")
     elif drop_type == "CARD":
         if reward_item in owned:
             message = f"You already own 🎴 **{reward_item}**!"
@@ -247,18 +250,23 @@ async def reward_message(battle_config, player, drop_type=None, reward_item=None
                 milestone_message = await Quests.milestone_check(player, "CARDS_OWNED", 1)
                 if milestone_message:
                     message += f"\n🏆 {milestone_message}"
-
-
         message += f"\n{reward_money_message}"
+        print("card")
 
     if message and title_drop_message:
         message = f"{message}\n{title_drop_message}"
+        milestone_message = await Quests.milestone_check(player, "TITLES_OWNED", 1)
+        print("message and title_drop_message")
     elif title_drop_message:
         message = title_drop_message
         milestone_message = await Quests.milestone_check(player, "TITLES_OWNED", 1)
+        print("title_drop_message")
         if milestone_message:
             message += f"\n🏆 {milestone_message}"
-
+            print("milestone_message")
+    else:
+        message = f"{message}"
+    print("Final message", message)
     return message
 
 async def reward_drop(self, battle_config, player, guranteed_drop=None, guranteed_drop_type=None):
@@ -270,6 +278,7 @@ async def reward_drop(self, battle_config, player, guranteed_drop=None, gurantee
             return reward_money(battle_config, player)
         owned_arms = [arm['ARM'] for arm in player.arms]
         try:
+            print("Drop type", drop_type, "Drop style", drop_style)
             if drop_type == "REMATCH":
                 if player.retries <= 25:
                     message = await reward_message(battle_config, player, drop_type)

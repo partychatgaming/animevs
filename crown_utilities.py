@@ -290,14 +290,15 @@ async def summonlevel(player, player_card):
                 update_query = {'$inc': {'PETS.$[type].' + "EXP": xp_inc}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"Level: {player_card.summon_lvl} | XP: 🔼+{player_card.summon_exp}/{lvl_req}"
+                level_message = f"Level: {player_card.summon_lvl} | XP: +🔼{player_card.summon_exp}/{lvl_req}"
+                player_card.summon_exp = player_card.summon_exp + xp_inc
 
             # Level Up Code
             if player_card.summon_exp >= (lvl_req):
                 update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"Level: {player_card.summon_emoji}{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
+                level_message = f"Level: +🔼{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
         if player_card.summon_lvl % 10 == 0:
             if player_card.summon_bond < 10:
@@ -321,7 +322,7 @@ async def summonlevel(player, player_card):
         if player_card.summon_lvl  >= 100:
             level_message = "⭐"
         ap_message = f"{new_ap}"
-        summon_level_message = f"{bond_message} | {level_message}\n{player_card.summon_name} | {player_card.summon_emoji}{player_card.summon_ability_name} -{ap_message}"
+        summon_level_message = f"{bond_message} | {level_message}\n{player_card.summon_name} | {player_card.summon_emoji}{ap_message}"
         return summon_level_message
 
     except Exception as ex:
@@ -476,6 +477,10 @@ def set_emoji(element):
         emoji = "☄️"
     if element == "ULTIMATE":
         emoji = "🏵️"
+    if element == "ULTIMAX":
+        emoji = "💮"
+    if element == "MANA":
+        emoji = "🪬"
     if element == "None" or element == "NULL" or element == "NONE":
         emoji = "📿"
     
@@ -2136,6 +2141,7 @@ blocking_traits = [
     'Bleach',
     'Death Note',
     'YuYu Hakusho',
+    'My Hero Academia',
 ]
 
 revive_traits = [
@@ -2148,12 +2154,14 @@ starting_traits = [
     'One Piece',
     'Demon Slayer',
     'Full Metal Alchemist',
-    "Chainsawman"
+    "Chainsawman",
+    'My Hero Academia',
 ]
 
 blitz_traits = [
     'Bleach',
-    'Persona'
+    'Persona',
+    'Attack On Titan'
 ]
 
 
@@ -2189,6 +2197,7 @@ universe_stack_traits = [
     'My Hero Academia',
     'Chainsawman',
     'Jujustu Kaisen',
+    'Attack On Titan',
 ]
 focus_traits = [
     'Digimon',
@@ -2203,6 +2212,7 @@ focus_traits = [
     'Naruto',
     'One Piece',
     'That Time I Got Reincarnated as a Slime',
+    'Soul Eater',
 ]
 
 resolve_traits = [
@@ -2223,6 +2233,7 @@ resolve_traits = [
     'That Time I Got Reincarnated as a Slime',
     'Fairy Tail',
     'Full Metal Alchemist',
+    'Soul Eater',
 ]
 
 
@@ -2267,117 +2278,133 @@ def get_enhancer_mapping(enhancer):
     return enhancer_mapping[enhancer]
 
 enhancer_mapping = {
-'ATK': 'Increase Attack %',
-'DEF': 'Increase Defense %',
-'STAM': 'Increase Stamina',
-'HLT': 'Heal yourself or companion',
-'LIFE': 'Steal Health from Opponent',
-'DRAIN': 'Drain Stamina from Opponent',
-'FLOG': 'Steal Attack from Opponent',
-'WITHER': 'Steal Defense from Opponent',
-'RAGE': 'Lose Defense, Increase AP',
-'BRACE': 'Lose Attack, Increase AP',
-'BZRK': 'Lose Health, Increase Attack',
-'CRYSTAL': 'Lose Health, Increase Defense',
-'GROWTH': 'Lose 10% Max Health, Increase Attack, Defense and AP',
-'STANCE': 'Swap your Attack & Defense, Increase Defense',
-'CONFUSE': 'Swap Opponent Attack & Defense, Decrease Opponent Defense',
-'BLINK': 'Decrease your  Stamina, Increase Target Stamina',
-'SLOW': 'Increase Opponent Stamina, Decrease Your Stamina then Swap Stamina with Opponent',
-'HASTE': 'Increase your Stamina, Decrease Opponent Stamina then Swap Stamina with Opponent',
-'FEAR': 'Lose 10% Max Health, Decrease Opponent Attack, Defense and AP',
-'SOULCHAIN': 'You and Your Opponent Stamina Link',
-'GAMBLE': 'You and Your Opponent Health Link',
-'WAVE': 'Deal Damage, Decreases over time',
-'CREATION': 'Heals you, Decreases over time',
-'BLAST': 'Deals Damage, Increases over time based on card tier',
-'DESTRUCTION': 'Decreases Your Opponent Max Health, Increases over time based on card tier',
-'BASIC': 'Increase Basic Attack AP',
-'SPECIAL': 'Increase Special Attack AP',
-'ULTIMATE': 'Increase Ultimate Attack AP',
-'ULTIMAX': 'Increase Attack Move AP and ATK & DEF Values',
-'MANA': 'Increase Attack Move AP and Enhancer AP',
-'SHIELD': 'Blocks Incoming DMG, until broken',
-'BARRIER': 'Nullifies Incoming Attacks, until broken',
-'PARRY': 'Returns 25% Damage, until broken',
-'SIPHON': 'Heal for 10% DMG inflicted + AP'
+    'ATK': 'Increase Attack By AP %',
+    'DEF': 'Increase Defense by AP %',
+    'STAM': 'Increase Stamina by Flat AP',
+    'HLT': 'Increase Health By Flat AP + 16% of Missing Health',
+    'LIFE': 'Steal Opponent Health and Add it to your Current Health by Flat AP + 9% of Opponent Current Health',
+    'DRAIN': 'Steal Opponent Stamina and Add it to your Stamina by Flat AP',
+    'FLOG': 'Steal Opponent Attack and Add it to Your Attack by AP %',
+    'WITHER': 'Steal Opponent Defense and Add it to Your Defense by AP %',
+    'RAGE': 'Decrease Your Defense by AP %, Increase All Moves AP by Amount of Decreased Defense',
+    'BRACE': 'Decrease Your Attack by AP %, Increase All Moves AP By Amount of Decreased Attack',
+    'BZRK': 'Decrease Your Current Health by AP %, Increase Your Attack by Amount of Decreased Health',
+    'CRYSTAL': 'Decrease Your Health by AP %, Increase Your Defense by Amount of Decreased Health',
+    'GROWTH': 'Decrease Your Max Health by 10%, Increase Your Attack, Defense and AP Buff by AP',
+    'STANCE': 'Swap Your Attack and Defense, Increase Your Defense By Flat AP',
+    'CONFUSE': 'Swap Opponent Attack and Defense, Decrease Opponent Defense by Flat AP',
+    'BLINK': 'Decreases Your Stamina by AP, Increases Opponent Stamina by AP',
+    'SLOW': 'Decreases the turn total by AP',
+    'HASTE': 'Increases the turn total by AP',
+    'FEAR': 'Decrease Your Max Health and Health by 20%, Decrease Opponent Attack, Defense, and reduce Opponent AP Buffs by AP',
+    'SOULCHAIN': 'You and Your Opponent\'s Stamina Equal AP',
+    'GAMBLE': 'At the cost of your total stamina, You and Your Opponent\'s Health Equal between 500 & AP value',
+    'WAVE': 'Deal Flat AP Damage to Opponent. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will deal 75% AP Damage*',
+    'CREATION': 'Increase Max Health by Flat AP. AP Decreases each turn (Can Crit). *If used on turn that is divisible by 10 you will heal Health & Max Health for 75% AP*',
+    'BLAST': 'Deal Flat AP Damage to Opponent. AP Increases each turn',
+    'DESTRUCTION': 'Decrease Your Opponent Max Health by Flat AP (only opponent on PET use). AP Increases each turn',
+    'BASIC': 'Increase Basic Attack AP',
+    'SPECIAL': 'Increase Special Attack AP',
+    'ULTIMATE': 'Increase Ultimate Attack AP',
+    'ULTIMAX': 'Increase Attack Move AP and ATK & DEF Values',
+    'MANA': 'Increase Attack Move AP and Enhancer AP',
+    'SHIELD': 'Blocks Incoming DMG, until broken',
+    'BARRIER': 'Nullifies Incoming Attacks, until broken',
+    'PARRY': 'Returns 25% Damage, until broken',
+    'SIPHON': 'Heal for 10% DMG inflicted + AP'
 }
 
 
 title_enhancer_mapping = {
-'ATK': 'Increase Attack',
-'DEF': 'Increase Defense',
-'STAM': 'Increase Stamina',
-'HLT': 'Heal for AP',
-'LIFE': 'Steal AP Health',
-'DRAIN': 'Drain Stamina from Opponent',
-'FLOG': 'Steal Attack from Opponent',
-'WITHER': 'Steal Defense from Opponent',
-'RAGE': 'Lose Defense, Increase AP',
-'BRACE': 'Lose Attack, Increase AP',
-'BZRK': 'Lose Health, Increase Attack',
-'CRYSTAL': 'Lose Health, Increase Defense',
-'GROWTH': 'Lose 5% Max Health, Increase Attack, Defense and AP',
-'STANCE': 'Swap your Attack & Defense, Increase Defense',
-'CONFUSE': 'Swap Opponent Attack & Defense, Decrease Opponent Defense',
-'BLINK': 'Decrease your Stamina, Increase Target Stamina',
-'SLOW': 'Decrease Turn Count by 1',
-'HASTE': 'Increase Turn Count By 1',
-'FEAR': 'Lose 5% MAx Health, Decrease Opponent Attack, Defense and AP',
-'SOULCHAIN': 'Both players stamina regen equals AP',
-'GAMBLE': 'Focusing players health regen equals to AP',
-'WAVE': 'Deal Damage, Decreases over time',
-'CREATION': 'Heals you, Decreases over time',
-'BLAST': 'Deals Damage on your turn based on card tier',
-'DESTRUCTION': 'Decreases Your Opponent Max Health, Increases over time based on card tier',
-'BASIC': 'Increase Basic Attack AP',
-'SPECIAL': 'Increase Special Attack AP',
-'ULTIMATE': 'Increase Ultimate Attack AP',
-'ULTIMAX': 'Increase All AP Values',
-'MANA': 'Increase Enchancer AP',
-'SHIELD': 'Blocks Incoming DMG, until broken',
-'BARRIER': 'Nullifies Incoming Attacks, until broken',
-'PARRY': 'Returns 25% Damage, until broken',
-'SIPHON': 'Heal for 10% DMG inflicted + AP'
+    'ATK': 'Increases your attack by % each turn',
+    'DEF': 'Increases your defense by % each turn',
+    'STAM': 'Increases your stamina by % each turn',
+    'HLT': 'Heals you for % of your current health each turn',
+    'LIFE': 'Steals % of your opponent\'s health each turn',
+    'DRAIN': 'Drains % of opponent\'s stamina each turn',
+    'FLOG': 'Steals % of opponent\'s attack each turn',
+    'WITHER': 'Steals % of opponent\'s defense each turn',
+    'RAGE': 'Decreases your defense to increase your AP by % each turn',
+    'BRACE': 'Decreases your attack to increase your AP by % each turn',
+    'BZRK': 'Decreases your health to increase your attack by % each turn',
+    'CRYSTAL': 'Decreases your health to increase your defense by % each turn',
+    'GROWTH': 'Decreases your max health to increase your attack, defense, and AP by Flat AP each turn',
+    'STANCE': 'Swaps your attack and defense stats, increasing your attack by % each turn',
+    'CONFUSE': 'Swaps opponent\'s attack and defense stats, decreasing their attack by % each turn',
+    'BLINK': 'Decreases your stamina by AP, Increases opponent stamina by AP',
+    'SLOW': 'Decreases turn count by Turn',
+    'HASTE': 'Increases turn count by Turn',
+    'FEAR': 'Decreases your max health to decrease your opponent\'s attack, defense, and AP by Flat AP each turn',
+    'SOULCHAIN': 'Prevents focus stat buffs',
+    'GAMBLE': 'Randomizes focus stat buffs',
+    'WAVE': 'Deal Damage, Decreases over time',
+    'CREATION': 'Heals you, Decreases over time',
+    'BLAST': 'Deals Damage, Increases over time based on card tier',
+    'DESTRUCTION': 'Decreases Your Opponent Max Health, Increases over time based on card tier',
+    'BASIC': 'Increase Basic Attack AP',
+    'SPECIAL': 'Increase Special Attack AP',
+    'ULTIMATE': 'Increase Ultimate Attack AP',
+    'ULTIMAX': 'Increase Attack Move AP and ATK & DEF Values',
+    'MANA': 'Increase Attack Move AP and Enhancer AP',
+    'SHIELD': 'Blocks Incoming DMG, until broken',
+    'BARRIER': 'Nullifies Incoming Attacks, until broken',
+    'PARRY': 'Returns 25% Damage, until broken',
+    'SIPHON': 'Heal for 10% DMG inflicted + AP',
+    'BLITZ': 'Hit through parries',
+    'FORESIGHT': 'Parried hits deal 10% damage to yourself',
+    'OBLITERATE': 'Hit through shields',
+    'IMPENETRABLE SHIELD': 'Shields cannot be penetrated',
+    'PIERCE': 'Hit through all barriers',
+    'SYNTHESIS': 'Hits to your barriers store 50% of damage dealt, you heal from this amount on resolve',
+    'STRATEGIST': 'Hits through all guards / protections',
+    'SHARPSHOOTER': 'Attacks never miss',
+    'SPELL SHIELD': 'All shields will absorb elemental damage healing you',
+    'ELEMENTAL BUFF': 'Increase elemental damage by 50%',
+    'ELEMENTAL DEBUFF': 'Decrease opponent\'s elemental damage by 50%',
+    'DIVINITY': 'Ignore elemental effects until resolved',
+    'IQ': 'Increases focus buffs by %',
+    'HIGH IQ': 'Continues focus buffs after resolve',
+    'SINGULARITY': 'Increases resolve buff by %'
 }
 
 def get_element_mapping(element):
     return element_mapping[element]
 
 element_mapping = {
-'PHYSICAL': 'If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry',
-'FIRE': 'Does 50% damage of previous attack over the next opponent turns, burn effect bypasses shields and stacks.',
-'ICE': 'Every 3 attacks, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.',
-'WATER': 'Each strike increases all water move AP by 100. Every 300 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage',
-'EARTH': 'Penetrates Parry. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG',
-'ELECTRIC': 'Add 35% DMG Dealt to Shock damage, Shock damadge amplifies all Move AP.',
-'WIND': 'On Miss, Use Wind Attack, boosts all wind damage by 35% of damage dealt.',
-'PSYCHIC': 'Penetrates Barrier. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits gain a Barrier',
-'DEATH': 'Deals 45% DMG to opponent max health. Gain Attack equal to that amount.',
-'LIFE': 'Steals 40% damage done health and max health from opponent.',
-'LIGHT': 'Regain 50% ST(Stamina) Cost, Illumination Increases ATK by 50% of DMG.',
-'DARK': 'Penetrates all Protections & decreases opponent ST(Stamina) by 15.',
-'POISON': 'Penetrates Shield and Parry, stacks poison damage equal to 35% of damage done stacking up to 30% of max health. The Opponent takes damage when they attacks.',
-'ROT': 'Penetrates Shield and Parry, stacks rot damage equal to 15% of damage done stacking up to 20% of max health. This damage hits the opponents max health when the opponent attacks.',
-'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Hit Chance by 10%',
-'ENERGY': 'Has higher 35% higher chance of Crit. On Crit Bypass all opponent Protections',
-'SPIRIT': 'Has higher 35% higher chance of Crit. On Crit Bypass all opponent Protections.',
-'GUN': 'Penetrates Shield. Has a 40% chance to deal a double hit. Double striking lowers opponents defense by 35% of the current value.',
-'SPIRIT ENERGY': 'Has higher 35% higher chance of Crit. On Crit Bypass all opponent Protections',
-'NATURE': 'Saps 35% of damage dealt ATK and DEF from the opponent, and heals health and max health for that amount as well.',
-'SLEEP': 'Penetrates Shield and Parry. Every 2nd attack adds a sleep stack. Before opponent focuses they must rest, skipping their turn, for each sleep stack. Sleep attacks deal damage while opponent is resting.',
-'RECKLESS': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1. After striking you enter a resting state, skipping your turn.',
-'RECOIL': 'Deals Incredible Bonus Damage, take 60% as reckless. If Reckless would kill you reduce HP to 1. After striking you enter a resting state, skipping your turn.',
-'TIME': 'Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parry and AP is increased by damage dealt * turn total / 100.',
-'BLEED': 'Penetrates Parry. Every 2 Attacks deal 10x turn count damage to opponent.',
-'SWORD': 'Every 3rd Strike will result in a critical attack that also increases Atack by 40% of damage dealt.',
-'GRAVITY': 'Penetrates Barrier and Parry. Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3.',
-'DRACONIC':'Penetrates all Protections. Combines the AP values from your Basic and Special attacks, procing both elemental effects simultaneously. Draconic Attacks can only be Ultimate Attacks',
-'SHIELD': 'Blocks Incoming DMG, until broken',
-'BARRIER': 'Nullifies Incoming Attacks, until broken',
-'PARRY': 'Returns 25% Damage, until broken',
-'SIPHON': 'Heal for 10% DMG inflicted + AP',
+    'PHYSICAL': 'If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry',
+    'FIRE': 'Does 50% damage of previous attack over the next opponent turns, burn effect bypasses shields and stacks.',
+    'ICE': 'Every 3rd attack, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.',
+    'WATER': 'Each strike increases all water move AP by 100. Every 300 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage.',
+    'EARTH': 'Penetrates Parry. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG.',
+    'ELECTRIC': 'Add 35% DMG Dealt to Shock damage, Shock damage amplifies all Move AP.',
+    'WIND': 'On Miss or Crit, boosts all wind damage by 75% of damage dealt.',
+    'PSYCHIC': 'Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits Gain a Barrier.',
+    'DEATH': 'Deals 40% DMG to opponent max health. Gain Attack equal to that amount. Executes opponent if their health equals 10% of their base max health.',
+    'LIFE': 'Steal Max Health and Heal for 40% DMG.',
+    'LIGHT': 'Increases ATK by 40% of DMG. 40% of DMG is stored and damages the opponent when they focus.',
+    'DARK': 'Penetrates all Protections & decreases opponent ST(Stamina) by 15.',
+    'POISON': 'Penetrates Shields and Parry. Stacks Poison damage equal to 35% of damage done. Stacking up to 30% of opponent max health. The Opponent takes damage when they attack.',
+    'ROT': 'Penetrates Shields and Parry. Stacks Rot damage equal to 15% of damage done stacking up to 20% of max health. The Opponent takes damage when they attack.',
+    'RANGED': 'If ST(stamina) greater than 30, Deals 1.7x Damage. Every 3 Ranged Attacks Increase Hit Chance by 10%',
+    'ENERGY': 'Has higher 35% higher chance of Crit. This crit hit goes through all protections.',
+    'SPIRIT': 'Has higher 35% higher chance of Crit. This crit hit goes through all protections.',
+    'GUN': 'Penetrates Shields. Has a 40% chance to strike twice. Double striking lowers opponents defense by 35% of the current value.',
+    'SPIRIT ENERGY': 'Has higher 35% higher chance of Crit. This crit hit goes through all protections.',
+    'NATURE': 'Saps Opponent ATK and DEF for 35% of Damage & heals Health and Max Health for that amount as well.',
+    'SLEEP': 'Penetrates Shield and Parry. Every 2nd attack adds a stack of Rest. Before Opponent focuses they must Rest, skipping their turn, for each stack of Rest. Opponent only takes sleep damage while Resting.',
+    'RECKLESS': 'Deals Incredible Bonus Damage, take 40% as reckless at the cost of a turn to recover. If Reckless would kill you reduce HP to 1. Reckless is buffed when resolved, but you take more damage as well.',
+    'RECOIL': 'Deals Incredible Bonus Damage, take 40% as reckless at the cost of a turn to recover. If Reckless would kill you reduce HP to 1. Reckless is buffed when resolved, but you take more damage as well.',
+    'TIME': 'Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parry and AP is increased by damage dealt * turn total / 100.',
+    'BLEED': 'Penetrates Parry. Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.',
+    'SWORD': 'Every 3rd attack will result in a Critical Strike that also increases Atack by 40% of damage dealt.',
+    'GRAVITY': 'Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.',
+    'DRACONIC': 'Draconic attacks can only be ULTIMATE or Summoned. Penetrates all protections. Combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!',
+    'SHIELD': 'Blocks Incoming DMG, until broken',
+    'BARRIER': 'Nullifies Incoming Attacks, until broken',
+    'PARRY': 'Returns 25% Damage, until broken',
+    'SIPHON': 'Heal for 10% DMG inflicted + AP',
 }
+
 
 
 """
@@ -2899,4 +2926,22 @@ quest_list = [
     }
 ]
 
+def health_color(health, max_health):
+    if health / max_health >= 0.80:
+        return 0x2ECC71
+    elif health / max_health > 0.5:
+        return 0xF1C40F
+    elif health / max_health > 0.25:
+        return 0xE67E22
+    elif health / max_health > 0.15:
+        return 0xE74C3C
+    else:
+        return 0xE74C3C
 
+colors = {
+    'gold': 0xFFD700,
+    'green': 0x2ECC71,
+    'yellow': 0xF1C40F,
+    'orange': 0xE67E22,
+    'red': 0xE74C3C
+}

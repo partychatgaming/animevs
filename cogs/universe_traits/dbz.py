@@ -10,6 +10,9 @@ def handle_card(card, other_card, battle_config, dmg):
         card.health = 1 + round(.75 * (card.attack + card.defense))
         if card.health < 0:
             card.health = 100 + round(.75 * (card.base_attack + card.base_defense))
+            if battle_config.is_tutorial_game_mode and not battle_config.tutorial_health_check and card.name != "Training Dummy":
+                battle_config.tutorial_health_check = True
+                battle_config.tutorial_messages(card,None,"HEALTH")
         card.damage_healed = card.damage_healed + card.health
         card.used_resolve = True
         card.used_focus = True

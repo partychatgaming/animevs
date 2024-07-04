@@ -2712,7 +2712,11 @@ class CustomPaginator(Paginator):
             selected_arms.append(selection)
             arm = list_of_arms[selection]['ARM']
             element = list_of_arms[selection]['ELEMENT']
+            arm_ability = list_of_arms[selection]['ABILITIES']
+            arm_type = list(arm_ability[0].keys())
             element_emoji = crown_utilities.set_emoji(element)
+            if element_emoji == "" or element_emoji == None:
+                element_emoji = crown_utilities.set_emoji(arm_type)
             db.updateUserNoFilter(player.user_query,{'$addToSet':{'ARMS': {'ARM': str(arm), 'DUR': 75}}, '$set': {'ARM': arm}})        
             arm_message.append(f"[{element_emoji}] **{arm}**!")                   
             count = count + 1
@@ -2753,7 +2757,7 @@ class CustomPaginator(Paginator):
         embed5.add_field(name="[ℹ️]__Build Freedom__", value="Your build is crucial to your success. Spend some time mix and matching to find what works best for you. Use the **/cards, /titles, /arms, /summons, and /talismans** and develop a winning strategy.", inline=False)
         embed5.set_footer(text="🔧 Use /build to view your current build.", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
                           
-        embed6 = Embed(title="📿/🧬 | Talismans? Summons?", description="Oh yeah! Almost forgot. In addition to your cards, titles, and arms there are equippable summons and talismans.\n[🧬]**Summons** are companions you can call on during battle to attack or protect you!\n[📿]**Talismans** are equippables that can be used to bypass elemental resistances. Neat, right?", color=0x7289da)
+        embed6 = Embed(title="🎒 | 📿 Talismans?🧬 Summons?", description="Oh yeah! Almost forgot. In addition to your cards, titles, and arms there are equippable summons and talismans.\n[🧬]**Summons** are companions you can call on during battle to attack or protect you!\n[📿]**Talismans** are equippables that can be used to bypass elemental resistances. Neat, right?", color=0x7289da)
         embed6.add_field(name="[ℹ️]__Summoning and Talismans__", value="Use the **/summons** command to view the summons you own and the **/talismans** command to view the talismans you own.", inline=False)
         embed5.set_footer(text="🧬 Win battles to level up and bond with your summons", icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
 

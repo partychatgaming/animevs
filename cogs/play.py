@@ -121,7 +121,7 @@ class Play(Extension):
                             await asyncio.sleep(2)
                             battle_msg = await private_channel.send(embed=embedVar)
                         else:
-                            embedVar = Embed(title=f"Battle is starting", color=0xe74c3c)
+                            embedVar = Embed(title=f"Battle is starting", color=0x2ECC71)
                             battle_msg = await private_channel.send(embed=embedVar)
 
                         tactics.tactics_set_base_stats(battle_config.player2_card)
@@ -1114,8 +1114,8 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     turn_card.set_battle_arm_messages(opponent_card)
     turn_card.set_stat_icons()
-
-    author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
+    if turn_player.rift == 0:
+        author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
 
     summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_emoji}{turn_card.summon_type.title()} Ability - {turn_card.summon_power}" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
     talisman_message = f"{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman"
@@ -1126,13 +1126,17 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         talisman_message = f"🥋 Ultimate Strategy"
     player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
     if turn_card.universe in crown_utilities.universe_stack_traits:
-        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"
+        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}{universe_stacks}\n{summon_message}"
     tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
-    embedVar = Embed(title=f"", color=0xe74c3c)
+    #map_embed = battle_config.get_map_message(turn_card)
+    embedVar = Embed(title=f"", color=turn_card.health_color)
     # if turn_player.performance:
     #     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{turn_card.get_perfomance_header(turn_title)}")
     # else:
-    embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
+    if turn_player.rift == 0:
+        embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
+    else:
+        embedVar.set_author(name=f"{turn_card.summon_resolve_message}")
     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{player1_arm_message}")
     if battle_config.is_tutorial_game_mode:
         embedVar.add_field(name=f"[🧠]**Tutorial Task!**", value=f"{tutorial_embed_message}")
@@ -1409,7 +1413,11 @@ def damage_calculation(battle_config, damage_calculation_response=None):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
     turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
-    if turn_card._monstrosity_active and turn_card.used_resolve:
+    if turn_card._blood_demon_art:
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {turn_card.name}'s Blood Demon Art -  Double Strike!")
+        turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+        turn_card._blood_demon_art = False
+    elif turn_card._monstrosity_active and turn_card.used_resolve:
         turn_card._monstrosity_value = turn_card._monstrosity_value - 1
         if turn_card._monstrosity_value <= 0:
             turn_card._monstrosity_active = False

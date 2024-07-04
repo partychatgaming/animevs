@@ -1160,23 +1160,21 @@ class Battle:
                     custom_id=f"{self._uuid}|2"
                 )
             )
-
-        #add variable to card to check if card can blitz, flip that variable to true if card is focused or they are an assassin and use it here
-        if your_card.stamina <= 50 and your_card.used_focus:
-            b_butts.append(
-                Button(
-                    style=ButtonStyle.BLUE,
-                    label=f"💢 Blitz {your_card.stamina}",
-                    custom_id=f"{self._uuid}|b"
-                )
-            )
-
         if your_card.stamina >= 80:
             b_butts.append(
                 Button(
                     style=ButtonStyle.GREEN,
                     label=f"{your_card.move3_emoji}80",
                     custom_id=f"{self._uuid}|3"
+                )
+            )
+        #add variable to card to check if card can blitz, flip that variable to true if card is focused or they are an assassin and use it here
+        if (your_card.stamina <= 50 and your_card.used_focus) or your_card.is_assassin:
+            b_butts.append(
+                Button(
+                    style=ButtonStyle.BLUE,
+                    label=f"💢 Blitz {your_card.stamina}",
+                    custom_id=f"{self._uuid}|b"
                 )
             )
         
@@ -1356,7 +1354,7 @@ class Battle:
                 
         embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!")
         embedVar.add_field(name="💽 | Saved Data",
-                                value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}")
+                                value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}",color=0x2ECC71)
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.get_battle_time()}")
         return embedVar
 
@@ -1374,6 +1372,7 @@ class Battle:
         focus_task = incomplete_task
         summon_task = incomplete_task
         opponent_focus_task = incomplete_task
+        health_task = incomplete_task
 
         if self.tutorial_basic == True:
             basic_task = complete_task
@@ -1393,15 +1392,27 @@ class Battle:
             resolve_task = complete_task
         if self.tutorial_summon == True:
             summon_task = complete_task
+        if self.tutorial_health_check == True:
+            health_task = complete_task
         blitz_stamina = player_card.stamina
-        if player_card.stamina >=50:
+        if not player_card.is_assassin and player_card.stamina >=50:
             blitz_stamina = "<50"
+
         #If all of the above are true, create a variable that will be used to end the tutorial match
         self.all_tutorial_tasks_complete = (basic_task == complete_task and special_task == complete_task and ultimate_task == complete_task and enhancer_task == complete_task and block_task == complete_task and resolve_task == complete_task and focus_task == complete_task and summon_task == complete_task)
         if self.all_tutorial_tasks_complete:
-            return f"✅| All Tutorial Tasks Complete!\n🌟| Defeat the Training Dummy!"
+            if player_card.universe in ['Chainsawman', 'Dragon Ball Z'] and not self.tutorial_health_check:
+                player_card.health = 1
+                return f"*{health_task} 💀Die and Revive*"
+            elif player_card.universe == "Souls" and not self.tutorial_health_check:
+                player_card.health = 400
+                return f"*{health_task} Activate Phase 3*"
+            else:
+                return f"✅| All Tutorial Tasks Complete!\n🌟| Defeat the Training Dummy!"
         if player_card.is_summoner and not self.tutorial_focus:
             return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{summon_task}🧬Summon!*"
+        if player_card.is_assassin and not self.tutorial_focus:
+            return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{blitz_task}💢Blitz {blitz_stamina}\n{resolve_task}⚡Resolve!*"
         if self.tutorial_focus == True and self.tutorial_resolve == True:
             return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus\n{blitz_task}💢Blitz {blitz_stamina}\n{resolve_task}⚡Resolve!\n{summon_task}🧬Summon!*"
         elif self.tutorial_focus == True:
@@ -1412,6 +1423,21 @@ class Battle:
         else:
             return f"*{basic_task}{player_card.move1_emoji}10|{special_task}{player_card.move2_emoji}30|{ultimate_task}{player_card.move3_emoji}80|{enhancer_task}🦠20\n{block_task}🛡️Block 20\n{focus_task}🌀Focus*"
 
+    def get_map_message(self, player_card):
+        map_layout = [
+            f"🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫",
+            f"🟫🟦🟦🟦🟦🟦🟦🟦🟦🟫",
+            f"🟫🟦🗝️🟦🟦🟦🟦🟦🦴🟫",
+            f"🟫🟦🟦🟦🧙🟦🟦🟦🟦🟫",
+            f"🟫🟦🟦🟦🟦🟦🦇🟦🟦🟫",
+            f"🟫🟦🚪🟦🟦🟦🟦🟦🟦🟫",
+            f"🟫🟦🟦🟦🦊🟦🟦🟦🟦🟫",
+            f"🟫🟦🟦🟦🟦🟦🟦🟦🟦🟫",
+            f"🟫🟫🟫🟫{player_card.universe_crest}🟫🟫🟫🟫🟫"
+        ]
+
+        map_display = "\n".join(map_layout)
+        return map_display
     
     def close_pve_embed(self, player_card, opponent_card, companion_card = None):
         picon = "⚔️"
@@ -1440,7 +1466,7 @@ class Battle:
         if self.is_raid_scenario:
             close_message = "Raid Battle"
             picon = "💀"
-            f_message = f"🪦 | Scenario Raid Ended."
+            f_message = f"🪦 | Raid Ended."
         if self.is_raid_game_mode:
             close_message = "Arena Battle"
             picon = "⛩️"
@@ -1487,7 +1513,7 @@ class Battle:
         embedVar.set_footer(text=f_message)
         return embedVar
     
-    def tutorial_messages(self, player_card, opponent_card, message_type):
+    def tutorial_messages(self, player_card, opponent_card=None, message_type=None):
         embedVar = False
         if message_type == 'BASIC':
             embedVar = Embed(title=f":boom:Basic Attack!",
@@ -1659,6 +1685,9 @@ class Battle:
         if player_card.universe == "YuYu Hakusho":
             name = "Meditation"
             value = f"On Block\nGain 100 * Card Tier Defense **[{100 * player_card.card_tier}]** and 10 * Card Tier AP **[{10 * player_card.card_tier}]**." 
+        if player_card.universe == "My Hero Academia":
+            name = "Plus Ultra"
+            value =f"*On Block gain 20 * Class Level stored Quirk AP [{20 * player_card.class_level}]**"
         return name, value
     
     def summon_trait_handler(self, player_card):
@@ -1669,13 +1698,16 @@ class Battle:
             value =f"On Summon\nstrike with your `BASIC` attack\nYour `BASIC` Attack: {player_card.move1_emoji} {player_card.move1} inflicts {player_card.move1_element}\n**{player_card.move1_element}** : *{crown_utilities.get_element_mapping(player_card.move1_element)}*"
         if player_card.universe == "Soul Eater":
             name = "Meister"
-            value =f"On Summon\nSoul Eater Summons double their Protection Value and Triple their Attack damage\nSummons Always trigger Feint Attack"
+            value =f"On Summon\nSoul Eater Summons double their Protection Value\nAbility Summons Always trigger Feint Attack and consume 50 Souls\nIf your Summon is from Soul Eater consume 50% damage in souls"
         if player_card.universe == "That Time I Got Reincarnated as a Slime":
             name = "Summon Slime"
             value =f"On Summon\nGain (5 * Card Tier) Stamina**[{5 * player_card.card_tier}]**."
         return name, value
        
     def resolve_trait_handler(self, player_card):
+        if player_card.universe == "Soul Eater":
+            name = "Soul Resonance"
+            value =f"On Resolve\nGain Health, AP and Summon AP from Stored Souls **[{player_card.soul_resonance_amount}]**"
         if player_card.universe == "Attack On Titan":
             name = "Titan Mode"
             value =f"On Resolve\nGain 100 * (Focus Count * Card Tier) Health and Max Health **[{100 * (player_card.focus_count * player_card.card_tier)}]**"
@@ -1740,6 +1772,9 @@ class Battle:
         return name, value
     
     def focus_trait_handler(self, player_card, opponent_card):
+        if player_card.universe == "Soul Eater":
+            name = "Meister"
+            value =f"On Focus\nStrike with Summon and consume 50 souls. If your summon is from Soul Eater also consume 50% Summon DMG in Souls**[{player_card.soul_resonance_amount}]**"
         if player_card.universe == "Digimon":
             name = "Digivolve"
             value =f"On Focus\nResolve and increase ATK and DEF **[{100 * player_card.card_tier}]**"
@@ -1819,13 +1854,16 @@ class Battle:
             value =f"*Reduce incoming damage by 40% until your first focus*"
         if player_card.universe == "Chainsawman":
             name = "\nFearful, Contracts, Devilization"
-            value =f"*Fearful\nThe Fear enhancer does not sacrifice Health\n\nContracts\nOffer 10% Max health to open a Contract, eech attack lose 10% Damage as Max Health. This amount is added to your ATK and DEF.\nDevilization\nWhen Health Reaches < 50% Increase Health by Offering amount, your ATK and DEF = Health + Contract Bonus*"
+            value =f"*Fearful\nThe Fear enhancer does not sacrifice Health\n\nContracts\nOffer 10% Max health to open a Contract, eech attack lose 10% Damage as Max Health. This amount is added to your ATK and DEF.\nDevilization\nWhen Health Reaches < 40% Increase Health by Offering amount, your ATK and DEF = Health + Contract Bonus*"
         if player_card.universe == "Full Metal Alchemist":
             name = "\nEquivalent Exchange"
             value =f"Each Attack\n*Store 50% Stamina as Equivalent Exchange, Increase your Attack Power by (Equivalent Exchange x Card Tier).*" 
         if player_card.universe == "Demon Slayer":
             name = "\nTotal Concentration Breathing"
             value =f"*Gain 40% of your opponents base max health at the start of battle.* **[{round(.40 * opponent_card.max_base_health)}]**"
+        if player_card.universe == "My Hero Academia":
+            name = "\nQuirk Energy"
+            value =f"*Each turn store 50 ap to prepare for your Quirk Awakening Transformation*"
         return name, value
     
     def death_trait_handler(self, player_card):
@@ -1834,7 +1872,7 @@ class Battle:
             value =f"On Death\n\nRevive and heal for 75% of your Attack and Defense [{.75 * (player_card.attack + player_card.defense)}]"
         if player_card.universe == "Souls":
             name = "Phase 3: Enhanced Aggresssion"
-            value =f"After Resolve\n\nIf health below 40% each attack double strikes with your old Basic Attack\n\n`Phase 3` Attack: {crown_utilities.set_emoji(self.move_souls_element)} {player_card.move_souls} inflicts {player_card.move_souls_element}"
+            value =f"After Resolve\n\nIf health below 40% each attack double strikes with your old Basic Attack\n\n`Phase 3` Attack: {crown_utilities.set_emoji(player_card.move_souls_element)} {player_card.move_souls} inflicts {player_card.move_souls_element}"
         if player_card.universe == "Chainsawman":
             name = "Devilization"
             value =f"When Health <= 50%\n\nDouble your Attack, Defense Max Health."
@@ -1847,6 +1885,9 @@ class Battle:
         if player_card.universe == "Persona":
             name = "Summon Blitz"
             value =f"On Blitz\nStrike with your summon!\nYour Summon: {player_card.summon_name} used their {player_card.summon_emoji} {player_card.summon_type} ability"
+        if player_card.universe == "Attack On Titan":
+            name = "Omnigear"
+            value =f"On Blitz\nGAin (10% * Class Level) Speed and AP **[{(.10 * player_card.card_tier) * player_card.speed}]**"
         return name, value
 
     def next_turn(self):
@@ -1953,6 +1994,25 @@ class Battle:
                 value=f"{player_card.name}"
         return value
     
+    def get_most_blitzed(self, player_card, opponent_card, companion_card=None):
+        value = ""
+        if companion_card:
+            if opponent_card.blitz_count >= player_card.blitz_count:
+                if opponent_card.blitz_count >= companion_card.blitz_count:
+                    value=f"{opponent_card.name}"
+                else:
+                    value=f"{companion_card.name}"
+            elif player_card.blitz_count >= companion_card.blitz_count:
+                value=f"{player_card.name}"
+            else:
+                value=f"{companion_card.name}"
+        else:
+            if opponent_card.blitz_count >= player_card.blitz_count:
+                value=f"{opponent_card.name}"
+            else:
+                value=f"{player_card.name}"
+        return value
+    
     
     def get_most_damage_dealt(self, player_card, opponent_card, companion_card=None):
         value = ""
@@ -2029,6 +2089,10 @@ class Battle:
         f_message = self.get_most_focused(winner_card, opponent_card)
         embedVar.add_field(name=f"🌀 | Focus Count",
                         value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{winner_card.name}**: {winner_card.focus_count}")
+        
+        b_message = self.get_most_blitzed(winner_card, opponent_card)
+        embedVar.add_field(name=f"💢 | Blitz Count",
+                        value=f"**{opponent_card.name}**: {opponent_card.blitz_count}\n**{winner_card.name}**: {winner_card.blitz_count}")
         #Most Damage Dealth
         d_message = self.get_most_damage_dealt(winner_card, opponent_card)
         embedVar.add_field(name=f"💥 | Damage Dealt",
@@ -2419,6 +2483,10 @@ class Battle:
         f_message = self.get_most_focused(winner_card, opponent_card)
         embedVar.add_field(name=f"🌀 | Focus Count",
                         value=f"**{opponent_card.name}**: {opponent_card.focus_count}\n**{winner_card.name}**: {winner_card.focus_count}")
+        
+        b_message = self.get_most_blitzed(winner_card, opponent_card)
+        embedVar.add_field(name=f"💢 | Blitz Count",
+                        value=f"**{opponent_card.name}**: {opponent_card.blitz_count}\n**{winner_card.name}**: {winner_card.blitz_count}")
         #Most Damage Dealth
         d_message = self.get_most_damage_dealt(winner_card, opponent_card)
         embedVar.add_field(name=f"💥 | Damage Dealt",
