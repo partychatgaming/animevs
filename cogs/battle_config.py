@@ -17,6 +17,7 @@ class BattleConfig(Extension):
         self.tutorialsummon = False
         self.tutorial_enhancer = False
         self.tutorial_talisman = False
+        self.is_rpg = False
         
     @listen()
     async def on_ready(self):

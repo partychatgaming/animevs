@@ -171,3 +171,20 @@ async def starting_battle_ai_message(your_card_name, your_card_universe, opponen
     # Extract the summary from the response
     summary = response.choices[0].message.content
     return summary
+
+async def rpg_movement_ai_message(your_card_name, your_card_universe, move, up, down, left, right):
+    await asyncio.sleep(1)
+    # Define the prompt to indicate the context of the anime card game assistant
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you navigating a labrynth moving {move}. Describe the following emojis as potential points of interest. You see a {up} a {down} a {left} and a {right}."
+    
+    # Call the OpenAI API to summarize messages using the GPT-4 model
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+    
+    # Extract the summary from the response
+    summary = response.choices[0].message.content
+    return summary

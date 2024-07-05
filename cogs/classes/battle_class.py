@@ -28,6 +28,7 @@ class Battle:
         self.is_pvp_game_mode = False
         self.is_available = True
         self.is_corrupted = False
+        self.is_rpg = False
         self.match_can_be_saved = False
         self.is_free_battle_game_mode = False
         self.is_co_op_mode = False
@@ -1235,15 +1236,7 @@ class Battle:
                         label="🛡️Ally Block 20",
                         custom_id=f"{self._uuid}|9"
                     ),
-                ]
-            else:
-                c_butts = [           
-                        Button(
-                        style=ButtonStyle.RED,
-                        label=f"Boost Companion",
-                        custom_id=f"{self._uuid}|b"
-                    )]
-        
+                ]        
         elif (self.is_co_op_mode and self.mode not in crown_utilities.DUO_M) and your_card.stamina >= 20:
             c_butts = [
                 Button(

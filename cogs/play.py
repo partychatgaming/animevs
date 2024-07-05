@@ -404,6 +404,62 @@ class Play(Extension):
             custom_logging.debug(ex)
 
 
+    async def rpg_commands(self, ctx, rpg_config):
+        """
+        Handles the logic for an RPG game in the game.
+
+        Parameters:
+        - self: The instance of the class.
+        - ctx: The context of the command.
+        - rpg_config: Configuration object for the RPG game.
+
+        Returns:
+        None
+        """
+        private_channel = ctx.channel
+        try:
+            rpg_config._uuid = uuid.uuid4()
+            if not hasattr(self, 'bot'):
+                self.bot = self.client
+
+            user = await get_rpg_user(rpg_config)
+            embedVar = Embed(title=f"Adventure is starting", color=0x2ECC71)
+            rpg_msg = await private_channel.send(embed=embedVar)
+            while rpg_config.adventuring:
+                if check_if_game_over(rpg_config):
+                    game_over_check = True
+                    break
+                configure_battle_log(rpg_config)
+
+                rpg_msg, components = await rpg_config.rpg_player_move_embed(ctx, private_channel, rpg_msg)
+
+                def check(component: Button) -> bool:
+                    return component.ctx.author == user
+
+                try:
+                    button_ctx = await self.bot.wait_for_component(components=components, timeout=300, check=check)
+                    await button_ctx.ctx.defer(edit_origin=True)
+                    # save_and_end = await player_save_and_end_game(self, ctx, private_channel, rpg_msg, battle_config, button_ctx)
+                    # if save_and_end:
+                    #     battle_config.player1.make_available()
+                    #     return
+                
+                    await rpg_config.rpg_move_handler(ctx, private_channel, button_ctx, rpg_msg)
+                    
+                except asyncio.TimeoutError:
+                    rpg_config.player1.make_available()
+                    await timeout_handler(self, ctx, rpg_msg, rpg_config)
+        except asyncio.TimeoutError:
+            loggy.critical(f"Battle timed out")
+            rpg_config.player1.make_available()
+            await timeout_handler(self, ctx, rpg_msg, rpg_config)
+
+        except Exception as ex:
+            loggy.critical(f"Battle timed out")
+            rpg_config.player1.make_available()
+            custom_logging.debug(ex)
+        
+
 async def add_ai_start_messages(battle_config):
     if not battle_config.turn_zero_has_happened:
         class_effects = {
@@ -550,6 +606,22 @@ async def get_users_and_opponent_ping(self, battle_config):
 
     return user1, user2, opponent_ping, user3
 
+async def get_rpg_user(self):
+    """
+    Get the user object from the context object.
+
+    Parameters:
+    - ctx: The context object for the current command.
+
+    Returns:
+    User: The user object for the context object.
+    """
+    if hasattr(self, 'bot'):
+        pass
+    else:
+        self.bot = self.client
+    user = await self.bot.fetch_user(self.player1_did)
+    return user
 
 async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
@@ -673,6 +745,14 @@ async def exit_battle_embed(battle_config, button_ctx, private_channel):
 
 
 def check_if_game_over(battle_config):
+    #Checks for RPG Game over battle_config is cosidered as rpg_config
+    if battle_config.is_rpg:
+        rpg_config = battle_config
+        if rpg_config.player_health <= 0:
+            rpg_config.adventuring = False
+            return True
+        else:
+            return False
     player3_card = battle_config.player3_card if battle_config.is_duo_mode or battle_config.is_co_op_mode else None
     if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
         battle_config.turn_total -= 1
@@ -684,6 +764,14 @@ def check_if_game_over(battle_config):
 
 
 def configure_battle_log(battle_config):
+    #Checks for RPG Game over battle_config is cosidered as rpg_config
+    if battle_config.is_rpg:
+        rpg_config = battle_config
+        if rpg_config.previous_moves:
+            rpg_config.previous_moves_len = len(rpg_config.previous_moves)
+            if rpg_config.previous_moves_len >= rpg_config.player1.battle_history:
+                rpg_config.previous_moves = rpg_config.previous_moves[-rpg_config.player1.battle_history:]
+        return
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
     if battle_config.previous_moves:

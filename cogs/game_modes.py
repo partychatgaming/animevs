@@ -27,6 +27,7 @@ from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
+from .classes.rpg_class import RPG
 from cogs.battle_config import BattleConfig
 from logger import loggy
 from pilmoji import Pilmoji
@@ -341,46 +342,67 @@ class GameModes(Extension):
     #                        )
     #                    ]
     #     )
-    async def coop(self, ctx: InteractionContext, user: User, mode: str):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
+    # async def coop(self, ctx: InteractionContext, user: User, mode: str):
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
 
-        try:
-            player = db.queryUser({'DID': str(ctx.author.id)})
-            player3 = db.queryUser({'DID': str(user.id)})
-            p1 = crown_utilities.create_player_from_data(player)
-            p3 = crown_utilities.create_player_from_data(player3)
+    #     try:
+    #         player = db.queryUser({'DID': str(ctx.author.id)})
+    #         player3 = db.queryUser({'DID': str(user.id)})
+    #         p1 = crown_utilities.create_player_from_data(player)
+    #         p3 = crown_utilities.create_player_from_data(player3)
 
-            if not p1.is_available:
-                embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
+    #         if not p1.is_available:
+    #             embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
+    #             await ctx.send(embed=embed)
+    #             return
 
-            if not p3.is_available:
-                embed = Embed(title="⚠️ Your Co-op player is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
-
-
-            battle = Battle(mode, p1)
+    #         if not p3.is_available:
+    #             embed = Embed(title="⚠️ Your Co-op player is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
+    #             await ctx.send(embed=embed)
+    #             return
 
 
-            universe_selection = await select_universe(self, ctx, p1, mode, p3)
-            if not universe_selection:
-                return
-            battle.set_universe_selection_config(universe_selection)
-            battle.is_co_op_mode = True
+    #         battle = Battle(mode, p1)
 
-            await battle_commands(self, ctx, battle, p1, None, None, p3)
+
+    #         universe_selection = await select_universe(self, ctx, p1, mode, p3)
+    #         if not universe_selection:
+    #             return
+    #         battle.set_universe_selection_config(universe_selection)
+    #         battle.is_co_op_mode = True
+
+    #         await battle_commands(self, ctx, battle, p1, None, None, p3)
         
-        except Exception as ex:
-            custom_logging.debug(ex)
-            return
+    #     except Exception as ex:
+    #         custom_logging.debug(ex)
+    #         return
     
     @slash_command(description="testing RPG game mode")
     async def rpg(self, ctx: InteractionContext):
-        print("rpg command initiated")
+        await ctx.defer()
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
+        
+        """
+        This command will be used to create the rpg instance
+        """
+        try:
+            loggy.info(f"RPG command initiated by {registered_player['DID']}")
+            player = crown_utilities.create_player_from_data(registered_player)
+
+            player.make_unavailable()
+
+            rpg = RPG(self.bot, player, )
+            await RPG.create_rpg(self, ctx, rpg)
+        except Exception as ex:
+            player.make_available()
+            custom_logging.debug(ex)
+            loggy.critical(ex)
+            return
+        
 
     @slash_command(description="pve to earn cards, accessories, gold, gems, and more as a solo player")
     @slash_option(
