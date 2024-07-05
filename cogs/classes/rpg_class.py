@@ -8,9 +8,6 @@ from logger import loggy
 now = time.asctime()
 import unique_traits as ut
 from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
-from cogs.play import Play as play
-from cogs.universe_traits.solo_leveling import set_solo_leveling_config
-from cogs.quests import Quests
 import asyncio
 
 class RPG:
@@ -51,6 +48,15 @@ class RPG:
             ["🟫", "🟫", "🟫", "🟫", f"{self.player_token}", "🟫", "🟫", "🟫", "🟫", "🟫"]
         ]
         self.player_position = (8, 4)  # Initial position of universe_crest
+
+    @listen()
+    async def on_ready(self):
+        print('RPG Cog is ready!')
+
+    async def cog_check(self, ctx):
+        return await self.bot.validate_user(ctx)
+    
+    
 
     def display_map(self):
         return "\n".join("".join(row) for row in self.map_layout)
