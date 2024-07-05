@@ -44,6 +44,7 @@ class GameModes(Extension):
         self.bot = bot
         self.level_up_cooldown = Cooldown(Buckets.MEMBER, 10, 3600) # (Buckets.MEMBER, 10, 3600)
         self.explore_cooldown = Cooldown(Buckets.MEMBER, 25, 3600)
+        self.rpg_game = None
     max_items = 150
 
     @listen()
@@ -341,42 +342,42 @@ class GameModes(Extension):
     #                        )
     #                    ]
     #     )
-    # async def coop(self, ctx: InteractionContext, user: User, mode: str):
-    #     registered_player = await crown_utilities.player_check(ctx)
-    #     if not registered_player:
-    #         return
+    async def coop(self, ctx: InteractionContext, user: User, mode: str):
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
 
-    #     try:
-    #         player = db.queryUser({'DID': str(ctx.author.id)})
-    #         player3 = db.queryUser({'DID': str(user.id)})
-    #         p1 = crown_utilities.create_player_from_data(player)
-    #         p3 = crown_utilities.create_player_from_data(player3)
+        try:
+            player = db.queryUser({'DID': str(ctx.author.id)})
+            player3 = db.queryUser({'DID': str(user.id)})
+            p1 = crown_utilities.create_player_from_data(player)
+            p3 = crown_utilities.create_player_from_data(player3)
 
-    #         if not p1.is_available:
-    #             embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
-    #             await ctx.send(embed=embed)
-    #             return
+            if not p1.is_available:
+                embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
+                await ctx.send(embed=embed)
+                return
 
-    #         if not p3.is_available:
-    #             embed = Embed(title="⚠️ Your Co-op player is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
-    #             await ctx.send(embed=embed)
-    #             return
-
-
-    #         battle = Battle(mode, p1)
+            if not p3.is_available:
+                embed = Embed(title="⚠️ Your Co-op player is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
+                await ctx.send(embed=embed)
+                return
 
 
-    #         universe_selection = await select_universe(self, ctx, p1, mode, p3)
-    #         if not universe_selection:
-    #             return
-    #         battle.set_universe_selection_config(universe_selection)
-    #         battle.is_co_op_mode = True
+            battle = Battle(mode, p1)
 
-    #         await battle_commands(self, ctx, battle, p1, None, None, p3)
+
+            universe_selection = await select_universe(self, ctx, p1, mode, p3)
+            if not universe_selection:
+                return
+            battle.set_universe_selection_config(universe_selection)
+            battle.is_co_op_mode = True
+
+            await battle_commands(self, ctx, battle, p1, None, None, p3)
         
-    #     except Exception as ex:
-    #         custom_logging.debug(ex)
-    #         return
+        except Exception as ex:
+            custom_logging.debug(ex)
+            return
 
 
     @slash_command(description="pve to earn cards, accessories, gold, gems, and more as a solo player")
@@ -429,7 +430,7 @@ class GameModes(Extension):
             mode = random.choice(mode_options)
             universe = random.choice(crown_utilities.get_cached_universes())["name"]
 
-        if not universe and mode != "Tutorial":
+        if not universe and mode != "Tutorial" and mode != "RPG":
             # Create embed that says to select a universe 
             embed = Embed(title="Select a Universe", description="All PVE game modes require universe selection. Please type or select a universe you would like to play in.", color=0x696969)
             await ctx.send(embed=embed)
@@ -462,6 +463,8 @@ class GameModes(Extension):
             # if mode == crown_utilities.ABYSS:
             #     await abyss(self, ctx, registered_player, mode)
             #     return
+
+            
 
             if mode == crown_utilities.TUTORIAL:
                 await tutorial(self, ctx, player, mode)
@@ -599,9 +602,9 @@ class GameModes(Extension):
             await ctx.send(f"An error occurred: {ex}")
             return
 
-
-    #@slash_command(description="Start an Association Raid")
-    async def raid(self, ctx, guild):
+    
+    #@slash_command(description="Start an Association Arena Battle")
+    async def arena(self, ctx, guild):
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
@@ -724,7 +727,9 @@ async def tutorial(self, ctx, player, mode):
     try:
         #
         # await ctx.send("🆚 Building Tutorial Match...", delete_after=10)
-
+        registered_player = await crown_utilities.player_check(ctx)
+        if not registered_player:
+            return
         tutorial_did = '837538366509154407'
         opponent = db.queryUser({'DID': tutorial_did})
         player2 = crown_utilities.create_tutorial_bot(opponent)
@@ -739,8 +744,8 @@ async def tutorial(self, ctx, player, mode):
         embed = Embed(title="An error occurred when setting up the tutorial battle.", description=f"Error: {ex}", color=0x696969)
         await ctx.send(embed=embed)
         return
-
-
+    
+    
 async def raid_scenario(self, ctx, player, mode):
     try:
         registered_player = await crown_utilities.player_check(ctx)
