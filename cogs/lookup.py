@@ -287,7 +287,10 @@ class Lookup(Extension):
                     await ctx.send("You are not a part of a Guild.")
                     return
 
-            if team:
+            guild_data = crown_utilities.create_guild_from_data(team)
+
+
+            if guild_data:
                 is_owner = False
                 is_officer = False
                 is_captain = False
