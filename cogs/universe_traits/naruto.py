@@ -50,11 +50,11 @@ def hashirama_cells(player_card, battle_config, player_title):
 
         player_card.damage_healed = player_card.damage_healed + resolve_health + player_card.naruto_heal_buff
         
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ Stored hashira cells healed {player_card.name} for {player_card.naruto_heal_buff} health")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ ⚡Hashirama Cells healed {player_card.name} for {player_card.naruto_heal_buff} health")
         player_card.naruto_heal_buff = "*Spent*"
         player_card.used_resolve = True
         player_card.usedsummon = False
 
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True

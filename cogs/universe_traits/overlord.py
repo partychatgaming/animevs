@@ -29,24 +29,24 @@ def fear(player_card, battle_config, opponent_card, player_title):
 
         player_card.used_resolve = True
         player_card.usedsummon = False
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         player_card.overlord_fear_bool = True
         player_card.overlord_fear_duration = player_card.tier * 1
         player_card.overlord_opponent_original_defense = opponent_card.defense
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} ♾️ resolved and caused {opponent_card.name} to succumb to fear, lowering their defense to 25 for {player_card.overlord_fear_duration} turns {title_message}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} ♾️ resolved and caused {opponent_card.name} to succumb to ⚡Fear, lowering their defense to 25 for {player_card.overlord_fear_duration} turns {title_message}")
         battle_config.next_turn()
         return True
     
 
 def fear_duration_check(player_card, battle_config):
     if player_card.universe == "Overlord" and player_card.overlord_fear_bool:
-        if player_card.fairy_tail_recovering_duration > 0:
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} is recovering from their unison raid attack")
+        if player_card.overlord_fear_duration > 0:
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} is recovering from fear")
             battle_config.next_turn()
-        if player_card.fairy_tail_recovering_duration == 0:
+        if player_card.overlord_fear_duration == 0:
             player_card.fairy_tail_recovering = False
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} has recovered from their unison raid attack")
-        player_card.fairy_tail_recovering_duration = player_card.fairy_tail_recovering_duration - 1
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name} has recovered from fear")
+        player_card.overlord_fear_duration = player_card.overlord_fear_duration - 1
         return 
     
 
@@ -62,6 +62,6 @@ def fear_aura(player_card, opponent_card, battle_config):
 
         # Ensure minimum value for card level AP buff
         opponent_card.card_lvl_ap_buff = max(25, opponent_card.card_lvl_ap_buff)        
-        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name}'s aura causes {opponent_card.name} to succumb to fear, lowering their AP by {debuff_value}")
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) {player_card.name}'s aura reduces {opponent_card.name} AP by {debuff_value}")
         return
 

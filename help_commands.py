@@ -101,22 +101,22 @@ ELEMENTS_LIST = [
     "🔥 Fire - Does 50% damage of previous attack over the next opponent turns, burn effect bypasses shields and stacks.\n",
     "💧 Water - Each strike increases all water move AP by 100. Every 200 AP, gain a shield. Every 400 AP send a Tsunami Strike for True Damage.\n",
     "⛰️ Earth - Penetrates Parry. Increases Def by 25% AP. Grants Shield - Increase by 50% DMG.\n",
-    "🌩️ Electric- Add 35% DMG Dealt to Shock damage, Shock damage amplifies all Move AP.\n",
-    "🌪️ Wind - On Miss or Crit, boosts all wind damage by 75% of damage dealt.\n",
-    "🌿 Nature - Saps Opponent ATK and DEF for 35% of Damage & heals Health and Max Health for that amount as well.\n",
+    "🌩️ Electric- Add 10% DMG Dealt to Shock damage, Shock damage amplifies all Move AP.\n",
+    "🌪️ Wind - On Miss or Crit, boosts all wind damage by 50% of damage dealt.\n",
+    "🌿 Nature - Saps Opponent ATK and DEF for 10% of Damage & heals Health and Max Health for that amount as well.\n",
     "❄️ Ice - Every 3rd attack, opponent freezes and loses 1 turn, and loses attack and defense equal to 50% of damage dealt.\n",
     "🅱️ Bleed - Penetrates Parry. Every 2 Attacks deal (10x turn count + 5% Health) damage to opponent.\n",
     "🧿 Energy - Has higher 35% higher chance of Crit. This crit hit goes through all protections\n",
-    "🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 35% DMG. After 3 Hits Gain a Barrier\n",
+    "🔮 Psychic - Penetrates Barriers. Reduce opponent ATK & DEF by 10% DMG. After 3 Hits Gain a Barrier\n",
     "💤 Sleep - Every 2nd attack adds a stack of Rest. Before Opponent focuses they must Rest, skipping their turn, for each stack of Rest. Opponent only takes sleep damage while Resting.\n",
-    "☠️ Death - Deals 40% DMG to opponent max health. Gain Attack equal to that amount. Executes opponent if their health equals 10% of their base max health.\n",
+    "☠️ Death - Deals 25% DMG to opponent max health. Gain Attack equal to that amount. Executes opponent if their health equals 10% of their base max health.\n",
     "❤️‍🔥 Life - Create Max Health and Heal for 40% DMG.\n",
-    "🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus\n",
+    "🌕 Light - Increases ATK by 25% of DMG. 25% of DMG is stored and attacks the damages when they focus\n",
     "🌑 Dark- Penetrates all Protections & decreases opponent ST(Stamina) by 15.\n",
     "🧪 Poison - Penetrates Shields and Parry. Stacks Poison damage equal to 35% of damage done. Stacking up to 30% of opponent max health. The Opponent takes damage when they attack.\n",
     "🩻 Rot - Penetrates Shields and Parry. Stacks Rot damage equal to 15% of damage done stacking up to 20% of max health. The Opponent takes damage when they attack.\n",
     "⌛ Time - Strong Block and Increase Turn Count by 3, If ST(Stamina) is < 50, Focus for 1 Turn and goes through and lowers opponent barriers and parry and AP is increased by damage dealt * turn total / 100.\n",
-    "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 40% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n",
+    "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 25% DMG, Decrease Turn Count By 3, goes through barrier and parry.\n",
     "🐲 Draconic - Draconic attacks can only be ULTIMATE or Summoned. Pentrates all protections. Combines the AP and Elemental Effects of your BASIC and SPECIAL attack into one powerful blow!.",
 
 ]
@@ -155,7 +155,7 @@ ELEMENTS = textwrap.dedent(f"""\
 
 ❤️‍🔥 Life - Steals 30% damage done health and max health from opponent.
 
-🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and attacks the opponent when they focus.
+🌕 Light - Increases ATK by 40% of DMG. 40% of DMG is stored and damages the opponent when they focus.
 
 🌑 Dark- Penetrates Shields, Barriers and Parries & decreases opponent ST(Stamina) by 15.
 
@@ -197,7 +197,7 @@ __Family Commands__
 **/allowance** - Send Family Members coin from Family Bank
 **/invest** - Invest coin into family Bank
 
-_House Commands_
+__House Commands__
 **/houses** - Show list of available houses
 **/viewhouse** - View House Information
 **/buyhouse** - Buy a house from Family Bank
@@ -265,9 +265,9 @@ __Gacha Gacha! ⌨️__
 """)
 
 OPTION_COMMANDS = textwrap.dedent(f"""\
-**Options**
-**/help** - View all heklp commands and manual
-**/explore**  - Toggle Explore mode
+__Game Options__
+**/help** - View all help commands and manual
+**/explore**  - Toggle Explore mode / universe
 **/difficulty** - Change the difficulty of the game
 **/autosave** - Toggle autosave on or off
 **/battlehistory** - Update battle history length

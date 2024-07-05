@@ -32,15 +32,15 @@ def evolutions(player_card, battle_config, player_title):
         if battle_config.turn_total >= 40:
             player_card.max_health = player_card.max_health + (evolution_boost * 2)
             player_card.health = player_card.health + (evolution_boost * 2)
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} resolved into their gigantomax evolution gaining 1000 health {title_message}")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} evolved into their ⚡Gigantomax Evolution gaining 1000 health {title_message}")
         elif battle_config.turn_total >= 20:
             player_card.max_health = player_card.max_health + evolution_boost
             player_card.health = player_card.health + evolution_boost
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name}  resolved into their mega evolution gaining 500 health {title_message}")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name}  evolved into their ⚡Mega Evolution gaining 500 health {title_message}")
         else:
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name}  resolved into their evolution {title_message}")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name}  evolved into their ⚡Dynamax Evolution  {title_message}")
 
         player_card.damage_healed = player_card.damage_healed + resolve_health + evolution_boost
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True

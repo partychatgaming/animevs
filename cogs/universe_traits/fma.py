@@ -22,7 +22,7 @@ def philosopher_stone(player_card, battle_config, dmg, opponent_card=None):
     if handle_card(player_card, opponent_card, battle_config, dmg):
         return True
     if handle_card(opponent_card, player_card, battle_config, dmg):
-        battle_config.turn_total = battle_config.turn_total + 1
+        # battle_config.turn_total = battle_config.turn_total + 1
         battle_config.next_turn()
         return True
     return False
@@ -43,7 +43,7 @@ def equivalent_exchange(player_card, battle_config, attack_damage, stamina_used)
 def equivalent_exchange_resolve(player_card, battle_config):
     if player_card.universe == "Full Metal Alchemist":
         if player_card.used_resolve:
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} sacrificed {philosopher_stone_amount} health to craft a philosphers stone!")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} sacrificed {philosopher_stone_amount} health to craft a ⚡Philosphers Stone!")
             philosopher_stone_amount = player_card.equivalent_exchange * player_card.tier
             player_card.health -= philosopher_stone_amount
             if player_card.health < 0:

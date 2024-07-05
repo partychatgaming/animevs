@@ -7,6 +7,7 @@ from cogs.universe_traits.chainsawman import devilization
 from cogs.universe_traits.solo_leveling import set_solo_leveling_config, activate_solo_leveling_trait
 from cogs.universe_traits.fairytail import fairy_tail_recovery
 from cogs.universe_traits.jujutsu_kaisen import domain_expansion_check, get_domain_turns
+from cogs.universe_traits.aot import calculate_titan
 import db
 import dataclasses as data
 import messages as m
@@ -187,6 +188,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
     activate_my_hero_academia_trait(player_card,battle_config)
     activate_my_hero_academia_trait(opponent_card,battle_config)
 
+    calculate_titan(player_card, battle_config)
+    calculate_titan(opponent_card, battle_config)
     devilization(player_card, battle_config)
     devilization(opponent_card, battle_config)
     get_domain_turns(player_card)
@@ -242,7 +245,7 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
         activate_demon_slayer_trait(companion, battle_config, opponent_card)
         observation_haki(companion, battle_config, opponent_card)
         set_solo_leveling_config(companion, opponent_card.shield_active, opponent_card._shield_value, opponent_card.barrier_active, opponent_card._barrier_value, opponent_card.parry_active, opponent_card._parry_value)
-
+        companion.set_health_color()
         if companion.used_block == True:
             companion.defense = int(companion.defense / 2)
             companion.used_block = False
@@ -250,6 +253,8 @@ def beginning_of_turn_stat_trait_affects(player_card, player_title, opponent_car
             companion.defense = int(companion.defense / 2)
             companion.used_defend = False
         
+    player_card.set_health_color()
+    opponent_card.set_health_color()
     if player_card.used_block == True:
         player_card.defense = int(player_card.defense / 2)
         player_card.used_block = False
@@ -265,7 +270,7 @@ async def auto_battle_embed_and_starting_traits(ctx, player_card, player_title, 
 
     activate_solo_leveling_trait(player_card, battle_config, opponent_card)
             
-    embedVar = Embed(title=f"➡️ Current Turn {battle_config.turn_total}", color=0xe74c3c)
+    embedVar = Embed(title=f"➡️ Current Turn {battle_config.turn_total}", color=player_card.health_color)
     await asyncio.sleep(2)
     embedVar.set_thumbnail(url=ctx.author.avatar_url)
     footer_text = battle_config.get_battle_author_text(opponent_card, opponent_title, player_card, player_title, companion_card, companion_title)

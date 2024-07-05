@@ -122,7 +122,7 @@ class Play(Extension):
                             await asyncio.sleep(2)
                             battle_msg = await private_channel.send(embed=embedVar)
                         else:
-                            embedVar = Embed(title=f"Battle is starting", color=0xe74c3c)
+                            embedVar = Embed(title=f"Battle is starting", color=0x2ECC71)
                             battle_msg = await private_channel.send(embed=embedVar)
 
                         tactics.tactics_set_base_stats(battle_config.player2_card)
@@ -443,6 +443,7 @@ async def add_ai_start_messages(battle_config):
         battle_config.turn_zero_has_happened = True
         return
     
+
 def set_battle_start_time():
     # Get the current local time when the battle starts
     start_time = time.localtime()
@@ -451,6 +452,7 @@ def set_battle_start_time():
     s_gametime = start_time.tm_sec
     # print(f"{str(h_gametime)} : {str(m_gametime)} : {str(s_gametime)}")
     return h_gametime, m_gametime, s_gametime
+
 
 def get_battle_time(h_gametime, m_gametime, s_gametime):
     current_time = time.localtime()
@@ -692,26 +694,6 @@ def configure_battle_log(battle_config):
             battle_config.previous_moves = battle_config.previous_moves[-battle_config.player1.battle_history:]
 
 
-# def getTime(hgame, mgame, sgame, hnow, mnow, snow):
-#     hoursPassed = hnow - hgame
-#     minutesPassed = mnow - mgame
-#     secondsPassed = snow - sgame
-#     if hoursPassed > 0:
-#         minutesPassed = mnow
-#         if minutesPassed > 0:
-#             secondsPassed = snow
-#         else:
-#             secondsPassed = snow - sgame
-#     else:
-#         minutesPassed = mnow - mgame
-#         if minutesPassed > 0:
-#             secondsPassed = snow
-#         else:
-#             secondsPassed = snow - sgame
-#     gameTime = str(hoursPassed) + str(minutesPassed) + str(secondsPassed)
-#     return gameTime
-
-
 async def start_to_focus(battle_msg, private_channel, battle_config):
     """
     Performs the start-to-focus actions at the beginning of the player's turn.
@@ -829,7 +811,6 @@ def speed_title_handler(player_title, player_card, opponent_title, opponent_card
     p1_spd_msg = player_title.speed_handler(player_card)
     p2_spd_msg = opponent_title.speed_handler(opponent_card)
     return p1_spd_msg, p2_spd_msg
-
 
 
 async def first_turn_experience(battle_config, private_channel):
@@ -1065,7 +1046,6 @@ async def ai_move_handler(ctx, battle_config, private_channel, battle_msg=None):
         custom_logging.debug(ex)
 
 
-
 async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
     """
     Displays the player move embed during their turn in the battle.
@@ -1115,8 +1095,8 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
 
     turn_card.set_battle_arm_messages(opponent_card)
     turn_card.set_stat_icons()
-
-    author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
+    if turn_player.rift == 0:
+        author_text = battle_config.get_battle_author_text(opponent_card, opponent_title, turn_card, turn_title, partner_card, partner_title)
 
     summon_message = f"🧬 {turn_card.summon_name}: {turn_card.summon_emoji}{turn_card.summon_type.title()} Ability - {turn_card.summon_power}" if turn_card.used_resolve or turn_card.card_class == "SUMMONER" else ""
     talisman_message = f"{crown_utilities.set_emoji(turn_card._talisman)} {turn_card._talisman.title()} Talisman"
@@ -1127,13 +1107,17 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         talisman_message = f"🥋 Ultimate Strategy"
     player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
     if turn_card.universe in crown_utilities.universe_stack_traits:
-        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"
+        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}{universe_stacks}\n{summon_message}"
     tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
-    embedVar = Embed(title=f"", color=0xe74c3c)
+    #map_embed = battle_config.get_map_message(turn_card)
+    embedVar = Embed(title=f"", color=turn_card.health_color)
     # if turn_player.performance:
     #     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{turn_card.get_perfomance_header(turn_title)}")
     # else:
-    embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
+    if turn_player.rift == 0:
+        embedVar.set_author(name=f"{turn_card.summon_resolve_message}\n{author_text}")
+    else:
+        embedVar.set_author(name=f"{turn_card.summon_resolve_message}")
     embedVar.add_field(name=f"➡️ **Current Turn** {battle_config.turn_total}", value=f"{player1_arm_message}")
     if battle_config.is_tutorial_game_mode:
         embedVar.add_field(name=f"[🧠]**Tutorial Task!**", value=f"{tutorial_embed_message}")
@@ -1157,7 +1141,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
     battle_msg = await private_channel.send(embed=embedVar, components=components, file=card_file)
     image_binary.close()
     return battle_msg, components
-
+ 
 
 async def start_of_moves_config(battle_config):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
@@ -1283,7 +1267,6 @@ async def player_move_handler(battle_config, private_channel, button_ctx, battle
 
     complete_damage_calculation = await player_damage_calculation(battle_config, button_ctx, damage_calculation_response)         
 
-#def tutorial_message_handler(turn_card, battle_config, private_channel, message_type):
 
 async def player_use_basic_ability(battle_config, private_channel, button_ctx, battle_msg):
     try:
@@ -1371,6 +1354,7 @@ async def player_use_block_ability(battle_config, private_channel, button_ctx, b
     turn_card.use_block(battle_config, opponent_card, partner_card)  
     return True
 
+
 async def player_use_blitz_ability(battle_config, private_channel, button_ctx, battle_msg):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     
@@ -1379,7 +1363,6 @@ async def player_use_blitz_ability(battle_config, private_channel, button_ctx, b
 
     turn_card.use_blitz(battle_config, opponent_card)  
     return True
-
 
 
 async def player_boss_message_ability_use(battle_config, private_channel, button_ctx):
@@ -1414,7 +1397,11 @@ def damage_calculation(battle_config, damage_calculation_response=None):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
     turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
-    if turn_card._monstrosity_active and turn_card.used_resolve:
+    if turn_card._blood_demon_art:
+        battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {turn_card.name}'s Blood Demon Art -  Double Strike!")
+        turn_card.damage_done(battle_config, damage_calculation_response, opponent_card)
+        turn_card._blood_demon_art = False
+    elif turn_card._monstrosity_active and turn_card.used_resolve:
         turn_card._monstrosity_value = turn_card._monstrosity_value - 1
         if turn_card._monstrosity_value <= 0:
             turn_card._monstrosity_active = False

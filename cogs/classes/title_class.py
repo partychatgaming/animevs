@@ -449,7 +449,7 @@ class Title:
                 equation = (power / 100) * player_card.health
                 if player_card.max_health > player_card.health + (equation):
                     player_card.health = round(player_card.health + (equation))
-                    self.title_battle_messages.append(f"🔸 +{round(equation)} ❤️ health")
+                    self.title_battle_messages.append(f"🔸 +{round(equation):,} ❤️ health")
 
                 if player_card.health >= player_card.max_health:
                     player_card.health = player_card.max_health
@@ -461,64 +461,64 @@ class Title:
                     player_card.health = round(player_card.health + (equation))
                     player_card.damage_healed = round(player_card.damage_healed + (equation))
                     player_card.damage_dealt = round(player_card.damage_dealt + (equation))
-                    self.title_battle_messages.append(f"🔸 stole +{round(equation)} ❤️ health")
+                    self.title_battle_messages.append(f"🔸 stole +{round(equation):,} ❤️ health")
 
             if ability == "ATK":
                 equation = (power / 100) * player_card.attack
                 player_card.attack = player_card.attack + round(equation)
-                self.title_battle_messages.append(f"🔸 +{round(equation)} 🗡️ attack")
+                self.title_battle_messages.append(f"🔸 +{round(equation):,} 🗡️ attack")
 
             if ability == "DEF":
                 equation = (power / 100) * player_card.defense
                 player_card.defense = player_card.defense + (equation)
-                self.title_battle_messages.append(f"🔸 +{round(equation)} 🛡️ defense")
+                self.title_battle_messages.append(f"🔸 +{round(equation):,} 🛡️ defense")
     
             if ability == "STAM":
                 if player_card.stamina > 15:
                     player_card.stamina = player_card.stamina + power
-                    self.title_battle_messages.append(f"🔸 +{power} 🌀 stamina")
+                    self.title_battle_messages.append(f"🔸 +{power:,} 🌀 stamina")
 
             if ability == "DRAIN":
                 if opponent_card.stamina > 15 and player_card.stamina >=10:
                     opponent_card.stamina = opponent_card.stamina - power
                     player_card.stamina = player_card.stamina + power
-                    self.title_battle_messages.append(f"🔸 drained +{power} 🌀 stamina from opponent")
+                    self.title_battle_messages.append(f"🔸 drained +{power:,} 🌀 stamina from opponent")
 
             if ability == "FLOG":
                 equation = (power / 100) * opponent_card.attack
                 opponent_card.attack = round(opponent_card.attack - (equation))
                 player_card.attack = round(player_card.attack + (equation))
-                self.title_battle_messages.append(f"🔸 stole +{round(equation)} 🗡️ attack from opponent")
+                self.title_battle_messages.append(f"🔸 stole +{round(equation):,} 🗡️ attack from opponent")
 
             if ability == "WITHER":
                 equation = (power / 100) * opponent_card.defense
                 opponent_card.defense = round(opponent_card.defense - (equation))
                 player_card.defense = round(player_card.defense + (equation))
-                self.title_battle_messages.append(f"🔸 stole +{round(equation)} 🛡️ defense from opponent")
+                self.title_battle_messages.append(f"🔸 stole +{round(equation):,} 🛡️ defense from opponent")
 
             if ability == "RAGE":
                 equation = (power / 100) * player_card.defense
                 player_card.defense = round(player_card.defense - (equation))
                 player_card.card_lvl_ap_buff = round(player_card.card_lvl_ap_buff + (equation))
-                self.title_battle_messages.append(f"🔸 -{round(equation)} 🛡️ defense / +{round(equation)} ability points")
+                self.title_battle_messages.append(f"🔸 -{round(equation)} 🛡️ defense / +{round(equation):,} ability points")
              
             if ability == "BRACE":
                 equation = (power / 100) * player_card.attack
                 player_card.card_lvl_ap_buff = round(player_card.card_lvl_ap_buff + (equation))
                 player_card.attack = round(player_card.attack - (equation))
-                self.title_battle_messages.append(f"🔸 -{round(equation)} 🗡️ attack / +{round(equation)} ability points")
+                self.title_battle_messages.append(f"🔸 -{round(equation)} 🗡️ attack / +{round(equation):,} ability points")
 
             if ability == "BZRK":
                 equation = (power / 100) * player_card.health
                 player_card.health = round(player_card.health - (equation))
                 player_card.attack = round(player_card.attack + (equation))
-                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ health / +{round(equation)} 🗡️ attack")
+                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ health / +{round(equation):,} 🗡️ attack")
 
             if ability == "CRYSTAL":
                 equation = (power / 100) * player_card.health
                 player_card.health = round(player_card.health - (equation))
                 player_card.defense = round(player_card.defense + (equation))
-                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ health / +{round(equation)} 🛡️ defense")
+                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ health / +{round(equation):,} 🛡️ defense")
 
             if ability == "FEAR":
                 equation = 0
@@ -538,7 +538,7 @@ class Title:
                     opponent_card.defense = 25
                 if opponent_card.card_lvl_ap_buff <= 0:
                     opponent_card.card_lvl_ap_buff = 1
-                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ max health / -{round(power)} opponent 🗡️ attack and 🛡️ defense")
+                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ max health / -{round(power):,} opponent 🗡️ attack and 🛡️ defense")
             
             if ability == "GROWTH":
                 equation = round(player_card.max_health * .03)
@@ -548,53 +548,53 @@ class Title:
                 player_card.defense = player_card.defense + power
                 player_card.attack = player_card.attack + power
                 player_card.card_lvl_ap_buff = player_card.card_lvl_ap_buff + power
-                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ max health / +{round(power)} opponent 🗡️ attack and 🛡️ defense")
+                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ max health / +{round(power):,} opponent 🗡️ attack and 🛡️ defense")
             
             if ability == "SLOW":
                 if battle.turn_total != 0:
                     battle.turn_total = battle.turn_total - power
                     if battle.turn_total <= 0:
                         battle.turn_total = 0
-                    self.title_battle_messages.append(f"🔸 -{power} Turns")
+                    self.title_battle_messages.append(f"🔸 -{power:,} Turns")
 
             if ability == "HASTE":
                 battle.turn_total = battle.turn_total + power
-                self.title_battle_messages.append(f"🔸 +{power} Turns")
+                self.title_battle_messages.append(f"🔸 +{power:,} Turns")
 
             if ability == "STANCE":
                 tempattack = player_card.attack + power
                 player_card.attack = player_card.defense
                 player_card.defense = tempattack
-                self.title_battle_messages.append(f"🔸 swapped  🗡️ attack and 🛡️ defense / +{power} 🛡️ defense")
+                self.title_battle_messages.append(f"🔸 swapped  🗡️ attack and 🛡️ defense / +{power:,} 🛡️ defense")
 
             if ability == "CONFUSE":
                 tempattack = opponent_card.attack - power
                 opponent_card.attack = opponent_card.defense
                 opponent_card.defense = tempattack
-                self.title_battle_messages.append(f"🔸 swapped opponent 🗡️ attack and 🛡️ defense / -{power} opponent 🛡️ defense")
+                self.title_battle_messages.append(f"🔸 swapped opponent 🗡️ attack and 🛡️ defense / -{power:,} opponent 🛡️ defense")
 
             if ability == "BLINK":
                 player_card.stamina = player_card.stamina - player_card.passive_value
                 if opponent_card.stamina >=10:
                     opponent_card.stamina = opponent_card.stamina + power
-                self.title_battle_messages.append(f"🔸 swapped {power} stamina with opponent")
+                self.title_battle_messages.append(f"🔸 swapped {power:,} stamina with opponent")
 
             if ability == "CREATION":
                 equation = (power / 100) * player_card.max_health
                 player_card.max_health = round(round(player_card.max_health + (equation)))
                 player_card.damage_healed = round(player_card.damage_healed + (equation))
-                self.title_battle_messages.append(f"🔸 +{round(equation)} ❤️ max health")
+                self.title_battle_messages.append(f"🔸 +{round(equation):,} ❤️ max health")
           
             if ability == "DESTRUCTION":
                 equation = (power / 100) * opponent_card.max_health
                 opponent_card.max_health = round(opponent_card.max_health - (equation))
                 player_card.damage_dealt = round(player_card.damage_dealt + (equation))
-                self.title_battle_messages.append(f"🔸 -{round(equation)} ❤️ opponent max health")
+                self.title_battle_messages.append(f"🔸 -{round(equation):,} ❤️ opponent max health")
 
             if ability == "BLAST":
                 opponent_card.health = round(opponent_card.health - power)
                 player_card.damage_dealt = round(player_card.damage_dealt + power)
-                self.title_battle_messages.append(f"🔸 -{power} ❤️ opponent health")
+                self.title_battle_messages.append(f"🔸 -{power:,} ❤️ opponent health")
             
             if ability == "WAVE":
                 if battle.turn_total % 10 == 0:
@@ -645,7 +645,7 @@ class Title:
             power = getattr(self, f'ability{i}_power', None)
             if ability and ability == "SYNTHESIS":
                 self.synthesis_damage_stored = self.synthesis_damage_stored + round(dmg / 2)
-                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🎗️ **{self.name}** : {self.synthesis_damage_stored} damage stored")
+                battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🎗️ **{self.name}** : {self.synthesis_damage_stored:,} damage stored")
                 title_message = f"🎗️ synthesis effect activated"
 
 

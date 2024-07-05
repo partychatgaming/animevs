@@ -127,8 +127,8 @@ traits = [{
 
 formatted_traits = [{
     'NAME': 'My Hero Academia',
-    'EFFECT': 'Quirk Awakening, Plus Ultra',
-    'TRAIT': '\n**Plus Ultra:** You gain 50 stored ap each Turn and 20 Stored AP each Block.\n\n**Quirk Awakening:** On Resolve, you gain stored plus ultra multiplied by focus count in ap, but you lose 150 ap each turn.',
+    'EFFECT': 'Quirk, Quirk Awakening, Plus Ultra',
+    'TRAIT': '\n**Quirk:** You Gain 50 Stored Quirk AP each turn\n\n**Plus Ultra:** On Block, gain (20 * Class Level) Stored AP.\n\n**Quirk Awakening:** On Resolve, you gain stored plus ultra multiplied by focus count in ap, but you lose 150 ap each turn.',
 },{
     'NAME': 'League Of Legends',
     'EFFECT': 'Turret Shot, Pentakill',
@@ -182,8 +182,8 @@ formatted_traits = [{
     'TRAIT': '\n**Command Seal:** On Resolve, Strike with Ultimate with no Stamina cost.'
 },{
     'NAME': 'Demon Slayer',
-    'EFFECT': 'Total Concentration Breathing, Total Concentration Constant',
-    'TRAIT': '\n**Total Concentration Breathing:** Gain 40% of Opponent HP as your own at the start of battle.\n\n**Total Concentration Constant:** On Resolve, if your Opponents ATK or DEF is higher than yours, increase your stats to be equal, if your stats are equal or higher gain Card Level * 1 AP of either stat.'
+    'EFFECT': 'Hashiras & Demons',
+    'TRAIT': '\n**Total Concentration Breathing / Accelerated Growth Rate:**\n*On Battle Start*\n*Total Concentration Breathing:* Gain 40% of Opponent HP as your own.\n*Accelerated Growth Rate:* Gain 25% of Opponent HP as your own\n\n**Demon Slayer Mark / Blood Demon Art**\n*On Blitz*\n*Demon Slayer Mark:* Gain 1 Critical Strike\n*Blood Demon Art:* Gain 1 Double Strike\n\n**Total Concentration Constant / Supernatural Blood**\n*On Resolve*\n*Total Concentration Constant:*\nIf your Opponents ATK or DEF is higher than yours, increase your stats to be equal, if your either stat are equal gain (Card Level * 1).\n*Supernatural Blood:*Multiply your Attack, Defense and Health by Blitz Count.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Blood Orb, Ascension',
@@ -226,8 +226,8 @@ formatted_traits = [{
     'TRAIT': '\n**Observation Haki:**\n*Tier 1-10*\n40% DMG Reduction before First Focus\n\n**Armament Haki:**\n*Tier 4-7*\nOn Focus double ATK & DEF gained from focus buff\n\n**Conquerors Haki:**\n*Tier 8-10*\nDecrease Opponent AP by (100 * Card Tier).'
 },{
     'NAME': 'Soul Eater',
-    'EFFECT': 'Feint Attack, Meister',
-    'TRAIT': '\n**Feint Attack:** If you miss, strke with your Feint Attack and Crit!\n\n**Meister:** If the summon you are using is from Soul Eater, it deals 2x damage and always triggers Feint Attack.'
+    'EFFECT': 'Feint Attack, Meister, Soul Resonance',
+    'TRAIT': '\n**Feint Attack:** If you miss, strke with your Feint Attack and Crit!\n\n**Meister:**On Focus, strike with summon, store 25% damage as souls\nIf the summon you are using is from Soul Eater, it  always triggers Feint Attack and stores 50% damage as Souls.\n\n**Soul Resonance:** On Resolve, Gain Health, AP and Summon AP based on stored Souls.'
 },{
     'NAME': 'Fairy Tail',
     'EFFECT': 'Unison Raid, Concentration',

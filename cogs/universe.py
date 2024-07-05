@@ -11,7 +11,7 @@ import asyncio
 import random
 import custom_logging
 from logger import loggy
-from .classes.custom_paginator import CustomPaginator
+# from .classes.custom_paginator import CustomPaginator
 from .classes.arm_class import Arm
 from .classes.card_class import Card
 from .classes.title_class import Title
@@ -41,6 +41,7 @@ class Universe(Extension):
     """
     async def universe_selector_paginator(self, ctx, mode, player):
         try:
+            from .classes.custom_paginator import CustomPaginator
             completed_message = f"**Completed**: {crown_utilities.utility_emojis['OFF']}"
             save_spot_text = "No Save Data"
             count = 0
