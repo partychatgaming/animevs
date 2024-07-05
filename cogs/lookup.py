@@ -354,7 +354,7 @@ class Lookup(Extension):
                 elif user['DISNAME'] in  members:
                     is_member = True
 
-                transactions = team['TRANSACTIONS']
+                transactions = self.transactions
                 transactions_embed = ""
                 if transactions:
                     transactions_len = len(transactions)
@@ -475,10 +475,7 @@ class Lookup(Extension):
                 
                 **Guild Membership Count** 
                 {member_count}
-                
-                **Association**
-                {association_msg}
-                
+                                
                 **Guild Buff**
                 {guild_buff_message}
                 
@@ -520,14 +517,6 @@ class Lookup(Extension):
                 {transactions_embed}
                 """), color=0x7289da)
                 
-
-                association_page = Embed(title="Association", description=textwrap.dedent(f"""
-                **🎏 Association** | {association}
-                **:shinto_shrine: Hall** | {hall_name}
-                **:yen: Split** | Earn **{split}x** 🪙 per match!
-                """), color=0x7289da)
-                
-                association_page.set_image(url=hall_img)
                 
                 guild_explanations = Embed(title=f"Information", description=textwrap.dedent(f"""
                 **Buff Explanations**
