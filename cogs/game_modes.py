@@ -434,7 +434,10 @@ class GameModes(Extension):
             SlashCommandChoice(
                 name="💀 Raid Battle",
                 value="Raid_Scenario"
-            )
+            ),SlashCommandChoice(
+                name="👹 Adventure Mode",
+                value="rpg"
+            ),
         ]
     )
     @slash_option(
@@ -454,7 +457,7 @@ class GameModes(Extension):
             mode = random.choice(mode_options)
             universe = random.choice(crown_utilities.get_cached_universes())["name"]
 
-        if not universe and mode != "Tutorial":
+        if not universe and mode != "Tutorial" and mode != "RPG":
             # Create embed that says to select a universe 
             embed = Embed(title="Select a Universe", description="All PVE game modes require universe selection. Please type or select a universe you would like to play in.", color=0x696969)
             await ctx.send(embed=embed)
@@ -487,7 +490,9 @@ class GameModes(Extension):
             # if mode == crown_utilities.ABYSS:
             #     await abyss(self, ctx, registered_player, mode)
             #     return
-
+            if mode == crown_utilities.RPG:
+                await self.rpg(ctx)
+                return
             if mode == crown_utilities.TUTORIAL:
                 await tutorial(self, ctx, player, mode)
                 return

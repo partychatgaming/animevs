@@ -647,6 +647,9 @@ async def get_rpg_user(self):
 async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
+    if battle_config.is_rpg:
+        await ctx.send(embed = battle_config.close_pve_embed(battle_config.player1_card,battle_config.player2_card))
+        return
     if not any((battle_config.is_abyss_game_mode, 
                 battle_config.is_scenario_game_mode, 
                 battle_config.is_explore_game_mode, 
