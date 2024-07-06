@@ -21,7 +21,7 @@ def update_stats(player, battle_config, damage_dealt, damage_received, damage_he
                 ('is_explore_game_mode', 'EXPLORE_STATS'),
                 ('is_tales_game_mode', 'TALES_STATS'),
                 ('is_scenario_game_mode', 'SCENARIO_STATS'),
-                ('is_raid_scenario', 'RAID_STATS')
+                ('is_raid_scenario', 'RAID_STATS'),
             ]
 
             for game_mode, stat_name in game_modes:

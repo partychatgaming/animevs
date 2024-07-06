@@ -229,6 +229,17 @@ class GameState(Extension):
                     battle_config.reset_game()
                     # print(f"CURRENT OPPONENT {battle_config.current_opponent_number}")
                     battle_config.continue_fighting = True
+                    battle_config.player1_card.used_focus = False
+                    battle_config.player1_card.used_resolve = False
+                    battle_config.player1_card.resolved = False
+                    battle_config.player1_card.focused = False
+                    battle_config.player2_card.resolved = False
+                    battle_config.player2_card.focused = False
+                    battle_config.player2_card.used_focus = False
+                    battle_config.player2_card.used_resolve = False
+                    if battle_config.is_co_op_mode or battle_config.is_duo_mode:
+                        battle_config.player3.used_focus = False
+                        battle_config.player3.used_resolve = False
                     
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|player_rematch":
                     new_info = await crown_utilities.updateRetry(battle_config.player1.did, "U","DEC")
@@ -508,6 +519,9 @@ class GameState(Extension):
             if battle_config.is_explore_game_mode:
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
+                if battle_config.is_rpg:
+                    await rpg_win(battle_config, battle_msg, private_channel, user1)
+                    return
                 await explore_win(battle_config, battle_msg, private_channel, user1)
 
             if battle_config.is_raid_game_mode:
@@ -521,6 +535,8 @@ class GameState(Extension):
 
             if battle_config.is_abyss_game_mode:
                 await abyss_win(battle_config, battle_msg, private_channel, user1)
+
+            
         else:
             return
 
@@ -531,6 +547,16 @@ async def explore_win(battle_config, battle_msg, private_channel, user1):
         await battle_msg.delete(delay=2)
         await asyncio.sleep(2)
         battle_msg = await private_channel.send(embed=explore_response)
+        return True
+    else:
+        return False
+    
+async def rpg_win(battle_config, battle_msg, private_channel, user1):
+    if battle_config.is_rpg:
+        rpg_response =  await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
+        await battle_msg.delete(delay=2)
+        await asyncio.sleep(2)
+        battle_msg = await private_channel.send(embed=rpg_response)
         return True
     else:
         return False

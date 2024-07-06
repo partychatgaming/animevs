@@ -47,9 +47,10 @@ __Universe Information__
 
 CARD_LEGEND = textwrap.dedent(f"""\
 __Card Basics__
+🎴 - **Card**
 ♾️ - **Card Universe**
 🀄 - **Card Tier** *1-10*
-🔱 - **Card Level**
+🔰/🔱/⚜️ - **Card Level**
 🥋 - **Card Class**
 ❤️ - **Card Health** (HLT)
 🌀 / ⚡ - **Card Stamina** (ST)

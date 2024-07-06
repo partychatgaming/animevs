@@ -129,7 +129,7 @@ class Battle:
         # Messages
         self.abyss_message = ""
 
-        # Abyss / Scenario / Explore Config
+        # Abyss / Scenario / Explore Config / RPG
         self.abyss_floor = ""
         self.abyss_card_to_earn = ""
         self.abyss_banned_card_tiers = ""
@@ -141,6 +141,11 @@ class Battle:
         self.scenario_has_drops = False
         self.explore_type = ""
         self.bounty = ""
+
+        #Rpg
+        self.rpg_map = []
+        self.rpg_config = None
+        self.rpg_msg = None
 
         # Boss Important Descriptions
         self._arena_boss_description = ""
@@ -368,6 +373,14 @@ class Battle:
             self.total_number_of_opponents = 1
             self.starting_match_title = f"✅ Explore Battle is about to begin!"
             self.battle_mode = "EXPLORE"
+
+        if self.mode == crown_utilities.RPG:
+            self.is_rpg = True
+            self.is_ai_opponent = True
+            self.can_auto_battle = True
+            self.battle_mode = "RPG"
+            self.starting_match_title = f"🗺️ Adventure Battle is about to begin!"
+         
 
         if self.difficulty == "EASY":
             self.is_easy_difficulty = True
@@ -648,6 +661,10 @@ class Battle:
                 summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
                 arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""}
 
+            if self.is_rpg:
+                summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}
+                arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON", 'ELEMENT': ""}
+
             self._ai_opponent_title_data = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
             self._ai_opponent_arm_data = db.get_random_arm(arm_query, self.player1)
             self._ai_summon = db.get_random_summon_name(summon_query)
@@ -677,6 +694,8 @@ class Battle:
                 'message': str(ex),
                 'trace': trace
             }))
+
+
 
 
     def set_corruption_config(self):
@@ -1489,6 +1508,10 @@ class Battle:
             close_message = "Tutorial Battle"
             picon = "🧠"
             f_message = f"🧠 | Tutorial will teach you about Game Mechanics and Card Abiltiies!"
+        if self.is_rpg:
+            close_message = "Adventure Battle"
+            picon = "🗺️"
+            f_message = f"🗺️ | Adventure Cut Short..."
             
             
         embedVar = Embed(title=f"{picon} {opponent_card.universe} {close_message} Ended!", description=textwrap.dedent(f"""
@@ -2074,7 +2097,6 @@ class Battle:
             if self.explore_type == "glory":
                 bounty_amount = self.bounty * 2
                 await crown_utilities.bless(bounty_amount, winner.did)
-                opponent_card.card_lvl = 100
                 winner.save_card(opponent_card)
                 drop_response = f"You won 🎴 {opponent_card.name}!"
             
@@ -2083,6 +2105,15 @@ class Battle:
                 await crown_utilities.bless(self.bounty, winner.did)
                 message = f"VICTORY\n🪙 {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self.turn_total} rounds."
             
+            if self.is_rpg:
+                bounty_amount = self.bounty * 2
+                await crown_utilities.bless(bounty_amount, winner.did)
+                winner.save_card(opponent_card, True)
+                self.rpg_config.card_drops.append(f"You won [{opponent_card.class_emoji}] **{opponent_card.name}**!")
+                drop_response = f"You won 🎴 {opponent_card.name}!"
+        
+                message = f"You Defeated {opponent_card.name}'s avatar\n🪙 {'{:,}'.format(bounty_amount)} Reward Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
+
             if winner.association != "PCG":
                 await crown_utilities.blessguild(250, winner.association)
 
@@ -2096,6 +2127,8 @@ class Battle:
                 await crown_utilities.curse(1000, winner.did)
             
             message = f"YOU LOSE!\nThe game lasted {self.turn_total} rounds."
+            if self.is_rpg:
+                message = f"You were defeated by {opponent_card.name}'s avatar\nThe game lasted {self.turn_total} rounds."
 
         embedVar = Embed(title=f"{message}", color=0x1abc9c)
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}")

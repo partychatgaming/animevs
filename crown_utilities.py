@@ -290,7 +290,7 @@ async def summonlevel(player, player_card):
                 update_query = {'$inc': {'PETS.$[type].' + "EXP": xp_inc}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"Level: {player_card.summon_lvl} | XP: +🔼{player_card.summon_exp}/{lvl_req}"
+                level_message = f"Level: {player_card.summon_lvl} | XP: +🆙{player_card.summon_exp}/{lvl_req}"
                 player_card.summon_exp = player_card.summon_exp + xp_inc
 
             # Level Up Code
@@ -298,7 +298,7 @@ async def summonlevel(player, player_card):
                 update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"Level: +🔼{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
+                level_message = f"Level: +🆙{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
         if player_card.summon_lvl % 10 == 0:
             if player_card.summon_bond < 10:
@@ -312,7 +312,7 @@ async def summonlevel(player, player_card):
                 update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                bond_message = f"Bond: +💓{player_card.summon_bond}"
+                bond_message = f"Bond: +🆙{player_card.summon_bond}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
                 
         
@@ -918,6 +918,8 @@ def get_exp_gain(player, mode, card, extra_exp):
             exp_gain = extra_exp
 
         if mode == "Purchase":
+            exp_gain = lvl_req + 100 + extra_exp
+        if mode == "RPG":
             exp_gain = lvl_req + 100 + extra_exp
 
         return exp_gain, lvl_req
@@ -2671,6 +2673,77 @@ crest_dict = { 'Unbound': '🉐',
               'Unbound': '🉐',
 }
 
+rpg_npc = { 
+    'Unbound': '🉐',
+    '<:mha:1088699056420835419>': 'My Hero Academia NPC',
+    '<:3873_league_of_legends_logo:1088701143921729567>': 'League Of Legends NPC',
+    '<:pokemon:1088966251541450752>': 'Pokemon NPC',
+    '<:naruto_103:1088703639973015573>': 'Naruto NPC',
+    '<:bleach:1088701142487285781>': 'Bleach NPC',
+    '<:kratos:1088701141753274408>': 'God Of War NPC',
+    '<:denji:1088701139886817311>': 'Chainsawman NPC',
+    '<:pngaaa:1085072765587030027>': 'One Punch Man NPC',
+    '<:Black_Clover:1088699058262114314>': 'Black Clover NPC',
+    '<:Demon_Slayer:1088702009709973565>': 'Demon Slayer NPC',
+    '<:AOT:1088702007717658674>': 'Attack On Titan NPC',
+    '<:7ds:1088702006581006377>': '7ds NPC',
+    '<:digimon_sparkle:1088702667703988316>': 'Digimon NPC',
+    '<:fate:1092176982277632032>': 'Fate NPC',
+    '<:jin:1090240014891352114>': 'Solo Leveling NPC',
+    '<:dark_souls_icon:1088702666688966726>': 'Souls NPC',
+    '<:dbz:1088698675338952774>': 'Dragon Ball Z NPC',
+    '<:death_note:1088702980682956800>': 'Death Note NPC',
+    ':u7a7a:': 'Crown Rift Awakening NPC',
+    ':sa:': 'Crown Rift Slayers NPC',
+    ':m:': 'Crown Rift Madness NPC',
+    '<:persona:1090238487028047913>': 'Persona NPC',
+    '<:yusuke:1088702663861993503>': 'YuYu Hakusho NPC',
+    '<:one_piece:1088702665581670451>': 'One Piece NPC',
+    '<:overlord:1091223691729305681>': 'Overlord NPC',
+    '<:FairyTail:1091223690445865062>': 'Fairy Tail NPC',
+    '<:slime:1091223689007210517>': 'Slime NPC',
+    '<:souleater:1257056890832031756>': 'Soul Eater NPC',
+    '<:killlakill:1214431376070410281>': 'Kill La Kill NPC',
+    '<:gurren:1214432235927773205>': 'Gurren Lagann NPC',
+    '<:jjk:1249819520650969138>': 'Jujutsu Kaisen NPC',
+    '<:reborn:1257057934634909817>': 'Katekyo Hitman Reborn NPC',
+    '<:fma:1256672084327792730>': 'Full Metal Alchemist NPC',
+}
+
+rpg_npc_emojis = [
+    '<:mha:1088699056420835419>',
+    '<:3873_league_of_legends_logo:1088701143921729567>',
+    '<:pokemon:1088966251541450752>',
+    '<:naruto_103:1088703639973015573>',
+    '<:bleach:1088701142487285781>',
+    '<:kratos:1088701141753274408>',
+    '<:denji:1088701139886817311>',
+    '<:pngaaa:1085072765587030027>',
+    '<:Black_Clover:1088699058262114314>',
+    '<:Demon_Slayer:1088702009709973565>',
+    '<:AOT:1088702007717658674>',
+    '<:7ds:1088702006581006377>',
+    '<:digimon_sparkle:1088702667703988316>',
+    '<:fate:1092176982277632032>',
+    '<:jin:1090240014891352114>',
+    '<:dark_souls_icon:1088702666688966726>',
+    '<:dbz:1088698675338952774>',
+    '<:death_note:1088702980682956800>',
+    '<:persona:1090238487028047913>',
+    '<:yusuke:1088702663861993503>',
+    '<:one_piece:1088702665581670451>',
+    '<:overlord:1091223691729305681>',
+    '<:FairyTail:1091223690445865062>',
+    '<:slime:1091223689007210517>',
+    '<:souleater:1257056890832031756>',
+    '<:killlakill:1214431376070410281>',
+    '<:gurren:1214432235927773205>',
+    '<:jjk:1249819520650969138>',
+    '<:reborn:1257057934634909817>',
+    '<:fma:1256672084327792730>',
+]
+
+
 scenario_level_config = 1499
 
 
@@ -2805,6 +2878,7 @@ ABYSS = "Abyss"
 SCENARIO = "Scenario"
 EXPLORE = "Explore"
 TUTORIAL = "Tutorial"
+RPG = "RPG"
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
 

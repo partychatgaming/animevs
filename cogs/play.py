@@ -378,12 +378,32 @@ class Play(Extension):
 
                         if game_over_check:
                             gameClock = get_battle_time(h_gametime, m_gametime, s_gametime)
+
                             await gs.pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock)
 
                             await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
+                            if battle_config.is_rpg:
+                                battle_config.rpg_config.battling = False
+                                battle_config.rpg_config.adventuring = True
+                                battle_config.rpg_config.encounter = False
+                                
+                                # Delete the previous RPG message
+                                await battle_config.rpg_config.rpg_msg.delete()
+                                
+                                # Allow some time to ensure the message is deleted
+                                await asyncio.sleep(1)
+                                
+                                # Resend a new RPG message
+                                await Play.rpg_commands(ctx, battle_config.rpg_config)
+                                
+                                # Get the updated RPG embed and components
+                                embedVar, components = await battle_config.rpg_config.rpg_player_move_embed(ctx, private_channel, battle_msg)
+                                
+                                # Send the new RPG message
+                                battle_config.rpg_config.rpg_msg = await ctx.send(embed=embedVar, components=components)
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
                     await timeout_handler(self, ctx, battle_msg, battle_config)
@@ -426,7 +446,7 @@ class Play(Extension):
             embedVar = Embed(title=f"Adventure is starting", color=0x2ECC71)
             rpg_msg = await private_channel.send(embed=embedVar)
             while rpg_config.adventuring:
-                if check_if_game_over(rpg_config):
+                if check_if_rpg_over(rpg_config):
                     game_over_check = True
                     break
                 configure_battle_log(rpg_config)
@@ -451,6 +471,7 @@ class Play(Extension):
                     await timeout_handler(self, ctx, rpg_msg, rpg_config)
         except asyncio.TimeoutError:
             loggy.critical(f"Battle timed out")
+            rpg_config.previous_moves.append("🏁 Adventure has ended!")
             rpg_config.player1.make_available()
             await timeout_handler(self, ctx, rpg_msg, rpg_config)
 
@@ -746,13 +767,13 @@ async def exit_battle_embed(battle_config, button_ctx, private_channel):
 
 def check_if_game_over(battle_config):
     #Checks for RPG Game over battle_config is cosidered as rpg_config
-    if battle_config.is_rpg:
-        rpg_config = battle_config
-        if rpg_config.player_health <= 0:
-            rpg_config.adventuring = False
-            return True
-        else:
-            return False
+    # if battle_config.is_rpg:
+    #     rpg_config = battle_config
+    #     if rpg_config.player_health <= 0:
+    #         rpg_config.adventuring = False
+    #         return True
+    #     else:
+    #         return False
     player3_card = battle_config.player3_card if battle_config.is_duo_mode or battle_config.is_co_op_mode else None
     if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
         battle_config.turn_total -= 1
@@ -762,6 +783,12 @@ def check_if_game_over(battle_config):
     
     return bool(game_over_check)
 
+def check_if_rpg_over(rpg_config):
+    if rpg_config.player_health <= 0:
+        rpg_config.adventuring = False
+        return True
+    else:
+        return False
 
 def configure_battle_log(battle_config):
     #Checks for RPG Game over battle_config is cosidered as rpg_config
@@ -847,7 +874,8 @@ async def start_to_focus(battle_msg, private_channel, battle_config):
         await turn_card.focusing(turn_title, opponent_title, opponent_card, battle_config)
         await asyncio.sleep(1)
         #if not turn_card.used_blitz:
-        await tutorial_focusing(turn_card, battle_config, private_channel)
+        if not turn_card.used_blitz:
+            await tutorial_focusing(turn_card, battle_config, private_channel)
         await boss_focusing(battle_config, private_channel)
         focusing = True
 

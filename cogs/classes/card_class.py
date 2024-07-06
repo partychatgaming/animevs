@@ -1186,6 +1186,7 @@ class Card:
 
         mode_selector_randomizer = random.randint(0, 200)
 
+
         if mode_selector_randomizer >= 100:
             selected_mode = "Easy"
             self.approach_message = "💡 A Basic "
@@ -1198,14 +1199,14 @@ class Card:
             self.approach_message = "👑 A Formidable "
             self._explore_cardtitle = {'TITLE': 'Universe Title'}
             self.card_lvl = random.randint(50, 200)
-            self.bounty = self.bounty * 5
+            self.bounty = self.bounty * 2
 
         if mode_selector_randomizer <= 69 and mode_selector_randomizer >= 20:
             selected_mode = "Hard"
             self.approach_message = "🔥 An Empowered "
             self._explore_cardtitle = {'TITLE': 'Dungeon Title'}
             self.card_lvl = random.randint(500, 999)
-            self.bounty = self.bounty * 15
+            self.bounty = self.bounty * 5
 
 
         if mode_selector_randomizer <= 19:
@@ -1213,21 +1214,27 @@ class Card:
             self.approach_message = "👹 An Impossible "
             self._explore_cardtitle = {'TITLE': 'Dungeon Title'}
             self.card_lvl = random.randint(850, 1500)
-            self.bounty = self.bounty * 150
+            self.bounty = self.bounty * 10
 
         if self.tier == 7:
             self.card_lvl = random.randint(1000, 1800)
         if self.tier == 6:
             self.card_lvl = random.randint(900, 1500)
 
+        if battle_config.is_rpg:
+            selected_mode = "RPG"
+            self.approach_message = "Encountering the Avatar of "
+            self._explore_cardtitle = {'TITLE': 'Universe Title'}
+            self.card_lvl = random.randint(50, 200)
+            self.bounty = self.bounty * 2
 
         if battle_config.is_hard_difficulty:
             self.attack = self.attack + (100 *self.tier)
             self.defense = self.defense + (100 * self.tier)
             self.max_health = self.max_health + (100 * self.tier)
             self.health = self.health + (500 * self.tier)
-            random_mod = random.randint(0,1500000)
-            self.bounty = self.bounty + (10000000 * self.tier) + random_mod
+            random_mod = random.randint(0,1000000)
+            self.bounty = self.bounty + (100000 * self.tier) + random_mod
 
         if self.bounty >= 150000:
             bounty_icon = "💸"
@@ -1247,7 +1254,8 @@ class Card:
 
         self.bounty_message = f"{bounty_icon} {'{:,}'.format(self.bounty)}"
         self.battle_message = "\n:crown: | **Glory**: Earn the Card & 2x Bounty, If you Lose, You lose gold!\n🪙 | **Gold**: Earn gold only!"
-
+        if battle_config.is_rpg:
+            self.battle_message = "\n🪙 | Battle to earn this card!"
         self.set_card_level_buffs(None)
 
 

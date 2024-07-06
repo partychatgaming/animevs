@@ -372,7 +372,7 @@ class Player:
             return True
 
 
-    def save_card(self, card):
+    def save_card(self, card, rpg_mode =False):
         try:
             if len(self.cards) >= 80:
                 return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
@@ -383,23 +383,41 @@ class Player:
             db.updateUserNoFilter(self.user_query, {'$push': {'CARDS': card.name}})
 
             # Second update: Add card details to CARD_LEVELS array
-            update_query = {
-                '$addToSet': {
-                    'CARD_LEVELS': {
-                        'CARD': card.name,
-                        'LVL': 1,
-                        'TIER': card.tier,
-                        'EXP': 0,
-                        'ATK': 0,
-                        'DEF': 0,
-                        'AP': 0,
-                        'HLT': 0,
-                        'CLASS': card.card_class,
-                        'ID': str(code)  # Convert UUID to string
+            if rpg_mode:
+                update_query = {
+                    '$addToSet': {
+                        'CARD_LEVELS': {
+                            'CARD': card.name,
+                            'LVL': 1,
+                            'TIER': card.tier,
+                            'EXP': 0,
+                            'ATK': 0,
+                            'DEF': 0,
+                            'AP': 0,
+                            'HLT': 0,
+                            'CLASS': card.card_class,
+                            'ID': str(code)  # Convert UUID to string
+                        }
                     }
-                },
-                '$set': {'CARD': card.name}
-            }
+                }
+            else:
+                update_query = {
+                    '$addToSet': {
+                        'CARD_LEVELS': {
+                            'CARD': card.name,
+                            'LVL': 1,
+                            'TIER': card.tier,
+                            'EXP': 0,
+                            'ATK': 0,
+                            'DEF': 0,
+                            'AP': 0,
+                            'HLT': 0,
+                            'CLASS': card.card_class,
+                            'ID': str(code)  # Convert UUID to string
+                        }
+                    },
+                    '$set': {'CARD': card.name}
+                }
             
             result = db.updateUserNoFilter(self.user_query, update_query)
 
