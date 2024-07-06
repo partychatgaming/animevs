@@ -520,6 +520,7 @@ class GameState(Extension):
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                 if battle_config.is_rpg:
+                    self.rpg_config.combat_victory = True
                     await rpg_win(battle_config, battle_msg, private_channel, user1)
                     return
                 await explore_win(battle_config, battle_msg, private_channel, user1)

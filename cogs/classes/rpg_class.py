@@ -29,6 +29,7 @@ class RPG:
         self.battling = False
         self.moving = False
         self._rpg_msg = None
+        self.combat_victory = False
 
         self.above_position = None
         self.below_position = None
@@ -131,8 +132,10 @@ class RPG:
         self.mountains.extend(self.climable_mountains)
         self.mountains.extend(self.looted_mountain)
 
-        self.trees = ["🌲", "🌳", "🎄"]
+        self.fruit_trees = ["🎄"]
         self.looted_trees = ["🌴"]
+        self.trees = ["🌲", "🌳"]
+        self.trees.extend(self.fruit_trees)
         self.trees.extend(self.looted_trees)
 
         self.moving_water = ["🌊"]
@@ -162,8 +165,8 @@ class RPG:
         self.drops.extend(self.rare_drops)  
         self.drops.extend(self.legendary_drops)
 
+        self.combat_points = ["🏴‍☠️","⚔️"]
         self.loot_rolls = ["🎲","🎯","🎰"]
-
         self.skills = ['🏊','🪜','🪓','🎣','⛏️','🔨','⚒️']
         self.remains = ["💀","🦴", "☠️"]
         self.food = ["🥩", "🍖", "🥕"]
@@ -194,10 +197,15 @@ class RPG:
         self.warp_points.extend(self.remains)
         self.warp_points.extend(self.universe_npc_token)
         self.warp_points.extend(self.civ_tokens)
+        self.warp_points.extend(self.combat_points)
+        self.warp_points.extend(self.wildlife)
+        self.warp_points.extend(self.resources)
+        self.warp_points.extend(self.bridges)
+
+        self.active_warp_points = []
+        self.warp_point_position = 0
 
 
-
-        self.combat_points = ["🏴‍☠️","⚔️"]
 
         #Merchants sell arms
         #Wildlife drop food
@@ -426,11 +434,11 @@ class RPG:
                 npc = self.standing_on
                 await self.rpg_action_handler(ctx, private_channel, self.player_position, npc, (x, y))
             self.moving = False
-        print("Player moved to:", new_x, new_y, "There is a", self.map[new_x][new_y], "there.")
-        print("Starting position:", self.player_position)
 
         # Update map with new player position
         if player_moved:
+            print("Player moved to:", new_x, new_y, "There is a", self.map[new_x][new_y], "there.")
+            print("Starting position:", self.player_position)
             if new_x < 0 or new_x >= len(self.map) or new_y < 0 or new_y >= len(self.map[0]):
                 self.previous_moves.append(f"(🚫) You can't leave this area yet!")
                 self.player_position = (x, y)  # Keep the player in the same position
@@ -528,10 +536,13 @@ class RPG:
                 await self.get_player_sorroundings()
         
         if player_warped:
-            self.previous_moves.append(f"(🌀) You warped to a new location!")
-            await self.handle_warp_movement(ctx, direction)
+            # self.previous_moves.append(f"(🌀) You warped to a new location!")
+            await self.handle_warp_movement(ctx, int(direction)-5)
             #self.player_position = (new_x, new_y)
-            self.get_player_sorroundings()
+            await self.get_player_sorroundings()
+            self.get_relative_direction(self.warp_point_position, self.player_position)
+            await self.rpg_action_handler(ctx, ctx.channel, self.player_position, self.warp_target_type, self.warp_point_position)
+
 
 
     async def get_player_sorroundings(self, new_map = False):
@@ -662,6 +673,8 @@ class RPG:
                             custom_id=f"{self._uuid}|{i+5}"
                         )
                     )
+                    self.active_warp_points.append(warp_points)
+
         if self.adventuring:
             self.movement_buttons = movement_buttons
             self.action_buttons = action_buttons
@@ -671,34 +684,21 @@ class RPG:
         else:
             return
         
-    
-    def calculate_distance(self, point1, point2): #Warp Distance
-        return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
-
-    def find_closest_warp_points(self):
-        current_position = self.player_position
-        distances = []
-
-        for y, row in enumerate(self.map):
-            for x, cell in enumerate(row):
-                if cell in self.warp_points:
-                    distance = self.calculate_distance(current_position, (y, x))
-                    distances.append({'type': cell, 'position': (y, x), 'distance': distance})
-        
-        distances.sort(key=lambda x: x['distance'])
-        return distances[:5]  # Get closest 4 warp points
-    
-    def get_closest_warp_points(self, current_position, num_points=4):
+      
+    def get_closest_warp_points(self, current_position, num_points=5):
         warp_distances = []
         cx, cy = current_position
+        index = 5
         for warp in self.warp_points:
             for i in range(len(self.map)):
                 for j in range(len(self.map[i])):
                     if self.map[i][j] == warp:
                         distance = abs(cx - i) + abs(cy - j)
                         warp_distances.append({'position': (i, j), 'type': warp, 'distance': distance})
+                        index+= 1
         warp_distances.sort(key=lambda x: x['distance'])
         return warp_distances[:num_points]
+    
     
     def get_closest_passable_space(self, position):
         x, y = position
@@ -709,16 +709,36 @@ class RPG:
                 return (nx, ny)
         return position  # Return the original position if no passable space found
 
+    
     async def handle_warp_movement(self, ctx, warp_index):
-        print(warp_index)
         warp_target = self.closest_warp_points[int(warp_index)]
-        new_position = self.get_closest_passable_space(warp_target['position'])
+        warp_point_position = warp_target['position']
+        self.warp_point_position = warp_point_position
+        new_position = self.get_closest_passable_space(warp_point_position)
+        #Check if new position is a valid position , within range and on a passable square
         self.map[self.player_position[0]][self.player_position[1]] = self.standing_on
         self.standing_on = self.map[new_position[0]][new_position[1]]
         self.map[new_position[0]][new_position[1]] = self.player_token
         self.player_position = new_position
-        self.previous_moves.append(f"Warped to {warp_target['type']} at {new_position[0]}, {new_position[1]}")
+        self.warp_target_type = warp_target['type']
+        self.previous_moves.append(f"Warped to the {warp_target['type']}{get_emoji_label(warp_target['type'])}!")
+        
 
+    def get_relative_direction(self, old_position, new_position):
+        old_x, old_y = old_position
+        new_x, new_y = new_position
+        if new_x < old_x:
+            return "u"  # up
+        elif new_x > old_x:
+            return "d"  # down
+        elif new_y < old_y:
+            return "l"  # left
+        elif new_y > old_y:
+            return "r"  # right
+        else:
+            return "s"  # standing on the same position
+    
+    
     async def rpg_player_move_embed(self, ctx, private_channel, rpg_msg):
         """
         Displays the player move embed.
@@ -962,7 +982,7 @@ class RPG:
                     self.previous_moves.append(f"(🍖) You found a roast!")
                 if npc == "🥕":
                     self.previous_moves.append(f"(🥕) You found a carrot!")
-                elif npc in self.keys:
+                elif npc in self.inventory:
                     self.previous_moves.append(f"({npc}) added to inventory")
                     food_found = False
                     for item in self.player_inventory:
@@ -1079,17 +1099,19 @@ class RPG:
                 self.previous_moves.append(f"({npc}) You can't climb the mountain...if only you could fly...")
             elif npc in self.resources:
                 miner_bonus = 0
-                self.previous_moves.append(f"({npc}) You found Gemstone!")
                 #get different amounts for diffrent resources
+                miner_bonus_message = ""
                 if self.pickaxe:
                     if self.miner:
                         miner_bonus = random.randint(1000, 5000)
+                        miner_bonus_message = f"[⚒️+{miner_bonus} Gems!]"
                     gems_gained = random.randint(100,1000) + miner_bonus
                     self.player_gems += gems_gained
-                    self.previous_moves.append(f"({npc}) You mined the stone! [⚒️+{miner_bonus}]")
+                    self.previous_moves.append(f"({npc}) You found Gemstone!")
+                    self.previous_moves.append(f"(⛏️) You mined 💎{gems_gained} Gems! [{miner_bonus_message}]")
                     if not self.miner:
                         self.miner = True
-                        self.previous_moves.append(f"({npc}) You gained the Miner Skill! [⛏️]")
+                        self.previous_moves.append(f"(⛏️) You gained the Miner Skill! [⛏️]")
                     self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
                 else:
                     self.previous_moves.append(f"({npc}) Inspecting the rock you found a ⛏️Pickaxe!")
@@ -1163,6 +1185,10 @@ class RPG:
             #After combat turn into remains based on combat type for additional loot rolls
             self.previous_moves.append(f"(⚔️) Starting Combat Encounter!")
             await self.create_rpg_battle(ctx, private_channel)
+            if npc == "⚔️" and self.combat_victory:
+                self.previous_moves.append(f"(⚔️) You defeated the enemy!")
+                self.map[npc_position[0]][npc_position[1]] = f"💀"
+                self.combat_victory = False
 
         await self.get_player_sorroundings()
     
@@ -1175,6 +1201,7 @@ class RPG:
         battle = Battle("RPG", self._player)
         battle.rpg_map = self.display_map()
         battle.rpg_config = self
+        await self.rpg_player_move_embed(ctx, private_channel, self._rpg_msg)
         battle.rpg_msg = self._rpg_msg
         all_available_drop_cards = db.querySpecificDropCards(self.universe)
         cards = [x for x in all_available_drop_cards]
@@ -1209,7 +1236,6 @@ class RPG:
         #setchannel = interactions.utils.get(channel_list, name=server_channel)
         await private_channel.send(f"🌌{ctx.author.mention}") 
         msg = await private_channel.send(embed=embedVar, file=card_file, components=[encounter_buttons_action_row])     
-        print("Message sent")
 
         def check(component: Button) -> bool:
             return component.ctx.author == ctx.author
@@ -1223,7 +1249,6 @@ class RPG:
 
             if button_ctx.ctx.custom_id == "talk":
                 #if talk works reward else batttle
-                # await BattleConfig.create_rpg_battle(self, ctx, battle)
                 embedVar = Embed(title=f"**{selected_card.name}** Refuses to talk", description="Prepare for Battle!", color=0xf1c40f)
                 await private_channel.send(embed=embedVar)
                 await BattleConfig.create_rpg_battle(self, ctx, battle)
@@ -1328,7 +1353,8 @@ class RPG:
 
 
         map_embed = Embed(title=f"🗺️ Adventure Map", description=f"**🌎** | *{self.map_name}*\n**🗺️** | *{self.map_area}*\n{self.get_map_message()}", color=0xFFD700)
-        map_embed.set_footer(text="🎉 Complete the adventure boss for huge rewards!")
+        map_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+
         embed_list = [lootEmbed,embedVar,buildEmbed,map_embed]
         paginator = Paginator.create_from_embeds(self.bot, *embed_list)
         paginator.show_select_menu = True
@@ -1411,7 +1437,7 @@ emoji_labels = {
             "🎒": "Legendary Item", "🦾": "Common Drop", "🆙": "Common Drop", "🎴": "Rare Drop", "🧬": "Rare Drop", 
             "🎗️": "Legendary Drop", "🎲": "Loot Roll", "🎯": "Loot Roll", "🎰": "Loot Roll", "🏊": "Skill", 
             "🪜": "Skill", "🪓": "Skill", "🎣": "Skill", "💀": "Remains", "🦴": "Remains", "☠️": "Remains", 
-            "🥩": "Food", "🍖": "Food", "🥕": "Food"
+            "🥩": "Food", "🍖": "Food", "🥕": "Food", "⚔️": "Combat Encounter", "🏴‍☠️": "Combat Encounter", '🧱': "Ore",'🪨': "Rock"
         }
 
 def get_emoji_label(emoji):

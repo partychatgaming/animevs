@@ -404,6 +404,7 @@ class Play(Extension):
                                 
                                 # Send the new RPG message
                                 battle_config.rpg_config.rpg_msg = await ctx.send(embed=embedVar, components=components)
+                                
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
                     await timeout_handler(self, ctx, battle_msg, battle_config)
