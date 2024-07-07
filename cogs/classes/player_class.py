@@ -374,7 +374,7 @@ class Player:
 
     def save_card(self, card, rpg_mode =False):
         try:
-            if len(self.cards) >= 80:
+            if len(self.cards) >= 80 and not rpg_mode:
                 return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
 
             code = random.randint(1000000, 9999999)
@@ -384,12 +384,25 @@ class Player:
 
             # Second update: Add card details to CARD_LEVELS array
             if rpg_mode:
+                if len(self.cards) >= 80:
+                    return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
+                lower = 100
+                upper = 200
+                tier = card.tier
+                if self.difficulty == "HARD":
+                    lowewr = 250
+                    upper = 500
+                    tier = card.tier + 1
+                if self.difficulty == "EASY":
+                    lowewr = 1
+                    upper = 10
+                random_lvl = random.randint(lower, upper)
                 update_query = {
                     '$addToSet': {
                         'CARD_LEVELS': {
                             'CARD': card.name,
-                            'LVL': 1,
-                            'TIER': card.tier,
+                            'LVL': random_lvl,
+                            'TIER': tier,
                             'EXP': 0,
                             'ATK': 0,
                             'DEF': 0,
@@ -450,6 +463,7 @@ class Player:
             custom_logging.debug(ex)
             return False
 
+    
     def remove_card(self, card):
         try:
             if card.name in self.cards:
@@ -480,7 +494,7 @@ class Player:
             return False
 
 
-    def save_title(self, universe):
+    def save_title(self, universe, rpg_title_drop =None):
         titles = [x for x in db.queryAllTitles() if x['UNIVERSE'] == universe and x['TITLE'] not in self.titles]
         stats = db.query_stats_by_player(self.did)
         message = None
@@ -502,7 +516,20 @@ class Player:
                     message += boss_title_unlock_message
                 if elemental_damage_unlock_message:
                     message += elemental_damage_unlock_message
+            if title['TITLE'] == rpg_title_drop and rpg_title_drop is not None:
+                rpg_title_unlock_message = self.adventure_title_unlock_check(title, "RPG")
+                if rpg_title_unlock_message:
+                    message += rpg_title_unlock_message
+                return message, True
 
+        return message
+    
+
+    def adventure_title_unlock_check(self, title, mode):
+        if mode == "RPG":
+            update_query = {'$addToSet': {'TITLES': title['TITLE']}}
+            response = db.updateUserNoFilter(self.user_query, update_query)
+            message = f"🎗️ {title['TITLE']} Unlocked!\n"
         return message
 
 
@@ -610,7 +637,14 @@ class Player:
         return message
     
 
-    def save_arm(self, arm):
+    def save_arm(self, arm, rpg_mode =False):
+        if rpg_mode:
+            if len(self.arms) >= 80:
+                return "You have reached the maximum amount of arms in your inventory. Please remove an arm to add a new one"
+            random_number = random.randint(5, 100)
+            update_query = {'$addToSet': {'ARMS': {"ARM": arm, "DUR": random_number}}}
+            response = db.updateUserNoFilter(self.user_query, update_query)
+            return random_number
         for a in self.arms:
             if arm.name == a['ARM']:
                 return False
@@ -629,7 +663,7 @@ class Player:
         #         response = db.updateUserNoFilter(self.user_query, update_query)
         # else:
         if arm.durability == 0:
-            arm.durability = 5
+            arm.durability = 25
         update_query = {'$addToSet': {'ARMS': {"ARM": arm.name, "DUR": arm.durability}}}
         response = db.updateUserNoFilter(self.user_query, update_query)
     
@@ -652,7 +686,7 @@ class Player:
             return False
 
 
-    def save_summon(self, summon):
+    def save_summon(self, summon, rpg_mode =False):
         for s in self.summons:
             if summon.name == s['NAME']:
                 return False
@@ -660,8 +694,9 @@ class Player:
             if summon.name == s['NAME']:
                 return False
             
-        if len(self.summons) >= 80:
+        if len(self.summons) >= 80 and not rpg_mode:
             return "You have reached the maximum amount of summons in your inventory. Please remove a summon to add a new one."
+
 
         update_query = {'$addToSet': {'PETS': {"NAME": summon.name, "LVL": summon.level, "EXP": summon.exp, summon.ability: summon.passive_value, "TYPE": summon.ability_type, "BOND": summon.bond, "BONDEXP": summon.bond_exp, "PATH": summon.path}}}
         response = db.updateUserNoFilter(self.user_query, update_query)

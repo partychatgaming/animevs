@@ -102,11 +102,12 @@ class Play(Extension):
                     custom_id = button_ctx.ctx.custom_id
                     if custom_id == f"{battle_config._uuid}|quit_game":
                         if battle_config.is_rpg:
-                            battle_config.rpg_config.battling = False
-                            battle_config.rpg_config.adventuring = True
-                            battle_config.rpg_config.encounter = False
+                            self.battling = False
+                            self.adventuring = True
+                            self.encounter = False
                             await battle_start_msg.delete()
-                            embedVar = Embed(title=f"Resuming Adventure...", color=0x2ECC71)
+                            # embedVar = Embed(title=f"Resuming Adventure...", color=0x2ECC71)
+                            self.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
                             rpg_msg = await private_channel.send(embed=embedVar)
                             return
                         else:
@@ -132,14 +133,15 @@ class Play(Extension):
                             battle_msg = await private_channel.send(embed=embedVar)
                         else:
                             embedVar = Embed(title=f"Battle is starting", color=0x2ECC71)
-                            # if battle_config.is_rpg:
-                            #     await battle_start_msg.delete()
-                            #     await asyncio.sleep(2)
+                            if battle_config.is_rpg:
+                                await battle_start_msg.delete()
+                                await asyncio.sleep(2)
                             battle_msg = await private_channel.send(embed=embedVar)
 
                         tactics.tactics_set_base_stats(battle_config.player2_card)
                         
                         game_over_check = False
+                        
                         while not game_over_check:
                             
                             if check_if_game_over(battle_config):
@@ -412,10 +414,10 @@ class Play(Extension):
                                 #await Play.rpg_commands(ctx, battle_config.rpg_config)
                                 
                                 # Get the updated RPG embed and components
-                                embedVar, components = await battle_config.rpg_config.rpg_player_move_embed(ctx, private_channel, battle_msg)
+                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel, battle_msg)
                                 
                                 # Send the new RPG message
-                                battle_config.rpg_config.rpg_msg = await ctx.send(embed=embedVar, components=components)
+                                self.rpg_msg = await ctx.send(embed=embedVar, components=components)
                                 
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
@@ -463,6 +465,7 @@ class Play(Extension):
                     game_over_check = True
                     break
                 configure_battle_log(rpg_config)
+                rpg_config.set_rpg_options()
 
                 rpg_msg, components = await rpg_config.rpg_player_move_embed(ctx, private_channel, rpg_msg)
 
@@ -470,8 +473,11 @@ class Play(Extension):
                     return component.ctx.author == user
 
                 try:
-                    button_ctx = await self.bot.wait_for_component(components=components, timeout=300, check=check)
-                    await button_ctx.ctx.defer(edit_origin=True)
+                    if components != []:
+                        # print("Components is None")
+                        # components = ActionRow(*rpg_config.movement_buttons)
+                        button_ctx = await self.bot.wait_for_component(components=components, timeout=300, check=check)
+                        await button_ctx.ctx.defer(edit_origin=True)
                     # save_and_end = await player_save_and_end_game(self, ctx, private_channel, rpg_msg, battle_config, button_ctx)
                     # if save_and_end:
                     #     battle_config.player1.make_available()
@@ -661,7 +667,7 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
     if battle_config.is_rpg:
-        await ctx.send(embed = battle_config.close_pve_embed(battle_config.player1_card,battle_config.player2_card))
+        await ctx.send(embed = battle_config.close_rpg_embed(battle_config.player1_card,battle_config.player2_card))
         return
     if not any((battle_config.is_abyss_game_mode, 
                 battle_config.is_scenario_game_mode, 

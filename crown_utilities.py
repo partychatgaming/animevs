@@ -788,11 +788,10 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
 async def cardlevel(user, mode: str, extra_exp = 0):
     try:
         if mode == "RPG":
-            player = create_player_from_data(db.queryUser({'DID': user.player_name}))
-            card = create_card_from_data(db.queryCard({'NAME': user.player1_card_name}))
+            player = create_player_from_data(db.queryUser({'DID': user.did}))
         else:
             player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
-            card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
+        card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
         # guild_buff = await guild_buff_update_function(player.guild.lower())
         # arm = create_arm_from_data(db.queryArm({'ARM': player.equipped_arm}))
         # title = create_title_from_data(db.queryTitle({'TITLE': player.equipped_title}))

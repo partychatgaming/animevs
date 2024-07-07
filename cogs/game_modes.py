@@ -217,99 +217,99 @@ class GameModes(Extension):
             custom_logging.debug(ex)
 
 
-    @slash_command(description="Duo pve to earn cards, accessories, gold, gems, and more with your AI companion",
-                       options=[
-                           SlashCommandOption(
-                               name="deck",
-                               description="AI Preset (this is from your preset list)",
-                               type=OptionType.STRING,
-                               required=True,
-                               choices=[
-                                   SlashCommandChoice(
-                                       name="Preset 1",
-                                       value="1"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="Preset 2",
-                                       value="2"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="Preset 3",
-                                       value="3"
-                                   ),SlashCommandChoice(
-                                       name="Preset 4",
-                                       value="4"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="Preset 5",
-                                       value="5"
-                                   )
-                               ]
-                           ),
-                           SlashCommandOption(
-                               name="mode",
-                               description="Difficulty Level",
-                               type=OptionType.STRING,
-                               required=True,
-                               choices=[
-                                   SlashCommandChoice(
-                                       name="⚔️ Duo Tales (Normal)",
-                                       value="DuoTales"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="👺 Duo Dungeon (Hard)",
-                                       value="DDungeon"
-                                   )
-                               ]
-                           )
-                       ]
-        )
-    async def duo(self, ctx: InteractionContext, deck: int, mode: str):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
+    # @slash_command(description="Duo pve to earn cards, accessories, gold, gems, and more with your AI companion",
+    #                    options=[
+    #                        SlashCommandOption(
+    #                            name="deck",
+    #                            description="AI Preset (this is from your preset list)",
+    #                            type=OptionType.STRING,
+    #                            required=True,
+    #                            choices=[
+    #                                SlashCommandChoice(
+    #                                    name="Preset 1",
+    #                                    value="1"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="Preset 2",
+    #                                    value="2"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="Preset 3",
+    #                                    value="3"
+    #                                ),SlashCommandChoice(
+    #                                    name="Preset 4",
+    #                                    value="4"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="Preset 5",
+    #                                    value="5"
+    #                                )
+    #                            ]
+    #                        ),
+    #                        SlashCommandOption(
+    #                            name="mode",
+    #                            description="Difficulty Level",
+    #                            type=OptionType.STRING,
+    #                            required=True,
+    #                            choices=[
+    #                                SlashCommandChoice(
+    #                                    name="⚔️ Duo Tales (Normal)",
+    #                                    value="DuoTales"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="👺 Duo Dungeon (Hard)",
+    #                                    value="DDungeon"
+    #                                )
+    #                            ]
+    #                        )
+    #                    ]
+    #     )
+    # async def duo(self, ctx: InteractionContext, deck: int, mode: str):
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
 
-        try:
-            # 
-            deck = int(deck)
-            if deck != 1 and deck != 2 and deck != 3 and deck != 4 and deck != 5:
-                await ctx.send("Not a valid Deck Option")
-                return
-            deckNumber = deck - 1
+    #     try:
+    #         # 
+    #         deck = int(deck)
+    #         if deck != 1 and deck != 2 and deck != 3 and deck != 4 and deck != 5:
+    #             await ctx.send("Not a valid Deck Option")
+    #             return
+    #         deckNumber = deck - 1
 
-            player = db.queryUser({'DID': str(ctx.author.id)})
+    #         player = db.queryUser({'DID': str(ctx.author.id)})
             
-            if not player['U_PRESET'] and int(deck) > 3:
-                await ctx.send("🪙 Purchase additional **/preset** slots at the **/blacksmith**")
-                return
+    #         if not player['U_PRESET'] and int(deck) > 3:
+    #             await ctx.send("🪙 Purchase additional **/preset** slots at the **/blacksmith**")
+    #             return
 
-            p = crown_utilities.create_player_from_data(player)
+    #         p = crown_utilities.create_player_from_data(player)
 
 
-            if not p.is_available:
-                embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
+    #         if not p.is_available:
+    #             embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
+    #             await ctx.send(embed=embed)
+    #             return
 
-            p3 = crown_utilities.create_player_from_data(player)
+    #         p3 = crown_utilities.create_player_from_data(player)
 
-            p3.set_deck_config(deckNumber)
+    #         p3.set_deck_config(deckNumber)
 
-            if p.get_locked_feature(mode):
-                await ctx.send(p._locked_feature_message)
-                return
+    #         if p.get_locked_feature(mode):
+    #             await ctx.send(p._locked_feature_message)
+    #             return
 
-            universe_selection = await select_universe(self, ctx, p, mode, None)
-            if not universe_selection:
-                return
-            battle = Battle(mode, p)
+    #         universe_selection = await select_universe(self, ctx, p, mode, None)
+    #         if not universe_selection:
+    #             return
+    #         battle = Battle(mode, p)
 
-            battle.set_universe_selection_config(universe_selection)
-            battle.is_duo_mode = True
+    #         battle.set_universe_selection_config(universe_selection)
+    #         battle.is_duo_mode = True
                 
-            await battle_commands(self, ctx, battle, p, None, player2=None, player3=p3)
-        except Exception as ex:
-            custom_logging.debug(ex)
+    #         await battle_commands(self, ctx, battle, p, None, player2=None, player3=p3)
+    #     except Exception as ex:
+    #         custom_logging.debug(ex)
 
 
     # @slash_command(description="Co-op pve to earn cards, accessories, gold, gems, and more with friends",

@@ -452,8 +452,6 @@ class Battle:
         self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
         if self.is_tutorial_game_mode:
             self.starting_match_title = "✅ Click Start Match to Begin the Tutorial!"
-        if self.is_rpg:
-                self.starting_match_title = f"🗺️ Start Adventure Battle"
         return  self.starting_match_title
 
     def set_abyss_config(self, player):
