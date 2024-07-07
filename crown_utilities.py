@@ -2762,7 +2762,7 @@ LOW_TIER_CARDS = [1, 2, 3]
 MID_TIER_CARDS = [4, 5, 6, 7]
 HIGH_TIER_CARDS = [8, 9, 10]
 
-NOT_SAVE_MODES = ['Boss', 'CBoss', 'PVP', 'Abyss', 'SCENARIO', 'EXPLORE', 'RAID']
+NOT_SAVE_MODES = ['Boss', 'CBoss', 'PVP', 'Abyss', 'SCENARIO', 'EXPLORE', 'RAID', 'RPG']
 BATTLE_OPTIONS = [1, 2, 3, 4, 5, 0]
 
 tactics = [

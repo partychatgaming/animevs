@@ -418,6 +418,9 @@ class GameModes(Extension):
             SlashCommandChoice(
                 name="⚡Randomize",
                 value="Random"
+            ),SlashCommandChoice(
+                name="🗺️ Adventure Mode",
+                value="RPG"
             ),
             SlashCommandChoice(
                 name="⚔️ Tales Run",
@@ -434,9 +437,6 @@ class GameModes(Extension):
             SlashCommandChoice(
                 name="💀 Raid Battle",
                 value="Raid_Scenario"
-            ),SlashCommandChoice(
-                name="👹 Adventure Mode",
-                value="rpg"
             ),
         ]
     )
@@ -447,7 +447,7 @@ class GameModes(Extension):
         autocomplete=True
     )
     async def play(self, ctx: InteractionContext, mode: str, universe: str = ""):
-        await ctx.defer()
+        # await ctx.defer()
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
@@ -493,6 +493,7 @@ class GameModes(Extension):
             if mode == crown_utilities.RPG:
                 await self.rpg(ctx)
                 return
+            
             if mode == crown_utilities.TUTORIAL:
                 await tutorial(self, ctx, player, mode)
                 return

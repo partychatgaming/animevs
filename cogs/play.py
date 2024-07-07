@@ -101,10 +101,19 @@ class Play(Extension):
 
                     custom_id = button_ctx.ctx.custom_id
                     if custom_id == f"{battle_config._uuid}|quit_game":
-                        battle_config.player1.make_available()
-                        await battle_start_msg.delete()
-                        await exit_battle_embed(battle_config, button_ctx, private_channel)
-                        return
+                        if battle_config.is_rpg:
+                            battle_config.rpg_config.battling = False
+                            battle_config.rpg_config.adventuring = True
+                            battle_config.rpg_config.encounter = False
+                            await battle_start_msg.delete()
+                            embedVar = Embed(title=f"Resuming Adventure...", color=0x2ECC71)
+                            rpg_msg = await private_channel.send(embed=embedVar)
+                            return
+                        else:
+                            battle_config.player1.make_available()
+                            await battle_start_msg.delete()
+                            await exit_battle_embed(battle_config, button_ctx, private_channel)
+                            return
 
                     if custom_id == f"{battle_config._uuid}|save_game":
                         await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
@@ -123,6 +132,9 @@ class Play(Extension):
                             battle_msg = await private_channel.send(embed=embedVar)
                         else:
                             embedVar = Embed(title=f"Battle is starting", color=0x2ECC71)
+                            # if battle_config.is_rpg:
+                            #     await battle_start_msg.delete()
+                            #     await asyncio.sleep(2)
                             battle_msg = await private_channel.send(embed=embedVar)
 
                         tactics.tactics_set_base_stats(battle_config.player2_card)
@@ -391,13 +403,13 @@ class Play(Extension):
                                 battle_config.rpg_config.encounter = False
                                 
                                 # Delete the previous RPG message
-                                await battle_config.rpg_config.rpg_msg.delete()
+                                #await battle_config.rpg_config.rpg_msg.delete()
                                 
                                 # Allow some time to ensure the message is deleted
                                 await asyncio.sleep(1)
                                 
                                 # Resend a new RPG message
-                                await Play.rpg_commands(ctx, battle_config.rpg_config)
+                                #await Play.rpg_commands(ctx, battle_config.rpg_config)
                                 
                                 # Get the updated RPG embed and components
                                 embedVar, components = await battle_config.rpg_config.rpg_player_move_embed(ctx, private_channel, battle_msg)
@@ -593,7 +605,7 @@ def config_battle_starting_buttons(battle_config):
 
         )
     
-    if not battle_config.is_tutorial_game_mode and battle_config.save_match_turned_on():
+    if not battle_config.is_tutorial_game_mode and battle_config.save_match_turned_on() and not battle_config.is_rpg:
         if battle_config.current_opponent_number > 0:
             start_tales_buttons.append(
                 Button(

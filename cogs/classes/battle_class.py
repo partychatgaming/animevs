@@ -423,6 +423,8 @@ class Battle:
             self.crestsearch = universe_selection_object['CREST_SEARCH']
             self.current_opponent_number =  universe_selection_object['CURRENTOPPONENT']
 
+    
+            
             if self.is_dungeon_game_mode:
                 self.list_of_opponents_by_name = self.selected_universe_full_data['DUNGEONS']
                 self.total_number_of_opponents = len(self.list_of_opponents_by_name)
@@ -440,13 +442,18 @@ class Battle:
                 self.player_association = universe_selection_object['ASSOCIATION_INFO']
             else:
                 self.player_association = "PCG"
+            
+                
             self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
-
+            if self.is_rpg:
+                self.starting_match_title = f"🗺️ Start Adventure Battle"
 
     def get_starting_match_title(self):
         self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
         if self.is_tutorial_game_mode:
-            self.starting_match_title = "Click Start Match to Begin the Tutorial!"
+            self.starting_match_title = "✅ Click Start Match to Begin the Tutorial!"
+        if self.is_rpg:
+                self.starting_match_title = f"🗺️ Start Adventure Battle"
         return  self.starting_match_title
 
     def set_abyss_config(self, player):
