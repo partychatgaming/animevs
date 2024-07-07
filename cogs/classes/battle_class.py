@@ -1760,8 +1760,8 @@ class Battle:
             name = "Hashirama Cells"
             value =f"On Resolve\nHealth for the amount of stored Hashirama Cells**[{player_card.naruto_heal_buff}]**"
         if player_card.universe == "Demon Slayer":
-            name = "Total Concentration Constant"
-            value =f"On Resolve\nIf your opponents Attack or Defense is greater than yours, they become equal. If yours are equal or better gain Card Level AP **[{player_card.card_lvl}]** of either Stat."
+            name = "Total Concentration Constant & Supernatural Blood"
+            value =f"On Resolve\n**Hashira**: If your opponents Attack or Defense is greater than yours, they become equal. If yours are equal or better gain Card Level AP **[{player_card.card_lvl}]** of either Stat.\n\n**Demons**: Multiply your Attack, Defense and Health by Blitz Count **[{player_card.blitz_count}]**"
         if player_card.universe == "YuYu Hakusho":
             name = "Spirit Energy"
             value =f"On Resolve\nSet defense to 100 but Double Attack and all Move AP"
@@ -1901,8 +1901,8 @@ class Battle:
             name = "\nEquivalent Exchange"
             value =f"Each Attack\n*Store 50% Stamina as Equivalent Exchange, Increase your Attack Power by (Equivalent Exchange x Card Tier).*" 
         if player_card.universe == "Demon Slayer":
-            name = "\nTotal Concentration Breathing"
-            value =f"*Gain 40% of your opponents base max health at the start of battle.* **[{round(.40 * opponent_card.max_base_health)}]**"
+            name = "\nTotal Concentration Breathing & Accelerated Growth Rate"
+            value =f"On Match Start\n\n**Hashiras**:Gain 40% of your opponents base max health at the start of battle. **[{round(.40 * opponent_card.max_base_health)}]**\n\n**Demons**: Gain 10 * Card Level Health and Max Health **[{10 * player_card.card_lvl}]**"
         if player_card.universe == "My Hero Academia":
             name = "\nQuirk Energy"
             value =f"*Each turn store 50 ap to prepare for your Quirk Awakening Transformation*"
@@ -1930,6 +1930,9 @@ class Battle:
         if player_card.universe == "Attack On Titan":
             name = "Omnigear"
             value =f"On Blitz\nGAin (10% * Class Level) Speed and AP **[{(.10 * player_card.card_tier) * player_card.speed}]**"
+        if player_card.universe == "Demon Slayer":
+            name = "Demon Slayer Mark & Blood Demon Art"
+            value =f"On Blitz\n**Hashira**: Your next attack is a critical strike\n\n**Demons**: Your next attack is a double strike"
         return name, value
 
     def next_turn(self):

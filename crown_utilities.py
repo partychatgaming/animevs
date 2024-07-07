@@ -2168,7 +2168,8 @@ starting_traits = [
 blitz_traits = [
     'Bleach',
     'Persona',
-    'Attack On Titan'
+    'Attack On Titan',
+    'Demon Slayer'
 ]
 
 

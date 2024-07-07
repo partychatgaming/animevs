@@ -53,14 +53,14 @@ def activate_demon_slayer_trait(player_card, battle_config, opponent_card):
     if player_card.universe == "Demon Slayer" and not player_card.breathing_message:
         battle_config.turn_zero_has_happened = True
         player_card.breathing_message = True
-        rate = 0.40
+        rate = round(opponent_card.health * 0.40)
         trait_message = "Total Concentration Breathing"
         if player_card.is_monstrosity:
-            rate = 0.25
+            rate = 10 * player_card.card_lvl
             trait_message = "Accelerated Growth Rate"
-        battle_config.add_to_battle_log(f"♾️ {player_card.name}'s {trait_message} [+❤️{round(opponent_card.health * rate):,}]")
-        player_card.health = round(player_card.health + (opponent_card.max_base_health * rate))
-        player_card.max_health = round(player_card.max_health + (opponent_card.max_base_health * rate))
+        battle_config.add_to_battle_log(f"♾️ {player_card.name}'s {trait_message} [+❤️{round(rate):,}]")
+        player_card.health = round(player_card.health + rate)
+        player_card.max_health = round(player_card.max_health rate)
 
 
 def demon_slayer_blitz(player_card, battle_config):
@@ -70,6 +70,6 @@ def demon_slayer_blitz(player_card, battle_config):
             player_card._blood_demon_art = True
         elif not player_card._demon_slayer_crit:
             player_card._demon_slayer_crit = True
-            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} activated demon slayer mark, their next attack will critically strike")
+            battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} activated Demon Slayer Mark, their next attack will critically strike")
 
 

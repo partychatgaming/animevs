@@ -183,7 +183,7 @@ formatted_traits = [{
 },{
     'NAME': 'Demon Slayer',
     'EFFECT': 'Hashiras & Demons',
-    'TRAIT': '\n**Total Concentration Breathing / Accelerated Growth Rate:**\n*On Battle Start*\n*Total Concentration Breathing:* Gain 40% of Opponent HP as your own.\n*Accelerated Growth Rate:* Gain 25% of Opponent HP as your own\n\n**Demon Slayer Mark / Blood Demon Art**\n*On Blitz*\n*Demon Slayer Mark:* Gain 1 Critical Strike\n*Blood Demon Art:* Gain 1 Double Strike\n\n**Total Concentration Constant / Supernatural Blood**\n*On Resolve*\n*Total Concentration Constant:*\nIf your Opponents ATK or DEF is higher than yours, increase your stats to be equal, if your either stat are equal gain (Card Level * 1).\n*Supernatural Blood:*Multiply your Attack, Defense and Health by Blitz Count.'
+    'TRAIT': '\n**Total Concentration Breathing / Accelerated Growth Rate:**\n*On Battle Start*\n*Total Concentration Breathing:* Gain 40% of Opponent HP as your own.\n*Accelerated Growth Rate:* Gain (10 * Card Level)\n\n**Demon Slayer Mark / Blood Demon Art**\n*On Blitz*\n*Demon Slayer Mark:* Gain 1 Critical Strike\n*Blood Demon Art:* Gain 1 Double Strike\n\n**Total Concentration Constant / Supernatural Blood**\n*On Resolve*\n*Total Concentration Constant:*\nIf your Opponents ATK or DEF is higher than yours, increase your stats to be equal, if your either stat are equal gain (Card Level * 1).\n*Supernatural Blood:*\nMultiply your Attack, Defense and Health by Blitz Count.'
 },{
     'NAME': 'God Of War',
     'EFFECT': 'Blood Orb, Ascension',

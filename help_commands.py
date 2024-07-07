@@ -273,6 +273,7 @@ __Game Options__
 **/difficulty** - Change the difficulty of the game
 **/autosave** - Toggle autosave on or off
 **/battlehistory** - Update battle history length
+**/battleview** - Toggle Opponent Stats in Battle
 
 [Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)
