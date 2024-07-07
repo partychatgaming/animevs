@@ -70,6 +70,8 @@ class RPG:
         self.player1_summon_element = self.player_summon_data.emoji
 
         self.player1_talisman = self.player1.equipped_talisman
+        if self.player1_talisman in ['NONE','NULL','Null','null']:
+            self.player1_talisman = 'None'
 
         self.build_name = f"🎗️{self.player1_title} 🎴{self.player1_card_name}"
         self.build_equipment = f"🦾{self.player1_arm} & 🧬{self.player1_summon_name}"
@@ -286,7 +288,7 @@ class RPG:
                 ["🏔️", "⬜", "🌲", "⬜", "⬜", "🌲", "🗝️", "⬜", "⬜", "💰", "🏔️"],
                 ["🏔️", "⬜", "🌲", "⬜", "⬛", "⬛", "⬛", "⬜", "⬜", "⬜", "🏔️"],
                 ["⬜", "⬜", "🌲", "⬜", "⬛", "🚪", "⬛", "⬜", "⬜", "⬜", "⬜"],
-                ["⬜", "⬜", "🧙", "⬜", "⬜", "⬜", "⬜", "⬜", "🏔️", "⬜", "🏔️"],
+                ["⬜", "⬜", "🧙", "⬜", "⬜", "⬜", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
                 ["⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "🌉", "⬜", "🏔️", "⬜", "🏔️"],
                 ["🦴", "⬜", "🧱", "⬜", "⬜", "⬜", "🟦", "🎁", "🏔️", "🪨", "🏔️"],
                 ["⬜", "⬜", "⬜", "⬜", "⬜", f"{self.player_token}", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️"]
@@ -1272,7 +1274,8 @@ class RPG:
             card_file = File(file_name="image.png", file=image_binary)
 
             #setchannel = interactions.utils.get(channel_list, name=server_channel)
-            await private_channel.send(f"🌌{ctx.author.mention}") 
+            player_ping = await private_channel.send(f"🌌{ctx.author.mention}")
+            await player_ping.delete(delay=3) 
             msg = await private_channel.send(embed=embedVar, file=card_file, components=[encounter_buttons_action_row])     
 
             def check(component: Button) -> bool:
@@ -1505,10 +1508,6 @@ class RPG:
             
         embedVar = Embed(title=f"{picon} {opponent_card.universe} {close_message} Ended!", description=textwrap.dedent(f"""
             """))
-        embedVar.add_field(name=f"{picon} | Last Battle : {self.current_opponent_number}",
-                                value=f"🎴 | **Opponent**: {opponent_card.name}")
-        
-        embedVar.set_footer(text=f_message)
         return embedVar
 
 

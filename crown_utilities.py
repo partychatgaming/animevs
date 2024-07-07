@@ -786,6 +786,7 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
 
     
 async def cardlevel(user, mode: str, extra_exp = 0):
+    print(mode)
     try:
         if mode == "RPG":
             player = create_player_from_data(db.queryUser({'DID': user.did}))
@@ -807,7 +808,8 @@ async def cardlevel(user, mode: str, extra_exp = 0):
 
         if number_of_level_ups > 0:
             loggy.info(f"Card Leveling - {user} - {number_of_level_ups} Level Ups")
-            player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
+            if player is None:
+                player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
             card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
             card.set_card_level_buffs(player.card_levels)
             lvl_req = get_level_up_exp_req(card)

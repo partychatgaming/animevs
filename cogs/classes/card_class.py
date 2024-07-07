@@ -1183,6 +1183,12 @@ class Card:
             self.bounty = random.randint(100000, 150000)
         if self.tier == 7:
             self.bounty = random.randint(200000, 300000)
+        if self.tier == 8:
+            self.bounty = random.randint(400000, 500000)
+        if self.tier == 9:
+            self.bounty = random.randint(600000, 700000)
+        if self.tier == 10:
+            self.bounty = random.randint(800000, 1000000)
 
         mode_selector_randomizer = random.randint(0, 200)
 
@@ -1225,7 +1231,15 @@ class Card:
             selected_mode = "RPG"
             self.approach_message = "Encountering the Avatar of "
             self._explore_cardtitle = {'TITLE': 'Universe Title'}
-            self.card_lvl = random.randint(50, 200)
+            low = 100
+            high = 500
+            if battle_config.is_hard_difficulty:
+                low = 500
+                high = 1000
+            if battle_config.is_easy_difficulty:
+                low = 0
+                high = 100
+            self.card_lvl = random.randint(low, high)
             self.bounty = self.bounty * 2
 
         if battle_config.is_hard_difficulty:

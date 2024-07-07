@@ -667,8 +667,8 @@ class Battle:
                 arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""}
 
             if self.is_rpg:
-                summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON"}
-                arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "DUNGEON", 'ELEMENT': ""}
+                summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
+                arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""}
 
             self._ai_opponent_title_data = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
             self._ai_opponent_arm_data = db.get_random_arm(arm_query, self.player1)

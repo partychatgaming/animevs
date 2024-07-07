@@ -208,6 +208,11 @@ class GameState(Extension):
                 button_ctx  = await self.bot.wait_for_component(components=play_again_buttons_action_row, timeout=300, check=check)
 
                 if button_ctx.ctx.custom_id == f"{battle_config._uuid}|play_again_no":
+                    if battle_config.is_rpg:
+                        battle_config.rpg_config.adventuring = True
+                        battle_config.rpg_config.battling = False
+                        battle_config.rpg_config.encounter = False
+                        battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
                     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                         loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
                     else:
@@ -520,7 +525,7 @@ class GameState(Extension):
                 total_complete = True
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                 if battle_config.is_rpg:
-                    self.rpg_config.combat_victory = True
+                    self.combat_victory = True
                     await rpg_win(battle_config, battle_msg, private_channel, user1)
                     return
                 await explore_win(battle_config, battle_msg, private_channel, user1)
@@ -554,6 +559,9 @@ async def explore_win(battle_config, battle_msg, private_channel, user1):
     
 async def rpg_win(battle_config, battle_msg, private_channel, user1):
     if battle_config.is_rpg:
+        battle_config.rpg_config.adventuring = True
+        battle_config.rpg_config.battling = False
+        battle_config.rpg_config.encounter = False
         rpg_response =  await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
         await battle_msg.delete(delay=2)
         await asyncio.sleep(2)

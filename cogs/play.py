@@ -108,7 +108,7 @@ class Play(Extension):
                             await battle_start_msg.delete()
                             # embedVar = Embed(title=f"Resuming Adventure...", color=0x2ECC71)
                             self.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
-                            rpg_msg = await private_channel.send(embed=embedVar)
+                            #rpg_msg = await private_channel.send(embed=embedVar)
                             return
                         else:
                             battle_config.player1.make_available()
@@ -400,8 +400,8 @@ class Play(Extension):
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
                             if battle_config.is_rpg:
-                                battle_config.rpg_config.battling = False
                                 battle_config.rpg_config.adventuring = True
+                                battle_config.rpg_config.battling = False
                                 battle_config.rpg_config.encounter = False
                                 
                                 # Delete the previous RPG message
@@ -667,7 +667,8 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
     if battle_config.is_rpg:
-        await ctx.send(embed = battle_config.close_rpg_embed(battle_config.player1_card,battle_config.player2_card))
+        close_embded = await ctx.send(embed = battle_config.close_rpg_embed(battle_config.player1_card,battle_config.player2_card))
+        await close_embded.delete(delay=3)
         return
     if not any((battle_config.is_abyss_game_mode, 
                 battle_config.is_scenario_game_mode, 
@@ -781,7 +782,10 @@ async def exit_battle_embed(battle_config, button_ctx, private_channel):
     if battle_config.player1.autosave and battle_config.match_can_be_saved:
         await private_channel.send(embed=battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
     elif not battle_config.is_pvp_game_mode:
-        await private_channel.send(embed=battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+        if battle_config.is_rpg:
+            await private_channel.send(embed=battle_config.rpg_config.close_rpg_embed(battle_config.player1_card, battle_config.player2_card))
+        else:
+            await private_channel.send(embed=battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
     else:
         await private_channel.send(embed=battle_config.close_pvp_embed(battle_config.player1, battle_config.player2))
     return
@@ -1604,6 +1608,13 @@ async def player_save_and_end_game(self, ctx, private_channel, battle_msg, battl
 # a message is sent to a private channel. If any errors occur during this process, the function 
 # captures the exception and prints a detailed traceback.
 async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx):
+    if battle_config.is_rpg:
+        battle_config.rpg_config.adventuring = True
+        battle_config.rpg_config.battling = False
+        battle_config.rpg_config.encounter = False
+        await battle_msg.delete(delay=1)
+        battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
+        return True
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     try:
         if button_ctx.ctx.custom_id == f"{battle_config._uuid}|q" or button_ctx.ctx.custom_id == f"{battle_config._uuid}|Q":
