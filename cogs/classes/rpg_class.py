@@ -934,6 +934,7 @@ class RPG:
                     self.previous_moves.append(f"(🦊) You encountered a fox!")
                     random_number = random.randint(1, 50)
                     if random_number <= 50:
+                        self.encounter = True
                         self.previous_moves.append(f"(🆚) You are under attack!")
                         await self.create_rpg_battle(ctx, private_channel)
                         if self.combat_victory:
@@ -946,6 +947,7 @@ class RPG:
                     random_number = random.randint(1, 100)
                     if random_number <= 50:
                         self.previous_moves.append(f"(🆚) You are under attack!")
+                        self.encounter = True
                         await self.create_rpg_battle(ctx, private_channel)
                         if self.combat_victory:
                             self.previous_moves.append(f"(🕴️) The bat is transforming... it was a Black Market Dealer!")
@@ -1027,6 +1029,7 @@ class RPG:
                     if random_number_combat <= 50:
                         self.previous_moves.append(f"(🆚) It's a trap! You are under attack!")
                         #if battle won give loot, else lose coin and cross
+                        self.encounter = True
                         await self.create_rpg_battle(ctx, private_channel)
                         if self.combat_victory:
                             self.previous_moves.append(f"(🌉) You found a hidden chest!")
@@ -1036,18 +1039,20 @@ class RPG:
                         await self.rpg_action_handler(ctx, private_channel, player_position, "🎲", npc_position, direction)
                 elif random_number <= 50:
                     self.previous_moves.append(f"(🆚) There is a roadblock on the bridge...You are under attack!")
+                    self.encounter = True
                     await self.create_rpg_battle(ctx, private_channel)
                     if self.combat_victory:
                         self.previous_moves.append(f"(🌉) You found a hidden chest!")
                         self.combat_victory = False
                         await self.rpg_action_handler(ctx, private_channel, player_position, "🎁", npc_position)
+                        crossed = True
                 elif random_number <= 75:
                     self.previous_moves.append(f"(🌉) There is a hole in the bridge...")
                     if self.hammer:
                         self.previous_moves.append(f"(🌉) You fixed the bridge with your Hammer!")
                         if self.engineer:
                             self.previous_moves.append(f"(🌉) The Civilians pay you for your service! [💰+1000]")
-                        self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
+                        crossed = True
                     else:
                         self.previous_moves.append(f"(🌉) There is a hole in the bridge...if only I had a hammer")
                 else:
@@ -1081,6 +1086,7 @@ class RPG:
                     self.previous_moves.append(f"({npc}) You found nothing...")
                 else:
                     self.previous_moves.append(f"(🆚) You are under attack!")
+                    self.encounter = True
                     await self.create_rpg_battle(ctx, private_channel)
                     if self.combat_victory:
                         self.previous_moves.append(f"({npc}) You loot the body!")
