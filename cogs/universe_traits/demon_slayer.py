@@ -60,7 +60,7 @@ def activate_demon_slayer_trait(player_card, battle_config, opponent_card):
             trait_message = "Accelerated Growth Rate"
         battle_config.add_to_battle_log(f"♾️ {player_card.name}'s {trait_message} [+❤️{round(rate):,}]")
         player_card.health = round(player_card.health + rate)
-        player_card.max_health = round(player_card.max_health rate)
+        player_card.max_health = round(player_card.max_health + rate)
 
 
 def demon_slayer_blitz(player_card, battle_config):
