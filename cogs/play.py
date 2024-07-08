@@ -667,7 +667,7 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
     if battle_config.is_rpg:
-        close_embded = await ctx.send(embed = battle_config.close_rpg_embed(battle_config.player1_card,battle_config.player2_card))
+        close_embded = await ctx.send(embed = battle_config.close_rpg_embed())
         await close_embded.delete(delay=3)
         return
     if not any((battle_config.is_abyss_game_mode, 
@@ -804,6 +804,8 @@ def check_if_game_over(battle_config):
     if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
         battle_config.turn_total -= 1
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ❌ Tutorial Task Incomplete!\nComplete your Tutorial Task to defeat the Training Dummy!")
+        
+
         battle_config.turn_total += 1
     game_over_check = battle_config.set_game_over(battle_config.player1_card, battle_config.player2_card, player3_card)
     
@@ -1609,12 +1611,13 @@ async def player_save_and_end_game(self, ctx, private_channel, battle_msg, battl
 # captures the exception and prints a detailed traceback.
 async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx):
     if battle_config.is_rpg:
-        battle_config.rpg_config.adventuring = True
-        battle_config.rpg_config.battling = False
-        battle_config.rpg_config.encounter = False
-        await battle_msg.delete(delay=1)
-        battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
-        return True
+        if button_ctx.ctx.custom_id == f"{battle_config._uuid}|q" or button_ctx.ctx.custom_id == f"{battle_config._uuid}|Q":
+            battle_config.rpg_config.adventuring = True
+            battle_config.rpg_config.battling = False
+            battle_config.rpg_config.encounter = False
+            await battle_msg.delete(delay=1)
+            battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
+            return True
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     try:
         if button_ctx.ctx.custom_id == f"{battle_config._uuid}|q" or button_ctx.ctx.custom_id == f"{battle_config._uuid}|Q":

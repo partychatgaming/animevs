@@ -172,10 +172,52 @@ async def starting_battle_ai_message(your_card_name, your_card_universe, opponen
     summary = response.choices[0].message.content
     return summary
 
-async def rpg_movement_ai_message(your_card_name, your_card_universe, move, up, down, left, right):
+async def rpg_encounter_message(your_card_name, your_card_universe, opponent_card, location):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
-    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you navigating a labrynth moving {move}. Describe the following emojis as potential points of interest. You see a {up} a {down} a {left} and a {right}."
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are meeting {opponent_card} from the {your_card_universe} universe in the area of a {location}. Based on lore if the characters are familiar with each other treat the greeting as so, otherwise Introduce yourself and either threaten, ask a favor or be friendly based on your characters goals. Do this in 3 sentences 35 characters each. Seperate each sentence with a newline character. Do not include quotes. And do not use back to back newlines."
+    
+    # Call the OpenAI API to summarize messages using the GPT-4 model
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+    
+    # Extract the summary from the response
+    summary = response.choices[0].message.content
+    return summary
+
+async def rpg_start_encounter_message(your_card_name, your_card_universe, opponent_card, location):
+    await asyncio.sleep(1)
+    # Define the prompt to indicate the context of the anime card game assistant
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you are meeting {opponent_card} from the {your_card_universe} universe in the area of a {location}. Describe the setting of the encounter and the two chracters meeting in 1 sentences 30 characters. Do not include quotes. Do not refer to the encounter."
+    
+    # Call the OpenAI API to summarize messages using the GPT-4 model
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+    
+    # Extract the summary from the response
+    summary = response.choices[0].message.content
+    return summary
+
+async def rpg_movement_ai_message(your_card_name, your_card_universe,location,  move, up, down, left, right):
+    await asyncio.sleep(1)
+    if up is None:
+        up = "Clear View"
+    if down is None:
+        down = "Clear View"
+    if left is None:
+        left = "Clear View"
+    if right is None:
+        right = "Clear View"
+    # Define the prompt to indicate the context of the anime card game assistant
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you navigating a {location} moving {move}. Describe the following emojis as potential points of interest. You see a {up} a {down} a {left} and a {right}. Describe each in 1 sentence. Do not include quotes. Use under 30 characters in total. Describe the scene as if you were there in total in a narrartive form"
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(

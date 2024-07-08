@@ -35,10 +35,11 @@ class RPG:
         self.below_position = None
         self.left_position = None
         self.right_position = None
+        self.last_move = None
         self.start_x = 8
         self.start_y = 4
-        self.starting_position = (8, 5)
-        self.player_position = (8, 5)  # Initial position of universe_crest
+        self.starting_position = (10, 5)
+        self.player_position = (10, 5)  # Initial position of universe_crest
 
         self._player = _player
         self.player1 = _player
@@ -104,6 +105,8 @@ class RPG:
         self.is_normal_difficulty = False
         if self.difficulty == "EASY":
             self.is_easy_difficulty = True
+        elif self.difficulty == "HARD":
+            self.is_hard_difficulty = True
 
 
         
@@ -250,13 +253,15 @@ class RPG:
             return [
                 ["🌳", "🌳", "🟩", "🟦", "🟫", "🟫", "🟫", "🏪", "🌳", "🌳", "🌳"],
                 ["🌳", "🟩", "🟩", "🟦", "🟫", "🚪", "🟫", "🟩", "🌳", "🧙", "🌳"],
-                ["🌳", "🟩", "🗝️", "🟦", "🟩", "🟩", "🎁", "🟩", "🌳", "🟩", "🌳"],
-                ["🌳", "🟩", "🟦", "🟦", "🟩", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳"],
-                ["🌳", "🟩", "🟦", "🟩", "🟩", "🟩", "🟩", "🌳", "🌳", "🟩", "🏴‍☠️"],
-                ["🌳", "🟩", "🟦", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🌳"],
-                ["🟩", "🟩", "🌉", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
-                ["🌳", "🟩", "🟦", "🌳", "🌳", "🟩", "🆚", "🟩", "🌳", "🪨", "🌳"],
-                ["🌳", "🌳", "🟦", "🌳", f"🌳", f"{self.player_token}", "🌳", "🌳", "🏔️", "🌳", "🌳"]
+                ["🌳", "🟩", "🗝️", "🟦", "🟩", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟦", "🟩", "🟩", "🌳", "🌳", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🌳", "🎁", "🟩", "🟩", "🦊", "🌳", "🟩", "🏴‍☠️"],
+                ["🌳", "🟩", "🟦", "🌳", "🌳", "🟩", "🟩", "🟩", "🟩", "🟩", "🌳"],
+                ["🟩", "🟩", "🟦", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🟩", "🟩", "🟦", "🟩", "💰", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🟩", "🟩", "🌉", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🌳", "🌳", "🟩", "🌳", "🆚", "🌳", "🪨", "🌳"],
+                ["🌳", "🌳", "🟦", "🌳", f"🌳", f"{self.player_token}", "🌳", "🌳", "🌳", "🌳", "🌳"]
 
         ]
 
@@ -266,14 +271,16 @@ class RPG:
             self.map_area = "Fiery Training Grounds"
             self.embed_color = 0xFFD700
             return [
-                ["🌵", "⬛", "⬛", "⬛", "🟨", "🟨", "🟦", "🟦", "🟨", "🟨", "🟨"],
-                ["🟨", "⬛", "🚪", "⬛", "🧙", "🏪", "🟦", "🟦", "🟨", "🟨", "🌵"],
+                ["🌵", "⬛", "⬛", "⬛", "🟨", "🟨", "🟦", "🟨", "🦴", "🟨", "🟨"],
+                ["🟨", "⬛", "🚪", "⬛", "🧙", "🏪", "🟦", "🟨", "🟨", "🟨", "🌵"],
                 ["🟨", "🦊", "🟨", "🟨", "🟨", "🟨", "🟦", "🌵", "🟨", "🌵", "🟨"],
                 ["🟨", "🟨", "🟨", "🟨", "🟨", "🆚", "🟦", "🟨", "🟨", "🟨", "🟨"],
                 ["🟨", "🟨", "💰", "🟨", "🦴", "🟦", "🟦", "🟨", "🌵", "🟨", "🌵"],
                 ["🟨", "🟨", "🟨", "🟨", "🟦", "🟦", "🌵", "🟨", "🟨", "🟨", "🟨"],
                 ["🟨", "🗝️", "🟦", "🌉", "🟦", "🌵", "🟨", "🟨", "🟨", "🌵", "🟨"],
-                ["🟨", "🟦", "🟦", "🟨", "🟨", "🟨", "🟨", "🦇", "🟨", "🪨", "🟨"],
+                ["🟨", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨"],
+                ["🟨", "🟦", "🟦", "🟨", "🟨", "🟨", "🟨", "🦇", "🟨", "🟨", "🟨"],
+                ["🟨", "🟦", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🪨", "🟨"],
                 ["🟨", "🟦", "🟨", "🟨", "🟨", f"{self.player_token}", "🟨", "🌵", "🟨", "🟨", "🟨"]
         ]
 
@@ -283,50 +290,55 @@ class RPG:
             self.map_area = "Frozen Training Grounds"
             self.embed_color = 0xFFFFFF
             return [
-                ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "⬜", "🏔️", "🏔️"],
-                ["🏔️", "🏪", "🌲", "🌲", "🦊", "🌲", "🦇", "🆚", "⬜", "🎄", "🏔️"],
-                ["🏔️", "⬜", "🌲", "⬜", "⬜", "🌲", "🗝️", "⬜", "⬜", "💰", "🏔️"],
+                ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🟦", "🏔️", "⬜", "🏔️", "🏔️"],
+                ["🗝️", "🏪", "🌲", "🌲", "🦊", "🌲", "🟦", "🆚", "⬜", "🎄", "🏔️"],
+                ["🏔️", "⬜", "🌲", "⬜", "⬜", "🌲", "🟦", "⬜", "⬜", "💰", "🏔️"],
                 ["🏔️", "⬜", "🌲", "⬜", "⬛", "⬛", "⬛", "⬜", "⬜", "⬜", "🏔️"],
-                ["⬜", "⬜", "🌲", "⬜", "⬛", "🚪", "⬛", "⬜", "⬜", "⬜", "⬜"],
-                ["⬜", "⬜", "🧙", "⬜", "⬜", "⬜", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
-                ["⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "🌉", "⬜", "🏔️", "⬜", "🏔️"],
+                ["⬜", "⬜", "🌲", "⬜", "⬛", "🚪", "⬛", "⬜", "⬜", "⬜", "🦇"],
+                ["⬜", "⬜", "🧙", "⬜", "⬜", "⬜", "🟦", "⬜", "⬜", "⬜", "🏔️"],
+                ["⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "🌉", "⬜", "⬜", "⬜", "🏔️"],
+                ["⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
+                ["⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
                 ["🦴", "⬜", "🧱", "⬜", "⬜", "⬜", "🟦", "🎁", "🏔️", "🪨", "🏔️"],
-                ["⬜", "⬜", "⬜", "⬜", "⬜", f"{self.player_token}", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️"]
+                ["⬜", "⬜", "⬜", "⬜", "⬜", f"{self.player_token}", "🟦", "🏔️", "🏔️", "🏔️", "🏔️"]
         ]
 
         def map4(self):
             self.standing_on = "🟩"
-            self.map_name = "Weatherlands"
+            self.map_name = "Pocket Dimension"
             self.map_area = "Geostorm"
             self.embed_color = 0xFFFFFF
             return [
-                ["💎", "🌵", "🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "⬜", "⬜", "⬜"],
-                ["🟨", "🏪", "🟨", "🟦", "🟦", "🟩", "🗝️", "🟩", "⬜", "⬜", "⬜"],
-                ["🟨", "🟨", "🟨", "🌉", "🟩", "🟩", "🟩", "🟩", "⬜", "⬜", "⬜"],
-                ["🌵", "🟨", "💰", "🟦", "⬛", "⬛", "⬛", "🟩", "⬜", "⬜", "⬜"],
-                ["🟨", "🟨", "🟨", "🟦", "⬛", "🚪", "⬛", "🟩", "⬜", "⬜", "🆚"],
-                ["🟨", "🪨", "🟨", "🟦", "🧙", "🟩", "🟦", "🟩", "⬜", "⬜", "⬜"],
-                ["🟨", "🟨", "🟦", "🟩", "🟩", "🟩", "🌉", "🟩", "🦊", "⬜", "⬜"],
-                ["🌵", "🟦", "🟩", "🟩", "🌲", "🟩", "🟦", "🎁", "⬜", "⬜", "⬜"],
-                ["🟦", "🟦", "🟩", "🟩", "🟩", f"{self.player_token}", "🟦", "🟦", "⬜", "⬜", "☠️"]
+                ["💎", "🌵", "🟨", "🟦", "🟦", "🟦", "🟦", "🟦", "⬜", "🏔️", "🏔️"],
+                ["🟨", "🏪", "🟨", "🟦", "🟩", "🟩", "🟩", "🌉", "⬜", "🦊", "🏔️"],
+                ["🟨", "🟨", "🟨", "🌉", "🟩", "🗝️", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🌵", "🟨", "💰", "🟦", "⬛", "⬛", "⬛", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟨", "🟨", "🟦", "⬛", "🚪", "⬛", "🟦", "⬜", "⬜", "🆚"],
+                ["🟨", "🪨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟨", "🟦", "🟩", "🟩", "🟩", "🟩", "🌉", "⬜", "⬜", "⬜"],
+                ["🟨", "🟨", "🟦", "🟩", "🌲", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟦", "🟦", "🟩", "🌲", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🌵", "🟦", "🧙", "🟩", "🌲", "🟩", "🟩", "🟦", "🎁", "⬜", "⬜"],
+                ["🟦", "🟦", "🌲", "🌲", "🌲", f"{self.player_token}", "🌲", "🟦", "⬜", "⬜", "☠️"]
         ]
 
         def tutorial_map(self):
             self.standing_on = "🟩"
-            self.map_name = "Tutorial"
+            self.map_name = "Training Grounds"
             self.map_area = "Testing Area"
             self.embed_color = 0xFFFFFF
             return [
-                    ["⬛", "👛", "💰", "🎁", "🎒", "🚪", "🗝️", "☠️", "💀", "🦴", "⬛"],
+                    ["⬛", "🪙", "👛", "💰", "🎁",  "🚪", "🗝️", "☠️", "💀", "🦴", "⬛"],
                     ["🎄", "⬜", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🏪"],
                     ["🌳", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🏯"],
                     ["🌲", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🧙"],
-                    ["🌴", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟫", "🟩", "🕴️"],
-                    ["🌵", "🟨", "🟩", "🟦", "🟩", "🟩", "🟩", "🟩", "🏔️", "🟩", "⚔️"],
-                    ["🏜️", "🟨", "🟩", "🌉", "🟩", "🥋", "🟩", "🟩", "🏞️", "🟩", "🏴‍☠️"],
-                    ["⬛", "🦇", "🟩", "🟦", "🎒", "🟩", "🎒", "🟩", "⛰️", "🆚", "⬛"],
-                    ["⬛", "⬛", "⬛", "⬛", "⬛", f"{self.player_token}", "⬛", "⬛", "⬛", "⬛", "⬛"]
-
+                    ["🌴", "🟩", "🟩", "🟩", "🟦", "🌉", "🟦", "🟩", "🟩", "🟩", "🕴️"],
+                    ["🌵", "🟨", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "⚔️"],
+                    ["🏜️", "🟨", "🟩", "🟩", "🟩", "🥋", "🟩", "🟩", "🟩", "🟩", "🏴‍☠️"],
+                    ["🏔️", "🟨", "🟩", "🟩", "🆚", "🟩", "🎒", "🟩", "🟩", "🟩", "🦊"],
+                    ["⛰️", "⬜", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🟩", "🦇"],
+                    ["🏞️", "🟩", "🟩", "🟩", "🟫", "🟩", "🟫", "🟩", "🟩", "🟩", "🪨"],
+                    ["⬛", "⬛", "⬛", "⬛", "⬛", f"{self.player_token}", "⬛", "⬛", "⬛", "⬛", "⬛"],
             ]
         
         def select_random_map(self):
@@ -396,11 +408,11 @@ class RPG:
             player_moved = True
             new_x += 1
         elif direction == "1" and y >= 0:#left
-            cardinal = "on your left"
+            cardinal = "to your left"
             player_moved = True
             new_y -= 1
         elif direction == "4" and y < len(self.map[0]):#right
-            cardinal = "on your right"
+            cardinal = "to your right"
             player_moved = True
             new_y += 1       
         
@@ -435,19 +447,19 @@ class RPG:
             self.warp_active = True
             self.previous_moves.append("🔍 Checking Nearby...")
             self.closest_warp_points = self.get_closest_warp_points(self.player_position)
-            if self.above_position in interaction_points:
+            if self.above_position in interaction_points or self.above_position in self.combat_points:
                 cardinal = "⬆️ In front of you"
                 self.previous_moves.append(f"{cardinal} there is a {self.map[x-1][y]}{get_emoji_label(self.map[x-1][y])}!")
-            if self.below_position in interaction_points:
+            if self.below_position in interaction_points or self.below_position in self.combat_points:
                 cardinal = "⬇️ Behind you"
                 self.previous_moves.append(f"{cardinal} there is a {self.map[x+1][y]}{get_emoji_label(self.map[x+1][y])}!")
-            if self.left_position in interaction_points:
+            if self.left_position in interaction_points or self.left_position in self.combat_points:
                 cardinal = "⬅️ On your left"
                 self.previous_moves.append(f"{cardinal} there is a {self.map[x][y-1]}{get_emoji_label(self.map[x][y-1])}!")
-            if self.right_position in interaction_points:
+            if self.right_position in interaction_points or self.right_position in self.combat_points:
                 cardinal = "➡️ On your right"
                 self.previous_moves.append(f"{cardinal} there is a {self.map[x][y+1]}{get_emoji_label(self.map[x][y+1])}!")
-            if self.standing_on in interaction_points:
+            if self.standing_on in interaction_points or self.standing_on in self.combat_points:
                 self.previous_moves.append(f"You standing on a {self.standing_on}{get_emoji_label(self.standing_on)}!")
         elif direction == "u" or direction == "d" or direction == "l" or direction == "r" or direction == "s":
             player_action = True
@@ -568,21 +580,19 @@ class RPG:
                 await self.get_player_sorroundings()
         
         if player_warped:
-            # self.previous_moves.append(f"(🌀) You warped to a new location!")
             await self.handle_warp_movement(ctx, int(direction)-5)
-            #self.player_position = (new_x, new_y)
             await self.get_player_sorroundings()
             relative_direction = self.get_relative_direction(self.player_position,self.warp_point_position)
             await self.rpg_action_handler(ctx, ctx.channel, self.player_position, self.warp_target_type, self.warp_point_position, relative_direction)
-            self.warp_active = False   
+            self.warp_active = False
 
 
     async def get_player_sorroundings(self, new_map = False):
         x, y = self.player_position
         self.above_position = self.map[x-1][y] if x-1 >= 0 else None
-        self.below_position = self.map[x+1][y] if x+1 < len(self.map) - 1 else None
+        self.below_position = self.map[x+1][y] if x+1 <= len(self.map) - 1 else None
         self.left_position = self.map[x][y-1] if y-1 >= 0 else None
-        self.right_position = self.map[x][y+1] if y+1 < len(self.map[0]) - 1 else None
+        self.right_position = self.map[x][y+1] if y+1 <= len(self.map[0]) - 1 else None
     
     #movement
     def get_map_message(self):
@@ -613,7 +623,7 @@ class RPG:
                     ),
                     Button(
                         style=ButtonStyle.GREEN,
-                        label="👑 Fight",
+                        label="🆚 Fight",
                         custom_id="fight"
                     ),
                     Button(
@@ -718,6 +728,7 @@ class RPG:
                  
     
     async def rpg_player_move_embed(self, ctx, private_channel, rpg_msg):
+        import ai
         """
         Displays the player move embed.
 
@@ -782,6 +793,8 @@ class RPG:
             for skill in self.player_skills:
                 skill_message += f"|{skill}"
         rpg_map_embed = self.get_map_message()
+        
+        
         embedVar = Embed(title=f"[🌎]Exploring: {self.map_name}",description=f"**[🗺️]** *{self.map_area}*", color=0xFFD700)
         embedVar.set_author(name=f"{self.player1.disname}'s Adventure", icon_url=f"{self.player1.avatar}")
         if self.inventory_active:
@@ -790,6 +803,10 @@ class RPG:
             embedVar.add_field(name=f"**[👛]Currency**", value=f"{currency_message}")
         if self.skills_active:
             embedVar.add_field(name=f"**[🥋]Skills**", value=f"{skill_message}")
+        
+        if self.above_position or self.below_position or self.left_position or self.right_position or self.last_move:
+            ai_area_msg = await ai.rpg_movement_ai_message(self.player1_card_name, self.universe,self.last_move, self.map_name, get_emoji_label(self.above_position),get_emoji_label(self.below_position) ,get_emoji_label(self.left_position),get_emoji_label(self.right_position))
+            embedVar.add_field(name=f"**[🔍]Action**", value=f"**[👣]Move**\n{ai_area_msg}")
         embedVar.add_field(name=f"[{self.player_token}]My Player Token", value=f"**[{self.standing_on}]** *Standing On {get_ground_type(self.standing_on)}*\n{rpg_map_embed}")
         embedVar.set_thumbnail(url=self.player_card_image)
         embedVar.set_footer(text=self.get_previous_moves_embed())
@@ -956,6 +973,7 @@ class RPG:
                             await self.rpg_action_handler(ctx, private_channel, player_position, "🕴️", npc_position, direction)
                     else:
                         self.previous_moves.append(f"(🦇) The bat flew off...")
+                        self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
             elif npc in self.remains:
                 if npc == "💀":
                     self.previous_moves.append(f"(💀) You found a lootable body")
@@ -1013,16 +1031,9 @@ class RPG:
             elif npc in self.bridges:
                 crossed = False
                 random_number = random.randint(1, 100)
+                print(direction)
+                print("Npc Position", npc_position)
                 #Get direction of bridge
-                if direction == "u":
-                    new_position = (npc_position[0] - 1, npc_position[1])
-                elif direction == "d":
-                    new_position = (npc_position[0] + 1, npc_position[1])
-                elif direction == "l":
-                    new_position = (npc_position[0], npc_position[1] - 1)
-                elif direction == "r":
-                    new_position = (npc_position[0], npc_position[1] + 1)
-
                 if random_number <= 25:
                     self.previous_moves.append(f"(🌉) There is some loot on the bridge...")
                     random_number_combat = random.randint(1, 100)
@@ -1035,7 +1046,13 @@ class RPG:
                             self.previous_moves.append(f"(🌉) You found a hidden chest!")
                             self.combat_victory = False
                             await self.rpg_action_handler(ctx, private_channel, player_position, "🎁", npc_position)
+                            crossed = True
+                        else:
+                            self.previous_moves.append(f"(🌉) You lost 100 gold!")
+                            self.player_gold -= 100
+                            crossed = True
                     else:
+                        crossed = True
                         await self.rpg_action_handler(ctx, private_channel, player_position, "🎲", npc_position, direction)
                 elif random_number <= 50:
                     self.previous_moves.append(f"(🆚) There is a roadblock on the bridge...You are under attack!")
@@ -1054,14 +1071,35 @@ class RPG:
                             self.previous_moves.append(f"(🌉) The Civilians pay you for your service! [💰+1000]")
                         crossed = True
                     else:
-                        self.previous_moves.append(f"(🌉) There is a hole in the bridge...if only I had a hammer")
+                        self.previous_moves.append(f"(🌉) if only I had a hammer")
+                        return
                 else:
                     self.previous_moves.append(f"(🌉) You crossed the bridge!")
                     crossed = True
+                # if self.warp_active:
+                #     if direction == "u":
+                #         new_position = (npc_position[0] + 1, npc_position[1])
+                #     elif direction == "d":
+                #         new_position = (npc_position[0] - 1, npc_position[1])
+                #     elif direction == "l":
+                #         new_position = (npc_position[0], npc_position[1] + 1)
+                #     elif direction == "r":
+                #         new_position = (npc_position[0], npc_position[1] - 1)
+                # else:
+                if direction == "u":
+                    new_position = (npc_position[0] - 1, npc_position[1])
+                elif direction == "d":
+                    new_position = (npc_position[0] + 1, npc_position[1])
+                elif direction == "l":
+                    new_position = (npc_position[0], npc_position[1] - 1)
+                elif direction == "r":
+                    new_position = (npc_position[0], npc_position[1] + 1)
                 if crossed:
+                    original_tile = self.map[new_position[0]][new_position[1]]
                     self.map[new_position[0]][new_position[1]] = f"{self.player_token}"
                     self.map[x][y] = f"{self.standing_on}"
                     self.player_position = new_position
+                    self.standing_on = original_tile  # Update the standing_on to the original tile color
             elif npc in self.moving_water:
                 self.previous_moves.append(f"(🌊) You can't swim in moving water! If only you had a boat...But maybe there is a bridge?")
             elif npc in self.still_water:
@@ -1221,7 +1259,6 @@ class RPG:
             if (npc == "⚔️" or npc == "🆚") and self.combat_victory:
                 self.previous_moves.append(f"(🆚) You defeated the enemy!")
                 self.map[npc_position[0]][npc_position[1]] = f"💀"
-                self.combat_victory = False
 
         if self.combat_victory:
             self.combat_victory = False
@@ -1262,20 +1299,17 @@ class RPG:
             battle.bounty = selected_card.bounty
 
             self.set_rpg_options()
-        
+            await selected_card.set_ai_start_encounter_message(self.player1_card_name, self.map_name)
+            await selected_card.set_ai_encounter_message(self.player1_card_name, self.map_name)
             encounter_buttons_action_row = ActionRow(*self.encounter_buttons)
 
-            embedVar = Embed(title=f"**{selected_card.approach_message}{selected_card.name}**",
-                                        description=textwrap.dedent(f"""\
-            **Rewards** **{selected_card.bounty_message}**
-            {selected_card.battle_message}
-            """), color=0xf1c40f)
-
+            embedVar = Embed(title=f"**{selected_card.approach_message}{selected_card.name}**", description=f"*{selected_card.ai_start_encounter_message}*", color=0xf1c40f)
             embedVar.set_image(url="attachment://image.png")
             embedVar.set_thumbnail(url=self.player_avatar)
-            embedVar.set_footer(text=f"Use /quit to flee this encounter",icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
+            embedVar.set_footer(text=f"{selected_card.battle_message}\n💨Run to flee this encounter and return to Adventure.",icon_url="https://cdn.discordapp.com/emojis/877233426770583563.gif?v=1")
             
-            image_binary = selected_card.showcard()
+    
+            image_binary = selected_card.showcard(mode="RPG", encounter=True)
             image_binary.seek(0)
             card_file = File(file_name="image.png", file=image_binary)
 
@@ -1300,16 +1334,21 @@ class RPG:
                     #if talk works reward else batttle
                     randum_number = random.randint(1, 100)
                     if randum_number <= 75:
-                        embedVar = Embed(title=f"**{selected_card.name}** Says hello and allows you to leave", description="Maybe I need to complete a quest?", color=0xf1c40f)
-                        self.battling = False
-                        self.encounter = False
-                    else:
-                        embedVar = Embed(title=f"**{selected_card.name}** Doesn't want to talk", description="It's time to fight!", color=0xf1c40f)
-                        self.battling = True # For Now
-                        await private_channel.send(embed=embedVar)
-                        await BattleConfig.create_rpg_battle(self, ctx, battle)
                         await msg.edit(components=[])
                         await msg.delete()
+                        embedVar = Embed(title=f"**{selected_card.name}** Says hello and allows you to leave", description="Maybe I need to complete a quest?", color=0xf1c40f)
+                        talk_msg = await private_channel.send(embed=embedVar)
+                        self.battling = False
+                        self.encounter = False
+                        await talk_msg.delete(delay=3)
+                    else:
+                        await msg.edit(components=[])
+                        await msg.delete()
+                        embedVar = Embed(title=f"**{selected_card.name}** Doesn't want to talk", description="It's time to fight!", color=0xf1c40f)
+                        self.battling = True # For Now
+                        talk_msg = await private_channel.send(embed=embedVar)
+                        await talk_msg.delete(delay=3)
+                        await BattleConfig.create_rpg_battle(self, ctx, battle)
                 if button_ctx.ctx.custom_id == "run":
                     randum_number = random.randint(1, 100)
                     randum_number += self.player_speed
@@ -1319,6 +1358,8 @@ class RPG:
                         self.encounter = False
                     else:
                         self.previous_moves.append(f"(🆚) You failed to run away!")
+                        run_msg = await private_channel.send(f"🆚{ctx.author.mention} You failed to run away!")
+                        run_msg.delete(delay=3)
                         self.battling = True
                         await BattleConfig.create_rpg_battle(self, ctx, battle)
                     await msg.edit(components=[])
@@ -1327,6 +1368,11 @@ class RPG:
             except Exception as ex:
                 await msg.edit(components=[])
                 custom_logging.debug(ex)
+            except asyncio.TimeoutError:
+                await msg.edit(components=[])
+                custom_logging.debug(ex)
+                self.encounter = False
+                return 
 
     #Warp Movement
     async def handle_warp_movement(self, ctx, warp_index):
@@ -1334,40 +1380,160 @@ class RPG:
         warp_point_position = warp_target['position']
         self.warp_point_position = warp_point_position
         new_position = self.get_closest_passable_space(warp_point_position)
-        #Check if new position is a valid position , within range and on a passable square
+        print("new_position", new_position)
+
+        # Check if the new position is a valid position, within range, and on a passable square
+        if not self.is_reachable_without_bridge_or_water(self.player_position, new_position):
+            # Find the nearest valid position that is reachable
+            new_position = self.find_nearest_reachable_position(warp_point_position)
+            print("Adjusted new_position", new_position)
+
         self.map[self.player_position[0]][self.player_position[1]] = self.standing_on
         self.standing_on = self.map[new_position[0]][new_position[1]]
         self.map[new_position[0]][new_position[1]] = self.player_token
         self.player_position = new_position
         self.warp_target_type = warp_target['type']
         self.previous_moves.append(f"Warped to the {warp_target['type']}{get_emoji_label(warp_target['type'])}!")
- 
+    
 
+    def is_reachable_without_bridge_or_water(self, start, goal):
+        from collections import deque
+
+        rows = len(self.map)
+        cols = len(self.map[0])
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+
+        queue = deque([start])
+        visited = set()
+        visited.add(start)
+
+        while queue:
+            x, y = queue.popleft()
+            
+            if (x, y) == goal:
+                return True
+            
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                
+                if 0 <= nx < rows and 0 <= ny < cols and (nx, ny) not in visited:
+                    if self.map[nx][ny] not in self.bridges and self.map[nx][ny] not in self.still_water and self.map[nx][ny] not in self.walls:  # Exclude bridges, water, and walls
+                        queue.append((nx, ny))
+                        visited.add((nx, ny))
+
+        return False
+
+    
+    def is_bridge_directly_accessible(self, start, bridge_position):
+        from collections import deque
+
+        rows = len(self.map)
+        cols = len(self.map[0])
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+
+        queue = deque([start])
+        visited = set()
+        visited.add(start)
+
+        while queue:
+            x, y = queue.popleft()
+            
+            if (x, y) == bridge_position:
+                return True
+            
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                
+                if 0 <= nx < rows and 0 <= ny < cols and (nx, ny) not in visited:
+                    if self.map[nx][ny] not in self.still_water and self.map[nx][ny] not in self.walls:  # Allow bridges
+                        queue.append((nx, ny))
+                        visited.add((nx, ny))
+
+        return False
+        
+    
     def get_closest_warp_points(self, current_position, num_points=5):
         warp_distances = []
         cx, cy = current_position
-        index = 5
+
         for warp in self.warp_points:
             for i in range(len(self.map)):
                 for j in range(len(self.map[i])):
                     if self.map[i][j] == warp:
                         distance = abs(cx - i) + abs(cy - j)
-                        warp_distances.append({'position': (i, j), 'type': warp, 'distance': distance})
-                        index+= 1
+                        if self.is_reachable_without_bridge_or_water(current_position, (i, j)):
+                            warp_distances.append({'position': (i, j), 'type': warp, 'distance': distance})
+
+        bridges = []
+        for i in range(len(self.map)):
+            for j in range(len(self.map[i])):
+                if self.map[i][j] in self.bridges:
+                    distance = abs(cx - i) + abs(cy - j)
+                    if self.is_bridge_directly_accessible(current_position, (i, j)):
+                        bridges.append({'position': (i, j), 'type': self.map[i][j], 'distance': distance})
+
+        bridges.sort(key=lambda x: x['distance'])
+
+        for bridge in bridges:
+            if self.is_bridge_directly_accessible(current_position, bridge['position']):
+                warp_distances.append(bridge)
+                break
+
         warp_distances.sort(key=lambda x: x['distance'])
+
         return warp_distances[:num_points]
     
     
     def get_closest_passable_space(self, position):
         x, y = position
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Right, Down, Left, Up
+
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < len(self.map) and 0 <= ny < len(self.map[0]) and self.map[nx][ny] in self.passable_points:
-                return (nx, ny)
+            if 0 <= nx < len(self.map) and 0 <= ny < len(self.map[0]):
+                if self.map[nx][ny] in self.passable_points:
+                    return (nx, ny)
+                elif self.map[nx][ny] in self.bridges:
+                    # Ensure to return the accessible side of the bridge
+                    for ddx, ddy in directions:
+                        nnx, nny = nx + ddx, ny + ddy
+                        if 0 <= nnx < len(self.map) and 0 <= nny < len(self.map[0]) and self.map[nnx][nny] in self.passable_points:
+                            # Check if the initial position is directly accessible to the bridge
+                            if self.is_bridge_directly_accessible((x, y), (nx, ny)):
+                                return (nx, ny)
+                            else:
+                                return (nnx, nny)
         return position  # Return the original position if no passable space found
-
     
+    
+    def find_nearest_reachable_position(self, start):
+        from collections import deque
+
+        rows = len(self.map)
+        cols = len(self.map[0])
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+
+        queue = deque([start])
+        visited = set()
+        visited.add(start)
+
+        while queue:
+            x, y = queue.popleft()
+
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+
+                if 0 <= nx < rows and 0 <= ny < cols and (nx, ny) not in visited:
+                    if self.map[nx][ny] in self.passable_points:
+                        if self.is_reachable_without_bridge_or_water(self.player_position, (nx, ny)):
+                            return (nx, ny)
+
+                    visited.add((nx, ny))
+                    queue.append((nx, ny))
+
+        return start  # Fallback to the original point if no reachable passable space is found
+
+
     def get_relative_direction(self, old_position, new_position):
         old_x, old_y = old_position
         new_x, new_y = new_position
@@ -1505,14 +1671,14 @@ class RPG:
         return icon
 
     
-    def close_rpg_embed(self, player_card, opponent_card):
+    def close_rpg_embed(self):
         if self.is_rpg:
             close_message = "Adventure Battle"
             picon = "🗺️"
             f_message = f"🗺️ | Adventure Cut Short..."
             
             
-        embedVar = Embed(title=f"{picon} {opponent_card.universe} {close_message} Ended!", description=textwrap.dedent(f"""
+        embedVar = Embed(title=f"{picon} {self.universe} {close_message} Ended!", description=textwrap.dedent(f"""
             """))
         return embedVar
 

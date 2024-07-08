@@ -448,12 +448,14 @@ class Battle:
             if self.is_rpg:
                 self.starting_match_title = f"🗺️ Start Adventure Battle"
 
+    
     def get_starting_match_title(self):
         self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
         if self.is_tutorial_game_mode:
             self.starting_match_title = "✅ Click Start Match to Begin the Tutorial!"
         return  self.starting_match_title
 
+    
     def set_abyss_config(self, player):
         try:
             if self.is_easy_difficulty:
@@ -701,8 +703,6 @@ class Battle:
             }))
 
 
-
-
     def set_corruption_config(self):
         if self.selected_universe_full_data['CORRUPTED']:
             self.is_corrupted = True
@@ -862,7 +862,7 @@ class Battle:
         if player2_card.health <= 0:
             if self.is_tutorial_game_mode and not self.all_tutorial_tasks_complete:
                 self.match_has_ended = False
-                player2_card.health = 100
+                player2_card.health = 1
                 return self.match_has_ended
             self.match_has_ended = True
             self.player1_wins = True
@@ -2119,8 +2119,35 @@ class Battle:
                 winner.save_card(opponent_card, True)
                 self.rpg_config.card_drops.append(f"You won [{opponent_card.class_emoji}] **{opponent_card.name}**!")
                 drop_response = f"You won 🎴 {opponent_card.name}!"
-        
+
                 message = f"You Defeated {opponent_card.name}'s avatar\n🪙 {'{:,}'.format(bounty_amount)} Reward Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
+                
+                win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {self.turn_total} rounds.", description=f"View a summary of the rewards and match history here\n\n🪙 {'{:,}'.format(bounty_amount)} Coin Received!\n{drop_response}", color=0x1abc9c)
+                
+                battle_history_embed = Embed(title=f"📜 Match History", description=f"View the match history here", color=0x1abc9c)
+                battle_history_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+
+                battle_stats_embed = Embed(title=f"📊 Battle Stats", description=f"View the battle stats here", color=0x1abc9c)
+
+                #Most Focus
+                f_message = self.get_most_focused(self.player1_card, self.player2_card)
+                battle_stats_embed.add_field(name=f"🌀 | Focus Count",
+                                value=f"**{self.player2_card.name}**: {self.player2_card.focus_count}\n**{self.player1_card.name}**: {self.player1_card.focus_count}")
+                #Most Blitz
+                b_message = self.get_most_blitzed(self.player1_card, self.player2_card)
+                battle_stats_embed.add_field(name=f"💢 | Blitz Count",
+                                value=f"**{self.player2_card.name}**: {self.player2_card.blitz_count}\n**{self.player1_card.name}**: {self.player1_card.blitz_count}")
+                #Most Damage Dealth
+                d_message = self.get_most_damage_dealt(self.player1_card, self.player2_card)
+                battle_stats_embed.add_field(name=f"💥 | Damage Dealt",
+                                value=f"**{self.player2_card.name}**: {self.player2_card.damage_dealt}\n**{self.player1_card.name}**: {self.player1_card.damage_dealt}")
+                #Most Healed
+                h_message = self.get_most_damage_healed(self.player1_card, self.player2_card)
+                battle_stats_embed.add_field(name=f"❤️‍🩹 | Healing",
+                                value=f"**{self.player2_card.name}**: {self.player2_card.damage_healed}\n**{self.player1_card.name}**: {self.player1_card.damage_healed}")
+
+                return message
+                # return win_embed, battle_history_embed, battle_stats_embed
 
             if winner.association != "PCG":
                 await crown_utilities.blessguild(250, winner.association)
@@ -2138,7 +2165,7 @@ class Battle:
             if self.is_rpg:
                 message = f"You were defeated by {opponent_card.name}'s avatar\nThe game lasted {self.turn_total} rounds."
 
-        embedVar = Embed(title=f"{message}", color=0x1abc9c)
+        embedVar = Embed(title=f"{message}\n", color=0x1abc9c)
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}")
         
         f_message = self.get_most_focused(winner_card, opponent_card)
@@ -2155,7 +2182,7 @@ class Battle:
         #Most Healed
         h_message = self.get_most_damage_healed(winner_card, opponent_card)
         embedVar.add_field(name=f"❤️‍🩹 | Healing",
-                        value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}")
+                        value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}\n")
         
         return embedVar
 

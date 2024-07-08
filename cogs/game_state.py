@@ -526,7 +526,7 @@ class GameState(Extension):
                 battle_config.player1_card.stats_handler(battle_config, battle_config.player1, total_complete)
                 if battle_config.is_rpg:
                     self.combat_victory = True
-                    await rpg_win(battle_config, battle_msg, private_channel, user1)
+                    await rpg_win(self, battle_config, battle_msg, private_channel, user1)
                     return
                 await explore_win(battle_config, battle_msg, private_channel, user1)
 
@@ -553,19 +553,27 @@ async def explore_win(battle_config, battle_msg, private_channel, user1):
         await battle_msg.delete(delay=2)
         await asyncio.sleep(2)
         battle_msg = await private_channel.send(embed=explore_response)
+        
         return True
     else:
         return False
     
-async def rpg_win(battle_config, battle_msg, private_channel, user1):
+async def rpg_win(self, battle_config, battle_msg, private_channel, user1):
     if battle_config.is_rpg:
         battle_config.rpg_config.adventuring = True
         battle_config.rpg_config.battling = False
         battle_config.rpg_config.encounter = False
         rpg_response =  await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
         await battle_msg.delete(delay=2)
+        rpg_response.delete(delay=3)
         await asyncio.sleep(2)
-        battle_msg = await private_channel.send(embed=rpg_response)
+        #win, history, stats = await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
+        #battle_msg = await private_channel.send(embed=rpg_response)
+        # embed_list = [win, history, stats]
+        # paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+        # paginator.show_select_menu = True
+        # await paginator.send(private_channel)
+        # await paginator.delete(delay=5)
         return True
     else:
         return False

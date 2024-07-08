@@ -580,6 +580,10 @@ class Card:
                 "BLAST": {1: 10, 2: 15, 3: 20, 4: 50, 5: 75, 6: 100, 7: 150, 8: 250, 9: 350, 10: 450},
             }
 
+            self.ai_encounter_message = ""
+            self.ai_start_encounter_message = ""
+
+
         def set_enhancer_value(self):
             if self.move4enh in self.enhancer_values:
                 set_of_values = self.enhancer_values[self.move4enh]
@@ -1229,7 +1233,7 @@ class Card:
 
         if battle_config.is_rpg:
             selected_mode = "RPG"
-            self.approach_message = "Encountering the Avatar of "
+            self.approach_message = "🗺️ Encounter with "
             self._explore_cardtitle = {'TITLE': 'Universe Title'}
             low = 100
             high = 500
@@ -1269,7 +1273,7 @@ class Card:
         self.bounty_message = f"{bounty_icon} {'{:,}'.format(self.bounty)}"
         self.battle_message = "\n:crown: | **Glory**: Earn the Card & 2x Bounty, If you Lose, You lose gold!\n🪙 | **Gold**: Earn gold only!"
         if battle_config.is_rpg:
-            self.battle_message = "\n🪙 | Battle to earn this card!"
+            self.battle_message = f"💬Talk to interact with {self.name}...\n🆚Fight to battle, win and this card and rewards!"
         self.set_card_level_buffs(None)
 
 
@@ -1454,7 +1458,7 @@ class Card:
         return self.evasion_message
 
 
-    def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle"):   
+    def showcard(self, arm="none", turn_total=0, opponent_card_defense=0, mode="non-battle", encounter=False):   
         try:    
             if self.health <= 0:
                 im = get_card(self.path, self.name, "base")
@@ -1526,6 +1530,7 @@ class Card:
                 moveset_font_2 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", super_font_size)
                 moveset_font_3 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", ultimate_font_size)
                 moveset_font_4 = ImageFont.truetype("fonts/Jersey20-Regular.ttf", enhancer_font_size)
+                encounter_font = ImageFont.truetype("fonts/Jersey20-Regular.ttf", 33)
                 
 
                 health_bar, character_name = get_character_name_and_health_bar(self, draw, header, title_size)
@@ -1567,14 +1572,18 @@ class Card:
                         align="left")
                     pilmoji.text((602, 180), f"{self.universe_crest} {self.universe}", (255, 255, 255), font=passive_font, stroke_width=1, stroke_fill=(0, 0, 0),
                         align="left")
-                    pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
-                                stroke_fill=(0, 0, 0))
-                    pilmoji.text((600, 290), move2_text.strip(), (255, 255, 255), font=moveset_font_2, stroke_width=2,
-                                stroke_fill=(0, 0, 0))
-                    pilmoji.text((600, 330), move3_text.strip(), (255, 255, 255), font=moveset_font_3, stroke_width=2,
-                                stroke_fill=(0, 0, 0))
-                    pilmoji.text((600, 370), move_enhanced_text.strip(), (255, 255, 255), font=moveset_font_4, stroke_width=2,
-                                stroke_fill=(0, 0, 0))
+                    if mode == "RPG" and encounter:
+                        ai_encounter_message =  self.ai_encounter_message
+                        pilmoji.text((602, 230), ai_encounter_message, (255, 255, 255), font=encounter_font, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
+                    else:
+                        pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
+                                    stroke_fill=(0, 0, 0))
+                        pilmoji.text((600, 290), move2_text.strip(), (255, 255, 255), font=moveset_font_2, stroke_width=2,
+                                    stroke_fill=(0, 0, 0))
+                        pilmoji.text((600, 330), move3_text.strip(), (255, 255, 255), font=moveset_font_3, stroke_width=2,
+                                    stroke_fill=(0, 0, 0))
+                        pilmoji.text((600, 370), move_enhanced_text.strip(), (255, 255, 255), font=moveset_font_4, stroke_width=2,
+                                    stroke_fill=(0, 0, 0))
 
 
                 image_binary = BytesIO()
@@ -1585,6 +1594,17 @@ class Card:
         except Exception as ex:
             custom_logging.debug(ex)
 
+    async def set_ai_encounter_message(self, opponent_card, location):
+        ai_encounter_message =  await ai.rpg_encounter_message(self.name, self.universe, opponent_card, location)
+        self.ai_encounter_message = ai_encounter_message
+        return ai_encounter_message
+    
+    async def set_ai_start_encounter_message(self, opponent_card, location):
+        ai_encounter_message =  await ai.rpg_start_encounter_message(self.name, self.universe, opponent_card, location)
+        self.ai_start_encounter_message = ai_encounter_message
+
+        return ai_encounter_message
+    
     def basic_attack_trait_handler(self, universe, battle_config, opponent_card):
         does_repel = False
         does_absorb = False
@@ -3129,7 +3149,7 @@ class Card:
             opponent_card.health -= dmg['DMG']
             battle_log_msg = (
                 f"({battle_config.turn_total}) {dmg['MESSAGE']}\n"
-                f"[🌕 {self.name} gained {light_value:,} attack] [{self.light_speed_attack_value:,} damage stored]"
+                f"[{self.name} gained {light_value:,} attack] [{self.light_speed_attack_value:,} 🌕 damage stored]"
             )
         else:
             battle_log_msg = (
@@ -3936,7 +3956,7 @@ class Card:
             # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name} injects poison! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
             if self.poison_dmg == poison_capacity:
-                poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name}'s poison has reached max capacity! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
+                poison_capacity_message = f"({battle_config.turn_total}) 🧪 {self.name}'s injected maximum poison! {opponent_card.name} will now take {round(self.poison_dmg):,} damage when attacking."
             battle_config.add_to_battle_log(poison_capacity_message)
 
         elif dmg['ELEMENT'] == "ROT":
@@ -3952,7 +3972,7 @@ class Card:
             # battle_config.add_to_battle_log(f"({battle_config.turn_total}) {dmg['MESSAGE']}")
             rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name} inflits rot! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
             if self.rot_dmg == rot_capacity:
-                rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name}'s rot has reached max capacity! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
+                rot_capacity_message = f"({battle_config.turn_total}) 🩻 {self.name}'s inflicted maximum rot! {opponent_card.name} will now take {round(self.rot_dmg):,} damage to max health when attacking."
             battle_config.add_to_battle_log(rot_capacity_message)
 
 
