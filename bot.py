@@ -1225,7 +1225,7 @@ async def register(ctx):
                               if trait['NAME'] == 'Pokemon':
                                  mytrait = trait
                      if mytrait:
-                        traitmessage =f"*{mytrait['EFFECT']}* {mytrait['TRAIT']}"
+                        traitmessage =f"*{mytrait['EFFECT']}*"
                      available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
                      
                      embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         

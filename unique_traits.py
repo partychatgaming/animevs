@@ -63,8 +63,8 @@ traits = [{
     'TRAIT': ' You can Resolve twice. Blood Orb : 1st Resolve Heal 1/2 of Max Health. Ascension : 2nd Resolve Heal Max Health'
 },{
     'NAME': '7ds',
-    'EFFECT': 'Increase Power, Power Of Friendship',
-    'TRAIT': 'Increase Power : On Opp Focus gain 10% Attack & Defense and 60 Stamina. Power Of Friendship : On Opp Focus gain Summon Rest, Summoning amplifies Increase Power to a Focus Buff'
+    'EFFECT': 'Increase Power Level, Power Of Friendship',
+    'TRAIT': 'Increase Power Level: On Opp Focus gain 10% Attack & Defense and 60 Stamina. Power Of Friendship : On Opp Focus gain Summon Rest, Summoning amplifies Increase Power to a Focus Buff'
 },{
     'NAME': 'One Punch Man',
     'EFFECT': 'Heroes & Monsters',

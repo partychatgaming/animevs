@@ -36,6 +36,10 @@ class RPG:
         self.left_position = None
         self.right_position = None
         self.last_move = None
+
+        self.last_thought = None
+        self.train_of_thought = None
+
         self.start_x = 8
         self.start_y = 4
         self.starting_position = (10, 5)
@@ -398,7 +402,7 @@ class RPG:
         if direction in ["5","6","7","8","9"]:
             player_warped = True
 
-
+        self.direction = "up"
         cardinal = "in front of you"
         if direction == "2" and x >= 0:#up
             player_moved = True
@@ -578,7 +582,7 @@ class RPG:
                 else:
                     self.previous_moves.append("Create action for this interaction!")
                 await self.get_player_sorroundings()
-        
+
         if player_warped:
             await self.handle_warp_movement(ctx, int(direction)-5)
             await self.get_player_sorroundings()
@@ -759,7 +763,7 @@ class RPG:
         if not self.moving:
             current_map = self.display_map()
         
-        self.set_rpg_options()
+        #self.set_rpg_options()
         if not self.encounter:
             movement_action_row = ActionRow(*self.movement_buttons)
             rpg_action_row = ActionRow(*self.action_buttons)
@@ -805,14 +809,25 @@ class RPG:
             embedVar.add_field(name=f"**[🥋]Skills**", value=f"{skill_message}")
         
         if self.above_position or self.below_position or self.left_position or self.right_position or self.last_move:
-            ai_area_msg = await ai.rpg_movement_ai_message(self.player1_card_name, self.universe,self.last_move, self.map_name, get_emoji_label(self.above_position),get_emoji_label(self.below_position) ,get_emoji_label(self.left_position),get_emoji_label(self.right_position))
-            embedVar.add_field(name=f"**[🔍]Action**", value=f"**[👣]Move**\n{ai_area_msg}")
+            if self.last_thought:
+                # ai_last_action = await ai.rpg_action_ai_message(self.player1_card_name, self.universe,self.last_move, self.map_name, get_emoji_label(self.above_position),get_emoji_label(self.below_position) ,get_emoji_label(self.left_position),get_emoji_label(self.right_position),self.last_thought)
+                # self.previous_moves.append(ai_last_action)
+                ai_area_msg = await ai.rpg_movement_ai_message(self.player1_card_name, self.universe,self.last_move, self.standing_on, self.map_name, get_emoji_label(self.above_position),get_emoji_label(self.below_position) ,get_emoji_label(self.left_position),get_emoji_label(self.right_position), self.last_thought)
+                if self.train_of_thought:
+                    ai_area_msg = await ai.rpg_movement_ai_message(self.player1_card_name, self.universe,self.last_move,self.standing_on, self.map_name, get_emoji_label(self.above_position),get_emoji_label(self.below_position) ,get_emoji_label(self.left_position),get_emoji_label(self.right_position), self.last_thought, self.train_of_thought)
+                else:
+                    self.train_of_thought = self.last_thought
+            else:
+                ai_area_msg = await ai.rpg_movement_ai_message(self.player1_card_name, self.universe,self.last_move,self.standing_on, self.map_name, get_emoji_label(self.above_position),get_emoji_label(self.below_position) ,get_emoji_label(self.left_position),get_emoji_label(self.right_position))
+            embedVar.add_field(name=f"**[💭]{self.player1_card_name}'s Thoughts**", value=f"*{ai_area_msg}*")
+            self.last_thought = ai_area_msg
         embedVar.add_field(name=f"[{self.player_token}]My Player Token", value=f"**[{self.standing_on}]** *Standing On {get_ground_type(self.standing_on)}*\n{rpg_map_embed}")
         embedVar.set_thumbnail(url=self.player_card_image)
         embedVar.set_footer(text=self.get_previous_moves_embed())
         # await rpg_msg.delete(delay=1)
         # await asyncio.sleep(1)
         await rpg_msg.edit(embed=embedVar, components=components)
+        await asyncio.sleep(2)
         self._rpg_msg = rpg_msg
         return rpg_msg, components
 
@@ -839,7 +854,8 @@ class RPG:
                 self.set_rpg_options()
                 self.moving = True
                 await asyncio.sleep(1)
-                await self.rpg_player_move_embed(ctx, private_channel, rpg_msg)
+                #await self.rpg_player_move_embed(ctx, private_channel, rpg_msg)
+                return
         
     #Interactions
     async def rpg_action_handler(self,ctx, private_channel, player_position, npc, npc_position, direction=None):
