@@ -842,6 +842,11 @@ class Profile(Extension):
                 embed = Embed(title="🎴 Cards", description="You currently own no Cards.", color=0x7289da)
                 await ctx.send(embed=embed)
                 return
+
+            if len(player.cards) > 80:
+                embed = Embed(title="🎴 Cards", description="You have too many cards to display. Please use the filters to narrow down list", color=0x7289da)
+                await ctx.send(embed=embed)
+                return
             
             paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Cards")
             paginator.show_select_menu = True
@@ -1013,6 +1018,7 @@ class Profile(Extension):
     @slash_option(
         name="filtered",
         description="Filter by Universe of the card you have equipped",
+        required=False,
         opt_type=OptionType.BOOLEAN
     )
     @slash_option(
@@ -1022,7 +1028,7 @@ class Profile(Extension):
         required=False,
         autocomplete=True
     )
-    async def arms(self, ctx, filtered, type_filter: str = ""):
+    async def arms(self, ctx, filtered: str = "", type_filter: str = ""):
         await ctx.defer()
         try:
             a_registered_player = await crown_utilities.player_check(ctx)
@@ -1084,6 +1090,11 @@ class Profile(Extension):
 
                     if not embed_list and not filtered:
                         embed = Embed(title="🦾 Arms", description="You currently own no Arms.", color=0x7289da)
+                        await ctx.send(embed=embed, ephemeral=True)
+                        return
+                    
+                    if len(player.arms) > 80:
+                        embed = Embed(title="🦾 Arms", description="You have too many Arms to display. Please use the filters to narrow down your search.", color=0x7289da)
                         await ctx.send(embed=embed, ephemeral=True)
                         return
 

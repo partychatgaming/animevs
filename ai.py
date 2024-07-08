@@ -155,6 +155,7 @@ async def match_start_message(your_card_name, your_card_universe, opponent_card,
     summary = response.choices[0].message.content
     return summary
 
+
 async def starting_battle_ai_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
@@ -171,6 +172,7 @@ async def starting_battle_ai_message(your_card_name, your_card_universe, opponen
     # Extract the summary from the response
     summary = response.choices[0].message.content
     return summary
+
 
 async def rpg_encounter_message(your_card_name, your_card_universe, opponent_card, location):
     await asyncio.sleep(1)
@@ -189,6 +191,7 @@ async def rpg_encounter_message(your_card_name, your_card_universe, opponent_car
     summary = response.choices[0].message.content
     return summary
 
+
 async def rpg_start_encounter_message(your_card_name, your_card_universe, opponent_card, location):
     await asyncio.sleep(1)
     # Define the prompt to indicate the context of the anime card game assistant
@@ -206,7 +209,8 @@ async def rpg_start_encounter_message(your_card_name, your_card_universe, oppone
     summary = response.choices[0].message.content
     return summary
 
-async def rpg_movement_ai_message(your_card_name, your_card_universe,location,  move, up, down, left, right):
+
+async def rpg_movement_ai_message(your_card_name, your_card_universe,location,  move, stand, up, down, left, right, last_thought = None, train_of_thought = None):
     await asyncio.sleep(1)
     if up is None:
         up = "Clear View"
@@ -217,7 +221,36 @@ async def rpg_movement_ai_message(your_card_name, your_card_universe,location,  
     if right is None:
         right = "Clear View"
     # Define the prompt to indicate the context of the anime card game assistant
-    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you navigating a {location} moving {move}. Describe the following emojis as potential points of interest. You see a {up} a {down} a {left} and a {right}. Describe each in 1 sentence. Do not include quotes. Use under 30 characters in total. Describe the scene as if you were there in total in a narrartive form"
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you navigating a {location} moving {move}. The following emojis represent potential points of interest. You are standing on {stand} and you see a {up} a {down} a {left} and a {right}. Speak as though you are a conversational inner monologue. Describe the scene as if you were there standing in the scene. Describe it in 3 complete sentences or less. Take a narrative writing style intended to be interesting to read. Use no more than 60 characters in total. Take the Universe in consideration when describiing the scene and the tone of the scene. Do not include quotes."
+    if last_thought:
+        prompt += f" You last thought was {last_thought}. View these thoughts as a continuation of your experience walking in this world. Place yourself in this headspace and respond accordingly. Ensure your response is unique from your last thought.Try not to repeat Adjectives or Adverbs"
+    if train_of_thought:
+        prompt += f" You have a train of thought that is {train_of_thought}. Use this as a foundation for your response. Ensure your response is unique from your last thought.If you last three thoughts are serious tell a situation joke or pun. Try not to repeat Adjectives or Adverbs"
+    # Call the OpenAI API to summarize messages using the GPT-4 model
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+    
+    # Extract the summary from the response
+    summary = response.choices[0].message.content
+    return summary
+
+
+async def rpg_action_ai_message(your_card_name, your_card_universe,location,  move, up, down, left, right, thoughts):
+    await asyncio.sleep(1)
+    if up is None:
+        up = "Clear View"
+    if down is None:
+        down = "Clear View"
+    if left is None:
+        left = "Clear View"
+    if right is None:
+        right = "Clear View"
+    # Define the prompt to indicate the context of the anime card game assistant
+    prompt = f"You are {your_card_name} from the {your_card_universe} universe and you navigating a {location}, you think this about this area :{thoughts} and decide to move {move}. The following emojis represent potential points of interest. You see a {up} a {down} a {left} and a {right}. Create a complete scene from these emojis and describe how the character is feeling with their thoughts as a foundatation for the tone. Describe it in 2 sentences or less. Use no more than 70 characters in total. Do not include quotes.Do not use the characters name. Be witty and creative."
     
     # Call the OpenAI API to summarize messages using the GPT-4 model
     response = client.chat.completions.create(
