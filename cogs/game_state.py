@@ -565,7 +565,7 @@ async def rpg_win(self, battle_config, battle_msg, private_channel, user1):
         battle_config.rpg_config.encounter = False
         rpg_response =  await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
         await battle_msg.delete(delay=2)
-        rpg_response.delete(delay=3)
+        #rpg_response.delete(delay=3)
         await asyncio.sleep(2)
         #win, history, stats = await battle_config.explore_embed(user1, battle_config.player1, battle_config.player1_card, battle_config.player2_card)
         #battle_msg = await private_channel.send(embed=rpg_response)

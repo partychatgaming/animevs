@@ -98,6 +98,8 @@ class Card:
             self.is_summoner = False
             self.card_id = 0
             self.is_monstrosity = False
+            self.fighter_bonus = 0
+            self.ranger_bonus = 0
             self.class_tutorial_message = ""
             self.class_tutorial_message_r = ""
             self.value = 0
@@ -257,6 +259,7 @@ class Card:
             self.omingear_bonus = 0
             self.soul_resonance = False
             self.soul_resonance_amount = 0
+            
 
 
             self.slime_buff = 0
@@ -812,6 +815,7 @@ class Card:
             self.physical_parry_value = 1
             self.class_value = p_value
             self.class_tutorial_message = f"🔄 +{p_value} Parries!"
+            self.fighter_bonus = 0 
         
         if self.card_class == "MAGE":
             self.is_mage = True
@@ -871,9 +875,6 @@ class Card:
             self.is_assassin = True
             self._assassin_active = True
             self._assassin_attack = value
-            self.bleed_hit_value = 15
-            self.poison_damage_value = 50
-            self.death_buff_by_value = .50
             self.class_tutorial_message = f"{self.class_emoji} +{value} Sneak Attacks!"
             
         if self.card_class == "SWORDSMAN":
@@ -1133,10 +1134,14 @@ class Card:
             if arm_type == "SHIELD":
                 self.shield_active = True
                 self._shield_value = self._shield_value + arm_value
+                if self.is_fighter:
+                    self._shield_value = self._shield_value * 2
 
             if arm_type == "BARRIER":
                 self.barrier_active = True
                 self._barrier_value = self._barrier_value + arm_value
+                if self.is_fighter:
+                    self._barrier_value = self._barrier_value
 
             if arm_type == "PARRY":
                 self.parry_active = True
@@ -1235,8 +1240,8 @@ class Card:
             selected_mode = "RPG"
             self.approach_message = "🗺️ Encounter with "
             self._explore_cardtitle = {'TITLE': 'Universe Title'}
-            low = 100
-            high = 500
+            low = 0
+            high = 10
             if battle_config.is_hard_difficulty:
                 low = 500
                 high = 1000
@@ -1994,11 +1999,12 @@ class Card:
                 print("Current Damage After Flavor", true_dmg)
 
                 #Checking for Minimum True Damage
-                if true_dmg <= 0 or true_dmg is None or not true_dmg:
+                if true_dmg <= 0:
                     true_dmg = 50
 
                 #Enhanced Guard Effect
-                if opponent_title.enhanced_guard_effect:
+                if opponent_title.enhanced_guard_effect and opponent_card.used_block:
+                    battle_config.add_to_battle_log(f"(🎗️) {opponent_card.name}'s Enhanced Guard reduced {self.name}'s attack!")
                     true_dmg = true_dmg - (true_dmg * .8)
 
                 #Naruto Chakra Control Trait
@@ -2017,6 +2023,7 @@ class Card:
                 hit_roll = round(random.randint(1, 20))  
                 
                 #Evasion Modifiers
+                print("True Damage before Hit Roll", true_dmg)
                 hit_roll = self.adjust_hit_roll(battle_config, hit_roll, _opponent_card, summon_used, true_dmg, move_element, low_hit, med_hit, standard_hit, high_hit, miss_hit)
                 print("Final Hit Roll: ", hit_roll)
                 if move_element in ["RECKLESS", "RECOIL"] and hit_roll > miss_hit:
@@ -2102,7 +2109,7 @@ class Card:
                 else:
                     message = f"{move_emoji} {attacker} hit {_opponent_card.name} for {true_dmg:,} damage"
 
-
+                print("True Damage After Hit Mod", true_dmg)
                 if is_physical_element:
                     if self.stamina > 80:
                         true_dmg = round(true_dmg * 1.5)
@@ -2148,7 +2155,8 @@ class Card:
                             message = f"{_opponent_card.name} absorbed {turn_card.name}'s attack for {true_dmg:,} healing ({move_emoji} absorbed)"
                         does_absorb = True
                         battle_config.add_to_battle_log(f"({battle_config.turn_total}) {message}")
-                        
+                
+                print("True Damage After Hit Affinities", true_dmg)
                 #Assasin Strike Checks
                 if self._assassin_active and not summon_used:
                     self._assassin_value += 1

@@ -503,14 +503,13 @@ class Play(Extension):
 async def add_ai_start_messages(battle_config):
     if not battle_config.turn_zero_has_happened:
         class_effects = {
-            "ASSASSIN": "🥋 {name} the {class_message} gained {class_value} sneak attacks",
-            "MAGE": "🥋 {name} the {class_message} gained a {class_value}% boost to elemental attacks",
+            "ASSASSIN": "🥋 {name} the {class_message} gained 💢Blitz and {class_value} sneak attacks",
+            "MAGE": "🥋 {name} the {class_message} gained a {class_value}% boost to 🔅elemental attacks",
             "RANGER": "🥋 {name} the {class_message} gained 💠 {class_value} barriers",
             "TANK": "🥋 {name} the {class_message} gained a 🌐 {class_value} shield",
-            "HEALER": "🥋 {name} the {class_message} boosted their healing by {class_value}%",
-            "SUMMONER": "🥋 {name} the {class_message} calls forth {summon_name} with {summoner_value}% increased ability",
-            "FIGHTER": "🥋 {name} the {class_message} gained 🔁 {class_value} parries",
-            "TACTICIAN": "🥋 {name} the {class_message} can strategize against their opponent!",
+            "HEALER": "🥋 {name} the {class_message} boosted their  ❤️‍🩹healing by {class_value}%",
+            "SUMMONER": "🥋 {name} the {class_message} calls forth 🧬{summon_name} with {summoner_value}% increased ability",
+            "FIGHTER": "🥋 {name} the {class_message} gained 🔁 {class_value} parries & doubled protection arms",
         }
 
         def append_previous_moves(card, player_name):
@@ -1271,7 +1270,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         talisman_message = f"🥋 Ultimate Strategy"
     player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
     if turn_card.universe in crown_utilities.universe_stack_traits:
-        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}{universe_stacks}\n{summon_message}"
+        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"
     tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
     #map_embed = battle_config.get_map_message(turn_card)
     embedVar = Embed(title=f"", color=turn_card.health_color)
