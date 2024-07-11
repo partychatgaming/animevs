@@ -146,6 +146,9 @@ class Battle:
         self.rpg_map = []
         self.rpg_config = None
         self.rpg_msg = None
+        self.rpg_atk_boost = False
+        self.rpg_def_boost = False  
+        self.rpg_hlt_boost = False
 
         # Boss Important Descriptions
         self._arena_boss_description = ""
@@ -208,6 +211,8 @@ class Battle:
         self._victory_streak = 0
         self._hall_defense = 0
         self._raid_bounty_plus_bonus = 0
+
+        #RPG Confi
 
         self.player1 = _player
         self.player1_card = None
@@ -2304,6 +2309,14 @@ class Battle:
             self.player1_card.set_arm_config(self.player1_arm.passive_type, self.player1_arm.name, self.player1_arm.passive_value, self.player1_arm.element)
             self.player1_card.set_affinity_message()
             self.player1.get_talisman_ready(self.player1_card)
+
+            #rpg checks
+            if self.rpg_atk_boost:
+                self.player1_card.attack += round(self.player1_card.attack * .50)
+            if self.rpg_def_boost:
+                self.player1_card.defense += round(self.player1_card.defense * .50)
+            if self.rpg_hp_boost:
+                self.player1_card.health += round(self.player1_card.health * .50)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__

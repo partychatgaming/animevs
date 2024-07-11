@@ -200,6 +200,7 @@ class GameState(Extension):
             # await battle_msg.delete()
             await asyncio.sleep(1)
             end_msg = await private_channel.send(embed=loss_response, components=[play_again_buttons_action_row])
+            
 
             def check(component: Button) -> bool:
                 return component.ctx.author == user1
@@ -212,7 +213,8 @@ class GameState(Extension):
                         battle_config.rpg_config.adventuring = True
                         battle_config.rpg_config.battling = False
                         battle_config.rpg_config.encounter = False
-                        battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
+                        battle_config.rpg_config.previous_moves.append(f"💨You Lose! Fleeing Encounter...!")
+                        await end_msg.delete(delay=3)
                     if battle_config.is_duo_mode or battle_config.is_co_op_mode:
                         loss_response = await battle_config.you_lose_embed(gameClock, battle_config.player1_card, battle_config.player2_card, battle_config.player3_card)
                     else:

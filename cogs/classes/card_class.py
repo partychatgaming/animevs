@@ -585,6 +585,7 @@ class Card:
 
             self.ai_encounter_message = ""
             self.ai_start_encounter_message = ""
+            
 
 
         def set_enhancer_value(self):
@@ -2666,6 +2667,8 @@ class Card:
             if self._swordsman_active:
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained {self._swordsman_value} critical strikes")
             if self.is_tank:
+                if self._shield_value <= 0:
+                    self._shield_value = 0
                 self._shield_value +=  (self.tier * 250) + self.card_lvl
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) 🥋 {self.name} gained +🌐{(self.tier * 250) + self.card_lvl} shield")
             battle_config.turn_total = battle_config.turn_total + 1
@@ -3329,7 +3332,7 @@ class Card:
         if deals_damage:
             opponent_card.health = round(opponent_card.health - dmg['DMG'])
 
-        opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_debuff_value)
+        opponent_card.max_health = opponent_card.max_health - round(dmg['DMG'] * self.life_buff_value)
         self.max_health = self.max_health + round(dmg['DMG'] * self.life_buff_value)
         self.health = self.health + round((dmg['DMG'] * self.life_buff_value + (self.max_health * 0.05)))
 

@@ -174,6 +174,9 @@ class Player:
         else:
             self.rebirth_icon = '🧚‍♂️'
       
+        self.rpg_atk_boost = False
+        self.rpg_def_boost = False  
+        self.rpg_hlt_boost = False
 
 
 
@@ -376,7 +379,31 @@ class Player:
         try:
             if len(self.cards) >= 80 and not rpg_mode:
                 return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
+            if card.name in self.cards:
+                if card.card_lvl > 1:
+                    atk_def_buff = 0
+                    ap_buff = 0
+                    hlt_buff = 0
+                    if (card.card_lvl + 1) % 2 == 0:
+                        atk_def_buff = crown_utilities.level_sync["ATK_DEF"] or 2
+                    if (card.card_lvl + 1) % 3 == 0:
+                        ap_buff = crown_utilities.level_sync["AP"] or 2
+                    if (card.card_lvl + 1) % 20 == 0:
+                        hlt_buff = crown_utilities.level_sync["HLT"] or 10
 
+                    update_query = {
+                        '$set': {'CARD_LEVELS.$[type].EXP': 0},
+                        '$inc': {
+                            'CARD_LEVELS.$[type].LVL': card.card_lvl,
+                            'CARD_LEVELS.$[type].ATK': atk_def_buff,
+                            'CARD_LEVELS.$[type].DEF': atk_def_buff,
+                            'CARD_LEVELS.$[type].AP': ap_buff,
+                            'CARD_LEVELS.$[type].HLT': hlt_buff
+                        }
+                    }
+                    filter_query = [{'type.CARD': str(card.name)}]
+                    response = db.updateUser(self.user_query, update_query, filter_query)
+                return f"Gained 1 Level for {card.name}."
             code = random.randint(1000000, 9999999)
 
             # First update: Push the card name to CARDS array
@@ -638,16 +665,17 @@ class Player:
     
 
     def save_arm(self, arm, rpg_mode =False):
+        for a in self.arms:
+            if arm.name == a['ARM']:
+                return False
         if rpg_mode:
             if len(self.arms) >= 80:
                 return "You have reached the maximum amount of arms in your inventory. Please remove an arm to add a new one"
             random_number = random.randint(5, 100)
+            
             update_query = {'$addToSet': {'ARMS': {"ARM": arm, "DUR": random_number}}}
             response = db.updateUserNoFilter(self.user_query, update_query)
             return random_number
-        for a in self.arms:
-            if arm.name == a['ARM']:
-                return False
             
         if len(self.arms) >= 80:
             return "You have reached the maximum amount of arms in your inventory. Please remove an arm to add a new one."
@@ -694,12 +722,13 @@ class Player:
             if summon.name == s['NAME']:
                 return False
             
-        if len(self.summons) >= 80 and not rpg_mode:
+        if len(self.summons) >= 80:
             return "You have reached the maximum amount of summons in your inventory. Please remove a summon to add a new one."
 
 
         update_query = {'$addToSet': {'PETS': {"NAME": summon.name, "LVL": summon.level, "EXP": summon.exp, summon.ability: summon.passive_value, "TYPE": summon.ability_type, "BOND": summon.bond, "BONDEXP": summon.bond_exp, "PATH": summon.path}}}
         response = db.updateUserNoFilter(self.user_query, update_query)
+        return True
 
 
     def remove_summon(self, summon_name):
