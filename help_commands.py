@@ -277,3 +277,5 @@ __Game Options__
 
 [Join the Anime VS+ Support Server](https://discord.gg/pcn)
 """)
+
+

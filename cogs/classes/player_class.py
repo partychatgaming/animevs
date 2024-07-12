@@ -413,11 +413,11 @@ class Player:
             if rpg_mode:
                 if len(self.cards) >= 80:
                     return "You have reached the maximum amount of cards in your inventory. Please remove a card to add a new one."
-                lower = 100
-                upper = 200
+                lower = 10
+                upper = 100
                 tier = card.tier
                 if self.difficulty == "HARD":
-                    lowewr = 250
+                    lowewr = 100
                     upper = 500
                     tier = card.tier + 1
                 if self.difficulty == "EASY":
@@ -521,10 +521,10 @@ class Player:
             return False
 
 
-    def save_title(self, universe, rpg_title_drop =None):
+    def save_title(self, universe, rpg_title_drop=None):
         titles = [x for x in db.queryAllTitles() if x['UNIVERSE'] == universe and x['TITLE'] not in self.titles]
         stats = db.query_stats_by_player(self.did)
-        message = None
+        message = ""
         for title in titles:
             if title['UNLOCK_METHOD'] and title['AVAILABLE']:
                 unlock_method = title['UNLOCK_METHOD']['METHOD']
@@ -665,17 +665,21 @@ class Player:
     
 
     def save_arm(self, arm, rpg_mode =False):
-        for a in self.arms:
-            if arm.name == a['ARM']:
-                return False
+        
         if rpg_mode:
             if len(self.arms) >= 80:
                 return "You have reached the maximum amount of arms in your inventory. Please remove an arm to add a new one"
+            for a in self.arms:
+                if arm == a['ARM']:
+                    return False
             random_number = random.randint(5, 100)
             
             update_query = {'$addToSet': {'ARMS': {"ARM": arm, "DUR": random_number}}}
             response = db.updateUserNoFilter(self.user_query, update_query)
             return random_number
+        for a in self.arms:
+            if arm.name == a['ARM']:
+                return False
             
         if len(self.arms) >= 80:
             return "You have reached the maximum amount of arms in your inventory. Please remove an arm to add a new one."

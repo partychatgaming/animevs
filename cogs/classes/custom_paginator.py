@@ -490,7 +490,7 @@ class CustomPaginator(Paginator):
         user_data = db.queryUser(user_query)
         user = crown_utilities.create_player_from_data(user_data)
         # data.title is the talisman name
-        embed = Embed(title=f"{data.title} Talisman {data.title.capitalize()} Successfully Completed")
+        embed = Embed(title=f"{data.title} Talisman Successfully Eqiupped")
         quest_message = await Quests.milestone_check(user, "EQUIPPED_TALISMAN", 1)
         if quest_message:
             embed.add_field(name="🏆 **Milestone**", value="\n".join(quest_message), inline=False)

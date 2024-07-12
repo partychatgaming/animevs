@@ -81,6 +81,7 @@ class Play(Extension):
 
                 image_binary.seek(0)
                 card_file = File(file_name="image.png", file=image_binary)
+                battle_msg = None
                 battle_start_msg = await private_channel.send(
                     content=f"{user1.mention} 🆚 {opponent_ping}",
                     embed=match_start_embed,
@@ -403,10 +404,12 @@ class Play(Extension):
                                 battle_config.rpg_config.adventuring = True
                                 battle_config.rpg_config.battling = False
                                 battle_config.rpg_config.encounter = False
-                                
+                                print(battle_config.rpg_config.player_health)
+                                battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
                                 # Delete the previous RPG message
                                 #await battle_config.rpg_config.rpg_msg.delete()
                                 
+                                battle_config.rpg_config.set_rpg_options()
                                 # Allow some time to ensure the message is deleted
                                 await asyncio.sleep(1)
                                 
@@ -421,6 +424,8 @@ class Play(Extension):
                                 
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
+                    if battle_msg == None:
+                        battle_msg = battle_start_msg
                     await timeout_handler(self, ctx, battle_msg, battle_config)
 
                 except Exception as ex:
@@ -668,6 +673,7 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     if battle_config.is_rpg:
         close_embded = await ctx.send(embed = battle_config.close_rpg_embed())
         await close_embded.delete(delay=3)
+        await battle_config.leave_adventure_embed(ctx)
         return
     if not any((battle_config.is_abyss_game_mode, 
                 battle_config.is_scenario_game_mode, 
@@ -1270,7 +1276,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         talisman_message = f"🥋 Ultimate Strategy"
     player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
     if turn_card.universe in crown_utilities.universe_stack_traits:
-        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"
+        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}{universe_stacks}\n{summon_message}"
     tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
     #map_embed = battle_config.get_map_message(turn_card)
     embedVar = Embed(title=f"", color=turn_card.health_color)
@@ -1614,6 +1620,7 @@ async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_conf
             battle_config.rpg_config.adventuring = True
             battle_config.rpg_config.battling = False
             battle_config.rpg_config.encounter = False
+            battle_config.rpg_config.player_health = battle_config.player1_card.health
             await battle_msg.delete(delay=1)
             battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
             return True

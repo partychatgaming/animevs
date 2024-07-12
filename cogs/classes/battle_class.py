@@ -146,9 +146,10 @@ class Battle:
         self.rpg_map = []
         self.rpg_config = None
         self.rpg_msg = None
+        self.rpg_health = 0
         self.rpg_atk_boost = False
         self.rpg_def_boost = False  
-        self.rpg_hlt_boost = False
+        self.rpg_hp_boost = False
 
         # Boss Important Descriptions
         self._arena_boss_description = ""
@@ -2122,7 +2123,7 @@ class Battle:
                 bounty_amount = self.bounty * 2
                 await crown_utilities.bless(bounty_amount, winner.did)
                 winner.save_card(opponent_card, True)
-                self.rpg_config.card_drops.append(f"You won [{opponent_card.class_emoji}] **{opponent_card.name}**!")
+                self.rpg_config.card_drops.append(f"[{opponent_card.class_emoji}] **{opponent_card.name}**!")
                 drop_response = f"You won 🎴 {opponent_card.name}!"
 
                 message = f"You Defeated {opponent_card.name}'s avatar\n🪙 {'{:,}'.format(bounty_amount)} Reward Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
@@ -2311,6 +2312,8 @@ class Battle:
             self.player1.get_talisman_ready(self.player1_card)
 
             #rpg checks
+            if self.rpg_health > 0:
+                self.player1_card.health = round(self.rpg_health)
             if self.rpg_atk_boost:
                 self.player1_card.attack += round(self.player1_card.attack * .50)
             if self.rpg_def_boost:

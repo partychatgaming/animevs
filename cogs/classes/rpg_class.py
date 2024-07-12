@@ -53,6 +53,7 @@ class RPG:
 
         self.player1_card_name = self.player1.equipped_card
         self.player_card_data = crown_utilities.create_card_from_data(db.queryCard({'NAME': self.player1_card_name}))
+        self.player_card_data.set_card_level_buffs(self.player1.card_levels)
         self.player_avatar = self.player1.avatar
 
         self.player_health = self.player_card_data.health
@@ -93,11 +94,11 @@ class RPG:
         self.player_token = crown_utilities.crest_dict[self.player_card_data.universe]
         self.npc = crown_utilities.crest_dict[self.player_card_data.universe]
         self.civ_tokens = [
-                            # Man emojis
+                            # Male emojis
                             "👨", "👨‍⚕️", "👨‍🌾", "👨‍🍳", "👨‍🎓", "👨‍🎤", "👨‍🏫", "👨‍🏭", "👨‍💻", "👨‍💼", "👨‍🔧", "👨‍🔬",
                             "👨‍🚀", "👨‍🚒", "👮‍♂️", "🕵️‍♂️", "👷‍♂️", "🤴", "👳‍♂️", "👲", "🧔", "👱‍♂️", "👨‍🦰", "👨‍🦱", 
                             "👨‍🦳", "👨‍🦲", "🧓", "👴", "👶‍♂️",
-                            # Woman emojis
+                            # Female emojis
                             "👩", "👩‍⚕️", "👩‍🌾", "👩‍🍳", "👩‍🎓", "👩‍🎤", "👩‍🏫", "👩‍🏭", "👩‍💻", "👩‍💼", "👩‍🔧", "👩‍🔬",
                             "👩‍🚀", "👩‍🚒", "👮‍♀️", "🕵️‍♀️", "👷‍♀️", "👸", "👳‍♀️", "👲", "🧕", "👱‍♀️", "👩‍🦰", "👩‍🦱",
                             "👩‍🦳", "👩‍🦲", "🧓", "👵", "👶‍♀️",
@@ -154,16 +155,32 @@ class RPG:
         self.walls = [ "⬛"]
         self.movement_buttons = []
 
-        self.passable_points = ["🟩", "⬜","🟨","🟫","🔳"]
+        self.passable_points = ["🟩", "⬜","🟨","🟫","◼️",]
 
         self.climable_mountains = ["🏞️"]
         self.looted_mountain = ["⛰️"]
         self.mountains = ["🏔️"]
-        self.building = ["🏢"]
+        self.buildings = ["🏢","🌆","🌃"]
         self.walls.extend(self.mountains)
         self.mountains.extend(self.climable_mountains)
         self.mountains.extend(self.looted_mountain)
 
+        self.cars = [
+        "🚗",  # Car
+        "🚕",  # Taxi
+        "🚙",  # SUV
+        "🚌",  # Bus
+        "🚎",  # Trolleybus
+        "🏎️",  # Racing Car
+        "🚓",  # Police Car
+        "🚑",  # Ambulance
+        "🚒",  # Fire Engine
+        "🚐",  # Minibus
+        "🚚",  # Delivery Truck
+        "🚛",  # Articulated Lorry
+        "🚜",  # Tractor
+        "🛻",  # Pickup Truck
+        ]
         self.fruit_trees = ["🎄"]
         self.looted_trees = ["🌴"]
         self.trees = ["🌲", "🌳"]
@@ -176,7 +193,8 @@ class RPG:
         self.moving_water = ["🌊"]
         self.still_water = ["🟦"]
         self.bridges = ["🌉"]
-        self.merchants = ["🏪","🧙", "🕴️","🏯"]
+        self.crossed_bridges = []
+        self.merchants = ["🏪","🧙", "🕴️","🏯","🏥"]
         self.wildlife = ["🦊", "🦇"]
         self.grave = ["🪦"]
 
@@ -234,6 +252,7 @@ class RPG:
         self.interaction_points.extend(self.merchants)
         self.interaction_points.extend(self.wildlife)
         self.interaction_points.extend(self.doors)
+        self.interaction_points.extend(self.open_door)
         self.interaction_points.extend(self.keys)
         self.interaction_points.extend(self.items)
         self.interaction_points.extend(self.remains)
@@ -246,6 +265,7 @@ class RPG:
         self.warp_points = []
         self.warp_points.extend(self.merchants)
         self.warp_points.extend(self.doors)
+        self.warp_points.extend(self.open_door)
         self.warp_points.extend(self.keys)
         self.warp_points.extend(self.items)
         self.warp_points.extend(self.remains)
@@ -284,33 +304,233 @@ class RPG:
         self.warp_active = False
 
         self.standing_on = "🟩"
-        self.spawn_portal = "🟩"
+        self.spawn_portal = (10,6)
         self.map_name = "Damp Woodlands"
         self.map_area = "Forest Training Grounds"
         self.embed_color = 0x00FF00
 
-        def map1(self):
+        self.map_change = False
+
+        self.area_task = None
+        self.floor_task = None
+        self.floor_task_msg = None
+        self.floor = 0
+        self.map_doors = None
+        self.exit_points = None
+        self.north_exits = None
+        self.south_exits = None
+        self.east_exits = None
+        self.west_exits = None
+        self.door_exit = None
+        
+        map_4_dict = {
+            "standing_on": "🟩",
+            "spawn_portal": (10, 5),  # Adjust the spawn portal if necessary
+            "map_name": "Pocket Dimension",
+            "map_area": "Geostorm",
+            "embed_color": 0xFFFFFF,
+            "map_doors": None,
+            "exit_points": [(10, 5)],
+            "north_exits": None,
+            "south_exits": None,
+            "east_exits": None,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["🟨", "🟨", "🟨", "🟦", "🟦", "🟦", "🟦", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🏪", "🟨", "🟦", "🟫", "🏯", "🟫", "🌉", "⬜", "🦊", "⬜"],
+                ["🟨", "🟨", "🟨", "🌉", "🟫", "🟫", "🟫", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🆚", "🟨", "🟦", "⬛", "⬛", "⬛", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟨", "🟨", "🟦", "⬛", "🚪", "⬛", "🟦", "⬜", "🆚", "⬜"],
+                ["🟨", "🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟨", "🟦", "🟩", "🟩", "🟩", "🟩", "🌉", "⬜", "⬜", "⬜"],
+                ["🟨", "🟨", "🟦", "🟩", "👩‍🌾", "🟩", "🟩", "🟦", "⬜", "🎁", "⬜"],
+                ["🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟦", "🆚", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟦", "🟦", "🟩", "🟩", "🟩", f"{self.player_token}", "🟩", "🟦", "⬜", "⬜", "⬜"]
+            ]
+        }
+        
+        map_1_dict = {
+            "standing_on": "🟩",
+            "spawn_portal": (10, 5),
+            "map_name": "Damp Woodlands",
+            "map_area": "Forest Training Grounds",
+            "embed_color": 0x00FF00,
+            "map_doors": (1, 5),
+            "exit_points": [(0, 3), (0, 7), (1, 5)],
+            "north_exits": map_4_dict,  # Map 4
+            "south_exits": None,
+            "east_exits": None,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["🌳", "🌳", "🟩", "🟦", "⬛", "⬛", "⬛", "🟩", "🌳", "🌳", "🌳"],
+                ["🌳", "🤴", "🟩", "🟦", "⬛", "🚪", "⬛", "🟩", "🌳", "🏯", "🌳"],
+                ["🌳", "🟩", "🟩", "🟦", "🟩", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟦", "🟩", "🗝️", "🌳", "🌳", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🌳", "🎁", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🌳", "🌳", "🟩", "🟩", "🟩", "🟩", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🌉", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🆚", "🟦", "🟩", "🌳", "🟩", "🌳", "🎒", "🌳", "🪨", "🌳"],
+                ["🌳", "🌳", "🟦", "🏪", f"🌳", f"{self.player_token}", "🌳", "🌳", "🌳", "🌳", "🌳"]
+            ]
+        }
+        
+
+        map_3_dict = {
+            "standing_on": "⬜",
+            "spawn_portal": (10, 5),
+            "map_name": "Frosty Peaks",
+            "map_area": "Frozen Training Grounds",
+            "embed_color": 0xFFFFFF,
+            "map_doors": (4, 5),
+            "exit_points": [(10, 5), (0, 8), (4, 10)],
+            "north_exits": None,
+            "south_exits": None,
+            "east_exits": None,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🟦", "🏔️", "⬜", "🏔️", "🏔️"],
+                ["🏔️", "🏪", "⬜", "⬜", "⬜", "⬜", "🟦", "🆚", "⬜", "🏯", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "🟦", "⬜", "⬜", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬛", "⬛", "⬛", "🟦", "⬜", "⬜", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬛", "🚪", "⬛", "🟦", "⬜", "⬜", "⬜"],
+                ["🏔️", "⬜", "👩‍🦰", "⬜", "🎄", "⬜", "🟦", "🟦", "⬜", "⬜", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🌉", "⬜", "⬜", "⬜", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "🎁", "🏔️", "💰", "🏔️"],
+                ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️", f"{self.player_token}", "🟦", "🏔️", "🏔️", "🏔️", "🏔️"]
+            ]
+        }
+
+
+        map_5_5_dict = {
+            "standing_on": "🟫",
+            "spawn_portal": (10, 5),  # Adjust the spawn portal if necessary
+            "map_name": "Large Tunnel",
+            "map_area": "Underground Passage",
+            "embed_color": 0x8B4513,
+            "map_doors": None,
+            "exit_points": [(0, 6)],
+            "north_exits": None,
+            "south_exits": None,
+            "east_exits": None,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["⬛", "⬛", "⬛", "⬛", "⬛", "🟫", "⬛", "⬛", "⬛", "⬛", "⬛"],
+                ["⬛", "⬛", "⬛", "⬛", "🪨", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛"],
+                ["⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🪨", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "⬛", "🟫", "🟫", "🟫", "⬛", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "⬛", "🟫", "🟫", "🟫", "⬛", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "⬛", "⬛", "🆚", "⬛", "⬛", "⬛", "🟫", "⬛"],
+                ["⬛", "🎁", "🟫", "⬛", "⬛", "🟫", "⬛", "⬛", "🎒", "🟫", "⬛"],
+                ["⬛", "⬛", "⬛", "⬛", "⬛", "🟫", "⬛", "⬛", "⬛", "⬛", "⬛"],
+                ["⬛", "⬛", "⬛", "⬛", "⬛", f"{self.player_token}", "⬛", "⬛", "⬛", "⬛", "⬛"]
+            ]
+        }
+
+        map_5_dict = {
+            "standing_on": "🟫",
+            "spawn_portal": (10, 5),  # Adjust the spawn portal if necessary
+            "map_name": "Crystal Caverns",
+            "map_area": "Underground Training Grounds",
+            "embed_color": 0x8B4513,
+            "map_doors": None,
+            "exit_points": [(10, 5)],
+            "north_exits": None,
+            "south_exits": map_5_5_dict,
+            "east_exits": None,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛"],
+                ["⬛", "🎒", "🪨", "🟫", "⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "⬛"],
+                ["⬛", "🪨", "🟫", "🟫", "🟫", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛"],
+                ["⬛", "🟫", "🟫", "🟫", "🟫", "🆚", "🟫", "🟫", "🟫", "🟫", "⬛"],
+                ["⬛", "🟫", "🪨", "🟫", "🟫", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "🟫", "🪨", "⬛", "⬛", "🟫", "🟫", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "⬛", "🟫", "⬛", "⬛", "🟫", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🪨", "⬛", "🟫", "⬛", "⬛", "🧙", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "🟫", "🟫", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛"],
+                ["⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛", "⬛", "⬛"],
+                ["⬛", "⬛", "⬛", "⬛", "⬛", f"{self.player_token}", "⬛", "⬛", "⬛", "⬛", "⬛"]
+            ]
+        }
+  
+        map_7_dict = {
+            "standing_on": "🟫",
+            "spawn_portal": (0, 6),
+            "map_name": "Eerie Graveyard",
+            "map_area": "Graveyard Training Grounds",
+            "embed_color": 0x8B4513,  # Brown color
+            "map_doors": None,
+            "exit_points": [],
+            "north_exits": map_1_dict,
+            "south_exits": None,
+            "east_exits": None,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["🌲", "🌲", "🌲", "🌲", "🌲", "🌲", f"{self.player_token}", "🌲", "🌲", "🌲", "🌲"],
+                ["🌲", "🪦", "🟫", "🎒", "🪦", "🟫", "🟫", "🪦", "🟫", "🎃", "🌲"],
+                ["🌲", "🟫", "🟫", "🪦", "🟫", "🟫", "🟫", "🟫", "🪦", "🟫", "🌲"],
+                ["🌲", "🟫", "🟫", "🟫", "🟫", "🪦", "🟫", "🟫", "🟫", "🟫", "🌲"],
+                ["🌲", "🪦", "🟫", "🪦", "🟫", "💀", "🟫", "🟫", "🪦", "🎁", "🌲"],
+                ["🌲", "🪦", "🪦", "🟫", "🟫", "🟫", "🪦", "🟫", "🪦", "🪦", "🌲"],
+                ["🌲", "🕴️", "🟫", "🆚", "🟦", "🌉", "🟦", "🆚", "🪦", "🌲", "🌲"],
+                ["🌲", "🪦", "🪦", "🟫", "🟫", "🟫", "🟫", "🟫", "🪦", "🪦", "🌲"],
+                ["🌲", "🦴", "🟫", "🟫", "🪦", "🟫", "🪦", "🟫", "🟫", "🪦", "🌲"],
+                ["🌲", "🪦", "🪦", "🟫", "🟫", "🟫", "🟫", "🟫", "☠️", "🪦", "🌲"],
+                ["🌲", "🪦", "🪦", "🪦", "🪦","🪦" , "🪦", "🪦", "🪦", "🪦", "🌲"]
+            ]
+        }
+        
+        map_4_dict["south_exits"] = map_1_dict  # Map 1
+        map_1_dict["door_exit"] = map_5_5_dict
+        map_1_dict["south_exits"] = map_7_dict  # Map 3
+        map_5_5_dict["north_exits"] = map_5_dict
+        map_5_5_dict["south_exits"] = map_1_dict
+        
+        def map1(self, load=True):
             self.standing_on = "🟩"
-            self.spawn_portal = "🟩"
+            self.spawn_portal = (10,5)
             self.map_name = "Damp Woodlands"
             self.map_area = "Forest Training Grounds"
             self.embed_color = 0x00FF00
+            if load:
+                self.map_doors = (1,5)
+                self.exit_points = [(0, 3), (0, 7), (1, 5)]
+                self.exit_points.extend(self.map_doors)
+                self.north_exits = map_4_dict #Map 4
+                self.south_exits = map_7_dict
+                self.east_exits = None
+                self.west_exits = None
+                self.door_exit = map_5_5_dict
             return [
                 ["🌳", "🌳", "🟩", "🟦", "⬛", "⬛", "⬛", "🟩", "🌳", "🌳", "🌳"],
                 ["🌳", "🤴", "🟩", "🟦", "⬛", "🚪", "⬛", "🟩", "🌳", "🏯", "🌳"],
                 ["🌳", "🟩", "🟩", "🟦", "🟩", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳"],
-                ["🌳", "🟩", "🟦", "🟦", "🟩", "🟩", "🌳", "🌳", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟦", "🟩", "🗝️", "🌳", "🌳", "🌳", "🟩", "🌳"],
                 ["🌳", "🟩", "🟦", "🌳", "🎁", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳"],
                 ["🌳", "🟩", "🟦", "🌳", "🌳", "🟩", "🟩", "🟩", "🟩", "🟩", "🌳"],
-                ["🆚", "🟩", "🟦", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
                 ["🌳", "🟩", "🟦", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
                 ["🌳", "🟩", "🌉", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
-                ["🌳", "🟩", "🟦", "🟩", "🌳", "🟩", "🌳", "🎒", "🌳", "🪨", "🌳"],
+                ["🌳", "🆚", "🟦", "🟩", "🌳", "🟩", "🌳", "🎒", "🌳", "🪨", "🌳"],
                 ["🌳", "🌳", "🟦", "🏪", f"🌳", f"{self.player_token}", "🌳", "🌳", "🌳", "🌳", "🌳"]
 
         ]
 
-        def map2(self):
+        
+        def map2(self, load=False):
             self.standing_on = "🟨"
             self.map_name = "Scorched Lands"
             self.map_area = "Fiery Training Grounds"
@@ -329,7 +549,8 @@ class RPG:
                 ["🟨", "🟦", "🟨", "🟨", "🟨", f"{self.player_token}", "🟨", "🟨", "🟨", "🟨", "🟨"]
         ]
 
-        def map3(self):
+        
+        def map3(self, load=False):
             self.standing_on = "⬜"
             self.map_name = "Frosty Peaks"
             self.map_area = "Frozen Training Grounds"
@@ -348,30 +569,40 @@ class RPG:
                 ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️", f"{self.player_token}", "🟦", "🏔️", "🏔️", "🏔️", "🏔️"]
         ]
 
-        def map4(self):
+        
+        def map4(self, load=False):
             self.standing_on = "🟩"
             self.map_name = "Pocket Dimension"
             self.map_area = "Geostorm"
             self.embed_color = 0xFFFFFF
             return [
                 ["🟨", "🟨", "🟨", "🟦", "🟦", "🟦", "🟦", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🏪", "🟨", "🟦", "🟩", "🟩", "🟩", "🌉", "⬜", "🦊", "⬜"],
-                ["🟨", "🟨", "🟨", "🌉", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🏪", "🟨", "🟦", "🟫", "🏯", "🟫", "🌉", "⬜", "🦊", "⬜"],
+                ["🟨", "🟨", "🟨", "🌉", "🟫", "🟫", "🟫", "🟦", "⬜", "⬜", "⬜"],
                 ["🟨", "🆚", "🟨", "🟦", "⬛", "⬛", "⬛", "🟦", "⬜", "⬜", "⬜"],
                 ["🟨", "🟨", "🟨", "🟦", "⬛", "🚪", "⬛", "🟦", "⬜", "🆚", "⬜"],
                 ["🟨", "🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
                 ["🟨", "🟨", "🟦", "🟩", "🟩", "🟩", "🟩", "🌉", "⬜", "⬜", "⬜"],
                 ["🟨", "🟨", "🟦", "🟩", "👩‍🌾", "🟩", "🟩", "🟦", "⬜", "🎁", "⬜"],
                 ["🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🟦", "🏯", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟦", "🆚", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
                 ["🟦", "🟦", "🟩", "🟩", "🟩", f"{self.player_token}", "🟩", "🟦", "⬜", "⬜", "⬜"]
         ]
-
-        def map5(self):
+        
+               
+        def map5(self, load=False):
             self.standing_on = "🟫"
             self.map_name = "Crystal Caverns"
             self.map_area = "Underground Training Grounds"
             self.embed_color = 0x800080
+            if load:
+                self.map_doors = None
+                self.exit_points = (0,5)
+                self.north_exits = None
+                self.south_exits = map5_5(self)
+                self.east_exits = None
+                self.west_exits = None
+                self.door_exit = None
             return [
                 ["⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛", "⬛"],
                 ["⬛", "🎒", "🪨", "🟫", "⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "⬛"],
@@ -386,32 +617,102 @@ class RPG:
                 ["⬛", "⬛", "⬛", "⬛", "⬛", f"{self.player_token}", "⬛", "⬛", "⬛", "⬛", "⬛"]
             ]
         
-        def map6(self):
-            self.standing_on = "🔳"
+        
+        def map5_5(self, load=False):
+            self.standing_on = "🟫"
+            self.map_name = "Large Tunnel"
+            self.map_area = "Underground Passage"
+            self.embed_color = 0x8B4513
+            if load:
+                self.map_doors = None
+                self.exit_points = (0,6)
+                self.north_exits = map5(self)
+                self.south_exits = None
+                self.east_exits = None
+                self.west_exits = None
+                self.door_exit - None
+            return [
+                ["⬛", "⬛", "⬛", "⬛", "⬛", "🟫", "⬛", "⬛", "⬛", "⬛", "⬛"],
+                ["⬛", "⬛", "⬛", "⬛", "🪨", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛"],
+                ["⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🪨", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "⬛", "🟫", "🟫", "🟫", "⬛", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "⬛", "🟫", "🟫", "🟫", "⬛", "⬛", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "⬛", "⬛", "🆚", "⬛", "⬛", "⬛", "🟫", "⬛"],
+                ["⬛", "🎁", "🟫", "⬛", "⬛", "🟫", "⬛", "⬛", "🎒", "🟫", "⬛"],
+                ["⬛", "⬛", "⬛", "⬛", "⬛", "🟫", "⬛", "⬛", "⬛", "⬛", "⬛"],
+                ["⬛", "⬛", "⬛", "⬛", "⬛", f"{self.player_token}", "⬛", "⬛", "⬛", "⬛", "⬛"]
+            ]
+      
+        
+        def map6(self, load=False):
+            self.standing_on = "◼️"
             self.map_name = "Concrete Jungle"
             self.map_area = "City Training Grounds"
             self.embed_color = 0x808080
             return [
-                ["🏢", "🏢", "🏢", "🏢", "🏢", "👨‍👨‍👦", "🔳", "🏢", "🏢", "🏢", "🏢"],
-                ["🏢", "🔳", "🔳", "🔳", "🔳", "🔳", "🔳", "🏢", "🏪", "🔳", "🔳"],
-                ["🏢", "🆚", "🔳", "🔳", "🔳", "🔳", "🔳", "🏢", "🔳", "🔳", "🔳"],
-                ["🏢", "🔳", "🔳", "🏢", "🏢", "🔳", "🔳", "🏢", "🔳", "🏯", "🔳"],
-                ["🏢", "🔳", "🔳", "🔳", "🔳", "🔳", "🔳", "🏢", "🔳", "🔳", "🔳"],
-                ["🏢", "🔳", "🔳", "🔳", "🔳", "🔳", "👨", "🏢", "🆚", "🏢", "🏢"],
-                ["🏢", "🔳", "🏢", "🏢", "🏢", "🔳", "🔳", "🏢", "🔳", "🔳", "🏢"],
-                ["🏢", "🔳", "🏢", "🧱", "🏢", "🔳", "🔳", "🏢", "🏢", "🔳", "🏢"],
-                ["🏢", "🔳", "🔳", "🔳", "🔳", "🔳", "🔳", "🔳", "🔳", "🔳", "🏢"],
-                ["🏢", "🎁", "🔳", "🔳", "🔳", "🔳", "🔳", "🏢", "🔳", "🔳", "🏢"],
-                ["🏢", "🏢", "🏢", "🏢", "🏢", f"{self.player_token}", "🔳", "🏢", "🏢", "🏢", "🏢"]
+                ["🏢", "🏢", "🏢", "🏢", "🏢", "◼️", "🏢", "◼️", "🏢", "🏢", "🏢"],
+                ["🏢", "🟦", "👨", "🟩", "◼️", "◼️", "🏢", "◼️", "🏥", "🧱", "🏢"],
+                ["🏢", "🟩", "🟩", "🟩", "◼️", "◼️", "🏢", "◼️", "◼️", "◼️", "🏢"],
+                ["🏢", "🏢", "🏢", "🏢", "🏢", "◼️", "🏢", "🆚", "🏢", "🏢", "🏢"],
+                ["🏢", "🏢", "🕵️‍♂️", "🏢", "🏢", "◼️", "🏢", "◼️", "🏢", "🏢", "🏢"],
+                ["🏢", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🚗", "◼️", "🏢"],
+                ["🏢", "◼️", "🏢", "🏢", "🏢", "◼️", "🏢", "◼️", "🏢", "◼️", "🏢"],
+                ["🏢", "◼️", "🏢", "🏯", "🏢", "◼️", "🏢", "🏪", "🏢", "◼️", "🏢"],
+                ["🏢", "◼️", "🏢", "◼️", "🏢", "◼️", "🏢", "🏢", "🏢", "◼️", "🏢"],
+                ["🏢", "🎁", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🏢"],
+                ["🏢", "🏢", "🏢", "🏢", "🏢", f"{self.player_token}", "🏢", "🏢", "🏢", "🏢", "🏢"]
             ]
         
-        def map7(self):
+        
+        def map6_1(self, load=False):
+            self.standing_on = "◼️"
+            self.map_name = "Concrete Jungle"
+            self.map_area = "Morning City Training Grounds"
+            self.embed_color = 0x808080
+            return [
+                ["🌆", "🌆", "🌆", "🌆", "🌆", "◼️", "🌆", "◼️", "🌆", "🌆", "🌆"],
+                ["🌆", "🟦", "👨", "🟩", "◼️", "◼️", "🌆", "◼️", "🏥", "🧱", "🌆"],
+                ["🌆", "🟩", "🟩", "🟩", "◼️", "◼️", "🌆", "◼️", "◼️", "◼️", "🌆"],
+                ["🌆", "🌆", "🌆", "🌆", "🌆", "◼️", "🌆", "🆚", "🌆", "🌆", "🌆"],
+                ["🌆", "🌆", "🕵️‍♂️", "🌆", "🌆", "◼️", "🌆", "◼️", "🌆", "🌆", "🌆"],
+                ["🌆", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🚗", "◼️", "🌆"],
+                ["🌆", "◼️", "🌆", "🌆", "🌆", "◼️", "🌆", "◼️", "🌆", "◼️", "🌆"],
+                ["🌆", "◼️", "🌆", "🏯", "🌆", "◼️", "🌆", "🏪", "🌆", "◼️", "🌆"],
+                ["🌆", "◼️", "🌆", "◼️", "🌆", "◼️", "🌆", "🌆", "🌆", "◼️", "🌆"],
+                ["🌆", "🎁", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🌆"],
+                ["🌆", "🌆", "🌆", "🌆", "🌆", f"{self.player_token}", "🌆", "🌆", "🌆", "🌆", "🌆"]
+            ]
+        
+        
+        def map6_2(self, load=False):
+            self.standing_on = "◼️"
+            self.map_name = "Concrete Jungle"
+            self.map_area = "Night City Training Grounds"
+            self.embed_color = 0x808080
+            return [
+                ["🌃", "🌃", "🌃", "🌃", "🌃", "◼️", "🌃", "◼️", "🌃", "🌃", "🌃"],
+                ["🌃", "🟦", "👨", "🟩", "◼️", "◼️", "🌃", "◼️", "🧙", "🧱", "🌃"],
+                ["🌃", "🟩", "🟩", "🟩", "◼️", "◼️", "🌃", "◼️", "◼️", "◼️", "🌃"],
+                ["🌃", "🌃", "🌃", "🌃", "🌃", "◼️", "🌃", "🆚", "🌃", "🌃", "🌃"],
+                ["🌃", "🌃", "🕵️‍♂️", "🌃", "🌃", "◼️", "🌃", "◼️", "🌃", "🌃", "🌃"],
+                ["🌃", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🚗", "◼️", "🌃"],
+                ["🌃", "◼️", "🌃", "🌃", "🌃", "◼️", "🌃", "◼️", "🌃", "◼️", "🌃"],
+                ["🌃", "◼️", "🌃", "🏯", "🌃", "◼️", "🌃", "🏪", "🌃", "◼️", "🌃"],
+                ["🌃", "◼️", "🌃", "◼️", "🌃", "◼️", "🌃", "🌃", "🌃", "◼️", "🌃"],
+                ["🌃", "🎁", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🌃"],
+                ["🌃", "🌃", "🌃", "🌃", "🌃", f"{self.player_token}", "🌃", "🌃", "🌃", "🌃", "🌃"]
+            ]
+        
+        
+        def map7(self, load=False):
             self.standing_on = "🟫"
             self.map_name = "Eerie Graveyard"
             self.map_area = "Graveyard Training Grounds"
             self.embed_color = 0x8B4513  # Brown color
             return [
-                ["🌲", "🌲", "🌲", "🌲", "🌲", "🌲", "🟫", "🌲", "🌲", "🌲", "🌲"],
+                ["🌲", "🌲", "🌲", "🌲", "🌲", "🌲", f"{self.player_token}", "🌲", "🌲", "🌲", "🌲"],
                 ["🌲", "🪦", "🟫", "🎒", "🪦", "🟫", "🟫", "🪦", "🟫", "🎃", "🌲"],
                 ["🌲", "🟫", "🟫", "🪦", "🟫", "🟫", "🟫", "🟫", "🪦", "🟫", "🌲"],
                 ["🌲", "🟫", "🟫", "🟫", "🟫", "🪦", "🟫", "🟫", "🟫", "🟫", "🌲"],
@@ -420,11 +721,12 @@ class RPG:
                 ["🌲", "🕴️", "🟫", "🆚", "🟦", "🌉", "🟦", "🆚", "🪦", "🌲", "🌲"],
                 ["🌲", "🪦", "🪦", "🟫", "🟫", "🟫", "🟫", "🟫", "🪦", "🪦", "🌲"],
                 ["🌲", "🦴", "🟫", "🟫", "🪦", "🟫", "🪦", "🟫", "🟫", "🪦", "🌲"],
-                ["🌲", "🪦", "🪦", "🟫", "🟫", "🟫", "🪦", "🟫", "☠️", "🪦", "🌲"],
-                ["🌲", "🪦", "🪦", "🪦", "🪦",f"{self.player_token}" , "🪦", "🪦", "🪦", "🪦", "🌲"]
+                ["🌲", "🪦", "🪦", "🟫", "🟫", "🟫", "🟫", "🟫", "☠️", "🪦", "🌲"],
+                ["🌲", "🪦", "🪦", "🪦", "🪦","🪦" , "🪦", "🪦", "🪦", "🪦", "🌲"]
             ]
-
-        def tutorial_map(self):
+        
+        
+        def tutorial_map(self, load=False):
             self.standing_on = "🟩"
             self.map_name = "Training Grounds"
             self.map_area = "Testing Area"
@@ -456,7 +758,13 @@ class RPG:
             elif random_number <= 50:
                 return map5(self)
             elif random_number <= 60:
-                return map6(self)
+                random_number = random.randint(1, 100)
+                if random_number <= 33:
+                    return map6(self)
+                elif random_number <= 66:
+                    return map6_1(self)
+                else:
+                    return map6_2(self)
             elif random_number <= 70:
                 return map7(self)
             else:
@@ -472,6 +780,7 @@ class RPG:
             self.map =  select_random_map(self)
 
         # self.map = self.generate_random_map()
+        self.map = map1(self)
         self.previous_map = self.map
         self.next_map = []
         
@@ -490,6 +799,75 @@ class RPG:
         return "\n".join("".join(str(cell) for cell in row) for row in self.map)
 
     
+    def change_map(self, direction, location):
+        self.map_change = True
+        if location == self.map_doors:
+            self.floor += 1
+            self.load_map(self.door_exit)
+            return True
+        elif direction == "2" and self.north_exits:
+            self.floor += 1
+            self.load_map(self.north_exits)
+            return True
+        elif direction == "3" and self.south_exits:
+            self.floor += 1
+            self.load_map(self.south_exits)
+            return True
+        elif direction == "4" and self.east_exits:
+            self.floor += 1
+            self.load_map(self.east_exits)
+            return True
+        elif direction == "1" and self.west_exits:
+            self.floor += 1
+            self.load_map(self.west_exits)
+            return True
+        else:
+            self.previous_moves.append(f"Cannot move {direction}, no exit found.")
+            self.map_change = False
+            return False
+    
+    
+    def load_map(self, new_map):
+        x, y = self.player_position
+        self.map[x][y] = self.standing_on #Reset to beginning of map for now until we can save the previous player position on the map 
+        self.standing_on = new_map['standing_on']
+        self.spawn_portal = new_map['spawn_portal']
+        self.map_name = new_map['map_name']
+        self.map_area = new_map['map_area']
+        self.embed_color = new_map['embed_color']
+        self.map_doors = new_map.get('map_doors')
+        self.exit_points = new_map.get('exit_points', [])
+        self.north_exits = new_map.get('north_exits')
+        self.south_exits = new_map.get('south_exits')
+        self.east_exits = new_map.get('east_exits')
+        self.west_exits = new_map.get('west_exits')
+        self.door_exit = new_map.get('door_exit')
+        self.map = new_map['map']
+        self.player_position = self.spawn_portal
+        #self.map[x][y] = f"{self.player_token}"
+        self.previous_moves.append(f"Entered {self.map_name} - {self.map_area}")
+        
+
+
+    
+    def get_current_map_data(self):
+        return {
+            'standing_on': self.standing_on,
+            'spawn_portal': self.spawn_portal,
+            'map_name': self.map_name,
+            'map_area': self.map_area,
+            'embed_color': self.embed_color,
+            'map_doors': self.map_doors,
+            'exit_points': self.exit_points,
+            'north_exits': self.north_exits,
+            'south_exits': self.south_exits,
+            'east_exits': self.east_exits,
+            'west_exits': self.west_exits,
+            'door_exit': self.door_exit,
+            'map': self.map
+        }
+
+
     async def move_player(self, ctx, private_channel,  direction, rpg_msg, deferred=False):
         from ai import rpg_movement_ai_message
         self.warp_active = False
@@ -505,8 +883,8 @@ class RPG:
         player_moved = False
         player_action = False
         player_warped = False
-        self.fishing = False
-        self.loot_drop = False
+        # self.fishing = False
+        # self.loot_drop = False
         if direction in ["5","6","7","8","9"]:
             player_warped = True
 
@@ -535,18 +913,9 @@ class RPG:
             gold_to_coin = self.player_gold * 10
             await crown_utilities.bless(gold_to_coin, self.player1_did)
             if self.player_gems > 0:
-                if self.player1.gems:
-                    gems_earned = self.player_gems * 10
-                    for universe in self.player1.gems:
-                        query = {"DID": str(ctx.author.id)}
-                        update_query = {
-                            '$inc': {'GEMS.$[type].' + "GEMS": gems_earned}
-                        }
-                        filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
-                        res = await asyncio.to_thread(db.updateUser,query, update_query, filter_query)
-                else:
-                    universe_to_add_gems = self.universe
-                    self.player1.save_gems(universe_to_add_gems, gems_earned)
+                gems_earned = self.player_gems * 10
+                universe_to_add_gems = self.universe
+                self.player1.save_gems(universe_to_add_gems, gems_earned)
             
             embedVar = Embed(title=f"🗺️ | {self.universe} Adventure Ended!", description=textwrap.dedent(f"""
                 """))           
@@ -598,9 +967,12 @@ class RPG:
         if player_moved:
             # print("Player moved to:", new_x, new_y, "There is a", self.map[new_x][new_y], "there.")
             # print("Starting position:", self.player_position)
+            
             if new_x < 0 or new_x >= len(self.map) or new_y < 0 or new_y >= len(self.map[0]):
-                self.previous_moves.append(f"(🚫) You can't leave this area yet!")
-                self.player_position = (x, y)  # Keep the player in the same position
+                map_change = self.change_map(direction, (new_x, new_y))
+                if not map_change:
+                    self.previous_moves.append(f"(🚫) You can't leave this area yet!")
+                    self.player_position = (x, y)  # Keep the player in the same position
             else:
                 self.above_position = self.map[new_x - 1][new_y] if new_x > 0 else None
                 self.below_position = self.map[new_x + 1][new_y] if new_x < len(self.map) - 1 else None
@@ -619,13 +991,14 @@ class RPG:
                     # self.previous_moves.append(movement_msg)
                 elif self.map[new_x][new_y] in self.open_door:  # Can't move to doors
                     self.previous_moves.append(f"({self.open_door}) Moving into the next room {cardinal}")
-                    next_map, changing_map = self.generate_new_map()
-                    self.map = self.next_map
-                    self.get_player_sorroundings(changing_map)
+                    next_map = self.change_map(direction, (new_x, new_y))
+                    if not next_map:
+                        self.previous_moves.append(f"(🚫) You can't leave this area yet!")
+                        self.player_position = (x, y)
                     
                     #Create action to generate a randomly generated new map for the next room create a linked list to store the previous map and the new map and connect the entrance via the door
 
-                    self.player_position = self.player_position
+                    # self.player_position = self.player_position
                 elif self.map[new_x][new_y] in self.walls:  # Can't move to walls
                     self.previous_moves.append(f"(🚫) There is a wall {cardinal}...")
                     self.player_position = self.player_position
@@ -633,7 +1006,7 @@ class RPG:
                     self.previous_moves.append(f"(🔎) Investigation Quest Complete!")
                     self.has_quest = False
                     x, y = self.quest_giver_position
-                    self.map[x][y] = f"{self.standing_on}"
+                    self.map[x][y] = f"🗝️"
                     await self.rpg_action_handler(ctx, private_channel, self.player_position, "🃏", (new_x, new_y), direction)
                     self.map[new_x][new_y] = f"{self.standing_on}"
                 elif self.map[new_x][new_y] in self.looted_trees:  # Can't move to looted trees
@@ -649,6 +1022,12 @@ class RPG:
                     self.player_position = self.player_position
                 elif self.map[new_x][new_y] in self.grave:  # Can't move to grave
                     self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a grave {cardinal}...maybe you can dig it?")
+                    self.player_position = self.player_position
+                elif self.map[new_x][new_y] in self.buildings:  # Can't move to buildings
+                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a building {cardinal}...maybe you can enter it?")
+                    self.player_position = self.player_position
+                elif self.map[new_x][new_y] in self.cars:  # Can't move to cars
+                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a car {cardinal}...maybe you can drive it?")
                     self.player_position = self.player_position
                 elif self.map[new_x][new_y] in self.still_water:  # Can't move to water
                     self.previous_moves.append(f"({self.map[new_x][new_y]}) There is still water {cardinal}...wish I had a bridge...or a pole?")
@@ -705,7 +1084,8 @@ class RPG:
                     return
                 else:
                     self.previous_moves.append("Create action for this interaction!")
-                await self.get_player_sorroundings()
+                if self.map[new_x][new_y] not in self.open_door:
+                    await self.get_player_sorroundings()
 
         if player_warped:
             await self.handle_warp_movement(ctx, int(direction)-5)
@@ -888,7 +1268,6 @@ class RPG:
         if not self.moving:
             current_map = self.display_map()
         
-        #self.set_rpg_options()
         if not self.encounter:
             movement_action_row = ActionRow(*self.movement_buttons)
             rpg_action_row = ActionRow(*self.action_buttons)
@@ -903,35 +1282,35 @@ class RPG:
             warp_action_row = ActionRow(*self.warp_buttons)
             components.append(warp_action_row)
 
-        equipment_message = f""
-        currency_message = f""
-        skill_message = f""
+        equipment_message = ""
+        currency_message = ""
+        skill_message = ""
         if len(self.player_inventory) > 0:
             self.inventory_active = True
-            equipment_message = f"__[🎒]Your Equipment__"
+            equipment_message = "__[🎒]Your Equipment__"
             for item in self.player_inventory:
                 equipment_message += f"\n|{item['USE']} {item['ITEM']}"
         if self.player_gold > 0 or self.player_gems > 0:
             self.currency_active = True
             if self.player_gold > 0:
-                currency_message += f"\n|{self.get_gold_icon(self.player_gold)}{self.player_gold} Gold"
+                currency_message += f"\n|{self.get_gold_icon(self.player_gold)}{self.player_gold:,} Gold"
             if self.player_gems > 0:
-                currency_message += f"\n|{self.get_gem_icon(self.player_gems)}{self.player_gems} Crystals"
+                currency_message += f"\n|{self.get_gem_icon(self.player_gems)}{self.player_gems:,} Crystals"
         if len(self.player_skills) > 0:
             self.skills_active = True 
             for skill in self.player_skills:
                 skill_message += f"|{skill}"
         rpg_map_embed = self.get_map_message()
         
-        
         embedVar = Embed(title=f"[🌎]Exploring: {self.map_name}",description=f"**[🗺️]** *{self.map_area}*", color=0xFFD700)
         embedVar.set_author(name=f"{self.player1.disname}'s Adventure", icon_url=f"{self.player1.avatar}")
+        
         if self.inventory_active:
-            embedVar.add_field(name=f"**[🎒]Inventory**", value=f"{equipment_message}")
+            embedVar.add_field(name=f"**[🎒]Inventory**", value=equipment_message or "No items in inventory", inline=False)
         if self.currency_active:
-            embedVar.add_field(name=f"**[👛]Currency**", value=f"{currency_message}")
+            embedVar.add_field(name=f"**[👛]Currency**", value=currency_message or "No currency available", inline=False)
         if self.skills_active:
-            embedVar.add_field(name=f"**[🥋]Skills**", value=f"{skill_message}")
+            embedVar.add_field(name=f"**[🥋]Skills**", value=skill_message or "No skills acquired", inline=False)
         
         # if any([self.above_position, self.below_position, self.left_position, self.right_position, self.last_move]):
         #     # Prepare common arguments
@@ -957,15 +1336,14 @@ class RPG:
         #     # Make the single call
         #     ai_area_msg = await ai.rpg_movement_ai_message(*common_args)
         # if ai_area_msg:
-        #     embedVar.add_field(name=f"**[💭]{self.player1_card_name}'s Thoughts**", value=f"*{ai_area_msg}*")
+        #     embedVar.add_field(name=f"**[💭]{self.player1_card_name}'s Thoughts**", value=f"*{ai_area_msg}*", inline=False)
         #     self.last_thought = ai_area_msg
-        embedVar.add_field(name=f"[{self.player_token}]My Player Token", value=f"**[{self.standing_on}]** *Standing On {get_ground_type(self.standing_on)}*\n{rpg_map_embed}")
+
+        embedVar.add_field(name=f"[{self.player_token}]My Player Token\n[❤️]{self.player_health:,} HP", value=f"**[{self.standing_on}]** *Standing On {get_ground_type(self.standing_on)}*\n{rpg_map_embed}", inline=False)
         embedVar.set_thumbnail(url=self.player_card_image)
-        embedVar.set_footer(text=self.get_previous_moves_embed())
-        # await rpg_msg.delete(delay=1)
-        # await asyncio.sleep(1)
+        embedVar.set_footer(text=self.get_previous_moves_embed() or "No previous moves")
+
         await rpg_msg.edit(embed=embedVar, components=components)
-        #await asyncio.sleep(2)
         self._rpg_msg = rpg_msg
         return rpg_msg, components
 
@@ -992,6 +1370,10 @@ class RPG:
                 self.set_rpg_options()
                 self.moving = True
                 await asyncio.sleep(1)
+                if self.map_change:
+                    await self.rpg_player_move_embed(ctx, private_channel, rpg_msg)
+                    self.map_change = False
+                    return
                 #await self.rpg_player_move_embed(ctx, private_channel, rpg_msg)
                 return
         
@@ -1005,18 +1387,26 @@ class RPG:
                 if npc == "🎒":
                     self.previous_moves.append(f"(🎒) You found lost inventory!")
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🎰", npc_position, direction)
-                    await self.rpg_action_handler(ctx, private_channel, player_position, "👛", npc_position, direction)
+                    gold_found = random.randint(10, 250)
+                    self.player_gold += gold_found
+                    self.previous_moves.append(f"(👛) You found a bag of {gold_found} gold!")
                     if random_number <= 75:
                         self.previous_moves.append(f"(🎁) There's alot here! You found a 💰!")
-                        await self.rpg_action_handler(ctx, private_channel, player_position, "💰", npc_position, direction)
+                        gold_found = random.randint(50, 500)
+                        self.player_gold += gold_found
+                        self.previous_moves.append(f"(💰) You found a Sack o' Gold +🪙{gold_found}!")
                     if random_number <= 25:
-                        await self.rpg_action_handler(ctx, private_channel, player_position, "🎁", npc_position, direction)
+                        gold_found = random.randint(250, 500)
+                        self.player_gold += gold_found
+                        self.previous_moves.append(f"(🎁) You found a treasure chest! [+🪙{gold_found}]")
                 elif npc == "🎁":
-                    self.previous_moves.append(f"(🎁) You found a treasure chest!")
-                    await self.rpg_action_handler(ctx, private_channel, player_position, "💰", npc_position, direction)
+                    gold_found = random.randint(200, 500)
+                    self.player_gold += gold_found
+                    self.previous_moves.append(f"(🎁) You found a treasure chest! [+🪙{gold_found}]")
                     if random_number <= 50:
-                        self.previous_moves.append(f"(🎁) This chest is pretty full! You found another 👛!")
-                        await self.rpg_action_handler(ctx, private_channel, player_position, "👛", npc_position, direction)
+                        gold_found = random.randint(25, 150)
+                        self.player_gold += gold_found
+                        self.previous_moves.append(f"(🎁) This chest is pretty full! You found another 👛! [+🪙{gold_found}]")
                     if random_number <= 10:
                         self.previous_moves.append(f"(🎁) There is a hidden compartment!")
                         await self.rpg_action_handler(ctx, private_channel, player_position, "🎰", npc_position, direction)
@@ -1025,11 +1415,13 @@ class RPG:
                     self.player_gold += gold_found
                     self.previous_moves.append(f"(💰) You gained {gold_found} gold!")
                     if random_number <= 25:
-                        self.previous_moves.append(f"(💰) Something hidden deep in the bag...")
-                        await self.rpg_action_handler(ctx, private_channel, player_position, "👛", npc_position, direction)
+                        gold_found = random.randint(5, 50)
+                        self.player_gold += gold_found
+                        self.previous_moves.append(f"(💰) Something hidden deep in the bag...You found a 👛bag of {gold_found} gold!")
                     elif random_number <= 50:
-                        self.previous_moves.append(f"(💰) Something hidden in the bag...")
-                        await self.rpg_action_handler(ctx, private_channel, player_position, "🪙", npc_position, direction)
+                        gold_found = random.randint(1, 10)
+                        self.player_gold += gold_found
+                        self.previous_moves.append(f"(💰) Something else hidden in the bag...You found 🪙{gold_found} gold!")
                 elif npc == "👛":
                     gold_found = random.randint(5, 50)
                     self.player_gold += gold_found
@@ -1124,22 +1516,25 @@ class RPG:
                 self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
             elif npc in self.food:
                 if npc == "🥩":
-                    self.previous_moves.append(f"(🥩) You found a steak!")
+                    self.player_health += 500
+                    self.previous_moves.append(f"(🥩) You found a steak! +")
                 if npc == "🍖":
+                    self.player_health += 250
                     self.previous_moves.append(f"(🍖) You found a roast!")
                 if npc == "🥕":
+                    self.player_health += 100
                     self.previous_moves.append(f"(🥕) You found a carrot!")
                 elif npc in self.inventory:
                     self.previous_moves.append(f"({npc}) added to inventory")
                     food_found = False
-                    for item in self.player_inventory:
-                        if item['ITEM'] == npc:
-                            item['USE'] += 1
-                            food_found = True
-                            break
-                    if not food_found:
-                        self.player_inventory.append({'ITEM': npc, 'USE': 1})
-                    self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
+                    # for item in self.player_inventory:
+                    #     if item['ITEM'] == npc:
+                    #         item['USE'] += 1
+                    #         food_found = True
+                    #         break
+                    # if not food_found:
+                    #     self.player_inventory.append({'ITEM': npc, 'USE': 1})
+                    # self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
             elif npc in self.keys:
                 self.previous_moves.append(f"(🗝️) You found a key!")
                 key_found = False
@@ -1164,68 +1559,7 @@ class RPG:
                 else:
                     self.previous_moves.append(f"(🚪) You need a key to unlock this door!")
             elif npc in self.bridges:
-                crossed = False
-                random_number = random.randint(1, 100)
-                #Get direction of bridge
-                if random_number <= 25:
-                    self.previous_moves.append(f"(🌉) As you cross you notice there is some loot on the bridge...")
-                    random_number_combat = random.randint(1, 100)
-                    if random_number_combat <= 50:
-                        self.previous_moves.append(f"(🆚) It's a trap! You are under attack!")
-                        #if battle won give loot, else lose coin and cross
-                        self.encounter = True
-                        await self.create_rpg_battle(ctx, private_channel)
-                        if self.combat_victory:
-                            self.previous_moves.append(f"(🌉) You found a hidden chest!")
-                            # self.combat_victory = False
-                            self.loot_drop = True
-                            await self.rpg_action_handler(ctx, private_channel, player_position, "🎁", npc_position)
-                            crossed = True
-                        else:
-                            self.previous_moves.append(f"(🌉) You lost 100 gold!")
-                            self.player_gold -= 100
-                            # crossed = True
-                    else:
-                        crossed = True
-                        await self.rpg_action_handler(ctx, private_channel, player_position, "🎲", npc_position, direction)
-                elif random_number <= 50:
-                    self.previous_moves.append(f"(🆚) There is a roadblock on the bridge...You are under attack!")
-                    self.encounter = True
-                    await self.create_rpg_battle(ctx, private_channel)
-                    if self.combat_victory:
-                        self.previous_moves.append(f"(🌉) You crossed the Bridge!")
-                        crossed = True
-                    else:
-                        self.previous_moves.append(f"(🌉) You lost 100 gold!")
-                        self.player_gold -= 100
-                elif random_number <= 75:
-                    self.previous_moves.append(f"(🌉) There is a crew fixing the bridge...")
-                    if self.hammer:
-                        self.previous_moves.append(f"(🌉) You volunteer to help and cross after assisting!")
-                        if self.engineer:
-                            self.previous_moves.append(f"(🌉) The crew pays you for your service! [💰+1000]")
-                        crossed = True
-                    else:
-                        self.previous_moves.append(f"(🌉) I'll have to wait...if only I could assist")
-                        return
-                else:
-                    self.previous_moves.append(f"(🌉) You crossed the bridge!")
-                    crossed = True
-                if direction == "u":
-                    new_position = (npc_position[0] - 1, npc_position[1])
-                elif direction == "d":
-                    new_position = (npc_position[0] + 1, npc_position[1])
-                elif direction == "l":
-                    new_position = (npc_position[0], npc_position[1] - 1)
-                elif direction == "r":
-                    new_position = (npc_position[0], npc_position[1] + 1)
-                print(direction)
-                if crossed:
-                    original_tile = self.map[new_position[0]][new_position[1]]
-                    self.map[new_position[0]][new_position[1]] = f"{self.player_token}"
-                    self.map[x][y] = f"{self.standing_on}"
-                    self.player_position = new_position
-                    self.standing_on = original_tile  # Update the standing_on to the original tile color
+                await self.cross_bridge(ctx, private_channel, player_position, npc, npc_position, direction)
             elif npc in self.moving_water:
                 self.previous_moves.append(f"(🌊) You can't swim in moving water! If only you had a boat...But maybe there is a bridge?")
             elif npc in self.still_water:
@@ -1296,9 +1630,9 @@ class RPG:
                 miner_bonus_message = ""
                 if self.pickaxe:
                     if self.miner:
-                        miner_bonus = random.randint(1000, 5000)
+                        miner_bonus = random.randint(100, 500)
                         miner_bonus_message = f"[⚒️+{miner_bonus} Gems!]"
-                    gems_gained = random.randint(100,1000) + miner_bonus
+                    gems_gained = random.randint(1,500) + miner_bonus
                     if npc in self.gems:
                         gems_gained = gems_gained * 2
                         self.previous_moves.append(f"({npc}) You found Raw Gems!")
@@ -1306,9 +1640,9 @@ class RPG:
                         self.previous_moves.append(f"({npc}) You found Gemstone!")
                     self.player_gems += gems_gained
                     self.previous_moves.append(f"(⛏️) You mined 💎{gems_gained} Gems! {miner_bonus_message}")
-                    if not self.miner:
-                        self.miner = True
-                        self.previous_moves.append(f"You gained the Miner Skill! [⛏️]")
+                    # if not self.miner:
+                    #     self.miner = True
+                    #     self.previous_moves.append(f"You gained the Miner Skill! [⛏️]")
                     self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
                 else:
                     self.previous_moves.append(f"({npc}) Inspecting the stone you found a ⛏️Pickaxe!")
@@ -1389,12 +1723,14 @@ class RPG:
                 self.map[npc_position[0]][npc_position[1]] = f"💀"
         else:
             await self.encounter_handler(ctx, private_channel, npc, npc_position)
+        
         if self.combat_victory:
             self.previous_moves.append(f"(✅) You defeated the enemy!")
             self.combat_victory = False
             if npc in self.quest:
                 self.has_quest = False
                 self.my_quest = ""
+                self.loot_drop = True
             self.player_atk_boost = False
             self.player_def_boost = False
             self.player_hp_boost = False
@@ -1501,6 +1837,13 @@ class RPG:
             p_1 = random.randint(100, 250)
             p_2 = random.randint(100, 250)
             p_3 = random.randint(100, 250)
+        elif npc == "🏥":
+            item1 = "🍖"
+            item2 = "🥕"
+            item3 = "🥩"
+            p_1 = random.randint(50, 100)
+            p_2 = random.randint(50, 100)
+            p_3 = random.randint(50, 100)
         self.previous_moves.append(f"({npc}) You are interacting with a {get_emoji_label(npc)}!")
         shop_embed = Embed(title=f"{npc}{get_emoji_label(npc)} Shop", description=f"Choose your items to purchase:\n{self.get_gold_icon(self.player_gold)}{self.player_gold}\n", color=0xFFD700)
         # Add items to the shop based on the npc type
@@ -1563,6 +1906,10 @@ class RPG:
                     elif choice in self.stat_boosts:
                         self.player_atk_boost = True
                         self.previous_moves.append(f"({npc}) You purchased the {item1}{get_emoji_label(item1)} boost for {p_1} gold!")
+                    elif choice in self.drops:
+                        self.previous_moves.append(f"({npc}) You purchased the {item1}{get_emoji_label(item1)} drop for {p_1} gold!")
+                        self.loot_drop = True
+                        await self.rpg_action_handler(ctx, private_channel, self.player_position, item1, None)               
                 else:
                     self.previous_moves.append(f"({npc}) You don't have enough gold to purchase {item1}")
                     purchase = False
@@ -1603,6 +1950,10 @@ class RPG:
                     elif choice in self.stat_boosts:
                         self.player_def_boost = True
                         self.previous_moves.append(f"({npc}) You purchased the {item2}{get_emoji_label(item2)} boost for {p_2} gold!")
+                    elif choice in self.drops:
+                        self.previous_moves.append(f"({npc}) You purchased the {item2}{get_emoji_label(item2)} drop for {p_2} gold!")
+                        self.loot_drop = True
+                        await self.rpg_action_handler(ctx, private_channel, self.player_position, item2, None)                
                 else:
                     self.previous_moves.append(f"({npc}) You don't have enough gold to purchase {item2}")
                 await asyncio.sleep(1)
@@ -1641,6 +1992,14 @@ class RPG:
                     elif choice in self.stat_boosts:
                         self.player_hp_boost = True
                         self.previous_moves.append(f"({npc}) You purchased the {item3}{get_emoji_label(item3)} boost for {p_3} gold!")
+                    elif choice in self.drops:
+                        self.previous_moves.append(f"({npc}) You purchased the {item3}{get_emoji_label(item3)} drop for {p_3} gold!")
+                        self.loot_drop = True
+                        await self.rpg_action_handler(ctx, private_channel, self.player_position, item3, None)
+                    elif choice in self.loot_rolls:
+                        self.loot_drop = True
+                        self.previous_moves.append(f"({npc}) You purchased the {item3}{get_emoji_label(item3)} roll for {p_3} gold!")
+                        await self.rpg_action_handler(ctx, private_channel, self.player_position, item3, None)
                     else:
                         purchase = False
                         self.previous_moves.append(f"({npc}) You can't purchase {item3}{get_emoji_label(item3)}!")
@@ -1763,6 +2122,7 @@ class RPG:
             battle.rpg_atk_boost = self.player_atk_boost
             battle.rpg_def_boost = self.player_def_boost
             battle.rpg_hp_boost = self.player_hp_boost
+            battle.rpg_health = self.player_health
             await self.rpg_player_move_embed(ctx, private_channel, self._rpg_msg)
             battle.rpg_msg = self._rpg_msg
             all_available_drop_cards = db.querySpecificDropCards(self.universe)
@@ -1852,11 +2212,19 @@ class RPG:
             except Exception as ex:
                 await msg.edit(components=[])
                 custom_logging.debug(ex)
+                self.encounter = False
+                return
             except asyncio.TimeoutError:
                 await msg.edit(components=[])
                 custom_logging.debug(ex)
                 self.encounter = False
                 return 
+
+
+    def update_bridge_state(self, bridge_position):
+        if bridge_position not in self.crossed_bridges:
+            self.crossed_bridges.append(bridge_position)
+
 
     #Warp Movement
     async def handle_warp_movement(self, ctx, warp_index):
@@ -1878,6 +2246,10 @@ class RPG:
         self.player_position = new_position
         self.warp_target_type = warp_target['type']
         self.previous_moves.append(f"Warped to the {warp_target['type']}{get_emoji_label(warp_target['type'])}!")
+
+        # Update bridge state if a bridge was crossed
+        if warp_target['type'] in self.bridges:
+            self.update_bridge_state(warp_point_position)
     
 
     def is_reachable_without_bridge_or_water(self, start, goal):
@@ -1935,6 +2307,90 @@ class RPG:
 
         return False
         
+    
+    async def cross_bridge(self, ctx, private_channel, player_position, npc, npc_position, direction):
+        x,y = player_position
+        crossed = False
+        random_number = random.randint(1, 100)
+        if random_number <= 15:
+            self.previous_moves.append(f"(🌉) As you cross you notice there is some loot on the bridge...")
+            random_number_combat = random.randint(1, 100)
+            if random_number_combat <= 50:
+                self.previous_moves.append(f"(🆚) It's a trap! You are under attack!")
+                self.encounter = True
+                await self.create_rpg_battle(ctx, private_channel)
+                if self.combat_victory:
+                    self.previous_moves.append(f"(🌉) You found a hidden chest!")
+                    self.loot_drop = True
+                    await self.rpg_action_handler(ctx, private_channel, self.player_position, "🎁", npc_position)
+                    crossed = True
+                else:
+                    self.previous_moves.append(f"(🌉) You lost 100 gold!")
+                    self.player_gold -= 100
+            else:
+                crossed = True
+                self.loot_drop = True
+                await self.rpg_action_handler(ctx, private_channel, self.player_position, "👛", npc_position, direction)
+        elif random_number <= 25:
+            self.previous_moves.append(f"(🆚) There is a roadblock on the bridge...You are under attack!")
+            self.encounter = True
+            await self.create_rpg_battle(ctx, private_channel)
+            if self.combat_victory:
+                self.previous_moves.append(f"(🌉) You crossed the Bridge!")
+                crossed = True
+            else:
+                self.previous_moves.append(f"(🌉) You lost 100 gold!")
+                self.player_gold -= 100
+        elif random_number <= 40:
+            self.previous_moves.append(f"(🌉) There is a crew fixing the bridge...")
+            if self.hammer:
+                self.previous_moves.append(f"(🌉) You volunteer to help and cross after assisting!")
+                if self.engineer:
+                    self.previous_moves.append(f"(🌉) The crew pays you for your service! [💰+1000]")
+                crossed = True
+            else:
+                self.previous_moves.append(f"(🌉) I'll have to wait...if only I could assist")
+                return
+        else:
+            self.previous_moves.append(f"(🌉) You crossed the bridge!")
+            crossed = True  
+        if direction == "u":
+            new_position = (npc_position[0] - 1, npc_position[1])
+        elif direction == "d":
+            new_position = (npc_position[0] + 1, npc_position[1])
+        elif direction == "l":
+            new_position = (npc_position[0], npc_position[1] - 1)
+        elif direction == "r":
+            new_position = (npc_position[0], npc_position[1] + 1)
+
+        if crossed:
+            original_tile = self.map[new_position[0]][new_position[1]]
+            if original_tile in self.quest:
+                if original_tile == "🔎":
+                    self.previous_moves.append(f"(🔎) You found a hidden path....")
+                    self.previous_moves.append(f"(🔎) Investigation Quest Complete!")
+                    self.has_quest = False
+                    self.keys += 1
+                    await self.rpg_action_handler(ctx, private_channel, self.player_position, "🃏", new_position, direction)
+                elif original_tile == "🎯":
+                    self.previous_moves.append(f"(🎯) You found a target!")
+                    await self.create_rpg_battle(ctx, private_channel)
+                    if self.combat_victory:
+                        self.previous_moves.append(f"(🎯) Target Eliminated!")
+                        self.has_quest = False
+                        self.keys += 1
+                    else:
+                        self.previous_moves.append(f"(🎯) Target Escaped!")
+                        return
+            self.map[new_position[0]][new_position[1]] = f"{self.player_token}"
+            self.map[x][y] = f"{self.standing_on}"
+            self.player_position = new_position
+            self.standing_on = original_tile  # Update the standing_on to the original tile color
+
+            # Update bridge state
+            if npc in self.bridges:
+                self.update_bridge_state(npc_position)
+
     
     def get_closest_warp_points(self, current_position, num_points=5):
         warp_distances = []
@@ -2092,8 +2548,8 @@ class RPG:
     
     async def leave_adventure_embed(self, ctx):
         from cogs.classes.custom_paginator import Paginator
-        gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold)} Gold 💹 [{self.get_gold_icon(self.player_gold)}] {round(self.player_gold * 10)}"
-        gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems)} Crystal 💹 [{self.get_gem_icon(self.player_gems)}] {round(self.player_gems * 10)}"
+        gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {round(self.player_gold * 10):,} Coins"
+        gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems):,} Crystal 💱 [💎] {round(self.player_gems * 10):,} Gems"
         
         inventory_message = "No Items Aquired"
         skills_message = "No Skills Aquired"
@@ -2107,9 +2563,9 @@ class RPG:
                 skills_message += f"|{skill}"
 
         embedVar = Embed(title=f"👤 Adventure Inventory!", description="🏆 You have completed your adventure! 🏆\n*Your Equipment, Currency and Skills Below*", color=0xFFD700)
-        embedVar.add_field(name=f"**[🎒]Your Equipment**", value=f"|{inventory_message}")
+        embedVar.add_field(name=f"**[❤️]{self.player_health:,} HP\n[🎒]Your Equipment**", value=f"|{inventory_message}")
         embedVar.add_field(name=f"**[🥋]Skills**", value=f"|{skills_message}")
-        embedVar.add_field(name=f"**[💱]Currency Conversion**", value=f"{gold_message}\n{gem_message}")
+        embedVar.add_field(name=f"**[💹]Currency Conversion**", value=f"{gold_message}\n{gem_message}")
         embedVar.set_footer(text="🃏 Build Details on the next page!")
 
         lootEmbed = Embed(title=f"🎉 Adventure Rewards!", description="🏆 You have completed your adventure! 🏆\n*Your Adventure rewards will be shown below*", color=0xFFD700)
@@ -2119,14 +2575,17 @@ class RPG:
                 card_msg += f"|{cards}\n"
             lootEmbed.add_field(name=f"**🎴 Cards**", value=f"{card_msg}")
         if len(self.title_drops) > 0:
+            title_msg = ""
             for titles in self.title_drops:
                 title_msg += f"|{titles}\n"
             lootEmbed.add_field(name=f"**🎗️ Titles**", value=f"{title_msg}")
         if len(self.arm_drops) > 0:
+            arm_msg = ""
             for arms in self.arm_drops:
                 arm_msg += f"|{arms}\n"
             lootEmbed.add_field(name=f"**🦾 Arms**", value=f"{arm_msg}")
         if len(self.summon_drops) > 0:
+            summon_msg = ""
             for summons in self.summon_drops:
                 summon_msg += f"|{summons}\n"
             lootEmbed.add_field(name=f"**🧬 Summons**", value=f"{summon_msg}")
@@ -2224,24 +2683,25 @@ ground_types = {
     '⬜':'Snow',
     '🟩':'Grass',
     '🟫':'Dirt',
-    '🔳':'Road',
+    '◼️':'Road',
+    '🟦':'Water'
 }
 
 
 emoji_labels = {
-            "👨": "Man", "👨‍⚕️": "Man Doctor", "👨‍🌾": "Man Farmer", "👨‍🍳": "Man Cook", "👨‍🎓": "Man Student", 
-            "👨‍🎤": "Man Singer", "👨‍🏫": "Man Teacher", "👨‍🏭": "Man Factory Worker", "👨‍💻": "Man Office Worker", 
-            "👨‍💼": "Man Businessman", "👨‍🔧": "Man Mechanic", "👨‍🔬": "Man Scientist", "👨‍🚀": "Man Astronaut", 
-            "👨‍🚒": "Man Firefighter", "👮‍♂️": "Policeman", "🕵️‍♂️": "Man Detective", "👷‍♂️": "Man Construction Worker", 
-            "🤴": "Prince", "👳‍♂️": "Man with Turban", "👲": "Man with Hat", "🧔": "Bearded Man", "👱‍♂️": "Blond Man", 
-            "👨‍🦰": "Red-Haired Man", "👨‍🦱": "Curly-Haired Man", "👨‍🦳": "White-Haired Man", "👨‍🦲": "Bald Man", "🧓": "Old Man", 
-            "👴": "Elderly Man", "👶‍♂️": "Baby Boy", "👩": "Woman", "👩‍⚕️": "Woman Doctor", "👩‍🌾": "Woman Farmer", 
-            "👩‍🍳": "Woman Cook", "👩‍🎓": "Woman Student", "👩‍🎤": "Woman Singer", "👩‍🏫": "Woman Teacher", 
-            "👩‍🏭": "Woman Factory Worker", "👩‍💻": "Woman Office Worker", "👩‍💼": "Woman Businesswoman", 
-            "👩‍🔧": "Woman Mechanic", "👩‍🔬": "Woman Scientist", "👩‍🚀": "Woman Astronaut", "👩‍🚒": "Woman Firefighter", 
-            "👮‍♀️": "Policewoman", "🕵️‍♀️": "Woman Detective", "👷‍♀️": "Woman Construction Worker", "👸": "Princess", 
-            "👳‍♀️": "Woman with Turban", "🧕": "Woman with Headscarf", "👱‍♀️": "Blond Woman", "👩‍🦰": "Red-Haired Woman", 
-            "👩‍🦱": "Curly-Haired Woman", "👩‍🦳": "White-Haired Woman", "👩‍🦲": "Bald Woman", "👵": "Elderly Woman", 
+            "👨": "Male", "👨‍⚕️": "Male Doctor", "👨‍🌾": "Male Farmer", "👨‍🍳": "Male Cook", "👨‍🎓": "Male Student", 
+            "👨‍🎤": "Male Singer", "👨‍🏫": "Male Teacher", "👨‍🏭": "Male Factory Worker", "👨‍💻": "Male Office Worker", 
+            "👨‍💼": "Male Businessman", "👨‍🔧": "Male Mechanic", "👨‍🔬": "Male Scientist", "👨‍🚀": "Male Astronaut", 
+            "👨‍🚒": "Male Firefighter", "👮‍♂️": "Policeman", "🕵️‍♂️": "Male Detective", "👷‍♂️": "Male Construction Worker", 
+            "🤴": "Prince", "👳‍♂️": "Male with Turban", "👲": "Male with Hat", "🧔": "Bearded Male", "👱‍♂️": "Blond Male", 
+            "👨‍🦰": "Red-Haired Male", "👨‍🦱": "Curly-Haired Male", "👨‍🦳": "White-Haired Male", "👨‍🦲": "Bald Male", "🧓": "Old Male", 
+            "👴": "Elderly Male", "👶‍♂️": "Baby Boy", "👩": "Female", "👩‍⚕️": "Female Doctor", "👩‍🌾": "Female Farmer", 
+            "👩‍🍳": "Female Cook", "👩‍🎓": "Female Student", "👩‍🎤": "Female Singer", "👩‍🏫": "Female Teacher", 
+            "👩‍🏭": "Female Factory Worker", "👩‍💻": "Female Office Worker", "👩‍💼": "Female Businesswoman", 
+            "👩‍🔧": "Female Mechanic", "👩‍🔬": "Female Scientist", "👩‍🚀": "Female Astronaut", "👩‍🚒": "Female Firefighter", 
+            "👮‍♀️": "Policewoman", "🕵️‍♀️": "Female Detective", "👷‍♀️": "Female Construction Worker", "👸": "Princess", 
+            "👳‍♀️": "Female with Turban", "🧕": "Female with Headscarf", "👱‍♀️": "Blond Female", "👩‍🦰": "Red-Haired Female", 
+            "👩‍🦱": "Curly-Haired Female", "👩‍🦳": "White-Haired Female", "👩‍🦲": "Bald Female", "👵": "Elderly Female", 
             "👶‍♀️": "Baby Girl", "👶": "Baby", "🧒": "Child", "👦": "Boy", "👧": "Girl", "🧑‍🍼": "Person Feeding Baby", 
             "👶‍♂️": "Baby Boy", "👶‍♀️": "Baby Girl", "🧒‍♂️": "Boy", "🧒‍♀️": "Girl", "👦‍♂️": "Boy", "👦‍♀️": "Girl", 
             "👧‍♂️": "Boy", "👧‍♀️": "Girl", "👪": "Family", "👨‍👩‍👦": "Family", "👨‍👩‍👧": "Family", 
@@ -2251,7 +2711,7 @@ emoji_labels = {
             "👩‍👩‍👧‍👧": "Family", "👨‍👦": "Family", "👨‍👦‍👦": "Family", "👨‍👧": "Family", "👨‍👧‍👧": "Family", 
             "👩‍👦": "Family", "👩‍👦‍👦": "Family", "👩‍👧": "Family", "👩‍👧‍👧": "Family",
             # Other labels
-            "🟫": "Dirt", "⬛": "Wall", "🟩": "Grass", "⬜": "Snow", "🟨": "Sand","🔳": "Road", "🏞️": "Climable Mountain",
+            "🟫": "Dirt", "⬛": "Wall", "🟩": "Grass", "⬜": "Snow", "🟨": "Sand","◼️": "Road", "🏞️": "Climable Mountain",
             "🏔️": "Mountain", "⛰️": "Mountain", "🌲": "Tree", "🌳": "Tree", "🎄": "Tree", "🌴": "Looted Tree",
             "🌊": "Moving Water", "🟦": "Still Water", "🌉": "Bridge", "🏪": "Merchant", "🧙": "Magic Merchant", 
             "🕴️": "Black Market", "🏯": "Skill Trainer", "🦊": "Fox", "🦇": "Bat", "🚪": "Door", "🛗": "Open Door", 
@@ -2261,7 +2721,8 @@ emoji_labels = {
             "🪜": "Climbing Gear", "🪓": "Chopping Axe", "🎣": "Fishing Pole","⛏️": "Pickaxe", "🔨": "Hammer", "⚒️": "Engineer Kit" , "💀": "Remains", "🦴": "Remains", "☠️": "Remains", 
             "🥩": "Food", "🍖": "Food", "🥕": "Food", "⚔️": "Combat Encounter", "🏴‍☠️": "Combat Encounter","🆚": "Vs+ Encounter", '🧱': "Ore",'🪨': "Rock",'🌵': 'Cactus',
             "🏜️": "Looted Cactus","🥋" : "Training Dummy", "None": "Nothing", "🎯" : "Elimination Quest", "🔎" : "Investigation Quest", f"<a:Shiney_Gold_Coins_Inv:1085618500455911454>" : "Gold",
-            "🗡️": "Attack Up!","🛡️": "Defense Up!","💗":"Health Up!", "🚗": "Car", "🪦":"Grave"
+            "🗡️": "Attack Up!","🛡️": "Defense Up!","💗":"Health Up!", "🚗": "Car", "🪦":"Grave", "🛣️":"Motorway","Car": "🚗"
+            
         }
 
 
