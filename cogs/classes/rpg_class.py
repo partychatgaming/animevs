@@ -57,6 +57,7 @@ class RPG:
         self.player_avatar = self.player1.avatar
 
         self.player_health = self.player_card_data.health
+        self.player_max_health = self.player_card_data.health
         self.player_attack = self.player_card_data.attack
         self.player_defense = self.player_card_data.defense
         self.player_speed = self.player_card_data.speed
@@ -927,13 +928,11 @@ class RPG:
 
         if self.is_easy_difficulty:
             self.map =  tutorial_map(self)
-        elif self.is_hard_difficulty:
-            self.map =  map4(self)
         else:
-            self.map =  select_random_map(self)
+            self.map =  map1(self)
 
         # self.map = self.generate_random_map()
-        self.map = map1(self)
+        #self.map = map1(self)
         self.previous_map = self.map
         self.next_map = []
         
@@ -1642,14 +1641,14 @@ class RPG:
                     if success:
                         self.card_drops.append(f"|🎴{selected_card.name}")
                         self.previous_moves.append(f"You found 🎴{selected_card.name}!")
-                if npc == "🎗️":
-                    title_drop = db.get_random_title({"UNIVERSE": self.universe}, self.player1)
-                    message, success = self.player1.save_title(self.universe, title_drop)
-                    if success:
-                        self.title_drops.append(f"|🎗️{title_drop}**")
-                        self.previous_moves.append(f"You found 🎗️{title_drop}!")
-                    else:
-                        self.previous_moves.append(f"You found 🎗️{title_drop} but you already have the maximum amount!!")
+                # if npc == "🎗️":
+                #     title_drop = db.get_random_title({"UNIVERSE": self.universe}, self.player1)
+                #     message, success = self.player1.save_title(self.universe, title_drop)
+                #     if success:
+                #         self.title_drops.append(f"|🎗️{title_drop}**")
+                #         self.previous_moves.append(f"You found 🎗️{title_drop}!")
+                #     else:
+                #         self.previous_moves.append(f"You found 🎗️{title_drop} but you already have the maximum amount!!")
                 if npc == "🦾":
                     arm_query = {'UNIVERSE': self.universe, 'DROP_STYLE': "TALES", 'ELEMENT': ""}
                     arm_drop = db.get_random_arm(arm_query, self.player1)
@@ -1671,7 +1670,8 @@ class RPG:
                     else:
                         self.previous_moves.append(f"You found 🧬{summon_drop.name} but you already have the maximum amount!!")
                 if npc == "🆙":  
-                    self.previous_moves.append(f"(🆙) You found a XP Boost!")
+                    self.previous_moves.append(f"(🆙) You found a XP Boost! Full Heal!")
+                    self.player_health = self.player_max_health
                     await crown_utilities.cardlevel(self.user, "RPG", 1)
             elif npc in self.wildlife:
                 if npc == "🦊":
