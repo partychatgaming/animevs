@@ -719,14 +719,16 @@ class Player:
 
 
     def save_summon(self, summon, rpg_mode =False):
+        summon_list = []
         for s in self.summons:
             if summon.name == s['NAME']:
+                summon_list.append(s['NAME'])
                 return False
         for s in self.storage:
             if summon.name == s['NAME']:
                 return False
             
-        if len(self.summons) >= 80:
+        if len(summon_list) >= 80:
             return "You have reached the maximum amount of summons in your inventory. Please remove a summon to add a new one."
 
 

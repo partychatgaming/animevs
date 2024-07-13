@@ -146,6 +146,7 @@ class RPG:
         self.loot_drop = False
 
         self.quest_giver_position = None
+        self.encounter_position = None
 
         self.inventory_active = False
         self.currency_active = False
@@ -308,7 +309,8 @@ class RPG:
         self.map_name = "Damp Woodlands"
         self.map_area = "Forest Training Grounds"
         self.embed_color = 0x00FF00
-
+        
+        self.map_states = {}  # Dictionary to hold the state of each map
         self.map_change = False
 
         self.area_task = None
@@ -323,6 +325,7 @@ class RPG:
         self.west_exits = None
         self.door_exit = None
         
+        #Set first because it is the central map
         map_4_dict = {
             "standing_on": "🟩",
             "spawn_portal": (10, 5),  # Adjust the spawn portal if necessary
@@ -337,21 +340,21 @@ class RPG:
             "west_exits": None,
             "door_exit": None,
             "map": [
-                ["🟨", "🟨", "🟨", "🟦", "🟦", "🟦", "🟦", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🏪", "🟨", "🟦", "🟫", "🏯", "🟫", "🌉", "⬜", "🦊", "⬜"],
-                ["🟨", "🟨", "🟨", "🌉", "🟫", "🟫", "🟫", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🆚", "🟨", "🟦", "⬛", "⬛", "⬛", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🟨", "🟨", "🟦", "⬛", "🚪", "⬛", "🟦", "⬜", "🆚", "⬜"],
-                ["🟨", "🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🟨", "🟦", "🟩", "🟩", "🟩", "🟩", "🌉", "⬜", "⬜", "⬜"],
-                ["🟨", "🟨", "🟦", "🟩", "👩‍🌾", "🟩", "🟩", "🟦", "⬜", "🎁", "⬜"],
-                ["🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🟦", "🆚", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
-                ["🟦", "🟦", "🟩", "🟩", "🟩", f"{self.player_token}", "🟩", "🟦", "⬜", "⬜", "⬜"]
+                ["🟨", "🟨", "🟨", "🟦", "🟦", "🏯", "🟦", "🟦", "◼️", "⬜", "⬜"],
+                ["🟨", "🏪", "◼️", "🌉", "◼️", "◼️", "◼️", "🌉", "◼️", "🦊", "⬜"],
+                ["🟨", "◼️", "◼️", "🟦", "🟩", "🟩", "🟩", "🟦", "◼️", "⬜", "⬜"],
+                ["🟨", "🆚", "🟨", "🟦", "🌳", "👸", "🌳", "🟦", "◼️", "⬜", "⬜"],
+                ["🟨", "🟨", "🟨", "🟦", "⬛", "⬛", "⬛", "🟦", "◼️", "🆚", "⬜"],
+                ["🟨", "🟨", "🟦", "🟦", "⬛", "🚪", "⬛", "🟦", "◼️", "⬜", "⬜"],
+                ["🟨", "🟨", "🟦", "🌳", "🟫", "🟩", "🟩", "🌉", "◼️", "⬜", "⬜"],
+                ["🟨", "🟨", "🟦", "🟫", "👩‍🌾", "🟩", "🟩", "🟦", "⬜", "🎁", "⬜"],
+                ["🟨", "🟦", "🟦", "🟫", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟦", "🆚", "🟫", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟦", "🟦", "🟫", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"]
             ]
         }
         
-        map_1_dict = {
+        starting_map = {
             "standing_on": "🟩",
             "spawn_portal": (10, 5),
             "map_name": "Damp Woodlands",
@@ -378,36 +381,90 @@ class RPG:
                 ["🌳", "🌳", "🟦", "🏪", f"🌳", f"{self.player_token}", "🌳", "🌳", "🌳", "🌳", "🌳"]
             ]
         }
-        
 
-        map_3_dict = {
-            "standing_on": "⬜",
+        map_1_dict = {
+            "standing_on": "🟩",
             "spawn_portal": (10, 5),
-            "map_name": "Frosty Peaks",
-            "map_area": "Frozen Training Grounds",
-            "embed_color": 0xFFFFFF,
-            "map_doors": (4, 5),
-            "exit_points": [(10, 5), (0, 8), (4, 10)],
-            "north_exits": None,
+            "map_name": "Damp Woodlands",
+            "map_area": "Forest Training Grounds",
+            "embed_color": 0x00FF00,
+            "map_doors": (1, 5),
+            "exit_points": [(0, 3), (0, 7), (1, 5)],
+            "north_exits": map_4_dict,  # Map 4
             "south_exits": None,
             "east_exits": None,
             "west_exits": None,
             "door_exit": None,
             "map": [
-                ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🟦", "🏔️", "⬜", "🏔️", "🏔️"],
-                ["🏔️", "🏪", "⬜", "⬜", "⬜", "⬜", "🟦", "🆚", "⬜", "🏯", "🏔️"],
-                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "🟦", "⬜", "⬜", "🏔️"],
-                ["🏔️", "⬜", "⬜", "⬜", "⬛", "⬛", "⬛", "🟦", "⬜", "⬜", "🏔️"],
-                ["🏔️", "⬜", "⬜", "⬜", "⬛", "🚪", "⬛", "🟦", "⬜", "⬜", "⬜"],
-                ["🏔️", "⬜", "👩‍🦰", "⬜", "🎄", "⬜", "🟦", "🟦", "⬜", "⬜", "🏔️"],
-                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🌉", "⬜", "⬜", "⬜", "🏔️"],
-                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
-                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
-                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "🎁", "🏔️", "💰", "🏔️"],
-                ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️", f"{self.player_token}", "🟦", "🏔️", "🏔️", "🏔️", "🏔️"]
+                ["🌳", "🌳", "🟩", "🟦", "⬛", "⬛", "⬛", "🟩", "🌳", "🌳", "🌳"],
+                ["🌳", "🤴", "🟩", "🟦", "⬛", "🚪", "⬛", "🟩", "🌳", "🏯", "🌳"],
+                ["🌳", "🟩", "🟩", "🟦", "🟩", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟦", "🟩", "🗝️", "🌳", "🌳", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🌳", "🎁", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🌳", "🌳", "🟩", "🟩", "🟩", "🟩", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🟦", "🟩", "🟩", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🟩", "🌉", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳", "🟩", "🌳"],
+                ["🌳", "🆚", "🟦", "🟩", "🌳", "🟩", "🌳", "🎒", "🌳", "🪨", "🌳"],
+                ["🌳", "🌳", "🟦", "🏪", f"🌳", "🟩", "🌳", "🌳", "🌳", "🌳", "🌳"]
+            ]
+        }
+        
+        map_2_dict = {
+            "standing_on": "🟨",
+            "spawn_portal": (5, 10),
+            "map_name": "Scorched Lands",
+            "map_area": "Fiery Training Grounds",
+            "embed_color": 0xFFD700,
+            "map_doors": (1, 2),
+            "exit_points": [(5, 10), (0, 5), (1, 2)],
+            "north_exits": None,
+            "south_exits": None,
+            "east_exits": map_4_dict,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["🏯", "⬛", "⬛", "⬛", "🆚", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨"],
+                ["🟨", "⬛", "🚪", "⬛", "🟨", "🟨", "🌉", "🟨", "🏪", "🟨", "🟨"],
+                ["🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟦", "🟨", "🟨", "🌵", "🟨"],
+                ["🟦", "🟦", "🟨", "🟨", "🟨", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨"],
+                ["🟨", "🟦", "💰", "🟨", "🟨", "🟦", "🟦", "🟨", "👳‍♂️", "🟨", "🟨"],
+                ["🟨", "🟦", "🟦", "🟨", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨", "🟨"],
+                ["🟨", "🟨", "🟦", "🌉", "🟦", "🟦", "🟦", "🟨", "🟨", "🌵", "🟨"],
+                ["🟨", "🌵", "🟨", "🟨", "🟨", "🟨", "🟦", "🟦", "🟨", "🟨", "🟨"],
+                ["🟨", "🟨", "🟨", "🟨", "🆚", "🟨", "🟨", "🟦", "🆚", "🟨", "🟨"],
+                ["🟨", "🟨", "🌵", "🟨", "🟨", "🟨", "🟨", "🟨", "🟦", "🪨", "🟨"],
+                ["🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟦", "🟦", "🟦"]
             ]
         }
 
+        map_3_dict = {
+            "standing_on": "⬜",
+            "spawn_portal": (9, 0),
+            "map_name": "Frosty Peaks",
+            "map_area": "Frozen Training Grounds",
+            "embed_color": 0xFFFFFF,
+            "map_doors": (4, 5),
+            "exit_points": [(9, 0), (0, 9), (5,4)],
+            "north_exits": None,
+            "south_exits": None,
+            "east_exits": None,
+            "west_exits": map_4_dict,
+            "door_exit": None,
+            "map": [
+                ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🏔️", "🟦", "🏔️", "🆚", "🏔️", "🏔️"],
+                ["🏔️", "🏪", "⬜", "⬜", "⬜", "⬜", "🌉", "⬜", "⬜", "🏯", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "🟦", "🟦", "⬜", "⬜", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬛", "⬛", "⬛", "🟦", "⬜", "⬜", "🏔️"],
+                ["🟦", "⬜", "⬜", "⬜", "⬛", "🚪", "⬛", "🟦", "⬜", "⬜", "⬜"],
+                ["🟦", "🌉", "🟦", "⬜", "🎄", "⬜", "🟦", "🟦", "⬜", "⬜", "🏔️"],
+                ["🏔️", "⬜", "🟦", "⬜", "⬜", "⬜", "🟦", "⬜", "⬜", "👩‍🦰", "🏔️"],
+                ["🏔️", "⬜", "🟦", "🟦", "🟦", "🟦", "🟦", "⬜", "🏔️", "⬜", "🏔️"],
+                ["🏔️", "⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "🏔️", "⬜", "🏔️"],
+                ["⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "⬜", "🎁", "🏔️", "💰", "🏔️"],
+                ["🏔️", "🏔️", "🏔️", "🏔️", "🏔️","🏔️" , "🏔️", "🏔️", "🏔️", "🏔️", "🏔️"]
+            ]
+        }
 
         map_5_5_dict = {
             "standing_on": "🟫",
@@ -424,16 +481,16 @@ class RPG:
             "door_exit": None,
             "map": [
                 ["⬛", "⬛", "⬛", "⬛", "⬛", "🟫", "⬛", "⬛", "⬛", "⬛", "⬛"],
-                ["⬛", "⬛", "⬛", "⬛", "🪨", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛"],
-                ["⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛", "🟫", "⬛"],
+                ["⬛", "🆚", "⬛", "⬛", "🪨", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛"],
+                ["⬛", "🟫", "🟫", "🟫", "🟫", "🟫", "🪨", "🟫", "⬛", "🟫", "⬛"],
                 ["⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛", "🟫", "⬛"],
                 ["⬛", "⬛", "🪨", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛", "🟫", "⬛"],
                 ["⬛", "⬛", "🟫", "⬛", "🟫", "🟫", "🟫", "⬛", "⬛", "🟫", "⬛"],
-                ["⬛", "⬛", "🟫", "⬛", "🟫", "🟫", "🟫", "⬛", "⬛", "🟫", "⬛"],
-                ["⬛", "⬛", "🟫", "⬛", "⬛", "🆚", "⬛", "⬛", "⬛", "🟫", "⬛"],
-                ["⬛", "🎁", "🟫", "⬛", "⬛", "🟫", "⬛", "⬛", "🎒", "🟫", "⬛"],
+                ["⬛", "⬛", "🟫", "⬛", "🟫", "🟫", "🟫", "⬛", "⬛", "🟫", "🟦"],
+                ["🟦", "🟦", "🌉", "🟦", "🟦", "🌉", "🟦", "🟦", "🟦", "🌉", "🟦"],
+                ["🟦", "🎁", "🟫", "⬛", "⬛", "🟫", "⬛", "⬛", "🎒", "🟫", "⬛"],
                 ["⬛", "⬛", "⬛", "⬛", "⬛", "🟫", "⬛", "⬛", "⬛", "⬛", "⬛"],
-                ["⬛", "⬛", "⬛", "⬛", "⬛", f"{self.player_token}", "⬛", "⬛", "⬛", "⬛", "⬛"]
+                ["⬛", "⬛", "⬛", "⬛", "⬛", "🟫", "⬛", "⬛", "⬛", "⬛", "⬛"]
             ]
         }
 
@@ -461,10 +518,94 @@ class RPG:
                 ["⬛", "⬛", "🪨", "⬛", "🟫", "⬛", "⬛", "🧙", "⬛", "🟫", "⬛"],
                 ["⬛", "⬛", "🟫", "🟫", "🟫", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛"],
                 ["⬛", "⬛", "⬛", "🟫", "🟫", "🟫", "🟫", "🟫", "⬛", "⬛", "⬛"],
-                ["⬛", "⬛", "⬛", "⬛", "⬛", f"{self.player_token}", "⬛", "⬛", "⬛", "⬛", "⬛"]
+                ["⬛", "⬛", "⬛", "⬛", "⬛", "🟫", "⬛", "⬛", "⬛", "⬛", "⬛"]
             ]
         }
-  
+
+        map_6_dict_day = {
+                "standing_on": "◼️",
+                "spawn_portal": (10, 5),
+                "map_name": "Concrete Jungle",
+                "map_area": "City Training Grounds",
+                "embed_color": 0x808080,
+                "map_doors": None,
+                "exit_points": [(10,5)],
+                "north_exits": None,
+                "south_exits": map_4_dict,
+                "east_exits": None,
+                "west_exits": None,
+                "door_exit": None,
+                "map": [
+                    ["🏢", "🏢", "🏢", "🏢", "🏢", "◼️", "🏢", "◼️", "🏢", "🏢", "🏢"],
+                    ["🏢", "🟦", "👨", "🟩", "◼️", "◼️", "🏢", "◼️", "🏥", "🧱", "🏢"],
+                    ["🏢", "🟩", "🟩", "🟩", "◼️", "◼️", "🏢", "◼️", "◼️", "◼️", "🏢"],
+                    ["🏢", "🏢", "🏢", "🏢", "🏢", "◼️", "🏢", "🆚", "🏢", "🏢", "🏢"],
+                    ["🏢", "🏢", "🕵️‍♂️", "🏢", "🏢", "◼️", "🏢", "◼️", "🏢", "🏢", "🏢"],
+                    ["🏢", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🚗", "◼️", "🏢"],
+                    ["🏢", "◼️", "🏢", "🏢", "🏢", "◼️", "🏢", "◼️", "🏢", "◼️", "🏢"],
+                    ["🏢", "◼️", "🏢", "🏯", "🏢", "◼️", "🏢", "🏪", "🏢", "◼️", "🏢"],
+                    ["🏢", "◼️", "🏢", "◼️", "🏢", "◼️", "🏢", "🏢", "🏢", "◼️", "🏢"],
+                    ["🏢", "🎁", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🏢"],
+                    ["🏢", "🏢", "🏢", "🏢", "🏢", "◼️", "🏢", "🏢", "🏢", "🏢", "🏢"]
+                ]
+            }
+        
+        map_6_dict_am = {
+            "standing_on": "◼️",
+            "spawn_portal": (10, 5),
+            "map_name": "Concrete Jungle",
+            "map_area": "Morning City Training Grounds",
+            "embed_color": 0x808080,
+            "map_doors": None,
+            "exit_points": [],
+            "north_exits": None,
+            "south_exits": map_4_dict,
+            "east_exits": None,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["🌆", "🌆", "🌆", "🌆", "🌆", "◼️", "🌆", "◼️", "🌆", "🌆", "🌆"],
+                ["🌆", "🟦", "👨", "🟩", "◼️", "◼️", "🌆", "◼️", "🏥", "🧱", "🌆"],
+                ["🌆", "🟩", "🟩", "🟩", "◼️", "◼️", "🌆", "◼️", "◼️", "◼️", "🌆"],
+                ["🌆", "🌆", "🌆", "🌆", "🌆", "◼️", "🌆", "🆚", "🌆", "🌆", "🌆"],
+                ["🌆", "🌆", "🕵️‍♂️", "🌆", "🌆", "◼️", "🌆", "◼️", "🌆", "🌆", "🌆"],
+                ["🌆", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🚗", "◼️", "🌆"],
+                ["🌆", "◼️", "🌆", "🌆", "🌆", "◼️", "🌆", "◼️", "🌆", "◼️", "🌆"],
+                ["🌆", "◼️", "🌆", "🏯", "🌆", "◼️", "🌆", "🏪", "🌆", "◼️", "🌆"],
+                ["🌆", "◼️", "🌆", "◼️", "🌆", "◼️", "🌆", "🌆", "🌆", "◼️", "🌆"],
+                ["🌆", "🎁", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🌆"],
+                ["🌆", "🌆", "🌆", "🌆", "🌆", "◼️", "🌆", "🌆", "🌆", "🌆", "🌆"]
+            ]
+        }
+
+        map_6_dict_pm = {
+            "standing_on": "◼️",
+            "spawn_portal": (10, 5),
+            "map_name": "Concrete Jungle",
+            "map_area": "Night City Training Grounds",
+            "embed_color": 0x808080,
+            "map_doors": None,
+            "exit_points": [],
+            "north_exits": None,
+            "south_exits": map_4_dict,
+            "east_exits": None,
+            "west_exits": None,
+            "door_exit": None,
+            "map": [
+                ["🌃", "🌃", "🌃", "🌃", "🌃", "◼️", "🌃", "◼️", "🌃", "🌃", "🌃"],
+                ["🌃", "🟦", "👨", "🟩", "◼️", "◼️", "🌃", "◼️", "🧙", "🧱", "🌃"],
+                ["🌃", "🟩", "🟩", "🟩", "◼️", "◼️", "🌃", "◼️", "◼️", "◼️", "🌃"],
+                ["🌃", "🌃", "🌃", "🌃", "🌃", "◼️", "🌃", "🆚", "🌃", "🌃", "🌃"],
+                ["🌃", "🌃", "🕵️‍♂️", "🌃", "🌃", "◼️", "🌃", "◼️", "🌃", "🌃", "🌃"],
+                ["🌃", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🚗", "◼️", "🌃"],
+                ["🌃", "◼️", "🌃", "🌃", "🌃", "◼️", "🌃", "◼️", "🌃", "◼️", "🌃"],
+                ["🌃", "◼️", "🌃", "🏯", "🌃", "◼️", "🌃", "🏪", "🌃", "◼️", "🌃"],
+                ["🌃", "◼️", "🌃", "◼️", "🌃", "◼️", "🌃", "🌃", "🌃", "◼️", "🌃"],
+                ["🌃", "🎁", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "◼️", "🌃"],
+                ["🌃", "🌃", "🌃", "🌃", "🌃", "◼️", "🌃", "🌃", "🌃", "🌃", "🌃"]
+            ]
+        }
+        
         map_7_dict = {
             "standing_on": "🟫",
             "spawn_portal": (0, 6),
@@ -479,7 +620,7 @@ class RPG:
             "west_exits": None,
             "door_exit": None,
             "map": [
-                ["🌲", "🌲", "🌲", "🌲", "🌲", "🌲", f"{self.player_token}", "🌲", "🌲", "🌲", "🌲"],
+                ["🌲", "🌲", "🌲", "🌲", "🌲", "🌲", "🟫", "🌲", "🌲", "🌲", "🌲"],
                 ["🌲", "🪦", "🟫", "🎒", "🪦", "🟫", "🟫", "🪦", "🟫", "🎃", "🌲"],
                 ["🌲", "🟫", "🟫", "🪦", "🟫", "🟫", "🟫", "🟫", "🪦", "🟫", "🌲"],
                 ["🌲", "🟫", "🟫", "🟫", "🟫", "🪦", "🟫", "🟫", "🟫", "🟫", "🌲"],
@@ -493,7 +634,19 @@ class RPG:
             ]
         }
         
+        def choose_map_time(self):
+            random_number = random.randint(1,3)
+            if random_number == 1:
+                return map_6_dict_am
+            elif random_number == 2:
+                return map_6_dict_day
+            else:
+                return map_6_dict_pm
+            
         map_4_dict["south_exits"] = map_1_dict  # Map 1
+        map_4_dict["west_exits"] = map_2_dict  # Map 2
+        map_4_dict["east_exits"] = map_3_dict  # Map 3
+        map_4_dict["north_exits"] = choose_map_time(self)  # Map 6
         map_1_dict["door_exit"] = map_5_5_dict
         map_1_dict["south_exits"] = map_7_dict  # Map 3
         map_5_5_dict["north_exits"] = map_5_dict
@@ -536,17 +689,17 @@ class RPG:
             self.map_area = "Fiery Training Grounds"
             self.embed_color = 0xFFD700
             return [
-                ["🏯", "⬛", "⬛", "⬛", "🟨", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨"],
-                ["🟨", "⬛", "🚪", "⬛", "🟨", "🟨", "🟦", "🟨", "🏪", "🟨", "🟨"],
+                ["🏯", "⬛", "⬛", "⬛", "🆚", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨"],
+                ["🟨", "⬛", "🚪", "⬛", "🟨", "🟨", "🌉", "🟨", "🏪", "🟨", "🟨"],
                 ["🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟦", "🟨", "🟨", "🌵", "🟨"],
-                ["🟨", "🟨", "🟨", "🟨", "🟨", "🆚", "🟦", "🟨", "🟨", "🟨", "🟨"],
-                ["🟨", "🟨", "💰", "🟨", "🟨", "🟦", "🟦", "🟨", "👳‍♂️", "🟨", "🟨"],
-                ["🟨", "🟨", "🟨", "🟨", "🟦", "🟦", "🟨", "🟨", "🟨", "🟨", "🟨"],
-                ["🟨", "🟨", "🟦", "🌉", "🟦", "🟨", "🟨", "🟨", "🟨", "🌵", "🟨"],
-                ["🟨", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨", "🌵", "🟨", "🟨", "🟨"],
-                ["🟨", "🟦", "🟦", "🟨", "🟨", "🟨", "🟨", "🟨", "🆚", "🟨", "🟨"],
-                ["🟨", "🟦", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🪨", "🟨"],
-                ["🟨", "🟦", "🟨", "🟨", "🟨", f"{self.player_token}", "🟨", "🟨", "🟨", "🟨", "🟨"]
+                ["🟦", "🟦", "🟨", "🟨", "🟨", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨"],
+                ["🟨", "🟦", "💰", "🟨", "🟨", "🟦", "🟦", "🟨", "👳‍♂️", "🟨", "🟨"],
+                ["🟨", "🟦", "🟦", "🟨", "🟨", "🟦", "🟨", "🟨", "🟨", "🟨", f"{self.player_token}"],
+                ["🟨", "🟨", "🟦", "🌉", "🟦", "🟦", "🟦", "🟨", "🟨", "🌵", "🟨"],
+                ["🟨", "🌵", "🟨", "🟨", "🟨", "🟨", "🟦", "🟦", "🟨", "🟨", "🟨"],
+                ["🟨", "🟨", "🟨", "🟨", "🆚", "🟨", "🟨", "🟦", "🆚", "🟨", "🟨"],
+                ["🟨", "🟨", "🌵", "🟨", "🟨", "🟨", "🟨", "🟨", "🟦", "🪨", "🟨"],
+                ["🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟨", "🟦", "🟦", "🟦"]
         ]
 
         
@@ -577,16 +730,16 @@ class RPG:
             self.embed_color = 0xFFFFFF
             return [
                 ["🟨", "🟨", "🟨", "🟦", "🟦", "🟦", "🟦", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🏪", "🟨", "🟦", "🟫", "🏯", "🟫", "🌉", "⬜", "🦊", "⬜"],
-                ["🟨", "🟨", "🟨", "🌉", "🟫", "🟫", "🟫", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🏪", "🟨", "🟦", "🟦", "🏯", "◼️", "🌉", "⬜", "🦊", "⬜"],
+                ["🟨", "🟨", "🟨", "🌉", "◼️", "◼️", "◼️", "🟦", "⬜", "⬜", "⬜"],
                 ["🟨", "🆚", "🟨", "🟦", "⬛", "⬛", "⬛", "🟦", "⬜", "⬜", "⬜"],
                 ["🟨", "🟨", "🟨", "🟦", "⬛", "🚪", "⬛", "🟦", "⬜", "🆚", "⬜"],
-                ["🟨", "🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🟨", "🟦", "🟩", "🟩", "🟩", "🟩", "🌉", "⬜", "⬜", "⬜"],
-                ["🟨", "🟨", "🟦", "🟩", "👩‍🌾", "🟩", "🟩", "🟦", "⬜", "🎁", "⬜"],
-                ["🟨", "🟦", "🟦", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
-                ["🟨", "🟦", "🆚", "🟩", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
-                ["🟦", "🟦", "🟩", "🟩", "🟩", f"{self.player_token}", "🟩", "🟦", "⬜", "⬜", "⬜"]
+                ["🟨", "🟨", "🟦", "🟦", "🟫", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟨", "🟦", "🟫", "🟩", "🟩", "🟩", "🌉", "⬜", "⬜", "⬜"],
+                ["🟨", "🟨", "🟦", "🟫", "👩‍🌾", "🟩", "🟩", "🟦", "⬜", "🎁", "⬜"],
+                ["🟨", "🟦", "🟦", "🟫", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟨", "🟦", "🆚", "🟫", "🟩", "🟩", "🟩", "🟦", "⬜", "⬜", "⬜"],
+                ["🟦", "🟦", "🟫", "🟩", "🟩", f"{self.player_token}", "🟩", "🟦", "⬜", "⬜", "⬜"]
         ]
         
                
@@ -801,6 +954,7 @@ class RPG:
     
     def change_map(self, direction, location):
         self.map_change = True
+        self.save_map_state(self.map_name)  # Save the current map state before changing
         if location == self.map_doors:
             self.floor += 1
             self.load_map(self.door_exit)
@@ -825,31 +979,77 @@ class RPG:
             self.previous_moves.append(f"Cannot move {direction}, no exit found.")
             self.map_change = False
             return False
+
+
+
+    def save_map_state(self, map_name):
+        # Save the current map state
+        self.map_states[map_name] = {
+            'standing_on': self.standing_on,
+            'spawn_portal': self.spawn_portal,
+            'map_name': self.map_name,
+            'map_area': self.map_area,
+            'embed_color': self.embed_color,
+            'map_doors': self.map_doors,
+            'exit_points': self.exit_points,
+            'north_exits': self.north_exits,
+            'south_exits': self.south_exits,
+            'east_exits': self.east_exits,
+            'west_exits': self.west_exits,
+            'door_exit': self.door_exit,
+            'map': self.map,
+            'player_position': self.player_position
+        }
     
     
     def load_map(self, new_map):
+        # Save the current map state before loading the new map
         x, y = self.player_position
-        self.map[x][y] = self.standing_on #Reset to beginning of map for now until we can save the previous player position on the map 
-        self.standing_on = new_map['standing_on']
-        self.spawn_portal = new_map['spawn_portal']
-        self.map_name = new_map['map_name']
-        self.map_area = new_map['map_area']
-        self.embed_color = new_map['embed_color']
-        self.map_doors = new_map.get('map_doors')
-        self.exit_points = new_map.get('exit_points', [])
-        self.north_exits = new_map.get('north_exits')
-        self.south_exits = new_map.get('south_exits')
-        self.east_exits = new_map.get('east_exits')
-        self.west_exits = new_map.get('west_exits')
-        self.door_exit = new_map.get('door_exit')
-        self.map = new_map['map']
-        self.player_position = self.spawn_portal
-        #self.map[x][y] = f"{self.player_token}"
+        self.map[x][y] = self.standing_on
+
+        # Check if the new map has been visited before
+        if new_map['map_name'] in self.map_states:
+            # Load the saved state of the new map
+            saved_map = self.map_states[new_map['map_name']]
+            self.standing_on = saved_map['standing_on']
+            self.spawn_portal = saved_map['spawn_portal']
+            self.map_name = saved_map['map_name']
+            self.map_area = saved_map['map_area']
+            self.embed_color = saved_map['embed_color']
+            self.map_doors = saved_map['map_doors']
+            self.exit_points = saved_map['exit_points']
+            self.north_exits = saved_map['north_exits']
+            self.south_exits = saved_map['south_exits']
+            self.east_exits = saved_map['east_exits']
+            self.west_exits = saved_map['west_exits']
+            self.door_exit = saved_map['door_exit']
+            self.map = saved_map['map']
+            self.player_position = saved_map['player_position']
+        else:
+            # Load the new map as usual
+            self.standing_on = new_map['standing_on']
+            self.spawn_portal = new_map['spawn_portal']
+            self.map_name = new_map['map_name']
+            self.map_area = new_map['map_area']
+            self.embed_color = new_map['embed_color']
+            self.map_doors = new_map.get('map_doors')
+            self.exit_points = new_map.get('exit_points', [])
+            self.north_exits = new_map.get('north_exits')
+            self.south_exits = new_map.get('south_exits')
+            self.east_exits = new_map.get('east_exits')
+            self.west_exits = new_map.get('west_exits')
+            self.door_exit = new_map.get('door_exit')
+            self.map = new_map['map']
+            self.player_position = self.spawn_portal
+
+        # Set the player token on the map at the player's position
+        x, y = self.player_position
+        self.standing_on = self.map[x][y]  # Save the tile the player will be standing on
+        self.map[x][y] = self.player_token  # Place the player token on the map
+
         self.previous_moves.append(f"Entered {self.map_name} - {self.map_area}")
         
-
-
-    
+ 
     def get_current_map_data(self):
         return {
             'standing_on': self.standing_on,
@@ -1710,6 +1910,7 @@ class RPG:
                 else:
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🆙", npc_position, direction)
         elif npc in self.combat_points:
+            self.encounter_position = npc_position
             await self.encounter_handler(ctx, private_channel,npc, npc_position)
             #After combat turn into remains based on combat type for additional loot rolls
             self.encounter = True
@@ -1761,6 +1962,8 @@ class RPG:
                 await self.create_rpg_battle(ctx, private_channel)
         else:
             if npc == "💫":
+                print("Encounter Position",self.encounter_position)
+                x, y = self.encounter_position
                 embedVar = Embed(title=f"[💬] You spend some time talking with {npc_position}, but before you go...", description=f"", color=0xf1c40f)
                 self.previous_moves.append(f"(💬) You spend some time talking with {npc_position}, before you go...")
                 random_number = random.randint(1, 100)
@@ -1771,21 +1974,21 @@ class RPG:
                     await talk_msg.delete(delay=3)      
                     self.battling = True
                     await self.create_rpg_battle(ctx, private_channel)
-                    return
                 elif random_number <= 40:
+                    print("npc_position",npc_position) 
                     self.previous_moves.append(f"(🧙) Looks like they have some items to sell...")
                     embedVar.add_field(name=f"[🧙)] They have a shop!", value=f"Check out their wares!")
                     self.battling = False
                     self.encounter = False
                     await self.open_shop(ctx, private_channel, '🧙')
-                    return
+                    self.map[x][y] = f"{self.standing_on}"
                 elif random_number <= 60:
                     self.previous_moves.append(f"(🎁) They have a gift for you!")
                     embedVar.add_field(name=f"[🎁)] They have a gift for you!", value=f"Check out your new stuff!")
                     self.battling = False
                     self.encounter = False
                     await self.rpg_action_handler(ctx, private_channel, self.player_position, "🎁", npc_position)
-                    return
+                    self.map[x][y] = f"{self.standing_on}"
                 elif random_number <= 80:
                     if not self.has_quest:
                         self.previous_moves.append(f"(🗺️) They have a quest for you!")
@@ -1796,13 +1999,14 @@ class RPG:
                         embedVar.add_field(name=f"[🗺️)] You already have a quest!", value=f"Check out your current quest!")
                     self.battling = False
                     self.encounter = False
-                    await self.generate_quest(ctx, private_channel, '🆚', npc_position)
+                    await self.generate_quest(ctx, private_channel, self.player_position, '🆚', npc_position)
                 elif random_number <= 100:
                     self.previous_moves.append(f"(🎰) They have a game for you!")
                     embedVar.add_field(name=f"[🎰)] They have a game for you!", value=f"Lets earn some loot!")
                     self.battling = False
                     self.encounter = False
                     await self.rpg_action_handler(ctx, private_channel, self.player_position, "🎰", npc_position)
+                    self.map[x][y] = f"{self.standing_on}"
                 talk_msg = await private_channel.send(embed=embedVar)
                 await talk_msg.delete(delay=3)
             
@@ -2138,12 +2342,12 @@ class RPG:
             battle.bounty = selected_card.bounty
 
             self.set_rpg_options()
-            #Ai Start Messages
-            # await selected_card.set_ai_start_encounter_message(self.player1_card_name, self.map_name)
-            # await selected_card.set_ai_encounter_message(self.player1_card_name, self.map_name)
+            # Ai Start Messages
+            await selected_card.set_ai_start_encounter_message(self.player1_card_name, self.map_name)
+            await selected_card.set_ai_encounter_message(self.player1_card_name, self.map_name)
             encounter_buttons_action_row = ActionRow(*self.encounter_buttons)
 
-            #embedVar = Embed(title=f"**{selected_card.approach_message}{selected_card.name}**", description=f"*{selected_card.ai_start_encounter_message}*", color=0xf1c40f)
+            embedVar = Embed(title=f"**{selected_card.approach_message}{selected_card.name}**", description=f"*{selected_card.ai_start_encounter_message}*", color=0xf1c40f)
             embedVar = Embed(title=f"**{selected_card.name}**", description=f"*{selected_card.ai_start_encounter_message}*", color=0xf1c40f)
             embedVar.set_image(url="attachment://image.png")
             embedVar.set_thumbnail(url=self.player_avatar)
@@ -2181,7 +2385,7 @@ class RPG:
                         # embedVar = Embed(title=f"Talkin to...{selected_card.name}", description=f"", color=0xf1c40f)
                         # talk_msg = await private_channel.send(embed=embedVar)
                         # await talk_msg.delete(delay=3)
-                        await self.encounter_handler(ctx, private_channel, '💫')
+                        await self.encounter_handler(ctx, private_channel, '💫', selected_card.name)
                         self.battling = False
                         self.encounter = False
                                                
@@ -2190,7 +2394,8 @@ class RPG:
                         await msg.delete()
                         embedVar = Embed(title=f"**{selected_card.name}** Doesn't want to talk", description="It's time to fight!", color=0xf1c40f)
                         self.battling = True # For Now
-                        talk_msg = await private_channel.send(embed=embedVar)
+                        
+                        talk_msg = await asyncio.to_thread(private_channel.send, embed=embedVar)
                         await talk_msg.delete(delay=3)
                         await BattleConfig.create_rpg_battle(self, ctx, battle)
                 if button_ctx.ctx.custom_id == "run":
@@ -2225,7 +2430,7 @@ class RPG:
         if bridge_position not in self.crossed_bridges:
             self.crossed_bridges.append(bridge_position)
 
-
+    
     #Warp Movement
     async def handle_warp_movement(self, ctx, warp_index):
         warp_target = self.closest_warp_points[int(warp_index)]
@@ -2693,14 +2898,14 @@ emoji_labels = {
             "👨‍🎤": "Male Singer", "👨‍🏫": "Male Teacher", "👨‍🏭": "Male Factory Worker", "👨‍💻": "Male Office Worker", 
             "👨‍💼": "Male Businessman", "👨‍🔧": "Male Mechanic", "👨‍🔬": "Male Scientist", "👨‍🚀": "Male Astronaut", 
             "👨‍🚒": "Male Firefighter", "👮‍♂️": "Policeman", "🕵️‍♂️": "Male Detective", "👷‍♂️": "Male Construction Worker", 
-            "🤴": "Prince", "👳‍♂️": "Male with Turban", "👲": "Male with Hat", "🧔": "Bearded Male", "👱‍♂️": "Blond Male", 
+            "🤴": "Prince", "👳‍♂️": "Desert Man", "👲": "Male with Hat", "🧔": "Bearded Male", "👱‍♂️": "Blond Male", 
             "👨‍🦰": "Red-Haired Male", "👨‍🦱": "Curly-Haired Male", "👨‍🦳": "White-Haired Male", "👨‍🦲": "Bald Male", "🧓": "Old Male", 
             "👴": "Elderly Male", "👶‍♂️": "Baby Boy", "👩": "Female", "👩‍⚕️": "Female Doctor", "👩‍🌾": "Female Farmer", 
             "👩‍🍳": "Female Cook", "👩‍🎓": "Female Student", "👩‍🎤": "Female Singer", "👩‍🏫": "Female Teacher", 
             "👩‍🏭": "Female Factory Worker", "👩‍💻": "Female Office Worker", "👩‍💼": "Female Businesswoman", 
             "👩‍🔧": "Female Mechanic", "👩‍🔬": "Female Scientist", "👩‍🚀": "Female Astronaut", "👩‍🚒": "Female Firefighter", 
             "👮‍♀️": "Policewoman", "🕵️‍♀️": "Female Detective", "👷‍♀️": "Female Construction Worker", "👸": "Princess", 
-            "👳‍♀️": "Female with Turban", "🧕": "Female with Headscarf", "👱‍♀️": "Blond Female", "👩‍🦰": "Red-Haired Female", 
+            "👳‍♀️": "Desert Woman", "🧕": "Female with Headscarf", "👱‍♀️": "Blond Female", "👩‍🦰": "Red-Haired Female", 
             "👩‍🦱": "Curly-Haired Female", "👩‍🦳": "White-Haired Female", "👩‍🦲": "Bald Female", "👵": "Elderly Female", 
             "👶‍♀️": "Baby Girl", "👶": "Baby", "🧒": "Child", "👦": "Boy", "👧": "Girl", "🧑‍🍼": "Person Feeding Baby", 
             "👶‍♂️": "Baby Boy", "👶‍♀️": "Baby Girl", "🧒‍♂️": "Boy", "🧒‍♀️": "Girl", "👦‍♂️": "Boy", "👦‍♀️": "Girl", 
@@ -2716,8 +2921,8 @@ emoji_labels = {
             "🌊": "Moving Water", "🟦": "Still Water", "🌉": "Bridge", "🏪": "Merchant", "🧙": "Magic Merchant", 
             "🕴️": "Black Market", "🏯": "Skill Trainer", "🦊": "Fox", "🦇": "Bat", "🚪": "Door", "🛗": "Open Door", 
             "🗝️": "Key", "💰": "Sack o' Coin", "🪙": "Coin", "👛": "Coin Bag", "🎁": "Chest", 
-            "🎒": "Lost Loot", "🦾": "Arm Drop", "🆙": "Xp Drop", "🎴": "Rare Drop", "🧬": "Rare Drop", 
-            "🎗️": "Title Drop", "🎲": "Loot Roll", "🃏": "Loot Roll", "🎰": "Loot Roll", "🏊": "Swimming Skill", 
+            "🎒": "Lost Loot", "🦾": "Arm Drop", "🆙": "Xp Drop", "🎴": "Card Drop", "🧬": "Summon Drop", 
+            "🎗️": "Title Drop", "🎲": "Loot Roll", "🃏": "Loot Box", "🎰": "Jackpot Roll", "🏊": "Swimming Skill", 
             "🪜": "Climbing Gear", "🪓": "Chopping Axe", "🎣": "Fishing Pole","⛏️": "Pickaxe", "🔨": "Hammer", "⚒️": "Engineer Kit" , "💀": "Remains", "🦴": "Remains", "☠️": "Remains", 
             "🥩": "Food", "🍖": "Food", "🥕": "Food", "⚔️": "Combat Encounter", "🏴‍☠️": "Combat Encounter","🆚": "Vs+ Encounter", '🧱': "Ore",'🪨': "Rock",'🌵': 'Cactus',
             "🏜️": "Looted Cactus","🥋" : "Training Dummy", "None": "Nothing", "🎯" : "Elimination Quest", "🔎" : "Investigation Quest", f"<a:Shiney_Gold_Coins_Inv:1085618500455911454>" : "Gold",
