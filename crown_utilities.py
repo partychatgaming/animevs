@@ -1629,7 +1629,52 @@ async def savematch(player, card, path, title, arm, universe, universe_type, exc
 
 def create_card_from_data(card_data, is_boss = False):
     try:
-        card = Card(card_data['NAME'], card_data['PATH'], card_data['PRICE'], card_data['AVAILABLE'], card_data['SKIN_FOR'], card_data['HLT'], card_data['HLT'], card_data['STAM'], card_data['STAM'], card_data['MOVESET'], card_data['ATK'], card_data['DEF'], card_data['TYPE'], card_data['PASS'], card_data['SPD'], card_data['UNIVERSE'], card_data['TIER'], card_data['WEAKNESS'], card_data['RESISTANT'], card_data['REPEL'], card_data['ABSORB'], card_data['IMMUNE'], card_data['GIF'], card_data['FPATH'], card_data['RNAME'], card_data['RPATH'], is_boss, card_data['CLASS'], card_data['DROP_STYLE'])
+        if not card_data["UNIVERSE"] == "Bleach":
+            card_data["DESCRIPTIONS"] = [
+           {
+               "message": "Oh my, it seems we have a little conflict here. Shall we resolve this with science or violence?",
+               "dialogue_options": [
+                   {"response": "Enough games, Urahara! Let's settle this with our Zanpakuto!", "fight": True},
+                   {"response": "Science sounds intriguing. What did you have in mind?", "fight": False}
+               ]
+           },
+           {
+               "message": "My Benihime has many tricks up her sleeve. Are you sure you want to see them all?",
+               "dialogue_options": [
+                   {"response": "I'm not afraid of your tricks! Show me what you've got!", "fight": True},
+                   {"response": "Your inventiveness is renowned. Could you demonstrate a non-combat application?", "fight": False}
+               ]
+           },
+           {
+               "message": "As the former captain of the 12th Division, I've forgotten more about Kidō than most ever learn.",
+               "dialogue_options": [
+                   {"response": "Your past achievements mean nothing! Face me here and now!", "fight": True},
+                   {"response": "I'm always eager to learn. Would you be willing to teach me some Kidō?", "fight": False}
+               ]
+           },
+           {
+               "message": "My Bankai, Kannonbiraki Benihime Aratame, can restructure anything it touches. Fascinating, isn't it?",
+               "dialogue_options": [
+                   {"response": "I don't care how it works, I'll smash right through it!", "fight": True},
+                   {"response": "That's an incredible ability. How does the restructuring process work?", "fight": False}
+               ]
+           },
+           {
+               "message": "I always have a plan B, and C, and probably all the way to Z. Are you prepared for that?",
+               "dialogue_options": [
+                   {"response": "I'll foil every one of your plans! Let's go!", "fight": True},
+                   {"response": "Your strategic mind is impressive. Maybe we could collaborate instead of fight?", "fight": False}
+               ]
+           },
+           {
+               "message": "In the world of the Shinigami, knowledge is true power. Shall I demonstrate?",
+               "dialogue_options": [
+                   {"response": "Enough talk! Let's see how your knowledge fares against my strength!", "fight": True},
+                   {"response": "I'm always eager to learn. What knowledge would you like to share?", "fight": False}
+               ]
+           }
+       ]
+        card = Card(card_data['NAME'], card_data['PATH'], card_data['PRICE'], card_data['AVAILABLE'], card_data['SKIN_FOR'], card_data['HLT'], card_data['HLT'], card_data['STAM'], card_data['STAM'], card_data['MOVESET'], card_data['ATK'], card_data['DEF'], card_data['TYPE'], card_data['PASS'], card_data['SPD'], card_data['UNIVERSE'], card_data['TIER'], card_data['WEAKNESS'], card_data['RESISTANT'], card_data['REPEL'], card_data['ABSORB'], card_data['IMMUNE'], card_data['GIF'], card_data['FPATH'], card_data['RNAME'], card_data['RPATH'], is_boss, card_data['CLASS'], card_data['DROP_STYLE'], card_data['DESCRIPTIONS'])
         return card
     except Exception as ex:
         print(card_data['NAME'])
@@ -1646,7 +1691,7 @@ def create_arm_from_data(arm_data):
     return arm
 
 def create_player_from_data(player_data):
-    player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'])
+    player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
 
 def create_tutorial_bot(player_data):
@@ -2142,6 +2187,30 @@ def get_arm_types():
     except Exception as e:
         print(e)
         return False
+    
+def set_opponent_level_ranges(map_level):
+    if map_level < 10:
+        high, low = 15, 1
+    elif map_level < 50:
+        high, low = 60, 30
+    elif map_level < 100:
+        high, low = 120, 80
+    elif map_level < 200:
+        high, low = 250, 150
+    elif map_level < 500:
+        high, low = 600, 400
+    elif map_level < 1000:
+        high, low = 1200, 800
+    elif map_level < 2000:
+        high, low = 2500, 1500
+    elif map_level < 5000:
+        high, low = 6000, 4000
+    elif map_level < 10000:
+        high, low = 12000, 8000
+    else:
+        high, low = 15000, 10000
+    return high, low
+
 
 blocking_traits = [
     'Attack On Titan',
@@ -2640,6 +2709,7 @@ class_mapping = {
 
 
 pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnoh Region','Kalos Region','Alola Region','Galar Region']
+
 
 
 crest_dict = { 'Unbound': '🉐',

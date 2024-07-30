@@ -914,7 +914,8 @@ class Profile(Extension):
     @slash_option(
         name="filtered",
         description="Filter by Universe of the card you have equipped",
-        opt_type=OptionType.BOOLEAN
+        opt_type=OptionType.BOOLEAN,
+        required=True
     )
     @slash_option(
         name="type_filter",
@@ -1018,7 +1019,7 @@ class Profile(Extension):
     @slash_option(
         name="filtered",
         description="Filter by Universe of the card you have equipped",
-        required=False,
+        required=True,
         opt_type=OptionType.BOOLEAN
     )
     @slash_option(

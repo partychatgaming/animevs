@@ -562,6 +562,7 @@ async def explore_win(battle_config, battle_msg, private_channel, user1):
     
 async def rpg_win(self, battle_config, battle_msg, private_channel, user1):
     if battle_config.is_rpg:
+        battle_config.continue_fighting = False
         battle_config.rpg_config.adventuring = True
         battle_config.rpg_config.battling = False
         battle_config.rpg_config.encounter = False

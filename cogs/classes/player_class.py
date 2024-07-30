@@ -12,7 +12,7 @@ from interactions import ActionRow, Button, ButtonStyle, Embed
 
 
 class Player:
-    def __init__(self, auto_save, available, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history, balance, cards, titles, arms, summons, deck, card_levels, quests, destiny, gems, storage, talismans, essence, tstorage, astorage, u_preset):
+    def __init__(self, auto_save, available, disname, did, avatar, association, guild, family, equipped_title, equipped_card, equipped_arm, equipped_summon, equipped_talisman,completed_tales, completed_dungeons, boss_wins, rift, rebirth, level, explore, save_spot, performance, trading, boss_fought, difficulty, storage_type, used_codes, battle_history, pvp_wins, pvp_loss, retries, prestige, patron, family_pet, explore_location, scenario_history, balance, cards, titles, arms, summons, deck, card_levels, quests, destiny, gems, storage, talismans, essence, tstorage, astorage, u_preset, rpg_levels):
         self.disname = disname
         self.is_available = available
         self.did = did
@@ -60,6 +60,7 @@ class Player:
         self.summons = summons
         self.deck = deck
         self.card_levels = card_levels
+        self.rpg_levels = rpg_levels
         self.quests = quests
         self.destiny = destiny
         self.gems = gems
@@ -304,7 +305,23 @@ class Player:
             return f"\nScenario saved: {scenario}"
         else:
             return "Scenario already saved."
+        
+    
+    def save_rpg_levels(self):
+        # Add error handling later
+        loggy.info(f"Saving RPG levels for {self.disname}")
+        db.updateUserNoFilter({'DID': str(self.did)}, {'$set': {'RPG_LEVELS': self.rpg_levels}})
+        return True
+    
 
+    def inc_rpg_level(self, universe):
+        # This method is called when a player levels up in an RPG universe
+        for rpg in self.rpg_levels:
+            if rpg['UNIVERSE'] == universe:
+                rpg['LEVEL'] += 1
+                
+        # Now save the updated RPG levels
+        self.save_rpg_levels()
     
     async def set_guild_data(self):
         if self.guild != "PCG":

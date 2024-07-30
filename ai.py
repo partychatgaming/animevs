@@ -1,9 +1,16 @@
+import os
+from anthropic import Anthropic
 from decouple import config
 from openai import OpenAI
 import asyncio
 
 # Set up your OpenAI API key
 # openai.api_key = config('OPENAI_API')
+
+claude = Anthropic(
+    api_key=config('ANTHROPIC_API')
+)
+
 client = OpenAI(
     api_key=config('OPENAI_API')
 )
@@ -83,7 +90,6 @@ async def focus_message(your_card_name, your_card_universe, opponent_card, oppon
     # Extract the summary from the response
     summary = response.choices[0].message.content
     return summary
-
 
 
 async def resolve_message(your_card_name, your_card_universe, opponent_card, opponent_card_universe):
@@ -263,3 +269,128 @@ async def rpg_action_ai_message(your_card_name, your_card_universe,location,  mo
     # Extract the summary from the response
     summary = response.choices[0].message.content
     return summary
+
+
+async def rpg_story(your_card_name, universe_name, list_of_combatants, location_in_universe):
+    prompt = f"""
+    Generate a humorous, suspenseful, mysterious, or horror storyline for {your_card_name} in the {universe_name} universe at {location_in_universe}. Include interactions with multiple characters from this list: {list_of_combatants}. The story should have dialogue options to fight or not fight, culminating in a boss showdown where both options lead to a fight. Only use characters from the provided list. Use aggressive dialogue for fight scenarios. The "dialogue" field must have a maximum of 3 sentences and 350 characters per character. The "narrative" for each character should be no more than one sentence. Create a detailed and engaging storyline following this exact structure:
+
+    ```json
+    {{
+        "title": "Story Title",
+        "storyline": [
+            {{
+                "character": "Character Name",
+                "dialogue": "Character's dialogue (3 sentences max, 350 characters max)",
+                "FIGHT": true,
+                "options": {{
+                    "option_1": {{
+                        "text": "Aggressive/Non-aggressive response (3 sentences max, 350 characters max)",
+                        "result": "fight/not_fight",
+                        "narrative": "Outcome of the choice (1 sentence max)"
+                    }},
+                    "option_2": {{
+                        "text": "Alternative response (3 sentences max, 350 characters max)",
+                        "result": "fight/not_fight",
+                        "narrative": "Outcome of the choice (1 sentence max)"
+                    }}
+                }}
+            }},
+            {{
+                "character": "Next Character Name",
+                "dialogue": "Next character's dialogue",
+                "FIGHT": false,
+                "options": {{
+                    "option_1": {{
+                        "text": "Response option 1",
+                        "result": "fight/not_fight",
+                        "narrative": "Outcome of option 1"
+                    }},
+                    "option_2": {{
+                        "text": "Response option 2",
+                        "result": "fight/not_fight",
+                        "narrative": "Outcome of option 2"
+                    }}
+                }}
+            }}
+        ],
+        "BOSS": {{
+            "character": "Boss Character Name",
+            "dialogue": "Boss's dialogue (3 sentences max, 350 characters max)",
+            "FIGHT": true,
+            "options": {{
+                "option_1": {{
+                    "text": "Response to boss (3 sentences max, 350 characters max)",
+                    "result": "fight",
+                    "narrative": "Outcome of the choice (1 sentence max)"
+                }},
+                "option_2": {{
+                    "text": "Alternative response to boss (3 sentences max, 350 characters max)",
+                    "result": "fight",
+                    "narrative": "Outcome of the choice (1 sentence max)"
+                }}
+            }}
+        }}
+    }}
+    ```
+
+    Ensure the output strictly adheres to this JSON structure, including all fields and formatting.
+    """
+    
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a creative storyteller who always returns stories in the exact JSON format specified, without any additional text."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+
+async def character_descriptions(name, universe):
+    message = claude.messages.create(
+        max_tokens=1024,
+        messages=[
+            {
+                "role": "user",
+                "content": f"Hello, Claude",
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! How can I assist you today?",
+            },
+            {
+                "role": "user",
+                "content": f"""Please create a Python dictionary for the character {name} from {universe}. The dictionary should have the following structure:
+
+{{
+    "name": "{name}",
+    "descriptions": [
+        {{
+            "message": "Two-sentence hostile message from the character",
+            "dialogue_options": [
+                {{
+                    "response": "Response that leads to a fight",
+                    "fight": true
+                }},
+                {{
+                    "response": "Response that could avoid a fight",
+                    "fight": false
+                }}
+            ]
+        }},
+        ... (5 more similar entries)
+    ]
+}}
+
+Please provide 6 unique 'descriptions' entries. Each 'message' should be two sentences long and reflect the character's personality and way of speaking when facing an opponent with hostility. The 'dialogue_options' for each message should include two responses: one that would likely lead to a fight, and one that could potentially avoid a fight.
+
+For villains or antagonistic characters, both dialogue options can lead to a fight (i.e., both can have "fight": true) if this aligns with the character's personality in the source material.
+
+Ensure that the dialogue is authentic to the character's personality and speaking style in the {universe} series. Present the result as a valid Python dictionary. Only return the Python dictionary, no other text outside of the python dictionary."""
+            },
+        ],
+        model="claude-3-5-sonnet-20240620",
+    )
+    
+    return message.content[0].text
