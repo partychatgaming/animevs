@@ -57,7 +57,7 @@ bot = Client(
 async def on_ready():
     global heartbeat_started
     server_count = len(bot.guilds)
-    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
+    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!\nGAME OVERHAUL HAS BEEN RELEASED! All accounts have been reset. Please use /register to start!", type=1))
     loggy.info('The bot is up and running')
     await bot.synchronise_interactions()
     if not heartbeat_started:
