@@ -383,7 +383,7 @@ class GameModes(Extension):
         autocomplete=True
     )
     async def play(self, ctx: InteractionContext, mode: str, universe: str = ""):
-        # await ctx.defer()
+        await ctx.defer()
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return

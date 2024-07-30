@@ -3439,8 +3439,6 @@ class Card:
         )
         battle_log_message += f"\n{message}"
         battle_config.add_to_battle_log(battle_log_message)
-        battle_config.add_to_battle_log()
-
 
     def active_shield_handler(self, battle_config, dmg, opponent_card, player_title, opponent_title):
         if opponent_card.shield_active:
@@ -3805,6 +3803,7 @@ class Card:
                     self.attack_handler(battle_config, dmg, opponent_card)
                 battle_config.turn_total = battle_config.turn_total + 1
             else:
+                print("Something broke in the above code")
                 battle_config.add_to_battle_log(f"({battle_config.turn_total}) {self.name} not enough stamina to use this move")
                 battle_config.repeat_turn()
         except Exception as e:

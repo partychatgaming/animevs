@@ -1045,81 +1045,81 @@ async def animevs(ctx):
       await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
       return
 
-@slash_command(description="rewards for voting", scopes=crown_utilities.guild_ids)
-async def voted(ctx):
-   try:
-      query = {'DID': str(ctx.author.id)}
-      user = db.queryUser(query)
-      vault = db.queryVault(query)
-      gem_list = vault['GEMS']
-      prestige = int(user['PRESTIGE'])
-      aicon = crown_utilities.prestige_icon(prestige)
-      user_completed_tales = user['CROWN_TALES']
-      rebirth = int(user['REBIRTH'])
+# @slash_command(description="rewards for voting", scopes=crown_utilities.guild_ids)
+# async def voted(ctx):
+#    try:
+#       query = {'DID': str(ctx.author.id)}
+#       user = db.queryUser(query)
+#       vault = db.queryVault(query)
+#       gem_list = vault['GEMS']
+#       prestige = int(user['PRESTIGE'])
+#       aicon = crown_utilities.prestige_icon(prestige)
+#       user_completed_tales = user['CROWN_TALES']
+#       rebirth = int(user['REBIRTH'])
 
-      voting_amount = 5000000
-      voting_gems = 500000
-      gem_bonus = int(voting_gems * (rebirth + 1) + (500000 * prestige))
-      voting_bonus = int(voting_amount * (rebirth + 1) + (2000000 * prestige))
-      if user['VOTED']:
-         await ctx.send("You've already received your voting rewards!")
-         return
-      else:
-         auth_token='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk1NTcwNDkwMzE5ODcxMTgwOCIsImJvdCI6dHJ1ZSwiaWF0IjoxNjQ5MDAyNDY0fQ.zNf3ECu2PBWVlfYlYH9YMy7PRb2P-sQFBGRkBp-DwUo'
-         head = {'Authorization': 'Bearer ' + auth_token}
+#       voting_amount = 5000000
+#       voting_gems = 500000
+#       gem_bonus = int(voting_gems * (rebirth + 1) + (500000 * prestige))
+#       voting_bonus = int(voting_amount * (rebirth + 1) + (2000000 * prestige))
+#       if user['VOTED']:
+#          await ctx.send("You've already received your voting rewards!")
+#          return
+#       else:
+#          auth_token='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk1NTcwNDkwMzE5ODcxMTgwOCIsImJvdCI6dHJ1ZSwiaWF0IjoxNjQ5MDAyNDY0fQ.zNf3ECu2PBWVlfYlYH9YMy7PRb2P-sQFBGRkBp-DwUo'
+#          head = {'Authorization': 'Bearer ' + auth_token}
          
-         response = requests.get(f"https://top.gg/api/bots/955704903198711808/check?userId={ctx.author.id}", headers=head)
-         response_dict = json.loads(response.text)
-         retry_message =f"🆚 Rematches : **{user['RETRIES']}**"
-         if response_dict['voted'] == 1:
-            if gem_list:
-               for universe in gem_list:
-                  update_query = {
-                     '$inc': {'GEMS.$[type].' + "GEMS": gem_bonus}
-                  }
-                  filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
-                  res = db.updateUser(query, update_query, filter_query)
+#          response = requests.get(f"https://top.gg/api/bots/955704903198711808/check?userId={ctx.author.id}", headers=head)
+#          response_dict = json.loads(response.text)
+#          retry_message =f"🆚 Rematches : **{user['RETRIES']}**"
+#          if response_dict['voted'] == 1:
+#             if gem_list:
+#                for universe in gem_list:
+#                   update_query = {
+#                      '$inc': {'GEMS.$[type].' + "GEMS": gem_bonus}
+#                   }
+#                   filter_query = [{'type.' + "UNIVERSE": universe['UNIVERSE']}]
+#                   res = db.updateUser(query, update_query, filter_query)
 
-            await crown_utilities.bless(int(voting_bonus), ctx.author.id)
-            respond = db.updateUserNoFilter(query, {'$set': {'VOTED': True}})
-            retry_message =f"🆚 Rematches : **{user['RETRIES']}**"  
-            db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
-            retry_message =f"🆚 Rematches : {user['RETRIES']} **+ 3**!"
+#             await crown_utilities.bless(int(voting_bonus), ctx.author.id)
+#             respond = db.updateUserNoFilter(query, {'$set': {'VOTED': True}})
+#             retry_message =f"🆚 Rematches : **{user['RETRIES']}**"  
+#             db.updateUserNoFilter(query, {'$inc': {'RETRIES': 3}})
+#             retry_message =f"🆚 Rematches : {user['RETRIES']} **+ 3**!"
 
 
-            embedVar = Embed(title=f"✅ Daily Voter Rewards!", description=textwrap.dedent(f"""\
-            Thank you for voting, {ctx.author.mention}!
+#             embedVar = Embed(title=f"✅ Daily Voter Rewards!", description=textwrap.dedent(f"""\
+#             Thank you for voting, {ctx.author.mention}!
             
-            **Daily Voter Earnings** 
-            🪙 **{'{:,}'.format(voting_bonus)}**
-            💎 **{'{:,}'.format(gem_bonus)}** *all craftable universes*
-            {retry_message}
+#             **Daily Voter Earnings** 
+#             🪙 **{'{:,}'.format(voting_bonus)}**
+#             💎 **{'{:,}'.format(gem_bonus)}** *all craftable universes*
+#             {retry_message}
             
-            [Support our Patreon for Rewards!](https://www.patreon.com/partychatgaming?fan_landing=true)
-            [Add Anime VS+ to your server!](https://discord.com/api/oauth2/authorize?client_id=955704903198711808&permissions=139586955344&scope=applications.commands%20bot)
-            """), color=0xf1c40f)
+#             [Support our Patreon for Rewards!](https://www.patreon.com/partychatgaming?fan_landing=true)
+#             [Add Anime VS+ to your server!](https://discord.com/api/oauth2/authorize?client_id=955704903198711808&permissions=139586955344&scope=applications.commands%20bot)
+#             """), color=0xf1c40f)
             
-            await ctx.send(embed=embedVar)
+#             await ctx.send(embed=embedVar)
 
-         else:
-            retry_message =f"🆚 Rematches : **+3**"
-            embedVar = Embed(title=f"❌ Daily Voter Rewards!", description=textwrap.dedent(f"""\
-            You have not voted for Anime VS+ today, {ctx.author.mention}!
-            To earn your voter rewards, [Vote for Anime VS+!](https://top.gg/bot/955704903198711808/vote)
-            **What are the Daily Voter Rewards?** 
-            🪙 **{'{:,}'.format(voting_bonus)}**
-            💎 **{'{:,}'.format(gem_bonus)}**
-            {retry_message}
+#          else:
+#             retry_message =f"🆚 Rematches : **+3**"
+#             embedVar = Embed(title=f"❌ Daily Voter Rewards!", description=textwrap.dedent(f"""\
+#             You have not voted for Anime VS+ today, {ctx.author.mention}!
+#             To earn your voter rewards, [Vote for Anime VS+!](https://top.gg/bot/955704903198711808/vote)
+#             **What are the Daily Voter Rewards?** 
+#             🪙 **{'{:,}'.format(voting_bonus)}**
+#             💎 **{'{:,}'.format(gem_bonus)}**
+#             {retry_message}
             
-            [Join the Anime VS+ Support Server](https://discord.gg/pcn)
-            """), color=0xf1c40f)
+#             [Join the Anime VS+ Support Server](https://discord.gg/pcn)
+#             """), color=0xf1c40f)
             
-            await ctx.send(embed=embedVar)
+#             await ctx.send(embed=embedVar)
 
-   except Exception as e:
-      loggy.error(e)
-      await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
-      return
+#    except Exception as e:
+#       loggy.error(e)
+#       await ctx.send("Hmm something ain't right. Check with support.", ephemeral=True)
+#       return
 
 
 # Update Later
@@ -3343,626 +3343,6 @@ async def addfield(ctx, collection, new_field, field_type):
    await ctx.send("Update completed.")
 
 
-# @slash_command(description="admin only", options=[
-#    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ],scopes=crown_utilities.guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updatename(ctx, collection, name, new_name, password, key):
-   await ctx.defer()
-
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
-   if key != '937':
-      return await ctx.send("Admin Only")
-   try:
-      if collection == 'cards':
-         # find if card exists
-         card = db.queryCard({'NAME': name})
-         
-         if card:
-            # update cards collection
-            response = db.updateCard({'NAME': name}, {'$set': {'NAME': new_name}})
-
-            # update vaults collection
-            all_vaults = db.queryAllVault()
-            for vault in all_vaults:
-               update_vault = False
-               if 'CARDS' in vault:
-                  for i, card in enumerate(vault['CARDS']):
-                        if card == name:
-                           vault['CARDS'][i] = new_name
-                           update_vault = True
-               if 'CARD_LEVELS' in vault:
-                  for card in vault['CARD_LEVELS']:
-                        if card['CARD'] == name:
-                           card['CARD'] = new_name
-                           update_vault = True
-               if 'DECK' in vault:
-                  for card in vault['DECK']:
-                        if card['CARD'] == name:
-                           card['CARD'] = new_name
-                           update_vault = True
-               if 'QUESTS' in vault:
-                  for card in vault['QUESTS']:
-                        if card['OPPONENT'] == name:
-                           card['OPPONENT'] = new_name
-                           update_vault = True
-               if 'DESTINY' in vault:
-                  for card in vault['DESTINY']:
-                        if card['DEFEAT'] == name:
-                           card['DEFEAT'] = new_name
-                           update_vault = True
-                        if card['EARN'] == name:
-                           card['EARN'] = new_name
-                           update_vault = True
-                        if 'USE_CARDS' in card:
-                           if isinstance(card['USE_CARDS'], list):
-                              for i, subcard in enumerate(card['USE_CARDS']):
-                                    if subcard == name:
-                                       card['USE_CARDS'][i] = new_name
-                                       update_vault = True
-                           elif isinstance(card['USE_CARDS'], dict):
-                              for subcard in card['USE_CARDS'].values():
-                                    if subcard == name:
-                                       card['USE_CARDS'][subcard] = new_name
-                                       update_vault = True
-                           else:
-                              # Convert the string to a list or a dictionary as appropriate
-                              if ',' in card['USE_CARDS']:
-                                    card['USE_CARDS'] = card['USE_CARDS'].split(',')
-                              else:
-                                    card['USE_CARDS'] = [card['USE_CARDS']]
-                              # Update the list as before
-                              for i, subcard in enumerate(card['USE_CARDS']):
-                                    if subcard == name:
-                                       card['USE_CARDS'][i] = new_name
-                                       update_vault = True
-               if 'STORAGE' in vault:
-                  for i, card in enumerate(vault['STORAGE']):
-                        if card == name:
-                           vault['STORAGE'][i] = new_name
-                           update_vault = True
-               if update_vault:
-                  db.updateUserNoFilter({'DID': vault['DID']}, {'$set': {'CARDS': vault.get('CARDS', []), 'CARD_LEVELS': vault.get('CARD_LEVELS', []), 'DECK': vault.get('DECK', []), 'QUESTS': vault.get('QUESTS', []), 'DESTINY': vault.get('DESTINY', []), 'STORAGE': vault.get('STORAGE', [])}})            
-            
-            # update users collection
-            all_users = db.queryAllUsers()
-            for user in all_users:
-               update_user = False
-               if 'CARD' in user and user['CARD'] == name:
-                  user['CARD'] = new_name
-                  update_user = True
-               if 'BOSS_WINS' in user:
-                  for i, boss in enumerate(user['BOSS_WINS']):
-                        if boss == name:
-                           user['BOSS_WINS'][i] = new_name
-                           update_user = True
-               if update_user:
-                  db.updateUserNoFilter({'DID': user['DID']}, {'$set': {'CARD': user.get('CARD', ''), 'BOSS_WINS': user.get('BOSS_WINS', [])}})               
-
-            # update universe collection
-            all_universes = db.queryAllUniverse()
-            for universe in all_universes:
-               update_universe = False
-               if 'CROWN_TALES' in universe:
-                  for i, card in enumerate(universe['CROWN_TALES']):
-                        if card == name:
-                           universe['CROWN_TALES'][i] = new_name
-                           update_universe = True
-               if 'UNIVERSE_BOSS' in universe and universe['UNIVERSE_BOSS'] == name:
-                  universe['UNIVERSE_BOSS'] = new_name
-                  update_universe = True
-               if 'DUNGEONS' in universe:
-                  for i, card in enumerate(universe['DUNGEONS']):
-                        if card == name:
-                           universe['DUNGEONS'][i] = new_name
-                           update_universe = True
-               if update_universe:
-                  db.updateUniverse({'TITLE': universe['TITLE']}, {'$set': {'CROWN_TALES': universe.get('CROWN_TALES', []), 'UNIVERSE_BOSS': universe.get('UNIVERSE_BOSS', ''), 'DUNGEONS': universe.get('DUNGEONS', [])}})               
-            
-            # update scenarios collection
-            all_scenarios = db.queryAllScenarios()
-            for scenario in all_scenarios:
-               update_scenario = False
-               if 'ENEMIES' in scenario:
-                  for i, card in enumerate(scenario['ENEMIES']):
-                        if card == name:
-                           scenario['ENEMIES'][i] = new_name
-                           update_scenario = True
-               if 'NORMAL_DROPS' in scenario:
-                  for i, card in enumerate(scenario['NORMAL_DROPS']):
-                        if card == name:
-                           scenario['NORMAL_DROPS'][i] = new_name
-                           update_scenario = True
-               if 'EASY_DROPS' in scenario:
-                  for i, card in enumerate(scenario['EASY_DROPS']):
-                        if card == name:
-                           scenario['EASY_DROPS'][i] = new_name
-                           update_scenario = True
-               if 'HARD_DROPS' in scenario:
-                  for i, card in enumerate(scenario['HARD_DROPS']):
-                        if card == name:
-                           scenario['HARD_DROPS'][i] = new_name
-                           update_scenario = True
-               if update_scenario:
-                  db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'ENEMIES': scenario.get('ENEMIES', []), 'NORMAL_DROPS': scenario.get('NORMAL_DROPS', []), 'EASY_DROPS': scenario.get('EASY_DROPS', []), 'HARD_DROPS': scenario.get('HARD_DROPS', [])}})
-
-            
-            # update guild collections
-            all_guilds = db.queryAllGuild()
-            for guild in all_guilds:
-               update_guild = False
-               if 'S_CARD_LEVELS' in guild:
-                  for card in guild['S_CARD_LEVELS']:
-                        if card['CARD'] == name:
-                           card['CARD'] = new_name
-                           update_guild = True
-               if 'CSTORAGE' in guild:
-                  for i, card in enumerate(guild['CSTORAGE']):
-                        if card == name:
-                           guild['CSTORAGE'][i] = new_name
-                           update_guild = True
-               if update_guild:
-                  db.updateGuild({'GNAME': guild['GNAME']}, {'$set': {'S_CARD_LEVELS': guild.get('S_CARD_LEVELS', []), 'CSTORAGE': guild.get('CSTORAGE', [])}})
-
-            # update boss collection
-            all_bosses = db.queryAllBosses()
-            for boss in all_bosses:
-               if 'NAME' in boss and boss['NAME'] == name:
-                  boss['NAME'] = new_name
-                  db.updateBoss({'NAME': name}, {'$set': {'NAME': new_name}})
-
-
-            # update abyss collection
-            all_abyss = db.queryAllAbyss()
-            for abyss in all_abyss:
-               update_abyss = False
-               if 'ENEMIES' in abyss:
-                  for i, card in enumerate(abyss['ENEMIES']):
-                        if card == name:
-                           abyss['ENEMIES'][i] = new_name
-                           update_abyss = True
-               if 'BANNED_CARDS' in abyss:
-                  for i, card in enumerate(abyss['BANNED_CARDS']):
-                        if card == name:
-                           abyss['BANNED_CARDS'][i] = new_name
-                           update_abyss = True
-               if update_abyss:
-                  db.updateAbyss({'FLOOR': abyss['FLOOR']}, {'$set': {'ENEMIES': abyss.get('ENEMIES', []), 'BANNED_CARDS': abyss.get('BANNED_CARDS', [])}})
-
-
-            return await ctx.send(f"Card **{name}** has been renamed to **{new_name}**.")
-         else:
-            return await ctx.send("This card does not exist.")
-      else:
-         return await ctx.send("You do not have permissions to run this command.")
-   except Exception as ex:
-      loggy.error(f"Error in updatename command: {ex}")
-      # trace = []
-      # tb = ex.__traceback__
-      # while tb is not None:
-      #    trace.append({
-      #       "filename": tb.tb_frame.f_code.co_filename,
-      #       "name": tb.tb_frame.f_code.co_name,
-      #       "lineno": tb.tb_lineno
-      #    })
-      #    tb = tb.tb_next
-      # print(str({
-      #    'type': type(ex).__name__,
-      #    'message': str(ex),
-      #    'trace': trace
-      # }))
-      await ctx.send("Issue with command. Please contact casperjayden#0001")
-
-
-# @slash_command(description="admin only", options=[
-#    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ],scopes=crown_utilities.guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updatesaves(ctx, password, key):
-   await ctx.defer()
-
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
-   if key != '937':
-      return await ctx.send("Admin Only")
-
-
-   try:
-      users = db.queryAllUsers()
-
-      count = 0
-
-      for user in users:
-         save_spots = user.get("SAVE_SPOT", [])
-         unique_combinations = {}
-         for save_spot in save_spots:
-               combination_key = (save_spot["UNIVERSE"], save_spot["MODE"])
-               if combination_key in unique_combinations:
-                  unique_combinations[combination_key].append(save_spot)
-               else:
-                  unique_combinations[combination_key] = [save_spot]
-
-         for combination_key in unique_combinations:
-               duplicates = unique_combinations[combination_key]
-               if len(duplicates) > 1:
-                  sorted_duplicates = sorted(duplicates, key=lambda x: x["CURRENTOPPONENT"], reverse=True)
-                  for duplicate in sorted_duplicates[1:]:
-                     query = {"_id": user["_id"], "SAVE_SPOT": duplicate}
-                     new_value = {"$pull": {"SAVE_SPOT": duplicate}}
-                     db.updateUserNoFilter(query, new_value)
-                     count += 1
-
-      await ctx.send(f"Updated {count} saves.")
-   except Exception as ex:
-      loggy.error(f"Error in updatesaves command: {ex}")
-      # trace = []
-      # tb = ex.__traceback__
-      # while tb is not None:
-      #    trace.append({
-      #       "filename": tb.tb_frame.f_code.co_filename,
-      #       "name": tb.tb_frame.f_code.co_name,
-      #       "lineno": tb.tb_lineno
-      #    })
-      #    tb = tb.tb_next
-      # print(str({
-      #    'type': type(ex).__name__,
-      #    'message': str(ex),
-      #    'trace': trace
-      # }))
-      await ctx.send("Issue with command. Please contact casperjayden#0001")
-
-
-# @slash_command(description="admin only", options=[
-#    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ],scopes=crown_utilities.guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updatepokemonuniverses(ctx, password, key):
-   await ctx.defer()
-
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
-   if key != '937':
-      return await ctx.send("Admin Only")
-
-
-   try:
-      cards = db.queryAllCardsBasedOnUniverse({
-               "UNIVERSE": { "$in": ["Kanto Region", "Johto Region", "Hoenn Region", "Sinnoh Region", "POKEMON"] }
-               })
-      
-      titles = db.queryAllTitlesBasedOnUniverses({
-               "UNIVERSE": { "$in": ["Kanto Region", "Johto Region", "Hoenn Region", "Sinnoh Region", "POKEMON"] }
-               })
-      
-      arms = db.queryAllArmsBasedOnUniverses({
-               "UNIVERSE": { "$in": ["Kanto Region", "Johto Region", "Hoenn Region", "Sinnoh Region", "POKEMON"] }
-               })
-      
-      summons = db.queryAllSummonsBasedOnUniverses({
-               "UNIVERSE": { "$in": ["Kanto Region", "Johto Region", "Hoenn Region", "Sinnoh Region", "POKEMON"] }
-               })
-
-      count = 0
-
-      # Update each card in the cards list to have {"UNIVERSE": "Pokemon"}
-      # for card in cards:
-      #    db.updateCard({'NAME': card['NAME']}, {'$set': {'UNIVERSE': 'Pokemon'}})
-      #    count += 1
-
-      # Update each title in the titles list to have {"UNIVERSE": "Pokemon"}
-      for title in titles:
-         db.updateTitle({'TITLE': title['TITLE']}, {'$set': {'UNIVERSE': 'Pokemon'}})
-         count += 1
-      
-      # Update each arm in the arms list to have {"UNIVERSE": "Pokemon"}
-      for arm in arms:
-         db.updateArm({'ARM': arm['ARM']}, {'$set': {'UNIVERSE': 'Pokemon'}})
-         count += 1
-
-      # Update each summon in the summons list to have {"UNIVERSE": "Pokemon"}
-      for summon in summons:
-         db.updateSummon({'PET': summon['PET']}, {'$set': {'UNIVERSE': 'Pokemon'}})
-         count += 1
-         
-
-      await ctx.send(f"Updated {count} items.")
-   except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-            "filename": tb.tb_frame.f_code.co_filename,
-            "name": tb.tb_frame.f_code.co_name,
-            "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
-      await ctx.send("Issue with command. Please contact casperjayden#0001")
-
-
-# @slash_command(description="admin only", options=[
-#    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ],scopes=crown_utilities.guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updatescenariosanduniverses(ctx, password, key):
-   await ctx.defer()
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
-   if key != '937':
-      return await ctx.send("Admin Only")
-
-   try:
-      """
-      Update all scenarios with new fields below
-      IS_DESTINY: False
-      TACTICS: []
-      LOCATIONS: []
-      
-      Update all universes with new fields below
-      LOCATIONS: []
-      """
-      count = 0
-      all_scenarios = db.queryAllScenarios()
-      for scenario in all_scenarios:
-         if 'IS_DESTINY' not in scenario:
-            db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'IS_DESTINY': False}})
-         if 'TACTICS' not in scenario:
-            db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'TACTICS': []}})
-         if 'LOCATIONS' not in scenario:
-            db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'LOCATIONS': []}})
-         if 'DESTINY_CARDS' not in scenario:
-            db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'DESTINY_CARDS': []}})
-         count += 1
-
-      # all_universes = db.queryAllUniverses()
-      # for universe in all_universes:
-      #    if 'LOCATIONS' not in universe:
-      #       db.updateUniverse({'TITLE': universe['TITLE']}, {'$set': {'LOCATIONS': []}})
-      #    count += 1
-
-      await ctx.send(f"Updated {count} scenarios and universes.")
-   except Exception as ex:
-      print(e)
-      await ctx.send("Issue with command")
-
-
-# @slash_command(description="update moves", options=[
-#    SlashCommandOption(name="universe", description="Universe to update", type=OptionType.STRING, required=True)
-# ], scopes=crown_utilities.guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updatemoves(ctx, universe):
-   await ctx.defer()
-
-   if ctx.author.id not in [306429381948211210, 263564778914578432]:
-      await ctx.send("🛑 You know damn well this command isn't for you.")
-      return
-
-   counter = 0
-
-   try:
-      for card in db.queryAllCardByParam({"UNIVERSE": universe}):
-      # Loop through all moves in the card's moveset
-         for move in card['MOVESET']:
-            # Check if the move has a STAM value of 10, 30, or 80
-            if move['STAM'] in [10, 30, 80]:
-                  # Create a new arm if the arm name doesn't already exist
-                  if not db.queryArm({'ARM': list(move.keys())[0]}):
-                     power = list(move.values())[0]
-                     drop_style = "TALES"
-                     # Determine the price and abilities of the arm based on the move's STAM value
-                     if move['STAM'] == 10:
-                        price = 10000
-                        ability = 'BASIC'
-                        if power > 250:
-                           drop_style = "DUNGEONS"
-                     elif move['STAM'] == 30:
-                        ability = 'SPECIAL'
-                        if power > 325:
-                           drop_style = "DUNGEONS"
-                     elif move['STAM'] == 80:
-                        ability = 'ULTIMATE'
-                        if power > 550:
-                           drop_style = "DUNGEONS"
-
-                     # Create the new arm document
-                     arm = {
-                        'ABILITIES': [{
-                           ability: power
-                        }],
-                        'ARM': list(move.keys())[0],
-                        'UNIVERSE': card['UNIVERSE'],
-                        'AVAILABLE': True,
-                        'TIMESTAMP': now,
-                        'ELEMENT': move['ELEMENT'],
-                        'DROP_STYLE': drop_style
-                     }
-                     
-                     # Insert the new arm document into the ARMS collection
-                     db.createArm(arm)
-                     counter += 1
-
-      await ctx.send(f"Created {counter} new arms")
-   except Exception as ex:
-         trace = []
-         tb = ex.__traceback__
-         while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-         print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-         }))
-         embed = Embed(title="Error", description=f"An error occurred: {ex}", color=0xff0000)
-         await ctx.send(embed=embed)
-
-
-# @slash_command(description="update cards", scopes=crown_utilities.guild_ids)
-# async def updatecardswithclassandid(ctx, universe):
-#    await ctx.defer()
-
-#    if ctx.author.id not in [306429381948211210, 263564778914578432]:
-#       await ctx.send("🛑 You know damn well this command isn't for you.")
-#       return
-
-#    counter = 0
-#    # query all users
-#    all_users = db.queryAllUsers()
-#    for user in all_users:
-#       user_class = crown_utilities.create_player_from_data(user)
-#       for card in user_class.card_levels:
-#          card_data = crown_utilities.create_card_from_data(db.queryCard({'NAME': card['CARD']}))
-#          card['CLASS'] = card_data.class_name
-#          card['ID'] = card_data.id
-#          counter += 1
-#       db.updateUserNoFilter({'DID': user['DID']}, {'$set': {'CARD_LEVELS': user_class.card_levels}})
-
-
-# @slash_command(description="update title abilities", options=[
-#    SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-#    SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
-# ], scopes=crown_utilities.guild_ids)
-# @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updatetitleabilities(ctx, password, key):
-   await ctx.defer()
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
-   
-   if key != '937':
-      return await ctx.send("Admin Only")
-
-   counter = 0
-   """
-   For each title,
-   change ABILITIES list object format
-   It is currently ABILITIES[{"ATK": 42}]
-   It needs to be ABILITIES[{"ABILITY": "ATK", "POWER": 42, "ELEMENT": "", "DURATION": 0}]
-   """
-
-   all_titles = db.queryAllTitles()
-
-   for title in all_titles:
-      abilities = title['ABILITIES']
-      new_abilities = []
-      for ability in abilities:
-         for key, value in ability.items():
-            new_abilities.append({"ABILITY": key, "POWER": value, "ELEMENT": "", "DURATION": 0})
-      db.updateTitle({'TITLE': title['TITLE']}, {'$set': {'ABILITIES': new_abilities}})
-      counter += 1
-
-   await ctx.send(f"Updated {counter} titles")
-
-   
-#@slash_command(description="update moves", scopes=crown_utilities.guild_ids)
-@slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def updateclass(ctx):
-   await ctx.defer()
-   counter = 0
-
-   try:
-      mlist = ['RECOIL']
-      for card in db.queryAllCards():
-         if card['MOVESET'][0]['ELEMENT'] in mlist:
-            db.updateCard({'NAME': card['NAME']}, {'$set': {'MOVESET.0.ELEMENT': "RECKLESS"}})
-         if card['MOVESET'][1]['ELEMENT'] in mlist:
-            db.updateCard({'NAME': card['NAME']}, {'$set': {'MOVESET.1.ELEMENT': "RECKLESS"}})
-         if card['MOVESET'][2]['ELEMENT'] in mlist:
-            db.updateCard({'NAME': card['NAME']}, {'$set': {'MOVESET.2.ELEMENT': "RECKLESS"}})
-         counter += 1
-         
-      await ctx.send(f"Updated {counter} cards")
-   except Exception as ex:
-         trace = []
-         tb = ex.__traceback__
-         while tb is not None:
-            trace.append({
-               "filename": tb.tb_frame.f_code.co_filename,
-               "name": tb.tb_frame.f_code.co_name,
-               "lineno": tb.tb_lineno
-            })
-            tb = tb.tb_next
-         print(str({
-            'type': type(ex).__name__,
-            'message': str(ex),
-            'trace': trace
-         }))
-
-
-# Create a slash_command that gets a list of 50 cards and saves it to my account in the database
-#@slash_command(description="save cards", scopes=crown_utilities.guild_ids)
-async def savecards(ctx):
-   loggy.info("savecards command")
-   await ctx.defer()
-   try:
-      d = db.queryUser({'DID': str(ctx.author.id)})
-      loggy.debug(d)
-      me = crown_utilities.create_player_from_data(d)
-      cards = db.queryAllCards()
-      # loggy.info(cards)
-      count = 0
-      for card in cards:
-         loggy.info(f"Saving card: {card['NAME']}")
-         card_data = crown_utilities.create_card_from_data(db.queryCard({'NAME': card['NAME']}))
-         me.save_card(card_data)
-         count += 1
-         if  count == 50:
-            break
-      await ctx.send(f"Saved {count} cards to your account.")
-   except Exception as ex:
-      trace = []
-      tb = ex.__traceback__
-      while tb is not None:
-         trace.append({
-            "filename": tb.tb_frame.f_code.co_filename,
-            "name": tb.tb_frame.f_code.co_name,
-            "lineno": tb.tb_lineno
-         })
-         tb = tb.tb_next
-      print(str({
-         'type': type(ex).__name__,
-         'message': str(ex),
-         'trace': trace
-      }))
-      loggy.error(f"Error in savecards command: {ex}")
-      await ctx.send("Issue with command.")
-      return
-         
-      
-# Create a slash_command that pulls all scenarios and if the title of the scenario starts and ends with quotation marks like "" update the title with removed quotation marks. 
-# In addition to this, if the scenario title starts with Defeat the delete the "the" and update the title with the new title.
-# @slash_command(description="update scenarios", scopes=crown_utilities.guild_ids)
-# async def updatescenarios(ctx):
-#    loggy.info("updatescenarios command")
-#    await ctx.defer()
-#    try:
-#       scenarios = db.queryAllScenarios()
-#       count = 0
-#       for scenario in scenarios:
-#          if scenario['TITLE'].startswith('"') and scenario['TITLE'].endswith('"'):
-#             new_title = scenario['TITLE'][1:-1]
-#             db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'TITLE': new_title}})
-#             count += 1
-#          if scenario['TITLE'].startswith("Defeat the "):
-#             new_title = scenario['TITLE'].replace("the", "")
-#             db.updateScenario({'TITLE': scenario['TITLE']}, {'$set': {'TITLE': new_title}})
-#             count += 1
-#       await ctx.send(f"Updated {count} scenarios.")
-#    except Exception as ex:
-#       loggy.critical(f"Error in updatescenarios command: {ex}")
-#       await ctx.send("Issue with command.")
 
 @slash_command(name="createscenarios", description="create scenarios", scopes=crown_utilities.guild_ids)
 @slash_option(name="mode", description="Mode to create scenarios for", opt_type=OptionType.STRING, choices=[
@@ -3970,6 +3350,7 @@ async def savecards(ctx):
    SlashCommandChoice(name="Raid", value="raid")
 ], required=True)
 @slash_option(name="scenario_universe", description="Universe to create scenarios for", opt_type=OptionType.STRING, required=True, autocomplete=True)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
 async def createscenarios(ctx: InteractionContext, mode, scenario_universe: str=""):
    loggy.info("createscenarios command")
 
@@ -4101,55 +3482,6 @@ async def createscenarios_autocomplete(ctx: AutocompleteContext):
                     break
 
    await ctx.send(choices=choices)
-
-
-# this command will take in a universe parameter
-@slash_command(description="update characters with descriptions", scopes=crown_utilities.guild_ids)
-async def updatecharacters(ctx):
-   await ctx.defer()
-   if ctx.author.id not in [306429381948211210, 263564778914578432]:
-      await ctx.send("🛑 You know damn well this command isn't for you.")
-      return
-   
-   # get all cards from universe
-   count = 0
-   for card in character_list:
-      name = card["name"]
-      descriptions = card["descriptions"]
-      # update card with descriptions
-      db.updateCard({"NAME": name}, {"$set": {"DESCRIPTIONS": descriptions}})
-      count += 1
-      if count % 10 == 0:
-         await asyncio.sleep(2)
-
-   await ctx.send(f"Updated {count} characters with descriptions.")
-   return
-
-
-
-# async def restart_bot():
-#     await bot.stop()
-#     await bot.start()
-
-
-# @Task.create(IntervalTrigger(minutes=5))
-# async def check_heartbeat():
-#       try:
-#          # Get the bot's latency
-#          latency = bot.latency
-#          loggy.info(f'Heartbeat check - latency: {latency}')
-#          # Check if latency is within acceptable range (e.g., below 2 seconds)
-#          if latency and latency > 9.0:
-#                loggy.warning('High latency detected, restarting bot...')
-#                await restart_bot()
-#       except Exception as e:
-#          loggy.error(f'Error during heartbeat check: {e}')
-#          await restart_bot()
-
-
-
-# # Run the bot
-# bot.start()
 
 
 @listen()

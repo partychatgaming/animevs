@@ -134,13 +134,13 @@ async def create_scenario_embed(scenario, player):
 
             {difficulty_message}
 
-            ⚔️ {str(number_of_fights)}
+            ⚔️ {str(number_of_fights)} Opponents
             """), 
             color=0x7289da)
             embedVar.add_field(name="__**Potential Rewards**__", value=f"{reward_message}")
             if tactics:
                 embedVar.add_field(name="__❗ **Battle Tactics**__", value=f"{tactics}", inline=False)
-            embedVar.set_image(url=image)
+            # embedVar.set_image(url=image)
             return embedVar
         else:
             return
