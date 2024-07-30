@@ -1,7 +1,7 @@
 import custom_logging
 import datetime
 from cogs.classes.custom_paginator import CustomPaginator
-from ai import suggested_title_scenario, character_descriptions
+from ai import suggested_title_scenario
 import db
 import time
 import classes as data
