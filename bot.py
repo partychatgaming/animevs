@@ -38,7 +38,7 @@ cls_log.setLevel(logging.WARNING)
 # Flag to track if heartbeat check has been started
 heartbeat_started = False
 bot = Client(
-    intents=Intents.ALL,
+    intents=Intents.MESSAGES | Intents.REACTIONS | Intents.GUILDS | Intents.TYPING,
     sync_interactions=True,
     send_command_tracebacks=False,
     token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN')
