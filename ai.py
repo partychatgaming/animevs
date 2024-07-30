@@ -1,5 +1,4 @@
 import os
-from anthropic import Anthropic
 from decouple import config
 from openai import OpenAI
 import asyncio
@@ -7,9 +6,6 @@ import asyncio
 # Set up your OpenAI API key
 # openai.api_key = config('OPENAI_API')
 
-claude = Anthropic(
-    api_key=config('ANTHROPIC_API')
-)
 
 client = OpenAI(
     api_key=config('OPENAI_API')
@@ -346,51 +342,3 @@ async def rpg_story(your_card_name, universe_name, list_of_combatants, location_
     )
     return response.choices[0].message.content
 
-
-async def character_descriptions(name, universe):
-    message = claude.messages.create(
-        max_tokens=1024,
-        messages=[
-            {
-                "role": "user",
-                "content": f"Hello, Claude",
-            },
-            {
-                "role": "assistant",
-                "content": "Hello! How can I assist you today?",
-            },
-            {
-                "role": "user",
-                "content": f"""Please create a Python dictionary for the character {name} from {universe}. The dictionary should have the following structure:
-
-{{
-    "name": "{name}",
-    "descriptions": [
-        {{
-            "message": "Two-sentence hostile message from the character",
-            "dialogue_options": [
-                {{
-                    "response": "Response that leads to a fight",
-                    "fight": true
-                }},
-                {{
-                    "response": "Response that could avoid a fight",
-                    "fight": false
-                }}
-            ]
-        }},
-        ... (5 more similar entries)
-    ]
-}}
-
-Please provide 6 unique 'descriptions' entries. Each 'message' should be two sentences long and reflect the character's personality and way of speaking when facing an opponent with hostility. The 'dialogue_options' for each message should include two responses: one that would likely lead to a fight, and one that could potentially avoid a fight.
-
-For villains or antagonistic characters, both dialogue options can lead to a fight (i.e., both can have "fight": true) if this aligns with the character's personality in the source material.
-
-Ensure that the dialogue is authentic to the character's personality and speaking style in the {universe} series. Present the result as a valid Python dictionary. Only return the Python dictionary, no other text outside of the python dictionary."""
-            },
-        ],
-        model="claude-3-5-sonnet-20240620",
-    )
-    
-    return message.content[0].text
