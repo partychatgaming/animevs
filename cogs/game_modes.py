@@ -27,6 +27,7 @@ from .classes.title_class import Title
 from .classes.arm_class import Arm
 from .classes.summon_class import Summon
 from .classes.battle_class  import Battle
+from .classes.rpg_class import RPG
 from cogs.battle_config import BattleConfig
 from logger import loggy
 from pilmoji import Pilmoji
@@ -35,7 +36,7 @@ import interactions
 import uuid
 from .classes.custom_paginator import CustomPaginator
 from interactions.api.events import MessageCreate
-from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Buckets, Embed, Extension, slash_option, AutocompleteContext
+from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Buckets, cooldown, Embed, Extension, slash_option, AutocompleteContext
 
 
 
@@ -217,108 +218,34 @@ class GameModes(Extension):
             custom_logging.debug(ex)
 
 
-    @slash_command(description="Duo pve to earn cards, accessories, gold, gems, and more with your AI companion",
-                       options=[
-                           SlashCommandOption(
-                               name="deck",
-                               description="AI Preset (this is from your preset list)",
-                               type=OptionType.STRING,
-                               required=True,
-                               choices=[
-                                   SlashCommandChoice(
-                                       name="Preset 1",
-                                       value="1"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="Preset 2",
-                                       value="2"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="Preset 3",
-                                       value="3"
-                                   ),SlashCommandChoice(
-                                       name="Preset 4",
-                                       value="4"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="Preset 5",
-                                       value="5"
-                                   )
-                               ]
-                           ),
-                           SlashCommandOption(
-                               name="mode",
-                               description="Difficulty Level",
-                               type=OptionType.STRING,
-                               required=True,
-                               choices=[
-                                   SlashCommandChoice(
-                                       name="⚔️ Duo Tales (Normal)",
-                                       value="DuoTales"
-                                   ),
-                                   SlashCommandChoice(
-                                       name="👺 Duo Dungeon (Hard)",
-                                       value="DDungeon"
-                                   )
-                               ]
-                           )
-                       ]
-        )
-    async def duo(self, ctx: InteractionContext, deck: int, mode: str):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
-
-        try:
-            # 
-            deck = int(deck)
-            if deck != 1 and deck != 2 and deck != 3 and deck != 4 and deck != 5:
-                await ctx.send("Not a valid Deck Option")
-                return
-            deckNumber = deck - 1
-
-            player = db.queryUser({'DID': str(ctx.author.id)})
-            
-            if not player['U_PRESET'] and int(deck) > 3:
-                await ctx.send("🪙 Purchase additional **/preset** slots at the **/blacksmith**")
-                return
-
-            p = crown_utilities.create_player_from_data(player)
-
-
-            if not p.is_available:
-                embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
-
-            p3 = crown_utilities.create_player_from_data(player)
-
-            p3.set_deck_config(deckNumber)
-
-            if p.get_locked_feature(mode):
-                await ctx.send(p._locked_feature_message)
-                return
-
-            universe_selection = await select_universe(self, ctx, p, mode, None)
-            if not universe_selection:
-                return
-            battle = Battle(mode, p)
-
-            battle.set_universe_selection_config(universe_selection)
-            battle.is_duo_mode = True
-                
-            await battle_commands(self, ctx, battle, p, None, player2=None, player3=p3)
-        except Exception as ex:
-            custom_logging.debug(ex)
-
-
-    # @slash_command(description="Co-op pve to earn cards, accessories, gold, gems, and more with friends",
+    # @slash_command(description="Duo pve to earn cards, accessories, gold, gems, and more with your AI companion",
     #                    options=[
     #                        SlashCommandOption(
-    #                            name="user",
-    #                            description="player you want to co-op with",
-    #                            type=OptionType.USER,
-    #                            required=True
+    #                            name="deck",
+    #                            description="AI Preset (this is from your preset list)",
+    #                            type=OptionType.STRING,
+    #                            required=True,
+    #                            choices=[
+    #                                SlashCommandChoice(
+    #                                    name="Preset 1",
+    #                                    value="1"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="Preset 2",
+    #                                    value="2"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="Preset 3",
+    #                                    value="3"
+    #                                ),SlashCommandChoice(
+    #                                    name="Preset 4",
+    #                                    value="4"
+    #                                ),
+    #                                SlashCommandChoice(
+    #                                    name="Preset 5",
+    #                                    value="5"
+    #                                )
+    #                            ]
     #                        ),
     #                        SlashCommandOption(
     #                            name="mode",
@@ -327,58 +254,94 @@ class GameModes(Extension):
     #                            required=True,
     #                            choices=[
     #                                SlashCommandChoice(
-    #                                    name="⚔️ Co-Op Tales (Normal)",
-    #                                    value="CoopTales"
+    #                                    name="⚔️ Duo Tales (Normal)",
+    #                                    value="DuoTales"
     #                                ),
     #                                SlashCommandChoice(
-    #                                    name="👺 Co-Op Dungeon (Hard)",
-    #                                    value="CoopDungeon"
-    #                                ),
-    #                                SlashCommandChoice(
-    #                                    name="👹 Co-Op Boss Enounter (Extreme)",
-    #                                    value="CBoss"
-    #                                ),
+    #                                    name="👺 Duo Dungeon (Hard)",
+    #                                    value="DDungeon"
+    #                                )
     #                            ]
     #                        )
     #                    ]
     #     )
-    async def coop(self, ctx: InteractionContext, user: User, mode: str):
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
+    # async def duo(self, ctx: InteractionContext, deck: int, mode: str):
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
 
-        try:
-            player = db.queryUser({'DID': str(ctx.author.id)})
-            player3 = db.queryUser({'DID': str(user.id)})
-            p1 = crown_utilities.create_player_from_data(player)
-            p3 = crown_utilities.create_player_from_data(player3)
+    #     try:
+    #         # 
+    #         deck = int(deck)
+    #         if deck != 1 and deck != 2 and deck != 3 and deck != 4 and deck != 5:
+    #             await ctx.send("Not a valid Deck Option")
+    #             return
+    #         deckNumber = deck - 1
 
-            if not p1.is_available:
-                embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
+    #         player = db.queryUser({'DID': str(ctx.author.id)})
+            
+    #         if not player['U_PRESET'] and int(deck) > 3:
+    #             await ctx.send("🪙 Purchase additional **/preset** slots at the **/blacksmith**")
+    #             return
 
-            if not p3.is_available:
-                embed = Embed(title="⚠️ Your Co-op player is currently in a battle!", description="They must finish your current battle before starting a new one.", color=0x696969)
-                await ctx.send(embed=embed)
-                return
-
-
-            battle = Battle(mode, p1)
+    #         p = crown_utilities.create_player_from_data(player)
 
 
-            universe_selection = await select_universe(self, ctx, p1, mode, p3)
-            if not universe_selection:
-                return
-            battle.set_universe_selection_config(universe_selection)
-            battle.is_co_op_mode = True
+    #         if not p.is_available:
+    #             embed = Embed(title="⚠️ You are currently in a battle!", description="You must finish your current battle before starting a new one.", color=0x696969)
+    #             await ctx.send(embed=embed)
+    #             return
 
-            await battle_commands(self, ctx, battle, p1, None, None, p3)
+    #         p3 = crown_utilities.create_player_from_data(player)
+
+    #         p3.set_deck_config(deckNumber)
+
+    #         if p.get_locked_feature(mode):
+    #             await ctx.send(p._locked_feature_message)
+    #             return
+
+    #         universe_selection = await select_universe(self, ctx, p, mode, None)
+    #         if not universe_selection:
+    #             return
+    #         battle = Battle(mode, p)
+
+    #         battle.set_universe_selection_config(universe_selection)
+    #         battle.is_duo_mode = True
+                
+    #         await battle_commands(self, ctx, battle, p, None, player2=None, player3=p3)
+    #     except Exception as ex:
+    #         custom_logging.debug(ex)
+
+
+    # @slash_command(description="testing RPG game mode")
+    # @cooldown(Buckets.USER, 1, 15)
+    # async def rpg(self, ctx: InteractionContext):
+    #     # await ctx.defer()
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
         
-        except Exception as ex:
-            custom_logging.debug(ex)
-            return
+    #     """
+    #     This command will be used to create the rpg instance
+    #     """
+    #     try:
+    #         loggy.info(f"RPG command initiated by {registered_player['DID']}")
+    #         player = crown_utilities.create_player_from_data(registered_player)
 
+    #         player.make_unavailable()
+
+    #         rpg = RPG(self.bot, player)
+    #         embedVar = Embed(title=f"Adventure is starting", color=0x2ECC71)
+    #         # add gif image to embedVar
+    #         embedVar.set_image(url="https://i.kym-cdn.com/photos/images/newsfeed/001/708/012/0ac.gif")
+    #         rpg_msg = await ctx.send(embed=embedVar)
+    #         await RPG.create_rpg(self, ctx, rpg, rpg_msg)
+    #     except Exception as ex:
+    #         player.make_available()
+    #         custom_logging.debug(ex)
+    #         loggy.critical(ex)
+    #         return
+        
 
     @slash_command(description="pve to earn cards, accessories, gold, gems, and more as a solo player")
     @slash_option(
@@ -410,7 +373,7 @@ class GameModes(Extension):
             SlashCommandChoice(
                 name="💀 Raid Battle",
                 value="Raid_Scenario"
-            )
+            ),
         ]
     )
     @slash_option(
@@ -420,7 +383,7 @@ class GameModes(Extension):
         autocomplete=True
     )
     async def play(self, ctx: InteractionContext, mode: str, universe: str = ""):
-        await ctx.defer()
+        # await ctx.defer()
         registered_player = await crown_utilities.player_check(ctx)
         if not registered_player:
             return
@@ -463,9 +426,10 @@ class GameModes(Extension):
             # if mode == crown_utilities.ABYSS:
             #     await abyss(self, ctx, registered_player, mode)
             #     return
-
+            # if mode == crown_utilities.RPG:
+            #     await self.rpg(ctx)
+            #     return
             
-
             if mode == crown_utilities.TUTORIAL:
                 await tutorial(self, ctx, player, mode)
                 return
@@ -1717,7 +1681,6 @@ def health_and_stamina_bars(health, stamina, max_health, max_stamina, resolved):
             stamina_response = f"⚫⚫⚫⚫⚫"
 
     return {"HEALTH": health_response, "STAMINA": stamina_response}
-
 
 enhancer_mapping = {'ATK': 'Increase Attack %',
 'DEF': 'Increase Defense %',

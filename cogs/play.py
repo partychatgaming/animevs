@@ -81,6 +81,7 @@ class Play(Extension):
 
                 image_binary.seek(0)
                 card_file = File(file_name="image.png", file=image_binary)
+                battle_msg = None
                 battle_start_msg = await private_channel.send(
                     content=f"{user1.mention} 🆚 {opponent_ping}",
                     embed=match_start_embed,
@@ -97,14 +98,25 @@ class Play(Extension):
 
                 try:
                     button_ctx = await self.bot.wait_for_component(components=[start_buttons_action_rows], timeout=300, check=check)
-                    await battle_start_msg.edit(components=[])
+                    if not battle_config.is_rpg:
+                        await battle_start_msg.edit(components=[])
 
                     custom_id = button_ctx.ctx.custom_id
                     if custom_id == f"{battle_config._uuid}|quit_game":
-                        battle_config.player1.make_available()
-                        await battle_start_msg.delete()
-                        await exit_battle_embed(battle_config, button_ctx, private_channel)
-                        return
+                        if battle_config.is_rpg:
+                            self.battling = False
+                            self.adventuring = True
+                            self.encounter = False
+                            await battle_start_msg.delete()
+                            # embedVar = Embed(title=f"Resuming Adventure...", color=0x2ECC71)
+                            self.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
+                            #rpg_msg = await private_channel.send(embed=embedVar)
+                            return
+                        else:
+                            battle_config.player1.make_available()
+                            await battle_start_msg.delete()
+                            await exit_battle_embed(battle_config, button_ctx, private_channel)
+                            return
 
                     if custom_id == f"{battle_config._uuid}|save_game":
                         await gs.save_spot(self, battle_config.player1, battle_config.selected_universe, battle_config.mode, battle_config.current_opponent_number)
@@ -123,11 +135,15 @@ class Play(Extension):
                             battle_msg = await private_channel.send(embed=embedVar)
                         else:
                             embedVar = Embed(title=f"Battle is starting", color=0x2ECC71)
+                            if battle_config.is_rpg:
+                                await battle_start_msg.delete()
+                                await asyncio.sleep(2)
                             battle_msg = await private_channel.send(embed=embedVar)
 
                         tactics.tactics_set_base_stats(battle_config.player2_card)
                         
                         game_over_check = False
+                        
                         while not game_over_check:
                             
                             if check_if_game_over(battle_config):
@@ -378,14 +394,31 @@ class Play(Extension):
 
                         if game_over_check:
                             gameClock = get_battle_time(h_gametime, m_gametime, s_gametime)
+
                             await gs.pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock)
 
                             await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
+                            if battle_config.is_rpg:
+                                battle_config.continue_fighting = False
+                                battle_config.rpg_config.adventuring = True
+                                battle_config.rpg_config.battling = False
+                                battle_config.rpg_config.encounter = False
+
+                                battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
+                
+                                battle_config.rpg_config.set_rpg_options()
+                                await asyncio.sleep(1)
+                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel)
+                                return
+                                
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
+                    if battle_msg == None:
+                        battle_msg = battle_start_msg
+                    loggy.critical(f"Battle timed out")
                     await timeout_handler(self, ctx, battle_msg, battle_config)
 
                 except Exception as ex:
@@ -404,17 +437,77 @@ class Play(Extension):
             custom_logging.debug(ex)
 
 
+    async def rpg_commands(self, ctx, rpg_config, rpg_starter_message):
+        """
+        Handles the logic for an RPG game in the game.
+
+        Parameters:
+        - self: The instance of the class.
+        - ctx: The context of the command.
+        - rpg_config: Configuration object for the RPG game.
+
+        Returns:
+        None
+        """
+        private_channel = ctx.channel
+        try:
+            rpg_config._uuid = uuid.uuid4()
+            if not hasattr(self, 'bot'):
+                self.bot = self.client
+
+            user = await get_rpg_user(rpg_config)
+            rpg_msg = rpg_starter_message
+            # await asyncio.sleep(2)
+            while rpg_config.adventuring:
+                if check_if_rpg_over(rpg_config):
+                    game_over_check = True
+                    break
+                configure_battle_log(rpg_config)
+                rpg_config.set_rpg_options()
+
+                rpg_msg, components = await rpg_config.rpg_player_move_embed(ctx, private_channel, rpg_msg)
+
+                def check(component: Button) -> bool:
+                    return component.ctx.author == user
+
+                try:
+                    if components != []:
+                        # print("Components is None")
+                        # components = ActionRow(*rpg_config.movement_buttons)
+                        button_ctx = await self.bot.wait_for_component(components=components, timeout=300, check=check)
+                        await button_ctx.ctx.defer(edit_origin=True)
+                    # save_and_end = await player_save_and_end_game(self, ctx, private_channel, rpg_msg, battle_config, button_ctx)
+                    # if save_and_end:
+                    #     battle_config.player1.make_available()
+                    #     return
+                
+                    await rpg_config.rpg_move_handler(ctx, private_channel, button_ctx, rpg_msg)
+                    
+                except asyncio.TimeoutError:
+                    rpg_config.player1.make_available()
+                    await timeout_handler(self, ctx, rpg_msg, rpg_config)
+        except asyncio.TimeoutError:
+            loggy.critical(f"Battle timed out")
+            rpg_config.previous_moves.append("🏁 Adventure has ended!")
+            rpg_config.player1.make_available()
+            await timeout_handler(self, ctx, rpg_msg, rpg_config)
+
+        except Exception as ex:
+            loggy.critical(f"Battle timed out")
+            rpg_config.player1.make_available()
+            custom_logging.debug(ex)
+        
+
 async def add_ai_start_messages(battle_config):
     if not battle_config.turn_zero_has_happened:
         class_effects = {
-            "ASSASSIN": "🥋 {name} the {class_message} gained {class_value} sneak attacks",
-            "MAGE": "🥋 {name} the {class_message} gained a {class_value}% boost to elemental attacks",
+            "ASSASSIN": "🥋 {name} the {class_message} gained 💢Blitz and {class_value} sneak attacks",
+            "MAGE": "🥋 {name} the {class_message} gained a {class_value}% boost to 🔅elemental attacks",
             "RANGER": "🥋 {name} the {class_message} gained 💠 {class_value} barriers",
             "TANK": "🥋 {name} the {class_message} gained a 🌐 {class_value} shield",
-            "HEALER": "🥋 {name} the {class_message} boosted their healing by {class_value}%",
-            "SUMMONER": "🥋 {name} the {class_message} calls forth {summon_name} with {summoner_value}% increased ability",
-            "FIGHTER": "🥋 {name} the {class_message} gained 🔁 {class_value} parries",
-            "TACTICIAN": "🥋 {name} the {class_message} can strategize against their opponent!",
+            "HEALER": "🥋 {name} the {class_message} boosted their  ❤️‍🩹healing by {class_value}%",
+            "SUMMONER": "🥋 {name} the {class_message} calls forth 🧬{summon_name} with {summoner_value}% increased ability",
+            "FIGHTER": "🥋 {name} the {class_message} gained 🔁 {class_value} parries & doubled protection arms",
         }
 
         def append_previous_moves(card, player_name):
@@ -517,7 +610,7 @@ def config_battle_starting_buttons(battle_config):
 
         )
     
-    if not battle_config.is_tutorial_game_mode and battle_config.save_match_turned_on():
+    if not battle_config.is_tutorial_game_mode and battle_config.save_match_turned_on() and not battle_config.is_rpg:
         if battle_config.current_opponent_number > 0:
             start_tales_buttons.append(
                 Button(
@@ -552,10 +645,31 @@ async def get_users_and_opponent_ping(self, battle_config):
 
     return user1, user2, opponent_ping, user3
 
+async def get_rpg_user(self):
+    """
+    Get the user object from the context object.
+
+    Parameters:
+    - ctx: The context object for the current command.
+
+    Returns:
+    User: The user object for the context object.
+    """
+    if hasattr(self, 'bot'):
+        pass
+    else:
+        self.bot = self.client
+    user = await self.bot.fetch_user(self.player1_did)
+    return user
 
 async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
+    if battle_config.is_rpg:
+        close_embded = await ctx.send(embed = battle_config.close_rpg_embed())
+        await close_embded.delete(delay=3)
+        await battle_config.leave_adventure_embed(ctx)
+        return
     if not any((battle_config.is_abyss_game_mode, 
                 battle_config.is_scenario_game_mode, 
                 battle_config.is_explore_game_mode, 
@@ -668,24 +782,51 @@ async def exit_battle_embed(battle_config, button_ctx, private_channel):
     if battle_config.player1.autosave and battle_config.match_can_be_saved:
         await private_channel.send(embed=battle_config.saved_game_embed(battle_config.player1_card, battle_config.player2_card))
     elif not battle_config.is_pvp_game_mode:
-        await private_channel.send(embed=battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
+        if battle_config.is_rpg:
+            await private_channel.send(embed=battle_config.rpg_config.close_rpg_embed(battle_config.player1_card, battle_config.player2_card))
+        else:
+            await private_channel.send(embed=battle_config.close_pve_embed(battle_config.player1_card, battle_config.player2_card))
     else:
         await private_channel.send(embed=battle_config.close_pvp_embed(battle_config.player1, battle_config.player2))
     return
 
 
 def check_if_game_over(battle_config):
+    #Checks for RPG Game over battle_config is cosidered as rpg_config
+    # if battle_config.is_rpg:
+    #     rpg_config = battle_config
+    #     if rpg_config.player_health <= 0:
+    #         rpg_config.adventuring = False
+    #         return True
+    #     else:
+    #         return False
     player3_card = battle_config.player3_card if battle_config.is_duo_mode or battle_config.is_co_op_mode else None
     if battle_config.is_tutorial_game_mode and battle_config.player2_card.health <= 0 and not battle_config.all_tutorial_tasks_complete:
         battle_config.turn_total -= 1
         battle_config.add_to_battle_log(f"({battle_config.turn_total}) ❌ Tutorial Task Incomplete!\nComplete your Tutorial Task to defeat the Training Dummy!")
+        
+
         battle_config.turn_total += 1
     game_over_check = battle_config.set_game_over(battle_config.player1_card, battle_config.player2_card, player3_card)
     
     return bool(game_over_check)
 
+def check_if_rpg_over(rpg_config):
+    if rpg_config.player_health <= 0:
+        rpg_config.adventuring = False
+        return True
+    else:
+        return False
 
 def configure_battle_log(battle_config):
+    #Checks for RPG Game over battle_config is cosidered as rpg_config
+    if battle_config.is_rpg:
+        rpg_config = battle_config
+        if rpg_config.previous_moves:
+            rpg_config.previous_moves_len = len(rpg_config.previous_moves)
+            if rpg_config.previous_moves_len >= rpg_config.player1.battle_history:
+                rpg_config.previous_moves = rpg_config.previous_moves[-rpg_config.player1.battle_history:]
+        return
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
     if battle_config.previous_moves:
@@ -741,7 +882,8 @@ async def start_to_focus(battle_msg, private_channel, battle_config):
         await turn_card.focusing(turn_title, opponent_title, opponent_card, battle_config)
         await asyncio.sleep(1)
         #if not turn_card.used_blitz:
-        await tutorial_focusing(turn_card, battle_config, private_channel)
+        if not turn_card.used_blitz:
+            await tutorial_focusing(turn_card, battle_config, private_channel)
         await boss_focusing(battle_config, private_channel)
         focusing = True
 
@@ -1445,6 +1587,15 @@ async def player_save_and_end_game(self, ctx, private_channel, battle_msg, battl
 # a message is sent to a private channel. If any errors occur during this process, the function 
 # captures the exception and prints a detailed traceback.
 async def player_quit_and_end_game(ctx, private_channel, battle_msg, battle_config, button_ctx):
+    if battle_config.is_rpg:
+        if button_ctx.ctx.custom_id == f"{battle_config._uuid}|q" or button_ctx.ctx.custom_id == f"{battle_config._uuid}|Q":
+            battle_config.rpg_config.adventuring = True
+            battle_config.rpg_config.battling = False
+            battle_config.rpg_config.encounter = False
+            battle_config.rpg_config.player_health = battle_config.player1_card.health
+            await battle_msg.delete(delay=1)
+            battle_config.rpg_config.previous_moves.append(f"💨Fleeing Encounter...Resuming Adventure...!")
+            return True
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
     try:
         if button_ctx.ctx.custom_id == f"{battle_config._uuid}|q" or button_ctx.ctx.custom_id == f"{battle_config._uuid}|Q":

@@ -28,6 +28,7 @@ class Battle:
         self.is_pvp_game_mode = False
         self.is_available = True
         self.is_corrupted = False
+        self.is_rpg = False
         self.match_can_be_saved = False
         self.is_free_battle_game_mode = False
         self.is_co_op_mode = False
@@ -128,7 +129,7 @@ class Battle:
         # Messages
         self.abyss_message = ""
 
-        # Abyss / Scenario / Explore Config
+        # Abyss / Scenario / Explore Config / RPG
         self.abyss_floor = ""
         self.abyss_card_to_earn = ""
         self.abyss_banned_card_tiers = ""
@@ -140,6 +141,15 @@ class Battle:
         self.scenario_has_drops = False
         self.explore_type = ""
         self.bounty = ""
+
+        #Rpg
+        self.rpg_map = []
+        self.rpg_config = None
+        self.rpg_msg = None
+        self.rpg_health = 0
+        self.rpg_atk_boost = False
+        self.rpg_def_boost = False  
+        self.rpg_hp_boost = False
 
         # Boss Important Descriptions
         self._arena_boss_description = ""
@@ -202,6 +212,8 @@ class Battle:
         self._victory_streak = 0
         self._hall_defense = 0
         self._raid_bounty_plus_bonus = 0
+
+        #RPG Confi
 
         self.player1 = _player
         self.player1_card = None
@@ -368,6 +380,14 @@ class Battle:
             self.starting_match_title = f"✅ Explore Battle is about to begin!"
             self.battle_mode = "EXPLORE"
 
+        if self.mode == crown_utilities.RPG:
+            self.is_rpg = True
+            self.is_ai_opponent = True
+            self.can_auto_battle = True
+            self.battle_mode = "RPG"
+            self.starting_match_title = f"🗺️ Adventure Battle is about to begin!"
+         
+
         if self.difficulty == "EASY":
             self.is_easy_difficulty = True
             self.health_debuff = self.health_debuff + -500
@@ -409,6 +429,8 @@ class Battle:
             self.crestsearch = universe_selection_object['CREST_SEARCH']
             self.current_opponent_number =  universe_selection_object['CURRENTOPPONENT']
 
+    
+            
             if self.is_dungeon_game_mode:
                 self.list_of_opponents_by_name = self.selected_universe_full_data['DUNGEONS']
                 self.total_number_of_opponents = len(self.list_of_opponents_by_name)
@@ -426,16 +448,20 @@ class Battle:
                 self.player_association = universe_selection_object['ASSOCIATION_INFO']
             else:
                 self.player_association = "PCG"
+            
+                
             self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
+            if self.is_rpg:
+                self.starting_match_title = f"🗺️ Start Adventure Battle"
 
-
+    
     def get_starting_match_title(self):
         self.starting_match_title = f"✅ Start Battle!  ({self.current_opponent_number + 1}/{self.total_number_of_opponents})"
         if self.is_tutorial_game_mode:
-            self.starting_match_title = "Click Start Match to Begin the Tutorial!"
+            self.starting_match_title = "✅ Click Start Match to Begin the Tutorial!"
         return  self.starting_match_title
 
-
+    
     def set_abyss_config(self, player):
         try:
             if self.is_easy_difficulty:
@@ -648,6 +674,10 @@ class Battle:
                 summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
                 arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""}
 
+            if self.is_rpg:
+                summon_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES"}
+                arm_query = {'UNIVERSE': universe_data['TITLE'], 'DROP_STYLE': "TALES", 'ELEMENT': ""}
+
             self._ai_opponent_title_data = db.get_random_title({"UNIVERSE": universe_data['TITLE']}, self.player1)
             self._ai_opponent_arm_data = db.get_random_arm(arm_query, self.player1)
             self._ai_summon = db.get_random_summon_name(summon_query)
@@ -838,7 +868,7 @@ class Battle:
         if player2_card.health <= 0:
             if self.is_tutorial_game_mode and not self.all_tutorial_tasks_complete:
                 self.match_has_ended = False
-                player2_card.health = 100
+                player2_card.health = 1
                 return self.match_has_ended
             self.match_has_ended = True
             self.player1_wins = True
@@ -1237,15 +1267,7 @@ class Battle:
                         label="🛡️Ally Block 20",
                         custom_id=f"{self._uuid}|9"
                     ),
-                ]
-            else:
-                c_butts = [           
-                        Button(
-                        style=ButtonStyle.RED,
-                        label=f"Boost Companion",
-                        custom_id=f"{self._uuid}|b"
-                    )]
-        
+                ]        
         elif (self.is_co_op_mode and self.mode not in crown_utilities.DUO_M) and your_card.stamina >= 20:
             c_butts = [
                 Button(
@@ -1484,6 +1506,10 @@ class Battle:
             close_message = "Tutorial Battle"
             picon = "🧠"
             f_message = f"🧠 | Tutorial will teach you about Game Mechanics and Card Abiltiies!"
+        if self.is_rpg:
+            close_message = "Adventure Battle"
+            picon = "🗺️"
+            f_message = f"🗺️ | Adventure Cut Short..."
             
             
         embedVar = Embed(title=f"{picon} {opponent_card.universe} {close_message} Ended!", description=textwrap.dedent(f"""
@@ -1731,8 +1757,8 @@ class Battle:
             name = "Hashirama Cells"
             value =f"On Resolve\nHealth for the amount of stored Hashirama Cells**[{player_card.naruto_heal_buff}]**"
         if player_card.universe == "Demon Slayer":
-            name = "Total Concentration Constant"
-            value =f"On Resolve\nIf your opponents Attack or Defense is greater than yours, they become equal. If yours are equal or better gain Card Level AP **[{player_card.card_lvl}]** of either Stat."
+            name = "Total Concentration Constant & Supernatural Blood"
+            value =f"On Resolve\n**Hashira**: If your opponents Attack or Defense is greater than yours, they become equal. If yours are equal or better gain Card Level AP **[{player_card.card_lvl}]** of either Stat.\n\n**Demons**: Multiply your Attack, Defense and Health by Blitz Count **[{player_card.blitz_count}]**"
         if player_card.universe == "YuYu Hakusho":
             name = "Spirit Energy"
             value =f"On Resolve\nSet defense to 100 but Double Attack and all Move AP"
@@ -1875,8 +1901,8 @@ class Battle:
             name = "\nEquivalent Exchange"
             value =f"Each Attack\n*Store 50% Stamina as Equivalent Exchange, Increase your Attack Power by (Equivalent Exchange x Card Tier).*" 
         if player_card.universe == "Demon Slayer":
-            name = "\nTotal Concentration Breathing"
-            value =f"*Gain 40% of your opponents base max health at the start of battle.* **[{round(.40 * opponent_card.max_base_health)}]**"
+            name = "\nTotal Concentration Breathing & Accelerated Growth Rate"
+            value =f"On Match Start\n\n**Hashiras**:Gain 40% of your opponents base max health at the start of battle. **[{round(.40 * opponent_card.max_base_health)}]**\n\n**Demons**: Gain 10 * Card Level Health and Max Health **[{10 * player_card.card_lvl}]**"
         if player_card.universe == "My Hero Academia":
             name = "\nQuirk Energy"
             value =f"*Each turn store 50 ap to prepare for your Quirk Awakening Transformation*"
@@ -1906,6 +1932,9 @@ class Battle:
         if player_card.universe == "Attack On Titan":
             name = "Omnigear"
             value =f"On Blitz\nGAin (10% * Class Level) Speed and AP **[{(.10 * player_card.card_tier) * player_card.speed}]**"
+        if player_card.universe == "Demon Slayer":
+            name = "Demon Slayer Mark & Blood Demon Art"
+            value =f"On Blitz\n**Hashira**: Your next attack is a critical strike\n\n**Demons**: Your next attack is a double strike"
         return name, value
 
 
@@ -2080,7 +2109,6 @@ class Battle:
             if self.explore_type == "glory":
                 bounty_amount = self.bounty * 2
                 await crown_utilities.bless(bounty_amount, winner.did)
-                opponent_card.card_lvl = 100
                 winner.save_card(opponent_card)
                 drop_response = f"You won 🎴 {opponent_card.name}!"
             
@@ -2089,6 +2117,42 @@ class Battle:
                 await crown_utilities.bless(self.bounty, winner.did)
                 message = f"VICTORY\n🪙 {'{:,}'.format(self.bounty)} Bounty Received!\nThe game lasted {self.turn_total} rounds."
             
+            if self.is_rpg:
+                bounty_amount = self.bounty * 2
+                await crown_utilities.bless(bounty_amount, winner.did)
+                winner.save_card(opponent_card, True)
+                self.rpg_config.card_drops.append(f"[{opponent_card.class_emoji}] **{opponent_card.name}**!")
+                drop_response = f"You won 🎴 {opponent_card.name}!"
+
+                message = f"You Defeated {opponent_card.name}'s avatar\n🪙 {'{:,}'.format(bounty_amount)} Reward Received!\nThe game lasted {self.turn_total} rounds.\n\n{drop_response}"
+                
+                win_embed = Embed(title=f"🎊 VICTORY\nThe game lasted {self.turn_total} rounds.", description=f"View a summary of the rewards and match history here\n\n🪙 {'{:,}'.format(bounty_amount)} Coin Received!\n{drop_response}", color=0x1abc9c)
+                
+                battle_history_embed = Embed(title=f"📜 Match History", description=f"View the match history here", color=0x1abc9c)
+                battle_history_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+
+                battle_stats_embed = Embed(title=f"📊 Battle Stats", description=f"View the battle stats here", color=0x1abc9c)
+
+                #Most Focus
+                f_message = self.get_most_focused(self.player1_card, self.player2_card)
+                battle_stats_embed.add_field(name=f"🌀 | Focus Count",
+                                value=f"**{self.player2_card.name}**: {self.player2_card.focus_count}\n**{self.player1_card.name}**: {self.player1_card.focus_count}")
+                #Most Blitz
+                b_message = self.get_most_blitzed(self.player1_card, self.player2_card)
+                battle_stats_embed.add_field(name=f"💢 | Blitz Count",
+                                value=f"**{self.player2_card.name}**: {self.player2_card.blitz_count}\n**{self.player1_card.name}**: {self.player1_card.blitz_count}")
+                #Most Damage Dealth
+                d_message = self.get_most_damage_dealt(self.player1_card, self.player2_card)
+                battle_stats_embed.add_field(name=f"💥 | Damage Dealt",
+                                value=f"**{self.player2_card.name}**: {self.player2_card.damage_dealt}\n**{self.player1_card.name}**: {self.player1_card.damage_dealt}")
+                #Most Healed
+                h_message = self.get_most_damage_healed(self.player1_card, self.player2_card)
+                battle_stats_embed.add_field(name=f"❤️‍🩹 | Healing",
+                                value=f"**{self.player2_card.name}**: {self.player2_card.damage_healed}\n**{self.player1_card.name}**: {self.player1_card.damage_healed}")
+
+                return message
+                # return win_embed, battle_history_embed, battle_stats_embed
+
             if winner.association != "PCG":
                 await crown_utilities.blessguild(250, winner.association)
 
@@ -2102,8 +2166,10 @@ class Battle:
                 await crown_utilities.curse(1000, winner.did)
             
             message = f"YOU LOSE!\nThe game lasted {self.turn_total} rounds."
+            if self.is_rpg:
+                message = f"You were defeated by {opponent_card.name}'s avatar\nThe game lasted {self.turn_total} rounds."
 
-        embedVar = Embed(title=f"{message}", color=0x1abc9c)
+        embedVar = Embed(title=f"{message}\n", color=0x1abc9c)
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}")
         
         f_message = self.get_most_focused(winner_card, opponent_card)
@@ -2120,7 +2186,7 @@ class Battle:
         #Most Healed
         h_message = self.get_most_damage_healed(winner_card, opponent_card)
         embedVar.add_field(name=f"❤️‍🩹 | Healing",
-                        value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}")
+                        value=f"**{opponent_card.name}**: {opponent_card.damage_healed}\n**{winner_card.name}**: {winner_card.damage_healed}\n")
         
         return embedVar
 
@@ -2241,6 +2307,16 @@ class Battle:
             self.player1_card.set_arm_config(self.player1_arm.passive_type, self.player1_arm.name, self.player1_arm.passive_value, self.player1_arm.element)
             self.player1_card.set_affinity_message()
             self.player1.get_talisman_ready(self.player1_card)
+
+            #rpg checks
+            if self.rpg_health > 0:
+                self.player1_card.health = round(self.rpg_health)
+            if self.rpg_atk_boost:
+                self.player1_card.attack += round(self.player1_card.attack * .50)
+            if self.rpg_def_boost:
+                self.player1_card.defense += round(self.player1_card.defense * .50)
+            if self.rpg_hp_boost:
+                self.player1_card.health += round(self.player1_card.health * .50)
         except Exception as ex:
             trace = []
             tb = ex.__traceback__

@@ -291,7 +291,7 @@ async def summonlevel(player, player_card):
                 update_query = {'$inc': {'PETS.$[type].' + "EXP": xp_inc}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"Level: {player_card.summon_lvl} | XP: +🔼{player_card.summon_exp}/{lvl_req}"
+                level_message = f"Level: {player_card.summon_lvl} | XP: +🆙{player_card.summon_exp}/{lvl_req}"
                 player_card.summon_exp = player_card.summon_exp + xp_inc
 
             # Level Up Code
@@ -299,7 +299,7 @@ async def summonlevel(player, player_card):
                 update_query = {'$set': {'PETS.$[type].' + "EXP": 0}, '$inc': {'PETS.$[type].' + "LVL": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                level_message = f"Level: +🔼{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
+                level_message = f"Level: +🆙{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
         if player_card.summon_lvl % 10 == 0:
             if player_card.summon_bond < 10:
@@ -313,7 +313,7 @@ async def summonlevel(player, player_card):
                 update_query = {'$set': {'PETS.$[type].' + "BONDEXP": 0}, '$inc': {'PETS.$[type].' + "BOND": 1}}
                 filter_query = [{'type.' + "NAME": str(player_card.summon_name)}]
                 response = db.updateUser(query, update_query, filter_query)
-                bond_message = f"Bond: +💓{player_card.summon_bond}"
+                bond_message = f"Bond: +🆙{player_card.summon_bond}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
                 
         
@@ -787,7 +787,12 @@ async def corrupted_universe_handler(ctx, universe, difficulty):
 
     
 async def cardlevel(user, mode: str, extra_exp = 0):
+    print(mode)
     try:
+        # if mode == "RPG":
+        #     player = create_player_from_data(db.queryUser({'DID': user.did}))
+            
+        # else:
         player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
         card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
         # guild_buff = await guild_buff_update_function(player.guild.lower())
@@ -805,7 +810,8 @@ async def cardlevel(user, mode: str, extra_exp = 0):
 
         if number_of_level_ups > 0:
             loggy.info(f"Card Leveling - {user} - {number_of_level_ups} Level Ups")
-            player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
+            if player is None:
+                player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
             card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
             card.set_card_level_buffs(player.card_levels)
             lvl_req = get_level_up_exp_req(card)
@@ -919,6 +925,8 @@ def get_exp_gain(player, mode, card, extra_exp):
             exp_gain = extra_exp
 
         if mode == "Purchase":
+            exp_gain = lvl_req + 100 + extra_exp
+        if mode == "RPG":
             exp_gain = lvl_req + 100 + extra_exp
 
         return exp_gain, lvl_req
@@ -1622,7 +1630,52 @@ async def savematch(player, card, path, title, arm, universe, universe_type, exc
 
 def create_card_from_data(card_data, is_boss = False):
     try:
-        card = Card(card_data['NAME'], card_data['PATH'], card_data['PRICE'], card_data['AVAILABLE'], card_data['SKIN_FOR'], card_data['HLT'], card_data['HLT'], card_data['STAM'], card_data['STAM'], card_data['MOVESET'], card_data['ATK'], card_data['DEF'], card_data['TYPE'], card_data['PASS'], card_data['SPD'], card_data['UNIVERSE'], card_data['TIER'], card_data['WEAKNESS'], card_data['RESISTANT'], card_data['REPEL'], card_data['ABSORB'], card_data['IMMUNE'], card_data['GIF'], card_data['FPATH'], card_data['RNAME'], card_data['RPATH'], is_boss, card_data['CLASS'], card_data['DROP_STYLE'])
+        if not card_data["UNIVERSE"] == "Bleach":
+            card_data["DESCRIPTIONS"] = [
+           {
+               "message": "Oh my, it seems we have a little conflict here. Shall we resolve this with science or violence?",
+               "dialogue_options": [
+                   {"response": "Enough games, Urahara! Let's settle this with our Zanpakuto!", "fight": True},
+                   {"response": "Science sounds intriguing. What did you have in mind?", "fight": False}
+               ]
+           },
+           {
+               "message": "My Benihime has many tricks up her sleeve. Are you sure you want to see them all?",
+               "dialogue_options": [
+                   {"response": "I'm not afraid of your tricks! Show me what you've got!", "fight": True},
+                   {"response": "Your inventiveness is renowned. Could you demonstrate a non-combat application?", "fight": False}
+               ]
+           },
+           {
+               "message": "As the former captain of the 12th Division, I've forgotten more about Kidō than most ever learn.",
+               "dialogue_options": [
+                   {"response": "Your past achievements mean nothing! Face me here and now!", "fight": True},
+                   {"response": "I'm always eager to learn. Would you be willing to teach me some Kidō?", "fight": False}
+               ]
+           },
+           {
+               "message": "My Bankai, Kannonbiraki Benihime Aratame, can restructure anything it touches. Fascinating, isn't it?",
+               "dialogue_options": [
+                   {"response": "I don't care how it works, I'll smash right through it!", "fight": True},
+                   {"response": "That's an incredible ability. How does the restructuring process work?", "fight": False}
+               ]
+           },
+           {
+               "message": "I always have a plan B, and C, and probably all the way to Z. Are you prepared for that?",
+               "dialogue_options": [
+                   {"response": "I'll foil every one of your plans! Let's go!", "fight": True},
+                   {"response": "Your strategic mind is impressive. Maybe we could collaborate instead of fight?", "fight": False}
+               ]
+           },
+           {
+               "message": "In the world of the Shinigami, knowledge is true power. Shall I demonstrate?",
+               "dialogue_options": [
+                   {"response": "Enough talk! Let's see how your knowledge fares against my strength!", "fight": True},
+                   {"response": "I'm always eager to learn. What knowledge would you like to share?", "fight": False}
+               ]
+           }
+       ]
+        card = Card(card_data['NAME'], card_data['PATH'], card_data['PRICE'], card_data['AVAILABLE'], card_data['SKIN_FOR'], card_data['HLT'], card_data['HLT'], card_data['STAM'], card_data['STAM'], card_data['MOVESET'], card_data['ATK'], card_data['DEF'], card_data['TYPE'], card_data['PASS'], card_data['SPD'], card_data['UNIVERSE'], card_data['TIER'], card_data['WEAKNESS'], card_data['RESISTANT'], card_data['REPEL'], card_data['ABSORB'], card_data['IMMUNE'], card_data['GIF'], card_data['FPATH'], card_data['RNAME'], card_data['RPATH'], is_boss, card_data['CLASS'], card_data['DROP_STYLE'], card_data['DESCRIPTIONS'])
         return card
     except Exception as ex:
         print(card_data['NAME'])
@@ -1647,7 +1700,7 @@ def create_arm_from_data(arm_data):
     return arm
 
 def create_player_from_data(player_data):
-    player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'])
+    player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
     return player
 
 def create_tutorial_bot(player_data):
@@ -2143,6 +2196,30 @@ def get_arm_types():
     except Exception as e:
         print(e)
         return False
+    
+def set_opponent_level_ranges(map_level):
+    if map_level < 10:
+        high, low = 15, 1
+    elif map_level < 50:
+        high, low = 60, 30
+    elif map_level < 100:
+        high, low = 120, 80
+    elif map_level < 200:
+        high, low = 250, 150
+    elif map_level < 500:
+        high, low = 600, 400
+    elif map_level < 1000:
+        high, low = 1200, 800
+    elif map_level < 2000:
+        high, low = 2500, 1500
+    elif map_level < 5000:
+        high, low = 6000, 4000
+    elif map_level < 10000:
+        high, low = 12000, 8000
+    else:
+        high, low = 15000, 10000
+    return high, low
+
 
 blocking_traits = [
     'Attack On Titan',
@@ -2170,7 +2247,8 @@ starting_traits = [
 blitz_traits = [
     'Bleach',
     'Persona',
-    'Attack On Titan'
+    'Attack On Titan',
+    'Demon Slayer'
 ]
 
 
@@ -2642,6 +2720,7 @@ class_mapping = {
 pokemon_universes = ['Kanto Region', 'Johto Region','Hoenn Region','Sinnoh Region','Kalos Region','Alola Region','Galar Region']
 
 
+
 crest_dict = { 'Unbound': '🉐',
               'My Hero Academia': '<:mha:1088699056420835419>',
               'League Of Legends': '<:3873_league_of_legends_logo:1088701143921729567>',
@@ -2680,6 +2759,77 @@ crest_dict = { 'Unbound': '🉐',
               'Unbound': '🉐',
 }
 
+rpg_npc = { 
+    'Unbound': '🉐',
+    '<:mha:1088699056420835419>': 'My Hero Academia NPC',
+    '<:3873_league_of_legends_logo:1088701143921729567>': 'League Of Legends NPC',
+    '<:pokemon:1088966251541450752>': 'Pokemon NPC',
+    '<:naruto_103:1088703639973015573>': 'Naruto NPC',
+    '<:bleach:1088701142487285781>': 'Bleach NPC',
+    '<:kratos:1088701141753274408>': 'God Of War NPC',
+    '<:denji:1088701139886817311>': 'Chainsawman NPC',
+    '<:pngaaa:1085072765587030027>': 'One Punch Man NPC',
+    '<:Black_Clover:1088699058262114314>': 'Black Clover NPC',
+    '<:Demon_Slayer:1088702009709973565>': 'Demon Slayer NPC',
+    '<:AOT:1088702007717658674>': 'Attack On Titan NPC',
+    '<:7ds:1088702006581006377>': '7ds NPC',
+    '<:digimon_sparkle:1088702667703988316>': 'Digimon NPC',
+    '<:fate:1092176982277632032>': 'Fate NPC',
+    '<:jin:1090240014891352114>': 'Solo Leveling NPC',
+    '<:dark_souls_icon:1088702666688966726>': 'Souls NPC',
+    '<:dbz:1088698675338952774>': 'Dragon Ball Z NPC',
+    '<:death_note:1088702980682956800>': 'Death Note NPC',
+    ':u7a7a:': 'Crown Rift Awakening NPC',
+    ':sa:': 'Crown Rift Slayers NPC',
+    ':m:': 'Crown Rift Madness NPC',
+    '<:persona:1090238487028047913>': 'Persona NPC',
+    '<:yusuke:1088702663861993503>': 'YuYu Hakusho NPC',
+    '<:one_piece:1088702665581670451>': 'One Piece NPC',
+    '<:overlord:1091223691729305681>': 'Overlord NPC',
+    '<:FairyTail:1091223690445865062>': 'Fairy Tail NPC',
+    '<:slime:1091223689007210517>': 'Slime NPC',
+    '<:souleater:1257056890832031756>': 'Soul Eater NPC',
+    '<:killlakill:1214431376070410281>': 'Kill La Kill NPC',
+    '<:gurren:1214432235927773205>': 'Gurren Lagann NPC',
+    '<:jjk:1249819520650969138>': 'Jujutsu Kaisen NPC',
+    '<:reborn:1257057934634909817>': 'Katekyo Hitman Reborn NPC',
+    '<:fma:1256672084327792730>': 'Full Metal Alchemist NPC',
+}
+
+rpg_npc_emojis = [
+    '<:mha:1088699056420835419>',
+    '<:3873_league_of_legends_logo:1088701143921729567>',
+    '<:pokemon:1088966251541450752>',
+    '<:naruto_103:1088703639973015573>',
+    '<:bleach:1088701142487285781>',
+    '<:kratos:1088701141753274408>',
+    '<:denji:1088701139886817311>',
+    '<:pngaaa:1085072765587030027>',
+    '<:Black_Clover:1088699058262114314>',
+    '<:Demon_Slayer:1088702009709973565>',
+    '<:AOT:1088702007717658674>',
+    '<:7ds:1088702006581006377>',
+    '<:digimon_sparkle:1088702667703988316>',
+    '<:fate:1092176982277632032>',
+    '<:jin:1090240014891352114>',
+    '<:dark_souls_icon:1088702666688966726>',
+    '<:dbz:1088698675338952774>',
+    '<:death_note:1088702980682956800>',
+    '<:persona:1090238487028047913>',
+    '<:yusuke:1088702663861993503>',
+    '<:one_piece:1088702665581670451>',
+    '<:overlord:1091223691729305681>',
+    '<:FairyTail:1091223690445865062>',
+    '<:slime:1091223689007210517>',
+    '<:souleater:1257056890832031756>',
+    '<:killlakill:1214431376070410281>',
+    '<:gurren:1214432235927773205>',
+    '<:jjk:1249819520650969138>',
+    '<:reborn:1257057934634909817>',
+    '<:fma:1256672084327792730>',
+]
+
+
 scenario_level_config = 1499
 
 
@@ -2694,7 +2844,7 @@ LOW_TIER_CARDS = [1, 2, 3]
 MID_TIER_CARDS = [4, 5, 6, 7]
 HIGH_TIER_CARDS = [8, 9, 10]
 
-NOT_SAVE_MODES = ['Boss', 'CBoss', 'PVP', 'Abyss', 'SCENARIO', 'EXPLORE', 'RAID']
+NOT_SAVE_MODES = ['Boss', 'CBoss', 'PVP', 'Abyss', 'SCENARIO', 'EXPLORE', 'RAID', 'RPG']
 BATTLE_OPTIONS = [1, 2, 3, 4, 5, 0]
 
 tactics = [
@@ -2814,6 +2964,7 @@ ABYSS = "Abyss"
 SCENARIO = "Scenario"
 EXPLORE = "Explore"
 TUTORIAL = "Tutorial"
+RPG = "RPG"
 
 ABYSS_REWARD_FLOORS = [10,20,30,40,50,60,70,80,90,100]
 

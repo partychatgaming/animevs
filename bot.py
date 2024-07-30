@@ -1,7 +1,7 @@
 import custom_logging
 import datetime
 from cogs.classes.custom_paginator import CustomPaginator
-from ai import suggested_title_scenario
+from ai import suggested_title_scenario, character_descriptions
 import db
 import time
 import classes as data
@@ -19,6 +19,7 @@ import random
 import unique_traits as ut
 now = time.asctime()
 import asyncio
+from characters import character_list
 import requests
 import json
 import uuid
@@ -33,15 +34,35 @@ cls_log.setLevel(logging.WARNING)
 
 
 # bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False)
-bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False, token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN'))
+# bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False, token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN'))
+# Flag to track if heartbeat check has been started
+heartbeat_started = False
+bot = Client(
+    intents=Intents.ALL,
+    sync_interactions=True,
+    send_command_tracebacks=False,
+    token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN')
+    )
+
+# @listen()
+# async def on_ready():
+#    server_count = len(bot.guilds)
+#    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
+#    loggy.info('The bot is up and running')
+#    await bot.synchronise_interactions()
+#    check_heartbeat.start()
+
 
 @listen()
 async def on_ready():
-   server_count = len(bot.guilds)
-   await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
-   loggy.info('The bot is up and running')
-   await bot.synchronise_interactions()
-   check_heartbeat.start()
+    global heartbeat_started
+    server_count = len(bot.guilds)
+    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
+    loggy.info('The bot is up and running')
+    await bot.synchronise_interactions()
+    if not heartbeat_started:
+        check_heartbeat.start()
+        heartbeat_started = True
 
 
 def add_universes_names_to_autocomplete_list():
@@ -527,10 +548,10 @@ async def classes(ctx):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
     
    class_descriptions = [
-        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use Summon from start of battle.\nSummon attacks are boosted based on Card Tier.\nBarrier and Paryy Summons gain 1 charge per tier\nAttack Summons Boost Damage by (20% * Card Tier) AP\n\nCommon - 20%/40%/60%\nRare - 80%/100%\nLegendary - 120%/140%\nMythic - 160%/180%\nGod - 200%\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
-        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Up to 6 Initial Attacks cost 0 Stamina, penetrate all protections and have increased Critical Chance\n\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks.\n\nBleed, Poison & Death damage boosted.\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
-        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries\n\nCommon - 3 Parry\nRare - 4 Parries\nLegendary - 5 Parries\nMythic - 6 Parries\nGod - 7 Parries.\n\nDouble Parry on Physical damage proc.\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
-        (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 6 Barriers & can attack without disengaging Barrier\n\nCommon - 2 Barriers\nRare - 3 Barriers\nLegendary - 4 Barriers\nMythic - 5 Barriers\nGod - 6 Barriers.\n\nRanged Damage Increased.\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
+        (crown_utilities.class_emojis['SUMMONER'], "Summoner", "Can use Summon from start of battle.\nSummon attacks are boosted based on Card Tier.\nBarrier and Paryy Summons gain 1 charge per tier\nAttack Summons Boost Damage by (20% * Card Tier) AP\n\nCommon - 20%/40%/60%\nRare - 80%/100%\nLegendary - 120%/140%\nMythic - 160%/180%\nGod - 200%\n\nSummons gain double XP after Battle\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
+        (crown_utilities.class_emojis['ASSASSIN'], "Assassin", "Starts each fight with up to 6 Sneak Attacks, These cost 0 Stamina, Penetrate all protections and have increased Critical Chance\n\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks.\n\nOn Blitz gain additional Sneak Attacks.\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
+        (crown_utilities.class_emojis['FIGHTER'], "Fighter", "Starts each fight with up to 6 Parries and double the value of Shield and Barrier Arms\n\nCommon - 3 Parry\nRare - 4 Parries\nLegendary - 5 Parries\nMythic - 6 Parries\nGod - 7 Parries.\n\nGain 2 Parries with each Physical Damage Proc\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
+        (crown_utilities.class_emojis['RANGER'], "Ranger", "Starts each fight with up to 6 Barriers & can attack without disengaging Barriers\n\nCommon - 2 Barriers\nRare - 3 Barriers\nLegendary - 4 Barriers\nMythic - 5 Barriers\nGod - 6 Barriers.\n\nGun & Ranged Damage Increased.\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
         (crown_utilities.class_emojis['TANK'], "Tank", "Starts each fight with (Card Tier * 250) + Card Level Shield & gain the same Shield on Resolve\n\nCommon - 250/500/750 Shield\nRare - 1000/1250\nLegendary - 1500/1750\nMythic - 2000/2250\nGod - 2500.\n\nTriples Defense on Block\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
         (crown_utilities.class_emojis['SWORDSMAN'], "Swordsman", "On Resolve, Gain up to 6 Critical Strikes\n\nCommon - 2 Attack\nRare - 3 Attacks\nLegendary - 4 Attacks\nMythic - 5 Attacks\nGod - 6 Attacks\n\nSword & Bleed damage boosted.\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
         (crown_utilities.class_emojis['MONSTROSITY'], "Monstrosity", "On Resolve gain up to 5 Double Strikes\n\nCommon - 1 Attack\nRare - 2 Attacks\nLegendary - 3 Attacks\nMythic - 4 Attacks\nGod - 5 Attacks.\n[Join the Anime VS+ Support Server](https://discord.gg/pcn) "),
@@ -1225,7 +1246,7 @@ async def register(ctx):
                               if trait['NAME'] == 'Pokemon':
                                  mytrait = trait
                      if mytrait:
-                        traitmessage =f"*{mytrait['EFFECT']}* {mytrait['TRAIT']}"
+                        traitmessage =f"*{mytrait['EFFECT']}*"
                      available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
                      
                      embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
@@ -2888,6 +2909,7 @@ async def battleview(ctx):
       await ctx.send("There's an issue with your Battle View . Seek support in the Anime 🆚+ support server", ephemeral=True)
 
 
+
 @slash_command(name="difficulty", description="Change the difficulty setting of Anime VS+",
                     options=[
                         SlashCommandOption(
@@ -2941,9 +2963,7 @@ async def difficulty(ctx, mode):
       embed = Embed(title="Difficulty Update Failed", description=f"{ctx.author.mention} has failed to update to ⚙️ **{mode.lower()}** mode.", color=0xff0000)
       await ctx.send(embed=embed)
    
-      
-
-
+ 
 @slash_command(name="battlehistory", description="How much battle history do you want to see during battle? 2 - 6", options=[
    SlashCommandOption(name="history", 
                      description="How much battle history do you want to see during battle? 2 - 6", 
@@ -3243,15 +3263,12 @@ async def code(ctx, code_input: str):
    SlashCommandOption(name="collection", description="Collection to update", type=OptionType.STRING, required=True),
    SlashCommandOption(name="new_field", description="New Field to add", type=OptionType.STRING, required=True),
    SlashCommandOption(name="field_type", description="Field Type", type=OptionType.STRING, required=True),
-   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
 ], scopes=crown_utilities.guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def addfield(ctx, collection, new_field, field_type, password, key):
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
-   if key != '937':
-      return await ctx.send("Admin Only")
+async def addfield(ctx, collection, new_field, field_type):
+   if ctx.author.id not in [306429381948211210, 263564778914578432]:
+      await ctx.send("🛑 You know damn well this command isn't for you.")
+      return
    
    if field_type == "fix":
       field_type = True
@@ -4086,40 +4103,88 @@ async def createscenarios_autocomplete(ctx: AutocompleteContext):
    await ctx.send(choices=choices)
 
 
-async def restart_bot():
-    await bot.stop()
-    await bot.start()
+# this command will take in a universe parameter
+@slash_command(description="update characters with descriptions", scopes=crown_utilities.guild_ids)
+async def updatecharacters(ctx):
+   await ctx.defer()
+   if ctx.author.id not in [306429381948211210, 263564778914578432]:
+      await ctx.send("🛑 You know damn well this command isn't for you.")
+      return
+   
+   # get all cards from universe
+   count = 0
+   for card in character_list:
+      name = card["name"]
+      descriptions = card["descriptions"]
+      # update card with descriptions
+      db.updateCard({"NAME": name}, {"$set": {"DESCRIPTIONS": descriptions}})
+      count += 1
+      if count % 10 == 0:
+         await asyncio.sleep(2)
 
+   await ctx.send(f"Updated {count} characters with descriptions.")
+   return
+
+
+
+# async def restart_bot():
+#     await bot.stop()
+#     await bot.start()
+
+
+# @Task.create(IntervalTrigger(minutes=5))
+# async def check_heartbeat():
+#       try:
+#          # Get the bot's latency
+#          latency = bot.latency
+#          loggy.info(f'Heartbeat check - latency: {latency}')
+#          # Check if latency is within acceptable range (e.g., below 2 seconds)
+#          if latency and latency > 9.0:
+#                loggy.warning('High latency detected, restarting bot...')
+#                await restart_bot()
+#       except Exception as e:
+#          loggy.error(f'Error during heartbeat check: {e}')
+#          await restart_bot()
+
+
+
+# # Run the bot
+# bot.start()
+
+
+@listen()
+async def on_disconnect():
+    loggy.warning("Bot disconnected. Attempting to reconnect...")
+    await asyncio.sleep(5)  # Wait before attempting to reconnect
+
+async def restart_bot():
+    loggy.info("Restarting bot...")
+    await bot.stop()
+    await asyncio.sleep(5)  # Wait before restarting
+    await bot.start()
 
 @Task.create(IntervalTrigger(minutes=5))
 async def check_heartbeat():
-      try:
-         # Get the bot's latency
-         latency = bot.latency
-         loggy.info(f'Heartbeat check - latency: {latency}')
-         # Check if latency is within acceptable range (e.g., below 2 seconds)
-         if latency and latency > 9.0:
-               loggy.warning('High latency detected, restarting bot...')
-               await restart_bot()
-      except Exception as e:
-         loggy.error(f'Error during heartbeat check: {e}')
-         await restart_bot()
-
-
-
-
-# if config('ENV') == "production":
-#    DISCORD_TOKEN = config('DISCORD_TOKEN')
-# else:
-#    DISCORD_TOKEN = config('NEW_TEST_DISCORD_TOKEN')
-
-# bot.start(DISCORD_TOKEN)
-
-
-
+    try:
+        latency = bot.latency
+        loggy.info(f'Heartbeat check - latency: {latency}')
+        if latency and latency > 2.0:  # Adjusted threshold to 2 seconds
+            loggy.warning('High latency detected, restarting bot...')
+            await restart_bot()
+    except Exception as e:
+        loggy.error(f'Error during heartbeat check: {e}')
+        await restart_bot()
 
 # Run the bot
-bot.start()
-
+try:
+    bot.start()
+except KeyboardInterrupt:
+    loggy.info("Bot stopped by user")
+except Exception as e:
+    loggy.error(f"An error occurred while running the bot: {e}")
+finally:
+    # Ensure the bot is properly closed
+    if not bot.is_closed:
+        asyncio.run(bot.stop())  # Use asyncio.run to properly close the bot
 
 
