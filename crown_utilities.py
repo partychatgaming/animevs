@@ -2871,7 +2871,7 @@ class_emojis = {
     'RANGER': '<:NewUI_Class_Hunter:1085081189708210196>',
     'SUMMONER': '<:summon:1085347631108194314>',
     # 'SWORDSMAN': '<:Gold_Sword:1085347570282405958>',
-    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1085347570282405958),
+    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1268053481021767763),
     'MONSTROSITY': '<:monster:1085347567384154172>',
     'TACTICIAN': '<:Tactician:1085080853882884126>'
 }
