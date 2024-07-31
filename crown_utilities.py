@@ -2875,8 +2875,8 @@ class_emojis = {
 }
 
 utility_emojis = {
-    'OFF': '<:toggle_off:1085611427143897088>',
-    'ON': '<:toggle_on:1085611434207105115>'
+    'OFF': PartialEmoji(name='off', id=1268076986971062307),
+    'ON': PartialEmoji(name='on', id=1268076995959586868),
 }
 
 class_descriptions = {
