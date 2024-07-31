@@ -600,15 +600,15 @@ def config_battle_starting_buttons(battle_config):
         ),
     ]
 
-    if battle_config.can_auto_battle and not battle_config.is_co_op_mode and not battle_config.is_duo_mode:
-        start_tales_buttons.append(
-            Button(
-                style=ButtonStyle.GREY,
-                label="Auto Battle",
-                custom_id=f"{battle_config._uuid}|start_game_auto_battle_mode"
-            )
+    # if battle_config.can_auto_battle and not battle_config.is_co_op_mode and not battle_config.is_duo_mode:
+    #     start_tales_buttons.append(
+    #         Button(
+    #             style=ButtonStyle.GREY,
+    #             label="Auto Battle",
+    #             custom_id=f"{battle_config._uuid}|start_game_auto_battle_mode"
+    #         )
 
-        )
+    #     )
     
     if not battle_config.is_tutorial_game_mode and battle_config.save_match_turned_on() and not battle_config.is_rpg:
         if battle_config.current_opponent_number > 0:
