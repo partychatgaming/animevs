@@ -2184,11 +2184,11 @@ class Card:
         evasion =  - 1 * crown_utilities.calculate_speed_modifier(_opponent_card.speed)
         accuracy =  -1 * crown_utilities.calculate_speed_modifier(self.speed)
         evasion_bonus = accuracy - evasion
-        print("__Evasion Checks__")
-        print("Hit Roll: ", hit_roll)
-        print("Evasion: ", evasion)
-        print("Accuracy: ", accuracy)
-        print("Evasion Bonus: ", evasion_bonus)
+        # print("__Evasion Checks__")
+        # print("Hit Roll: ", hit_roll)
+        # print("Evasion: ", evasion)
+        # print("Accuracy: ", accuracy)
+        # print("Evasion Bonus: ", evasion_bonus)
 
         hit_roll += evasion_bonus
         
