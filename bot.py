@@ -2262,6 +2262,7 @@ async def roll(ctx, rolls: int = 1):
         embeds.append(embed)
 
     paginator = Paginator.create_from_embeds(bot, *embeds)
+    paginator.show_select_menu = True
     await paginator.send(ctx)
 
 # Should you only be able to donate to your own guild?
@@ -3341,6 +3342,26 @@ async def addfield(ctx, collection, new_field, field_type):
       response = db.updateManyGuild({'$set': {new_field: field_type}})
    
    await ctx.send("Update completed.")
+
+
+
+@slash_command(description="admin only", scopes=crown_utilities.guild_ids)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
+async def combinegems(ctx):
+   if ctx.author.id not in [306429381948211210, 263564778914578432]:
+      await ctx.send("🛑 You know damn well this command isn't for you.")
+      return
+   
+   all_user_informations = db.queryAllUsers()
+   for user_data in all_user_informations:
+      user = crown_utilities.create_player_from_data(user_data)
+      user.combine_duplicate_universes()
+   
+   
+   await ctx.send("combined uni gems that are dupes")
+      
+
+
 
 
 

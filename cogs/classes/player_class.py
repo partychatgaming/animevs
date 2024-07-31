@@ -355,22 +355,57 @@ class Player:
             update_team_response = db.updateTeam(guild_buff['QUERY'], guild_buff['UPDATE_QUERY'])
 
 
-    def save_gems(self, universe_title, amount):
-        current_gems = 0
-        if self.gems:
-            for gems in self.gems:
-                if universe_title == gems['UNIVERSE']:
-                    current_gems = gems['GEMS']
+    def combine_duplicate_universes(self):
+        # Get all universes
+        all_universes = self.gems
 
-        if current_gems:
-            update_query = {'$inc': {'GEMS.$[type].' + "GEMS": amount}}
-            filter_query = [{'type.' + "UNIVERSE": universe_title}]
-            response = db.updateUser(self.user_query, update_query, filter_query)
-            return True
+        # Create a dictionary to store combined gem counts
+        combined_universes = {}
+
+        # Iterate through all universes and combine gem counts
+        for universe in all_universes:
+            universe_title = universe['UNIVERSE']
+            if universe_title in combined_universes:
+                combined_universes[universe_title]['GEMS'] += universe['GEMS']
+                # Ensure UNIVERSE_HEART and UNIVERSE_SOUL are True if any duplicate has them as True
+                combined_universes[universe_title]['UNIVERSE_HEART'] |= universe['UNIVERSE_HEART']
+                combined_universes[universe_title]['UNIVERSE_SOUL'] |= universe['UNIVERSE_SOUL']
+            else:
+                combined_universes[universe_title] = universe.copy()
+
+        # Create a new list of universes without duplicates
+        new_universes = list(combined_universes.values())
+
+        # Update the database with the new list of universes
+        update_query = {'$set': {'GEMS': new_universes}}
+        response = db.updateUserNoFilter(self.user_query, update_query)
+
+        # Update the local gems list
+        self.gems = new_universes
+
+        return True
+
+
+    def save_gems(self, universe_title, amount):
+        # Find the existing universe, if any
+        existing_universe = next((gem for gem in self.gems if gem['UNIVERSE'] == universe_title), None)
+
+        if existing_universe:
+            # Update existing universe
+            update_query = {'$inc': {'GEMS.$[elem].GEMS': amount}}
+            array_filters = [{'elem.UNIVERSE': universe_title}]
+            response = db.updateUser(self.user_query, update_query, array_filters)
         else:
-            gem_info = {'UNIVERSE': universe_title, 'GEMS' : amount, 'UNIVERSE_HEART' : False, 'UNIVERSE_SOUL' : False}
-            response = db.updateUserNoFilter(self.user_query, {'$addToSet' : {'GEMS': gem_info }})
-            return True
+            # Add new universe
+            gem_info = {
+                'UNIVERSE': universe_title,
+                'GEMS': amount,
+                'UNIVERSE_HEART': False,
+                'UNIVERSE_SOUL': False
+            }
+            response = db.updateUserNoFilter(self.user_query, {'$addToSet': {'GEMS': gem_info}})
+
+        return True
 
 
     def remove_gems(self, universe_title, amount):

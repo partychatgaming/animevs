@@ -1169,7 +1169,7 @@ class Profile(Extension):
                     else:
                         soul = "🥀"
 
-                    gem_details.append(f"{crown_utilities.crest_dict[gd['UNIVERSE']]} **{gd['UNIVERSE']}**\n💎 {'{:,}'.format(gd['GEMS'])}\nUniverse Heart {heart}\nUniverse Soul {soul}\n")
+                    gem_details.append(f"{crown_utilities.crest_dict[gd['UNIVERSE']]} **{gd['UNIVERSE']}**\n💎 {'{:,}'.format(gd['GEMS'])}")
 
                 embed_list = []
                 for i in range(0, len(gem_details), 5):
