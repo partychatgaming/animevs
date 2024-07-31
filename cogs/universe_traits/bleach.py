@@ -221,7 +221,7 @@ async def second_release(player_card, opponent_card, battle_config):
             player_card.attack += buff
             player_card.defense += buff
             battle_config.add_to_battle_log(f"({battle_config.turn_total}) ♾️ {player_card.name} activated their fullbring increase attack, defense, and ability power by {buff:,}")
-            battle_config.repeat_turn()
+            battle_config.next_turn()
 
         if player_card.bleach_second_release_schrift:
             player_card.health = player_card.max_health
