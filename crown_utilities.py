@@ -908,8 +908,8 @@ def get_exp_gain(player, mode, card, extra_exp):
     try:
         lvl_req = get_level_up_exp_req(card)
         exp_gain = 0
-        t_exp_gain = 500 + (player.rebirth) + player.prestige_buff
-        d_exp_gain = ((5000 + player.prestige_buff) * (1 + player.rebirth))
+        t_exp_gain = 5000 + (player.rebirth) + player.prestige_buff
+        d_exp_gain = ((25000 + player.prestige_buff) * (1 + player.rebirth))
         b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
 
         if mode in DUNGEON_M:
