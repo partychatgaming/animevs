@@ -25,7 +25,7 @@ import asyncio
 import requests
 import interactions 
 import custom_logging
-from interactions import Client, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
+from interactions import Client, PartialEmoji, ActionRow, Button, File, ButtonStyle, Intents, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, slash_default_member_permission, SlashCommandChoice, context_menu, CommandType, Permissions, cooldown, Buckets, Embed, Extension
 
 print("Crown Utilities initiated")
 
@@ -2870,7 +2870,8 @@ class_emojis = {
     'MAGE': '<:NewUI_Class_Mage:1085070773007421451>',
     'RANGER': '<:NewUI_Class_Hunter:1085081189708210196>',
     'SUMMONER': '<:summon:1085347631108194314>',
-    'SWORDSMAN': '<:Gold_Sword:1085347570282405958>',
+    # 'SWORDSMAN': '<:Gold_Sword:1085347570282405958>',
+    'SWORDSMAN': PartialEmoji(name='Gold_Sword', id=1085347570282405958),
     'MONSTROSITY': '<:monster:1085347567384154172>',
     'TACTICIAN': '<:Tactician:1085080853882884126>'
 }
