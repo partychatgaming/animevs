@@ -185,90 +185,91 @@ async def summonlevel(player, player_card):
     xp_inc = 1
     bxp_inc = 1
     protections = ['BARRIER', 'PARRY']
-    if player.family != 'PCG':
-        family_info = db.queryFamily({'HEAD':str(player.did)})
-        familysummon = family_info['SUMMON']
-        if familysummon['NAME'] == str(player.equipped_summon):
-            xp_inc = 2
-            bxp_inc = 5
-            summon_object = familysummon
-            summon_name = summon_object['NAME']
-            summon_ability = ""
-            summon_ability_power = 0
-            for key in summon_object:
-                if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
-                    summon_ability_power = summon_object[key]
-                    summon_ability = key
-            summon_type = summon_object['TYPE']
-            summon_lvl = summon_object['LVL']
-            summon_exp = summon_object['EXP']
-            summon_bond = summon_object['BOND']
-            summon_bond_exp = summon_object['BONDEXP']
-            bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
-            if bond_req <= 0:
-                bond_req = 5
-            lvl_req = (int(summon_lvl) * 25) * (1 + summon_bond)
-            if lvl_req <= 0:
-                lvl_req = 25
+    # if player.family != 'PCG':
+    #     family_info = db.queryFamily({'HEAD':str(player.did)})
+    #     familysummon = family_info['SUMMON']
+    #     if familysummon['NAME'] == str(player.equipped_summon):
+    #         xp_inc = 2
+    #         bxp_inc = 5
+    #         summon_object = familysummon
+    #         summon_name = summon_object['NAME']
+    #         summon_ability = ""
+    #         summon_ability_power = 0
+    #         for key in summon_object:
+    #             if key not in ["NAME", "LVL", "EXP", "TYPE", "BOND", "BONDEXP", "PATH"]:
+    #                 summon_ability_power = summon_object[key]
+    #                 summon_ability = key
+    #         summon_type = summon_object['TYPE']
+    #         summon_lvl = summon_object['LVL']
+    #         summon_exp = summon_object['EXP']
+    #         summon_bond = summon_object['BOND']
+    #         summon_bond_exp = summon_object['BONDEXP']
+    #         bond_req = ((summon_ability_power * 5) * (summon_bond + 1))
+    #         if bond_req <= 0:
+    #             bond_req = 5
+    #         lvl_req = (int(summon_lvl) * 25) * (1 + summon_bond)
+    #         if lvl_req <= 0:
+    #             lvl_req = 25
             
-            power = ((1 + summon_bond) * summon_lvl) + int(summon_ability_power)
-            if summon_type in protections:
-                power = summon_bond + int(summon_ability_power)
+    #         power = ((1 + summon_bond) * summon_lvl) + int(summon_ability_power)
+    #         if summon_type in protections:
+    #             power = summon_bond + int(summon_ability_power)
                 
-            summon_path = summon_object['PATH']
-            # lvl = familysummon['LVL']  # To Level Up -(lvl * 10 = xp required)
-            # lvl_req = lvl * 10
-            # exp = familysummon['EXP']
-            # summon_name
-            # petmove_text = list(familysummon.keys())[3]  # Name of the ability
-            # petmove_ap = list(familysummon.values())[3]  # Ability Power
-            # petmove_type = familysummon['TYPE']
-            # bond = familysummon['BOND']
-            # bondexp = familysummon['BONDEXP']
-            # bond_req = ((petmove_ap * 5) * (bond + 1))
-            summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-            query = {'HEAD':str(family_info['HEAD'])}
+    #         summon_path = summon_object['PATH']
+    #         # lvl = familysummon['LVL']  # To Level Up -(lvl * 10 = xp required)
+    #         # lvl_req = lvl * 10
+    #         # exp = familysummon['EXP']
+    #         # summon_name
+    #         # petmove_text = list(familysummon.keys())[3]  # Name of the ability
+    #         # petmove_ap = list(familysummon.values())[3]  # Ability Power
+    #         # petmove_type = familysummon['TYPE']
+    #         # bond = familysummon['BOND']
+    #         # bondexp = familysummon['BONDEXP']
+    #         # bond_req = ((petmove_ap * 5) * (bond + 1))
+    #         summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #         query = {'HEAD':str(family_info['HEAD'])}
             
-            if summon_lvl< 10:
-                # Non Level Up Code
-                if summon_exp < (lvl_req - 1):
-                    #print("yay!")
-                    summon_exp = summon_exp + xp_inc
-                    summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                    transaction_message = f"🧬 | {player.disname} trained {summon_name}."
-                    update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-                    response = db.updateFamily(query, update_query)
+    #         if summon_lvl< 10:
+    #             # Non Level Up Code
+    #             if summon_exp < (lvl_req - 1):
+    #                 #print("yay!")
+    #                 summon_exp = summon_exp + xp_inc
+    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #                 transaction_message = f"🧬 | {player.disname} trained {summon_name}."
+    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
+    #                 response = db.updateFamily(query, update_query)
 
-                # Level Up Code
-                if summon_exp >= (lvl_req - 1):
-                    summon_exp = 0
-                    summon_lvl = summon_lvl + 1
-                    summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                    transaction_message = f"🧬 | {player.disname} trained {summon_name} to Level **{summon_lvl}**."
-                    update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-                    response = db.updateFamily(query, update_query)
+    #             # Level Up Code
+    #             if summon_exp >= (lvl_req - 1):
+    #                 summon_exp = 0
+    #                 summon_lvl = summon_lvl + 1
+    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #                 transaction_message = f"🧬 | {player.disname} trained {summon_name} to Level **{summon_lvl}**."
+    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
+    #                 response = db.updateFamily(query, update_query)
 
-            if summon_bond < 3:
-                # Non Bond Level Up Code
-                if summon_bond_exp < (bond_req - 1):
-                    #print("bonding")
-                    summon_bond_exp = summon_bond_exp + bxp_inc
+    #         if summon_bond < 3:
+    #             # Non Bond Level Up Code
+    #             if summon_bond_exp < (bond_req - 1):
+    #                 #print("bonding")
+    #                 summon_bond_exp = summon_bond_exp + bxp_inc
                     
-                    summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
-                    transaction_message = f"🧬 | {player.disname} bonded with {summon_name}."
-                    update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-                    response = db.updateFamily(query, update_query)
+    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #                 transaction_message = f"🧬 | {player.disname} bonded with {summon_name}."
+    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
+    #                 response = db.updateFamily(query, update_query)
 
-                # Bond Level Up Code
-                if summon_bond_exp >= (bond_req - 1):
-                    summon_bond_exp = 0
-                    summon_bond = summon_bond + 1
-                    summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
+    #             # Bond Level Up Code
+    #             if summon_bond_exp >= (bond_req - 1):
+    #                 summon_bond_exp = 0
+    #                 summon_bond = summon_bond + 1
+    #                 summon_info = {'NAME': summon_name, 'LVL': summon_lvl, 'EXP': summon_exp, summon_ability: summon_ability_power, 'TYPE': summon_type, 'BOND': summon_bond, 'BONDEXP': summon_bond_exp, 'PATH': summon_path}
                     
-                    transaction_message = f"🧬 | {player.disname} bonded with {summon_name} to Level **{summon_bond}**."
-                    update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
-                    response = db.updateFamily(query, update_query)
-            #return False
+    #                 transaction_message = f"🧬 | {player.disname} bonded with {summon_name} to Level **{summon_bond}**."
+    #                 update_query = {'$set': {'SUMMON': summon_info}, '$push': {'TRANSACTIONS': transaction_message}}
+    #                 response = db.updateFamily(query, update_query)
+    #         #return False
+    
     try:
         protections = ['BARRIER', 'PARRY']
         query = {'DID': str(player.did)}
