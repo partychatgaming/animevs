@@ -1685,7 +1685,7 @@ def create_card_from_data(card_data, is_boss = False):
     
 def create_guild_from_data(guild_data):
     try:
-        guild = Guild(guild_data["OWNER"], guild_data["MEMBERS"], guild_data["TEAM_NAME"], guild_data["TEAM_DISPLAY_NAME"], guild_data["OFFICERS"], guild_data["CAPTAINS"], guild_data["TRANSACTIONS"], guild_data["STORAGE"], guild_data["GUILD_BUFF_AVAILABLE"], guild_data["GUILD_BUFF_ON"], guild_data["ACTIVE_GUILD_BUFF"], guild_data["GUILD_BUFFS"], guild_data["GUILD"], guild_data["BANK"], guild_data["WINS"], guild_data["LOSSES"], guild_data["BADGES"], guild_data["GUILD_MISSION"], guild_data["COMPLETED_MISSIONS"], guild_data["WAR_FLAG"], guild_data["WAR_OPPONENT"], guild_data["SHIELDING"])
+        guild = Guild(guild_data["OWNER"], guild_data["MEMBERS"], guild_data["TEAM_NAME"], guild_data["TEAM_DISPLAY_NAME"], guild_data["OFFICERS"], guild_data["CAPTAINS"], guild_data["TRANSACTIONS"], guild_data["STORAGE"], guild_data["GUILD_BUFF_AVAILABLE"], guild_data["GUILD_BUFF_ON"], guild_data["ACTIVE_GUILD_BUFF"], guild_data["GUILD_BUFFS"], guild_data["GUILD"], guild_data["BANK"], guild_data["WINS"], guild_data["LOSSES"], guild_data["BADGES"], guild_data["GUILD_MISSION"], guild_data["COMPLETED_MISSIONS"], guild_data["MEMBER_COUNT"], guild_data["WAR_FLAG"], guild_data["WAR_OPPONENT"], guild_data["SHIELDING"])
         return guild
     except Exception as ex:
         custom_logging.debug(ex)
