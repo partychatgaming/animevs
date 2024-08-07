@@ -395,9 +395,7 @@ class GameModes(Extension):
 
         if not universe and mode != "Tutorial" and mode != "RPG":
             # Create embed that says to select a universe 
-            embed = Embed(title="Select a Universe", description="All PVE game modes require universe selection. Please type or select a universe you would like to play in.", color=0x696969)
-            await ctx.send(embed=embed)
-            return
+            universe = random.choice(crown_utilities.get_cached_universes())["name"]
 
         """
         This command will be used to send all modes to either unvierse selection or battle commands
