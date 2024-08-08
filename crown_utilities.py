@@ -796,11 +796,7 @@ async def cardlevel(user, mode: str, extra_exp = 0):
         # else:
         player = create_player_from_data(db.queryUser({'DID': str(user.id)}))
         card = create_card_from_data(db.queryCard({'NAME': player.equipped_card}))
-        # guild_buff = await guild_buff_update_function(player.guild.lower())
-        # arm = create_arm_from_data(db.queryArm({'ARM': player.equipped_arm}))
-        # title = create_title_from_data(db.queryTitle({'TITLE': player.equipped_title}))
         card.set_card_level_buffs(player.card_levels)
-        # has_universe_heart, has_universe_soul = get_level_boosters(player, card)
         exp_gain, lvl_req = get_exp_gain(player, mode, card, extra_exp)
 
         if player.difficulty == "EASY":
@@ -907,10 +903,11 @@ def get_level_up_exp_req(card):
 def get_exp_gain(player, mode, card, extra_exp):
     try:
         lvl_req = get_level_up_exp_req(card)
+        difficulty_exp = 0 if not player.difficulty == "HARD" else 3
         exp_gain = 0
-        t_exp_gain = 5000 + (player.rebirth) + player.prestige_buff
-        d_exp_gain = ((25000 + player.prestige_buff) * (1 + player.rebirth))
-        b_exp_gain = 500000 + ((100 + player.prestige_buff) * (1 + player.rebirth))
+        t_exp_gain = (9000 * difficulty_exp) + (player.rebirth) + player.prestige_buff
+        d_exp_gain = (((50000 * difficulty_exp) + player.prestige_buff) * (1 + player.rebirth))
+        b_exp_gain = (1500000 * difficulty_exp) + ((100 + player.prestige_buff) * (1 + player.rebirth))
 
         if mode in DUNGEON_M:
             exp_gain = d_exp_gain + extra_exp
