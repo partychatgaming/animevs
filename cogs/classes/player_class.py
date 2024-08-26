@@ -226,6 +226,7 @@ class Player:
         summon_path = summon_object['PATH']
         return summon_object
     
+    
 
     def get_new_essence_value_from_rewards(self, element, essence_value):
         new_value = 0

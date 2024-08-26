@@ -3359,11 +3359,51 @@ async def combinegems(ctx):
    
    
    await ctx.send("combined uni gems that are dupes")
-      
+   
 
+@slash_command(description="admin only", scopes=crown_utilities.guild_ids)
+@slash_default_member_permission(Permissions.ADMINISTRATOR)
+async def fixspaces(ctx):
+    await ctx.defer()
+    if ctx.author.id not in [306429381948211210, 263564778914578432]:
+        await ctx.send("🛑 You know damn well this command isn't for you.")
+        return
 
+    all_arm_names = db.queryAllArms()
+    all_card_names = db.queryAllCards()
+    all_title_names = db.queryAllTitles()
+    all_pet_names = db.queryAllSummons()
+    count = 0
+    
+    # Check for trailing spaces in ARM names
+    for arm in all_arm_names:
+        if arm['ARM'].strip() != arm['ARM']:  # Only update if there are spaces
+            new_name = arm['ARM'].strip()
+            db.updateArm(arm['ARM'], {"$set": {"ARM": new_name}})
+            count += 1
 
+    # Check for trailing spaces in CARD names
+    for card in all_card_names:
+        if card['NAME'].strip() != card['NAME']:  # Only update if there are spaces
+            new_name = card['NAME'].strip()
+            db.updateCard(card['NAME'], {"$set": {"NAME": new_name}})
+            count += 1
 
+    # Check for trailing spaces in TITLE names
+    for title in all_title_names:
+        if title['TITLE'].strip() != title['TITLE']:  # Only update if there are spaces
+            new_name = title['TITLE'].strip()
+            db.updateTitle(title['TITLE'], {"$set": {"TITLE": new_name}})
+            count += 1
+
+    # Check for trailing spaces in PET names
+    for pet in all_pet_names:
+        if pet['PET'].strip() != pet['PET']:  # Only update if there are spaces
+            new_name = pet['PET'].strip()
+            db.updateSummon(pet['PET'], {"$set": {"PET": new_name}})
+            count += 1
+
+    await ctx.send(f"Fixed {count} names.")
 
 @slash_command(name="createscenarios", description="create scenarios", scopes=crown_utilities.guild_ids)
 @slash_option(name="mode", description="Mode to create scenarios for", opt_type=OptionType.STRING, choices=[
