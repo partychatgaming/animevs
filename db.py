@@ -1421,7 +1421,7 @@ def createArm(arm):
 
 def updateArm(query, new_value):
     try:
-        arm_col.update_one(query, new_value)
+        arm_col.update_one(query, new_value, upsert=True)
     except:
         return False
 
