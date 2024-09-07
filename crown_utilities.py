@@ -302,7 +302,7 @@ async def summonlevel(player, player_card):
                 response = db.updateUser(query, update_query, filter_query)
                 level_message = f"Level: +🆙{player_card.summon_lvl} | XP: {player_card.summon_exp}/{lvl_req}"
                 new_ap = calculate_summon__ability_power(player_card.summon_power, player_card.summon_lvl, player_card.summon_bond)
-        if player_card.summon_lvl % 10 == 0:
+        if player_card.summon_lvl % 10 == 0 and player_card.summon_lvl != 0:
             if player_card.summon_bond < 10:
                 # Non Bond Level Up Code
                 # if player_card.summon_bondexp < (bond_req - 1):
