@@ -1094,7 +1094,7 @@ class Profile(Extension):
                         await ctx.send(embed=embed, ephemeral=True)
                         return
                     
-                    if len(player.arms) > 80:
+                    if len(embed_list) > 80:
                         embed = Embed(title="🦾 Arms", description="You have too many Arms to display. Please use the filters to narrow down your search.", color=0x7289da)
                         await ctx.send(embed=embed, ephemeral=True)
                         return
