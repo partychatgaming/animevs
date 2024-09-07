@@ -12,6 +12,9 @@ else:
     # TEST
     use_database = "PCGTEST"
 
+# THIS IS SPECIFICALLY FOR TESTING
+# use_database = "PCGPROD"
+
 # TOKEN = config('MONGOTOKEN_TEST')
 MONGO = config('MONGO_LOGIN')
 mongo = MongoClient(MONGO, tlsCAFile=certifi.where())

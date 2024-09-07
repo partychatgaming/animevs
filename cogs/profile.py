@@ -1118,6 +1118,129 @@ class Profile(Extension):
             await ctx.send(embed=embed)
             return
 
+    
+    @slash_command(name="adminarms", description="View all of your arms or add filters to view specific arms", scopes=crown_utilities.guild_ids)
+    @slash_option(
+        name="filtered",
+        description="Filter by Universe of the card you have equipped",
+        required=True,
+        opt_type=OptionType.BOOLEAN
+    )
+    @slash_option(
+        name="type_filter",
+        description="select an option to continue",
+        opt_type=OptionType.STRING,
+        required=False,
+        autocomplete=True
+    )
+    @slash_option(
+        name="did",
+        description="DID of the player to view the arms of",
+        required=False,
+        opt_type=OptionType.STRING
+    )
+    async def arms(self, ctx, filtered: str = "", type_filter: str = "", did: str = ""):
+        await ctx.defer()
+        if ctx.author.id not in [306429381948211210, 263564778914578432]:
+            await ctx.send("🛑 You know damn well this command isn't for you.")
+            return
+        try:
+
+            query = {'DID': str(did)}
+            d = db.queryUser(query)
+            player = crown_utilities.create_player_from_data(d)
+            c = db.queryCard({"NAME": player.equipped_card})
+            card = crown_utilities.create_card_from_data(c)
+            if player:
+                try:
+                    current_gems = [gems['UNIVERSE'] for gems in player.gems]
+
+                    embed_list = []
+                    sorted_arms = sorted(player.arms, key=lambda arm: arm['ARM'])
+
+                    # Fetch all arms and market data in batches
+                    arm_names = [arm['ARM'] for arm in sorted_arms]
+                    arm_queries = [asyncio.to_thread(db.queryArm, {"ARM": name}) for name in arm_names]
+                    market_queries = [asyncio.to_thread(db.queryMarket, {"ITEM_OWNER": player.did, "ITEM_NAME": name}) for name in arm_names]
+
+                    arm_data_list, market_data_list = await asyncio.gather(
+                        asyncio.gather(*arm_queries),
+                        asyncio.gather(*market_queries)
+                    )
+                    for a in arm_data_list:
+                        try:
+                            print(f"NAME - {a['ARM']} - UNIVERSE -{a['UNIVERSE']}")
+                        except Exception as ex:
+                            print(ex)
+                            continue
+
+                    for index, arm_data in enumerate(arm_data_list):
+                        if filtered and arm_data['UNIVERSE'] != card.universe:
+                            continue
+                        arm = crown_utilities.create_arm_from_data(arm_data)
+                        arm.set_durability(arm.name, player.arms)
+                        arm.set_arm_message(player.performance, card.universe)
+
+                        if type_filter and arm.element != type_filter and arm.passive_type != type_filter:
+                            continue
+
+                        embedVar = Embed(title=f"{arm.name}", description=textwrap.dedent(f"""
+                        {arm.armicon} **[{index}]**
+
+                        {arm.arm_type}
+                        {arm.arm_message}
+                        {arm.universe_crest} **Universe:** {arm.universe}
+                        ⚒️ {arm.durability}
+                        """), color=0x7289da)
+                        
+                        embedVar.set_footer(text=f"{len(player.arms)} Total Arms")
+
+                        if market_data_list[index]:
+                            embedVar.add_field(name="🏷️__Currently On Market__", value="Press the market button if you'd like to remove this product from the Market.")
+
+                        embed_list.append(embedVar)
+
+                    if not embed_list and filtered:
+                        embed = Embed(title="🦾 Arms", description=f"You currently own no Arms in {card.universe_crest} {card.universe}.", color=0x7289da)
+                        await ctx.send(embed=embed, ephemeral=True)
+                        return
+
+                    if not embed_list and not filtered:
+                        embed = Embed(title="🦾 Arms", description="You currently own no Arms.", color=0x7289da)
+                        await ctx.send(embed=embed, ephemeral=True)
+                        return
+                    
+                    if len(embed_list) > 80:
+                        embed = Embed(title="🦾 Arms", description="You have too many Arms to display. Please use the filters to narrow down your search.", color=0x7289da)
+                        await ctx.send(embed=embed, ephemeral=True)
+                        return
+
+                    paginator = CustomPaginator.create_from_embeds(self.bot, *embed_list, custom_buttons=['Equip', 'Dismantle', 'Trade', 'Market'], paginator_type="Arms")
+                    paginator.show_select_menu = True
+                    await paginator.send(ctx)
+                
+                except Exception as ex:
+                    custom_logging.debug(ex)
+                    embed = Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
+                    await ctx.send(embed=embed)
+                    return
+            else:
+                embed = Embed(title="You are not registered.", description="Please register with the command /register", color=0x00ff00)
+                await ctx.send(embed=embed)
+        
+        except Exception as ex:
+            custom_logging.debug(ex)
+            embed = Embed(title="Arms Error", description="There's an issue with your Arms list. Seek support in the Anime 🆚+ support server https://discord.gg/cqP4M92", color=0x00ff00)
+            await ctx.send(embed=embed)
+            return
+
+    
+
+
+
+
+
+
     @arms.autocomplete("type_filter")
     async def arms_autocomplete(self, ctx: AutocompleteContext):
         choices = []
