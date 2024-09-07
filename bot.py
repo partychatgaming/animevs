@@ -3370,38 +3370,42 @@ async def fixspaces(ctx):
         return
 
     all_arm_names = db.queryAllArms()
-    all_card_names = db.queryAllCards()
-    all_title_names = db.queryAllTitles()
-    all_pet_names = db.queryAllSummons()
+   #  all_card_names = db.queryAllCards()
+   #  all_title_names = db.queryAllTitles()
+   #  all_pet_names = db.queryAllSummons()
     count = 0
     
     # Check for trailing spaces in ARM names
     for arm in all_arm_names:
         if arm['ARM'].strip() != arm['ARM']:  # Only update if there are spaces
-            new_name = arm['ARM'].strip()
+            # Make sure it is removing spaces on that the end of words for example "Sando no Jutsu " needs to be "Sando no Jutsu"
+            # Remove trailing spaces while preserving spaces between words
+            words = arm['ARM'].split()
+            new_name = ' '.join(word.strip() for word in words).strip()
+            # new_name = arm['ARM'].strip()
             db.updateArm(arm['ARM'], {"$set": {"ARM": new_name}})
             count += 1
 
-    # Check for trailing spaces in CARD names
-    for card in all_card_names:
-        if card['NAME'].strip() != card['NAME']:  # Only update if there are spaces
-            new_name = card['NAME'].strip()
-            db.updateCard(card['NAME'], {"$set": {"NAME": new_name}})
-            count += 1
+   #  # Check for trailing spaces in CARD names
+   #  for card in all_card_names:
+   #      if card['NAME'].strip() != card['NAME']:  # Only update if there are spaces
+   #          new_name = card['NAME'].strip()
+   #          db.updateCard(card['NAME'], {"$set": {"NAME": new_name}})
+   #          count += 1
 
-    # Check for trailing spaces in TITLE names
-    for title in all_title_names:
-        if title['TITLE'].strip() != title['TITLE']:  # Only update if there are spaces
-            new_name = title['TITLE'].strip()
-            db.updateTitle(title['TITLE'], {"$set": {"TITLE": new_name}})
-            count += 1
+   #  # Check for trailing spaces in TITLE names
+   #  for title in all_title_names:
+   #      if title['TITLE'].strip() != title['TITLE']:  # Only update if there are spaces
+   #          new_name = title['TITLE'].strip()
+   #          db.updateTitle(title['TITLE'], {"$set": {"TITLE": new_name}})
+   #          count += 1
 
-    # Check for trailing spaces in PET names
-    for pet in all_pet_names:
-        if pet['PET'].strip() != pet['PET']:  # Only update if there are spaces
-            new_name = pet['PET'].strip()
-            db.updateSummon(pet['PET'], {"$set": {"PET": new_name}})
-            count += 1
+   #  # Check for trailing spaces in PET names
+   #  for pet in all_pet_names:
+   #      if pet['PET'].strip() != pet['PET']:  # Only update if there are spaces
+   #          new_name = pet['PET'].strip()
+   #          db.updateSummon(pet['PET'], {"$set": {"PET": new_name}})
+   #          count += 1
 
     await ctx.send(f"Fixed {count} names.")
 
