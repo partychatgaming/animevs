@@ -12,6 +12,9 @@ else:
     # TEST
     use_database = "PCGTEST"
 
+# THIS IS SPECIFICALLY FOR TESTING
+# use_database = "PCGPROD"
+
 # TOKEN = config('MONGOTOKEN_TEST')
 MONGO = config('MONGO_LOGIN')
 mongo = MongoClient(MONGO, tlsCAFile=certifi.where())
@@ -1421,7 +1424,7 @@ def createArm(arm):
 
 def updateArm(query, new_value):
     try:
-        arm_col.update_one(query, new_value)
+        arm_col.update_one(query, new_value, upsert=True)
     except:
         return False
 

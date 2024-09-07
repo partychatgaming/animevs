@@ -1694,8 +1694,13 @@ def create_title_from_data(title_data):
     return title
 
 def create_arm_from_data(arm_data):
-    arm = Arm(arm_data['ARM'], arm_data['UNIVERSE'], arm_data['ABILITIES'], arm_data['DROP_STYLE'], arm_data['AVAILABLE'], arm_data['ELEMENT'])
-    return arm
+    try:
+        arm = Arm(arm_data['ARM'], arm_data['UNIVERSE'], arm_data['ABILITIES'], arm_data['DROP_STYLE'], arm_data['AVAILABLE'], arm_data['ELEMENT'])
+        return arm
+    except Exception as ex:
+        print(arm_data)
+        custom_logging.debug(ex)
+        return False
 
 def create_player_from_data(player_data):
     player = Player(player_data['AUTOSAVE'], player_data['AVAILABLE'], player_data['DISNAME'], player_data['DID'], player_data['AVATAR'], player_data['GUILD'], player_data['TEAM'], player_data['FAMILY'], player_data['TITLE'], player_data['CARD'], player_data['ARM'], player_data['PET'], player_data['TALISMAN'], player_data['CROWN_TALES'], player_data['DUNGEONS'], player_data['BOSS_WINS'], player_data['RIFT'], player_data['REBIRTH'], player_data['LEVEL'], player_data['EXPLORE'], player_data['SAVE_SPOT'], player_data['PERFORMANCE'], player_data['TRADING'], player_data['BOSS_FOUGHT'], player_data['DIFFICULTY'], player_data['STORAGE_TYPE'], player_data['USED_CODES'], player_data['BATTLE_HISTORY'], player_data['PVP_WINS'], player_data['PVP_LOSS'], player_data['RETRIES'], player_data['PRESTIGE'], player_data['PATRON'], player_data['FAMILY_PET'], player_data['EXPLORE_LOCATION'], player_data['SCENARIO_HISTORY'], player_data['BALANCE'], player_data['CARDS'], player_data['TITLES'], player_data['ARMS'], player_data['PETS'], player_data['DECK'], player_data['CARD_LEVELS'], player_data['QUESTS'], player_data['DESTINY'], player_data['GEMS'], player_data['STORAGE'], player_data['TALISMANS'], player_data['ESSENCE'], player_data['TSTORAGE'], player_data['ASTORAGE'], player_data['U_PRESET'], player_data['RPG_LEVELS'])
