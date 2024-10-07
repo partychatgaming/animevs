@@ -1732,6 +1732,7 @@ class CustomPaginator(Paginator):
 
             try:
                 response = await self.client.wait_for('on_message_create', checks=check, timeout=120)
+
                 price = int(response.message.content)
 
                 market_object = {
