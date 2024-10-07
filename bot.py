@@ -38,7 +38,7 @@ cls_log.setLevel(logging.WARNING)
 # Flag to track if heartbeat check has been started
 heartbeat_started = False
 bot = Client(
-    intents=Intents.MESSAGES | Intents.REACTIONS | Intents.GUILDS | Intents.TYPING,
+    intents=Intents.MESSAGES | Intents.REACTIONS | Intents.GUILDS | Intents.TYPING | Intents.MESSAGE_CONTENT,
     sync_interactions=True,
     send_command_tracebacks=False,
     token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN')
@@ -2092,6 +2092,7 @@ async def daily(ctx):
                             )
       embedVar.add_field(name="📜 **New Quests** */quest*", value="\n".join(quest_messages), inline=False)
       embedVar.add_field(name="Vote for Anime VS+!", value="🗳️ | **/vote** to earn daily rewards!", inline=False)
+      embedVar.add_field(name="Patch Notes", value="📜 | Fixed the issue where you aren't able to add items to the marketplace or trade. Enjoy!\n**Codes for special unlocks coming soon!**", inline=False)
       embedVar.set_footer(text=f"☀️ | You can vote twice a Day with /daily!")
       await ctx.send(embed=embedVar)
    except Exception as ex:
