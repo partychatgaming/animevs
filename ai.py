@@ -1,5 +1,5 @@
 import os
-from anthropic import Anthropic
+# from anthropic import Anthropic
 from decouple import config
 from openai import OpenAI
 import asyncio
@@ -7,9 +7,9 @@ import asyncio
 # Set up your OpenAI API key
 # openai.api_key = config('OPENAI_API')
 
-claude = Anthropic(
-    api_key=config('ANTHROPIC_API')
-)
+# claude = Anthropic(
+#     api_key=config('ANTHROPIC_API')
+# )
 
 client = OpenAI(
     api_key=config('OPENAI_API')
