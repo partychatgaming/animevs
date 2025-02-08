@@ -36,7 +36,7 @@ import interactions
 import uuid
 from .classes.custom_paginator import CustomPaginator
 from interactions.api.events import MessageCreate
-from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Buckets, Embed, Extension, slash_option, AutocompleteContext
+from interactions import User, Cooldown, ActionRow, File, Button, ButtonStyle, listen, slash_command, InteractionContext, SlashCommandOption, OptionType, SlashCommandChoice, Buckets, cooldown, Embed, Extension, slash_option, AutocompleteContext
 
 
 
@@ -379,29 +379,34 @@ class GameModes(Extension):
     #         custom_logging.debug(ex)
     #         return
     
-    @slash_command(description="testing RPG game mode")
-    async def rpg(self, ctx: InteractionContext):
-        await ctx.defer()
-        registered_player = await crown_utilities.player_check(ctx)
-        if not registered_player:
-            return
+    # @slash_command(description="testing RPG game mode")
+    # @cooldown(Buckets.USER, 1, 15)
+    # async def rpg(self, ctx: InteractionContext):
+    #     # await ctx.defer()
+    #     registered_player = await crown_utilities.player_check(ctx)
+    #     if not registered_player:
+    #         return
         
-        """
-        This command will be used to create the rpg instance
-        """
-        try:
-            loggy.info(f"RPG command initiated by {registered_player['DID']}")
-            player = crown_utilities.create_player_from_data(registered_player)
+    #     """
+    #     This command will be used to create the rpg instance
+    #     """
+    #     try:
+    #         loggy.info(f"RPG command initiated by {registered_player['DID']}")
+    #         player = crown_utilities.create_player_from_data(registered_player)
 
-            player.make_unavailable()
+    #         player.make_unavailable()
 
-            rpg = RPG(self.bot, player, )
-            await RPG.create_rpg(self, ctx, rpg)
-        except Exception as ex:
-            player.make_available()
-            custom_logging.debug(ex)
-            loggy.critical(ex)
-            return
+    #         rpg = RPG(self.bot, player)
+    #         embedVar = Embed(title=f"Adventure is starting", color=0x2ECC71)
+    #         # add gif image to embedVar
+    #         embedVar.set_image(url="https://i.kym-cdn.com/photos/images/newsfeed/001/708/012/0ac.gif")
+    #         rpg_msg = await ctx.send(embed=embedVar)
+    #         await RPG.create_rpg(self, ctx, rpg, rpg_msg)
+    #     except Exception as ex:
+    #         player.make_available()
+    #         custom_logging.debug(ex)
+    #         loggy.critical(ex)
+    #         return
         
 
     @slash_command(description="pve to earn cards, accessories, gold, gems, and more as a solo player")
@@ -418,9 +423,6 @@ class GameModes(Extension):
             SlashCommandChoice(
                 name="⚡Randomize",
                 value="Random"
-            ),SlashCommandChoice(
-                name="🗺️ Adventure Mode",
-                value="RPG"
             ),
             SlashCommandChoice(
                 name="⚔️ Tales Run",

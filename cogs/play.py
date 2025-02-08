@@ -98,7 +98,8 @@ class Play(Extension):
 
                 try:
                     button_ctx = await self.bot.wait_for_component(components=[start_buttons_action_rows], timeout=300, check=check)
-                    await battle_start_msg.edit(components=[])
+                    if not battle_config.is_rpg:
+                        await battle_start_msg.edit(components=[])
 
                     custom_id = button_ctx.ctx.custom_id
                     if custom_id == f"{battle_config._uuid}|quit_game":
@@ -401,31 +402,23 @@ class Play(Extension):
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
                             if battle_config.is_rpg:
+                                battle_config.continue_fighting = False
                                 battle_config.rpg_config.adventuring = True
                                 battle_config.rpg_config.battling = False
                                 battle_config.rpg_config.encounter = False
-                                print(battle_config.rpg_config.player_health)
+
                                 battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
-                                # Delete the previous RPG message
-                                #await battle_config.rpg_config.rpg_msg.delete()
-                                
+                
                                 battle_config.rpg_config.set_rpg_options()
-                                # Allow some time to ensure the message is deleted
                                 await asyncio.sleep(1)
-                                
-                                # Resend a new RPG message
-                                #await Play.rpg_commands(ctx, battle_config.rpg_config)
-                                
-                                # Get the updated RPG embed and components
-                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel, battle_msg)
-                                
-                                # Send the new RPG message
-                                self.rpg_msg = await ctx.send(embed=embedVar, components=components)
+                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel)
+                                return
                                 
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
                     if battle_msg == None:
                         battle_msg = battle_start_msg
+                    loggy.critical(f"Battle timed out")
                     await timeout_handler(self, ctx, battle_msg, battle_config)
 
                 except Exception as ex:
@@ -444,7 +437,7 @@ class Play(Extension):
             custom_logging.debug(ex)
 
 
-    async def rpg_commands(self, ctx, rpg_config):
+    async def rpg_commands(self, ctx, rpg_config, rpg_starter_message):
         """
         Handles the logic for an RPG game in the game.
 
@@ -463,8 +456,8 @@ class Play(Extension):
                 self.bot = self.client
 
             user = await get_rpg_user(rpg_config)
-            embedVar = Embed(title=f"Adventure is starting", color=0x2ECC71)
-            rpg_msg = await private_channel.send(embed=embedVar)
+            rpg_msg = rpg_starter_message
+            # await asyncio.sleep(2)
             while rpg_config.adventuring:
                 if check_if_rpg_over(rpg_config):
                     game_over_check = True

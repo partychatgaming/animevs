@@ -1,7 +1,7 @@
 import custom_logging
 import datetime
 from cogs.classes.custom_paginator import CustomPaginator
-from ai import suggested_title_scenario
+from ai import suggested_title_scenario, character_descriptions
 import db
 import time
 import classes as data
@@ -19,6 +19,7 @@ import random
 import unique_traits as ut
 now = time.asctime()
 import asyncio
+from characters import character_list
 import requests
 import json
 import uuid
@@ -33,15 +34,35 @@ cls_log.setLevel(logging.WARNING)
 
 
 # bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False)
-bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False, token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN'))
+# bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False, token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN'))
+# Flag to track if heartbeat check has been started
+heartbeat_started = False
+bot = Client(
+    intents=Intents.ALL,
+    sync_interactions=True,
+    send_command_tracebacks=False,
+    token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN')
+    )
+
+# @listen()
+# async def on_ready():
+#    server_count = len(bot.guilds)
+#    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
+#    loggy.info('The bot is up and running')
+#    await bot.synchronise_interactions()
+#    check_heartbeat.start()
+
 
 @listen()
 async def on_ready():
-   server_count = len(bot.guilds)
-   await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
-   loggy.info('The bot is up and running')
-   await bot.synchronise_interactions()
-   check_heartbeat.start()
+    global heartbeat_started
+    server_count = len(bot.guilds)
+    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
+    loggy.info('The bot is up and running')
+    await bot.synchronise_interactions()
+    if not heartbeat_started:
+        check_heartbeat.start()
+        heartbeat_started = True
 
 
 def add_universes_names_to_autocomplete_list():
@@ -2888,6 +2909,7 @@ async def battleview(ctx):
       await ctx.send("There's an issue with your Battle View . Seek support in the Anime 🆚+ support server", ephemeral=True)
 
 
+
 @slash_command(name="difficulty", description="Change the difficulty setting of Anime VS+",
                     options=[
                         SlashCommandOption(
@@ -2941,9 +2963,7 @@ async def difficulty(ctx, mode):
       embed = Embed(title="Difficulty Update Failed", description=f"{ctx.author.mention} has failed to update to ⚙️ **{mode.lower()}** mode.", color=0xff0000)
       await ctx.send(embed=embed)
    
-      
-
-
+ 
 @slash_command(name="battlehistory", description="How much battle history do you want to see during battle? 2 - 6", options=[
    SlashCommandOption(name="history", 
                      description="How much battle history do you want to see during battle? 2 - 6", 
@@ -3243,15 +3263,12 @@ async def code(ctx, code_input: str):
    SlashCommandOption(name="collection", description="Collection to update", type=OptionType.STRING, required=True),
    SlashCommandOption(name="new_field", description="New Field to add", type=OptionType.STRING, required=True),
    SlashCommandOption(name="field_type", description="Field Type", type=OptionType.STRING, required=True),
-   SlashCommandOption(name="password", description="Admin Password", type=OptionType.STRING, required=True),
-   SlashCommandOption(name="key", description="Admin Key", type=OptionType.STRING, required=True)
 ], scopes=crown_utilities.guild_ids)
 @slash_default_member_permission(Permissions.ADMINISTRATOR)
-async def addfield(ctx, collection, new_field, field_type, password, key):
-   if password != 'casperjayden':  
-      return await ctx.send("Admin Only")
-   if key != '937':
-      return await ctx.send("Admin Only")
+async def addfield(ctx, collection, new_field, field_type):
+   if ctx.author.id not in [306429381948211210, 263564778914578432]:
+      await ctx.send("🛑 You know damn well this command isn't for you.")
+      return
    
    if field_type == "fix":
       field_type = True
@@ -4086,40 +4103,88 @@ async def createscenarios_autocomplete(ctx: AutocompleteContext):
    await ctx.send(choices=choices)
 
 
-async def restart_bot():
-    await bot.stop()
-    await bot.start()
+# this command will take in a universe parameter
+@slash_command(description="update characters with descriptions", scopes=crown_utilities.guild_ids)
+async def updatecharacters(ctx):
+   await ctx.defer()
+   if ctx.author.id not in [306429381948211210, 263564778914578432]:
+      await ctx.send("🛑 You know damn well this command isn't for you.")
+      return
+   
+   # get all cards from universe
+   count = 0
+   for card in character_list:
+      name = card["name"]
+      descriptions = card["descriptions"]
+      # update card with descriptions
+      db.updateCard({"NAME": name}, {"$set": {"DESCRIPTIONS": descriptions}})
+      count += 1
+      if count % 10 == 0:
+         await asyncio.sleep(2)
 
+   await ctx.send(f"Updated {count} characters with descriptions.")
+   return
+
+
+
+# async def restart_bot():
+#     await bot.stop()
+#     await bot.start()
+
+
+# @Task.create(IntervalTrigger(minutes=5))
+# async def check_heartbeat():
+#       try:
+#          # Get the bot's latency
+#          latency = bot.latency
+#          loggy.info(f'Heartbeat check - latency: {latency}')
+#          # Check if latency is within acceptable range (e.g., below 2 seconds)
+#          if latency and latency > 9.0:
+#                loggy.warning('High latency detected, restarting bot...')
+#                await restart_bot()
+#       except Exception as e:
+#          loggy.error(f'Error during heartbeat check: {e}')
+#          await restart_bot()
+
+
+
+# # Run the bot
+# bot.start()
+
+
+@listen()
+async def on_disconnect():
+    loggy.warning("Bot disconnected. Attempting to reconnect...")
+    await asyncio.sleep(5)  # Wait before attempting to reconnect
+
+async def restart_bot():
+    loggy.info("Restarting bot...")
+    await bot.stop()
+    await asyncio.sleep(5)  # Wait before restarting
+    await bot.start()
 
 @Task.create(IntervalTrigger(minutes=5))
 async def check_heartbeat():
-      try:
-         # Get the bot's latency
-         latency = bot.latency
-         loggy.info(f'Heartbeat check - latency: {latency}')
-         # Check if latency is within acceptable range (e.g., below 2 seconds)
-         if latency and latency > 9.0:
-               loggy.warning('High latency detected, restarting bot...')
-               await restart_bot()
-      except Exception as e:
-         loggy.error(f'Error during heartbeat check: {e}')
-         await restart_bot()
-
-
-
-
-# if config('ENV') == "production":
-#    DISCORD_TOKEN = config('DISCORD_TOKEN')
-# else:
-#    DISCORD_TOKEN = config('NEW_TEST_DISCORD_TOKEN')
-
-# bot.start(DISCORD_TOKEN)
-
-
-
+    try:
+        latency = bot.latency
+        loggy.info(f'Heartbeat check - latency: {latency}')
+        if latency and latency > 2.0:  # Adjusted threshold to 2 seconds
+            loggy.warning('High latency detected, restarting bot...')
+            await restart_bot()
+    except Exception as e:
+        loggy.error(f'Error during heartbeat check: {e}')
+        await restart_bot()
 
 # Run the bot
-bot.start()
-
+try:
+    bot.start()
+except KeyboardInterrupt:
+    loggy.info("Bot stopped by user")
+except Exception as e:
+    loggy.error(f"An error occurred while running the bot: {e}")
+finally:
+    # Ensure the bot is properly closed
+    if not bot.is_closed:
+        asyncio.run(bot.stop())  # Use asyncio.run to properly close the bot
 
 

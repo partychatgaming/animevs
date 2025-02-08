@@ -43,7 +43,7 @@ from cogs.universe_traits.soul_eater import soul_eater, soul_resonance, meister
 
 class Card:
     try:
-        def __init__(self, name, path, price, available, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, card_type, passive, speed, universe, tier, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss, card_class, drop_style):
+        def __init__(self, name, path, price, available, skin_for, max_health, health, max_stamina, stamina, moveset, attack, defense, card_type, passive, speed, universe, tier, weaknesses, resistances, repels, absorbs, immunity, gif, fpath, rname, rpath, is_boss, card_class, drop_style, descriptions):
             self.name = name
             self.fpath= fpath
             self.rpath = rpath
@@ -54,6 +54,7 @@ class Card:
             self.available = available
             self.skin_for = skin_for
             self.max_health = max_health
+            self.descriptions = descriptions
             self.health = health
             self.health_color = crown_utilities.health_color(self.health, self.max_health)
             self.max_stamina = max_stamina
@@ -1178,7 +1179,7 @@ class Card:
                 self.universe_buff_message = "__Destiny Buff Applied__"
 
 
-    def set_explore_bounty_and_difficulty(self, battle_config):
+    def set_explore_bounty_and_difficulty(self, battle_config, map_level=0):
         if self.tier == 1:
             self.bounty = random.randint(5000, 10000)
         if self.tier == 2:
@@ -1200,7 +1201,7 @@ class Card:
         if self.tier == 10:
             self.bounty = random.randint(800000, 1000000)
 
-        mode_selector_randomizer = random.randint(0, 200)
+        mode_selector_randomizer = random.randint(0, 500)
 
 
         if mode_selector_randomizer >= 100:
@@ -1241,14 +1242,11 @@ class Card:
             selected_mode = "RPG"
             self.approach_message = "🗺️ Encounter with "
             self._explore_cardtitle = {'TITLE': 'Universe Title'}
-            low = 0
-            high = 10
+            high, low = crown_utilities.set_opponent_level_ranges(map_level)
             if battle_config.is_hard_difficulty:
-                low = 500
-                high = 1000
-            if battle_config.is_easy_difficulty:
-                low = 0
-                high = 100
+                low = low * 2
+                high = high * 2
+
             self.card_lvl = random.randint(low, high)
             self.bounty = self.bounty * 2
 
@@ -1580,7 +1578,8 @@ class Card:
                         align="left")
                     if mode == "RPG" and encounter:
                         ai_encounter_message =  self.ai_encounter_message
-                        pilmoji.text((602, 230), ai_encounter_message, (255, 255, 255), font=encounter_font, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
+                        wrapped_message = wrap_text(ai_encounter_message, 40)
+                        pilmoji.text((602, 230), wrapped_message, (255, 255, 255), font=encounter_font, stroke_width=1, stroke_fill=(0, 0, 0), align="left")
                     else:
                         pilmoji.text((600, 250), move1_text.strip(), (255, 255, 255), font=moveset_font_1, stroke_width=2,
                                     stroke_fill=(0, 0, 0))
@@ -1604,7 +1603,7 @@ class Card:
         ai_encounter_message =  await ai.rpg_encounter_message(self.name, self.universe, opponent_card, location)
         self.ai_encounter_message = ai_encounter_message
         return ai_encounter_message
-    
+
     async def set_ai_start_encounter_message(self, opponent_card, location):
         ai_encounter_message =  await ai.rpg_start_encounter_message(self.name, self.universe, opponent_card, location)
         self.ai_start_encounter_message = ai_encounter_message
@@ -4402,6 +4401,16 @@ def paste_stars(im, star, tier):
         im.paste(star, position, star)
         
     return im
+
+
+def wrap_text(text, width):
+    """
+    Insert newline characters into the text at every 'width' characters.
+    """
+    lines = []
+    for i in range(0, len(text), width):
+        lines.append(text[i:i + width])
+    return '\n'.join(lines)
 
 
 def format_number(num):

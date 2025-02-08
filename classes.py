@@ -44,6 +44,7 @@ class USER():
     PVP_LOSS: int = field(default_factory=lambda: 0)
     EXPLORE: bool = field(default_factory=lambda: True)
     SAVE_SPOT: list[str] = field(default_factory=lambda: [])
+    RPG_LEVELS: list[str] = field(default_factory=lambda: [])
     PERFORMANCE: bool = field(default_factory=lambda: False)
     TRADING: bool = field(default_factory=lambda: False)
     TEXT_ONLY: bool = field(default_factory=lambda: False)
