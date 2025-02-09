@@ -509,7 +509,7 @@ class Player:
                             'ID': str(code)  # Convert UUID to string
                         }
                     },
-                    '$set': {'CARD': card.name}
+                    '$set': {'CARD': self.equipped_card}
                 }
             
             result = db.updateUserNoFilter(self.user_query, update_query)
