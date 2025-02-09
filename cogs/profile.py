@@ -217,11 +217,13 @@ class Profile(Extension):
                     card_file = File(file_name="image.png", file=image_binary)
 
                     embed_pages = [
-                        Embed(title=f"{player_name} Build Overview", description="For details, please check the other pages.", color=0x000000)
+                        Embed(title=f"{player_name} Build Overview", description="For trait, universe passive, experience details and more, please check the other pages.", color=0x000000)
                             .add_field(name="__[🎒]My Equipment__", value=f"Title ~ 🎗️ **{t.name}**\n"
                             f"Arm ~ 🦾 **{a.name}**\n"
                             f"Summon ~ 🧬 **{player.equipped_summon}**\n"
-                            f"Talisman ~ **{player.talisman_message}**\n", inline=False)
+                            f"Talisman ~ **{player.talisman_message}**\n"
+                            f"Account Balance: {player.balance_icon}{'{:,}'.format(player.balance)}\n"
+                            f"{c.universe} Gem Balance: 💎{'{:,}'.format(player.get_current_card_gems(c.universe))}\n", inline=False)
                             .set_image(url="attachment://image.png")
                     ]
 
@@ -1240,7 +1242,8 @@ class Profile(Extension):
             durability_message = "UNAVAILABLE" if arm.drop_style == "Boss Drop" else f"{arm_cost:,}"
             boss_message = "Cannot Repair" if arm.drop_style == "Boss Drop" else "Dungeon eh?!" if arm.drop_style == "Dungeon Drop" else "That's Abyssal!!" if arm.universe == "Unbound" else "Nice Arm!"
 
-            balance = next((gems['GEMS'] for gems in user.gems if gems['UNIVERSE'] == card.universe), 0)
+            # balance = next((gems['GEMS'] for gems in user.gems if gems['UNIVERSE'] == card.universe), 0)
+            balance = user.get_current_card_gems(card.universe)
             icon = "💎"
 
             def get_level_icon(level):

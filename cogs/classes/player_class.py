@@ -385,6 +385,12 @@ class Player:
         self.gems = new_universes
 
         return True
+    
+    def get_current_card_gems(self, universe_title):
+        for gem in self.gems:
+            if gem['UNIVERSE'] == universe_title:
+                return gem['GEMS']
+        return 0
 
 
     def save_gems(self, universe_title, amount):
