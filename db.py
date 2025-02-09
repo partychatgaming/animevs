@@ -19,9 +19,6 @@ else:
 MONGO = config('MONGO_LOGIN')
 mongo = MongoClient(MONGO, tlsCAFile=certifi.where())
 
-# mongo = pymongo.MongoClient(TOKEN)
-# lore_db = mongo["Lore"]
-# lore_col = lore_db["lore"]
 
 db = mongo[use_database]
 users_col = db["USERS"]

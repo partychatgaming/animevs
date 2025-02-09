@@ -1,16 +1,20 @@
 import custom_logging
+import os
+import i18n
 import datetime
 from cogs.classes.custom_paginator import CustomPaginator
 from ai import suggested_title_scenario
 import db
 import time
 import classes as data
+import translation_manager as tm
+from language_cache import LanguageCache
+from choicemanager import ChoicesManager
 import messages as m
 import help_commands as h
 import aiohttp
 from bson.int64 import Int64
 import textwrap
-import os
 import logging
 from logger import loggy
 from decouple import config
@@ -31,26 +35,28 @@ import crown_utilities
 logging.basicConfig()
 cls_log = logging.getLogger(const.logger_name)
 cls_log.setLevel(logging.WARNING)
+translator = tm.TranslationManager(default_language="en")
+language_cache = LanguageCache()
 
-
-# bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False)
-# bot = Client(intents=Intents.ALL, sync_interactions=True, send_command_tracebacks=False, token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN'))
-# Flag to track if heartbeat check has been started
 heartbeat_started = False
-bot = Client(
+class CustomClient(Client):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.language_cache = language_cache
+        self.translator = translator
+
+    def get_text(self, user_id: int, key: str, language: str = None) -> str:
+        """Get translated text for any user ID"""
+        if language is None:
+            language = self.language_cache.get_user_language(db.users_col, user_id)
+        return self.translator.get_text(key, language)
+    
+bot = CustomClient(
     intents=Intents.MESSAGES | Intents.REACTIONS | Intents.GUILDS | Intents.TYPING | Intents.MESSAGE_CONTENT,
     sync_interactions=True,
     send_command_tracebacks=False,
     token=config('DISCORD_TOKEN' if config('ENV') == "production" else 'NEW_TEST_DISCORD_TOKEN')
     )
-
-# @listen()
-# async def on_ready():
-#    server_count = len(bot.guilds)
-#    await bot.change_presence(status=Status.ONLINE, activity=Activity(name=f"in {server_count} servers 🆚!", type=1))
-#    loggy.info('The bot is up and running')
-#    await bot.synchronise_interactions()
-#    check_heartbeat.start()
 
 
 @listen()
@@ -64,7 +70,6 @@ async def on_ready():
         check_heartbeat.start()
         heartbeat_started = True
 
-
 def add_universes_names_to_autocomplete_list():
    try:
       response = db.queryAllUniverses()
@@ -75,7 +80,6 @@ def add_universes_names_to_autocomplete_list():
    except Exception as e:
       loggy.critical(e)
       return False
-
 
 def load(ctx, extension):
    bot.load_extension(f'cogs.{extension}')
@@ -110,61 +114,11 @@ for filename in os.listdir('./cogs'):
                             description="select an option you need help with",
                             type=OptionType.STRING,
                             required=True,
-                            choices=[
-                                SlashCommandChoice(
-                                    name="⚔️ How to Play?",
-                                    value="play",
-                                ),
-                                SlashCommandChoice(
-                                    name="❓ What do these emoji's mean?",
-                                    value="legend",
-                                ),
-                                SlashCommandChoice(
-                                    name="🥋 What are Card classes?",
-                                    value="classes",
-                                ),
-                                SlashCommandChoice(
-                                    name="🎗️ What are Title Effects?",
-                                    value="titles",
-                                ),
-                                SlashCommandChoice(
-                                    name="🦾 What are Arm Enhancements?",
-                                    value="arms",
-                                ),
-                                SlashCommandChoice(
-                                    name="🦠 What are Enhancer Abilities?",
-                                    value="enhancers",
-                                ),
-                                SlashCommandChoice(
-                                    name="🔅 What are Elements?",
-                                    value="elements",
-                                ),
-                                SlashCommandChoice(
-                                    name="👑 Inventory & Economy",
-                                    value="menu",
-                                ),
-                                SlashCommandChoice(
-                                    name="🌍 Universe Information",
-                                    value="universe",
-                                ),
-                                SlashCommandChoice(
-                                    name="👥 Family, Guild, Association",
-                                    value="teams",
-                                ),
-                                SlashCommandChoice(
-                                    name="⚙️ Options",
-                                    value="options",
-                                ),
-                                SlashCommandChoice(
-                                    name="📔 Read the Anime VS+ Manual",
-                                    value="manual",
-                                ),
-
-                            ]
+                            autocomplete=True
                         )
                     ]
  ,scopes=crown_utilities.guild_ids)
-async def help(ctx: InteractionContext, selection):
+async def help(ctx: InteractionContext, selection: str):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
    
    if selection == "menu":
@@ -280,7 +234,35 @@ async def help(ctx: InteractionContext, selection):
    if selection == "manual":
       await animevs(ctx)
       return
-      
+
+
+
+@help.autocomplete("selection")
+async def help_autocomplete(ctx: AutocompleteContext):
+    """Dynamically generate choices based on user's language"""
+    # Get user's language preference
+    user_language = bot.language_cache.get_user_language(db.users_col, ctx.author.id)
+    
+    # Get all possible choices for user's language
+    options = ChoicesManager.get_help_choices(bot.translator, user_language)
+    choices = []
+
+    # Iterate over the options and append matching ones to the choices list
+    for option in options:
+        if not ctx.input_text:
+            # If input_text is empty, append the first 24 options to choices
+            if len(choices) < 24:
+                choices.append(option)
+            else:
+                break
+        else:
+            # If input_text is not empty, append the first 24 options that match the input to choices
+            if option["name"].lower().startswith(ctx.input_text.lower()):
+                choices.append(option)
+                if len(choices) == 24:
+                    break
+
+    await ctx.send(choices=choices)
 
 
 async def validate_user(ctx):
@@ -3275,7 +3257,7 @@ async def addfield(ctx, collection, new_field, field_type):
    if field_type == "fix":
       field_type = True
    elif field_type == 'string':
-      field_type = ""
+      field_type = "en"
    elif field_type == 'int':
       field_type = 0
    elif field_type == 'list':

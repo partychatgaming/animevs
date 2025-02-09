@@ -1,0 +1,217 @@
+messages:
+  language_changed: "Langue changée en Français."
+help:
+  choices:
+    play: "⚔️ Comment jouer ?"
+    legend: "❓ Que signifient ces emojis ?"
+    classes: "🥋 Quelles sont les classes de cartes ?"
+    titles: "🎗️ Qu'est-ce que les effets de titre ?"
+    arms: "🦾 Qu'est-ce que les améliorations d'armement ?"
+    enhancers: "🦠 Qu'est-ce que les capacités des améliorateurs ?"
+    elements: "🔅 Qu'est-ce que les éléments ?"
+    menu: "👑 Inventaire & Économie"
+    universe: "🌍 Informations sur l'univers"
+    teams: "👥 Famille, Guilde, Association"
+    options: "⚙️ Options"
+    manual: "📔 Lire le manuel Anime VS+"
+  commands:
+    crown_unlimited_games: |
+      __Gestion du compte__
+      **/register**: 🆕 Inscrire votre compte
+      **/deleteaccount**: Supprimer votre compte
+      **/player**: Consulter votre compte ou celui d'un ami
+      **/build**: Voir votre build actuel, cartes, titres, bras, talismans, invocations et plus
+                                                                        
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+    
+    pve_modes: |
+      __Commandes PVP__
+      **/play** - Lancer un mode PVE
+      **/explore** - Activer/Désactiver le mode Exploration                           
+
+      __Modes de jeu PVE__
+      **🆘 Le Tutoriel** - Apprenez le système de combat Anime VS+
+      **⚡ Aléatoire** - Sélectionner et commencer un mode de jeu aléatoire ci-dessous
+      **🗺️ Aventure** - Entrez dans un univers 2D pour combattre, piller et plus
+      **⚔️ Récits** - Mode de combat normal pour gagner des cartes, accessoires et plus
+      **👺 Donjon** - Mode de combat difficile pour gagner des cartes de donjon, accessoires de donjon, et plus
+      **📽️ Scénario** - Combattez à travers des scénarios uniques pour gagner des cartes et des mouvements
+      **💀 Raid** - Combattez à travers des scénarios de haut niveau pour gagner des cartes et mouvements mythiques
+      **🌌 Explorer** - Combats de rencontre aléatoire pour gagner des cartes rares et des récompenses majeures
+                                            
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    pvp_modes: |
+      __Modes de jeu PVP__
+      **/pvp** - Combattez un rival en mode PVP
+      *Plus de modes PVP à venir bientôt !*
+                                  
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    universe_stuff: |
+      __Informations sur l'univers__
+      **/universes** - Voir toutes les informations disponibles sur l'univers, y compris toutes les cartes, accessoires et destinées disponibles
+
+      **/view** - Consulter/Tout voir des objets de jeu disponibles.
+                                  
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    card_legend: |
+      __Bases des cartes__
+      🎴 - **Carte**
+      ♾️ - **Univers de la carte**
+      🀄 - **Tier de la carte** *1-10*
+      🔰/🔱/⚜️ - **Niveau de la carte**
+      🥋 - **Classe de la carte**
+      ❤️ - **Santé de la carte** (HLT)
+      🌀 / ⚡ - **Endurance de la carte** (ST)
+      🗡️ - **Attaque de la carte (ATK)** Cristal bleu 🟦
+      🛡️ - **Défense de la carte (DEF)** Cristal rouge 🟥
+      🏃 - **Évasion de la carte** (ÉVASION)
+                                  
+      __Ensemble des mouvements de la carte__
+      💥 - **Attaque de base** de la carte
+      ☄️ - **Attaque spéciale** de la carte            
+      🏵️ - **Attaque ultime** de la carte
+      🦠 - **Capacité d'améliorateur** de la carte
+                                  
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    equipment_legend: |
+      __Équipement et invocations__
+      ⚠️ - Votre titre ou bras ne correspond pas à votre univers
+      🎗️ - **Titre**  *Les effets de titre sont appliqués à chaque tour, passivement.*
+      🦾 - **Bras** *Les bras accordent de nouvelles attaques, augmentent la capacité ou offrent des protections.*
+      🧬 - **Invocation** *Les invocations utilisent des attaques ou des protections pendant le combat*
+      📿 - **Talisman** *Équipez des talismans élémentaires pour contourner les affinités de l'adversaire*
+      ⚒️ - **Durabilité** *La durabilité de votre bras ou talisman diminue à chaque utilisation*
+                                  
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    currency_legend: |
+      __Commandes de la monnaie__
+      **/balance** - Voir votre solde actuel et le solde de votre guilde
+      **/gems** - Voir vos gemmes actuelles
+      **/essence** - Voir votre essence actuelle
+
+      **Monnaie**
+      💰 - **Pièces** *Achetez des objets sur le marché ou par échange.*
+      💎 - **Gemmes** *Forgez les niveaux de cartes et des objets au forgeron*
+      🪔 - **Essence** *Forgez des talismans élémentaires*
+                                  
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    elements_legend: |
+      **🔅 Éléments**    
+      👊 Physique - Si ST (endurance) supérieur à 80, inflige des dégâts supplémentaires. Après 3 coups, obtenez un Parry
+                                  
+      ⚔️ Épée - Chaque 3ème attaque sera un coup critique qui augmente également l'attaque de 40% des dégâts infligés
+                                  
+      🏹 À distance - Si ST (endurance) supérieur à 30, inflige 1.7x dégâts. Chaque 3 attaques à distance augmente la chance de toucher de 10%
+                                  
+      🔫 Pistolet - Pénètre le bouclier. A 40 % de chances d'infliger un double coup. Le double coup réduit la défense de l'adversaire de 35 % de la valeur actuelle
+                                  
+      ♻️ Imprudent - Inflige des dégâts incroyables, mais vous en prenez 60 % en retour. Si l'Imprudence vous tue, réduisez votre HP à 1
+                                  
+      🔥 Feu - Inflige 50 % des dégâts de l'attaque précédente sur les prochains tours de l'adversaire, l'effet de brûlure contourne les boucliers et s'accumule
+
+      ❄️ Glace - Chaque 3 attaques, l'adversaire est gelé et perd 1 tour, et perd son attaque et sa défense égales à 50 % des dégâts infligés
+
+      💧 Eau - Chaque frappe augmente tous les mouvements d'eau AP de 100. Chaque 200 AP, obtenez un bouclier. Chaque 400 AP envoie une attaque Tsunami pour des dégâts réels
+
+      ⛰️ Terre - Ne peut pas être paré. Accorde un bouclier et augmente la défense de 30 % AP
+                                  
+      🌿 Nature - Siphonne l'ATK et la DEF de l'adversaire pour 35 % des dégâts et guérit la santé et la santé maximale pour ce montant également
+
+      🌩️ Électrique - Ajoute 10 % des dégâts infligés à des dégâts de choc, ajoutés à tous les mouvements AP
+
+      🌪️ Vent - Sur un raté ou un critique, augmente tous les dégâts du vent de 60 % des dégâts infligés
+
+      🔮 Psychique - Pénètre les barrières. Réduit l'ATK et la DEF de l'adversaire de 15 % des dégâts. Après 3 frappes, obtenez une barrière
+
+      💤 Sommeil - Chaque 2ème attaque ajoute un tas de repos. Avant que l'adversaire se concentre, il doit se reposer
+
+      ☠️ Mort - Inflige 30 % de dégâts à la santé maximale de l'adversaire. Gagnez de l'attaque égale à ce montant
+
+      ❤️‍🔥 Vie - Vol 30 % des dégâts infligés en santé et santé maximale de l'adversaire
+
+      🌕 Lumière - Augmente l'ATK de 40 % des dégâts. 40 % des dégâts sont stockés et infligent des dégâts à l'adversaire lorsqu'il se concentre
+
+      🌑 Ténèbres - Pénètre les boucliers, barrières et parades et diminue l'endurance de l'adversaire de 15
+
+      🧪 Poison - Pénètre les boucliers, empile les dégâts du poison égaux à 35 % des dégâts infligés empilant jusqu'à 30 % de la santé maximale
+
+      🩻 Pourriture - Pénètre les boucliers, empile les dégâts de pourriture égaux à 15 % des dégâts infligés empilant jusqu'à 20 % de la santé maximale
+
+      🧿 Énergie - A 35 % de chances supplémentaires de critiquer
+
+      ⌛ Temps - Blocage fort et augmente le nombre de tours de 3. Si ST (Endurance) est < 50, concentrez-vous pendant 1 tour et réduisez les protections de l'adversaire, en passant par la parade
+
+      🅱️ Saignement - Chaque 2 attaques infligent (10x nombre de tours + 5 % de santé) de dégâts à l'adversaire
+
+      🪐 Gravité - Désactive le blocage de l'adversaire, réduit la défense de l'adversaire de 50 % des dégâts, diminue le nombre de tours de 3, passe à travers les barrières et les parades
+
+      🐲 Draconique - Les attaques draconiques ne peuvent être que ULTIMES ou invoquées, combinent l'AP et les effets élémentaires de votre attaque de BASE et SPÉCIALE en un coup puissant !
+
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    bot_commands: |
+      __Commandes de guilde__
+      **/guild** - Recherche de guilde, configurations et demande d'adhésion
+      **/guildoperations** - Opérations de la guilde
+      **/createguild** - Créer une guilde
+      **/disbandguild** - Supprimer la guilde
+      **/recruit** - Recruter un joueur dans votre guilde
+      **/leaveguild** - Quitter la guilde
+      **/pay** - Envoyer des pièces aux membres de la guilde
+      **/donate** - Faire un don de pièces à la banque de guilde
+
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    rewards_commands: |
+      __Commandes de récompenses__
+      **/daily** - Réclamer votre récompense quotidienne
+      **/vote** - Réclamer votre récompense de vote
+
+      __Gacha Gacha! ⌨️__
+      **/code** - Entrez des codes pour obtenir des récompenses en jeu !
+      **/roll** - Dépenser de l'or pour ouvrir des coffres à butin !
+                                        
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+
+    option_commands: |
+      __Options du jeu__
+      **/help** - Voir toutes les commandes d'aide et le manuel
+      **/explore**  - Activer/Désactiver le mode Exploration / univers
+      **/difficulty** - Changer la difficulté du jeu
+      **/autosave** - Activer/Désactiver l'auto-sauvegarde
+      **/battlehistory** - Mettre à jour la longueur de l'historique des batailles
+      **/battleview** - Activer/Désactiver les statistiques de l'adversaire en bataille
+
+      [Rejoignez le serveur de support Anime VS+](https://discord.gg/pcn)
+elements:
+  physical: "👊 Physique - Si la END (endurance) est supérieure à 80, inflige des Dégâts supplémentaires. Après 3 Frappes, vous obtenez une Parade."
+  sword: "⚔️ Épée - Chaque 3ème attaque se traduira par un Coup critique qui augmente également l'Attaque de 40% des dégâts infligés."
+  ranged: "🏹 À distance - Si la END (endurance) est supérieure à 30, inflige 1,7x de Dégâts. Chaque 3 Attaques à distance augmentent la Probabilité d'impact de 10%."
+  gun: "🔫 Pistolet - Pénètre le Bouclier. A 40% de chances d'infliger un double coup. Le double coup réduit la défense de l'adversaire de 35% de la valeur actuelle."
+  reckless: "♻️ Téméraire - Inflige des Dégâts supplémentaires incroyables, prend 60% comme téméraire. Si Téméraire devait vous tuer, réduit les PV à 1."
+  fire: "🔥 Feu - Inflige 50% des dégâts de l'attaque précédente pendant les prochains tours de l'adversaire, l'effet de brûlure ignore les boucliers et se cumule."
+  ice: "❄️ Glace - Chaque 3 attaques, l'adversaire se fige et perd 1 tour, et perd attaque et défense égale à 50% des dégâts infligés."
+  water: "💧 Eau - Chaque frappe augmente tous les PA de mouvement d'eau de 100. Tous les 200 PA, gagnez un bouclier. Tous les 400 PA, lancez une Frappe de Tsunami pour des Dégâts réels."
+  earth: "⛰️ Terre - Ne peut pas être paré. Accorde un bouclier et augmente la défense de 30% des PA."
+  nature: "🌿 Nature - Draine l'ATQ et la DÉF de l'adversaire de 35% des Dégâts et soigne la Santé et la Santé maximale pour cette même quantité."
+  electric: "🌩️ Électrique - Ajoute 10% des Dégâts infligés comme dégâts de Choc, ajoutés à tous les PA de Mouvement."
+  wind: "🌪️ Vent - En cas d'Échec ou de Critique, augmente tous les dégâts de vent de 60% des dégâts infligés."
+  psychic: "🔮 Psychique - Pénètre les Barrières. Réduit l'ATQ et la DÉF de l'adversaire de 15% des Dégâts. Après 3 Coups, vous obtenez une Barrière."
+  sleep: "💤 Sommeil - Chaque 2ème attaque ajoute une pile de Repos. Avant que l'Adversaire ne se concentre, il doit se Reposer."
+  death: "☠️ Mort - Inflige 30% des Dégâts à la santé maximale de l'adversaire. Vous obtenez une Attaque égale à cette quantité."
+  life: "❤️‍🔥 Vie - Vole 30% des dégâts infligés à la santé et à la santé maximale de l'adversaire."
+  light: "🌕 Lumière - Augmente l'ATQ de 40% des Dégâts. 40% des Dégâts sont stockés et endommagent l'adversaire lorsqu'il se concentre."
+  dark: "🌑 Obscurité - Pénètre les Boucliers, les Barrières et les Parades et diminue la RES (Résistance) de l'adversaire de 15."
+  poison: "🧪 Poison - Pénètre les boucliers, accumule des dégâts de poison égaux à 35% des dégâts infligés, s'accumulant jusqu'à 30% de la santé maximale."
+  rot: "🩻 Pourriture - Pénètre les boucliers, accumule des dégâts de pourriture égaux à 15% des dégâts infligés, s'accumulant jusqu'à 20% de la santé maximale."
+  energy: "🧿 Énergie - A 35% de chances de Critique plus élevées."
+  time: "⌛ Temps - Blocage puissant et Augmente le Compte de tours de 3. Si la RES (Résistance) est < 50."
+  bleed: "🅱️ Saignement - Chaque 2 Attaques infligent (10x compte de tours + 5% de Santé) de dégâts à l'adversaire."
+  gravity: "🪐 Gravité - Désactive le Blocage de l'Adversaire, Réduit la DÉF de l'adversaire de 50% des Dégâts, Diminue le Compte de tours de 3."
+  draconic: "🐲 Draconique - Les attaques draconiques ne peuvent être qu'ULTIMES ou Invoquées."
