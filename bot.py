@@ -1,6 +1,5 @@
 import custom_logging
 import os
-import i18n
 import datetime
 from cogs.classes.custom_paginator import CustomPaginator
 from ai import suggested_title_scenario
@@ -92,22 +91,6 @@ for filename in os.listdir('./cogs'):
       # :-3 removes .py from filename
       bot.load_extension(f'cogs.{filename[:-3]}')
 
-# @context_menu(name="pingme", context_type=CommandType.USER)
-# async def pingme(ctx: InteractionContext):
-#     member: Member = ctx.target
-#     await ctx.send(member.mention)
-
-# @context_menu(name="clickme", context_type=CommandType.MESSAGE)
-# async def clickme(ctx: InteractionContext):
-#    message: Message = ctx.target
-#    print(message)
-#    await ctx.send("You clicked on a message!")
-
-# @slash_command(name="ping")
-# async def ping(ctx: InteractionContext):
-#    await ctx.send(f"Pong! {round(bot.latency * 1000)}ms")
-
-
 @slash_command(name="help", description="Learn the commands", options=[
                      SlashCommandOption(
                             name="selection",
@@ -120,10 +103,13 @@ for filename in os.listdir('./cogs'):
  ,scopes=crown_utilities.guild_ids)
 async def help(ctx: InteractionContext, selection: str):
    avatar="https://res.cloudinary.com/dkcmq8o15/image/upload/v1620496215/PCG%20LOGOS%20AND%20RESOURCES/Legend.png"
+   language = bot.language_cache.get_user_language(db.users_col, ctx.author.id)
    
    if selection == "menu":
       #Create a paginator using the embed list above
-      embed1 = Embed(title=f"🎒 | Build Commands", description=h.CTAP_COMMANDS, color=0x7289da)
+      embed1 = Embed(title=f"🎒 | Build Commands", description=textwrap.dedent(f"""\
+      {bot.get_text(ctx.author.id, "help.commands.ctap_commands", language)}
+      """), color=0x7289da)
       embed1.set_thumbnail(url=avatar)
 
       embed2 = Embed(title=f"🏪 | Shop Commands", description=h.SHOP_COMMANDS, color=0x7289da)
@@ -1159,19 +1145,8 @@ async def register(ctx):
 
 
    if r_response:
-      # await ctx.send(f"🆕 Registration Started!\n{ctx.author.mention}, prepare to select a starting universe.")
-      # await asyncio.sleep(2)
-      # await ctx.send(f"{ctx.author.mention}, your starting universe will give you 🎴 cards and 🎗️ 🦾 accessories from that universe to get you started on your journey!")
-      # await asyncio.sleep(2)
-
-      # Write code that gives freely all titles in a universe that has 
-      # unlock method as Tales and unlock value as 0
       try:
          _uuid = str(uuid.uuid4())
-         # Create Embed briefly introducing the game
-         # Create buttons to proceed to the next step or to cancel registration
-         # if the user cancels registration, delete the user from the database and end this process
-         # if the user proceeds, show the user the list of starting universes
          accept_buttons = [
                Button(
                   style=ButtonStyle.GREEN,
@@ -1185,13 +1160,7 @@ async def register(ctx):
                )
          ]
 
-         embed = Embed(title="🆚 | Anime VS+ Registration", description="Welcome to **Anime VS+**,\nEmbark on an epic journey through a multiverse of anime, manga and video games.\n**Collect** your favorite **Characters**, incredible **Items** and unique **Summons** to dominate the multiverse.\n**Let's see how powerful 🫵🏼You can become!**", color=0x7289da)
-
-         embed.add_field(name="[ℹ️]__What happens if you continue?__", value="Click **Continue** to start your registration!\nYou'll choose your **Starting Universe**, granting you 1 Universe **Title**, and 3 unique **Cards** & **Arms** to kickstart your adventure.", inline=False)
-
-         # embed.add_field(name="__What happens if you cancel?__", value="You'll be removed from the registration process. You can always come back and register later.", inline=False)
-
-         embed.set_footer(text="Anime VS+ | Registration")
+         embed = Embed(title="🆚 Anime VS+ Registration", description="Collect your favorite anime and video game characters, incredible items and unique summons to dominate the multiverse.", color=0x7289da)
 
          action_row = ActionRow(*accept_buttons)
 
@@ -1205,7 +1174,7 @@ async def register(ctx):
             # await button_ctx.ctx.defer()
 
             if button_ctx.ctx.custom_id == f"{_uuid}|no":
-               embed = Embed(title="Anime VS+ Registration", description="Your registration has been cancelled. You can always come back and register later.", color=0x7289da)
+               embed = Embed(title="Anime VS+ Registration", description="Your registration has been cancelled.", color=0x7289da)
                await message.edit(components=[], embed=embed)
                return
 
@@ -1232,8 +1201,7 @@ async def register(ctx):
                      available =f"{crown_utilities.crest_dict[uni['TITLE']]}"
                      
                      embedVar = Embed(title=f"{uni['TITLE']}", description=textwrap.dedent(f"""                                                                                         
-                     **{available} | Select A Starting Universe!**
-                     Welcome {ctx.author.mention}!
+                     **{available}** Select A Starting Universe!**
                      Select a universe to earn *3* 🎴 Cards and 🦾 Arms to begin! 
 
                      [ℹ️]__Don't overthink it!__
