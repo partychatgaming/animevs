@@ -66,7 +66,7 @@ class Profile(Extension):
 
         team = db.queryTeam({'TEAM_NAME': player.guild.lower()})
 
-        msg = await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account?\nAll of your stats, purchases and other earnings will be removed from the system and can not be recovered.", components=[accept_buttons_action_row])
+        msg = await ctx.send(f"{ctx.author.mention}, are you sure you want to delete your account?", components=[accept_buttons_action_row])
 
         def check(component: Button) -> bool:
             return component.ctx.author == ctx.author

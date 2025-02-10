@@ -190,6 +190,17 @@ help:
 
       [Join the Anime VS+ Support Server](https://discord.gg/pcn)
 
+    ctap_commands: |
+    __Build Commands__
+    **/cards** - View your available cards
+    **/titles** - View your available titles
+    **/arms** - View your available arms
+    **/summons** - View your available summons
+    **/talismans** - View your available talismans
+    **/attune** - Attune elemental talismans from essence
+                                
+    [Join the Anime VS+ Support Server](https://discord.gg/pcn)
+
 elements:
   physical: "👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry"
   sword: "⚔️ Sword - Every 3rd attack will result in a Critical Strike that also increases Atack by 40% of damage dealt"
@@ -217,4 +228,27 @@ elements:
   gravity: "🪐 Gravity - Disables Opponent Block, Reduce opponent DEF by 50% DMG, Decrease Turn Count By 3"
   draconic: "🐲 Draconic - Draconic attacks can only be ULTIMATE or Summoned"
 
+
+register:
+  title: "🆚 Anime VS+ Registration"
+  registration_description: "Collect your favorite anime and video game characters, incredible items and unique summons to dominate the multiverse."
+  already_registered: "You are already registered."
+  unregistered: "You are not registered. Please register with /register"
+  registration_cancellation: "Registration cancelled."
+  universe_selection_prompt: |
+      Select A Starting Universe!**
+    Select a universe to earn *3* 🎴 Cards and 🦾 Arms to begin! 
+
+    [ℹ️]__Don't overthink it!__
+    You can always earn cards, arms, titles and more from all universes later!
+  universe_trait_prompt: "♾️ | Unique Universe Trait: "
+  universe_selector_footer: "You can earn items in all universes! This is just a starting point!"
+  registration_timeout_prompt: "Your Registration was cancelled. You must interact before the timeout!"
+
+
+delete_account:
+  title: "🆚 Anime VS+ Delete Account"
+  confirm: "Are you sure you want to delete your account? This action is irreversible."
+  deleted: "Your account has been deleted. Thank you for playing Anime VS+!"
+  not_deleted: "Your account was not been deleted."
 
