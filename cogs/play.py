@@ -402,18 +402,26 @@ class Play(Extension):
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
                             if battle_config.is_rpg:
-                                print("RPG Game Over")
-                                battle_config.continue_fighting = False
                                 battle_config.rpg_config.adventuring = True
                                 battle_config.rpg_config.battling = False
                                 battle_config.rpg_config.encounter = False
-
+                                print(battle_config.rpg_config.player_health)
                                 battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
-                
+                                # Delete the previous RPG message
+                                #await battle_config.rpg_config.rpg_msg.delete()
+                                
                                 battle_config.rpg_config.set_rpg_options()
+                                # Allow some time to ensure the message is deleted
                                 await asyncio.sleep(1)
-                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel)
-                                return
+                                
+                                # Resend a new RPG message
+                                #await Play.rpg_commands(ctx, battle_config.rpg_config)
+                                
+                                # Get the updated RPG embed and components
+                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel, battle_msg)
+                                
+                                # Send the new RPG message
+                                self.rpg_msg = await ctx.send(embed=embedVar, components=components)
                                 
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
