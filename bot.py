@@ -107,9 +107,8 @@ async def help(ctx: InteractionContext, selection: str):
    
    if selection == "menu":
       #Create a paginator using the embed list above
-      embed1 = Embed(title=f"🎒 | Build Commands", description=textwrap.dedent(f"""\
-      {bot.get_text(ctx.author.id, "help.commands.ctap_commands", language)}
-      """), color=0x7289da)
+      # {bot.get_text(ctx.author.id, "help.commands.ctap_commands", language)}
+      embed1 = Embed(title=f"🎒 | Build Commands", description=h.CTAP_COMMANDS, color=0x7289da)
       embed1.set_thumbnail(url=avatar)
 
       embed2 = Embed(title=f"🏪 | Shop Commands", description=h.SHOP_COMMANDS, color=0x7289da)
