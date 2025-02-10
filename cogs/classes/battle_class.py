@@ -1396,9 +1396,9 @@ class Battle:
             picon = "🔥"
 
                 
-        embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!")
+        embedVar = Embed(title=f"💾 {opponent_card.universe} {save_message} Saved!",color=0x2ECC71)
         embedVar.add_field(name="💽 | Saved Data",
-                                value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}",color=0x2ECC71)
+                                value=f"🌍 | **Universe**: {opponent_card.universe}\n{picon} | **Progress**: {self.current_opponent_number + 1}\n🎴 | **Opponent**: {opponent_card.name}")
         embedVar.set_footer(text=f"{self.get_previous_moves_embed()}"f"\n{self.get_battle_time()}")
         return embedVar
 

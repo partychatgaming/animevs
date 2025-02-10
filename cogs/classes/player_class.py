@@ -178,6 +178,11 @@ class Player:
         self.rpg_atk_boost = False
         self.rpg_def_boost = False  
         self.rpg_hlt_boost = False
+        self.map_states = {}
+        self.map_position = (10,6)
+        self.rpg_token = None
+        self.current_map = None
+        self.rpg_instance = None
 
 
 
@@ -207,7 +212,13 @@ class Player:
             print("Error setting talisman message.")
             return self.talisman_message
         
-    
+    def create_rpg_instance(self, RPG):
+        try:
+            self.rpg_instance = RPG
+            return True
+        except:
+            return False
+
     def get_family_summon(self):
         family_info = db.queryFamily({'HEAD':str(self.family)})
         summon_object = family_info['SUMMON']

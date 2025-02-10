@@ -402,6 +402,7 @@ class Play(Extension):
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
                             if battle_config.is_rpg:
+                                print("RPG Game Over")
                                 battle_config.continue_fighting = False
                                 battle_config.rpg_config.adventuring = True
                                 battle_config.rpg_config.battling = False
@@ -598,15 +599,15 @@ def config_battle_starting_buttons(battle_config):
         ),
     ]
 
-    if battle_config.can_auto_battle and not battle_config.is_co_op_mode and not battle_config.is_duo_mode:
-        start_tales_buttons.append(
-            Button(
-                style=ButtonStyle.GREY,
-                label="Auto Battle",
-                custom_id=f"{battle_config._uuid}|start_game_auto_battle_mode"
-            )
+    # if battle_config.can_auto_battle and not battle_config.is_co_op_mode and not battle_config.is_duo_mode:
+    #     start_tales_buttons.append(
+    #         Button(
+    #             style=ButtonStyle.GREY,
+    #             label="Auto Battle",
+    #             custom_id=f"{battle_config._uuid}|start_game_auto_battle_mode"
+    #         )
 
-        )
+    #     )
     
     if not battle_config.is_tutorial_game_mode and battle_config.save_match_turned_on() and not battle_config.is_rpg:
         if battle_config.current_opponent_number > 0:
@@ -664,6 +665,8 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
     if battle_config.is_rpg:
+        x, y = battle_config.player_position
+        battle_config.map[x][y] = battle_config.standing_on
         close_embded = await ctx.send(embed = battle_config.close_rpg_embed())
         await close_embded.delete(delay=3)
         await battle_config.leave_adventure_embed(ctx)
@@ -1269,7 +1272,7 @@ async def player_move_embed(ctx, battle_config, private_channel, battle_msg):
         talisman_message = f"🥋 Ultimate Strategy"
     player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{summon_message}"
     if turn_card.universe in crown_utilities.universe_stack_traits:
-        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}{universe_stacks}\n{summon_message}"
+        player1_arm_message = f"**[🎒]Your Equipment**\n{talisman_message}{turn_card._arm_message}\n{universe_stacks}\n{summon_message}"
     tutorial_embed_message = battle_config.get_tutorial_message(turn_card)
     #map_embed = battle_config.get_map_message(turn_card)
     embedVar = Embed(title=f"", color=turn_card.health_color)
@@ -1318,7 +1321,7 @@ async def start_of_moves_config(battle_config):
 def player_use_card_boost_ability(battle_config, button_ctx):
     turn_player, turn_card, turn_title, turn_arm, opponent_player, opponent_card, opponent_title, opponent_arm, partner_player, partner_card, partner_title, partner_arm = crown_utilities.get_battle_positions(battle_config)
 
-    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|s":
+    if button_ctx.ctx.custom_id == f"{battle_config._uuid}|t":
             turn_card.use_boost(battle_config, partner_card)
     else:
         return

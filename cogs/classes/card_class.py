@@ -831,7 +831,7 @@ class Card:
             self.dark_buff_by_value = 20
             self.life_buff_value = .60
             self.psychic_barrier_buff_value = 2
-            self.psychic_debuff_value = .50
+            self.psychic_debuff_value = .25
             self.fire_buff_value = .75
             self.electric_buff_value = .25
             self.poison_damage_value = .50
@@ -2329,26 +2329,26 @@ class Card:
         self._arm_message = ""
         opponent_card._arm_message = ""
         if opponent_card.barrier_active:
-            opponent_card._arm_message += f"{weapon_emojis['barrier']} {opponent_card._barrier_value} Barrier{'s' if opponent_card._barrier_value > 1 else ''}\n"
+            opponent_card._arm_message += f"{weapon_emojis['barrier']} {opponent_card._barrier_value} Barrier{'s' if opponent_card._barrier_value > 1 else ''}"
         if opponent_card.shield_active:
-            opponent_card._arm_message += f"{weapon_emojis['shield']} {opponent_card._shield_value:,} Shield\n"
+            opponent_card._arm_message += f"{weapon_emojis['shield']} {opponent_card._shield_value:,} Shield"
         if opponent_card.parry_active:
-            opponent_card._arm_message += f"{weapon_emojis['parry']} {opponent_card._parry_value} Parr{'ies' if opponent_card._parry_value > 1 else 'y'}\n"
+            opponent_card._arm_message += f"{weapon_emojis['parry']} {opponent_card._parry_value} Parr{'ies' if opponent_card._parry_value > 1 else 'y'}"
         if opponent_card.siphon_active:
-            opponent_card._arm_message += f"{weapon_emojis['siphon']} {opponent_card._siphon_value} Siphon\n"
+            opponent_card._arm_message += f"{weapon_emojis['siphon']} {opponent_card._siphon_value} Siphon"
 
         if len(opponent_card._arm_message) > 0:
             opponent_card._arm_message = "\n" + opponent_card._arm_message
             
 
         if self.barrier_active:
-            self._arm_message += f"{weapon_emojis['barrier']} {self._barrier_value} Barrier{'s' if self._barrier_value > 1 else ''}\n"
+            self._arm_message += f"{weapon_emojis['barrier']} {self._barrier_value} Barrier{'s' if self._barrier_value > 1 else ''}"
         if self.shield_active:
-            self._arm_message += f"{weapon_emojis['shield']} {self._shield_value:,} Shield\n"
+            self._arm_message += f"{weapon_emojis['shield']} {self._shield_value:,} Shield"
         if self.parry_active:
-            self._arm_message += f"{weapon_emojis['parry']} {self._parry_value} Parr{'ies' if self._parry_value > 1 else 'y'}\n"
+            self._arm_message += f"{weapon_emojis['parry']} {self._parry_value} Parr{'ies' if self._parry_value > 1 else 'y'}"
         if self.siphon_active:
-            self._arm_message += f"{weapon_emojis['siphon']} {self._siphon_value} Siphon\n"
+            self._arm_message += f"{weapon_emojis['siphon']} {self._siphon_value} Siphon"
 
         
         if len(self._arm_message) > 0:

@@ -4116,6 +4116,7 @@ async def updatecharacters(ctx):
    for card in character_list:
       name = card["name"]
       descriptions = card["descriptions"]
+      encounter_options = card["options"]
       # update card with descriptions
       db.updateCard({"NAME": name}, {"$set": {"DESCRIPTIONS": descriptions}})
       count += 1

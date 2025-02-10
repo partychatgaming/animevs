@@ -75,7 +75,8 @@ class Lookup(Extension):
             user = await self.bot.fetch_user(player_class.did)
             if player_class:
                 player_stats = await asyncio.to_thread(db.query_stats_by_player, player_class.did)
-                player_stat_distribution = stat_distribution(player_stats)
+                if player_stats:
+                    player_stat_distribution = stat_distribution(player_stats)
 
                 bal_message = f"{'{:,}'.format(player_class.balance)}"
 
@@ -156,24 +157,24 @@ class Lookup(Extension):
                 💾 | **Autosave:** {autosave_message}
                 """))
                 embed2.set_thumbnail(url=player_class.avatar)
-                
-                embed5 = Embed(title=f"{player_class.disname} Stats".format(self), description=textwrap.dedent(f"""\
-                ⚔️ | **Tales Played: **{player_stat_distribution['TALES']['MATCHES']:,}
-                ↘️ **Tales Completed: **{player_stat_distribution['TALES']['COMPLETED']:,}
-                ↘️ **Tales Damage Dealt** {player_stat_distribution['TALES']['DAMAGE_DEALT']:,}
-                ↘️ **Tales Damage Taken** {player_stat_distribution['TALES']['DAMAGE_TAKEN']:,}
+                if player_stats:
+                    embed5 = Embed(title=f"{player_class.disname} Stats".format(self), description=textwrap.dedent(f"""\
+                    ⚔️ | **Tales Played: **{player_stat_distribution['TALES']['MATCHES']:,}
+                    ↘️ **Tales Completed: **{player_stat_distribution['TALES']['COMPLETED']:,}
+                    ↘️ **Tales Damage Dealt** {player_stat_distribution['TALES']['DAMAGE_DEALT']:,}
+                    ↘️ **Tales Damage Taken** {player_stat_distribution['TALES']['DAMAGE_TAKEN']:,}
 
-                👺 | **Dungeons Played: **{player_stat_distribution['DUNGEONS']['MATCHES']:,}
-                ↘️ **Dungeons Completed: **{player_stat_distribution['DUNGEONS']['COMPLETED']:,}
-                ↘️ **Dungeon Damage Dealt** {player_stat_distribution['DUNGEONS']['DAMAGE_DEALT']:,}
-                ↘️ **Dungeon Damage Taken** {player_stat_distribution['DUNGEONS']['DAMAGE_TAKEN']:,}
+                    👺 | **Dungeons Played: **{player_stat_distribution['DUNGEONS']['MATCHES']:,}
+                    ↘️ **Dungeons Completed: **{player_stat_distribution['DUNGEONS']['COMPLETED']:,}
+                    ↘️ **Dungeon Damage Dealt** {player_stat_distribution['DUNGEONS']['DAMAGE_DEALT']:,}
+                    ↘️ **Dungeon Damage Taken** {player_stat_distribution['DUNGEONS']['DAMAGE_TAKEN']:,}
 
-                🎞️ | **Scenarios Played: **{player_stat_distribution['SCENARIOS']['MATCHES']:,}
-                ↘️ **Scenarios Completed: **{player_stat_distribution['SCENARIOS']['COMPLETED']:,}
-                ↘️ **ScenariosDamage Dealt** {player_stat_distribution['SCENARIOS']['DAMAGE_DEALT']:,}
-                ↘️ **Scenario Damage Taken** {player_stat_distribution['SCENARIOS']['DAMAGE_TAKEN']:,}
-                """))
-                embed5.set_thumbnail(url=player_class.avatar)
+                    🎞️ | **Scenarios Played: **{player_stat_distribution['SCENARIOS']['MATCHES']:,}
+                    ↘️ **Scenarios Completed: **{player_stat_distribution['SCENARIOS']['COMPLETED']:,}
+                    ↘️ **ScenariosDamage Dealt** {player_stat_distribution['SCENARIOS']['DAMAGE_DEALT']:,}
+                    ↘️ **Scenario Damage Taken** {player_stat_distribution['SCENARIOS']['DAMAGE_TAKEN']:,}
+                    """))
+                    embed5.set_thumbnail(url=player_class.avatar)
                 
                 embed3 = Embed(title=f"{player_class.disname} Equipment".format(self), description=textwrap.dedent(f"""\
                 {player_class.balance_icon} | {bal_message}
@@ -206,8 +207,10 @@ class Lookup(Extension):
                     embed4.add_field(name="Completed Tales" + " 🏅", value="No Completed Tales, yet!")
                     embed4.add_field(name="Completed Dungeons" + " 👺 ", value="No Dungeons Completed, yet!")
                     embed4.add_field(name="Boss Souls" + " 👹 ", value="No Boss Souls Collected, yet!")
-
-                embeds = [embed6, embed1, embed5, embed3, embed2, embed4]
+                if player_stats:
+                    embeds = [embed6, embed1, embed5, embed3, embed2, embed4]
+                else:
+                    embeds = [embed6, embed1, embed3, embed2, embed4]
                 paginator = CustomPaginator.create_from_embeds(self.bot, *embeds)
                 paginator.show_select_menu = True
                 await paginator.send(ctx)
