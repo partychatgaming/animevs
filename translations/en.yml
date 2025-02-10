@@ -191,15 +191,15 @@ help:
       [Join the Anime VS+ Support Server](https://discord.gg/pcn)
 
     ctap_commands: |
-    __Build Commands__
-    **/cards** - View your available cards
-    **/titles** - View your available titles
-    **/arms** - View your available arms
-    **/summons** - View your available summons
-    **/talismans** - View your available talismans
-    **/attune** - Attune elemental talismans from essence
-                                
-    [Join the Anime VS+ Support Server](https://discord.gg/pcn)
+      __Build Commands__
+      **/cards** - View your available cards
+      **/titles** - View your available titles
+      **/arms** - View your available arms
+      **/summons** - View your available summons
+      **/talismans** - View your available talismans
+      **/attune** - Attune elemental talismans from essence
+                                  
+      [Join the Anime VS+ Support Server](https://discord.gg/pcn)
 
 elements:
   physical: "👊 Physical - If ST(stamina) greater than 80, Deals Bonus Damage. After 3 Strike gain a Parry"
@@ -236,7 +236,7 @@ register:
   unregistered: "You are not registered. Please register with /register"
   registration_cancellation: "Registration cancelled."
   universe_selection_prompt: |
-      Select A Starting Universe!**
+    Select A Starting Universe!**
     Select a universe to earn *3* 🎴 Cards and 🦾 Arms to begin! 
 
     [ℹ️]__Don't overthink it!__
