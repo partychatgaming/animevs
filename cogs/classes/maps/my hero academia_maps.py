@@ -1,3 +1,4 @@
+
 ua_training_grounds = {
     "standing_on": "🟩",
     "spawn_portal": (10, 5),

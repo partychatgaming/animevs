@@ -179,10 +179,39 @@ class Player:
         self.rpg_def_boost = False  
         self.rpg_hlt_boost = False
         self.map_states = {}
+        self.floor = 0
         self.map_position = (10,6)
         self.rpg_token = None
-        self.current_map = None
+        self.map = None
         self.rpg_instance = None
+        self.starting_position = (10, 5)
+        self.player_position = (10, 5)
+        self.spawn_portal = (10,6)
+        
+        self.standing_on = "🟩"
+        self.new_map = False
+        self.player_gold = 0
+        self.player_gems = 0
+        self.player_keys = 0
+        self.coin_emoji = "🪙"
+        self.gem_emoji = "💎"
+        self.player_inventory = []
+        self.player_skills = []
+        self.card_drops = []
+        self.title_drops = []
+        self.arm_drops = []
+        self.summon_drops = []
+        self.pickaxe = False
+        self.miner = False
+        self.hammer = False
+        self.fishing_pole = False
+        self.fishing = False
+        self.engineer = False 
+        self.swimmer = False
+        self.climber = False
+        self.has_quest = False
+        self.has_investigation = False
+        self.my_quest = None
 
 
 
