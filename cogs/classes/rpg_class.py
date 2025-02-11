@@ -80,11 +80,20 @@ class RPG:
         self._talking_uuid = ""
         self.talking_encounter = False
         self.quest_type = None
-        # The quest_count is the amount of items completed during the quest
-        self.quest_requirements = 3
+        self.mission_type = None
+        # The quest counts the total amount of quests completed  
         self.quest_count = 0
+        self.quest_complete = 0
         self.quest_message = ""
+        self.quest_message_list = ["[📜]Quest Log"]
         self.quest_completed = False
+
+        #The Mission is the overall mission required to level up
+        self.mission_requirements = 3
+        self.mission_count = 0
+        self.mission_message = ""
+        self.mission_completed = False
+
 
         self.player1_card_name = self.player1.equipped_card
         self.player_card_data = crown_utilities.create_card_from_data(db.queryCard({'NAME': self.player1_card_name}))
@@ -130,19 +139,15 @@ class RPG:
         self.npc = crown_utilities.crest_dict[self.player_card_data.universe]
         self.civ_tokens = [
                             # Male emojis
-                            "👨", "👨‍⚕️", "👨‍🌾", "👨‍🍳", "👨‍🎓", "👨‍🎤", "👨‍🏫", "👨‍🏭", "👨‍💻", "👨‍💼", "👨‍🔧", "👨‍🔬",
-                            "👨‍🚀", "👨‍🚒", "👮‍♂️", "🕵️‍♂️", "👷‍♂️", "🤴", "👳‍♂️", "👲", "🧔", "👱‍♂️", "👨‍🦰", "👨‍🦱", 
-                            "👨‍🦳", "👨‍🦲", "🧓", "👴", "👶‍♂️",
+                            "👨", "👨‍⚕️", "👨‍🌾", "👨‍🍳","👨‍🏭" "👨‍💼", "👨‍🔧",
+                            "🕵️‍♂️", "👷‍♂️", "🤴", "👳‍♂️", "👲", "🧔", "👱‍♂️", "👨‍🦰", "👨‍🦱", 
+                            "👨‍🦳", "👨‍🦲", "🧓", "👴",
                             # Female emojis
-                            "👩", "👩‍⚕️", "👩‍🌾", "👩‍🍳", "👩‍🎓", "👩‍🎤", "👩‍🏫", "👩‍🏭", "👩‍💻", "👩‍💼", "👩‍🔧", "👩‍🔬",
-                            "👩‍🚀", "👩‍🚒", "👮‍♀️", "🕵️‍♀️", "👷‍♀️", "👸", "👳‍♀️", "👲", "🧕", "👱‍♀️", "👩‍🦰", "👩‍🦱",
-                            "👩‍🦳", "👩‍🦲", "🧓", "👵", "👶‍♀️",
+                            "👩", "👩‍⚕️", "👩‍🌾", "👩‍🍳","👩‍🏭", "👩‍💼", "👩‍🔧",
+                            "🕵️‍♀️", "👷‍♀️", "👸", "👳‍♀️", "👲", "🧕", "👱‍♀️", "👩‍🦰", "👩‍🦱",
+                            "👩‍🦳", "👩‍🦲", "🧓", "👵",
                             # Child emojis
-                            "👶", "🧒", "👦", "👧", "🧑‍🍼", "👶‍♂️", "👶‍♀️", "🧒‍♂️", "🧒‍♀️", "👦‍♂️", "👦‍♀️", "👧‍♂️", "👧‍♀️",
-                            # Family emojis
-                            "👪", "👨‍👩‍👦", "👨‍👩‍👧", "👨‍👩‍👧‍👦", "👨‍👩‍👦‍👦", "👨‍👩‍👧‍👧", "👨‍👨‍👦", "👨‍👨‍👧", "👨‍👨‍👧‍👦", 
-                            "👨‍👨‍👦‍👦", "👨‍👨‍👧‍👧", "👩‍👩‍👦", "👩‍👩‍👧", "👩‍👩‍👧‍👦", "👩‍👩‍👦‍👦", "👩‍👩‍👧‍👧", "👨‍👦", 
-                            "👨‍👦‍👦", "👨‍👧", "👨‍👧‍👧", "👩‍👦", "👩‍👦‍👦", "👩‍👧", "👩‍👧‍👧"
+                            "👦", "👧",
                         ]
         
         self.difficulty = _player.difficulty
@@ -176,7 +181,12 @@ class RPG:
         self.swimmer = False
         self.climber = False
         self.has_quest = False
+        self.has_investigation = False
         self.my_quest = None
+
+        self.vs_count = 0
+        self.civ_count = 0
+        self.wild_count = 0
 
         self.loot_drop = False
 
@@ -272,13 +282,21 @@ class RPG:
         self.loot_rolls = ["🎲","🃏","🎰"]
         self.encounter_rolls =["💫"]
         self.quest = ["🎯", "🔎"]
-        self.skills = ['🏊','🪜','🪓','🎣','⛏️','🔨','⚒️']
+        self.skills = ['🏊6','🪜','🪓','🎣','⛏️','🔨','⚒️']
         self.remains = ["💀","🦴", "☠️"]
         self.food = ["🥩", "🍖", "🥕"]
+        self.cooked_food = ["🍲","🍛","🍚"]
+        self.healing_items = []
+        self.healing_items.extend(self.food)
+        self.healing_items.extend(self.cooked_food)
         self.resources = ['🪨','🧱']
         self.resources.extend(self.gems)
         self.pumpkin = "🎃"
         self.pumpkin_array = ["🎃"]
+
+        self.random_loot_point = []
+        self.random_loot_point.extend(self.items)
+        self.random_loot_point.extend(self.remains)
 
 
         self.interaction_points = []
@@ -350,6 +368,7 @@ class RPG:
         
         self.map_states = {}  # Dictionary to hold the state of each map
         self.map_change = False
+        self.new_map = False
 
         self.area_task = None
         self.floor_task = None
@@ -390,28 +409,28 @@ class RPG:
         return "\n".join("".join(str(cell) for cell in row) for row in self.map)
 
     
-    def change_map(self, direction, location):
+    async def change_map(self, direction, location):
         self.map_change = True
         self.save_map_state(self.map_name)  # Save the current map state before changing
         if location == self.map_doors:
             self.floor += 1
-            self.load_map(self.door_exit)
+            await self.load_map(self.door_exit)
             return True
         elif direction == "2" and self.north_exits:
             self.floor += 1
-            self.load_map(self.north_exits)
+            await self.load_map(self.north_exits)
             return True
         elif direction == "3" and self.south_exits:
             self.floor += 1
-            self.load_map(self.south_exits)
+            await self.load_map(self.south_exits)
             return True
         elif direction == "4" and self.east_exits:
             self.floor += 1
-            self.load_map(self.east_exits)
+            await self.load_map(self.east_exits)
             return True
         elif direction == "1" and self.west_exits:
             self.floor += 1
-            self.load_map(self.west_exits)
+            await self.load_map(self.west_exits)
             return True
         else:
             self.previous_moves.append(f"Cannot move {direction}, no exit found.")
@@ -457,7 +476,7 @@ class RPG:
         }
     
     
-    def load_map(self, new_map):
+    async def load_map(self, new_map):
         registered_player = db.queryUser({'DID': str(self.player1_did)})
         player = crown_utilities.create_player_from_data(registered_player)
         # Save the current map state before loading the new map
@@ -484,6 +503,21 @@ class RPG:
             self.door_exit = saved_map['door_exit']
             self.map = saved_map['map']
             self.player_position = saved_map['player_position']
+            self.new_map = False
+            # This method is called when the map is configured to programmatically place "🆚" emojis on the map
+            total, vs, civ, loot = self.count_emojis_on_map(self.map, self.civ_tokens)
+            if vs <= 2:
+                await self.place_vs_emojis(self.map, self.configure_map_level_layout())
+            if civ < 1:
+                await self.place_civ_emojis(self.map, self.configure_map_level_layout())
+            if loot <=1:
+                num = random.randint(1,100)
+                if num <= 50:
+                    await self.place_loot_emojis(self.map, 1)
+                elif num == 100:
+                    await self.place_loot_emojis(self.map, 2)
+            if total <= 4:
+                await self.place_wildlife_emojis(self.map)
         else:
             # Load the new map as usual
             self.standing_on = new_map['standing_on']
@@ -500,6 +534,22 @@ class RPG:
             self.door_exit = new_map.get('door_exit')
             self.map = new_map['map']
             self.player_position = self.spawn_portal
+            self.new_map = True
+            # This method is called when the map is configured to programmatically place "🆚" emojis on the map
+            total, vs, civ, loot = self.count_emojis_on_map(self.map, self.civ_tokens)
+            if vs <= 2:
+                await self.place_vs_emojis(self.map, self.configure_map_level_layout())
+            if civ < 1:
+                await self.place_civ_emojis(self.map, self.configure_map_level_layout())
+            if loot <=1:
+                num = random.randint(1,100)
+                if num <= 50:
+                    await self.place_loot_emojis(self.map, 1)
+                elif num == 100:
+                    await self.place_loot_emojis(self.map, 2)
+            if total <= 4:
+                await self.place_wildlife_emojis(self.map)
+
 
         # Set the player token on the map at the player's position
         x, y = self.player_position
@@ -531,8 +581,10 @@ class RPG:
         vs_count = 0
         civ_count = 0
         wild_count = 0
+        loot_count = 0
         civ_set = set(civ_tokens)  # Convert civ_tokens list to a set for faster lookup
         wildlife_set = set(self.wildlife)  # Convert wildlife_tokens list to a set for faster lookup
+        loot_set = set(self.random_loot_point)
 
         for row in map:
             for cell in row:
@@ -542,14 +594,17 @@ class RPG:
                     civ_count += 1
                 elif cell in wildlife_set:
                     wild_count += 1
+                elif cell in loot_set:
+                    loot_count += 1
 
         total_count = vs_count + civ_count + wild_count
-        return total_count, vs_count
+        return total_count, vs_count, civ_count, loot_count
 
 
     async def generate_combatants(self):
-        number_of_combatants, vs_count = self.count_emojis_on_map(self.map, self.civ_tokens)
-        self.number_of_vs_combatants = vs_count
+        number_of_combatants, vs_count, civ_count, loot_count = self.count_emojis_on_map(self.map, self.civ_tokens)
+        self.vs_count = vs_count
+        self.civ_count = civ_count
         # Fetch combatants
         self.list_of_combatants = await self.fetch_combatants(number_of_combatants)
         self.names_of_combatants = [combatant["NAME"] for combatant in self.list_of_combatants]
@@ -639,15 +694,24 @@ class RPG:
                 setattr(self, attr, getattr(map_class_data, attr))
         loggy.info(f"Map configured: {self.map_name} - {self.map_area}")
         x, y = self.spawn_portal
-        self.map[x][y] = f"{self.player_token}"
+        if self.map[x][y] in self.passable_points:
+            self.map[x][y] = f"{self.player_token}"
 
         self.map_level = self.rpg_universe_level_check()
     
         # This method is called when the map is configured to programmatically place "🆚" emojis on the map
-        total, vs = self.count_emojis_on_map(self.map, self.civ_tokens)
+        total, vs, civ, loot = self.count_emojis_on_map(self.map, self.civ_tokens)
         if vs <= 2:
             await self.place_vs_emojis(self.map, self.configure_map_level_layout())
-        if total <= 2:
+        if civ < 1:
+            await self.place_civ_emojis(self.map, self.configure_map_level_layout())
+        if loot <=1:
+            num = random.randint(1,100)
+            if num <= 50:
+                await self.place_loot_emojis(self.map, 1)
+            elif num == 100:
+                await self.place_loot_emojis(self.map, 2)
+        if total <= 4:
             await self.place_wildlife_emojis(self.map)
 
         # This method is called when the map is configured to programmatically generate combatants based on the number of "🆚" emojis on the map
@@ -655,46 +719,84 @@ class RPG:
         await self.rpg_set_completetion_quest()
 
 
-    async def increment_quest_count(self, ctx, private_channel):
-        print(f"Quest count: {self.quest_count} / Quest requirements: {self.quest_requirements}")
-        if self.quest_type == "DEFEAT_ENEMIES":
-            self.quest_count += 1
-            if self.quest_count >= self.quest_requirements:
+    async def increment_mission_count(self, ctx, private_channel):
+        print(f"Mission count: {self.mission_count} / Mission requirements: {self.mission_requirements}")
+        if self.mission_type == "DEFEAT_ALL_ENEMIES":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
                 await self.complete_quest(ctx, private_channel)
         
-        elif self.quest_type == "DEFEAT_ENEMIES":
-            self.quest_count += 1
-            if self.quest_count >= self.quest_requirements:
+        elif self.mission_type == "DEFEAT_ENEMIES":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
                 await self.complete_quest(ctx, private_channel)
         
-        elif self.quest_type == "COLLECT_ALL_ITEMS":
-            self.quest_count += 1
-            if self.quest_count >= self.quest_requirements:
+        elif self.mission_type == "COLLECT_ALL_ITEMS":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
                 await self.complete_quest(ctx, private_channel)
         
-        elif self.quest_type == "COLLECT_ITEMS":
-            self.quest_count += 1
-            if self.quest_count >= self.quest_requirements:
+        elif self.mission_type == "COLLECT_ITEMS":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
                 await self.complete_quest(ctx, private_channel)
         
-        elif self.quest_type == "DEFEAT_BOSS":
-            self.quest_count += 1
-            if self.quest_count >= self.quest_requirements:
+        elif self.mission_type == "DEFEAT_BOSS":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
+                await self.complete_quest(ctx, private_channel)
+
+        elif self.mission_type == "COLLECT_CRYSTAL":
+            self.mission_count = self.player_gems
+            if self.mission_count >= self.mission_requirements:
                 await self.complete_quest(ctx, private_channel)
         
-        print(f"Quest count: {self.quest_count} / Quest requirements: {self.quest_requirements}")
+        elif self.mission_type == "COLLECT_GOLD":
+            self.mission_count = self.player_gold
+            if self.mission_count >= self.mission_requirements:
+                await self.complete_quest(ctx, private_channel)
+        
+        elif self.mission_type == "HUNT":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
+                await self.complete_quest(ctx, private_channel)
+        
+        elif self.mission_type == "QUEST":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
+                await self.complete_quest(ctx, private_channel)
+
+        elif self.mission_type == "INVESTIGATION":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
+                await self.complete_quest(ctx, private_channel)
+
+        elif self.mission_type == "EXPLORE":
+            self.mission_count += 1
+            if self.mission_count >= self.mission_requirements:
+                await self.complete_quest(ctx, private_channel)
+        
+        print(f"Quest count: {self.mission_count} / Quest requirements: {self.mission_requirements}")
 
         # Add more quest types and their increment logic here
 
 
     async def complete_quest(self, ctx, private_channel):
-        print("Quest completed! Incrementing RPG level")
+        print("Mission completed! Incrementing RPG level")
         self._player.inc_rpg_level(self.universe)
         self._player.save_rpg_levels()
         x, y = self.player_position
         self.map[x][y] = self.standing_on # Reset the player token on the map
         self.adventuring = False
-        self.quest_completed = True
+        self.mission_completed = True
+        currency_modifier = self.rpg_universe_level_check()
+        gold_to_coin = self.player_gold * currency_modifier
+        await crown_utilities.bless(gold_to_coin, self.player1_did)
+        if self.player_gems > 0:
+            gems_earned = self.player_gems * currency_modifier
+            universe_to_add_gems = self.universe
+            self.player1.save_gems(universe_to_add_gems, gems_earned)
+
         embedVar = Embed(title=f"🗺️ | {self.universe} Adventure Ended!", description=textwrap.dedent(f"""
             """))           
         embedVar.set_footer(text="🗺️ | Reach the end of the map to complete the adventure!")
@@ -705,33 +807,63 @@ class RPG:
 
    
     async def rpg_set_completetion_quest(self):
-        self.quest_type = "DEFEAT_ENEMIES"  # Example, you can change this dynamically
+        #self.mission_type = "DEFEAT_ENEMIES"  # Example, you can change this dynamically
+        mission_select = random.choice(["DEFEAT_ENEMIES","COLLECT_SKILLS", "COLLECT_CRYSTAL", "COLLECT_GOLD", "HUNT", "QUEST", "INVESTIGATION", "EXPLORE"]) #Boss and All enemies inactive
+        if self.mission_type not in ["DEFEAT_ENEMIES", "COLLECT_SKILLS", "COLLECT_CRYSTAL", "COLLECT_GOLD", "HUNT", "QUEST", "INVESTIGATION", "EXPLORE"]:
+            self.mission_type = mission_select
+            self.mission_count = 0
+            self.number_of_vs_combatants = self.vs_count
+        
+            if self.mission_type == "DEFEAT_ALL_ENEMIES":
+                # Set the quest to defeat all enemies
+                amount_of_combatants = self.number_of_vs_combatants
+                self.mission_requirements = amount_of_combatants
+                self.mission_message = "Defeat all enemies"
+                
+            if self.mission_type == "DEFEAT_ENEMIES":
+                # Set the quest to defeat a specific number of enemies
+                amount_of_combatants = self.number_of_vs_combatants
+                self.mission_requirements = random.randint(1, amount_of_combatants)
+                self.mission_message = f"Defeat {self.mission_requirements} enemies" if self.mission_requirements > 1 else "Defeat an enemy"
+                
+            # Add more quest types and their corresponding messages here
+            if self.mission_type == "COLLECT_ALL_ITEMS":
+                self.mission_requirements = len(self.skills)  # Assuming list_of_items exists
+                self.mission_message = "Learn all skills"
+                
+            if self.mission_type == "COLLECT_SKILLS":
+                self.mission_requirements = random.randint(1, 3)  # Assuming list_of_items exists
+                self.mission_message = f"Learn {self.mission_requirements} skills" if self.mission_requirements > 1 else "Learn a skill"
+                
+            # Example for another quest type
+            if self.mission_type == "DEFEAT_BOSS":
+                self.mission_requirements = 1  # Typically defeating a boss would be a single task
+                self.mission_message = "Defeat the boss"
 
-        if self.quest_type == "DEFEAT_ALL_ENEMIES":
-            # Set the quest to defeat all enemies
-            amount_of_combatants = self.number_of_vs_combatants
-            self.quest_requirements = amount_of_combatants
-            self.quest_message = "Defeat all enemies"
-            
-        if self.quest_type == "DEFEAT_ENEMIES":
-            # Set the quest to defeat a specific number of enemies
-            amount_of_combatants = self.number_of_vs_combatants
-            self.quest_requirements = random.randint(1, amount_of_combatants)
-            self.quest_message = f"Defeat {self.quest_requirements} enemies"
-            
-        # Add more quest types and their corresponding messages here
-        if self.quest_type == "COLLECT_ALL_ITEMS":
-            self.quest_requirements = len(self.player_inventory)  # Assuming list_of_items exists
-            self.quest_message = "Collect all items"
-            
-        if self.quest_type == "COLLECT_ITEMS":
-            self.quest_requirements = random.randint(1, len(self.player_inventory))  # Assuming list_of_items exists
-            self.quest_message = f"Collect {self.quest_requirements} items"
-            
-        # Example for another quest type
-        if self.quest_type == "DEFEAT_BOSS":
-            self.quest_requirements = 1  # Typically defeating a boss would be a single task
-            self.quest_message = "Defeat the boss"
+            if self.mission_type == "COLLECT_CRYSTAL":
+                self.mission_requirements = random.randint(200, 500)
+                self.mission_message = f"Collect {self.mission_requirements} crystals"
+
+            if self.mission_type == "COLLECT_GOLD":
+                self.mission_requirements = random.randint(500, 1000)
+                self.mission_message = f"Collect {self.mission_requirements} gold"
+
+            if self.mission_type == "HUNT":
+                self.mission_requirements = random.randint(1, 5)
+                self.mission_message = f"Hunt {self.mission_requirements} animals" if self.mission_requirements > 1 else "Hunt an animal"
+
+            if self.mission_type == "QUEST" and self.has_quest:
+                self.mission_requirements = random.randint(1, 5)
+                self.mission_message = f"Complete {self.mission_requirements} quests" if self.mission_requirements > 1 else "Complete a quest"
+
+            if self.mission_type == "INVESTIGATION" and self.has_investigation:
+                self.mission_requirements = random.randint(1, 3)
+                self.mission_message = f"Complete {self.mission_requirements} investigations" if self.mission_requirements > 1 else "Complete an investigation"
+
+            if self.mission_type == "EXPLORE":
+                self.mission_requirements = random.randint(3, 5)
+                self.mission_message = "Explore the map"
+
 
         # You can continue adding more quest types and their messages as needed
 
@@ -824,6 +956,49 @@ class RPG:
         except Exception as e:
             loggy.error(f"Failed to place wildlife emojis on the map: {e}")
             return 
+        
+
+    async def place_civ_emojis(self, map_data, num_npcs):
+        try:
+            # Get all possible positions for placing "👥"
+            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self.standing_on]
+            
+            if num_npcs > len(available_positions):
+                raise ValueError("Number of '👥' emojis to place exceeds the available positions.")
+            
+            # Randomly select positions to place "👥"
+            npc_positions = random.sample(available_positions, num_npcs)
+            
+            # Place "👥" emojis on the map
+            for i, j in npc_positions:
+                random_npc = random.choice(self.civ_tokens)
+                map_data[i][j] = random_npc
+            
+            return map_data
+        except Exception as e:
+            loggy.error(f"Failed to place '👥' emojis on the map: {e}")
+            return
+    
+    async def place_loot_emojis(self, map_data, num_loot):
+        try:
+            # Get all possible positions for placing "💰"
+            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self.standing_on]
+            
+            if num_loot > len(available_positions):
+                raise ValueError("Number of '💰' emojis to place exceeds the available positions.")
+            
+            # Randomly select positions to place "💰"
+            loot_positions = random.sample(available_positions, num_loot)
+            
+            # Place "💰" emojis on the map
+            for i, j in loot_positions:
+                random_loot = random.choice(self.random_loot_point)
+                map_data[i][j] = random_loot
+            
+            return map_data
+        except Exception as e:
+            loggy.error(f"Failed to place '💰' emojis on the map: {e}")
+            return
 
 
     def get_default_map(self):
@@ -906,16 +1081,17 @@ class RPG:
             self.adventuring = False
             self.previous_moves.append("🏁 Adventure has ended!")
             self.map[x][y] = f"{self.standing_on}"
-            gold_to_coin = self.player_gold * 10
+            currency_modifier = self.rpg_universe_level_check()
+            gold_to_coin = self.player_gold
             await crown_utilities.bless(gold_to_coin, self.player1_did)
             if self.player_gems > 0:
-                gems_earned = self.player_gems * 10
+                gems_earned = self.player_gems
                 universe_to_add_gems = self.universe
                 self.player1.save_gems(universe_to_add_gems, gems_earned)
             
             embedVar = Embed(title=f"🗺️ | {self.universe} Adventure Ended!", description=textwrap.dedent(f"""
                 """))           
-            embedVar.set_footer(text="🗺️ | Reach the end of the map to complete the adventure!")
+            embedVar.set_footer(text=f"🗺️ | Reach the end of the map to complete the adventure and earn currency Modifiers! [{currency_modifier}x]")
 
             await rpg_msg.edit(embed=embedVar,components=[])
             paginator = await self.leave_adventure_embed(ctx)
@@ -966,15 +1142,26 @@ class RPG:
             # After player movement and before ending the turn, call the new function
 
             if new_x < 0 or new_x >= len(self.map) or new_y < 0 or new_y >= len(self.map[0]):
-                map_change = self.change_map(direction, (new_x, new_y))
-                total, vs = self.count_emojis_on_map(self.map, self.civ_tokens)
-                if vs <= 1:
+                map_change = await self.change_map(direction, (new_x, new_y))
+                total, vs, civ, loot = self.count_emojis_on_map(self.map, self.civ_tokens)
+                if vs <= 2:
                     await self.place_vs_emojis(self.map, self.configure_map_level_layout())
-                if total <= 2:
+                if civ < 1:
+                    await self.place_civ_emojis(self.map, self.configure_map_level_layout())
+                if loot <=1:
+                    num = random.randint(1,100)
+                    if num <= 50:
+                        await self.place_loot_emojis(self.map, 1)
+                    elif num == 100:
+                        await self.place_loot_emojis(self.map, 2)
+                if total <= 4:
                     await self.place_wildlife_emojis(self.map)
                 if not map_change:
                     self.previous_moves.append(f"(🚫) You can't leave this area yet!")
                     self.player_position = (x, y)  # Keep the player in the same position
+                else:
+                    if self.mission_type == "EXPLORE":
+                        await self.increment_mission_count(ctx, private_channel)
             else:
                 self.above_position = self.map[new_x - 1][new_y] if new_x > 0 else None
                 self.below_position = self.map[new_x + 1][new_y] if new_x < len(self.map) - 1 else None
@@ -1020,6 +1207,8 @@ class RPG:
                             await self.encounter_handler(ctx, private_channel, "🆚", new_vs_pos)
                             self.encounter = True
                             await self.create_rpg_battle(ctx, private_channel)
+                            if (npc == "⚔️" or npc == "🆚") and self.combat_victory:
+                                self.map[new_vs_pos[0]][new_vs_pos[1]] = f"💀"
                             return  # End the function here to avoid processing the rest of the handler
             
 
@@ -1037,11 +1226,19 @@ class RPG:
                     # self.previous_moves.append(movement_msg)
                 elif self.map[new_x][new_y] in self.open_door:  # Can't move to doors
                     self.previous_moves.append(f"({self.open_door}) Moving into the next room {cardinal}")
-                    next_map = self.change_map(direction, (new_x, new_y))
-                    total, vs = self.count_emojis_on_map(self.map, self.civ_tokens)
+                    next_map = await self.change_map(direction, (new_x, new_y))
+                    total, vs, civ, loot = self.count_emojis_on_map(self.map, self.civ_tokens)
                     if vs <= 2:
                         await self.place_vs_emojis(self.map, self.configure_map_level_layout())
-                    if total <= 5:
+                    if civ < 1:
+                        await self.place_civ_emojis(self.map, self.configure_map_level_layout())
+                    if loot <=1:
+                        num = random.randint(1,100)
+                        if num <= 50:
+                            await self.place_loot_emojis(self.map, 1)
+                        elif num == 100:
+                            await self.place_loot_emojis(self.map, 2)
+                    if total <= 4:
                         await self.place_wildlife_emojis(self.map)
                     if not next_map:
                         self.previous_moves.append(f"(🚫) You can't leave this area yet!")
@@ -1055,9 +1252,11 @@ class RPG:
                     self.player_position = self.player_position
                 elif self.map[new_x][new_y] == "🔎":
                     self.previous_moves.append(f"(🔎) Investigation Quest Complete!")
-                    self.has_quest = False
                     x, y = self.quest_giver_position
                     self.map[x][y] = f"🗝️"
+                    if self.mission_type == "INVESTIGATION":
+                        await self.increment_mission_count(ctx, private_channel)
+                    self.has_quest = False
                     await self.rpg_action_handler(ctx, private_channel, self.player_position, "🃏", (new_x, new_y), direction)
                     self.map[new_x][new_y] = f"{self.standing_on}"
                 elif self.map[new_x][new_y] in self.looted_trees:  # Can't move to looted trees
@@ -1125,7 +1324,7 @@ class RPG:
                 elif self.map[new_x][new_y] in crown_utilities.rpg_npc_emojis:
                     encountered_player = self.check_for_other_players(new_x, new_y)
                     if encountered_player:
-                        print(f"You encountered {encountered_player.disname}!")
+                        print(f"You encountered {encountered_player}!")
                     self.previous_moves.append(f"(👻) There is a {crown_utilities.rpg_npc[self.map[new_x][new_y]]} {cardinal}.")
                     self.player_position = self.player_position
                 elif self.map[new_x][new_y] in interaction_points:
@@ -1393,9 +1592,9 @@ class RPG:
         rpg_map_embed = self.get_map_message()
         
         embedVar = Embed(title=f"[🌎]Exploring: {self.map_name}",description=f"**[🗺️]** *{self.map_area}*", color=0xFFD700)
-        # embedVar.set_author(name=f"{self.player1.disname}'s Adventure", icon_url=f"{self.player1.avatar}")
+        print(self.mission_message)
+        embedVar.set_author(name=f"Level {self.map_level} Adventure - 🎖️{self.mission_message} ({self.mission_count}/{self.mission_requirements})", icon_url=f"{self.player1.avatar}")
         
-        embedVar.set_author(name=f"Level {self.map_level} Rpg Adventure\n{self.quest_message}")
         
         if self.inventory_active:
             embedVar.add_field(name=f"**[🎒]Inventory**", value=equipment_message or "No items in inventory", inline=False)
@@ -1525,6 +1724,8 @@ class RPG:
                     gold_found = random.randint(1, 10)
                     self.player_gold += gold_found
                     self.previous_moves.append(f"({self.coin_item}) You found {gold_found} gold!")
+                if self.mission_type == "COLLECT_GOLD":
+                    await self.increment_mission_count(ctx, private_channel)
                 if not self.loot_drop:
                     self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}" #upadte map with new position
                 self.loot_drop = False
@@ -1579,7 +1780,9 @@ class RPG:
                     self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
                 elif random_number <= 75:
                     #You successfully hunt the animal and gain some food
-                    self.previous_moves.append(f"({npc}) The {emoji_labels[npc]} left some food!")
+                    self.previous_moves.append(f"({npc}) You successfully hunt the {emoji_labels[npc]}!")
+                    if self.mission_type == "HUNT":
+                        await self.increment_mission_count(ctx, private_channel)
                     if npc == "🦌":
                         await self.rpg_action_handler(ctx, private_channel, player_position, "🥩", npc_position, direction)
                     elif npc == "🐇":
@@ -1606,15 +1809,31 @@ class RPG:
                     #find book and learn skill
                 self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
             elif npc in self.food:
+                health_msg = ""
                 if npc == "🥩":
-                    self.player_health += 500
-                    self.previous_moves.append(f"(🥩) You found a steak! +")
+                    health_gained = round(self.player_max_health * .50)
+                    health_msg = f"{health_gained}HP"
+                    self.player_health += health_gained
+                    if self.player_health >= self.player_max_health:
+                        self.player_health = self.player_max_health
+                        health_msg = "Max Health!"
+                    self.previous_moves.append(f"(🥩) You found a raw steak!  [{health_gained}]")
                 if npc == "🍖":
-                    self.player_health += 250
-                    self.previous_moves.append(f"(🍖) You found a roast!")
+                    health_gained = round(self.player_max_health * .25)
+                    health_msg = f"{health_gained}HP"
+                    self.player_health += health_gained
+                    if self.player_health >= self.player_max_health:
+                        self.player_health = self.player_max_health
+                        health_msg = "Max Health!"
+                    self.previous_moves.append(f"(🍖) You found a roast! [{health_gained}]")
                 if npc == "🥕":
-                    self.player_health += 100
-                    self.previous_moves.append(f"(🥕) You found a carrot!")
+                    health_gained = round(self.player_max_health * .10)
+                    health_msg = f"{health_gained}HP"
+                    self.player_health += health_gained
+                    if self.player_health >= self.player_max_health:
+                        self.player_health = self.player_max_health
+                        health_msg = "Max Health!"
+                    self.previous_moves.append(f"(🥕) You found a carrot! [{health_gained}]")
                 elif npc in self.player_inventory:
                     self.previous_moves.append(f"({npc}) added to inventory")
                     food_found = False
@@ -1675,6 +1894,8 @@ class RPG:
                         gold_found = random.randint(10, 100)
                         self.player_gold += gold_found
                         self.previous_moves.append(f"(💰) You gained {gold_found} gold!")
+                        if self.mission_type == "COLLECT_GOLD":
+                            await self.increment_mission_count(ctx, private_channel)
                     await self.rpg_action_handler(ctx, private_channel, player_position, random_item, npc_position, direction)
                 else:
                     self.previous_moves.append(f"(🆚) You are under attack!")
@@ -1700,6 +1921,8 @@ class RPG:
                         gold_found = random.randint(10, 100)
                         self.player_gold += gold_found
                         self.previous_moves.append(f"(💰) You gained {gold_found} gold!")
+                        if self.mission_type == "COLLECT_GOLD":
+                            await self.increment_mission_count(ctx, private_channel)
                     await self.rpg_action_handler(ctx, private_channel, player_position, random_item, npc_position, direction)
             elif npc in self.climable_mountains:
                 if self.climber:
@@ -1731,6 +1954,8 @@ class RPG:
                         self.previous_moves.append(f"({npc}) You found Gemstone!")
                     self.player_gems += gems_gained
                     self.previous_moves.append(f"(⛏️) You mined 💎{gems_gained} Gems! {miner_bonus_message}")
+                    if self.mission_type == "COLLECT_GEMS":
+                        await self.increment_mission_count(ctx, private_channel)
                     # if not self.miner:
                     #     self.miner = True
                     #     self.previous_moves.append(f"You gained the Miner Skill! [⛏️]")
@@ -1744,7 +1969,11 @@ class RPG:
                 await self.encounter_handler(ctx, private_channel, npc, npc_position)
         elif npc == "🔎":
             self.previous_moves.append(f"(🔎) Investigation Quest Complete!")
+            self.quest_message_list.append(f"(🔎) Investigation Quest Complete!")
+            if self.mission_type == "INVESTIGATION" or self.mission_type == "QUEST":
+                await self.increment_mission_count(ctx, private_channel)
             self.has_quest = False
+            self.has_investigation = False
             x, y = self.quest_giver_position
             new_x, new_y = npc_position
             self.map[x][y] = f"🗝️"
@@ -1756,22 +1985,32 @@ class RPG:
                 if roll == 1:
                     gold_found = random.randint(1, 10)
                     self.player_gold += gold_found
+                    if self.mission_type == "COLLECT_GOLD":
+                        await self.increment_mission_count(ctx, private_channel)
                     self.previous_moves.append(f"({self.coin_item}) You got {gold_found} gold!")
                 elif roll == 2:
                     gold_found = random.randint(5, 25)
                     self.player_gold += gold_found
+                    if self.mission_type == "COLLECT_GOLD":
+                        await self.increment_mission_count(ctx, private_channel)
                     self.previous_moves.append(f"(👛) You got a empty bag of {gold_found} gold!")
                 elif roll == 3:
                     gold_found = random.randint(10, 50)
                     self.player_gold += gold_found
+                    if self.mission_type == "COLLECT_GOLD":
+                        await self.increment_mission_count(ctx, private_channel)
                     self.previous_moves.append(f"(👛) You got a full bag of {gold_found} gold!")
                 elif roll == 4:
                     gold_found = random.randint(25, 100)
                     self.player_gold += gold_found
+                    if self.mission_type == "COLLECT_GOLD":
+                        await self.increment_mission_count(ctx, private_channel)
                     self.previous_moves.append(f"(💰) You got a bonus sack {gold_found} gold!")
                 elif roll == 5:
                     gold_found = random.randint(50, 500)
                     self.player_gold += gold_found
+                    if self.mission_type == "COLLECT_GOLD":
+                        await self.increment_mission_count(ctx, private_channel)
                     self.previous_moves.append(f"(💰) You got a heavy sack of {gold_found} gold!")
                 elif roll == 6:
                     self.previous_moves.append(f"(🔍) Checking their inventory....")
@@ -1790,6 +2029,8 @@ class RPG:
                     self.previous_moves.append(f"(🎰) You got a jackpot!")
                     gold_found = random.randint(100, 1000)
                     self.player_gold += gold_found
+                    if self.mission_type == "COLLECT_GOLD":
+                        await self.increment_mission_count(ctx, private_channel)
                     self.previous_moves.append(f"(💰) You gained {gold_found} gold!")
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🎒", npc_position, direction)
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🎴", npc_position, direction)
@@ -1829,14 +2070,18 @@ class RPG:
             self.previous_moves.append(f"(✅) You defeated the enemy!")
             self.combat_victory = False
             if npc in self.quest:
+                if self.mission_type == "QUEST":
+                    await self.increment_mission_count(ctx, private_channel)
                 self.has_quest = False
                 self.my_quest = ""
                 self.loot_drop = True
+                self.quest_complete += 1
             self.player_atk_boost = False
             self.player_def_boost = False
             self.player_hp_boost = False
             self.remove_combatant()
-            await self.increment_quest_count(ctx, private_channel)
+            if self.mission_type in ["DEFEAT_ENEMIES", "DEFEAT_ALL_ENEMIES"]:
+                await self.increment_mission_count(ctx, private_channel)
             await self.rpg_action_handler(ctx, private_channel, player_position, "🃏", npc_position, direction)
 
         await self.get_player_sorroundings()
@@ -1851,7 +2096,7 @@ class RPG:
             encountered_player = self.check_for_other_players(x,y)
             print(encountered_player)
             if encountered_player:
-                print(f"You encountered {encountered_player.disname}!")
+                print(f"You encountered {encountered_player}!")
                 # Optionally: Trigger PvP or other interaction
 
         if npc in self.merchants:
@@ -1899,6 +2144,7 @@ class RPG:
                 elif random_number <= 80:
                     if not self.has_quest:
                         self.previous_moves.append(f"(🗺️) They have a quest for you!")
+                        self.quest_message_list.append(f"({npc}) You have a quest!")
                         embedVar.add_field(name=f"[🗺️)] They have a quest for you!", value=f"Check out your new quest!")
                         await self.generate_quest(ctx, private_channel, npc, npc_position)
                     else:
@@ -1949,12 +2195,12 @@ class RPG:
             p_2 = random.randint(100, 250)
             p_3 = random.randint(100, 250)
         elif npc == "🏥":
-            item1 = "🍖"
-            item2 = "🥕"
-            item3 = "🥩"
-            p_1 = random.randint(50, 100)
-            p_2 = random.randint(50, 100)
-            p_3 = random.randint(50, 100)
+            item1 = "🍚"
+            item2 = "🍛"
+            item3 = "🍲"
+            p_1 = random.randint(500, 750)
+            p_2 = random.randint(680, 1000)
+            p_3 = random.randint(1000, 1200)
         self.previous_moves.append(f"({npc}) You are interacting with a {get_emoji_label(npc)}!")
         shop_embed = Embed(title=f"{npc}{get_emoji_label(npc)} Shop", description=f"Choose your items to purchase:\n{self.get_gold_icon(self.player_gold)}{self.player_gold}\n", color=0xFFD700)
         # Add items to the shop based on the npc type
@@ -1991,18 +2237,12 @@ class RPG:
                     self.player_gold -= p_1
                     purchase_item = item1
                     cost = p_1
-                    if choice in self.food:
-                        for item in self.player_inventory:
-                            if item['ITEM'] == item1:
-                                item['USE'] += 1
-                                self.previous_moves.append(f"({npc}) You more {item1}{get_emoji_label(item1)} for {p_1} gold!")
-                                purchase = True
-                                break
-                            else:
-                                self.player_inventory.append({'ITEM': item1, 'USE': 1})
-                                self.previous_moves.append(f"({npc}) You purchased {item1}{get_emoji_label(item1)} for {p_1} gold!")
-                                purchase = True
-                                break
+                    if choice in self.healing_items:
+                        health_gained = round(self.player_max_health * .33)
+                        self.player_health += health_gained
+                        self.player_health += health_gained
+                        self.previous_moves.append(f"({npc}) You purchased {item1}{get_emoji_label(item1)} for {p_1} gold! (+250 HP)")
+                        purchase = True
                     elif choice in self.skills:
                         for skill in self.player_skills:
                             if skill == item1:
@@ -2035,18 +2275,10 @@ class RPG:
                     purchase_item = item2
                     cost = p_2
                     #Create method for adding items and their specific uses  and add to inventory
-                    if choice in self.food:
-                        for item in self.player_inventory:
-                            if item['ITEM'] == item2:
-                                item['USE'] += 1
-                                self.previous_moves.append(f"({npc}) You more {item2}{get_emoji_label(item2)} for {p_2} gold!")
-                                purchase = True
-                                break
-                            else:
-                                self.player_inventory.append({'ITEM': item2, 'USE': 1})
-                                self.previous_moves.append(f"({npc}) You purchased {item2}{get_emoji_label(item2)} for {p_2} gold!")
-                                purchase = True
-                                break
+                    if choice in self.healing_items:
+                        health_gained = round(self.player_max_health * .66)
+                        self.player_health += health_gained
+                        self.previous_moves.append(f"({npc}) You purchased {item2}{get_emoji_label(item2)} for {p_2} gold! (+500 HP)")
                     elif choice in self.skills:              
                         for skill in self.player_skills:
                             if skill == item2:
@@ -2078,17 +2310,9 @@ class RPG:
                     purchase_item = item3
                     cost = p_3
                     if choice in self.food:
-                        for item in self.player_inventory:
-                            if item['ITEM'] == item3:
-                                item['USE'] += 1
-                                self.previous_moves.append(f"({npc}) You more {item3}{get_emoji_label(item3)} for {p_3} gold!")
-                                purchase = True
-                                break
-                            else:
-                                self.player_inventory.append({'ITEM': item3, 'USE': 1})
-                                self.previous_moves.append(f"({npc}) You purchased {item3}{get_emoji_label(item3)} for {p_3} gold!")
-                                purchase = True
-                                break
+                        missing_health_gained = self.player_max_health - self.player_health
+                        self.player_health = self.player_max_health
+                        self.previous_moves.append(f"({npc}) You purchased cooked {item3}{get_emoji_label(item3)} for {p_3} gold! (+{missing_health_gained} HP)")
                     elif choice in self.skills:
                         for skill in self.player_skills:
                             if skill == item3:
@@ -2171,6 +2395,7 @@ class RPG:
         # Logic to generate a quest and place a random emoji on the map
         if self.has_quest:
             return
+        self.quest_count += 1
         q_type = ""
         self.has_quest = True
         quest_npc_msg = f"an {get_emoji_label(npc)}!"
@@ -2178,6 +2403,7 @@ class RPG:
             quest_npc_msg = f"a {self.universe} Rival!"
         quest_options = random.choice(self.quest)
         self.previous_moves.append(f"({npc}) You received a quest from {quest_npc_msg}!")
+        self.quest_message_list.append(f"({npc}) You received a quest from {quest_npc_msg}!")
         quest_embed = Embed(title=f"New Quest", description=f"Find and complete the [{quest_options}]Quest objective on the map.", color=0x00FF00)
         if quest_options == "🎯":
             quest_embed.add_field(name="Objective", value="Find and eliminate the target.")
@@ -2187,6 +2413,7 @@ class RPG:
             quest_embed.add_field(name="Objective", value="Find the hidden treasure.")
             self.my_quest = "🔎"
             q_type = "Treasure Hunt"
+            self.has_investigation = True
         # Ensure the quest marker is placed on a passable space
         while True:
             quest_location = (random.randint(0, len(self.map) - 1), random.randint(0, len(self.map[0]) - 1))
@@ -2198,6 +2425,7 @@ class RPG:
         #quest_msg = await private_channel.send(embed=quest_embed)
         #await quest_msg.delete(3)
         self.previous_moves.append(f"({self.my_quest}) {q_type} Quest marker placed at {quest_location}!")
+        self.quest_message_list.append(f"({self.my_quest}) {q_type} Quest marker placed at {quest_location} on {self.map_name}!")
 
     
     async def trigger_failed_talk(self, ctx, private_channel, npc):
@@ -2307,7 +2535,7 @@ class RPG:
                             self.map[x][y] = f"{self.standing_on}"
                             if not dialogue_option["dialogue_options"][0]["fight"]:
                                 # await msg.edit(components=[])
-                                # await self.increment_quest_count(ctx, private_channel)
+                                # await self.increment_mission_count(ctx, private_channel)
                                 self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
                                 await talk_msg.delete()
                                 self.battling = False
@@ -2321,7 +2549,7 @@ class RPG:
                             self.map[x][y] = f"{self.standing_on}"
 
                             if not dialogue_option["dialogue_options"][1]["fight"]:
-                                # await self.increment_quest_count(ctx, private_channel)
+                                # await self.increment_mission_count(ctx, private_channel)
                                 # await msg.edit(components=[])
                                 self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
                                 await talk_msg.delete()
@@ -2336,7 +2564,7 @@ class RPG:
                         if talking_button_ctx.ctx.custom_id == f"{self._talking_uuid}|C":
                             self.map[x][y] = f"{self.standing_on}"
                             if not dialogue_option["dialogue_options"][2]["fight"]:
-                                # await self.increment_quest_count(ctx, private_channel)
+                                # await self.increment_mission_count(ctx, private_channel)
                                 # await msg.edit(components=[])
                                 self.previous_moves.append(f"({selected_card.name}) has laid down their arms... for now.")
                                 await talk_msg.delete()
@@ -2573,7 +2801,10 @@ class RPG:
                 if original_tile == "🔎":
                     self.previous_moves.append(f"(🔎) You found a hidden path....")
                     self.previous_moves.append(f"(🔎) Investigation Quest Complete!")
+                    self.quest_message_list.append(f"🔎 Investigation Quest Complete!")
                     self.has_quest = False
+                    self.has_investigation = False
+                    self.quest_complete += 1
                     self.keys += 1
                     await self.rpg_action_handler(ctx, private_channel, self.player_position, "🃏", new_position, direction)
                 elif original_tile == "🎯":
@@ -2582,10 +2813,13 @@ class RPG:
                     if self.combat_victory:
                         self.remove_combatant()
                         self.previous_moves.append(f"(🎯) Target Eliminated!")
+                        self.quest_message_list.append(f"🎯 Target Eliminated")
                         self.has_quest = False
+                        self.quest_complete += 1
                         self.keys += 1
                     else:
                         self.previous_moves.append(f"(🎯) Target Escaped!")
+                        self.quest_message_list.append(f"🎯 Target Escaped")
                         return
             self.map[new_position[0]][new_position[1]] = f"{self.player_token}"
             self.map[x][y] = f"{self.standing_on}"
@@ -2750,7 +2984,83 @@ class RPG:
         else:
             return ""
         
+    def get_quest_list_embed(self):
+        print(self.quest_message_list)
+        if self.quest_message_list:
+            return "\n".join(self.quest_message_list)
+        else:
+            return "No Quests Taken"
+        
     
+    async def lose_adventure_embed(self, ctx):
+        from cogs.classes.custom_paginator import Paginator
+        gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {0} Coins"
+        gem_message = f"[{self.get_gem_icon(self.player_gems)}] {round(self.player_gems):,} Crystal 💱 [💎] {0} Gems"
+        
+        inventory_message = "No Items Aquired"
+        skills_message = "No Skills Aquired"
+        if self.inventory_active:
+            inventory_message = ""
+            for item in self.player_inventory:
+                inventory_message += f"|{item['USE']} {item['ITEM']}"
+        if self.skills_active:
+            skills_message = ""
+            for skill in self.player_skills:
+                skills_message += f"|{skill}"
+      
+
+        embedVar = Embed(title=f"👤 Adventure Inventory", description="*You lost all currency Gold and Crystal*", color=0xFFD700)
+        embedVar.add_field(name=f"**[❤️] {self.player_health:,} HP\n[🎒]Your Equipment**", value=f"|{inventory_message}")
+        embedVar.add_field(name=f"**[🥋] Skills**", value=f"|{skills_message}")
+        embedVar.add_field(name=f"**[💹] Currency Conversion**", value=f"{gold_message}\n{gem_message}")
+        embedVar.set_footer(text="🃏 Build Details on the next page!")
+
+        lootEmbed = Embed(title=f"☠️ You Died!", description="No worries any items you earned via drops you get to keep!\n*Your Adventure rewards will be shown below*", color=0xFFD700)
+        if len(self.card_drops) > 0:
+            card_msg = ""
+            for cards in self.card_drops:
+                card_msg += f"|{cards}\n"
+            lootEmbed.add_field(name=f"**🎴 Cards**", value=f"{card_msg}")
+        if len(self.title_drops) > 0:
+            title_msg = ""
+            for titles in self.title_drops:
+                title_msg += f"|{titles}\n"
+            lootEmbed.add_field(name=f"**🎗️ Titles**", value=f"{title_msg}")
+        if len(self.arm_drops) > 0:
+            arm_msg = ""
+            for arms in self.arm_drops:
+                arm_msg += f"|{arms}\n"
+            lootEmbed.add_field(name=f"**🦾 Arms**", value=f"{arm_msg}")
+        if len(self.summon_drops) > 0:
+            summon_msg = ""
+            for summons in self.summon_drops:
+                summon_msg += f"|{summons}\n"
+            lootEmbed.add_field(name=f"**🧬 Summons**", value=f"{summon_msg}")
+        lootEmbed.set_footer(text="👤 Adventure Summary on the Next Page!")
+
+        buildEmbed = Embed(title=f"🃏 Adventure Build", description="*Your Adventure Build will be shown below*", color=0xFFD700)
+        buildEmbed.add_field(name=f"**🎗️ Title**", value=f"{self.player1_title}")
+        buildEmbed.add_field(name=f"**🎴 Card**", value=f"{self.player1_card_name}")
+        buildEmbed.add_field(name=f"**🦾 Arm**", value=f"{self.player1_arm}")
+        buildEmbed.add_field(name=f"**🧬 Summon**", value=f"{self.player1_summon_name}")
+        buildEmbed.add_field("**📿 Talisman**", value=f"{self.player1_talisman.title()}")
+        buildEmbed.set_footer(text="🗺️ Adventure Map on the next page!")
+
+
+        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self.map_name}*\n**🗺️** | *{self.map_area}*\n{self.get_map_message()}", color=0xFFD700)
+        map_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
+
+        quest_embed = Embed(title=f"🔍Adventure Mission Progress...", description="*Your Mission & Quest progress will be shown below*", color=0xFFD700)
+        quest_embed.add_field(name=f"**{self.mission_message}!**", value=f"Mission count: {self.mission_count} / Mission requirements: {self.mission_requirements}")
+        quest_embed.add_field(name=f"**🔍 Quests Comeplete/Taken: {self.quest_complete}/ {self.quest_count}**", value=f"{self.get_quest_list_embed()}")
+        quest_embed.set_footer(text="☠️ You Died!")
+
+
+        embed_list = [lootEmbed,quest_embed,embedVar,buildEmbed,map_embed]
+        paginator = Paginator.create_from_embeds(self.bot, *embed_list)
+        paginator.show_select_menu = True
+        return paginator
+
     async def leave_adventure_embed(self, ctx):
         from cogs.classes.custom_paginator import Paginator
         gold_message = f"[{self.get_gold_icon(self.player_gold)}] {round(self.player_gold):,} Gold 💱 [{self.coin_item}] {round(self.player_gold * 10):,} Coins"
@@ -2769,7 +3079,7 @@ class RPG:
 
 
         # create rpg_completed embed 
-        if self.quest_completed:
+        if self.mission_completed:
             rpgVar = Embed(title=f"🪜 Floor {self.map_level} Completed!", description="🏆 Good luck on the next floor!", color=0xFFD700)
         
 
@@ -2814,11 +3124,12 @@ class RPG:
         map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self.map_name}*\n**🗺️** | *{self.map_area}*\n{self.get_map_message()}", color=0xFFD700)
         map_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
 
-        quest_embed = Embed(title=f"🔍Adevnture Quests Progress!", description="🏆 You have completed your adventure! 🏆\n*Your Quests progress will be shown below*", color=0xFFD700)
-        quest_embed.add_field(name=f"**{self.quest_message}!**", value=f"Quest count: {self.quest_count} / Quest requirements: {self.quest_requirements}")
+        quest_embed = Embed(title=f"🔍Adventure Mission Progress!", description="🏆 You have completed your adventure! 🏆\n*Your Mission & Quests progress will be shown below*", color=0xFFD700)
+        quest_embed.add_field(name=f"**{self.mission_message}!**", value=f"Mission count: {self.mission_count} / Mission requirements: {self.mission_requirements}")
+        quest_embed.add_field(name=f"**🔍 Quests Complete/Taken: {self.quest_complete}/ {self.quest_count}**", value=f"{self.get_quest_list_embed()}")
         quest_embed.set_footer(text="🎉 Adventure Completed!")
 
-        if self.quest_completed:
+        if self.mission_completed:
             embed_list = [rpgVar,lootEmbed,quest_embed,embedVar,buildEmbed,map_embed]
         else:
             embed_list = [lootEmbed,quest_embed,embedVar,buildEmbed,map_embed]
@@ -2878,22 +3189,17 @@ def search_emoji(emojis_dict, target_emoji):
 
 emojis = {
     'man': [
-        "👨", "👨‍⚕️", "👨‍🌾", "👨‍🍳", "👨‍🎓", "👨‍🎤", "👨‍🏫", "👨‍🏭", "👨‍💻", "👨‍💼", "👨‍🔧", "👨‍🔬",
-        "👨‍🚀", "👨‍🚒", "👮‍♂️", "🕵️‍♂️", "👷‍♂️", "🤴", "👳‍♂️", "👲", "🧔", "👱‍♂️", "👨‍🦰", "👨‍🦱", 
-        "👨‍🦳", "👨‍🦲", "🧓", "👴", "👶‍♂️"
+        "👨", "👨‍⚕️", "👨‍🌾", "👨‍🍳","👨‍🏭","👨‍💼", "👨‍🔧",
+        "🕵️‍♂️", "👷‍♂️", "🤴", "👳‍♂️", "👲", "🧔", "👱‍♂️", "👨‍🦰", "👨‍🦱", 
+        "👨‍🦳", "👨‍🦲", "🧓", "👴",
     ],
     'woman': [
-        "👩", "👩‍⚕️", "👩‍🌾", "👩‍🍳", "👩‍🎓", "👩‍🎤", "👩‍🏫", "👩‍🏭", "👩‍💻", "👩‍💼", "👩‍🔧", "👩‍🔬",
-        "👩‍🚀", "👩‍🚒", "👮‍♀️", "🕵️‍♀️", "👷‍♀️", "👸", "👳‍♀️", "👲", "🧕", "👱‍♀️", "👩‍🦰", "👩‍🦱",
-        "👩‍🦳", "👩‍🦲", "🧓", "👵", "👶‍♀️"
+        "👩", "👩‍⚕️", "👩‍🌾", "👩‍🍳","👩‍🏭","👩‍💼", "👩‍🔧",
+        "🕵️‍♀️", "👷‍♀️", "👸", "👳‍♀️", "👲", "🧕", "👱‍♀️", "👩‍🦰", "👩‍🦱",
+        "👩‍🦳", "👩‍🦲", "🧓", "👵",
     ],
     'little': [
-        "👶", "🧒", "👦", "👧", "🧑‍🍼", "👶‍♂️", "👶‍♀️", "🧒‍♂️", "🧒‍♀️", "👦‍♂️", "👦‍♀️", "👧‍♂️", "👧‍♀️"
-    ],
-    'family': [
-        "👪", "👨‍👩‍👦", "👨‍👩‍👧", "👨‍👩‍👧‍👦", "👨‍👩‍👦‍👦", "👨‍👩‍👧‍👧", "👨‍👨‍👦", "👨‍👨‍👧", "👨‍👨‍👧‍👦", 
-        "👨‍👨‍👦‍👦", "👨‍👨‍👧‍👧", "👩‍👩‍👦", "👩‍👩‍👧", "👩‍👩‍👧‍👦", "👩‍👩‍👦‍👦", "👩‍👩‍👧‍👧", "👨‍👦", 
-        "👨‍👦‍👦", "👨‍👧", "👨‍👧‍👧", "👩‍👦", "👩‍👦‍👦", "👩‍👧", "👩‍👧‍👧"
+        "🧒", "👦", "👧",
     ]
 }
 
@@ -2916,21 +3222,14 @@ emoji_labels = {
             "👨‍🚒": "Male Firefighter", "👮‍♂️": "Policeman", "🕵️‍♂️": "Male Detective", "👷‍♂️": "Male Construction Worker", 
             "🤴": "Prince", "👳‍♂️": "Desert Man", "👲": "Male with Hat", "🧔": "Bearded Male", "👱‍♂️": "Blond Male", 
             "👨‍🦰": "Red-Haired Male", "👨‍🦱": "Curly-Haired Male", "👨‍🦳": "White-Haired Male", "👨‍🦲": "Bald Male", "🧓": "Old Male", 
-            "👴": "Elderly Male", "👶‍♂️": "Baby Boy", "👩": "Female", "👩‍⚕️": "Female Doctor", "👩‍🌾": "Female Farmer", 
+            "👴": "Elderly Male", "👩": "Female", "👩‍⚕️": "Female Doctor", "👩‍🌾": "Female Farmer", 
             "👩‍🍳": "Female Cook", "👩‍🎓": "Female Student", "👩‍🎤": "Female Singer", "👩‍🏫": "Female Teacher", 
             "👩‍🏭": "Female Factory Worker", "👩‍💻": "Female Office Worker", "👩‍💼": "Female Businesswoman", 
             "👩‍🔧": "Female Mechanic", "👩‍🔬": "Female Scientist", "👩‍🚀": "Female Astronaut", "👩‍🚒": "Female Firefighter", 
             "👮‍♀️": "Policewoman", "🕵️‍♀️": "Female Detective", "👷‍♀️": "Female Construction Worker", "👸": "Princess", 
             "👳‍♀️": "Desert Woman", "🧕": "Female with Headscarf", "👱‍♀️": "Blond Female", "👩‍🦰": "Red-Haired Female", 
             "👩‍🦱": "Curly-Haired Female", "👩‍🦳": "White-Haired Female", "👩‍🦲": "Bald Female", "👵": "Elderly Female", 
-            "👶‍♀️": "Baby Girl", "👶": "Baby", "🧒": "Child", "👦": "Boy", "👧": "Girl", "🧑‍🍼": "Person Feeding Baby", 
-            "👶‍♂️": "Baby Boy", "👶‍♀️": "Baby Girl", "🧒‍♂️": "Boy", "🧒‍♀️": "Girl", "👦‍♂️": "Boy", "👦‍♀️": "Girl", 
-            "👧‍♂️": "Boy", "👧‍♀️": "Girl", "👪": "Family", "👨‍👩‍👦": "Family", "👨‍👩‍👧": "Family", 
-            "👨‍👩‍👧‍👦": "Family", "👨‍👩‍👦‍👦": "Family", "👨‍👩‍👧‍👧": "Family", "👨‍👨‍👦": "Family", 
-            "👨‍👨‍👧": "Family", "👨‍👨‍👧‍👦": "Family", "👨‍👨‍👦‍👦": "Family", "👨‍👨‍👧‍👧": "Family", 
-            "👩‍👩‍👦": "Family", "👩‍👩‍👧": "Family", "👩‍👩‍👧‍👦": "Family", "👩‍👩‍👦‍👦": "Family", 
-            "👩‍👩‍👧‍👧": "Family", "👨‍👦": "Family", "👨‍👦‍👦": "Family", "👨‍👧": "Family", "👨‍👧‍👧": "Family", 
-            "👩‍👦": "Family", "👩‍👦‍👦": "Family", "👩‍👧": "Family", "👩‍👧‍👧": "Family",
+            "👶": "Baby", "🧒": "Child", "👦": "Boy", "👧": "Girl",
             # Other labels
             "🟫": "Dirt", "⬛": "Wall", "🟩": "Grass", "⬜": "Snow", "🟨": "Sand","◼️": "Road", "🏞️": "Climable Mountain",
             "🏔️": "Mountain", "⛰️": "Mountain", "🌲": "Tree", "🌳": "Tree", "🎄": "Tree", "🌴": "Looted Tree",

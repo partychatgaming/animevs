@@ -397,32 +397,26 @@ class Play(Extension):
 
                             await gs.pvp_end_game(self, battle_config, private_channel, battle_msg, gameClock)
 
-                            await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
-
                             await gs.you_win_non_pvp(self, ctx, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
-
+                            
                             if battle_config.is_rpg:
-                                battle_config.rpg_config.adventuring = True
-                                battle_config.rpg_config.battling = False
-                                battle_config.rpg_config.encounter = False
-                                print(battle_config.rpg_config.player_health)
+                                self.battling = False
+                                self.adventuring = True
+                                self.encounter = False
+                                #await battle_start_msg.delete()
                                 battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
-                                # Delete the previous RPG message
-                                #await battle_config.rpg_config.rpg_msg.delete()
-                                
-                                battle_config.rpg_config.set_rpg_options()
-                                # Allow some time to ensure the message is deleted
-                                await asyncio.sleep(1)
-                                
-                                # Resend a new RPG message
-                                #await Play.rpg_commands(ctx, battle_config.rpg_config)
-                                
-                                # Get the updated RPG embed and components
-                                embedVar, components = await self.rpg_player_move_embed(ctx, private_channel, battle_msg)
-                                
-                                # Send the new RPG message
-                                self.rpg_msg = await ctx.send(embed=embedVar, components=components)
-                                
+                                x,y = battle_config.rpg_config.player_position
+                                if battle_config.rpg_config.player_health <= 0:
+                                    battle_config.rpg_config.map[x][y] = battle_config.rpg_config.standing_on
+                                    paginator = await battle_config.rpg_config.lose_adventure_embed(ctx)
+                                    await paginator.send(ctx)
+                                    await battle_msg.delete()
+                                    await battle_config.rpg_config._rpg_msg.delete()
+                                    self.previous_moves.append(f"💨Fleeing Encounter...!")
+                            else:
+                                await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
+
+                            return               
                 except asyncio.TimeoutError:
                     battle_config.player1.make_available()
                     if battle_msg == None:
