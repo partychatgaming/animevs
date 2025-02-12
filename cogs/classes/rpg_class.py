@@ -468,7 +468,7 @@ class RPG:
         if new_map['map_name'] in self._player.map_states:
             loggy.info(f"Loading saved map: {new_map['map_name']} - {new_map['map_area']}")
             # Load the saved state of the new map
-            saved_map = self._player.map_states[new_map['map_name']]
+            saved_map = deepcopy(self._player.map_states[new_map['map_name']])
             self._player.map["standing_on"] = saved_map['standing_on']
             self._player.map["spawn_portal"] = saved_map['spawn_portal']
             self._player.map["map_name"] = saved_map['map_name']
