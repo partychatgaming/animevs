@@ -175,14 +175,91 @@ class Player:
         else:
             self.rebirth_icon = '🧚‍♂️'
       
+        #RPG Config
+        self.map_level = 0
+
+        self.map_name = "Damp Woodlands"
+        self.map_area = "Forest Training Grounds"
+        self.embed_color = 0x00FF00
+        
+        self.map_states = {}  # Dictionary to hold the state of each map
+        self.map_change = False
+        self.new_map = False
+
+        self.area_task = None
+        self.floor_task = None
+        self.floor_task_msg = None
+        self.floor = 0
+        self.map_doors = None
+        self.exit_points = None
+        self.north_exits = None
+        self.south_exits = None
+        self.east_exits = None
+        self.west_exits = None
+        self.door_exit = None
+
+        self.story = {}
+        self._talking_uuid = ""
+        self.talking_encounter = False
+        self.quest_type = None
+        self.mission_type = None
+        # The quest counts the total amount of quests completed  
+        self.quest_count = 0
+        self.quest_complete = 0
+        self.quest_message = ""
+        self.quest_message_list = ["[📜]Quest Log"]
+        self.quest_completed = False
+
+        #The Mission is the overall mission required to level up
+        self.mission_requirements = 3
+        self.mission_count = 0
+        self.mission_message = ""
+        self.mission_completed = False
+
         self.rpg_atk_boost = False
         self.rpg_def_boost = False  
         self.rpg_hlt_boost = False
-        self.map_states = {}
-        self.map_position = (10,6)
+        self.player_position = (10,5)
         self.rpg_token = None
-        self.current_map = None
+        self.map = None
         self.rpg_instance = None
+        self.standing_on = "🟩"
+
+        self.player_gold = 0
+        self.player_gems = 0
+        self.player_keys = 0
+        self.coin_emoji = "🪙"
+        self.gem_emoji = "💎"
+        self.player_inventory = []
+        self.player_skills = []
+        self.card_drops = []
+        self.title_drops = []
+        self.arm_drops = []
+        self.summon_drops = []
+        self.pickaxe = False
+        self.miner = False
+        self.hammer = False
+        self.fishing_pole = False
+        self.fishing = False
+        self.engineer = False 
+        self.swimmer = False
+        self.climber = False
+        self.has_quest = False
+        self.has_investigation = False
+        self.my_quest = None
+
+        self.vs_count = 0
+        self.civ_count = 0
+        self.wild_count = 0
+
+        self.loot_drop = False
+
+        self.quest_giver_position = None
+        self.encounter_position = None
+
+        self.inventory_active = False
+        self.currency_active = False
+        self.skills_active = False
 
 
 

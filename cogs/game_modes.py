@@ -402,7 +402,7 @@ class GameModes(Extension):
             embedVar = Embed(title=f"Adventure is starting", color=0x2ECC71)
             embedVar.set_image(url="https://i.kym-cdn.com/photos/images/newsfeed/001/708/012/0ac.gif")
             rpg_msg = await ctx.send(embed=embedVar)
-            await RPG.create_rpg(self, ctx, rpg_instance, rpg_msg)
+            await rpg_instance.create_rpg(ctx, rpg_msg)
 
         except Exception as ex:
             player.make_available()

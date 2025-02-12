@@ -64,6 +64,7 @@ class RPG:
         self.start_y = 4
         self.starting_position = (10, 5)
         self.player_position = (10, 5)  # Initial position of universe_crest
+        self.spawn_portal = (10,5)
 
         self._player = _player
         self.player1 = _player
@@ -361,7 +362,7 @@ class RPG:
         self.warp_active = False
 
         self.standing_on = "🟩"
-        self.spawn_portal = (10,6)
+        self.spawn_portal = (10,5)
         self.map =self.initialize_map() # Unique map for this RPG instance
         self.map_name = "Damp Woodlands"
         self.map_area = "Forest Training Grounds"
@@ -394,10 +395,10 @@ class RPG:
         print('RPG Cog is ready!')
 
     
-    async def create_rpg(self, ctx, rpg_config, rpg_msg):
+    async def create_rpg(self, ctx, rpg_msg):
         from cogs.play import Play as play
-        await rpg_config.configure_map(rpg_config._player)
-        await play.rpg_commands(self, ctx, rpg_config, rpg_msg)
+        await self.configure_map(self._player)
+        await play.rpg_commands(self, ctx, rpg_msg)
 
     
     async def initialize_map(self):
@@ -407,7 +408,7 @@ class RPG:
 
     
     def display_map(self):
-        return "\n".join("".join(str(cell) for cell in row) for row in self._player.map["map"])
+        return "\n".join("".join(str(cell) for cell in row) for row in self._player.map['map'])
 
     
     async def change_map(self, direction, location):
@@ -418,20 +419,27 @@ class RPG:
             await self.load_map(self._player.map["door_exit"])
             return True
         elif direction == "2" and self._player.map["north_exits"]:
+            print(f"Leaving N {self._player.map['map_name']}...")
+            print(f"Changing map to {self._player.map['north_exits']}...")
+            if 'north_exits' in self._player.map and self._player.map['north_exits']:
+                print("North Exits Map Name:", self._player.map['north_exits'].get('map_name'))
+            else:
+                print("No north exits available.")
+            next_map = self._player.map.get("north_exits")
             self._player.floor += 1
-            await self.load_map(self._player.map["north_exit"])
+            await self.load_map(self._player.map["north_exits"])
             return True
         elif direction == "3" and self._player.map["south_exits"]:
             self._player.floor += 1
-            await self.load_map(self._player.map["south_exit"])
+            await self.load_map(self._player.map["south_exits"])
             return True
         elif direction == "4" and self._player.map["east_exits"]:
             self._player.floor += 1
-            await self.load_map(self._player.map["east_exit"])
+            await self.load_map(self._player.map["east_exits"])
             return True
         elif direction == "1" and self._player.map["west_exits"]:
             self._player.floor += 1
-            await self.load_map(self._player.map["west_exit"])
+            await self.load_map(self._player.map["west_exits"])
             return True
         else:
             self.previous_moves.append(f"Cannot move {direction}, no exit found.")
@@ -440,55 +448,26 @@ class RPG:
 
 
     def save_map_state(self, map_name):
-        # registered_player = db.queryUser({'DID': str(self.player1_did)})
-        # player = crown_utilities.create_player_from_data(registered_player)
-        # Save the current map state
-        # self.map_states[map_name] = {
-        #     'standing_on': self.standing_on,
-        #     'spawn_portal': self.spawn_portal,
-        #     'map_name': self.map_name,
-        #     'map_area': self.map_area,
-        #     'embed_color': self.embed_color,
-        #     'map_doors': self.map_doors,
-        #     'exit_points': self.exit_points,
-        #     'north_exits': self.north_exits,
-        #     'south_exits': self.south_exits,
-        #     'east_exits': self.east_exits,
-        #     'west_exits': self.west_exits,
-        #     'door_exit': self.door_exit,
-        #     'map': self.map,
-        #     'player_position': self.player_position
-        # }
-        self._player.map_states[map_name] = {
-            'standing_on': self._player.map["standing_on"],
-            'spawn_portal': self._player.map["spawn_portal"],    
-            'map_name': self._player.map["map_name"],
-            'map_area': self._player.map["map_area"],
-            'embed_color': self._player.map["embed_color"],
-            'map_doors': self._player.map["map_doors"], 
-            'exit_points': self._player.map["exit_points"],
-            'north_exits': self._player.map["north_exits"],
-            'south_exits': self._player.map["south_exits"],
-            'east_exits': self._player.map["east_exits"],
-            'west_exits': self._player.map["west_exits"],
-            'door_exit': self._player.map["door_exit"],
-            'map': self._player.map["map"],
-            'player_position': self._player.player_position
-        }
+        map_copy = deepcopy(self._player.map)
+        # Break circular references
+        # map_copy['north_exits'] = None
+        # map_copy['south_exits'] = None
+        # map_copy['east_exits'] = None
+        # map_copy['west_exits'] = None
+        self._player.map_states[map_name] = map_copy
+
+
+        #loggy.info(f"Saved map state: {map_name} - {self._player.map_states[map_name]}")
     
     
     async def load_map(self, new_map):
-        # registered_player = db.queryUser({'DID': str(self.player1_did)})
-        # player = crown_utilities.create_player_from_data(registered_player)
         # Save the current map state before loading the new map
         x, y = self._player.player_position
-        self._player.map["map"][x][y] = self._player.standing_on
-
+        self._player.map['map'][x][y] = self._player.standing_on
         # Check if the new map has been visited before
-        # if new_map['map_name'] in self.map_states:
         if new_map['map_name'] in self._player.map_states:
+            loggy.info(f"Loading saved map: {new_map['map_name']} - {new_map['map_area']}")
             # Load the saved state of the new map
-            #saved_map = self.map_states[new_map['map_name']]
             saved_map = self._player.map_states[new_map['map_name']]
             self._player.map["standing_on"] = saved_map['standing_on']
             self._player.map["spawn_portal"] = saved_map['spawn_portal']
@@ -502,25 +481,26 @@ class RPG:
             self._player.map["east_exits"] = saved_map['east_exits']
             self._player.map["west_exits"] = saved_map['west_exits']
             self._player.map["door_exit"] = saved_map['door_exit']
-            self._player.map["map"] = saved_map['map']
-            self.player_position = saved_map['player_position']
+            self._player.map['map'] = saved_map['map']
+            self._player.player_position = saved_map['spawn_portal']
             self._player.new_map = False
             # This method is called when the map is configured to programmatically place "🆚" emojis on the map
-            total, vs, civ, loot = self.count_emojis_on_map(self._player.map["map"], self.civ_tokens)
+            total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
             if vs <= 2:
-                await self.place_vs_emojis(self._player.map["map"], self.configure_map_level_layout())
+                await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
             if civ < 1:
-                await self.place_civ_emojis(self._player.map["map"], self.configure_map_level_layout())
+                await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
             if loot <=1:
                 num = random.randint(1,100)
                 if num <= 50:
-                    await self.place_loot_emojis(self._player.map["map"], 1)
+                    await self.place_loot_emojis(self._player.map['map'], 1)
                 elif num == 100:
-                    await self.place_loot_emojis(self._player.map["map"], 2)
+                    await self.place_loot_emojis(self._player.map['map'], 2)
             if total <= 4:
-                await self.place_wildlife_emojis(self._player.map["map"])
+                await self.place_wildlife_emojis(self._player.map['map'])
         else:
             # Load the new map as usual
+            loggy.info(f"Loading new map: {new_map['map_name']} - {new_map['map_area']}")
             self._player.map["standing_on"] = new_map['standing_on']
             self._player.map["spawn_portal"] = new_map['spawn_portal']
             self._player.map["map_name"] = new_map['map_name']
@@ -533,36 +513,37 @@ class RPG:
             self._player.map["east_exits"] = new_map['east_exits']
             self._player.map["west_exits"] = new_map['west_exits']
             self._player.map["door_exit"] = new_map['door_exit']
-            self._player.map["map"] = new_map['map']
-            self._player.player_position = self.spawn_portal
+            self._player.map['map'] = new_map['map']
+            self._player.player_position = self._player.map['spawn_portal']
             self._player.new_map = True
             # This method is called when the map is configured to programmatically place "🆚" emojis on the map
-            total, vs, civ, loot = self.count_emojis_on_map(self._player.map["map"], self.civ_tokens)
+            total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
             if vs <= 2:
-                await self.place_vs_emojis(self._player.map["map"], self.configure_map_level_layout())
+                await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
             if civ < 1:
-                await self.place_civ_emojis(self._player.map["map"], self.configure_map_level_layout())
+                await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
             if loot <=1:
                 num = random.randint(1,100)
                 if num <= 50:
-                    await self.place_loot_emojis(self._player.map["map"], 1)
+                    await self.place_loot_emojis(self._player.map['map'], 1)
                 elif num == 100:
-                    await self.place_loot_emojis(self._player.map["map"], 2)
+                    await self.place_loot_emojis(self._player.map['map'], 2)
             if total <= 4:
-                await self.place_wildlife_emojis(self._player.map["map"])
+                await self.place_wildlife_emojis(self._player.map['map'])
 
 
         # Set the player token on the map at the player's position
-        x, y = self.player_position
-        self.standing_on = self.map[x][y]  # Save the tile the player will be standing on
-        self._player.map["map"][x][y] = self.player_token  # Place the player token on the map
+        loggy.info(f"Player position: {self._player.player_position}")
+        x, y = self._player.player_position
+        self._player.standing_on = self._player.map['map'][x][y]  # Save the tile the player will be standing on
+        self._player.map['map'][x][y] = self.player_token  # Place the player token on the map
 
-        self.previous_moves.append(f"Entered {self._player.map["map_name"]} - {self.map_area}")
+        self.previous_moves.append(f"Entered {self._player.map['map_name']} - {self.map_area}")
         
  
     def get_current_map_data(self):
         return {
-            'standing_on': self.standing_on,
+            'standing_on': self._player.standing_on,
             'spawn_portal': self.spawn_portal,
             'map_name': self._player.map["map_name"],
             'map_area': self.map_area,
@@ -603,7 +584,7 @@ class RPG:
 
 
     async def generate_combatants(self):
-        number_of_combatants, vs_count, civ_count, loot_count = self.count_emojis_on_map(self._player.map["map"], self.civ_tokens)
+        number_of_combatants, vs_count, civ_count, loot_count = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
         self.vs_count = vs_count
         self.civ_count = civ_count
         # Fetch combatants
@@ -678,8 +659,9 @@ class RPG:
                         if isinstance(getattr(maps_module, attr), dict) and 'map_name' in getattr(maps_module, attr)
                     ]
 
-                    if map_dicts:
-                        map_dict = random.choice(map_dicts)
+                    if hasattr(maps_module, "default_map"):
+                        map_dict = maps_module.default_map  # Use default_map directly
+                        loggy.info(f"Loaded default map from unbound.py: {map_dict['map_name']}")
                         break
 
                 except ImportError as e:
@@ -689,31 +671,32 @@ class RPG:
             if not map_dict:
                 loggy.error("No valid map dictionary found after multiple attempts. Using default map.")
                 map_dict = self.get_default_map()
-                print(f"Map dict: {map_dict}")
+                print("No valid map dictionary found after multiple attempts. Using default map.")
 
         # Save the entire map dictionary to the player's profile
         player.map = deepcopy(map_dict)
         loggy.info(f"Map configured and saved for player {player.disname}: {player.map['map_name']}")
         x, y = self.spawn_portal
         if player.map["map"][x][y] in self.passable_points:
+            loggy.info(f"Player token placed at spawn portal: {player.map['map'][x][y]}{player.map['spawn_portal']}")
             player.map["map"][x][y] = f"{self.player_token}"
 
         self.map_level = self.rpg_universe_level_check()
     
         # This method is called when the map is configured to programmatically place "🆚" emojis on the map
-        total, vs, civ, loot = self.count_emojis_on_map(self._player.map["map"], self.civ_tokens)
+        total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
         if vs <= 2:
-            await self.place_vs_emojis(self._player.map["map"], self.configure_map_level_layout())
+            await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
         if civ < 1:
-            await self.place_civ_emojis(self._player.map["map"], self.configure_map_level_layout())
+            await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
         if loot <=1:
             num = random.randint(1,100)
             if num <= 50:
-                await self.place_loot_emojis(self._player.map["map"], 1)
+                await self.place_loot_emojis(self._player.map['map'], 1)
             elif num == 100:
-                await self.place_loot_emojis(self._player.map["map"], 2)
+                await self.place_loot_emojis(self._player.map['map'], 2)
         if total <= 4:
-            await self.place_wildlife_emojis(self._player.map["map"])
+            await self.place_wildlife_emojis(self._player.map['map'])
 
         # This method is called when the map is configured to programmatically generate combatants based on the number of "🆚" emojis on the map
         await self.generate_combatants()
@@ -791,8 +774,8 @@ class RPG:
         print("Mission completed! Incrementing RPG level")
         self._player.inc_rpg_level(self.universe)
         self._player.save_rpg_levels()
-        x, y = self.player_position
-        self.map[x][y] = self.standing_on # Reset the player token on the map
+        x, y = self._player.player_position
+        self._player.map['map'][x][y] = self._player.standing_on # Reset the player token on the map
         self.adventuring = False
         self.mission_completed = True
         currency_modifier = self.rpg_universe_level_check()
@@ -911,7 +894,7 @@ class RPG:
     async def place_vs_emojis(self, map_data, num_vs):
         try:
             # Get all possible positions for placing "🆚"
-            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self.standing_on]
+            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self._player.standing_on]
             
             if num_vs > len(available_positions):
                 raise ValueError("Number of '🆚' emojis to place exceeds the available positions.")
@@ -942,7 +925,7 @@ class RPG:
         """
         try:
             # Get all possible positions for placing wildlife
-            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self.standing_on]
+            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self._player.standing_on]
             
             if max_wildlife > len(available_positions):
                 loggy.warning("Number of wildlife to place exceeds the available positions. Adjusting to available spots.")
@@ -967,7 +950,7 @@ class RPG:
     async def place_civ_emojis(self, map_data, num_npcs):
         try:
             # Get all possible positions for placing "👥"
-            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self.standing_on]
+            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self._player.standing_on]
             
             if num_npcs > len(available_positions):
                 raise ValueError("Number of '👥' emojis to place exceeds the available positions.")
@@ -988,7 +971,7 @@ class RPG:
     async def place_loot_emojis(self, map_data, num_loot):
         try:
             # Get all possible positions for placing "💰"
-            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self.standing_on]
+            available_positions = [(i, j) for i, row in enumerate(map_data) for j, cell in enumerate(row) if cell == self._player.standing_on]
             
             if num_loot > len(available_positions):
                 raise ValueError("Number of '💰' emojis to place exceeds the available positions.")
@@ -1026,7 +1009,7 @@ class RPG:
         """
         try:
             # Retrieve the token at the specified position
-            token = self.map[x][y]
+            token = self._player.map['map'][x][y]
             print(f"Token from map: {token} (type: {type(token)})")
             print(f"Player tokens: {self.player_tokens}")
 
@@ -1051,7 +1034,7 @@ class RPG:
         #     await ctx.defer()
         #     deferred = True
         interaction_points = self.interaction_points
-        x, y = self.player_position
+        x, y = self._player.player_position
         start_x = x
         start_y = y
         new_x, new_y = x, y
@@ -1069,7 +1052,7 @@ class RPG:
         if direction == "2" and x >= 0:#up
             player_moved = True
             new_x -= 1
-        elif direction == "3" and x < len(self._player.map["map"]):#down
+        elif direction == "3" and x < len(self._player.map['map']):#down
             cardinal = "behind you"
             player_moved = True
             new_x += 1
@@ -1077,7 +1060,7 @@ class RPG:
             cardinal = "to your left"
             player_moved = True
             new_y -= 1
-        elif direction == "4" and y < len(self.map[0]):#right
+        elif direction == "4" and y < len(self._player.map['map'][0]):#right
             cardinal = "to your right"
             player_moved = True
             new_y += 1       
@@ -1086,7 +1069,7 @@ class RPG:
             self.moving = False
             self.adventuring = False
             self.previous_moves.append("🏁 Adventure has ended!")
-            self.map[x][y] = f"{self.standing_on}"
+            self._player.map['map'][x][y] = f"{self._player.standing_on}"
             currency_modifier = self.rpg_universe_level_check()
             gold_to_coin = self.player_gold
             await crown_utilities.bless(gold_to_coin, self.player1_did)
@@ -1108,83 +1091,83 @@ class RPG:
             player_action = True
             self.warp_active = True
             self.previous_moves.append("🔍 Checking Nearby...")
-            self.closest_warp_points = self.get_closest_warp_points(self.player_position)
+            self.closest_warp_points = self.get_closest_warp_points(self._player.player_position)
             if self.above_position in self.world_interaction_buttons:
                 cardinal = "⬆️ In front of you"
-                self.previous_moves.append(f"{cardinal} there is a {self.map[x-1][y]}{get_emoji_label(self.map[x-1][y])}!")
+                self.previous_moves.append(f"{cardinal} there is a {self._player.map['map'][x-1][y]}{get_emoji_label(self._player.map['map'][x-1][y])}!")
             if self.below_position in self.world_interaction_buttons:
                 cardinal = "⬇️ Behind you"
-                self.previous_moves.append(f"{cardinal} there is a {self.map[x+1][y]}{get_emoji_label(self.map[x+1][y])}!")
+                self.previous_moves.append(f"{cardinal} there is a {self._player.map['map'][x+1][y]}{get_emoji_label(self._player.map['map'][x+1][y])}!")
             if self.left_position in self.world_interaction_buttons:
                 cardinal = "⬅️ On your left"
-                self.previous_moves.append(f"{cardinal} there is a {self.map[x][y-1]}{get_emoji_label(self.map[x][y-1])}!")
+                self.previous_moves.append(f"{cardinal} there is a {self._player.map['map'][x][y-1]}{get_emoji_label(self._player.map['map'][x][y-1])}!")
             if self.right_position in self.world_interaction_buttons:
                 cardinal = "➡️ On your right"
-                self.previous_moves.append(f"{cardinal} there is a {self.map[x][y+1]}{get_emoji_label(self.map[x][y+1])}!")
-            if self.standing_on in self.world_interaction_buttons:
-                self.previous_moves.append(f"You standing on a {self.standing_on}{get_emoji_label(self.standing_on)}!")
+                self.previous_moves.append(f"{cardinal} there is a {self._player.map['map'][x][y+1]}{get_emoji_label(self._player.map['map'][x][y+1])}!")
+            if self._player.standing_on in self.world_interaction_buttons:
+                self.previous_moves.append(f"You standing on a {self._player.standing_on}{get_emoji_label(self._player.standing_on)}!")
         elif direction == "u" or direction == "d" or direction == "l" or direction == "r" or direction == "s":
             player_action = True
             if direction == "u":
                 npc = self.above_position
-                await self.rpg_action_handler(ctx, private_channel, self.player_position, npc, (x-1, y), direction)
+                await self.rpg_action_handler(ctx, private_channel, self._player.player_position, npc, (x-1, y), direction)
             if direction == "d":
                 npc = self.below_position
-                await self.rpg_action_handler(ctx, private_channel, self.player_position, npc, (x+1, y), direction)
+                await self.rpg_action_handler(ctx, private_channel, self._player.player_position, npc, (x+1, y), direction)
             if direction == "l":
                 npc = self.left_position
-                await self.rpg_action_handler(ctx, private_channel, self.player_position, npc, (x, y-1), direction)
+                await self.rpg_action_handler(ctx, private_channel, self._player.player_position, npc, (x, y-1), direction)
             if direction == "r":
                 npc = self.right_position
-                await self.rpg_action_handler(ctx, private_channel, self.player_position, npc, (x, y+1), direction)
+                await self.rpg_action_handler(ctx, private_channel, self._player.player_position, npc, (x, y+1), direction)
             if direction == "s":#standing on
-                npc = self.standing_on
-                await self.rpg_action_handler(ctx, private_channel, self.player_position, npc, (x, y))
+                npc = self._player.standing_on
+                await self.rpg_action_handler(ctx, private_channel, self._player.player_position, npc, (x, y))
             self.moving = False
         # Update map with new player position
         if player_moved:
             # print("Player moved to:", new_x, new_y, "There is a", self.map[new_x][new_y], "there.")
-            # print("Starting position:", self.player_position)
+            # print("Starting position:", self._player.player_position)
             # After player movement and before ending the turn, call the new function
 
-            if new_x < 0 or new_x >= len(self._player.map["map"]) or new_y < 0 or new_y >= len(self._player.map["map"][0]):
+            if new_x < 0 or new_x >= len(self._player.map['map']) or new_y < 0 or new_y >= len(self._player.map['map'][0]):
                 map_change = await self.change_map(direction, (new_x, new_y))
-                total, vs, civ, loot = self.count_emojis_on_map(self._player.map["map"], self.civ_tokens)
+                total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
                 if vs <= 2:
-                    await self.place_vs_emojis(self._player.map["map"], self.configure_map_level_layout())
+                    await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
                 if civ < 1:
-                    await self.place_civ_emojis(self._player.map["map"], self.configure_map_level_layout())
+                    await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
                 if loot <=1:
                     num = random.randint(1,100)
                     if num <= 50:
-                        await self.place_loot_emojis(self._player.map["map"], 1)
+                        await self.place_loot_emojis(self._player.map['map'], 1)
                     elif num == 100:
-                        await self.place_loot_emojis(self._player.map["map"], 2)
+                        await self.place_loot_emojis(self._player.map['map'], 2)
                 if total <= 4:
-                    await self.place_wildlife_emojis(self._player.map["map"])
+                    await self.place_wildlife_emojis(self._player.map['map'])
                 if not map_change:
                     self.previous_moves.append(f"(🚫) You can't leave this area yet!")
-                    self.player_position = (x, y)  # Keep the player in the same position
+                    self._player.player_position = (x, y)  # Keep the player in the same position
                 else:
                     if self.mission_type == "EXPLORE":
                         await self.increment_mission_count(ctx, private_channel)
             else:
-                self._player.above_position = self._player.map["map"][new_x - 1][new_y] if new_x > 0 else None
-                self._player.below_position = self._player.map["map"][new_x + 1][new_y] if new_x < len(self._player.map["map"]) - 1 else None
-                self._player.left_position = self._player.map["map"][new_x][new_y - 1] if new_y > 0 else None
-                self._player.right_position = self._player.map["map"][new_x][new_y + 1] if new_y < len(self._player.map["map"][0]) - 1 else None
+                self._player.above_position = self._player.map['map'][new_x - 1][new_y] if new_x > 0 else None
+                self._player.below_position = self._player.map['map'][new_x + 1][new_y] if new_x < len(self._player.map['map']) - 1 else None
+                self._player.left_position = self._player.map['map'][new_x][new_y - 1] if new_y > 0 else None
+                self._player.right_position = self._player.map['map'][new_x][new_y + 1] if new_y < len(self._player.map['map'][0]) - 1 else None
 
-                await self.move_dynamic_emojis(ctx, private_channel, self.player_position)
+                await self.move_dynamic_emojis(ctx, private_channel, self._player.player_position)
                 self._player.map_position = (new_x, new_y)
 
 
                 # Make a 30% chance of encountering a VS emoji when moving
-                if random.randint(1, 100) <= 30 and self._player.map["map"][x][y] == f"{self.player_token}":
+                if random.randint(1, 100) <= 30 and self._player.map['map'][x][y] == f"{self.player_token}":
                     # Check for VS emojis within a 2-cell radius
                     vs_positions = [
-                        (i, j) for i in range(max(0, x-2), min(len(self._player.map["map"]), x+3))
-                        for j in range(max(0, y-2), min(len(self.map[0]), y+3))
-                        if self.map[i][j] == "🆚"
+                        (i, j) for i in range(max(0, x-2), min(len(self._player.map['map']), x+3))
+                        for j in range(max(0, y-2), min(len(self._player.map['map'][0]), y+3))
+                        if self._player.map['map'][i][j] == "🆚"
                     ]
 
                     if vs_positions:
@@ -1193,19 +1176,19 @@ class RPG:
                         vs_x, vs_y = closest_vs
 
                         # Store the terrain the VS was on
-                        original_terrain = self.standing_on if self.map[vs_x][vs_y] == "🆚" else self.map[vs_x][vs_y]
+                        original_terrain = self._player.standing_on if self._player.map['map'][vs_x][vs_y] == "🆚" else self._player.map['map'][vs_x][vs_y]
 
                         # Move the VS emoji to the closest walkable cell near the player
                         adjacent_cells = [
-                            (i, j) for i in range(max(0, x-1), min(len(self._player.map["map"]), x+2))
-                            for j in range(max(0, y-1), min(len(self.map[0]), y+2))
-                            if self.map[i][j] in [self.standing_on, "🟩", "🟫", "🟨", "⬜", "🟪"]  # Add other walkable terrains as needed
+                            (i, j) for i in range(max(0, x-1), min(len(self._player.map['map']), x+2))
+                            for j in range(max(0, y-1), min(len(self._player.map['map'][0]), y+2))
+                            if self._player.map['map'][i][j] in [self._player.standing_on, "🟩", "🟫", "🟨", "⬜", "🟪"]  # Add other walkable terrains as needed
                         ]
 
                         if adjacent_cells:
                             new_vs_pos = min(adjacent_cells, key=lambda pos: abs(pos[0] - x) + abs(pos[1] - y))
-                            self.map[vs_x][vs_y] = original_terrain
-                            self.map[new_vs_pos[0]][new_vs_pos[1]] = "🆚"
+                            self._player.map['map'][vs_x][vs_y] = original_terrain
+                            self._player.map['map'][new_vs_pos[0]][new_vs_pos[1]] = "🆚"
                             self.encounter_position = new_vs_pos[0], new_vs_pos[1]
                             print(f"VS emoji moved from {vs_x, vs_y} to {new_vs_pos}")
                             # Start the encounter
@@ -1213,153 +1196,153 @@ class RPG:
                             await self.encounter_handler(ctx, private_channel, "🆚", new_vs_pos)
                             self.encounter = True
                             await self.create_rpg_battle(ctx, private_channel)
-                            if (npc == "⚔️" or npc == "🆚") and self.combat_victory:
-                                self.map[new_vs_pos[0]][new_vs_pos[1]] = f"💀"
+                            if self.combat_victory:
+                                self._player.map['map'][new_vs_pos[0]][new_vs_pos[1]] = f"💀"
                             return  # End the function here to avoid processing the rest of the handler
             
 
 
 
-                if self.map[new_x][new_y] in self.passable_points:  # Only move to open paths
-                    self.map[x][y] = f"{self.standing_on}"  # Reset old position
+                if self._player.map['map'][new_x][new_y] in self.passable_points:  # Only move to open paths
+                    self._player.map['map'][x][y] = f"{self._player.standing_on}"  # Reset old position
                     if (new_x, new_y) == self.starting_position:
                         self.previous_moves.append(f"(🏠) You are back at the starting position.")
-                    self.standing_on = self.map[new_x][new_y]
-                    self.map[new_x][new_y] = f"{self.player_token}"  # New position
-                    self.player_position = (new_x, new_y)
+                    self._player.standing_on = self._player.map['map'][new_x][new_y]
+                    self._player.map['map'][new_x][new_y] = f"{self.player_token}"  # New position
+                    self._player.player_position = (new_x, new_y)
                 
                     # movement_msg = await rpg_movement_ai_message(self.player1_card_name, self.player_card_data.universe, direction, self.map[x-1][y], self.map[x+1][y], self.map[x][y-1], self.map[x][y+1])
                     # self.previous_moves.append(movement_msg)
-                elif self.map[new_x][new_y] in self.open_door:  # Can't move to doors
+                elif self._player.map['map'][new_x][new_y] in self.open_door:  # Can't move to doors
                     self.previous_moves.append(f"({self.open_door}) Moving into the next room {cardinal}")
                     next_map = await self.change_map(direction, (new_x, new_y))
-                    total, vs, civ, loot = self.count_emojis_on_map(self._player.map["map"], self.civ_tokens)
+                    total, vs, civ, loot = self.count_emojis_on_map(self._player.map['map'], self.civ_tokens)
                     if vs <= 2:
-                        await self.place_vs_emojis(self._player.map["map"], self.configure_map_level_layout())
+                        await self.place_vs_emojis(self._player.map['map'], self.configure_map_level_layout())
                     if civ < 1:
-                        await self.place_civ_emojis(self._player.map["map"], self.configure_map_level_layout())
+                        await self.place_civ_emojis(self._player.map['map'], self.configure_map_level_layout())
                     if loot <=1:
                         num = random.randint(1,100)
                         if num <= 50:
-                            await self.place_loot_emojis(self._player.map["map"], 1)
+                            await self.place_loot_emojis(self._player.map['map'], 1)
                         elif num == 100:
-                            await self.place_loot_emojis(self._player.map["map"], 2)
+                            await self.place_loot_emojis(self._player.map['map'], 2)
                     if total <= 4:
-                        await self.place_wildlife_emojis(self._player.map["map"])
+                        await self.place_wildlife_emojis(self._player.map['map'])
                     if not next_map:
                         self.previous_moves.append(f"(🚫) You can't leave this area yet!")
-                        self.player_position = (x, y)
+                        self._player.player_position = (x, y)
                     
                     #Create action to generate a randomly generated new map for the next room create a linked list to store the previous map and the new map and connect the entrance via the door
 
-                    # self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.walls:  # Can't move to walls
+                    # self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.walls:  # Can't move to walls
                     self.previous_moves.append(f"(🚫) There is a wall {cardinal}...")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] == "🔎":
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] == "🔎":
                     self.previous_moves.append(f"(🔎) Investigation Quest Complete!")
                     x, y = self.quest_giver_position
-                    self.map[x][y] = f"🗝️"
+                    self._player.map['map'][x][y] = f"🗝️"
                     if self.mission_type == "INVESTIGATION":
                         await self.increment_mission_count(ctx, private_channel)
                     self.has_quest = False
-                    await self.rpg_action_handler(ctx, private_channel, self.player_position, "🃏", (new_x, new_y), direction)
-                    self.map[new_x][new_y] = f"{self.standing_on}"
-                elif self.map[new_x][new_y] in self.looted_trees:  # Can't move to looted trees
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a looted tree {cardinal}...if I had an Axe....")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.trees:  # Can't move to trees
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a tree {cardinal}...Try checking it out?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.resources:  # Can't move to resources
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a resource {cardinal}...maybe you can mine it?")
-                elif self.map[new_x][new_y] in self.moving_water:  # Can't move to water
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is moving water {cardinal}...wish I had a bridge...")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.grave:  # Can't move to grave
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a grave {cardinal}...maybe you can dig it?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.buildings:  # Can't move to buildings
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a building {cardinal}...maybe you can enter it?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.cars:  # Can't move to cars
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a car {cardinal}...maybe you can drive it?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.still_water:  # Can't move to water
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is still water {cardinal}...wish I had a bridge...or a pole?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] == "🎃":
+                    await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🃏", (new_x, new_y), direction)
+                    self._player.map['map'][new_x][new_y] = f"{self._player.standing_on}"
+                elif self._player.map['map'][new_x][new_y] in self.looted_trees:  # Can't move to looted trees
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a looted tree {cardinal}...if I had an Axe....")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.trees:  # Can't move to trees
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a tree {cardinal}...Try checking it out?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.resources:  # Can't move to resources
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a resource {cardinal}...maybe you can mine it?")
+                elif self._player.map['map'][new_x][new_y] in self.moving_water:  # Can't move to water
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is moving water {cardinal}...wish I had a bridge...")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.grave:  # Can't move to grave
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a grave {cardinal}...maybe you can dig it?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.buildings:  # Can't move to buildings
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a building {cardinal}...maybe you can enter it?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.cars:  # Can't move to cars
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a car {cardinal}...maybe you can drive it?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.still_water:  # Can't move to water
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is still water {cardinal}...wish I had a bridge...or a pole?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] == "🎃":
                     self.previous_moves.append(f"(🎃) You found a pumpkin {cardinal}! Spooky!")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.merchants:  # Can't move to merchants
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a merchant {cardinal}...maybe you can buy something?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.wildlife:  # Can't move to wildlife
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a wildlife {cardinal}...maybe you can hunt it?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.doors:  # Can't move to doors
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a door {cardinal}...maybe you can open it?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.keys:  # Can't move to keys
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a key {cardinal}...maybe you can pick it up?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.items:  # Can't move to items
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is an item {cardinal}...maybe you can pick it up?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.remains:  # Can't move to remains
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a remains {cardinal}...maybe you can check it out?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.food:  # Can't move to food
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is food {cardinal}...maybe you can pick it up?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.combat_points:  # Can't move to combat points
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a combat point {cardinal}...maybe you can fight?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.mountains:  # Can't move to mountains
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a mountain {cardinal}...maybe there is an area you can climb?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.climable_mountains:  # Can't move to mountains
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a mountain.. I can see some rope! {cardinal}...if only I had climbing gear?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.bridges:  # Can't move to bridges
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a bridge {cardinal}...maybe you can cross it?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in self.civ_tokens:  # Can't move to civilians
-                    self.previous_moves.append(f"({self.map[new_x][new_y]}) There is a civilian {cardinal}...maybe you can talk to them?")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in crown_utilities.rpg_npc_emojis:
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.merchants:  # Can't move to merchants
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a merchant {cardinal}...maybe you can buy something?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.wildlife:  # Can't move to wildlife
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a wildlife {cardinal}...maybe you can hunt it?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.doors:  # Can't move to doors
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a door {cardinal}...maybe you can open it?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.keys:  # Can't move to keys
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a key {cardinal}...maybe you can pick it up?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.items:  # Can't move to items
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is an item {cardinal}...maybe you can pick it up?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.remains:  # Can't move to remains
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a remains {cardinal}...maybe you can check it out?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.food:  # Can't move to food
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is food {cardinal}...maybe you can pick it up?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.combat_points:  # Can't move to combat points
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a combat point {cardinal}...maybe you can fight?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.mountains:  # Can't move to mountains
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a mountain {cardinal}...maybe there is an area you can climb?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.climable_mountains:  # Can't move to mountains
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a mountain.. I can see some rope! {cardinal}...if only I had climbing gear?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.bridges:  # Can't move to bridges
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a bridge {cardinal}...maybe you can cross it?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in self.civ_tokens:  # Can't move to civilians
+                    self.previous_moves.append(f"({self._player.map['map'][new_x][new_y]}) There is a civilian {cardinal}...maybe you can talk to them?")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in crown_utilities.rpg_npc_emojis:
                     encountered_player = self.check_for_other_players(new_x, new_y)
                     if encountered_player:
                         print(f"You encountered {encountered_player}!")
-                    self.previous_moves.append(f"(👻) There is a {crown_utilities.rpg_npc[self.map[new_x][new_y]]} {cardinal}.")
-                    self.player_position = self.player_position
-                elif self.map[new_x][new_y] in interaction_points:
-                    self.previous_moves.append(f"(🔍) You found a {self.map[new_x][new_y]} {cardinal}!")
-                    self.player_position = self.player_position
+                    self.previous_moves.append(f"(👻) There is a {crown_utilities.rpg_npc[self._player.map['map'][new_x][new_y]]} {cardinal}.")
+                    self._player.player_position = self._player.player_position
+                elif self._player.map['map'][new_x][new_y] in interaction_points:
+                    self.previous_moves.append(f"(🔍) You found a {self._player.map['map'][new_x][new_y]} {cardinal}!")
+                    self._player.player_position = self._player.player_position
                 elif not player_action:
-                    self.previous_moves.append(f"(👁️‍🗨️) There is a {self.map[new_x][new_y]} {cardinal}.")
-                    self.player_position = self.player_position
+                    self.previous_moves.append(f"(👁️‍🗨️) There is a {self._player.map['map'][new_x][new_y]} {cardinal}.")
+                    self._player.player_position = self._player.player_position
                 elif player_action and not player_moved:
                     return
                 else:
                     self.previous_moves.append("Create action for this interaction!")
-                if self.map[new_x][new_y] not in self.open_door:
+                if self._player.map['map'][new_x][new_y] not in self.open_door:
                     await self.get_player_sorroundings()
 
         if player_warped:
             await self.handle_warp_movement(ctx, int(direction)-5)
             await self.get_player_sorroundings()
-            relative_direction = self.get_relative_direction(self.player_position,self.warp_point_position)
-            await self.rpg_action_handler(ctx, ctx.channel, self.player_position, self.warp_target_type, self.warp_point_position, relative_direction)
+            relative_direction = self.get_relative_direction(self._player.player_position,self.warp_point_position)
+            await self.rpg_action_handler(ctx, ctx.channel, self._player.player_position, self.warp_target_type, self.warp_point_position, relative_direction)
             self.warp_active = False
 
 
     async def get_player_sorroundings(self, new_map = False):
-        x, y = self.player_position
-        self.above_position = self.map[x-1][y] if x-1 >= 0 else None
-        self.below_position = self.map[x+1][y] if x+1 <= len(self._player.map["map"]) - 1 else None
-        self.left_position = self.map[x][y-1] if y-1 >= 0 else None
-        self.right_position = self.map[x][y+1] if y+1 <= len(self.map[0]) - 1 else None
+        x, y = self._player.player_position
+        self.above_position = self._player.map['map'][x-1][y] if x-1 >= 0 else None
+        self.below_position = self._player.map['map'][x+1][y] if x+1 <= len(self._player.map['map']) - 1 else None
+        self.left_position = self._player.map['map'][x][y-1] if y-1 >= 0 else None
+        self.right_position = self._player.map['map'][x][y+1] if y+1 <= len(self._player.map['map'][0]) - 1 else None
     
     #movement
     def get_map_message(self):
@@ -1506,7 +1489,7 @@ class RPG:
         
             #Add Warp Buttons
             if self.warp_active:
-                warp_points = self.get_closest_warp_points(self.player_position)
+                warp_points = self.get_closest_warp_points(self._player.player_position)
                 for i, point in enumerate(warp_points):
                     v_label=f"{point['type']}{emoji_labels[point['type']]}"
                     if point['type'] in self.rpg_npc:
@@ -1597,7 +1580,7 @@ class RPG:
                 skill_message += f"|{skill}"
         rpg_map_embed = self.get_map_message()
         
-        embedVar = Embed(title=f"[🌎]Exploring: {self._player.map["map_name"]}",description=f"**[🗺️]** *{self.map_area}*", color=0xFFD700)
+        embedVar = Embed(title=f"[🌎]Exploring: {self._player.map['map_name']}",description=f"**[🗺️]** *{self.map_area}*", color=0xFFD700)
         print(self.mission_message)
         embedVar.set_author(name=f"Level {self.map_level} Adventure - 🎖️{self.mission_message} ({self.mission_count}/{self.mission_requirements})", icon_url=f"{self.player1.avatar}")
         
@@ -1615,7 +1598,7 @@ class RPG:
         #         self.player1_card_name,
         #         self.universe,
         #         self.last_move,
-        #         self.standing_on,
+        #         self._player.standing_on,
         #         self._player.map["map_name"],
         #         get_emoji_label(self.above_position),
         #         get_emoji_label(self.below_position),
@@ -1636,7 +1619,7 @@ class RPG:
         #     embedVar.add_field(name=f"**[💭]{self.player1_card_name}'s Thoughts**", value=f"*{ai_area_msg}*", inline=False)
         #     self.last_thought = ai_area_msg
 
-        embedVar.add_field(name=f"[{self.player_token}]My Player Token\n[❤️]{self.player_health:,} HP", value=f"**[{self.standing_on}]** *Standing On {get_ground_type(self.standing_on)}*\n{rpg_map_embed}", inline=False)
+        embedVar.add_field(name=f"[{self.player_token}]My Player Token\n[❤️]{self.player_health:,} HP", value=f"**[{self.standing_on}]** *Standing On {get_ground_type(self._player.standing_on)}*\n{rpg_map_embed}", inline=False)
         # embedVar.set_thumbnail(url=self.player_card_image)
         embedVar.set_footer(text=self.get_previous_moves_embed() or "No previous moves")
 
@@ -1733,7 +1716,7 @@ class RPG:
                 if self.mission_type == "COLLECT_GOLD":
                     await self.increment_mission_count(ctx, private_channel)
                 if not self.loot_drop:
-                    self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}" #upadte map with new position
+                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}" #upadte map with new position
                 self.loot_drop = False
             elif npc in self.drops:
                 success = None
@@ -1783,7 +1766,7 @@ class RPG:
                 self.previous_moves.append(f"({npc}) You encountered a {emoji_labels[npc]}!")
                 if random_number <= 33:
                     self.previous_moves.append(f"({npc}) The {emoji_labels[npc]} ran off...")
-                    self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
+                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
                 elif random_number <= 75:
                     #You successfully hunt the animal and gain some food
                     self.previous_moves.append(f"({npc}) You successfully hunt the {emoji_labels[npc]}!")
@@ -1813,7 +1796,7 @@ class RPG:
                     self.previous_moves.append(f"(☠️) You found a skeleton!")
                     await self.rpg_action_handler(ctx, private_channel, player_position, "🃏", npc_position, direction)
                     #find book and learn skill
-                self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
+                self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
             elif npc in self.food:
                 health_msg = ""
                 if npc == "🥩":
@@ -1850,7 +1833,7 @@ class RPG:
                     #         break
                     # if not food_found:
                     #     self.player_inventory.append({'ITEM': npc, 'USE': 1})
-                self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
+                self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
             elif npc in self.keys:
                 self.previous_moves.append(f"(🗝️) You found a key!")
                 key_found = False
@@ -1861,7 +1844,7 @@ class RPG:
                         break
                 if not key_found:
                     self.player_inventory.append({'ITEM': npc, 'USE': 1})
-                self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
+                self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
             elif npc in self.doors:
                 for item in self.player_inventory:
                     if item['ITEM'] == "🗝️":
@@ -1870,7 +1853,7 @@ class RPG:
                             item['USE'] -= 1
                             if item['USE'] <= 0:
                                 self.player_inventory.remove(item)
-                            self.map[npc_position[0]][npc_position[1]] = f"{self.open_door}"
+                            self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self.open_door}"
                         break
                 else:
                     self.previous_moves.append(f"(🚪) You need a key to unlock this door!")
@@ -1887,7 +1870,7 @@ class RPG:
                     self.previous_moves.append(f"(🟦) You can't swim yet...If only you had a pole??")
             elif npc in self.trees:
                 self.previous_moves.append(f"({npc}) You searched a tree!")
-                if self.map[npc_position[0]][npc_position[1]] in self.looted_trees:
+                if self._player.map['map'][npc_position[0]][npc_position[1]] in self.looted_trees:
                     self.previous_moves.append(f"({npc}) This tree has been looted...if only you had an axe...")
                 elif random.random() < 0.33:  # 50% chance
                     random_item = random.choice(self.items)
@@ -1912,10 +1895,10 @@ class RPG:
                         self.remove_combatant()
                         self.previous_moves.append(f"({npc}) You loot the body!")
                         await self.rpg_action_handler(ctx, private_channel, player_position, "👛", npc_position, direction)
-                self.map[npc_position[0]][npc_position[1]] = f"🌴"
+                self._player.map['map'][npc_position[0]][npc_position[1]] = f"🌴"
             elif npc in self.cactus:
                 self.previous_moves.append(f"({npc}) You searched a cactus!")
-                if self.map[npc_position[0]][npc_position[1]] in self.looted_cactus:
+                if self._player.map['map'][npc_position[0]][npc_position[1]] in self.looted_cactus:
                     self.previous_moves.append(f"({npc}) This cactus has been looted...if only you had a knife...")
                 elif random.random() < 0.33:  # 50% chance
                     random_item = random.choice(self.items)
@@ -1939,7 +1922,7 @@ class RPG:
                         await self.rpg_action_handler(ctx, private_channel, player_position, "🎰", npc_position, direction)
                     else:
                         self.previous_moves.append(f"({npc}) You found nothing...")
-                    self.map[npc_position[0]][npc_position[1]] = f"{self.looted_mountain}"
+                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self.looted_mountain}"
                 else:
                     self.previous_moves.append(f"({npc}) You can't climb the mountain...if only you had climbing gear...")
             elif npc in self.mountains:
@@ -1965,7 +1948,7 @@ class RPG:
                     # if not self.miner:
                     #     self.miner = True
                     #     self.previous_moves.append(f"You gained the Miner Skill! [⛏️]")
-                    self.map[npc_position[0]][npc_position[1]] = f"{self.standing_on}"
+                    self._player.map['map'][npc_position[0]][npc_position[1]] = f"{self._player.standing_on}"
                 else:
                     self.previous_moves.append(f"({npc}) Inspecting the stone you found a ⛏️Pickaxe!")
                     self.pickaxe = True
@@ -1982,9 +1965,9 @@ class RPG:
             self.has_investigation = False
             x, y = self.quest_giver_position
             new_x, new_y = npc_position
-            self.map[x][y] = f"🗝️"
-            await self.rpg_action_handler(ctx, private_channel, self.player_position, "🃏", (new_x, new_y), direction)
-            self.map[new_x][new_y] = f"{self.standing_on}"
+            self._player.map['map'][x][y] = f"🗝️"
+            await self.rpg_action_handler(ctx, private_channel, self._player.player_position, "🃏", (new_x, new_y), direction)
+            self._player.map['map'][new_x][new_y] = f"{self._player._player.standing_on}"
         elif npc in self.loot_rolls:#if not interactino then loot roll or combats
             if npc == "🎲":
                 roll = random.randint(1, 6)
@@ -2067,7 +2050,7 @@ class RPG:
             else:
                 await self.create_rpg_battle(ctx, private_channel)
             if (npc == "⚔️" or npc == "🆚") and self.combat_victory:
-                self.map[npc_position[0]][npc_position[1]] = f"💀"
+                self._player.map['map'][npc_position[0]][npc_position[1]] = f"💀"
         else:
             await self.encounter_handler(ctx, private_channel, npc, npc_position)
         
@@ -2139,14 +2122,14 @@ class RPG:
                     self.battling = False
                     self.encounter = False
                     await self.open_shop(ctx, private_channel, '🧙')
-                    self.map[x][y] = f"{self.standing_on}"
+                    self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 elif random_number <= 60:
                     self.previous_moves.append(f"(🎁) They have a gift for you!")
                     embedVar.add_field(name=f"[🎁)] They have a gift for you!", value=f"Check out your new stuff!")
                     self.battling = False
                     self.encounter = False
                     await self.rpg_action_handler(ctx, private_channel, self.player_position, "🎁", npc_position)
-                    self.map[x][y] = f"{self.standing_on}"
+                    self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 elif random_number <= 80:
                     if not self.has_quest:
                         self.previous_moves.append(f"(🗺️) They have a quest for you!")
@@ -2165,7 +2148,7 @@ class RPG:
                     self.battling = False
                     self.encounter = False
                     await self.rpg_action_handler(ctx, private_channel, self.player_position, "🎰", npc_position)
-                    self.map[x][y] = f"{self.standing_on}"
+                    self._player.map['map'][x][y] = f"{self._player.standing_on}"
                 talk_msg = await private_channel.send(embed=embedVar)
                 await talk_msg.delete(delay=3)
             
@@ -2422,16 +2405,16 @@ class RPG:
             self.has_investigation = True
         # Ensure the quest marker is placed on a passable space
         while True:
-            quest_location = (random.randint(0, len(self._player.map["map"]) - 1), random.randint(0, len(self.map[0]) - 1))
-            if self.map[quest_location[0]][quest_location[1]] in self.passable_points:
+            quest_location = (random.randint(0, len(self._player.map['map']) - 1), random.randint(0, len(self._player.map['map'][0]) - 1))
+            if self._player.map['map'][quest_location[0]][quest_location[1]] in self.passable_points:
                 break
         
         self.quest_giver_position = npc_position
-        self.map[quest_location[0]][quest_location[1]] = f"{quest_options}"  # Example quest marker
+        self._player.map['map'][quest_location[0]][quest_location[1]] = f"{quest_options}"  # Example quest marker
         #quest_msg = await private_channel.send(embed=quest_embed)
         #await quest_msg.delete(3)
         self.previous_moves.append(f"({self.my_quest}) {q_type} Quest marker placed at {quest_location}!")
-        self.quest_message_list.append(f"({self.my_quest}) {q_type} Quest marker placed at {quest_location} on {self._player.map["map_name"]}!")
+        self.quest_message_list.append(f"({self.my_quest}) {q_type} Quest marker placed at {quest_location} on {self._player.map['map_name']}!")
 
     
     async def trigger_failed_talk(self, ctx, private_channel, npc):
@@ -2538,7 +2521,7 @@ class RPG:
                         talking_button_ctx = await self.bot.wait_for_component(components=[encounter_buttons_action_row], timeout=300, check=check)
                         await talking_button_ctx.ctx.defer(edit_origin=True)
                         if talking_button_ctx.ctx.custom_id == f"{self._talking_uuid}|A":
-                            self.map[x][y] = f"{self.standing_on}"
+                            self._player.map['map'][x][y] = f"{self._player.standing_on}"
                             if not dialogue_option["dialogue_options"][0]["fight"]:
                                 # await msg.edit(components=[])
                                 # await self.increment_mission_count(ctx, private_channel)
@@ -2552,7 +2535,7 @@ class RPG:
                                 await talk_msg.delete()
                                 await BattleConfig.create_rpg_battle(self, ctx, battle)
                         if talking_button_ctx.ctx.custom_id == f"{self._talking_uuid}|B":
-                            self.map[x][y] = f"{self.standing_on}"
+                            self._player.map['map'][x][y] = f"{self._player.standing_on}"
 
                             if not dialogue_option["dialogue_options"][1]["fight"]:
                                 # await self.increment_mission_count(ctx, private_channel)
@@ -2568,7 +2551,7 @@ class RPG:
                                 await talk_msg.delete()
                                 await BattleConfig.create_rpg_battle(self, ctx, battle)
                         if talking_button_ctx.ctx.custom_id == f"{self._talking_uuid}|C":
-                            self.map[x][y] = f"{self.standing_on}"
+                            self._player.map['map'][x][y] = f"{self._player.standing_on}"
                             if not dialogue_option["dialogue_options"][2]["fight"]:
                                 # await self.increment_mission_count(ctx, private_channel)
                                 # await msg.edit(components=[])
@@ -2624,15 +2607,15 @@ class RPG:
         dynamic_emojis = ["🦌", "👻", "🐍", "🦂", "🚗", "🌿","🦊", "🦇"]  # Add or remove emojis as needed
         movement_chance = 0.5  # 50% chance to move, adjust as needed
 
-        for i in range(len(self._player.map["map"])):
-            for j in range(len(self.map[i])):
-                if self.map[i][j] in dynamic_emojis:
+        for i in range(len(self._player.map['map'])):
+            for j in range(len(self._player.map['map'][i])):
+                if self._player.map['map'][i][j] in dynamic_emojis:
                     if random.random() < movement_chance:
                         await self.move_single_emoji(ctx, private_channel, (i, j), player_position)
 
     async def move_single_emoji(self, ctx, private_channel, emoji_position, player_position):
         x, y = emoji_position
-        emoji = self.map[x][y]
+        emoji = self._player.map['map'][x][y]
 
         # Define possible directions
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
@@ -2640,11 +2623,11 @@ class RPG:
 
         for dx, dy in directions:
             new_x, new_y = x + dx, y + dy
-            if (0 <= new_x < len(self._player.map["map"]) and 0 <= new_y < len(self.map[0]) and
-                self.map[new_x][new_y] == self.standing_on):
+            if (0 <= new_x < len(self._player.map['map']) and 0 <= new_y < len(self._player.map['map'][0]) and
+                self._player.map['map'][new_x][new_y] == self._player.standing_on):
                 # Move the emoji
-                self.map[x][y] = self.standing_on
-                self.map[new_x][new_y] = emoji
+                self._player.map['map'][x][y] = self._player.standing_on
+                self._player.map['map'][new_x][new_y] = emoji
 
                 # Check if the emoji moved adjacent to the player
                 # if abs(new_x - player_position[0]) <= 1 and abs(new_y - player_position[1]) <= 1:
@@ -2676,9 +2659,9 @@ class RPG:
             new_position = self.find_nearest_reachable_position(warp_point_position)
             print("Adjusted new_position", new_position)
 
-        self.map[self.player_position[0]][self.player_position[1]] = self.standing_on
-        self.standing_on = self.map[new_position[0]][new_position[1]]
-        self.map[new_position[0]][new_position[1]] = self.player_token
+        self._player.map['map'][self._player.player_position[0]][self._player.player_position[1]] = self._player.standing_on
+        self._player.standing_on = self._player.map['map'][new_position[0]][new_position[1]]
+        self._player.map['map'][new_position[0]][new_position[1]] = self.player_token
         self.player_position = new_position
         self.warp_target_type = warp_target['type']
         self.previous_moves.append(f"Warped to the {warp_target['type']}{get_emoji_label(warp_target['type'])}!")
@@ -2691,8 +2674,8 @@ class RPG:
     def is_reachable_without_bridge_or_water(self, start, goal):
         from collections import deque
 
-        rows = len(self._player.map["map"])
-        cols = len(self.map[0])
+        rows = len(self._player.map['map'])
+        cols = len(self._player.map['map'][0])
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
 
         queue = deque([start])
@@ -2709,7 +2692,7 @@ class RPG:
                 nx, ny = x + dx, y + dy
                 
                 if 0 <= nx < rows and 0 <= ny < cols and (nx, ny) not in visited:
-                    if self.map[nx][ny] not in self.bridges and self.map[nx][ny] not in self.still_water and self.map[nx][ny] not in self.walls:  # Exclude bridges, water, and walls
+                    if self._player.map['map'][nx][ny] not in self.bridges and self._player.map['map'][nx][ny] not in self.still_water and self._player.map['map'][nx][ny] not in self.walls:  # Exclude bridges, water, and walls
                         queue.append((nx, ny))
                         visited.add((nx, ny))
 
@@ -2719,8 +2702,8 @@ class RPG:
     def is_bridge_directly_accessible(self, start, bridge_position):
         from collections import deque
 
-        rows = len(self._player.map["map"])
-        cols = len(self.map[0])
+        rows = len(self._player.map['map'])
+        cols = len(self._player.map['map'][0])
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
 
         queue = deque([start])
@@ -2737,7 +2720,7 @@ class RPG:
                 nx, ny = x + dx, y + dy
                 
                 if 0 <= nx < rows and 0 <= ny < cols and (nx, ny) not in visited:
-                    if self.map[nx][ny] not in self.still_water and self.map[nx][ny] not in self.walls:  # Allow bridges
+                    if self._player.map['map'][nx][ny] not in self.still_water and self._player.map['map'][nx][ny] not in self.walls:  # Allow bridges
                         queue.append((nx, ny))
                         visited.add((nx, ny))
 
@@ -2802,7 +2785,7 @@ class RPG:
             new_position = (npc_position[0], npc_position[1] + 1)
 
         if crossed:
-            original_tile = self.map[new_position[0]][new_position[1]]
+            original_tile = self._player.map['map'][new_position[0]][new_position[1]]
             if original_tile in self.quest:
                 if original_tile == "🔎":
                     self.previous_moves.append(f"(🔎) You found a hidden path....")
@@ -2827,10 +2810,10 @@ class RPG:
                         self.previous_moves.append(f"(🎯) Target Escaped!")
                         self.quest_message_list.append(f"🎯 Target Escaped")
                         return
-            self.map[new_position[0]][new_position[1]] = f"{self.player_token}"
-            self.map[x][y] = f"{self.standing_on}"
+            self._player.map['map'][new_position[0]][new_position[1]] = f"{self.player_token}"
+            self._player.map['map'][x][y] = f"{self._player.standing_on}"
             self.player_position = new_position
-            self.standing_on = original_tile  # Update the standing_on to the original tile color
+            self._player.standing_on = original_tile  # Update the standing_on to the original tile color
 
             # Update bridge state
             if npc in self.bridges:
@@ -2843,9 +2826,9 @@ class RPG:
         seen_positions = set()
 
         for warp in self.warp_points:
-            for i in range(len(self._player.map["map"])):
-                for j in range(len(self.map[i])):
-                    if self.map[i][j] == warp:
+            for i in range(len(self._player.map['map'])):
+                for j in range(len(self._player.map['map'][i])):
+                    if self._player.map['map'][i][j] == warp:
                         distance = abs(cx - i) + abs(cy - j)
                         if self.is_reachable_without_bridge_or_water(current_position, (i, j)):
                             position_tuple = (i, j)
@@ -2854,12 +2837,12 @@ class RPG:
                                 seen_positions.add(position_tuple)
 
         bridges = []
-        for i in range(len(self._player.map["map"])):
-            for j in range(len(self.map[i])):
-                if self.map[i][j] in self.bridges:
+        for i in range(len(self._player.map['map'])):
+            for j in range(len(self._player.map['map'][i])):
+                if self._player.map['map'][i][j] in self.bridges:
                     distance = abs(cx - i) + abs(cy - j)
                     if self.is_bridge_directly_accessible(current_position, (i, j)):
-                        bridges.append({'position': (i, j), 'type': self.map[i][j], 'distance': distance})
+                        bridges.append({'position': (i, j), 'type': self._player.map['map'][i][j], 'distance': distance})
 
         bridges.sort(key=lambda x: x['distance'])
 
@@ -2881,14 +2864,14 @@ class RPG:
 
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < len(self._player.map["map"]) and 0 <= ny < len(self.map[0]):
-                if self.map[nx][ny] in self.passable_points:
+            if 0 <= nx < len(self._player.map['map']) and 0 <= ny < len(self._player.map['map'][0]):
+                if self._player.map['map'][nx][ny] in self.passable_points:
                     return (nx, ny)
-                elif self.map[nx][ny] in self.bridges:
+                elif self._player.map['map'][nx][ny] in self.bridges:
                     # Ensure to return the accessible side of the bridge
                     for ddx, ddy in directions:
                         nnx, nny = nx + ddx, ny + ddy
-                        if 0 <= nnx < len(self._player.map["map"]) and 0 <= nny < len(self.map[0]) and self.map[nnx][nny] in self.passable_points:
+                        if 0 <= nnx < len(self._player.map['map']) and 0 <= nny < len(self._player.map['map'][0]) and self._player.map['map'][nnx][nny] in self.passable_points:
                             # Check if the initial position is directly accessible to the bridge
                             if self.is_bridge_directly_accessible((x, y), (nx, ny)):
                                 return (nx, ny)
@@ -2900,8 +2883,8 @@ class RPG:
     def find_nearest_reachable_position(self, start):
         from collections import deque
 
-        rows = len(self._player.map["map"])
-        cols = len(self.map[0])
+        rows = len(self._player.map['map'])
+        cols = len(self._player.map['map'][0])
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
 
         queue = deque([start])
@@ -2915,7 +2898,7 @@ class RPG:
                 nx, ny = x + dx, y + dy
 
                 if 0 <= nx < rows and 0 <= ny < cols and (nx, ny) not in visited:
-                    if self.map[nx][ny] in self.passable_points:
+                    if self._player.map['map'][nx][ny] in self.passable_points:
                         if self.is_reachable_without_bridge_or_water(self.player_position, (nx, ny)):
                             return (nx, ny)
 
@@ -3053,7 +3036,7 @@ class RPG:
         buildEmbed.set_footer(text="🗺️ Adventure Map on the next page!")
 
 
-        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self._player.map["map_name"]}*\n**🗺️** | *{self.map_area}*\n{self.get_map_message()}", color=0xFFD700)
+        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self._player.map['map_name']}*\n**🗺️** | *{self.map_area}*\n{self.get_map_message()}", color=0xFFD700)
         map_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
 
         quest_embed = Embed(title=f"🔍Adventure Mission Progress...", description="*Your Mission & Quest progress will be shown below*", color=0xFFD700)
@@ -3127,7 +3110,7 @@ class RPG:
         buildEmbed.set_footer(text="🗺️ Adventure Map on the next page!")
 
 
-        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self._player.map["map_name"]}*\n**🗺️** | *{self.map_area}*\n{self.get_map_message()}", color=0xFFD700)
+        map_embed = Embed(title=f"🗺️ Adventure Log", description=f"**🌎** | *{self._player.map['map_name']}*\n**🗺️** | *{self.map_area}*\n{self.get_map_message()}", color=0xFFD700)
         map_embed.set_footer(text=f"{self.get_previous_moves_embed()}")
 
         quest_embed = Embed(title=f"🔍Adventure Mission Progress!", description="🏆 You have completed your adventure! 🏆\n*Your Mission & Quests progress will be shown below*", color=0xFFD700)

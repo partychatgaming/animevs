@@ -440,7 +440,7 @@ class Play(Extension):
             custom_logging.debug(ex)
 
 
-    async def rpg_commands(self, ctx, rpg_config, rpg_starter_message):
+    async def rpg_commands(self, ctx, rpg_starter_message):
         """
         Handles the logic for an RPG game in the game.
 
@@ -453,6 +453,7 @@ class Play(Extension):
         None
         """
         private_channel = ctx.channel
+        rpg_config = self
         try:
             rpg_config._uuid = uuid.uuid4()
             if not hasattr(self, 'bot'):
