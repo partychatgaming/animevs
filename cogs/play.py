@@ -407,12 +407,16 @@ class Play(Extension):
                                 battle_config.rpg_config.player_health = round(battle_config.player1_card.health)
                                 x,y = battle_config.rpg_config.player_position
                                 if battle_config.rpg_config.player_health <= 0:
-                                    battle_config.rpg_config.map[x][y] = battle_config.rpg_config.standing_on
+                                    #battle_config.rpg_config.map['map'][x][y] = battle_config.rpg_config.standing_on
                                     paginator = await battle_config.rpg_config.lose_adventure_embed(ctx)
                                     await paginator.send(ctx)
                                     await battle_msg.delete()
                                     await battle_config.rpg_config._rpg_msg.delete()
                                     self.previous_moves.append(f"💨Fleeing Encounter...!")
+                                    return
+                                embedVar = Embed(title=f"🆚 Encounter Victory", color=0x2ECC71)
+                                victory_msg = await private_channel.send(embed=embedVar)
+                                await victory_msg.delete(delay=5)
                             else:
                                 await gs.you_lose_non_pvp(self, battle_config, private_channel, battle_msg, gameClock, user1, user2=None)
 
@@ -668,8 +672,8 @@ async def timeout_handler(self, ctx, battle_msg, battle_config):
     battle_config.continue_fighting = False
     await battle_msg.delete()
     if battle_config.is_rpg:
-        x, y = battle_config.player_position
-        battle_config.map[x][y] = battle_config.standing_on
+        x, y = battle_config._player.player_position
+        battle_config._player.map['map'][x][y] = battle_config._player.standing_on
         close_embded = await ctx.send(embed = battle_config.close_rpg_embed())
         await close_embded.delete(delay=3)
         await battle_config.leave_adventure_embed(ctx)

@@ -14,12 +14,12 @@ __Account Management__
 PVE_MODES = textwrap.dedent(f"""\
 __PVP Commands__
 **/play** - Battle through a variety of PVE modes
-**/explore** - Toggle Explore mode                           
+**/explore** - Toggle Explore mode (Change Explore/Adventure Universe)                          
 
 __PVE Game Modes__
 **🆘 The Tutorial** - Learn Anime VS+ battle system
 **⚡ Randomize** - Select and start a Random Game Mode Below
-**🗺️ Adventure** - Enter a 2D universe to battle, loot and more
+**🗺️ Adventure** - Enter a 2D universe to battle, loot and more 
 **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
 **👺 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
 **📽️ Scenario** - Battle through unique scenarios to earn Cards and Moves

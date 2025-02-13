@@ -646,7 +646,7 @@ async def animevs(ctx):
       embedVar3.set_thumbnail(url=avatar)
 
       embedVar3_s = Embed(title=f"Card Stats", description=textwrap.dedent(f"""\
-      __Card Stats__                                                          
+      __Card Stats__                                                       
       - [HP]**Health: When your health reaches 0 you lose
       - [ST]**Stamina:** Used to perform attacks and skills
       - [ATK]**Attack:** Increases damage dealt
@@ -855,11 +855,12 @@ async def animevs(ctx):
       __PVE Game Modes__
       **🆘 The Tutorial** - Learn Anime VS+ battle system
       **⚡ Randomize** - Select and start a Random Game Mode Below
+      **🗺️ Adventure** - /Explore through the multiverse in a map-based RPG mode
       **⚔️ Tales** - Normal battle mode to earn cards, accessories and more
       **👺 Dungeon** - Hard battle mode to earn dungeon cards, dungeon accessories, and more
       **📽️ Scenario** - Battle through unique scenarios to earn Cards and Moves
       **💀 Raid** - Battle through High Level scenarios to earn Mythical Cards and Moves
-      **🌌 Explore** - Random Encounter battles to earn rare cards and major rewards
+      **🌌 Explore** - Random Encounter battles to earn rare cards and major rewards (Explore Determines your Adventure Universe!)
       
       __PVP Game Modes__
       **/pvp** - Battle a rival in PVP mode
@@ -873,7 +874,7 @@ async def animevs(ctx):
       embedVar9 = Embed(title=f"Presets",description=textwrap.dedent(f"""\
       Save your favorite builds in your **Preset**
       **/menu** tselect **View Preset** option, select a preset with **1-5**
-      *Select **Save Preset** to save a new Build!
+      Select **Save Preset** to save a new Build!
       
       **Preset Builds**
       You can bring your preset builds into Duo Battles!
